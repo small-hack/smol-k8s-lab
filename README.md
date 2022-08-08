@@ -1,15 +1,24 @@
 # k8s Homelab
-Under construction, but this is where I'll throw some local k8s testing tooling.
+
+Under construction, but this is where we'll throw some local k8s (kubernetes) testing tools. Currently supported k8s distros, biasing towards small and quick distros:
+- [k3s](https://k3s.io/) (in progress - beta)
+- [KinD](https://kind.sigs.k8s.io/) (in progress - alpha)
+- [k0s](https://k0sproject.io/) (coming soon)
+
+# Quickstart
 
 #### Pre-Req
-- Install [k9s](https://k9scli.io/topics/install/) to monitor the cluster.
+
+- Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 - Have internet access.
 
-## K3s Quickstart
+## K3s
+
 All the scripts in this repo should work with the `.env` file in the same directory.
 You can copy the `.env_sample` and edit the default values to save some time.
 
 Currently only testing on k3s in the base directory of this repo, but you can run it like this (you probably want to change my default values, but maybe you're a cool admin for dogs too):
+
 ```bash
 # exports can also be set in .env file
 export EMAIL="youremail@coolemailfordogs.com"
@@ -22,6 +31,7 @@ cd k3s/ && ./quick-start-k3s.sh
 
 ### Port Forwarding
 This would forward your app, running on port 80 to 8080 locally, so you can go to http://127.0.0.1:8080/ in your browser
+
 ```bash
 kubectl port-forward $POD_NAME 80:8080
 ```
@@ -29,11 +39,14 @@ kubectl port-forward $POD_NAME 80:8080
 After this, if you want to access this outside of port forwarding to test, you'll need to make sure your app's ingress is setup correctly and then you'll need to setup your router to port forward 80->80 and 443->443 for your WAN. then setup DNS for your domain if you want the wider internet to access this remotely.
 
 ## SSL
+
 After SSL is working (if it's not, follow the steps in the [cert-manager common error troubleshooting guide](https://cert-manager.io/docs/faq/acme/#common-errors)), you can also change the `letsencrypt-staging` value to `letsencrypt-prod` for any certs you've installed. 
 
 
 ## Remote cluster administration
+
 You can also copy your remote k3s kubeconfig with a little script in `k3s/`:
+
 ```bash
 # remote host name or ip address of the k8s cluster
 export REMOTE_HOST="192.168.20.2"
