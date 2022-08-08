@@ -51,15 +51,14 @@ export REMOTE_USER="cooluser4dogs"
 # Helpful Bits
 - The k3s knowledge here is in this [kauri.io self hosting guide](https://kauri.io/#collections/Build%20your%20very%20own%20self-hosting%20platform%20with%20Raspberry%20Pi%20and%20Kubernetes/%2838%29-install-and-configure-a-kubernetes-cluster-w/) is invaluable. Thank you kauri.io.
 
-- [Guide for S3 storage](https://vitobotta.com/2021/02/15/nextcloud-kubernetes-s3-primary-storage/) used for NextCloud helm `values.yml` config
-
 - This [encrypted secrets in helm charts guide](https://www.thorsten-hans.com/encrypted-secrets-in-helm-charts/) isn't the guide we need, but helm secrets need to be stored somewhere, and vault probably makes sense
 
 # Other Notes
 
-Check out the `optional` directory for notes on specific apps.
+Check out the `optional` directory for notes on specific apps, e.g. for postgres on k8s notes, go to `optional/postgres/README.md`.
 
 ## Prometheus notes
+Coming soon. Below is kinda broken stuff:
 ```bash
 # install the repo and search it
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
