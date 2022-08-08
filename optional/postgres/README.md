@@ -7,3 +7,6 @@ helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 helm install postgres bitnami/postgres --values helm/values.yml
 ```
+
+## Backups with k8up
+This tutorial will also assume you're using k8up for backups of Persistent Volumes and you make sure those are set up properly by following [this guide](https://github.com/jessebot/k8s-backups-tutorial).
