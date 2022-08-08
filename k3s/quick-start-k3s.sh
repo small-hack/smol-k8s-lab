@@ -132,5 +132,5 @@ if [ "$1" == "--no-k9s" ]; then
     echo "We're all done!"
     kubectl get pods -A
 else
-    k9s
+    k9s -A
 fi
