@@ -1,18 +1,20 @@
 #!/bin/bash -
 #===============================================================================
 #
-#         USAGE: ./quick-start-k3s.sh [s3]
+#         USAGE: ./quick-start-k3s.sh
+#          ARGS: --no-k9s - don't start k9s, top 4 kubernetes, at end of script
 #
 #   DESCRIPTION: Quickly install k3s using the following stack on Linux:
 #                k3s (kubernetes distribution), metallb (load balancer),
 #                and cert-manager (automatic SSL)
 #
 #        AUTHOR: jesse, max
-#  ORGANIZATION: jessebot + cloudymax
+#  ORGANIZATION: @jessebot + @cloudymax
 #       CREATED: 04/08/2022 22:24:00
 #
 #===============================================================================
 source .env
+
 # skip install of traefik & servicelb, specify flannel backend
 export INSTALL_K3S_EXEC=" --no-deploy servicelb --no-deploy traefik --flannel-backend host-gw"
 # make the kubeconfig copy-able for later
@@ -125,3 +127,10 @@ EOF
 done
 
 sleep 2
+
+if [ "$1" == "--no-k9s" ]; then
+    echo "We're all done!"
+    kubectl get pods -A
+else
+    k9s
+fi
