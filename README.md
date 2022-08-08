@@ -15,20 +15,49 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 - Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 - Have internet access.
 
-## K3s
+## Choose a k8s distro 
+  
+<details>
+  <summary>K3s - (Best for Linux on metal or a bridged VM)</summary>
 
-All the scripts in this repo should work with the `.env` file in the same directory.
-You can copy the `.env_sample` and edit the default values to save some time.
+  ```bash
+    # this export can also be set in a .env file in the same dir
+    export EMAIL="youremail@coolemailfordogs.com"
 
-Currently only testing on k3s in the base directory of this repo, but you can run it like this (you probably want to change my default values, but maybe you're a cool admin for dogs too):
+    # From the cloned repo dir, This should set up k3s and dependencies
+    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
+    ./k8s_homelab/k3s/quick-start-k3s.sh
+  ```
 
-```bash
-# exports can also be set in .env file
-export EMAIL="youremail@coolemailfordogs.com"
+  #### Ready to clean up this cluster?
+  To delete the whole cluster, the above k3s install also included an uninstall script that should be in your path already:
 
-# This should set up k3s and some dependencies
-cd k3s/ && ./quick-start-k3s.sh
-```
+  ```bash
+    k3s-uninstall.sh
+  ```
+
+</details>
+
+<details>
+  <summary>KinD - (Best path for non-prod testing across linux and macOS)</summary>
+
+  ```bash
+    # this export can also be set in a .env file in the same dir
+    export EMAIL="youremail@coolemailfordogs.com"
+
+    # From the cloned repo dir, This should set up KinD for you
+    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
+    ./k8s_homelab/kind/quick-start-kind.sh
+  ```
+
+  #### Ready to clean up this cluster?
+  To delete the whole cluster, run:
+
+  ```bash
+    kind delete cluster
+  ```
+
+</details>
 
 ## Final Touches
 
