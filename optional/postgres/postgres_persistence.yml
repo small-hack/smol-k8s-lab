@@ -1,0 +1,63 @@
+---
+# secret for a postgres DB with extra user
+apiVersion: v1
+data:
+  postgresPassword: VWNxcjNjeHQyREd2OVZsZGE5NHk=
+  extraUserPassword: Y29vbHNlY3JldHNmb3Jkb2dz
+kind: Secret
+metadata:
+  name: pgsql-credentials
+type: Opaque
+
+---
+# persistent volume
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: psql-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/bitnami"
+
+---
+# persistent volume claim for postgresql specifically to persist
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: psql-pv-claim
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+
+# uncomment everything below for backups to backblaze
+# ---
+# # backblaze b2 bucket app key and app key ID, for restic to back up k8s PVCs
+# apiVersion: v1
+# data:
+#   # update these values to be base64 strings
+#   application-key: cool-application-key-for-dogs
+#   application-key-id: cool-application-key-id-fordogs
+# kind: Secret
+# metadata:
+#   name: k8up-restic-b2-creds-pg
+# type: Opaque
+# ---
+# # for restic's specific encryption, which k8up depends on
+# apiVersion: v1
+# data:
+#   password: Y29vbC1yZXBvLXBhc3N3b3JkLWZvci1kb2dz
+# kind: Secret
+# metadata:
+#   name: k8up-restic-b2-repo-pw
+# type: Opaque
