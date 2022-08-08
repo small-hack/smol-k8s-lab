@@ -57,28 +57,28 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
     kind delete cluster
   ```
 
-  <details>
-    <summary>K0s - (thing max is working on)</summary>
+</details>
 
-    Still being developed, but will probably look something like....
+<details>
+  <summary>K0s - (thing max is working on)</summary>
 
-    ```bash
-      # this export can also be set in a .env file in the same dir
-      export EMAIL="youremail@coolemailfordogs.com"
-  
-      # From the cloned repo dir, This should set up KinD for you
-      # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-      ./k8s_homelab/k0s/quick-start-k0s.sh
-    ```
+  Still being developed, but will probably look something like....
 
-    #### Ready to clean up this cluster?
-    To delete the whole cluster, run:
+  ```bash
+    # this export can also be set in a .env file in the same dir
+    export EMAIL="youremail@coolemailfordogs.com"
+    
+    # From the cloned repo dir, This should set up KinD for you
+    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
+    ./k8s_homelab/k0s/quick-start-k0s.sh
+  ```
 
-    ```bash
-      ???
-    ```
+  #### Ready to clean up this cluster?
+  To delete the whole cluster, run:
 
-  </details>
+  ```bash
+    ???
+  ```
 
 </details>
 
