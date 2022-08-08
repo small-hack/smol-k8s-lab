@@ -1,8 +1,8 @@
-# k8s Homelab
+# K8s Homelab
 
 Under construction, but this is where we'll throw some local k8s (kubernetes) testing tools. Currently supported k8s distros, biasing towards small and quick distros:
 
-|             Distro               | k8s Homelab Status              |
+|             Distro               | K8s Homelab Status              |
 |----------------------------------|---------------------------------|
 |[k3s](https://k3s.io/)            | in progress - beta              |
 |[KinD](https://kind.sigs.k8s.io/) | in progress - alpha             |
@@ -103,14 +103,12 @@ After SSL is working (if it's not, follow the steps in the [cert-manager common 
 You can also copy your remote k3s kubeconfig with a little script in `k3s/`:
 
 ```bash
-# remote host name or ip address of the k8s cluster
+# CHANGE THESE TO YOUR OWN DETAILS or not ¯\_(ツ)_/¯
 export REMOTE_HOST="192.168.20.2"
-# remote port on the host for ssh
 export REMOTE_SSH_PORT="22"
-# username you use to ssh to that host
 export REMOTE_USER="cooluser4dogs"
 
-# this script will totally wipe your kubeconfig :) use with caution
+# this script will totally wipe your kubeconfig :) use with CAUTION
 ./k3s/get-remote-k3s-yaml.sh
 ```
 
@@ -126,18 +124,17 @@ export REMOTE_USER="cooluser4dogs"
 Check out the `optional` directory for notes on specific apps, e.g. for postgres on k8s notes, go to `optional/postgres/README.md`.
 
 ## Prometheus notes
-Coming soon. Below is kinda broken stuff:
+Coming soon. Below is kinda broken stuff, that doesn't lead you anywhere:
 ```bash
 # install the repo and search it
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
-# view the chart details
-helm show chart prometheus-community/kube-prometheus-stack
-helm show chart prometheus-community/kube-state-metrics
+# View the chart details
+helm show chart prometheus-community/prometheus
 
-# installation of important charts
+# Installation of important charts
 helm install prometheus prometheus-community/prometheus
 ```
 
-## installing cmctl, the cli tool for cert-manager
+## Installing cmctl, the cli tool for cert-manager
 You'll need to download the tar ball for your OS [here](https://github.com/cert-manager/cert-manager/releases) and then untar it, and move it into a directory in your `$PATH`. MacOS will fail the first time you run it, and you'll need to go into System Preferences > Security & Privacy > Allow apps downloaded from, to allow an exception.
