@@ -154,7 +154,7 @@ p_echo "helm install prometheus prometheus-community/prometheus --create-namespa
 helm install prometheus prometheus-community/prometheus --create-namespace --namespace prometheus
 
 p_echo "helm install grafana grafana/grafana  -–namespace grafana -–set persistence.enabled=true –-set adminPassword="niceP@ssword4Dog5" --values grafana_values.yml"
-helm install grafana grafana/grafana  -–namespace grafana -–set persistence.enabled=true –-set adminPassword="niceP@ssword4Dog5" --values grafana_values.yml
+helm install grafana grafana/grafana --namespace grafana --values grafana_values.yml
 
 if [ "$1" == "--no-k9s" ]; then
     echo "We're all done!"
