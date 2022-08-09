@@ -50,6 +50,9 @@ cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig
 # change the permissions os that it doesn't complain
 chmod 600 ~/.kube/kubeconfig
 
+# p_echo "kubectl apply -f coredns-configmap.yaml"
+# kubectl apply -f coredns-configmap.yaml
+
 # add/update all relevant helm repos
 p_echo "Add/update helm repos for metallb, ingress-nginx, and cert-manager."
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
@@ -104,7 +107,7 @@ kubectl wait --namespace kube-system \
   --timeout=90s
 
 # Set up cert manager
-p_echo "helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set cert-manager_values.yml"
+p_echo "helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set podDnsPolicy='None' --values cert-manager_values.yml"
 helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set podDnsPolicy="None" --values cert-manager_values.yml
 
 # wait on cert-manager to deploy
