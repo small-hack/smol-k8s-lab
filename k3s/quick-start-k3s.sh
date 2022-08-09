@@ -50,9 +50,6 @@ cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig
 # change the permissions os that it doesn't complain
 chmod 600 ~/.kube/kubeconfig
 
-# p_echo "kubectl apply -f coredns-configmap.yaml"
-# kubectl apply -f coredns-configmap.yaml
-
 # add/update all relevant helm repos
 p_echo "Add/update helm repos for metallb, ingress-nginx, and cert-manager."
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
