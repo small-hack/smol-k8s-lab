@@ -114,3 +114,11 @@ while [ $cert_manager_apply_exit_code -ne 0 ]; do
 EOF
     cert_manager_apply_exit_code=$?
 done
+
+
+if [ "$1" == "--no-k9s" ]; then
+    echo "We're all done!"
+    kubectl get pods -A
+else
+    k9s -A
+fi
