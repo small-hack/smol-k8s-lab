@@ -13,15 +13,33 @@
 #
 #===============================================================================
 source .env
+# extremely simply loading bar
+function simple_loading_bar() {
+    echo ""
+    echo "          "
+    for i in $(seq 1 $1); do
+        echo -n "    ❤︎"
+        echo -n "   ☕"
+        sleep 1
+    done
+    echo ""
+}
+
+# pretty echo so that I don't have ot remember this incantation
+function p_echo() {
+    echo ""
+    echo -e "\033[92m  $1 \033[00m"
+    echo ""
+}
 
 # add/update all relevant helm repos
-echo -e "\033[92m Add/update helm repos for ingress-nginx, and cert-manager.\033[00m"
+p_echo " Add/update helm repos for ingress-nginx, and cert-manager."
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
 # create the cluster
-echo -e "\033[92m Creating kind cluster...\033[00m"
+p_echo " Creating kind cluster..."
 cat <<EOF | kind create cluster --config=-
 kind: Cluster
 apiVersion: kind.x-k8s.io/v1alpha4
@@ -44,31 +62,54 @@ EOF
 
 # KIND only - set up nginx ingress deployment
 echo "deploying nginx ingress controller...."
-echo -e "\033[92m kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml \033[00m"
+p_echo " kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml "
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
 
 # wait on nginx ingress controller to deploy
-echo -e "\033[92m kubectl rollout status deployment/nginx-ingress-ingress-nginx-controller \033[00m"
+p_echo " kubectl rollout status deployment/nginx-ingress-ingress-nginx-controller "
 kubectl rollout status deployment/nginx-ingress-ingress-nginx-controller
 kubectl wait --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s
 
 # Set up cert manager
-echo -e "\033[92m kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml \033[00m"
-kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.9.1/cert-manager.yaml
+p_echo "helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set cert-manager_values.yml"
+helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set podDnsPolicy="None" --values cert-manager_values.yml
 
-cat <<EOF | kubectl apply -f -
-apiVersion: cert-manager.io/v1alpha2
-kind: ClusterIssuer
-metadata:
-  name: letsencrypt-prod
-spec:
-  acme:
-    email: $EMAIL
-    server: https://acme-v02.api.letsencrypt.org/directory
-    privateKeySecretRef:
-      name: letsencrypt-prod
-    solvers:
-    - http01:
-        ingress:
-          class: nginx
+# wait on cert-manager to deploy
+p_echo "kubectl rollout status -n kube-system deployment/cert-manager"
+kubectl rollout status -n kube-system deployment/cert-manager
+kubectl rollout status -n kube-system deployment/cert-manager-webhook
+
+p_echo "waiting on cert-manager"
+kubectl wait --namespace kube-system \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/name=cert-manager \
+  --timeout=90s
+kubectl wait --namespace kube-system \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=webhook \
+  --timeout=90s
+
+p_echo "Installing clusterissuer resource for cert manager to work"
+p_echo "while looping on applying cluster issue CR..."
+cert_manager_apply_exit_code=1
+while [ $cert_manager_apply_exit_code -ne 0 ]; do
+    simple_loading_bar 2
+    p_echo "Trying to do a kube apply on this clusterissuer CR for cert-manager..."
+    cat <<EOF | kubectl apply -f -
+    apiVersion: cert-manager.io/v1
+    kind: ClusterIssuer
+    metadata:
+      name: letsencrypt-staging
+    spec:
+      acme:
+        email: $EMAIL
+        server: https://acme-staging-v02.api.letsencrypt.org/directory
+        privateKeySecretRef:
+          name: letsencrypt-staging
+        solvers:
+          - http01:
+              ingress:
+                class: nginx
 EOF
+    cert_manager_apply_exit_code=$?
+done
