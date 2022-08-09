@@ -116,14 +116,14 @@ export REMOTE_USER="cooluser4dogs"
 
 # Other Notes
 
-Check out the [./optional](./optional) directory for notes on specific apps, e.g. for postgres on k8s notes, go to [./optional/postgres/README.md](./optional/postgres/README.md)
+Check out the [`optional`](optional) directory for notes on specific apps, e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./optional/postgres/README.md)
 
-## Helpful links
+### Helpful links
 - The k3s knowledge here is in this [kauri.io self hosting guide](https://kauri.io/#collections/Build%20your%20very%20own%20self-hosting%20platform%20with%20Raspberry%20Pi%20and%20Kubernetes/%2838%29-install-and-configure-a-kubernetes-cluster-w/) is invaluable. Thank you kauri.io.
 
 - This [encrypted secrets in helm charts guide](https://www.thorsten-hans.com/encrypted-secrets-in-helm-charts/) isn't the guide we need, but helm secrets need to be stored somewhere, and vault probably makes sense
 
-## Troubleshooting hellish networking issues with coredns
+### Troubleshooting hellish networking issues with coredns
 Can your pod not get out to the internet? Well, first verify it with this:
 ```bash
 kubectl run -it --rm --image=infoblox/dnstools:latest dnstools
@@ -148,20 +148,3 @@ And then update your `ndot` option in your `/etc/resolv.conf` for podDNS to be 1
 
 #### No, it does not spark joy
 STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
-
-
-## Prometheus notes
-Coming soon. Below is kinda broken stuff, that doesn't lead you anywhere:
-```bash
-# install the repo and search it
-helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-
-# View the chart details
-helm show chart prometheus-community/prometheus
-
-# Installation of important charts
-helm install prometheus prometheus-community/prometheus
-```
-
-## Installing cmctl, the cli tool for cert-manager
-You'll need to download the tar ball for your OS [here](https://github.com/cert-manager/cert-manager/releases) and then untar it, and move it into a directory in your `$PATH`. MacOS will fail the first time you run it, and you'll need to go into System Preferences > Security & Privacy > Allow apps downloaded from, to allow an exception.
