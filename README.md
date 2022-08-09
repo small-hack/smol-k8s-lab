@@ -5,7 +5,7 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 |             Distro               | K8s Homelab Status              |
 |----------------------------------|---------------------------------|
 |[k3s](https://k3s.io/)            | in progress - beta              |
-|[KinD](https://kind.sigs.k8s.io/) | in progress - alpha             |
+|[KinD](https://kind.sigs.k8s.io/) | in progress - beta              |
 |[k0s](https://k0sproject.io/)     | in progress - alpha coming soon |
 
 # Quickstart
