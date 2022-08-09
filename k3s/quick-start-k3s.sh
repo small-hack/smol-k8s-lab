@@ -51,10 +51,11 @@ cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig
 chmod 600 ~/.kube/kubeconfig
 
 # add/update all relevant helm repos
-p_echo "Add/update helm repos for metallb, ingress-nginx, and cert-manager."
+p_echo "Add/update helm repos for metallb, ingress-nginx, cert-manager, and prometheus."
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add metallb https://metallb.github.io/metallb
 helm repo add jetstack https://charts.jetstack.io
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
 
 # metal lb installation: https://github.com/metallb/metallb/tree/main/charts/metallb
@@ -146,6 +147,10 @@ while [ $cert_manager_apply_exit_code -ne 0 ]; do
 EOF
     cert_manager_apply_exit_code=$?
 done
+
+p_echo "Deploying prometheus so that we can monitor the cluster later"
+p_echo "helm install prometheus prometheus-community/prometheus –namespace prometheus --create-namespace"
+helm install prometheus prometheus-community/prometheus –namespace prometheus --create-namespace
 
 if [ "$1" == "--no-k9s" ]; then
     echo "We're all done!"
