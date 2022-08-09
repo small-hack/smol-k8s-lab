@@ -51,11 +51,12 @@ cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig
 chmod 600 ~/.kube/kubeconfig
 
 # add/update all relevant helm repos
-p_echo "Add/update helm repos for metallb, ingress-nginx, cert-manager, and prometheus."
+p_echo "Add/update helm repos for metallb, ingress-nginx, cert-manager, prometheus [operator/alert manager/push gateway], and grafana."
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add metallb https://metallb.github.io/metallb
 helm repo add jetstack https://charts.jetstack.io
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 
 # metal lb installation: https://github.com/metallb/metallb/tree/main/charts/metallb
@@ -151,6 +152,9 @@ done
 p_echo "Deploying prometheus so that we can monitor the cluster later:"
 p_echo "helm install prometheus prometheus-community/prometheus --create-namespace --namespace prometheus"
 helm install prometheus prometheus-community/prometheus --create-namespace --namespace prometheus
+
+p_echo "helm install grafana grafana/grafana  -–namespace grafana -–set persistence.enabled=true –-set adminPassword="niceP@ssword4Dog5" --values grafana_values.yml"
+helm install grafana grafana/grafana  -–namespace grafana -–set persistence.enabled=true –-set adminPassword="niceP@ssword4Dog5" --values grafana_values.yml
 
 if [ "$1" == "--no-k9s" ]; then
     echo "We're all done!"
