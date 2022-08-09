@@ -67,12 +67,12 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main
 
 # wait on nginx ingress controller to deploy
 p_echo " kubectl rollout status deployment/nginx-ingress-ingress-nginx-controller "
-kubectl rollout status deployment/nginx-ingress-ingress-nginx-controller
-kubectl wait --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s
+kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx
+kubectl wait --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=90s -n ingress-nginx
 
 # Set up cert manager
-p_echo "helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set cert-manager_values.yml"
-helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set podDnsPolicy="None" --values cert-manager_values.yml
+p_echo "helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true"
+helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true
 
 # wait on cert-manager to deploy
 p_echo "kubectl rollout status -n kube-system deployment/cert-manager"
