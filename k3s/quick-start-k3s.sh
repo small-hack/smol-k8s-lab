@@ -150,11 +150,11 @@ EOF
 done
 
 p_echo "Deploying prometheus so that we can monitor the cluster later:"
-p_echo "helm install prometheus prometheus-community/prometheus --create-namespace --namespace prometheus"
-helm install prometheus prometheus-community/prometheus --create-namespace --namespace prometheus
+p_echo "helm install prometheus prometheus-community/prometheus --create-namespace --namespace monitoring"
+helm install prometheus prometheus-community/prometheus --create-namespace --namespace monitoring
 
-p_echo "helm install grafana grafana/grafana  -–namespace grafana -–set persistence.enabled=true –-set adminPassword="niceP@ssword4Dog5" --values grafana_values.yml"
-helm install grafana grafana/grafana --namespace grafana --values grafana_values.yml
+p_echo "helm install grafana grafana/grafana  -–namespace monitoring -–set persistence.enabled=true –-set adminPassword="niceP@ssword4Dog5" --values grafana_values.yml"
+helm install grafana grafana/grafana --namespace monitoring --values grafana_values.yml
 
 if [ "$1" == "--no-k9s" ]; then
     echo "We're all done!"
