@@ -143,12 +143,11 @@ If it doesn't return google.com's info, you should first go read this [k3s issue
 
 Then decide, "*does having subdomains on my LAN spark joy?*"
 
-**- Yes it sparks joy:**
+#### Yes it sparks joy
 And then update your `ndot` option in your `/etc/resolv.conf` for podDNS to be 1. You can do this in a deployment. You should read this [k8s doc](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) to learn more. The search domain being more than 1-2 dots deep seems to cause all sorts of problems. Asus in particular is terrible about this. You can test the `resolv.conf` with the infoblox/dnstools docker image from above. It already has the `vi` text editor, which will allow you to quickly iterate.
 
-**- No, it does not spark joy:**
-STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. 
-Get a pihole and use it for both DNS and DHCP.
+#### No, it does not spark joy
+STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
 
 
 ## Prometheus notes
