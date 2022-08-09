@@ -2,11 +2,11 @@
 
 Under construction, but this is where we'll throw some local k8s (kubernetes) testing tools. Currently supported k8s distros, biasing towards small and quick distros:
 
-|             Distro               | K8s Homelab Status              |
-|----------------------------------|---------------------------------|
-|[k3s](https://k3s.io/)            | in progress - beta              |
-|[KinD](https://kind.sigs.k8s.io/) | in progress - beta              |
-|[k0s](https://k0sproject.io/)     | in progress - alpha coming soon |
+| Distro                           | K8s Homelab | Tutorial    | Quickstart script |
+|:--------------------------------:|:-----------:|:-----------:|:-----------------:|
+|[k3s](https://k3s.io/)            | beta        | coming soon |      beta :D      |
+|[KinD](https://kind.sigs.k8s.io/) | beta        | coming soon |      belpha       |
+|[k0s](https://k0sproject.io/)     | alpha       | available   |    coming soon    |
 
 # Quickstart
 
@@ -137,11 +137,11 @@ cat /etc/resolv.conf
 cat /etc/hosts
 
 # also check if this returns google's info correct
-# cross check this with a computer that can hit google.com with no issues
-host google.com
+# cross check this with a computer that can hit linuxfoundation.org with no issues
+host linuxfoundation.org
 ```
 
-If it doesn't return google.com's info, you should first go read this [k3s issue](https://github.com/k3s-io/k3s/issues/53) (yes, it's present in KIND as well).
+If it doesn't return [linuxfoundation.org](linuxfoundation.org)'s info, you should first go read this [k3s issue](https://github.com/k3s-io/k3s/issues/53) (yes, it's present in KIND as well).
 
 Then decide, "*does having subdomains on my LAN spark joy?*"
 
