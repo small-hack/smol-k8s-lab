@@ -16,7 +16,8 @@
 source .env
 
 # skip install of traefik & servicelb, specify flannel backend
-export INSTALL_K3S_EXEC=" --no-deploy servicelb --no-deploy traefik --flannel-backend host-gw"
+# export INSTALL_K3S_EXEC=" --no-deploy servicelb --no-deploy traefik --flannel-backend host-gw"
+export INSTALL_K3S_EXEC=" --no-deploy servicelb --no-deploy traefik"
 # make the kubeconfig copy-able for later
 export K3S_KUBECONFIG_MODE="644"
 
