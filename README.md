@@ -116,7 +116,7 @@ export REMOTE_USER="cooluser4dogs"
 
 # Other Notes
 
-Check out the `optional` directory for notes on specific apps, e.g. for postgres on k8s notes, go to `optional/postgres/README.md`.
+Check out the [./optional](./optional) directory for notes on specific apps, e.g. for postgres on k8s notes, go to [./optional/postgres/README.md].
 
 ## Helpful links
 - The k3s knowledge here is in this [kauri.io self hosting guide](https://kauri.io/#collections/Build%20your%20very%20own%20self-hosting%20platform%20with%20Raspberry%20Pi%20and%20Kubernetes/%2838%29-install-and-configure-a-kubernetes-cluster-w/) is invaluable. Thank you kauri.io.
