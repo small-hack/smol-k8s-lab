@@ -148,9 +148,9 @@ EOF
     cert_manager_apply_exit_code=$?
 done
 
-p_echo "Deploying prometheus so that we can monitor the cluster later"
-p_echo "helm install prometheus prometheus-community/prometheus –namespace prometheus --create-namespace"
-helm install prometheus prometheus-community/prometheus –namespace prometheus --create-namespace
+p_echo "Deploying prometheus so that we can monitor the cluster later:"
+p_echo "helm install prometheus prometheus-community/prometheus --create-namespace --namespace prometheus"
+helm install prometheus prometheus-community/prometheus --create-namespace --namespace prometheus
 
 if [ "$1" == "--no-k9s" ]; then
     echo "We're all done!"
