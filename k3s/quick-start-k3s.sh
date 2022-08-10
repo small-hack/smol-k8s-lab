@@ -18,7 +18,7 @@ source .env
 
 # etremely simply loading bar
 function simple_loading_bar() {
-    echo ""
+    p_echo "Sleeping for $1 second(s)."
     for i in $(seq 1 $1); do
         echo -n "   ¯\_(ツ)_/¯";
         sleep 1
@@ -79,14 +79,11 @@ kubectl wait --namespace kube-system \
   --timeout=120s
 
 # metallb custom resources.... https://metallb.universe.tf/configuration/
-p_echo "Applying metallb custom resources"
-kubectl apply -f metallb_cr.yml
-apply_exit_code=$?
+apply_exit_code=1
+p_echo "Will loop on applying the metallb CR..."
 while [ $apply_exit_code -ne 0 ]; do
-    p_echo "Kube apply failed. Will loop on applying the metallb CR..."
-    p_echo "Sleeping 3 seconds before trying again."
     simple_loading_bar 3
-    p_echo "Running kubectl apply -f for this metallb ipaddresspool and l2advertisement"
+    p_echo "Running 'kubectl apply -f' for metallb IPAddressPool"
     cat <<EOF | kubectl apply -f -
       apiVersion: metallb.io/v1beta1
       kind: IPAddressPool
@@ -96,7 +93,9 @@ while [ $apply_exit_code -ne 0 ]; do
       spec:
         addresses:
           - $CIDR_FOR_LB_IPS
-      ---
+EOF
+    p_echo "Running 'kubectl apply -f' for metallb L2Advertisement"
+    cat <<EOF | kubectl apply -f -
       apiVersion: metallb.io/v1beta1
       kind: L2Advertisement
       metadata:
@@ -143,7 +142,7 @@ p_echo "Installing clusterissuer resource for cert manager to work"
 p_echo "while looping on applying cluster issue CR..."
 cert_manager_apply_exit_code=1
 while [ $cert_manager_apply_exit_code -ne 0 ]; do
-    simple_loading_bar 2
+    simple_loading_bar 3
     # p_echo "Trying to do a kube apply on this clusterissuer CR for cert-manager..."
     # cat <<EOF | kubectl apply -f -
     # apiVersion: cert-manager.io/v1
