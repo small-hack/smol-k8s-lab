@@ -106,8 +106,8 @@ kubectl wait --namespace kube-system \
   --timeout=90s
 
 # Set up cert manager
-p_echo "helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set podDnsPolicy='None' --values cert-manager_values.yml"
-helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --set podDnsPolicy="None" --values cert-manager_values.yml
+p_echo "helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true"
+helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true
 
 # wait on cert-manager to deploy
 p_echo "kubectl rollout status -n kube-system deployment/cert-manager"
