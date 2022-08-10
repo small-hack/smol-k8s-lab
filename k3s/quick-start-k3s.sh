@@ -13,6 +13,28 @@
 #       CREATED: 04/08/2022 22:24:00
 #
 #===============================================================================
+. ../.env
+if [ "$?" -ne 0 ]; then
+    . ../../.env
+fi
+
+# extremely simply loading bar
+function simple_loading_bar() {
+    p_echo "Sleeping for $1 second(s)."
+    for i in $(seq 1 $1); do
+        echo -n "   ¯\_(ツ)_/¯";
+        sleep 1
+    done
+    echo ""
+}
+
+# pretty echo so that I don't have ot remember this incantation
+function p_echo() {
+    echo ""
+    echo -e "\033[92m  $1 \033[00m"
+    echo ""
+}
+
 # skip install of traefik & servicelb, specify flannel backend
 export INSTALL_K3S_EXEC=" --no-deploy servicelb --no-deploy traefik"
 # make the kubeconfig copy-able for later
