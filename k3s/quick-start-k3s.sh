@@ -88,6 +88,23 @@ while [ $apply_exit_code -ne 0 ]; do
     simple_loading_bar 3
     p_echo "kubectl apply -f metallb_cr.yml"
     kubectl apply -f metallb_cr.yml
+
+    cat <<EOF | kubectl apply -f -
+      apiVersion: metallb.io/v1beta1
+      kind: IPAddressPool
+      metadata:
+        name: base-pool
+        namespace: kube-system
+      spec:
+        addresses:
+          - $CIDR_FOR_LB_IPS
+      ---
+      apiVersion: metallb.io/v1beta1
+      kind: L2Advertisement
+      metadata:
+        name: base-pool
+        namespace: kube-system
+EOF
     apply_exit_code=$?
 done
 
