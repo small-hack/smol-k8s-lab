@@ -6,7 +6,7 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 |:--------------------------------:|:-----------:|:-----------:|:-----------------:|
 |[k3s](https://k3s.io/)            | beta        | coming soon |      beta :D      |
 |[KinD](https://kind.sigs.k8s.io/) | beta        | coming soon |      belpha       |
-|[k0s](https://k0sproject.io/)     | alpha       | available   |    coming soon    |
+|[k0s](https://k0sproject.io/)     | alpha       | [available](https://github.com/jessebot/k8s_homelab/tree/main/k0s)   |    coming soon    |
 
 # Quickstart
 
