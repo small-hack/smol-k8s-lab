@@ -136,7 +136,7 @@ Check the `/etc/resolv.conf` and `/etc/hosts` that's been provided by coredns fr
 cat /etc/resolv.conf
 cat /etc/hosts
 
-# also check if this returns google's info correct
+# also check if this returns linuxfoundation's info correct
 # cross check this with a computer that can hit linuxfoundation.org with no issues
 host linuxfoundation.org
 ```
