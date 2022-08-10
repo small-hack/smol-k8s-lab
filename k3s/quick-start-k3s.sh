@@ -182,6 +182,9 @@ helm install prometheus prometheus-community/kube-prometheus-stack --namespace m
     --set grafana.ingress.enabled=true \
     --set grafana.ingress.ingressClassName=nginx \
     --set grafana.ingress.hosts[0]=$GRAFANA_DOMAIN
+    --set prometheus.ingress.enabled=true \
+    --set prometheus.ingress.ingressClassName=nginx \
+    --set prometheus.ingress.hosts[0]=$PROMETHEUS_DOMAIN
 
 
 if [ "$1" == "--no-k9s" ]; then
