@@ -60,7 +60,7 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 </details>
 
 <details>
-  <summary>K0s - (thing max is working on)</summary>
+  <summary>K0s - (best for large multinode/GPU passthrough)</summary>
 
   Still being developed, but will probably look something like....
 
