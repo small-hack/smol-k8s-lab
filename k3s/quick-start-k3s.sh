@@ -14,7 +14,9 @@
 #
 #===============================================================================
 
-source .env
+if [ -f ".env" ]; then
+    . .env
+fi
 
 # etremely simply loading bar
 function simple_loading_bar() {
@@ -84,6 +86,7 @@ p_echo "Will loop on applying the metallb CR..."
 while [ $apply_exit_code -ne 0 ]; do
     simple_loading_bar 3
     p_echo "Running 'kubectl apply -f' for metallb IPAddressPool"
+    echo $CIDR
     cat <<EOF | kubectl apply -f -
       apiVersion: metallb.io/v1beta1
       kind: IPAddressPool
@@ -92,7 +95,7 @@ while [ $apply_exit_code -ne 0 ]; do
         namespace: kube-system
       spec:
         addresses:
-          - $CIDR_FOR_LB_IPS
+          - "$CIDR"
 EOF
     p_echo "Running 'kubectl apply -f' for metallb L2Advertisement"
     cat <<EOF | kubectl apply -f -
