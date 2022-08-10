@@ -126,7 +126,7 @@ e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./option
 - This [encrypted secrets in helm charts guide](https://www.thorsten-hans.com/encrypted-secrets-in-helm-charts/) isn't the guide we need, but helm secrets need to be stored somewhere, and vault probably makes sense
 
 ### Troubleshooting hellish networking issues with coredns
-Can your pod not get out to the internet? Well, first verify it with this:
+Can your pod not get out to the internet? Well, first verify that it isn't the entire cluster with this:
 ```bash
 kubectl run -it --rm --image=infoblox/dnstools:latest dnstools
 ```
