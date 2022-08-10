@@ -129,23 +129,23 @@ p_echo "while looping on applying cluster issue CR..."
 cert_manager_apply_exit_code=1
 while [ $cert_manager_apply_exit_code -ne 0 ]; do
     simple_loading_bar 2
-#     p_echo "Trying to do a kube apply on this clusterissuer CR for cert-manager..."
-#     cat <<EOF | kubectl apply -f -
-#     apiVersion: cert-manager.io/v1
-#     kind: ClusterIssuer
-#     metadata:
-#       name: letsencrypt-staging
-#     spec:
-#       acme:
-#         email: $EMAIL
-#         server: https://acme-staging-v02.api.letsencrypt.org/directory
-#         privateKeySecretRef:
-#           name: letsencrypt-staging
-#         solvers:
-#           - http01:
-#               ingress:
-#                 class: nginx
-# EOF
+    # p_echo "Trying to do a kube apply on this clusterissuer CR for cert-manager..."
+    # cat <<EOF | kubectl apply -f -
+    # apiVersion: cert-manager.io/v1
+    # kind: ClusterIssuer
+    # metadata:
+    #   name: letsencrypt-staging
+    # spec:
+    #   acme:
+    #     email: $EMAIL
+    #     server: https://acme-staging-v02.api.letsencrypt.org/directory
+    #     privateKeySecretRef:
+    #       name: letsencrypt-staging
+    #     solvers:
+    #       - http01:
+    #           ingress:
+    #             class: nginx
+    # EOF
     p_echo "Trying to do a kube apply on this clusterissuer CR for cert-manager..."
     cat <<EOF | kubectl apply -f -
     apiVersion: cert-manager.io/v1
@@ -154,22 +154,19 @@ while [ $cert_manager_apply_exit_code -ne 0 ]; do
       name: selfsigned-cluster-issuer
     spec:
       selfSigned: {}
-    cert_manager_apply_exit_code=$?
 EOF
+    cert_manager_apply_exit_code=$?
 done
 
-# # this is for using a combination of prometheus-community and grafana helm repos/charts
-# p_echo "Deploying prometheus so that we can monitor the cluster later:"
-# p_echo "helm install prometheus prometheus-community/prometheus --create-namespace --namespace monitoring"
-# helm install prometheus prometheus-community/prometheus --create-namespace --namespace monitoring
-# 
-# p_echo "helm install grafana grafana/grafana  -–namespace monitoring -–set persistence.enabled=true –-set adminPassword="niceP@ssword4Dog5" --values grafana_values.yml"
-# helm install grafana grafana/grafana --namespace monitoring --values grafana_values.yml
-# # end promethesus-community + grafana repos combo #
+p_echo "helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --set alertmanager.ingress.enabled=true --set alertmanager.ingress.hosts[0]=$ALERT_MANAGER_DOMAIN --set grafana.ingress.enabled=true --set grafana.ingress.hosts[0]=$GRAFANA_DOMAIN"
+helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace \
+    --set alertmanager.ingress.enabled=true \
+    --set alertmanager.ingress.ingressClassName=nginx \
+    --set alertmanager.ingress.hosts[0]=$ALERT_MANAGER_DOMAIN \
+    --set grafana.ingress.enabled=true \
+    --set grafana.ingress.ingressClassName=nginx \
+    --set grafana.ingress.hosts[0]=$GRAFANA_DOMAIN
 
-
-p_echo "helm install prometheus prometheus-community/kube-prometheus-stack --create-namespace --namespace monitoring"
-helm install prometheus prometheus-community/kube-prometheus-stack --create-namespace --namespace monitoring
 
 if [ "$1" == "--no-k9s" ]; then
     echo "We're all done!"
