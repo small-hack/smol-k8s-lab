@@ -20,10 +20,29 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 <details>
   <summary>K3s - (Best for Linux on metal or a bridged VM)</summary>
 
-  ```bash
-    # this export can also be set in a .env file in the same dir
-    export EMAIL="youremail@coolemailfordogs.com"
+  These can also be set in a .env file in this directory :)
 
+  ```bash
+    # IP address pool for metallb, this is where your domains will map
+    # back to if you use ingress for your cluster, defaults to 8 ip addresses
+    export CIDR="192.168.42.42-192.168.42.50"
+
+    # email address for lets encrypt
+    export EMAIL="dogontheinternet@coolemails4dogs.com"
+
+    # SECTION FOR GRAFANA AND PROMETHEUS
+    #
+    # this is for prometheus alert manager
+    export ALERT_MANAGER_DOMAIN="alert-manager.selfhostingfordogs.com"
+    # this is for your grafana instance, that is connected to prometheus
+    export GRAFANA_DOMAIN="grafana.selfhostingfordogs.com"
+    # this is for prometheus proper, where you'll go to verify exporters are working
+    export PROMETHEUS_DOMAIN="prometheus.selfhostingfordogs.com"
+  ```
+
+  Then you can run the script! :D
+
+  ```bash
     # From the cloned repo dir, This should set up k3s and dependencies
     # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
     ./k8s_homelab/k3s/quick-start-k3s.sh

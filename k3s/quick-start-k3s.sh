@@ -174,14 +174,14 @@ EOF
     cert_manager_apply_exit_code=$?
 done
 
-p_echo "helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --set alertmanager.ingress.enabled=true --set alertmanager.ingress.hosts[0]=$ALERT_MANAGER_DOMAIN --set grafana.ingress.enabled=true --set grafana.ingress.hosts[0]=$GRAFANA_DOMAIN"
+p_echo "helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --set alertmanager.ingress.enabled=true --set alertmanager.ingress.hosts[0]=$ALERT_MANAGER_DOMAIN --set grafana.ingress.enabled=true --set grafana.ingress.hosts[0]=$GRAFANA_DOMAIN --set prometheus.ingress.enabled=true --set prometheus.ingress.ingressClassName=nginx --set prometheus.ingress.hosts[0]=$PROMETHEUS_DOMAIN"
 helm install prometheus prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace \
     --set alertmanager.ingress.enabled=true \
     --set alertmanager.ingress.ingressClassName=nginx \
     --set alertmanager.ingress.hosts[0]=$ALERT_MANAGER_DOMAIN \
     --set grafana.ingress.enabled=true \
     --set grafana.ingress.ingressClassName=nginx \
-    --set grafana.ingress.hosts[0]=$GRAFANA_DOMAIN
+    --set grafana.ingress.hosts[0]=$GRAFANA_DOMAIN \
     --set prometheus.ingress.enabled=true \
     --set prometheus.ingress.ingressClassName=nginx \
     --set prometheus.ingress.hosts[0]=$PROMETHEUS_DOMAIN
