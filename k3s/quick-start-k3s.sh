@@ -86,9 +86,7 @@ while [ $apply_exit_code -ne 0 ]; do
     p_echo "Kube apply failed. Will loop on applying the metallb CR..."
     p_echo "Sleeping 3 seconds before trying again."
     simple_loading_bar 3
-    p_echo "kubectl apply -f metallb_cr.yml"
-    kubectl apply -f metallb_cr.yml
-
+    p_echo "Running kubectl apply -f for this metallb ipaddresspool and l2advertisement"
     cat <<EOF | kubectl apply -f -
       apiVersion: metallb.io/v1beta1
       kind: IPAddressPool
