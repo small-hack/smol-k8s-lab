@@ -32,11 +32,11 @@ function p_echo() {
 
 if [ "$1" == "k3s" ]; then
     cd k3s
-    ./quick-start-k3s.sh
+    ./quick-start-k3s.sh --no-k9s
     cd ..
 elif [ "$2" == "kind" ]; then
     cd kind
-    ./quick-start-kind.sh
+    ./quick-start-kind.sh --no-k9s
     cd ..
 elif [ "$2" == "k0s" ]; then
     p_echo "k0s still not operational, but you can check out the tutorial!"
