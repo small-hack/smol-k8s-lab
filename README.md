@@ -125,6 +125,8 @@ e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./option
 
 - This [encrypted secrets in helm charts guide](https://www.thorsten-hans.com/encrypted-secrets-in-helm-charts/) isn't the guide we need, but helm secrets need to be stored somewhere, and vault probably makes sense
 
+- Running into issues with metallb assigning IPs, but them some of them not working with nginx-ingress controller? This person explained it really well, but it required hostnetwork to be set on the nginx-ingress chart values.yml. Check out thier guide [here](https://ericsmasal.com/2021/08/nginx-ingress-load-balancer-and-metallb/).
+
 ### Troubleshooting hellish networking issues with coredns
 Can your pod not get out to the internet? Well, first verify that it isn't the entire cluster with this:
 ```bash
@@ -150,3 +152,6 @@ And then update your `ndot` option in your `/etc/resolv.conf` for podDNS to be 1
 
 #### No, it does not spark joy
 STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
+
+
+
