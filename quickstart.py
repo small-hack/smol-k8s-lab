@@ -3,8 +3,10 @@
 # EXPERIMENTAL - DO NOT USE IF YOU DON'T KNOW k8s and Python fairly well :)
 from argparse import ArgumentParser
 from collections import OrderedDict
+from kubernetes import client, config
 from lib.homelabHelm import helm
-# import yaml
+from lib.util import sub_proc, simple_loading_bar
+import yaml
 
 
 def parse_args():
@@ -22,67 +24,142 @@ def parse_args():
     return p.parse_args()
 
 
-def install_defaults_repos(k8s_distro):
+def install_default_repos(k8s_distro):
     """
     Install all the default repos
+    # metallb is for loadbalancing and assigning ips, on metal...
+    # ingress-nginx allows us to do ingress, so access outside the cluster
+    # jetstack is for cert-manager for ssl certs
+    # argo is argoCD to manage k8s resources in the future through a gui
     """
-    print("Add/update helm repos for metallb, ingress-nginx, cert-manager")
-
-    # metallb is always installed
     repos = OrderedDict()
+
     repos['metallb'] = 'https://metallb.github.io/metallb'
+    repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
+    repos['jetstack'] = 'https://charts.jetstack.io'
+    repos['argo'] = 'https://argoproj.github.io/argo-helm'
 
     # kind has a special install path
-    if k8s_distro != 'kind':
-        repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
-
-    # this is for cert-manager
-    repos['jetstack'] = 'https://charts.jetstack.io'
-
-    # this is for argo to manage everything in the future through a gui
-    repos['argo'] = 'https://argoproj.github.io/argo-helm'
+    if k8s_distro == 'kind':
+        repos.pop('ingress-nginx')
 
     for repo_name, repo_url in repos.items():
         helm_repo = helm.repo(repo_name, repo_url).add()
 
+    print("Add/update helm repos for metallb, ingress-nginx, cert-manager:")
     helm_repo.update()
 
-    print("all done")
 
-
-def kind_special_nginx():
+def configure_metallb(api, address_pool):
     """
-    kind has a special install path recommended by the kubernetes project
+    metallb is special because it has Custom Resources
     """
-    print("placeholder")
+    # install chart and wait
+    chart = helm.chart('metallb', 'metallb/metallb', namespace='kubesystem')
+    chart.install(True)
+
+    ip_pool_cr = {
+        'apiversion': 'metallb.io/v1beta1',
+        'kind': 'IPAddressPool',
+        'metadata': {'name': 'base-pool'},
+        'spec': {'addresses': [address_pool]}
+    }
+
+    l2_advert_cr = {
+        'apiversion': 'metallb.io/v1beta1',
+        'kind': 'L2Advertisement',
+        'metadata': {'name': 'base-pool'}
+    }
+
+    for custom_resource in [ip_pool_cr, l2_advert_cr]:
+        install_custom_resource(custom_resource)
 
 
-def install_helm_charts():
-    """
-    install all the needed helm charts
-    """
-    charts = OrderedDict()
-    charts['metallb'] = {'chart': 'metallb/metallb',
-                         'namespace': 'kube-system'}
+def configure_cert_manager(api, email_addr):
+    # install chart and wait
+    chart = helm.chart('cert-manager', 'jetstack/cert-manager',
+                       namespace='kube-system',
+                       options={'installCRDs': 'true'})
+    chart.install(True)
 
-    for release_name, chart in charts.items():
-        if chart['options']:
-            helm.chart(release_name, chart['chart'], chart['namespace'],
-                       chart['options'])
-        else:
-            helm.chart(release_name, chart['chart'], chart['namespace'])
+    acme_staging = 'https://acme-staging-v02.api.letsencrypt.org/directory'
+    issuer = {'apiversion': 'cert-manager.io/v1',
+              'kind': 'ClusterIssuer',
+              'metadata': {'name': 'letsencrypt-staging'},
+              'spec': {
+                  'acme': {'email': email_addr,
+                           'server': acme_staging,
+                           'privateKeySecretRef': {
+                               'name': 'letsencrypt-staging'},
+                           'solvers': [
+                               {'http01': {'ingress': {'class': 'nginx'}}}]
+                           }}}
+
+    install_custom_resource(api, issuer)
+
+
+def install_custom_resource(api, custom_resource_dict):
+    """
+    Does a kube apply on a custom resource dict, and retries if it fails
+    """
+    # loops until this succeeds
+    while True:
+        try:
+            api.create_namespaced_custom_object(
+                version='v1',
+                namespace='kube-system',
+                plural=f"{custom_resource_dict['kind'].lower()}s",
+                body=custom_resource_dict)
+
+        except Exception as reason:
+            print(f"Hmmm, that didn't work because: {reason}")
+            simple_loading_bar(3)
+            continue
+
+
+def install_k8s_distro(distro):
+    """
+    install a specific distro of k8s
+    options: k3s, kind, k0s
+    """
+    sub_proc("./{distro}/quickstart.sh")
 
 
 def main():
     """
     Quickly install a k8s distro for a homelab setup.
+    installs k3s with metallb, nginx-ingess-controller, cert-manager, and argo
     """
     args = parse_args()
-    # with open(args.file, 'r') as yaml_file:
-    #     input_variables = yaml.safe_load(yaml_file)
+    with open(args.file, 'r') as yaml_file:
+        input_variables = yaml.safe_load(yaml_file)
 
-    if args.k8s == 'k3s':
-        install_defaults_repos('ingress-nginx')
+    # first we can make sure all the helm repos are installed
+    install_default_repos(args.k8s)
+
+    # do specific k8s distro install process
+    install_k8s_distro(args.k8s)
+
+    # set up the k8s api
+    config.load_kube_config()
+    api = client.CustomObjectsApi()
+
+    # kind has a special path
+    if args.k8s != 'kind':
+        # configure metallb before anything else
+        configure_metallb(api, input_variables['address_pool'])
+
+        # then install nginx-ingress
+        chart_opts = {'hostNetwork': 'true', 'hostPort.enabled': 'true'}
+        chart = helm.chart('nginx-ingress', 'ingress-nginx/ingress-nginx',
+                           namespace='kubesystem', options=chart_opts)
+        chart.install(True)
+
+    configure_cert_manager(api, input_variables['email'])
+
+    # then install argo CD :D
+    chart = helm.chart('argo', 'argo/argo', namespace='cicd')
+    chart.install(True)
 
     print("all done")
 
