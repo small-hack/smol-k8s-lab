@@ -38,7 +38,7 @@ def add_default_repos(k8s_distro):
     repos['metallb'] = 'https://metallb.github.io/metallb'
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
-    repos['argo'] = 'https://argoproj.github.io/argo-helm'
+    repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
     # kind has a special install path
     if k8s_distro == 'kind':
@@ -118,7 +118,7 @@ def configure_cert_manager(api, email_addr):
     release.install(True)
 
     acme_staging = 'https://acme-staging-v02.api.letsencrypt.org/directory'
-    issuer = {'apiversion': 'cert-manager.io/v1',
+    issuer = {'apiVersion': 'cert-manager.io/v1',
               'kind': 'ClusterIssuer',
               'metadata': {'name': 'letsencrypt-staging'},
               'spec': {
@@ -168,8 +168,8 @@ def main():
     configure_cert_manager(api, input_variables['email'])
 
     # then install argo CD :D
-    release = helm.chart(release_name='argo',
-                         release_chart='argo/argo',
+    release = helm.chart(release_name='argo-cd',
+                         chart_name='argo/argo-cd',
                          namespace='cicd')
     release.install(True)
 
