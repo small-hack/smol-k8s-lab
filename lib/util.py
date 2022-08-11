@@ -21,9 +21,9 @@ def simple_loading_bar(seconds):
     """
     prints a little heart for int(seconds)
     """
-    print("        ", end=" ")
     for second in range(seconds):
-        print("\033[92m ❤︎ \033[00m", end=" ")
+        center_chars = 80 - seconds
+        print("\033[92m ❤︎ \033[00m".center(center_chars), end=" ")
         sleep(1)
     print('')
 
@@ -33,8 +33,9 @@ def sub_proc(command="", error_ok=False):
     Takes a str commmand to run in BASH, as well as optionals bools to pass on
     errors in stderr/stdout and suppress_output
     """
-    print(' ʕ·ᴥ·ʔ '.center(65, '~'))
-    print(f'\033[92m Running cmd:\033[00m {command}')
+    print('')
+    print('₍ᐢ•ﻌ•ᐢ₎ ♡  ૮ ・ﻌ・ა ♡  ʕᵔᴥᵔ ʔ'.center(67, ' '))
+    print(f'\n\033[92m Running cmd:\033[00m {command}')
     cmd = command.split()
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return_code = p.returncode

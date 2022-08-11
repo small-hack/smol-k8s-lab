@@ -51,6 +51,34 @@ def add_default_repos(k8s_distro):
     helm.repo.update()
 
 
+def install_k8s_distro(k8s_distro):
+    """
+    install a specific distro of k8s
+    options: k3s, kind | coming soon: k0s
+    """
+    sub_proc(f"./{k8s_distro}/quickstart.sh")
+
+
+def install_custom_resource(api, custom_resource_dict):
+    """
+    Does a kube apply on a custom resource dict, and retries if it fails
+    """
+    # loops until this succeeds
+    while True:
+        try:
+            # Write a YAML representation of data to 'k8s_cr.yaml'.
+            with open('/tmp/k8s_cr.yml', 'w') as cr_file:
+                yaml.dump(custom_resource_dict, cr_file)
+
+            sub_proc('kubectl apply -f /tmp/k8s_cr.yml')
+            break
+
+        except Exception as reason:
+            print(f"Hmmm, that didn't work because: {reason}")
+            simple_loading_bar(3)
+            continue
+
+
 def configure_metallb(api, address_pool):
     """
     metallb is special because it has Custom Resources
@@ -62,20 +90,20 @@ def configure_metallb(api, address_pool):
     release.install(True)
 
     ip_pool_cr = {
-        'apiversion': 'metallb.io/v1beta1',
+        'apiVersion': 'metallb.io/v1beta1',
         'kind': 'IPAddressPool',
         'metadata': {'name': 'base-pool'},
         'spec': {'addresses': [address_pool]}
     }
 
     l2_advert_cr = {
-        'apiversion': 'metallb.io/v1beta1',
+        'apiVersion': 'metallb.io/v1beta1',
         'kind': 'L2Advertisement',
         'metadata': {'name': 'base-pool'}
     }
 
     for custom_resource in [ip_pool_cr, l2_advert_cr]:
-        install_custom_resource(api, custom_resource, 'metallb.io')
+        install_custom_resource(api, custom_resource)
 
 
 def configure_cert_manager(api, email_addr):
@@ -102,35 +130,7 @@ def configure_cert_manager(api, email_addr):
                                {'http01': {'ingress': {'class': 'nginx'}}}]
                            }}}
 
-    install_custom_resource(api, issuer, 'cert-manager.io')
-
-
-def install_custom_resource(api, custom_resource_dict, group_name):
-    """
-    Does a kube apply on a custom resource dict, and retries if it fails
-    """
-    # loops until this succeeds
-    while True:
-        try:
-            api.create_namespaced_custom_object(
-                group=group_name,
-                version='v1',
-                namespace='kube-system',
-                plural=f"{custom_resource_dict['kind'].lower()}s",
-                body=custom_resource_dict)
-
-        except Exception as reason:
-            print(f"Hmmm, that didn't work because: {reason}")
-            simple_loading_bar(3)
-            continue
-
-
-def install_k8s_distro(k8s_distro):
-    """
-    install a specific distro of k8s
-    options: k3s, kind | coming soon: k0s
-    """
-    sub_proc(f"./{k8s_distro}/quickstart.sh")
+    install_custom_resource(api, issuer)
 
 
 def main():
@@ -157,13 +157,13 @@ def main():
         header("Configuring metallb so we have an ip address pool")
         configure_metallb(api, input_variables['address_pool'])
 
-        # We wait on all the pods to be up on this so other apps can install
+        header("Installing nginx-ingress-controller")
         nginx_chart_opts = {'hostNetwork': 'true', 'hostPort.enabled': 'true'}
         release = helm.chart(release_name='nginx-ingress',
                              chart_name='ingress-nginx/ingress-nginx',
                              namespace='kubesystem',
                              set_options=nginx_chart_opts)
-        release.install(True)
+        release.install()
 
     configure_cert_manager(api, input_variables['email'])
 

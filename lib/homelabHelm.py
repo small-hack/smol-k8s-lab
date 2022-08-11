@@ -78,7 +78,7 @@ class helm:
 
             try:
                 if self.__dict__['set_options']:
-                    for key, value in self.set_options.items:
+                    for key, value in self.set_options.items():
                         cmd += f' --set {key}={value}'
             except KeyError:
                 pass

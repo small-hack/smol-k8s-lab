@@ -5,4 +5,5 @@ domains:
     alert_manager: "alert-manager.selfhosting4dogs.com"
     grafana: "grafana.selfhosting4dogs.com"
 
-cidr: "192.168.42.42-192.168.42.50"
+address_pool: "192.168.42.42-192.168.42.50"
+email: "resident-internet-dog@selfhosting4dogs.com"
