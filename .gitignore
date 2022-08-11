@@ -1,3 +1,6 @@
-.env
 # don't check in the config.yml as that may have private info
 config.yml
+.env
+
+# ignore python cache
+**/__pycache__/*.pyc

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-AUTHOR: @jessebot
-USAGE: import homelab-helm as helm
+AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
+USAGE: import homelabHelm as helm
 """
 import subprocess
 
@@ -11,6 +11,7 @@ def sub_proc(command="", error_ok=False, suppress_output=False):
     Takes a str commmand to run in BASH, as well as optionals bools to pass on
     errors in stderr/stdout and suppress_output
     """
+    print('-'.center(78, '-'))
     print(f'\033[92m Running cmd:\033[00m {command}')
     cmd = command.split()
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
@@ -45,22 +46,20 @@ class helm:
         """
         not sure what to put here
         """
-        self.repo = self.repo()
-        self.chart = self.chart()
 
     class repo:
         """
         perform add, update, and removal of helm chart repos
         """
-        def __init__(self, release_name, repo_url):
-            self.release_name = release_name
+        def __init__(self, repo_name, repo_url):
+            self.repo_name = repo_name
             self.repo_url = repo_url
 
         def add(self):
             """
             helm repo add
             """
-            cmd = f'helm repo add {self.release_name} {self.repo_url}'
+            cmd = f'helm repo add {self.repo_name} {self.repo_url}'
             sub_proc(cmd)
             self.update
 
@@ -68,7 +67,7 @@ class helm:
             """
             helm repo remove
             """
-            cmd = f'helm repo remove {self.release_name}'
+            cmd = f'helm repo remove {self.repo_name}'
             sub_proc(cmd)
 
         def update(self):
