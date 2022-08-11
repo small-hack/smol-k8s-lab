@@ -3,38 +3,7 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 USAGE: import homelabHelm as helm
 """
-import subprocess
-
-
-def sub_proc(command="", error_ok=False, suppress_output=False):
-    """
-    Takes a str commmand to run in BASH, as well as optionals bools to pass on
-    errors in stderr/stdout and suppress_output
-    """
-    print('-'.center(78, '-'))
-    print(f'\033[92m Running cmd:\033[00m {command}')
-    cmd = command.split()
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return_code = p.returncode
-    res = p.communicate()
-    res_stdout = '  ' + res[0].decode('UTF-8').replace('\n', '\n  ')
-    res_stderr = '  ' + res[1].decode('UTF-8').replace('\n', '\n  ')
-
-    if not error_ok:
-        # check return code, raise error if failure
-        if not return_code or return_code != 0:
-            # also scan both stdout and stdin for weird errors
-            for output in [res_stdout.lower(), res_stderr.lower()]:
-                if 'error' in output:
-                    err = f'Return code not zero! Return code: {return_code}'
-                    # this just prints the error in red
-                    raise Exception(f'\033[0;33m {err} \n {output} \033[00m')
-
-    for output in [res_stdout, res_stderr]:
-        if output:
-            if not suppress_output:
-                print(output.rstrip())
-            return output
+from util import sub_proc
 
 
 class helm:
@@ -101,12 +70,13 @@ class helm:
 
             self.upgrade = self.install(self)
 
-        def install(self):
+        def install(self, wait=False):
             """
-            installs a helm chart to the current k8s context
+            installs helm chart to current k8s context, takes optional wait arg
+            arg Defaults to False, if True, will wait till deployments are up
             """
             cmd = (f'helm upgrade {self.release_name} {self.chart} --install'
-                   f' --namespace {self.namespace} --create-namespace')
+                   f' -n {self.namespace} --create-namespace')
 
             if self.values_file:
                 cmd += f' --values {self.values_file}'
@@ -115,13 +85,15 @@ class helm:
                 for key, value in self.set_options.items:
                     cmd += f' --set {key}={value}'
 
-            sub_proc(cmd)
-
+            if wait:
+                cmd += ' --wait'
+                sub_proc(cmd)
+            else:
+                sub_proc(cmd)
 
         def uninstall(self):
             """
             Uninstalls a helm chart from the current k8s context
             """
-            command = (f'helm uninstall {self.release_name}'
-                       f' --namespace {self.namespace}')
+            command = f'helm uninstall {self.release_name} -n {self.namespace}'
             sub_proc(command)
