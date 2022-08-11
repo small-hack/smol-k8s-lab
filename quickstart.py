@@ -6,7 +6,7 @@ from collections import OrderedDict
 # https://github.com/kubernetes-client/python
 from kubernetes import client, config
 from lib.homelabHelm import helm
-from lib.util import sub_proc, simple_loading_bar
+from lib.util import sub_proc, simple_loading_bar, header
 import yaml
 
 
@@ -25,9 +25,9 @@ def parse_args():
     return p.parse_args()
 
 
-def install_default_repos(k8s_distro):
+def add_default_repos(k8s_distro):
     """
-    Install all the default repos
+    Add all the default helm chart repos
     # metallb is for loadbalancing and assigning ips, on metal...
     # ingress-nginx allows us to do ingress, so access outside the cluster
     # jetstack is for cert-manager for ssl certs
@@ -135,11 +135,12 @@ def main():
     with open(args.file, 'r') as yaml_file:
         input_variables = yaml.safe_load(yaml_file)
 
-    # first we can make sure all the helm repos are installed
-    install_default_repos(args.k8s)
-
     # do specific k8s distro install process
+    header(f"Installing {args.k8s}")
     install_k8s_distro(args.k8s)
+
+    # first we make sure all the helm repos are installed
+    add_default_repos(args.k8s)
 
     # set up the k8s api
     config.load_kube_config()

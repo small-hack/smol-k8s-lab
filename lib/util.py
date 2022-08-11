@@ -7,6 +7,16 @@ import subprocess
 from time import sleep
 
 
+def header(text):
+    """
+    pretty print a header
+    """
+    print('')
+    print('-'.center(70, '-'))
+    print(f"\033[92m ❤︎ {text} ❤︎ \033[00m".center(70, ' '))
+    print('')
+
+
 def simple_loading_bar(seconds):
     """
     prints a little heart for int(seconds)
