@@ -3,7 +3,7 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 USAGE: import homelabHelm as helm
 """
-from util import sub_proc
+from . import util
 
 
 class helm:
@@ -31,7 +31,7 @@ class helm:
             helm repo add
             """
             cmd = f'helm repo add {self.repo_name} {self.repo_url}'
-            sub_proc(cmd)
+            util.sub_proc(cmd)
             self.update()
 
         def remove(self):
@@ -39,14 +39,14 @@ class helm:
             helm repo remove
             """
             cmd = f'helm repo remove {self.repo_name}'
-            sub_proc(cmd)
+            util.sub_proc(cmd)
 
         def update(self):
             """
             helm repo update
             """
             cmd = 'helm repo update'
-            sub_proc(cmd)
+            util.sub_proc(cmd)
 
     class chart:
         def __init__(self, release_name, **kwargs):
@@ -87,13 +87,13 @@ class helm:
 
             if wait:
                 cmd += ' --wait'
-                sub_proc(cmd)
+                util.sub_proc(cmd)
             else:
-                sub_proc(cmd)
+                util.sub_proc(cmd)
 
         def uninstall(self):
             """
             Uninstalls a helm chart from the current k8s context
             """
             command = f'helm uninstall {self.release_name} -n {self.namespace}'
-            sub_proc(command)
+            util.sub_proc(command)
