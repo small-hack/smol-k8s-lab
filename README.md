@@ -11,8 +11,8 @@ Currently supported k8s distros, biasing towards small and quick distros.
 |[k0s](https://k0sproject.io/)     | soon                    | [available](https://github.com/jessebot/k8s_homelab/tree/main/k0s)      |      coming soon        |
 
 
-# Quickstart in Python
-This is aimed at being a much more scalable experience, but is still being worked on
+## Quickstart in Python
+This is aimed at being a much more scalable experience, but is still being worked on.
 
 #### Pre-Req
 - Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
@@ -27,14 +27,14 @@ pip3 install -r requirements.txt
 ./smol-k8s-homelab.py --help
 ```
 
-## Install distro with python script
+### Install distro with python script
 Currently only being tested with k3s, but soon you can do other distros listed above. In the meantime, use the tutorials and BASH scripts linked above
 ```
 # you can replace k3s
 ./smol-k8s-homelab.py --k8s
 ```
 
-# Quickstart in BASH
+## Quickstart in BASH
 #### Pre-Req
 - Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 - Have internet access.
