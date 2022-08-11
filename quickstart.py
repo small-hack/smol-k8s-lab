@@ -3,6 +3,7 @@
 # EXPERIMENTAL - DO NOT USE IF YOU DON'T KNOW k8s and Python fairly well :)
 from argparse import ArgumentParser
 from collections import OrderedDict
+# https://github.com/kubernetes-client/python
 from kubernetes import client, config
 from lib.homelabHelm import helm
 from lib.util import sub_proc, simple_loading_bar
@@ -120,7 +121,7 @@ def install_custom_resource(api, custom_resource_dict):
 def install_k8s_distro(distro):
     """
     install a specific distro of k8s
-    options: k3s, kind, k0s
+    options: k3s, kind coming soon: k0s
     """
     sub_proc("./{distro}/quickstart.sh")
 
