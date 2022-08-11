@@ -13,9 +13,9 @@
 
 # pretty echo so that I don't have ot remember this incantation
 function p_echo() {
-    echo "----------------------------------------------------------------------"
+    echo "--------------------------------ʕ·ᴥ·ʔ---------------------------------"
     echo ""
-    echo -e "\033[92m  $1 \033[00m"
+    echo -e "\033[92m$1\033[00m"
     echo ""
 }
 

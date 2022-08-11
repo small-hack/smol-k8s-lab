@@ -56,8 +56,10 @@ def configure_metallb(api, address_pool):
     metallb is special because it has Custom Resources
     """
     # install chart and wait
-    release = helm.chart('metallb', namespace='kubesystem')
-    release.install('metallb/metallb', True)
+    release = helm.chart(chart_name='metallb/metallb',
+                         release_name='metallb',
+                         namespace='kubesystem')
+    release.install(True)
 
     ip_pool_cr = {
         'apiversion': 'metallb.io/v1beta1',
@@ -81,9 +83,11 @@ def configure_cert_manager(api, email_addr):
     installs cert-manager helm chart and letsencrypt-staging clusterissuer
     """
     # install chart and wait
-    release = helm.chart('cert-manager', namespace='kube-system',
+    release = helm.chart(release_name='cert-manager',
+                         chart_name='jetstack/cert-manager',
+                         namespace='kube-system',
                          options={'installCRDs': 'true'})
-    release.install('jetstack/cert-manager', True)
+    release.install(True)
 
     acme_staging = 'https://acme-staging-v02.api.letsencrypt.org/directory'
     issuer = {'apiversion': 'cert-manager.io/v1',
@@ -154,15 +158,19 @@ def main():
 
         # We wait on all the pods to be up on this so other apps can install
         nginx_chart_opts = {'hostNetwork': 'true', 'hostPort.enabled': 'true'}
-        release = helm.chart('nginx-ingress', namespace='kubesystem',
+        release = helm.chart(release_name='nginx-ingress',
+                             chart_name='ingress-nginx/ingress-nginx',
+                             namespace='kubesystem',
                              options=nginx_chart_opts)
-        release.install('ingress-nginx/ingress-nginx', True)
+        release.install(True)
 
     configure_cert_manager(api, input_variables['email'])
 
     # then install argo CD :D
-    release = helm.chart('argo', namespace='cicd')
-    release.install('argo/argo', True)
+    release = helm.chart(release_name='argo',
+                         release_chart='argo/argo',
+                         namespace='cicd')
+    release.install(True)
 
     print("all done")
 

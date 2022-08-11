@@ -32,7 +32,7 @@ class helm:
             cmd = f'helm repo add {self.repo_name} {self.repo_url}'
             util.sub_proc(cmd)
 
-        def update(self):
+        def update():
             """
             helm repo update
             """
@@ -47,19 +47,17 @@ class helm:
             util.sub_proc(cmd)
 
     class chart:
-        def __init__(self, release_name, **kwargs):
+        def __init__(self, **kwargs):
             """
-            installs/uninstalls a helm chart. Takes optional key word args:
-                chart="", namespace="", values_file="", set_options={}
+            installs/uninstalls a helm chart. Takes key word args:
+            release_name="", chart_name="", namespace="", values_file="",
+            set_options={}
             always does values file followed by --set options.
             """
-            # only required arg
-            self.release_name = release_name
-
             # for each keyword arg's key, create self.key for other methods
             # to reference e.g. pass in namespace='kube-system' and we create
             # self.namespace='kube-system'
-            for key, value in kwargs:
+            for key, value in kwargs.items():
                 locals()[f'self.{key}'] = value
 
             # always install into default namespace unless stated otherwise
@@ -71,11 +69,11 @@ class helm:
         def install(self, wait=False):
             """
             installs helm chart to current k8s context, takes optional wait arg
-            arg Defaults to False, if True, will wait till deployments are up
+            Defaults to False, if True, will wait till deployments are up
             """
-            util.header("helm ")
-            cmd = (f'helm upgrade {self.release_name} {self.chart} --install'
-                   f' -n {self.namespace} --create-namespace')
+            cmd = (f'helm upgrade {self.release_name} {self.chart_name}'
+                   f' --install -n {self.namespace} --create-namespace')
+            util.header(cmd)
 
             if self.values_file:
                 cmd += f' --values {self.values_file}'

@@ -13,7 +13,7 @@ def header(text):
     """
     print('')
     print('-'.center(70, '-'))
-    print(f"\033[92m ❤︎ {text} ❤︎ \033[00m".center(70, ' '))
+    print(f"\033[92m❤︎ {text} ❤︎\033[00m".center(70, ' '))
     print('')
 
 
@@ -33,7 +33,7 @@ def sub_proc(command="", error_ok=False):
     Takes a str commmand to run in BASH, as well as optionals bools to pass on
     errors in stderr/stdout and suppress_output
     """
-    print('ʕ·ᴥ·ʔ'.center(70, '-'))
+    print(' ʕ·ᴥ·ʔ '.center(65, '~'))
     print(f'\033[92m Running cmd:\033[00m {command}')
     cmd = command.split()
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
