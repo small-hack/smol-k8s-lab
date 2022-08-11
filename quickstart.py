@@ -47,8 +47,8 @@ def add_default_repos(k8s_distro):
     for repo_name, repo_url in repos.items():
         helm_repo = helm.repo(repo_name, repo_url).add()
 
-    print("Add/update helm repos for metallb, ingress-nginx, cert-manager:")
-    helm_repo.update()
+    # update any repos that are out of date
+    helm_repo.repo.update()
 
 
 def configure_metallb(api, address_pool):
@@ -77,6 +77,9 @@ def configure_metallb(api, address_pool):
 
 
 def configure_cert_manager(api, email_addr):
+    """
+    installs cert-manager helm chart and letsencrypt-staging clusterissuer
+    """
     # install chart and wait
     chart = helm.chart('cert-manager', 'jetstack/cert-manager',
                        namespace='kube-system',
@@ -118,12 +121,12 @@ def install_custom_resource(api, custom_resource_dict):
             continue
 
 
-def install_k8s_distro(distro):
+def install_k8s_distro(k8s_distro):
     """
     install a specific distro of k8s
-    options: k3s, kind coming soon: k0s
+    options: k3s, kind | coming soon: k0s
     """
-    sub_proc("./{distro}/quickstart.sh")
+    sub_proc(f"./{k8s_distro}/quickstart.sh")
 
 
 def main():
@@ -135,26 +138,25 @@ def main():
     with open(args.file, 'r') as yaml_file:
         input_variables = yaml.safe_load(yaml_file)
 
-    # do specific k8s distro install process
     header(f"Installing {args.k8s}")
     install_k8s_distro(args.k8s)
 
-    # first we make sure all the helm repos are installed
+    header("Adding/Updating help repos")
     add_default_repos(args.k8s)
 
-    # set up the k8s api
+    # set up the k8s python client. Uses default configured $KUBECONFIG
     config.load_kube_config()
     api = client.CustomObjectsApi()
 
-    # kind has a special path
+    # KinD has ingress-nginx install in install_k8s_distro()
     if args.k8s != 'kind':
-        # configure metallb before anything else
+        header("Configuring metallb so we have an ip address pool")
         configure_metallb(api, input_variables['address_pool'])
 
-        # then install nginx-ingress
-        chart_opts = {'hostNetwork': 'true', 'hostPort.enabled': 'true'}
+        # We wait on all the pods to be up on this so other apps can install
+        nginx_chart_opts = {'hostNetwork': 'true', 'hostPort.enabled': 'true'}
         chart = helm.chart('nginx-ingress', 'ingress-nginx/ingress-nginx',
-                           namespace='kubesystem', options=chart_opts)
+                           namespace='kubesystem', options=nginx_chart_opts)
         chart.install(True)
 
     configure_cert_manager(api, input_variables['email'])

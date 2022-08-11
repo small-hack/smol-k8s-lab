@@ -1,17 +1,41 @@
-# K8s Homelab
+# Smol K8s Homelab
 
-Under construction, but this is where we'll throw some local k8s (kubernetes) testing tools. Currently supported k8s distros, biasing towards small and quick distros:
+Under construction, but this is where we'll throw some local k8s (kubernetes) testing tools. This is aimed at getting up and running quickly, but there's also full tutorials linked in `README.md` for each distro's directory, if you'd like to learn the commands at your terminal. These tutorials assume you're on Linux or macOS.
 
-| Distro                           | K8s Homelab | Tutorial    | Quickstart script |
-|:--------------------------------:|:-----------:|:-----------:|:-----------------:|
-|[k3s](https://k3s.io/)            | beta        | coming soon |      beta :D      |
-|[KinD](https://kind.sigs.k8s.io/) | beta        | coming soon |      belpha       |
-|[k0s](https://k0sproject.io/)     | alpha       | [available](https://github.com/jessebot/k8s_homelab/tree/main/k0s)   |    coming soon    |
+Currently supported k8s distros, biasing towards small and quick distros.
 
-# Quickstart
+| Distro                           | K8s Homelab main script |                              Tutorial                                   |  Quickstart BASH script |
+|:--------------------------------:|:-----------------------:|:-----------------------------------------------------------------------:|:-----------------------:|
+|[k3s](https://k3s.io/)            | beta                    | [beta available](https://github.com/jessebot/k8s_homelab/tree/main/k3s) |       beta :D           |
+|[KinD](https://kind.sigs.k8s.io/) | beta                    | coming soon                                                             |        belpha           |
+|[k0s](https://k0sproject.io/)     | soon                    | [available](https://github.com/jessebot/k8s_homelab/tree/main/k0s)      |      coming soon        |
+
+
+# Quickstart in Python
+This is aimed at being a much more scalable experience, but is still being worked on
 
 #### Pre-Req
+- Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
+- Have Python 3.9 or higher installed as well as pip3
+- Have internet access.
 
+```bash
+# install the requirements
+pip3 install -r requirements.txt
+
+# test to make sure the script loads
+./smol-k8s-homelab.py --help
+```
+
+## Install distro with python script
+Currently only being tested with k3s, but soon you can do other distros listed above. In the meantime, use the tutorials and BASH scripts linked above
+```
+# you can replace k3s
+./smol-k8s-homelab.py --k8s
+```
+
+# Quickstart in BASH
+#### Pre-Req
 - Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 - Have internet access.
 
@@ -45,7 +69,7 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
   ```bash
     # From the cloned repo dir, This should set up k3s and dependencies
     # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/k3s/quick-start-k3s.sh
+    ./k8s_homelab/k3s/bash_quickstart.sh
   ```
 
   #### Ready to clean up this cluster?
@@ -66,7 +90,7 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 
     # From the cloned repo dir, This should set up KinD for you
     # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/kind/quick-start-kind.sh
+    ./k8s_homelab/kind/bash_quickstart.sh
   ```
 
   #### Ready to clean up this cluster?
@@ -89,7 +113,7 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
     
     # From the cloned repo dir, This should set up KinD for you
     # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/k0s/quick-start-k0s.sh
+    ./k8s_homelab/k0s/bash_quickstart.sh
   ```
 
   #### Ready to clean up this cluster?

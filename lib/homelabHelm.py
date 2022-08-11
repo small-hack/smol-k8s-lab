@@ -24,7 +24,6 @@ class helm:
         def __init__(self, repo_name, repo_url):
             self.repo_name = repo_name
             self.repo_url = repo_url
-            self.update = self.update()
 
         def add(self):
             """
@@ -32,20 +31,19 @@ class helm:
             """
             cmd = f'helm repo add {self.repo_name} {self.repo_url}'
             util.sub_proc(cmd)
-            self.update()
-
-        def remove(self):
-            """
-            helm repo remove
-            """
-            cmd = f'helm repo remove {self.repo_name}'
-            util.sub_proc(cmd)
 
         def update(self):
             """
             helm repo update
             """
             cmd = 'helm repo update'
+            util.sub_proc(cmd)
+
+        def remove(self):
+            """
+            helm repo remove
+            """
+            cmd = f'helm repo remove {self.repo_name}'
             util.sub_proc(cmd)
 
     class chart:
@@ -75,6 +73,7 @@ class helm:
             installs helm chart to current k8s context, takes optional wait arg
             arg Defaults to False, if True, will wait till deployments are up
             """
+            util.header("helm ")
             cmd = (f'helm upgrade {self.release_name} {self.chart} --install'
                    f' -n {self.namespace} --create-namespace')
 
