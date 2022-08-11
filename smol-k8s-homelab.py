@@ -48,7 +48,7 @@ def add_default_repos(k8s_distro):
         helm_repo = helm.repo(repo_name, repo_url).add()
 
     # update any repos that are out of date
-    helm_repo.repo.update()
+    helm_repo.update()
 
 
 def configure_metallb(api, address_pool):
