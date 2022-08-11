@@ -57,14 +57,11 @@ class helm:
             # for each keyword arg's key, create self.key for other methods
             # to reference e.g. pass in namespace='kube-system' and we create
             # self.namespace='kube-system'
-            for key, value in kwargs.items():
-                locals()[f'self.{key}'] = value
+            self.__dict__.update(kwargs)
 
             # always install into default namespace unless stated otherwise
             if not kwargs['namespace']:
                 self.namespace = 'default'
-
-            self.upgrade = self.install(self)
 
         def install(self, wait=False):
             """
@@ -73,20 +70,24 @@ class helm:
             """
             cmd = (f'helm upgrade {self.release_name} {self.chart_name}'
                    f' --install -n {self.namespace} --create-namespace')
-            util.header(cmd)
 
-            if self.values_file:
+            try:
                 cmd += f' --values {self.values_file}'
+            except AttributeError:
+                pass
 
-            if self.set_options:
-                for key, value in self.set_options.items:
-                    cmd += f' --set {key}={value}'
+            try:
+                if self.__dict__['set_options']:
+                    for key, value in self.set_options.items:
+                        cmd += f' --set {key}={value}'
+            except KeyError:
+                pass
 
             if wait:
                 cmd += ' --wait'
-                util.sub_proc(cmd)
-            else:
-                util.sub_proc(cmd)
+
+            util.header(cmd)
+            util.sub_proc(cmd)
 
         def uninstall(self):
             """

@@ -75,7 +75,7 @@ def configure_metallb(api, address_pool):
     }
 
     for custom_resource in [ip_pool_cr, l2_advert_cr]:
-        install_custom_resource(custom_resource)
+        install_custom_resource(api, custom_resource, 'metallb.io')
 
 
 def configure_cert_manager(api, email_addr):
@@ -86,7 +86,7 @@ def configure_cert_manager(api, email_addr):
     release = helm.chart(release_name='cert-manager',
                          chart_name='jetstack/cert-manager',
                          namespace='kube-system',
-                         options={'installCRDs': 'true'})
+                         set_options={'installCRDs': 'true'})
     release.install(True)
 
     acme_staging = 'https://acme-staging-v02.api.letsencrypt.org/directory'
@@ -102,10 +102,10 @@ def configure_cert_manager(api, email_addr):
                                {'http01': {'ingress': {'class': 'nginx'}}}]
                            }}}
 
-    install_custom_resource(api, issuer)
+    install_custom_resource(api, issuer, 'cert-manager.io')
 
 
-def install_custom_resource(api, custom_resource_dict):
+def install_custom_resource(api, custom_resource_dict, group_name):
     """
     Does a kube apply on a custom resource dict, and retries if it fails
     """
@@ -113,6 +113,7 @@ def install_custom_resource(api, custom_resource_dict):
     while True:
         try:
             api.create_namespaced_custom_object(
+                group=group_name,
                 version='v1',
                 namespace='kube-system',
                 plural=f"{custom_resource_dict['kind'].lower()}s",
@@ -161,7 +162,7 @@ def main():
         release = helm.chart(release_name='nginx-ingress',
                              chart_name='ingress-nginx/ingress-nginx',
                              namespace='kubesystem',
-                             options=nginx_chart_opts)
+                             set_options=nginx_chart_opts)
         release.install(True)
 
     configure_cert_manager(api, input_variables['email'])
