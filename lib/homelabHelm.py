@@ -46,6 +46,7 @@ class helm:
         """
         not sure what to put here
         """
+        return
 
     class repo:
         """
@@ -54,6 +55,7 @@ class helm:
         def __init__(self, repo_name, repo_url):
             self.repo_name = repo_name
             self.repo_url = repo_url
+            self.update = self.update()
 
         def add(self):
             """
@@ -61,7 +63,7 @@ class helm:
             """
             cmd = f'helm repo add {self.repo_name} {self.repo_url}'
             sub_proc(cmd)
-            self.update
+            self.update()
 
         def remove(self):
             """
@@ -81,62 +83,44 @@ class helm:
         def __init__(self, release_name, **kwargs):
             """
             installs/uninstalls a helm chart. Takes optional key word args:
-                chart="", namespace="", values_file="", options={}
+                chart="", namespace="", values_file="", set_options={}
             always does values file followed by --set options.
             """
             # only required arg
             self.release_name = release_name
 
-            # this is required for the install method, but not uninstall
-            if kwargs['chart']:
-                self.chart = kwargs['chart']
+            # for each keyword arg's key, create self.key for other methods
+            # to reference e.g. pass in namespace='kube-system' and we create
+            # self.namespace='kube-system'
+            for key, value in kwargs:
+                locals()[f'self.{key}'] = value
 
             # always install into default namespace unless stated otherwise
-            if kwargs['namespace']:
-                self.namespace = kwargs['namespace']
-            else:
+            if not kwargs['namespace']:
                 self.namespace = 'default'
 
-            # installing with anything other than the default values
-            if kwargs['values_file']:
-                self.values_file = kwargs['values_file']
-            if kwargs['options']:
-                self.options = kwargs['options']
+            self.upgrade = self.install(self)
 
         def install(self):
             """
             installs a helm chart to the current k8s context
             """
-            command = f'helm install {self.release_name} {self.chart}'
-            if self.namespace:
-                command += f' --namespace {self.namespace} --create-namespace'
-            if self.values_file:
-                command += f' --values {self.values_file}'
-            if self.options:
-                for key, value in self.options.items:
-                    command += f' --set {key}={value}'
-            sub_proc(command)
+            cmd = (f'helm upgrade {self.release_name} {self.chart} --install'
+                   f' --namespace {self.namespace} --create-namespace')
 
-        def upgrade(self):
-            """
-            upgrades a helm chart to the current k8s context
-            """
-            command = f'helm upgrade {self.release_name} {self.chart}'
-            if self.namespace:
-                command += f' --namespace {self.namespace} --create-namespace'
             if self.values_file:
-                command += f' --values {self.values_file}'
-            if self.options:
-                for key, value in self.options.items:
-                    command += f' --set {key}={value}'
-            sub_proc(command)
+                cmd += f' --values {self.values_file}'
+
+            if self.set_options:
+                for key, value in self.set_options.items:
+                    cmd += f' --set {key}={value}'
+
+            sub_proc(cmd)
 
         def uninstall(self):
             """
             Uninstalls a helm chart from the current k8s context
             """
-            command = f'helm uninstall {self.release_name}'
-            if self.namespace:
-                command += f' --namespace {self.namespace}'
-
+            command = (f'helm uninstall {self.release_name}'
+                       f' --namespace {self.namespace}')
             sub_proc(command)
