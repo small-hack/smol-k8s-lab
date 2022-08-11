@@ -45,10 +45,10 @@ def add_default_repos(k8s_distro):
         repos.pop('ingress-nginx')
 
     for repo_name, repo_url in repos.items():
-        helm_repo = helm.repo(repo_name, repo_url).add()
+        helm.repo(repo_name, repo_url).add()
 
     # update any repos that are out of date
-    helm_repo.update()
+    helm.repo.update()
 
 
 def configure_metallb(api, address_pool):
@@ -56,8 +56,8 @@ def configure_metallb(api, address_pool):
     metallb is special because it has Custom Resources
     """
     # install chart and wait
-    chart = helm.chart('metallb', 'metallb/metallb', namespace='kubesystem')
-    chart.install(True)
+    release = helm.chart('metallb', namespace='kubesystem')
+    release.install('metallb/metallb', True)
 
     ip_pool_cr = {
         'apiversion': 'metallb.io/v1beta1',
@@ -81,10 +81,9 @@ def configure_cert_manager(api, email_addr):
     installs cert-manager helm chart and letsencrypt-staging clusterissuer
     """
     # install chart and wait
-    chart = helm.chart('cert-manager', 'jetstack/cert-manager',
-                       namespace='kube-system',
-                       options={'installCRDs': 'true'})
-    chart.install(True)
+    release = helm.chart('cert-manager', namespace='kube-system',
+                         options={'installCRDs': 'true'})
+    release.install('jetstack/cert-manager', True)
 
     acme_staging = 'https://acme-staging-v02.api.letsencrypt.org/directory'
     issuer = {'apiversion': 'cert-manager.io/v1',
@@ -141,7 +140,7 @@ def main():
     header(f"Installing {args.k8s}")
     install_k8s_distro(args.k8s)
 
-    header("Adding/Updating help repos")
+    header("Adding/Updating helm repos")
     add_default_repos(args.k8s)
 
     # set up the k8s python client. Uses default configured $KUBECONFIG
@@ -155,15 +154,15 @@ def main():
 
         # We wait on all the pods to be up on this so other apps can install
         nginx_chart_opts = {'hostNetwork': 'true', 'hostPort.enabled': 'true'}
-        chart = helm.chart('nginx-ingress', 'ingress-nginx/ingress-nginx',
-                           namespace='kubesystem', options=nginx_chart_opts)
-        chart.install(True)
+        release = helm.chart('nginx-ingress', namespace='kubesystem',
+                             options=nginx_chart_opts)
+        release.install('ingress-nginx/ingress-nginx', True)
 
     configure_cert_manager(api, input_variables['email'])
 
     # then install argo CD :D
-    chart = helm.chart('argo', 'argo/argo', namespace='cicd')
-    chart.install(True)
+    release = helm.chart('argo', namespace='cicd')
+    release.install('argo/argo', True)
 
     print("all done")
 
