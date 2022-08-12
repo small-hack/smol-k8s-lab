@@ -14,22 +14,21 @@ def parse_args():
     """
     Parse arguments and return dict
     """
-    n_help = 'Do NOT run k9s as soon as this script is complete'
+    k9_help = 'Run k9s as soon as this script is complete, defaults to False'
+    a_help = 'Run argocd install as part of this script, defaults to False'
     f_help = 'Full path and name of yml to parse, e.g. -f /tmp/config.yml'
     k_help = 'distribution of kubernetes to install: k3s, k0s, KinD'
     p = ArgumentParser(description=main.__doc__)
 
     p.add_argument('-k', '--k8s', required=True, help=k_help)
     p.add_argument('-f', '--file', default='config.yml', type=str, help=f_help)
-    p.add_argument('--no_k9s', action='store_true', default=False,
-                   help=n_help)
-    p.add_argument('--no_argo', action='store_true', default=False,
-                   help=n_help)
+    p.add_argument('--k9s', action='store_true', default=False, help=k9_help)
+    p.add_argument('--argo', action='store_true', default=False, help=a_help)
 
     return p.parse_args()
 
 
-def add_default_repos(k8s_distro, no_argo=False):
+def add_default_repos(k8s_distro, argo=True):
     """
     Add all the default helm chart repos
     # metallb is for loadbalancing and assigning ips, on metal...
@@ -42,7 +41,7 @@ def add_default_repos(k8s_distro, no_argo=False):
     repos['metallb'] = 'https://metallb.github.io/metallb'
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
-    if no_argo:
+    if argo:
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
     # kind has a special install path
@@ -151,7 +150,7 @@ def main():
     install_k8s_distro(args.k8s)
 
     header("Adding/Updating helm repos")
-    add_default_repos(args.k8s, args.no_argo)
+    add_default_repos(args.k8s, args.argo)
 
     # set up the k8s python client. Uses default configured $KUBECONFIG
     config.load_kube_config()
@@ -172,7 +171,7 @@ def main():
 
     configure_cert_manager(api, input_variables['email'])
 
-    if args.no_argo:
+    if args.argo:
         # then install argo CD :D
         release = helm.chart(release_name='argo-cd',
                              chart_name='argo/argo-cd',

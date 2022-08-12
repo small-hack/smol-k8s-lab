@@ -15,16 +15,34 @@ Currently supported k8s distros, biasing towards small and quick distros.
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s.
 
 #### Pre-Req
-- Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 - Have Python 3.9 or higher installed as well as pip3
 - Have internet access.
+- change the values in `config_sample.yml` to your own
+- Optional: Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 
 ```bash
 # install the requirements
 pip3 install -r requirements.txt
 
+# change the values in config_sample.yml to your own values then rename it
+mv config_sample.yml config.yml
+
 # test to make sure the script loads
 ./smol-k8s-homelab.py --help
+```
+
+The help should return this:
+```
+usage: smol-k8s-homelab.py [-h] -k K8S [-f FILE] [--k9s] [--argo]
+
+Quickly install a k8s distro for a homelab setup. installs k3s with metallb, nginx-ingess-controller, cert-manager, and argo
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -k K8S, --k8s K8S     distribution of kubernetes to install: k3s, k0s, KinD
+  -f FILE, --file FILE  Full path and name of yml to parse, e.g. -f /tmp/config.yml
+  --k9s                 Run k9s as soon as this script is complete, defaults to False
+  --argo                Run argocd install as part of this script, defaults to False
 ```
 
 ### Install distro with python script
