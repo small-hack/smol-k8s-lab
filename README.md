@@ -15,9 +15,7 @@ We're biasing towards small and quick distros.
 - [metallb](https://github.io/metallb/metallb)
 - [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx)
 - [cert-manager](https://cert-manager.io/docs/)
-
-Optional:
-- [argo-cd](https://github.io/argoproj/argo-helm)
+- Optional: [argo-cd](https://github.io/argoproj/argo-helm)
 
 ## Quickstart in Python
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s.
@@ -26,9 +24,11 @@ This is aimed at being a much more scalable experience, but is still being worke
 - Have Python 3.9 or higher installed as well as pip3
 - [helm](https://helm.sh/docs/intro/install/#through-package-managers)
 - [kind](https://kind.sigs.k8s.io/docs/user/quick-start#installing-with-a-package-manager)
+- **change the values in `config_sample.yml` to your own**
 - Have internet access.
-- change the values in `config_sample.yml` to your own
-- Optional: Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
+
+#### Optional Pre-Req
+- Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 
 ```bash
 # install the requirements
