@@ -1,7 +1,7 @@
 #!/bin/bash -
 #===============================================================================
 #
-#         USAGE: ./quick-start-k3s.sh
+#         USAGE: ./quickstart.sh
 #
 #   DESCRIPTION: Quickly install k3s without traefik and servicelb
 #
