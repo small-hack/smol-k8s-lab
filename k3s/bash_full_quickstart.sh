@@ -1,7 +1,7 @@
 #!/bin/bash -
 #===============================================================================
 #
-#         USAGE: ./quick-start-k3s.sh
+#         USAGE: ./bash_full_quickstart.sh
 #          ARGS: --no-k9s - don't start k9s, top 4 kubernetes, at end of script
 #
 #   DESCRIPTION: Quickly install k3s using the following stack on Linux:
@@ -13,6 +13,29 @@
 #       CREATED: 04/08/2022 22:24:00
 #
 #===============================================================================
+# IP address pool for metallb, this is where your domains will map
+# back to if you use ingress for your cluster, defaults to 8 ip addresses
+# export CIDR="192.168.42.42-192.168.42.50"
+
+# email address for lets encrypt
+# export EMAIL="dogontheinternet@coolemails4dogs.com"
+
+# this is for prometheus alert manager
+# export ALERT_MANAGER_DOMAIN="alert-manager.selfhostingfordogs.com"
+# this is for your grafana instance, that is connected to prometheus
+# export GRAFANA_DOMAIN="grafana.selfhostingfordogs.com"
+# this is for prometheus proper, where you'll go to verify # exporters are working
+# export PROMETHEUS_DOMAIN="prometheus.selfhostingfordogs.com"
+
+## SECTION FOR GRABBING REMOTE KUBECONFIG ##
+# remote host name or ip address of the k8s cluster
+# export REMOTE_HOST="192.168.20.2"
+# remote port on the host for ssh
+# export REMOTE_SSH_PORT="22"
+# username you use to ssh to that host
+# export REMOTE_USER="dogontheinternet"
+
+# you can uncomment/change default variables above, or use a .env file for them
 . ../.env
 if [ "$?" -ne 0 ]; then
     . ../../.env
