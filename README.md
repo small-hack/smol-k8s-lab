@@ -24,6 +24,8 @@ This is aimed at being a much more scalable experience, but is still being worke
 
 #### Pre-Req
 - Have Python 3.9 or higher installed as well as pip3
+- [helm](https://helm.sh/docs/intro/install/#through-package-managers)
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start#installing-with-a-package-manager)
 - Have internet access.
 - change the values in `config_sample.yml` to your own
 - Optional: Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
@@ -227,3 +229,6 @@ And then update your `ndot` option in your `/etc/resolv.conf` for podDNS to be 1
 
 #### No, it does not spark joy
 STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
+
+# TODO
+- install helm and kind for the user. We do it for them.
