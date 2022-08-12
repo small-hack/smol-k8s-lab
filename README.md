@@ -2,7 +2,8 @@
 
 Under construction, but this is where we'll throw some local k8s (kubernetes) testing tools. This is aimed at getting up and running quickly, but there's also full tutorials linked in `README.md` for each distro's directory, if you'd like to learn the commands at your terminal. These tutorials assume you're on Linux or macOS.
 
-Currently supported k8s distros, biasing towards small and quick distros.
+## Currently supported k8s distros
+We're biasing towards small and quick distros.
 
 | Distro                           | Smol K8s Homelab Support|          Tutorial               |  [Quickstart BASH](#quickstart-in-bash)  |
 |:--------------------------------:|:-----------------------:|:-------------------------------:|:----------------------------------------:|
@@ -57,7 +58,7 @@ Currently only being tested with k3s, but soon you can do other distros listed a
 - Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 - Have internet access.
 
-## Choose a k8s distro 
+### Choose a k8s distro 
   
 <details>
   <summary>K3s - (Best for Linux on metal or a bridged VM)</summary>
