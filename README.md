@@ -11,6 +11,13 @@ We're biasing towards small and quick distros.
 |[KinD](https://kind.sigs.k8s.io/) | beta                    | [available](./kind/README.md)   | [beta](./kind/bash_full_quickstart.sh)   |
 |[k0s](https://k0sproject.io/)     | soon                    | [available](./k0s/README.md)    | soon :3                                  |
 
+### Stack We Install on K8s
+- [metallb](https://github.io/metallb/metallb)
+- [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx)
+- [cert-manager](https://cert-manager.io/docs/)
+
+Optional:
+- [argo-cd](https://github.io/argoproj/argo-helm)
 
 ## Quickstart in Python
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s.
