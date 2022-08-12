@@ -152,7 +152,7 @@ def main():
         elif args.k8s == 'kind':
             sub_proc('kind delete cluster')
         elif args.k8s == 'k0s':
-            header("k┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
+            header("┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
     else:
         with open(args.file, 'r') as yaml_file:
             input_variables = yaml.safe_load(yaml_file)

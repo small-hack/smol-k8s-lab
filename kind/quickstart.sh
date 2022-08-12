@@ -18,7 +18,7 @@ source .env
 # pretty echo so that I don't have ot remember this incantation
 function p_echo() {
     echo ""
-    echo -e "\t\033[92m❤︎$1❤︎\033[00m"
+    echo -e "\t\033[92m❤︎ $1 ❤︎\033[00m"
     echo ""
 }
 

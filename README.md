@@ -5,11 +5,11 @@ Currently in a beta state. We throw local k8s (kubernetes) testing tools in this
 ### Currently supported k8s distros
 We're biasing towards small and quick distros.
 
-| Distro                           | Smol K8s Homelab Support|          Tutorial               |  [Quickstart BASH](#quickstart-in-bash)  |
-|:--------------------------------:|:-----------------------:|:-------------------------------:|:----------------------------------------:|
-|[k3s](https://k3s.io/)            | beta                    | [available](./k3s/README.md)    | [Working](./k3s/bash_full_quickstart.sh) |
-|[KinD](https://kind.sigs.k8s.io/) | beta                    | [available](./kind/README.md)   | [beta](./kind/bash_full_quickstart.sh)   |
-|[k0s](https://k0sproject.io/)     | soon                    | [available](./k0s/README.md)    | soon :3                                  |
+| Distro | (smol-k8s-homelab.py)[./smol-k8s-homelab.py]| Tutorial | [Quickstart BASH](#quickstart-in-bash) |
+|:--------------------------------:|:-------------------:|:---------------------------:|:--------------------------------------:|
+|[k3s](https://k3s.io/)            | ✅                  | [./k3s/README.md](./k3s/README.md)   | [Working](./k3s/bash_full_quickstart.sh) |
+|[KinD](https://kind.sigs.k8s.io/) | ✅                  | [./kind/README.md](./kind/README.md) | [beta](./kind/bash_full_quickstart.sh)   |
+|[k0s](https://k0sproject.io/)     | soon                | [./k0s/README.md](./k0s/README.md)   | soon :3                                  |
 
 ### Stack We Install on K8s
 - [metallb](https://github.io/metallb/metallb)
@@ -41,7 +41,7 @@ mv config_sample.yml config.yml
 
 The help should return this:
 ```bash
-usage: smol-k8s-homelab.py [-h] -k K8S [-f FILE] [--k9s] [--argo]
+usage: smol-k8s-homelab.py [-h] -k K8S [-f FILE] [--k9s] [--argo] [--delete]
 
 Quickly install a k8s distro for a homelab setup. installs k3s with metallb, nginx-ingess-controller, cert-manager, and argo
 
@@ -51,13 +51,19 @@ optional arguments:
   -f FILE, --file FILE  Full path and name of yml to parse, e.g. -f /tmp/config.yml
   --k9s                 Run k9s as soon as this script is complete, defaults to False
   --argo                Run argocd install as part of this script, defaults to False
+  --delete              Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]
 ```
 
 ### Install distro with python script
-Currently only being tested with k3s, but soon you can do other distros listed above. In the meantime, use the tutorials and BASH scripts linked above
+Currently only being tested with k3s and kind, but soon you can do other distros listed above. In the meantime, use the tutorial above for k0s.
 ```bash
-# you can replace k3s with kind in the future
+# you can replace k3s with kind
 ./smol-k8s-homelab.py --k8s k3s
+```
+### Uninstall distro with python script
+```bash
+# you can replace k3s with kind
+./smol-k8s-homelab.py --k8s k3s --delete
 ```
 
 ## Quickstart in BASH
