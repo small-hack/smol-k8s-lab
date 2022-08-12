@@ -4,7 +4,7 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 
 Currently supported k8s distros, biasing towards small and quick distros.
 
-| Distro                           | Smol K8s Homelab Support|          Tutorial               |           Quickstart BASH script         |
+| Distro                           | Smol K8s Homelab Support|          Tutorial               |  [Quickstart BASH](#quickstart-in-bash)  |
 |:--------------------------------:|:-----------------------:|:-------------------------------:|:----------------------------------------:|
 |[k3s](https://k3s.io/)            |  v1                     | [Working](./k3s/README.md)      | [Working](./k3s/bash_full_quickstart.sh) |
 |[KinD](https://kind.sigs.k8s.io/) | beta                    | [coming soon](./kind/README.md) | [beta](./kind/bash_full_quickstart.sh)   |
