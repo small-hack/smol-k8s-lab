@@ -6,7 +6,8 @@
 #
 #   DESCRIPTION: Quickly install k3s using the following stack on Linux:
 #                k3s (kubernetes distribution), metallb (load balancer),
-#                and cert-manager (automatic SSL)
+#                cert-manager (automatic SSL), & prometheus/grafana (monitoring)
+#                This is meant to be a stand alone script.
 #
 #        AUTHOR: jesse, max
 #  ORGANIZATION: @jessebot + @cloudymax

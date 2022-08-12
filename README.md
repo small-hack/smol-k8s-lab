@@ -4,15 +4,15 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 
 Currently supported k8s distros, biasing towards small and quick distros.
 
-| Distro                           | K8s Homelab main script |                              Tutorial                                   |  Quickstart BASH script |
-|:--------------------------------:|:-----------------------:|:-----------------------------------------------------------------------:|:-----------------------:|
-|[k3s](https://k3s.io/)            | beta                    | [beta available](https://github.com/jessebot/k8s_homelab/tree/main/k3s) |       beta :D           |
-|[KinD](https://kind.sigs.k8s.io/) | beta                    | coming soon                                                             |        belpha           |
-|[k0s](https://k0sproject.io/)     | soon                    | [available](https://github.com/jessebot/k8s_homelab/tree/main/k0s)      |      coming soon        |
+| Distro                           | Smol K8s Homelab Support|          Tutorial               |           Quickstart BASH script             |
+|:--------------------------------:|:-----------------------:|:-------------------------------:|:--------------------------------------------:|
+|[k3s](https://k3s.io/)            | beta                    | [Working](./k3s/README.md)      |   [Working](./k3s/bash_full_quickstart.sh)   |
+|[KinD](https://kind.sigs.k8s.io/) | beta                    | [coming soon](./kind/README.md) |        [beta](./kind/bash_full_quickstart.sh)|
+|[k0s](https://k0sproject.io/)     | soon                    | [available](./k0s/README.md)    |      coming soon                             |
 
 
 ## Quickstart in Python
-This is aimed at being a much more scalable experience, but is still being worked on.
+This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s.
 
 #### Pre-Req
 - Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
@@ -30,8 +30,8 @@ pip3 install -r requirements.txt
 ### Install distro with python script
 Currently only being tested with k3s, but soon you can do other distros listed above. In the meantime, use the tutorials and BASH scripts linked above
 ```
-# you can replace k3s
-./smol-k8s-homelab.py --k8s
+# you can replace k3s with kind in the future
+./smol-k8s-homelab.py --k8s k3s
 ```
 
 ## Quickstart in BASH
