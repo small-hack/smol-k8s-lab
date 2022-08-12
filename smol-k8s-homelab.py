@@ -15,13 +15,16 @@ def parse_args():
     k9_help = 'Run k9s as soon as this script is complete, defaults to False'
     a_help = 'Run argocd install as part of this script, defaults to False'
     f_help = 'Full path and name of yml to parse, e.g. -f /tmp/config.yml'
-    k_help = 'distribution of kubernetes to install: k3s, KinD, or k0s'
+    k_help = ('distribution of kubernetes to install: \n'
+              'k3s or kind. k0s coming soon')
+    d_help = 'Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]'
     p = ArgumentParser(description=main.__doc__)
 
     p.add_argument('-k', '--k8s', required=True, help=k_help)
     p.add_argument('-f', '--file', default='config.yml', type=str, help=f_help)
     p.add_argument('--k9s', action='store_true', default=False, help=k9_help)
     p.add_argument('--argo', action='store_true', default=False, help=a_help)
+    p.add_argument('--delete', action='store_true', default=False, help=d_help)
 
     return p.parse_args()
 
@@ -141,38 +144,52 @@ def main():
     with metallb, nginx-ingess-controller, cert-manager, and argo
     """
     args = parse_args()
-    with open(args.file, 'r') as yaml_file:
-        input_variables = yaml.safe_load(yaml_file)
 
-    header(f"Installing {args.k8s}")
-    install_k8s_distro(args.k8s)
+    if args.delete:
+        header(f"ヾ(^_^) byebye {args.k8s}!!")
+        if args.k8s == 'k3s':
+            sub_proc('k3s-uninstall.sh')
+        elif args.k8s == 'kind':
+            sub_proc('kind delete cluster')
+        elif args.k8s == 'k0s':
+            header("k┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
+    else:
+        with open(args.file, 'r') as yaml_file:
+            input_variables = yaml.safe_load(yaml_file)
 
-    header("Adding/Updating helm repos")
-    add_default_repos(args.k8s, args.argo)
+        if args.k8s == 'kind':
+            header('Installing KinD. This could take 2-3 minutes ʕ•́ᴥ•̀ʔっ♡')
+        else:
+            header(f"Installing {args.k8s}")
+        install_k8s_distro(args.k8s)
 
-    # KinD has ingress-nginx install in install_k8s_distro()
-    if args.k8s != 'kind':
-        header("Configuring metallb so we have an ip address pool")
-        configure_metallb(input_variables['address_pool'])
+        header("Adding/Updating helm repos")
+        add_default_repos(args.k8s, args.argo)
 
-        header("Installing nginx-ingress-controller")
-        nginx_chart_opts = {'hostNetwork': 'true', 'hostPort.enabled': 'true'}
-        release = helm.chart(release_name='nginx-ingress',
-                             chart_name='ingress-nginx/ingress-nginx',
-                             namespace='kubesystem',
-                             set_options=nginx_chart_opts)
-        release.install()
+        # KinD has ingress-nginx install in install_k8s_distro()
+        if args.k8s != 'kind':
+            header("Configuring metallb so we have an ip address pool")
+            configure_metallb(input_variables['address_pool'])
 
-    configure_cert_manager(input_variables['email'])
+            header("Installing nginx-ingress-controller")
+            nginx_chart_opts = {'hostNetwork': 'true',
+                                'hostPort.enabled': 'true'}
+            release = helm.chart(release_name='nginx-ingress',
+                                 chart_name='ingress-nginx/ingress-nginx',
+                                 namespace='kubesystem',
+                                 set_options=nginx_chart_opts)
+            release.install()
 
-    if args.argo:
-        # then install argo CD :D
-        release = helm.chart(release_name='argo-cd',
-                             chart_name='argo/argo-cd',
-                             namespace='cicd')
-        release.install(True)
+        configure_cert_manager(input_variables['email'])
 
-    print("all done")
+        if args.argo:
+            # then install argo CD :D
+            release = helm.chart(release_name='argo-cd',
+                                 chart_name='argo/argo-cd',
+                                 namespace='cicd')
+            release.install(True)
+
+            print("all done")
 
 
 if __name__ == '__main__':
