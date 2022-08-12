@@ -15,7 +15,7 @@
 function p_echo() {
     echo "--------------------------------ʕ·ᴥ·ʔ---------------------------------"
     echo ""
-    echo -e "\033[92m$1\033[00m"
+    echo -e "\t\033[92m$1\033[00m"
     echo ""
 }
 
@@ -29,7 +29,7 @@ p_echo "curl -sfL https://get.k3s.io | sh -"
 curl -sfL https://get.k3s.io | sh -
 
 # Grab the kubeconfig and copy it locally
-p_echo "cp the k3s kubeconfig to the right place"
+p_echo "copying the k3s kubeconfig to the right place"
 mkdir -p ~/.kube
 cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig
 # change the permissions os that it doesn't complain
