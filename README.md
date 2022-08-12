@@ -4,11 +4,11 @@ Under construction, but this is where we'll throw some local k8s (kubernetes) te
 
 Currently supported k8s distros, biasing towards small and quick distros.
 
-| Distro                           | Smol K8s Homelab Support|          Tutorial               |           Quickstart BASH script             |
-|:--------------------------------:|:-----------------------:|:-------------------------------:|:--------------------------------------------:|
-|[k3s](https://k3s.io/)            | beta                    | [Working](./k3s/README.md)      |   [Working](./k3s/bash_full_quickstart.sh)   |
-|[KinD](https://kind.sigs.k8s.io/) | beta                    | [coming soon](./kind/README.md) |        [beta](./kind/bash_full_quickstart.sh)|
-|[k0s](https://k0sproject.io/)     | soon                    | [available](./k0s/README.md)    |      coming soon                             |
+| Distro                           | Smol K8s Homelab Support|          Tutorial               |           Quickstart BASH script         |
+|:--------------------------------:|:-----------------------:|:-------------------------------:|:----------------------------------------:|
+|[k3s](https://k3s.io/)            |  v1                     | [Working](./k3s/README.md)      | [Working](./k3s/bash_full_quickstart.sh) |
+|[KinD](https://kind.sigs.k8s.io/) | beta                    | [coming soon](./kind/README.md) | [beta](./kind/bash_full_quickstart.sh)   |
+|[k0s](https://k0sproject.io/)     | soon                    | [available](./k0s/README.md)    | soon                                     |
 
 
 ## Quickstart in Python
@@ -32,7 +32,7 @@ mv config_sample.yml config.yml
 ```
 
 The help should return this:
-```
+```bash
 usage: smol-k8s-homelab.py [-h] -k K8S [-f FILE] [--k9s] [--argo]
 
 Quickly install a k8s distro for a homelab setup. installs k3s with metallb, nginx-ingess-controller, cert-manager, and argo
@@ -47,7 +47,7 @@ optional arguments:
 
 ### Install distro with python script
 Currently only being tested with k3s, but soon you can do other distros listed above. In the meantime, use the tutorials and BASH scripts linked above
-```
+```bash
 # you can replace k3s with kind in the future
 ./smol-k8s-homelab.py --k8s k3s
 ```
