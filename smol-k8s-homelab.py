@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 # AUTHOR: @jessebot
-# EXPERIMENTAL - DO NOT USE IF YOU DON'T KNOW k8s and Python fairly well :)
+# Works with k3s
 from argparse import ArgumentParser
 from collections import OrderedDict
-# https://github.com/kubernetes-client/python
-from kubernetes import client, config
 from lib.homelabHelm import helm
 from lib.util import sub_proc, simple_loading_bar, header
 import yaml
@@ -17,7 +15,7 @@ def parse_args():
     k9_help = 'Run k9s as soon as this script is complete, defaults to False'
     a_help = 'Run argocd install as part of this script, defaults to False'
     f_help = 'Full path and name of yml to parse, e.g. -f /tmp/config.yml'
-    k_help = 'distribution of kubernetes to install: k3s, k0s, KinD'
+    k_help = 'distribution of kubernetes to install: k3s, KinD, or k0s'
     p = ArgumentParser(description=main.__doc__)
 
     p.add_argument('-k', '--k8s', required=True, help=k_help)
@@ -139,8 +137,8 @@ def configure_cert_manager(api, email_addr):
 
 def main():
     """
-    Quickly install a k8s distro for a homelab setup.
-    installs k3s with metallb, nginx-ingess-controller, cert-manager, and argo
+    Quickly install a k8s distro for a homelab setup. Installs k3s 
+    with metallb, nginx-ingess-controller, cert-manager, and argo
     """
     args = parse_args()
     with open(args.file, 'r') as yaml_file:
