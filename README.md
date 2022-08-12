@@ -2,14 +2,14 @@
 
 Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly, but there's also full tutorials linked in the `README.md` for each distro's directory, if you'd like to learn the commands at your terminal. These tutorials assume you're on Linux or macOS.
 
-## Currently supported k8s distros
+### Currently supported k8s distros
 We're biasing towards small and quick distros.
 
 | Distro                           | Smol K8s Homelab Support|          Tutorial               |  [Quickstart BASH](#quickstart-in-bash)  |
 |:--------------------------------:|:-----------------------:|:-------------------------------:|:----------------------------------------:|
-|[k3s](https://k3s.io/)            | v0.1                    | [Working](./k3s/README.md)      | [Working](./k3s/bash_full_quickstart.sh) |
-|[KinD](https://kind.sigs.k8s.io/) | beta                    | [coming soon](./kind/README.md) | [beta](./kind/bash_full_quickstart.sh)   |
-|[k0s](https://k0sproject.io/)     | soon                    | [available](./k0s/README.md)    | soon                                     |
+|[k3s](https://k3s.io/)            | beta                    | [available](./k3s/README.md)    | [Working](./k3s/bash_full_quickstart.sh) |
+|[KinD](https://kind.sigs.k8s.io/) | beta                    | [available](./kind/README.md)   | [beta](./kind/bash_full_quickstart.sh)   |
+|[k0s](https://k0sproject.io/)     | soon                    | [available](./k0s/README.md)    | soon :3                                  |
 
 
 ## Quickstart in Python

@@ -13,6 +13,7 @@
 #
 #===============================================================================
 source .env
+
 # extremely simply loading bar
 function simple_loading_bar() {
     echo ""
@@ -32,9 +33,8 @@ function p_echo() {
     echo ""
 }
 
-# add/update all relevant helm repos
-p_echo " Add/update helm repos for ingress-nginx, and cert-manager."
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+# add/update relevant helm repo
+p_echo " Add/update helm repos for cert-manager."
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 
