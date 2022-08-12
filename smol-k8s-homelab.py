@@ -61,7 +61,7 @@ def install_k8s_distro(k8s_distro):
     sub_proc(f"./{k8s_distro}/quickstart.sh")
 
 
-def install_custom_resource(api, custom_resource_dict):
+def install_custom_resource(custom_resource_dict):
     """
     Does a kube apply on a custom resource dict, and retries if it fails
     """
@@ -81,7 +81,7 @@ def install_custom_resource(api, custom_resource_dict):
             continue
 
 
-def configure_metallb(api, address_pool):
+def configure_metallb(address_pool):
     """
     metallb is special because it has Custom Resources
     """
@@ -105,10 +105,10 @@ def configure_metallb(api, address_pool):
     }
 
     for custom_resource in [ip_pool_cr, l2_advert_cr]:
-        install_custom_resource(api, custom_resource)
+        install_custom_resource(custom_resource)
 
 
-def configure_cert_manager(api, email_addr):
+def configure_cert_manager(email_addr):
     """
     installs cert-manager helm chart and letsencrypt-staging clusterissuer
     """
@@ -132,12 +132,12 @@ def configure_cert_manager(api, email_addr):
                                {'http01': {'ingress': {'class': 'nginx'}}}]
                            }}}
 
-    install_custom_resource(api, issuer)
+    install_custom_resource(issuer)
 
 
 def main():
     """
-    Quickly install a k8s distro for a homelab setup. Installs k3s 
+    Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, nginx-ingess-controller, cert-manager, and argo
     """
     args = parse_args()
@@ -150,14 +150,10 @@ def main():
     header("Adding/Updating helm repos")
     add_default_repos(args.k8s, args.argo)
 
-    # set up the k8s python client. Uses default configured $KUBECONFIG
-    config.load_kube_config()
-    api = client.CustomObjectsApi()
-
     # KinD has ingress-nginx install in install_k8s_distro()
     if args.k8s != 'kind':
         header("Configuring metallb so we have an ip address pool")
-        configure_metallb(api, input_variables['address_pool'])
+        configure_metallb(input_variables['address_pool'])
 
         header("Installing nginx-ingress-controller")
         nginx_chart_opts = {'hostNetwork': 'true', 'hostPort.enabled': 'true'}
@@ -167,7 +163,7 @@ def main():
                              set_options=nginx_chart_opts)
         release.install()
 
-    configure_cert_manager(api, input_variables['email'])
+    configure_cert_manager(input_variables['email'])
 
     if args.argo:
         # then install argo CD :D
