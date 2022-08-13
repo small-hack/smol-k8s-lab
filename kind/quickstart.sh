@@ -22,6 +22,20 @@ function p_echo() {
     echo ""
 }
 
+# make sure kind is installed ^_^;
+which kind > /dev/null
+# if the above command does not return 0...
+if [ $? -ne 0 ]; then
+    p_echo "Looks like you don't have KIND installed. I'll get this installed for you :3"
+    brew install kind
+    if [ $? -ne 0 ]; then
+        p_echo "Oh no! You don't have brew installed either D: You can install it with this command"
+        echo '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+        # fail out
+        return 1
+    fi
+fi
+
 # create the cluster
 p_echo "Creating kind cluster..."
 cat <<EOF | kind create cluster --config=-
