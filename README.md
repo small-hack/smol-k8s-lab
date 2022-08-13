@@ -12,27 +12,31 @@ We're biasing towards small and quick distros.
 |[k0s](https://k0sproject.io/)     | soon                | [./k0s/README.md](./k0s/README.md)   | soon :3                                  |
 
 ### Stack We Install on K8s
-- [metallb](https://github.io/metallb/metallb)
-- [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx)
-- [cert-manager](https://cert-manager.io/docs/)
-- Optional: [argo-cd](https://github.io/argoproj/argo-helm)
+| Application | What is it? |
+|:-----------:|:--------------|
+
+| [metallb](https://github.io/metallb/metallb) | loadbalancer for metal, since we're mostly selfhosting |
+| [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, this is needed for web traffic |
+| [cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
+| Optional: [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | generation of secrets as encrypted blobs so you can check secrets into git |
+| Optional: [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
+| [k9s](https://k9scli.io/topics/install/) | Terminal based dashboard for kubernetes |
 
 ## Quickstart in Python
-This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s.
+This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s and kind.
 
 #### Pre-Req
 - Have Python 3.9 or higher installed as well as pip3
-- [helm](https://helm.sh/docs/intro/install/#through-package-managers)
-- [kind](https://kind.sigs.k8s.io/docs/user/quick-start#installing-with-a-package-manager)
+- [brew](https://brew.sh)
 - **change the values in `config_sample.yml` to your own**
 - Have internet access.
 
-#### Optional Pre-Req
-- Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
-
 ```bash
+# Make sure you have brew installed (https://brew.sh)
+brew bundle --file=./deps/Brewfile
+
 # install the requirements
-pip3 install -r requirements.txt
+pip3 install -r ./deps/requirements.txt
 
 # change the values in config_sample.yml to your own values then rename it
 mv config_sample.yml config.yml
@@ -62,6 +66,32 @@ Currently only being tested with k3s and kind, but soon you can do other distros
 # you can replace k3s with kind
 ./smol-k8s-homelab.py --k8s k3s
 ```
+
+#### Install some kubectl plugins (Optional)
+These together make namespace switching better. Learn more about [kubectx + kubens](https://github.com/ahmetb/kubectx).
+```bash
+kubectl krew update
+kubectl krew install ctx
+kubectl krew install ns
+```
+
+#### Install @jessebot's `.bashrc_k8s` (optional)
+You can copy over the rc file for some helpful aliases:
+```bash
+# copy the file to your home directory
+cp deps/.bashrc_k8s ~
+
+# load the file for your current shell
+source ~/.bashrc_k8s
+```
+To have the above file sourced every new shell, copy this into your `.bashrc` or `.bash_profile`:
+```
+# include external .bashrc_k8s if it exists
+if [ -f $HOME/.bashrc_k8s ]; then
+    . $HOME/.bashrc_k8s
+fi
+```
+
 ### Uninstall distro with python script
 ```bash
 # you can replace k3s with kind
@@ -232,3 +262,5 @@ STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS
 
 # TODO
 - install helm and kind for the user. We do it for them.
+- look into https://crossplane.io/ and kubevela
+- look into https://kubesec.io/

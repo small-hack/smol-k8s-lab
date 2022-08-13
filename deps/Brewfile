@@ -1,0 +1,20 @@
+# containers for k8s
+brew "docker"
+
+# kubernetes in docker
+brew "kind"
+
+# kubernetes cli
+brew "kubectl"
+
+# k8s package manager
+brew "helm"
+
+# package manager installing kubectl plugins
+brew "krew"
+
+# k8s dashboard
+brew "k9s"
+
+# fuzzy finder
+brew "fzf"

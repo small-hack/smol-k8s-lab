@@ -70,6 +70,7 @@ class helm:
             """
             cmd = (f'helm upgrade {self.release_name} {self.chart_name}'
                    f' --install -n {self.namespace} --create-namespace')
+            # f' --atomic')
 
             try:
                 cmd += f' --values {self.values_file}'

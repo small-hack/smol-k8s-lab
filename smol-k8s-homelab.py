@@ -13,11 +13,12 @@ def parse_args():
     Parse arguments and return dict
     """
     k9_help = 'Run k9s as soon as this script is complete, defaults to False'
-    a_help = 'Run argocd install as part of this script, defaults to False'
+    a_help = 'Install Argo CD as part of this script, defaults to False'
     f_help = 'Full path and name of yml to parse, e.g. -f /tmp/config.yml'
     k_help = ('distribution of kubernetes to install: \n'
               'k3s or kind. k0s coming soon')
     d_help = 'Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]'
+    s_help = 'Install bitnami sealed secrets, defaults to False'
     p = ArgumentParser(description=main.__doc__)
 
     p.add_argument('-k', '--k8s', required=True, help=k_help)
@@ -25,6 +26,8 @@ def parse_args():
                    help=f_help)
     p.add_argument('--k9s', action='store_true', default=False, help=k9_help)
     p.add_argument('--argo', action='store_true', default=False, help=a_help)
+    p.add_argument('-s', '--sealed_secrets', action='store_true',
+                   default=False, help=s_help)
     p.add_argument('--delete', action='store_true', default=False, help=d_help)
 
     return p.parse_args()
@@ -201,11 +204,15 @@ def main():
         configure_cert_manager(input_variables['email'])
 
         # this allows you to check your secret files into git
-        header("Installing Bitnami sealed-secrets...")
-        release = helm.chart(release_name='sealed-secrets',
-                             chart_name='sealed-secrets/sealed-secrets',
-                             namespace='seatled-secrets')
-        release.install()
+        if args.sealed_secrets:
+            header("Installing Bitnami sealed-secrets...")
+            release = helm.chart(release_name='sealed-secrets',
+                                 chart_name='sealed-secrets/sealed-secrets',
+                                 namespace='sealed-secrets',
+                                 set_options={'namespace': "shared-secrets"})
+            release.install()
+            print("Installing kubeseal with brew...")
+            sub_proc("brew install kubeseal", True)
 
         if args.argo:
             # then install argo CD :D
