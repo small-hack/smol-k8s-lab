@@ -21,7 +21,8 @@ def parse_args():
     p = ArgumentParser(description=main.__doc__)
 
     p.add_argument('-k', '--k8s', required=True, help=k_help)
-    p.add_argument('-f', '--file', default='config.yml', type=str, help=f_help)
+    p.add_argument('-f', '--file', default='./config.yml', type=str,
+                   help=f_help)
     p.add_argument('--k9s', action='store_true', default=False, help=k9_help)
     p.add_argument('--argo', action='store_true', default=False, help=a_help)
     p.add_argument('--delete', action='store_true', default=False, help=d_help)
@@ -34,7 +35,8 @@ def add_default_repos(k8s_distro, argo=True):
     Add all the default helm chart repos
     # metallb is for loadbalancing and assigning ips, on metal...
     # ingress-nginx allows us to do ingress, so access outside the cluster
-    # jetstack is for cert-manager for ssl certs
+    # jetstack is for cert-manager for TLS certs
+    # sealed-secrets - for encrypting k8s secrets files for checking into git
     # argo is argoCD to manage k8s resources in the future through a gui
     """
     repos = OrderedDict()
@@ -42,6 +44,7 @@ def add_default_repos(k8s_distro, argo=True):
     repos['metallb'] = 'https://metallb.github.io/metallb'
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
+    repos['sealed-secrets'] = 'https://bitnami-labs.github.io/sealed-secrets'
     if argo:
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
@@ -138,6 +141,20 @@ def configure_cert_manager(email_addr):
     install_custom_resource(issuer)
 
 
+def delete_cluster(k8s_distro="k3s"):
+    """
+    Delete a KIND or K3s cluster entirely.
+    """
+    header(f"ヾ(^_^) byebye {k8s_distro}!!")
+
+    if k8s_distro == 'k3s':
+        sub_proc('k3s-uninstall.sh')
+    elif k8s_distro == 'kind':
+        sub_proc('kind delete cluster')
+    elif k8s_distro == 'k0s':
+        header("┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
+
+
 def main():
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
@@ -146,32 +163,31 @@ def main():
     args = parse_args()
 
     if args.delete:
-        header(f"ヾ(^_^) byebye {args.k8s}!!")
-        if args.k8s == 'k3s':
-            sub_proc('k3s-uninstall.sh')
-        elif args.k8s == 'kind':
-            sub_proc('kind delete cluster')
-        elif args.k8s == 'k0s':
-            header("┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
+        delete_cluster(args.k8s)
     else:
         with open(args.file, 'r') as yaml_file:
             input_variables = yaml.safe_load(yaml_file)
 
+        # install the actual KIND or k3s cluster
         if args.k8s == 'kind':
-            header('Installing KinD. This could take 2-3 minutes ʕ•́ᴥ•̀ʔっ♡')
+            header('Installing KinD cluster. ' +
+                   'This could take 2-3 minutes ʕ•́ᴥ•̀ʔっ♡')
         else:
-            header(f"Installing {args.k8s}")
+            header(f"Installing {args.k8s} cluster.")
         install_k8s_distro(args.k8s)
 
-        header("Adding/Updating helm repos")
+        # this is where we add all the helm repos we're going to use
+        header("Adding/Updating helm repos...")
         add_default_repos(args.k8s, args.argo)
 
         # KinD has ingress-nginx install in install_k8s_distro()
         if args.k8s != 'kind':
+            # needed for metal installs
             header("Configuring metallb so we have an ip address pool")
             configure_metallb(input_variables['address_pool'])
 
-            header("Installing nginx-ingress-controller")
+            # you need this to access webpages from outside the cluster
+            header("Installing nginx-ingress-controller...")
             nginx_chart_opts = {'hostNetwork': 'true',
                                 'hostPort.enabled': 'true'}
             release = helm.chart(release_name='nginx-ingress',
@@ -180,16 +196,25 @@ def main():
                                  set_options=nginx_chart_opts)
             release.install()
 
+        # this is for manager SSL/TLS certificates via lets-encrypt
+        header("Installing cert-manager for TLS certificates...")
         configure_cert_manager(input_variables['email'])
+
+        # this allows you to check your secret files into git
+        header("Installing Bitnami sealed-secrets...")
+        release = helm.chart(release_name='sealed-secrets',
+                             chart_name='sealed-secrets/sealed-secrets',
+                             namespace='seatled-secrets')
+        release.install()
 
         if args.argo:
             # then install argo CD :D
             release = helm.chart(release_name='argo-cd',
                                  chart_name='argo/argo-cd',
-                                 namespace='cicd')
+                                 namespace='argocd')
             release.install(True)
 
-            print("all done")
+        print("all done")
 
 
 if __name__ == '__main__':
