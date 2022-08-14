@@ -4,10 +4,10 @@
 - cert-manager (automatic SSL)
 
 #### PreReq
-- [Install KIND](https://formulae.brew.sh/formula/kind#default)
+- [Install KIND](https://formulae.brew.sh/formula/kind#default) (`brew install kind`)
 
 **Optional:**
-- [k9s](https://k9scli.io/)
+- [k9s](https://k9scli.io/) (`brew install k9s`)
 
 ## add/update cert-manager repo 
 ```bash
