@@ -9,8 +9,9 @@
 **Optional:**
 - [k9s](https://k9scli.io/) (`brew install k9s`)
 
-## add/update cert-manager repo 
+## add/update metallb and cert-manager helm repos
 ```bash
+helm repo add metallb https://metallb.github.io/metallb
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
 ```
@@ -36,6 +37,52 @@ nodes:
     hostPort: 443
     protocol: TCP
 EOF
+```
+
+## MetalLb installation
+Learn more about metallb [here](https://github.com/metallb/metallb/tree/main/charts/metallb).
+```bash
+helm install metallb metallb/metallb -n kube-system --wait
+```
+
+Wait on metallb to deploy, because sometimes helm wait doesn't do the trick:
+```bash
+kubectl rollout status -n kube-system deployment/metallb-controller
+
+kubectl wait --namespace kube-system \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/instance=metallb \
+  --timeout=120s
+
+kubectl wait --namespace kube-system \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=speaker \
+  --timeout=120s
+```
+
+Now we can apply the metallb custom resources.... see: https://metallb.universe.tf/configuration/
+Sometimes it still fails, but just keep trying, if you get an error for the custom resource not being available:
+```bash
+cat <<EOF | kubectl apply -f -
+  apiVersion: metallb.io/v1beta1
+  kind: IPAddressPool
+  metadata:
+    name: base-pool
+    namespace: kube-system
+  spec:
+    addresses:
+      - "$CIDR"
+EOF
+
+cat <<EOF | kubectl apply -f -
+  apiVersion: metallb.io/v1beta1
+  kind: L2Advertisement
+  metadata:
+    name: base-pool
+    namespace: kube-system
+EOF
+    sleep 3
+done
 ```
 
 ## Deploy the Nginx Ingress Controller
