@@ -1,5 +1,6 @@
 ---
 domains:
+  argo_cd: "argocd.selfhosting4dogs.com"
   prometheus:
     prometheus: "prometheus.selfhosting4dogs.com"
     alert_manager: "alert-manager.selfhosting4dogs.com"

@@ -209,16 +209,23 @@ def main():
             release = helm.chart(release_name='sealed-secrets',
                                  chart_name='sealed-secrets/sealed-secrets',
                                  namespace='sealed-secrets',
-                                 set_options={'namespace': "shared-secrets"})
+                                 set_options={'namespace': "sealed-secrets"})
             release.install()
             print("Installing kubeseal with brew...")
             sub_proc("brew install kubeseal", True)
 
         if args.argo:
             # then install argo CD :D
+            argocd_domain = input_variables['domains']['argocd']
+            argocd_opts = {'dex.enabled': 'false',
+                           'ingress.enabled': 'true',
+                           'ingressClassName': 'nginx',
+                           'ingress.hosts[0]': argocd_domain,
+                           'server.extraArgs[0]': '--insecure'}
             release = helm.chart(release_name='argo-cd',
                                  chart_name='argo/argo-cd',
-                                 namespace='argocd')
+                                 namespace='argocd',
+                                 set_options=argocd_opts)
             release.install(True)
 
         print("all done")
