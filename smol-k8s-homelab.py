@@ -200,7 +200,7 @@ def main():
                                 'hostPort.enabled': 'true'}
             release = helm.chart(release_name='nginx-ingress',
                                  chart_name='ingress-nginx/ingress-nginx',
-                                 namespace='kubesystem',
+                                 namespace='kube-system',
                                  set_options=nginx_chart_opts)
             release.install()
 
@@ -223,9 +223,9 @@ def main():
             # then install argo CD :D
             argocd_domain = input_variables['domains']['argocd']
             argocd_opts = {'dex.enabled': 'false',
-                           'ingress.enabled': 'true',
-                           'ingressClassName': 'nginx',
-                           'ingress.hosts[0]': argocd_domain,
+                           'server.ingress.enabled': 'true',
+                           'server.ingress.ingressClassName': 'nginx',
+                           'server.ingress.hosts[0]': argocd_domain,
                            'server.extraArgs[0]': '--insecure'}
             release = helm.chart(release_name='argo-cd',
                                  chart_name='argo/argo-cd',
