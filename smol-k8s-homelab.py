@@ -5,7 +5,11 @@ from argparse import ArgumentParser
 from collections import OrderedDict
 from lib.homelabHelm import helm
 from lib.util import sub_proc, simple_loading_bar, header
+from os import path
 import yaml
+
+
+PWD = path.dirname(__file__)
 
 
 def parse_args():
@@ -62,12 +66,12 @@ def add_default_repos(k8s_distro, argo=True):
     helm.repo.update()
 
 
-def install_k8s_distro(k8s_distro):
+def install_k8s_distro(k8s_distro=""):
     """
     install a specific distro of k8s
     options: k3s, kind | coming soon: k0s
     """
-    sub_proc(f"./{k8s_distro}/quickstart.sh")
+    sub_proc(f"{PWD}/{k8s_distro}/quickstart.sh")
 
 
 def install_custom_resource(custom_resource_dict):
