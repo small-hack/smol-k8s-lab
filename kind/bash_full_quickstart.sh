@@ -12,7 +12,24 @@
 #       CREATED: 02/08/2022 22:24:00
 #
 #===============================================================================
-source .env
+# IP address pool for metallb, this is where your domains will map
+# back to if you use ingress for your cluster, defaults to 8 ip addresses
+# export CIDR="192.168.42.42-192.168.42.50"
+
+# email address for lets encrypt
+# export EMAIL="dogontheinternet@coolemails4dogs.com"
+
+# this is for argocd
+# ARGOCD_DOMAIN="argocd.selfhostingfordogs.com"
+
+# this is for prometheus alert manager
+# export ALERT_MANAGER_DOMAIN="alert-manager.selfhostingfordogs.com"
+# this is for your grafana instance, that is connected to prometheus
+# export GRAFANA_DOMAIN="grafana.selfhostingfordogs.com"
+# this is for prometheus proper, where you'll go to verify # exporters are working
+# export PROMETHEUS_DOMAIN="prometheus.selfhostingfordogs.com"
+
+. .env
 
 # extremely simply loading bar
 function simple_loading_bar() {
