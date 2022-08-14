@@ -31,6 +31,6 @@ curl -sfL https://get.k3s.io | sh -
 # Grab the kubeconfig and copy it locally
 p_echo "copying the k3s kubeconfig to the right place"
 mkdir -p ~/.kube
-cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig
+sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig
 # change the permissions os that it doesn't complain
 chmod 600 ~/.kube/kubeconfig
