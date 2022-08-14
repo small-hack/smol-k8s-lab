@@ -6,6 +6,7 @@ from collections import OrderedDict
 from lib.homelabHelm import helm
 from lib.util import sub_proc, simple_loading_bar, header
 from os import path
+from sys import exit
 import yaml
 
 
@@ -101,20 +102,23 @@ def configure_metallb(address_pool):
     # install chart and wait
     release = helm.chart(chart_name='metallb/metallb',
                          release_name='metallb',
-                         namespace='kubesystem')
+                         namespace='kube-system')
     release.install(True)
 
     ip_pool_cr = {
         'apiVersion': 'metallb.io/v1beta1',
         'kind': 'IPAddressPool',
-        'metadata': {'name': 'base-pool'},
+        'metadata': {'name': 'base-pool',
+                     'namespace': 'kube-system'},
         'spec': {'addresses': [address_pool]}
     }
+    print(ip_pool_cr)
 
     l2_advert_cr = {
         'apiVersion': 'metallb.io/v1beta1',
         'kind': 'L2Advertisement',
-        'metadata': {'name': 'base-pool'}
+        'metadata': {'name': 'base-pool',
+                     'namespace': 'kube-system'}
     }
 
     for custom_resource in [ip_pool_cr, l2_advert_cr]:
@@ -173,6 +177,7 @@ def main():
     if args.k8s not in ['k3s', 'kind']:
         print(f'Sorry, {args.k8s} is not a currently supported k8s distro :( '
               'Please try again with either -k k3s or -k kind')
+        exit()
 
     if args.delete:
         delete_cluster(args.k8s)
@@ -196,7 +201,7 @@ def main():
         header("Configuring metallb so we have an ip address pool")
         configure_metallb(input_variables['address_pool'])
 
-        # KinD has ingress-nginx install in install_k8s_distro()
+        # KinD has ingress-nginx install
         if args.k8s == 'kind':
             url = 'https://raw.githubusercontent.com/kubernetes/' + \
                   'ingress-nginx/main/deploy/static/provider/kind/deploy.yaml'
