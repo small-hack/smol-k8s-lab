@@ -23,9 +23,8 @@ def simple_loading_bar(seconds):
     """
     prints a little heart for int(seconds)
     """
-    center_chars = 80 - seconds
     for second in range(seconds):
-        print("\033[92m ❤︎ \033[00m".center(center_chars), end=" ")
+        print("\033[92m❤︎  \033[00m".center(80), end=" ")
         sleep(1)
     print('')
 

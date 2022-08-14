@@ -14,20 +14,10 @@
 #===============================================================================
 # IP address pool for metallb, this is where your domains will map
 # back to if you use ingress for your cluster, defaults to 8 ip addresses
-# export CIDR="192.168.42.42-192.168.42.50"
+export CIDR="127.0.0.1"
 
 # email address for lets encrypt
 # export EMAIL="dogontheinternet@coolemails4dogs.com"
-
-# this is for argocd
-# ARGOCD_DOMAIN="argocd.selfhostingfordogs.com"
-
-# this is for prometheus alert manager
-# export ALERT_MANAGER_DOMAIN="alert-manager.selfhostingfordogs.com"
-# this is for your grafana instance, that is connected to prometheus
-# export GRAFANA_DOMAIN="grafana.selfhostingfordogs.com"
-# this is for prometheus proper, where you'll go to verify # exporters are working
-# export PROMETHEUS_DOMAIN="prometheus.selfhostingfordogs.com"
 
 . .env
 
@@ -43,7 +33,7 @@ function simple_loading_bar() {
     echo ""
 }
 
-# pretty echo so that I don't have ot remember this incantation
+# pretty echo so that I don't have to remember this incantation
 function p_echo() {
     echo ""
     echo -e "\033[92m  $1 \033[00m"
@@ -135,7 +125,10 @@ kubectl wait --for=condition=ready pod --selector=app.kubernetes.io/component=co
 # Set up cert manager
 p_echo "helm install cert-manager jetstack/cert-manager --namespace kube-system \ "
 p_echo "  --version v1.9.1 --set installCRDs=true --values cert-manager_values.yml"
-helm install cert-manager jetstack/cert-manager --namespace kube-system --version v1.9.1 --set installCRDs=true --values cert-manager_values.yml
+helm install cert-manager jetstack/cert-manager \
+    --namespace kube-system \
+    --version v1.9.1 \
+    --set installCRDs=true
 
 # wait on cert-manager to deploy
 p_echo "kubectl rollout status -n kube-system deployment/cert-manager"
