@@ -1,25 +1,26 @@
 #!/bin/bash -
 #===============================================================================
 #
-#         USAGE: ./quick-start-kind.sh
+#         USAGE: ./bash_full_quickstart.sh
 #
 #   DESCRIPTION: Quickly install KIND using the following stack on mac/linux:
-#                KinD (kubernetes in docker), nginx-ingress-controller (for remote access),
-#                and cert-manager (automatic SSL) :)
+#                - KinD (kubernetes in docker)
+#                - metallb (loadbalancer for ingress stuff)
+#                - nginx-ingress-controller (for remote access),
+#                - cert-manager (automatic SSL) :)
 #
 #        AUTHOR: jesse
 #  ORGANIZATION: jessebot
 #       CREATED: 02/08/2022 22:24:00
 #
 #===============================================================================
-# IP address pool for metallb, this is where your domains will map
-# back to if you use ingress for your cluster, defaults to 8 ip addresses
+#
+# IP address pool for metallb, this is where your domains will map to if you use
+# ingress for your cluster, you can change this to any CIDR on your network
 export CIDR="192.168.42.42/32"
 
 # email address for lets encrypt
 export EMAIL="dogontheinternet@coolemails4dogs.com"
-
-. .env
 
 # extremely simply loading bar
 function simple_loading_bar() {
