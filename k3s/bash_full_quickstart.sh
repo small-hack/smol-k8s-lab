@@ -22,14 +22,14 @@
 # export EMAIL="dogontheinternet@coolemails4dogs.com"
 
 # this is for argocd
-# ARGOCD_DOMAIN="argocd.selfhostingfordogs.com"
+# ARGOCD_DOMAIN="argocd.selfhosting4dogs.com"
 
 # this is for prometheus alert manager
-# export ALERT_MANAGER_DOMAIN="alert-manager.selfhostingfordogs.com"
+# export ALERT_MANAGER_DOMAIN="alert-manager.selfhosting4dogs.com"
 # this is for your grafana instance, that is connected to prometheus
-# export GRAFANA_DOMAIN="grafana.selfhostingfordogs.com"
+# export GRAFANA_DOMAIN="grafana.selfhosting4dogs.com"
 # this is for prometheus proper, where you'll go to verify # exporters are working
-# export PROMETHEUS_DOMAIN="prometheus.selfhostingfordogs.com"
+# export PROMETHEUS_DOMAIN="prometheus.selfhosting4dogs.com"
 
 # you can uncomment/change default variables above, or use a .env file for them
 . ../.env

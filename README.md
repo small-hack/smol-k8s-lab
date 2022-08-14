@@ -125,11 +125,11 @@ fi
     # SECTION FOR GRAFANA AND PROMETHEUS
     #
     # this is for prometheus alert manager
-    export ALERT_MANAGER_DOMAIN="alert-manager.selfhostingfordogs.com"
+    export ALERT_MANAGER_DOMAIN="alert-manager.selfhosting4dogs.com"
     # this is for your grafana instance, that is connected to prometheus
-    export GRAFANA_DOMAIN="grafana.selfhostingfordogs.com"
+    export GRAFANA_DOMAIN="grafana.selfhosting4dogs.com"
     # this is for prometheus proper, where you'll go to verify exporters are working
-    export PROMETHEUS_DOMAIN="prometheus.selfhostingfordogs.com"
+    export PROMETHEUS_DOMAIN="prometheus.selfhosting4dogs.com"
   ```
 
   Then you can run the script! :D
@@ -154,7 +154,7 @@ fi
 
   ```bash
     # this export can also be set in a .env file in the same dir
-    export EMAIL="youremail@coolemailfordogs.com"
+    export EMAIL="youremail@coolemail4dogs.com"
 
     # From the cloned repo dir, This should set up KinD for you
     # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
@@ -177,7 +177,7 @@ fi
 
   ```bash
     # this export can also be set in a .env file in the same dir
-    export EMAIL="youremail@coolemailfordogs.com"
+    export EMAIL="youremail@coolemail4dogs.com"
     
     # From the cloned repo dir, This should set up KinD for you
     # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
