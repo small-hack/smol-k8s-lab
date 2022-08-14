@@ -165,6 +165,11 @@ def main():
     """
     args = parse_args()
 
+    # make sure we got a valid k8s distro
+    if args.k8s not in ['k3s', 'kind']:
+        print(f'Sorry, {args.k8s} is not a currently supported k8s distro :( '
+              'Please try again with either -k k3s or -k kind')
+
     if args.delete:
         delete_cluster(args.k8s)
     else:
