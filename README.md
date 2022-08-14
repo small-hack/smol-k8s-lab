@@ -12,15 +12,18 @@ We're biasing towards small and quick distros.
 |[k0s](https://k0sproject.io/)     | soon                | [./k0s/README.md](./k0s/README.md)   | soon :3                                  |
 
 ### Stack We Install on K8s
-| Application | What is it? |
+| Application/Tool | What is it? |
 |:-----------:|:--------------|
-
 | [metallb](https://github.io/metallb/metallb) | loadbalancer for metal, since we're mostly selfhosting |
-| [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, this is needed for web traffic |
+| [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, needed for web traffic |
 | [cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
-| Optional: [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | generation of secrets as encrypted blobs so you can check secrets into git |
-| Optional: [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
 | [k9s](https://k9scli.io/topics/install/) | Terminal based dashboard for kubernetes |
+
+#### Optionally installed
+| Application/Tool | What is it? |
+|:-----------:|:--------------| 
+| [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | generation of encrypted secrets so you can check secrets into git |
+| [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
 
 ## Quickstart in Python
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s and kind.
