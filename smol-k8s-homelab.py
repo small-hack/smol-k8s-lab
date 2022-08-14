@@ -188,12 +188,23 @@ def main():
         header("Adding/Updating helm repos...")
         add_default_repos(args.k8s, args.argo)
 
-        # KinD has ingress-nginx install in install_k8s_distro()
-        if args.k8s != 'kind':
-            # needed for metal installs
-            header("Configuring metallb so we have an ip address pool")
-            configure_metallb(input_variables['address_pool'])
+        # needed for metal installs
+        header("Configuring metallb so we have an ip address pool")
+        configure_metallb(input_variables['address_pool'])
 
+        # KinD has ingress-nginx install in install_k8s_distro()
+        if args.k8s == 'kind':
+            url = 'https://raw.githubusercontent.com/kubernetes/' + \
+                  'ingress-nginx/main/deploy/static/provider/kind/deploy.yaml'
+            sub_proc(f'kubectl apply -f {url}')
+
+            # this is to wait for the deployment to come up
+            sub_proc('kubectl rollout status '
+                     'deployment/ingress-nginx-controller -n ingress-nginx')
+            sub_proc('kubectl wait --for=condition=ready pod '
+                     '--selector=app.kubernetes.io/component=controller '
+                     '--timeout=90s -n ingress-nginx')
+        else:
             # you need this to access webpages from outside the cluster
             header("Installing nginx-ingress-controller...")
             nginx_chart_opts = {'hostNetwork': 'true',
