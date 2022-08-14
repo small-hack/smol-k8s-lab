@@ -6,10 +6,10 @@ Currently in a beta state. We throw local k8s (kubernetes) testing tools in this
 We're biasing towards small and quick distros.
 
 | Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)| Tutorial | [Quickstart BASH](#quickstart-in-bash) |
-|:--------------------------------:|:-------------------:|:---------------------------:|:--------------------------------------:|
-|[k3s](https://k3s.io/)            | ✅                  | [./k3s/README.md](./k3s/README.md)   | [Working](./k3s/bash_full_quickstart.sh) |
-|[KinD](https://kind.sigs.k8s.io/) | ✅                  | [./kind/README.md](./kind/README.md) | [beta](./kind/bash_full_quickstart.sh)   |
-|[k0s](https://k0sproject.io/)     | soon                | [./k0s/README.md](./k0s/README.md)   | soon :3                                  |
+|:--------------------------------:|:------:|:------------------------------------:|:--------------------------------------:|
+|[k3s](https://k3s.io/)            | ✅     | [./k3s/README.md](./k3s/README.md)   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
+|[KinD](https://kind.sigs.k8s.io/) | ✅     | [./kind/README.md](./kind/README.md) | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
+|[k0s](https://k0sproject.io/)     | soon   | [./k0s/README.md](./k0s/README.md)   | soon :3                                  |
 
 ### Stack We Install on K8s
 | Application/Tool | What is it? |
