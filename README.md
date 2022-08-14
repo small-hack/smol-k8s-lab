@@ -137,7 +137,7 @@ fi
   ```bash
     # From the cloned repo dir, This should set up k3s and dependencies
     # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/k3s/bash_quickstart.sh
+    ./k8s_homelab/k3s/bash_full_quickstart.sh
   ```
 
   #### Ready to clean up this cluster?
@@ -158,7 +158,7 @@ fi
 
     # From the cloned repo dir, This should set up KinD for you
     # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/kind/bash_quickstart.sh
+    ./k8s_homelab/kind/bash_full_quickstart.sh
   ```
 
   #### Ready to clean up this cluster?
@@ -196,20 +196,14 @@ fi
 ## Final Touches
 
 ### Port Forwarding
-This would forward your app, running on port 80 to 8080 locally, so you can go to http://127.0.0.1:8080/ in your browser
+If you want to access an app outside of port forwarding to test, you'll need to make sure your app's ingress is setup correctly and then you'll need to setup your router to port forward 80->80 and 443->443 for your WAN. then setup DNS for your domain if you want the wider internet to access this remotely.
 
-```bash
-kubectl port-forward $POD_NAME 80:8080
-```
+### SSL/TLS
 
-After this, if you want to access this outside of port forwarding to test, you'll need to make sure your app's ingress is setup correctly and then you'll need to setup your router to port forward 80->80 and 443->443 for your WAN. then setup DNS for your domain if you want the wider internet to access this remotely.
-
-## SSL
-
-After SSL is working (if it's not, follow the steps in the [cert-manager common error troubleshooting guide](https://cert-manager.io/docs/faq/acme/#common-errors)), you can also change the `letsencrypt-staging` value to `letsencrypt-prod` for any certs you've installed. 
+After SSL is working (if it's not, follow the steps in the [cert-manager common error troubleshooting guide](https://cert-manager.io/docs/faq/acme/#common-errors)), you can also change the `letsencrypt-staging` value to `letsencrypt-prod` for any domains you own and can configure to point to your cluster via DNS.
 
 
-## Remote cluster administration
+### Remote cluster administration
 
 You can also copy your remote k3s kubeconfig with a little script in `k3s/`:
 
@@ -230,6 +224,11 @@ export REMOTE_USER="cooluser4dogs"
 Check out the [`optional`](optional) directory for notes on specific apps
 
 e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./optional/postgres/README.md)
+
+Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to here:
+https://github.com/jessebot/argo-example#argo-via-the-gui
+
+Otherwise, if you want to start from scratch, start here: https://github.com/jessebot/argo-example#argocd
 
 ### Helpful links
 - The k3s knowledge here is in this [kauri.io self hosting guide](https://kauri.io/#collections/Build%20your%20very%20own%20self-hosting%20platform%20with%20Raspberry%20Pi%20and%20Kubernetes/%2838%29-install-and-configure-a-kubernetes-cluster-w/) is invaluable. Thank you kauri.io.
@@ -265,6 +264,6 @@ And then update your `ndot` option in your `/etc/resolv.conf` for podDNS to be 1
 STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
 
 # TODO
-- install helm and kind for the user. We do it for them.
+- install helm for the user. We do it for them.
 - look into https://crossplane.io/ and kubevela
 - look into https://kubesec.io/
