@@ -14,7 +14,7 @@
 #===============================================================================
 # IP address pool for metallb, this is where your domains will map
 # back to if you use ingress for your cluster, defaults to 8 ip addresses
-export CIDR="192.168.42.42"
+export CIDR="192.168.42.42/32"
 
 # email address for lets encrypt
 export EMAIL="dogontheinternet@coolemails4dogs.com"
