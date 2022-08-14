@@ -50,11 +50,6 @@ function p_echo() {
     echo ""
 }
 
-# add/update relevant helm repo
-p_echo " Add/update helm repos for cert-manager."
-helm repo add jetstack https://charts.jetstack.io
-helm repo update
-
 # create the cluster
 p_echo " Creating kind cluster..."
 cat <<EOF | kind create cluster --config=-
@@ -76,6 +71,56 @@ nodes:
     hostPort: 443
     protocol: TCP
 EOF
+
+# add/update relevant helm repo
+p_echo " Add/update helm repos for cert-manager."
+helm repo add jetstack https://charts.jetstack.io
+helm repo add metallb https://metallb.github.io/metallb
+helm repo update
+
+## MetalLb installation
+p_echo "helm install metallb metallb/metallb -n kube-system --wait"
+helm install metallb metallb/metallb -n kube-system --wait
+
+p_echo "Wait on metallb to deploy, because sometimes helm wait doesn't do the trick"
+kubectl rollout status -n kube-system deployment/metallb-controller
+
+kubectl wait --namespace kube-system \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/instance=metallb \
+  --timeout=120s
+
+kubectl wait --namespace kube-system \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=speaker \
+  --timeout=120s
+
+apply_exit_code=1
+while [ $apply_exit_code -ne 0 ]; do
+    p_echo "Running 'kubectl apply -f' for metallb IPAddressPool"
+    echo $CIDR
+    cat <<EOF | kubectl apply -f -
+      apiVersion: metallb.io/v1beta1
+      kind: IPAddressPool
+      metadata:
+        name: base-pool
+        namespace: kube-system
+      spec:
+        addresses:
+          - "$CIDR"
+EOF
+    apply_exit_code=$?
+    p_echo "Running 'kubectl apply -f' for metallb L2Advertisement"
+    cat <<EOF | kubectl apply -f -
+      apiVersion: metallb.io/v1beta1
+      kind: L2Advertisement
+      metadata:
+        name: base-pool
+        namespace: kube-system
+EOF
+    simple_loading_bar 3
+done
+
 
 # KIND only - set up nginx ingress deployment
 echo "deploying nginx ingress controller...."
