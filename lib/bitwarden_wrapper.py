@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 # Author: @jessebot jessebot@linux.com
 # import psutil
-import getpass
+from getpass import getpass
 import subprocess
-import requests
-from util import header, sub_proc
+from requests import post, get, put
+from util import header
 """
 ref: https://bitwarden.com/help/vault-management-api/
 Wrapped for Bitwarden cli, bw, to give a little help for testing in python
@@ -25,94 +25,115 @@ Note: Item of type "Login" is .type=1
 """
 
 
-def pure_cli_test():
-    """
-    testing cli functionality
-    """
-    header("Authenticating against bitwarden. Please have your "
-           "API key ready.")
-    print("Follow this guide to get your api key: \n"
-          "https://bitwarden.com/help/personal-api-key/")
-
-    sub_proc("bw login --apikey")
-
-
 class BwRest():
     """
-    testing bitwarden rest api
+    Python Wrapper for the Bitwarden REST API
     """
-    def __init__(self):
+    def __init__(self, domain="localhost", port=8087, https=False,
+                 serve_local_api=True):
         """
-        this is to initialize the bw api temporarily if it's not already there
-        Examples: bw serve
-                  bw serve --port 8080
-                  bw serve --hostname bwapi.mydomain.com --port 80
-        Use hostname `all` for no hostname binding?
-        TODO: check for existing bw rest api running locally
-        """
-        self.bw_process = subprocess.Popen(["bw", "serve"])
-        print(f"bw serve process ID is: {self.bw_process.pid}")
+        If serve_local_api=True, serve the bw api temporarily if it's not
+        already there. Defaults to running on http://localhost:8087
 
-        # Default port for bw serve is 8087
-        self.url = "http://localhost:8087"
+        Accepts domain str, port int, https bool, and serve_local_api bool
 
-        self.bw_main_pass = getpass.getpass(prompt='Password: ', stream=None)
+        example cli run: bw serve --hostname bwapi.mydomain.com --port 80
+        """
+        # Cleanup=False means we don't have to kill any processes after this
+        self.cleanup = False
 
-    def kill(self):
+        if serve_local_api:
+            # Cleanup means we'll be killing this process when we're done
+            self.cleanup = True
+            api_cmd = "bw serve"
+            if domain != 'localhost':
+                api_cmd += " --hostname {domain} "
+            if port != 8087:
+                api_cmd += " --port {port}"
+            self.bw_process = subprocess.Popen(api_cmd.split())
+
+        self.url = f"http://{domain}:{port}"
+        if https:
+            self.url = f"https://{domain}:{port}"
+
+    def __terminate(self):
         """
-        kills the running bitwarden rest api process
+        kills the running bitwarden rest api process. if this doesn't run,
+        the bitwarden rest api will remain.
         """
-        print("Killing the bitwarden rest api, since we're done with it.")
-        self.bw_process.kill()
+        # only kill the process if we created it ourselves
+        if self.bw_process:
+            print("Killing the bitwarden rest api, since we're done with it.")
+            self.bw_process.kill()
+        return
 
     def generate(self):
         """
         generate a new password
+        if we get an error, return that whole json blob response
         """
-        header("Generating a new password...")
-        new_pass = requests.get(f"{self.url}/generate").json()
-        if new_pass["success"]:
-            print(new_pass['data']['data'])
-        return new_pass['data']['data']
+        header('Generating a new password...')
+        data_obj = {'length': 18, 'uppercase': True, 'lowercase': True,
+                    'number': True}
+        res = get(f"{self.url}/generate", json=data_obj).json()
+
+        if res['success']:
+            print(res['data']['data'])
+            return res['data']['data']
+
+        # in case we get an error
+        return res
 
     def unlock(self):
         """
-        unlocks the local bitwarden vault
+        unlocks the local bitwarden vault, and returns session token
+        if we get an error, return that whole json blob response
+        TODO: check local env vars for password or api key
         """
-        header("Unlocking the Bitwarden vault...")
-        data_obj = {"password": self.bw_main_pass}
-        json_resp = requests.post(f"{self.url}/unlock", json=data_obj).json()
+        print("We'll need you to enter your password for bitwarden to unlock"
+              "your vault temporarily to add the new password")
+        password_prompt = 'Enter your Bitwarden Password: '
+        password = getpass(prompt=password_prompt, stream=None)
 
-        if json_resp["success"]:
-            header(json_resp['data']["title"], False)
-            print(json_resp['data']["message"])
-            print(json_resp['data'])
+        header('Unlocking the Bitwarden vault...')
+        data_obj = {'password': password}
+        res = post(f'{self.url}/unlock', json=data_obj).json()
+
+        if res['success']:
+            header(res['data']['title'], False)
+            self.data_obj = {'session': res['data']['raw']}
+
+        return res
 
     def lock(self):
         """
         lock the local bitwarden vault
         """
-        header("Locking the Bitwarden vault...")
-        data_obj = {"password": self.bw_main_pass}
-        json_resp = requests.post(f"{self.url}/lock", json=data_obj).json()
-        if json_resp["success"]:
-            header(json_resp['data']["title"], False)
-            msg = json_resp['data']["message"]
+        header('Locking the Bitwarden vault...')
+
+        self.data_obj = {"session": self.__session_token}
+        res = post(f"{self.url}/lock", json=data_obj).json()
+
+        if res['success']:
+            header(res['data']['title'], False)
+            msg = res['data']['message']
             if msg:
                 print(msg)
+            self.__terminate()
+        else:
+            return res
 
     class loginItem():
-        def __init__(self, login_item_name):
-            self.login_item_name = login_item_name
-            self.item_url = f"{self.url}/object/item/{self.login_item_name}"
+        def __init__(self, login_item_name, session_token):
+            self.item_url = f"{self.url}/object/item/{login_item_name}"
 
         def get_login_item(self):
             """
             get an existing bitwarden login item
             """
-            header("Getting bitwarden login item...")
+            header('Getting bitwarden login item...')
             data_obj = {}
-            json_resp = requests.get(self.item_url, json=data_obj).json()
+            json_resp = get(self.item_url, json=data_obj).json()
             print(json_resp)
 
         def edit_login_item(self):
@@ -122,18 +143,18 @@ class BwRest():
             (e.g. 3a84be8d-12e7-4223-98cd-ae0000eabdec) in the path and
             the new object contents in the request body.
             """
-            header("Editing bitwarden login item...")
+            header('Editing bitwarden login item...')
             data_obj = {}
-            json_resp = requests.put(self.item_url, json=data_obj).json()
+            json_resp = put(self.item_url, json=data_obj).json()
             print(json_resp)
 
         def post_login_item(self):
             """
             create a new bitwarden login item
             """
-            header("Creating bitwarden login item...")
+            header('Creating bitwarden login item...')
             data_obj = {}
-            json_resp = requests.post(self.item_url, json=data_obj).json()
+            json_resp = post(self.item_url, json=data_obj).json()
             print(json_resp)
 
 
@@ -150,10 +171,9 @@ def main():
     main function to run through a test of every function
     """
     bw_instance = BwRest()
-    bw_instance.generate()
     bw_instance.unlock()
+    bw_instance.generate()
     bw_instance.lock()
-    bw_instance.kill()
 
 
 if __name__ == '__main__':
