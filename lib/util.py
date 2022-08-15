@@ -13,9 +13,11 @@ def header(text, header=True):
     """
     print('')
     if header:
-        print('♡ ₍ᐢ•ﻌ•ᐢ₎  ♥  ૮ ・ﻌ・ა  ♥  ʕᵔᴥᵔ ʔ ♡'.center(70, ' '))
-    print('-'.center(70, '-'))
-    print(f"\033[92m❤︎ {text} ❤︎\033[00m".center(70, ' '))
+        print('♡ ₍ᐢ•ﻌ•ᐢ₎  ♥  ૮ ・ﻌ・ა  ♥  ʕᵔᴥᵔ ʔ ♡'.center(80, ' '))
+        print('-'.center(80, '-'))
+        print(f"\033[92m❤︎ {text} ❤︎\033[00m".center(80, ' '))
+    else:
+        print(f"\033[92m{text}\033[00m".center(80, ' '))
     print('')
 
 
@@ -24,7 +26,7 @@ def simple_loading_bar(seconds):
     prints a little heart for int(seconds)
     """
     for second in range(seconds):
-        print("\033[92m❤︎  \033[00m".center(80), end=" ")
+        print("\033[92m❤︎\033[00m".center(80), end=" ")
         sleep(1)
     print('')
 
