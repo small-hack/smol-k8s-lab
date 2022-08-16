@@ -13,9 +13,11 @@ def header(text, header=True):
     """
     print('')
     if header:
-        print('♡ ₍ᐢ•ﻌ•ᐢ₎  ♥  ૮ ・ﻌ・ა  ♥  ʕᵔᴥᵔ ʔ ♡'.center(70, ' '))
-    print('-'.center(70, '-'))
-    print(f"\033[92m❤︎ {text} ❤︎\033[00m".center(70, ' '))
+        print('♡ ₍ᐢ•ﻌ•ᐢ₎  ♥  ૮ ・ﻌ・ა  ♥  ʕᵔᴥᵔ ʔ ♡'.center(80, ' '))
+        print('-'.center(80, '-'))
+        print(f"\033[92m❤︎ {text} ❤︎\033[00m".center(80, ' '))
+    else:
+        print(f"\033[92m{text}\033[00m".center(80, ' '))
     print('')
 
 
@@ -24,18 +26,19 @@ def simple_loading_bar(seconds):
     prints a little heart for int(seconds)
     """
     for second in range(seconds):
-        print("\033[92m❤︎  \033[00m".center(80), end=" ")
+        print("\033[92m❤︎\033[00m".center(80), end=" ")
         sleep(1)
     print('')
 
 
-def sub_proc(command="", error_ok=False):
+def sub_proc(command="", error_ok=False, print_output=True):
     """
     Takes a str commmand to run in BASH, as well as optionals bools to pass on
     errors in stderr/stdout and suppress_output
     """
-    print('')
-    print(f'\n\033[92m Running cmd:\033[00m {command}')
+    if print_output:
+        print('')
+        print(f'\n\033[92m Running cmd:\033[00m {command}')
     cmd = command.split()
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return_code = p.returncode
@@ -55,5 +58,6 @@ def sub_proc(command="", error_ok=False):
 
     for output in [res_stdout, res_stderr]:
         if output:
-            print(output.rstrip())
+            if print_output:
+                print(output.rstrip())
             return output

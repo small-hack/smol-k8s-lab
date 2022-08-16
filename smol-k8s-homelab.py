@@ -2,9 +2,11 @@
 # AUTHOR: @jessebot
 # Works with k3s
 from argparse import ArgumentParser
+import bcrypt
 from collections import OrderedDict
 from lib.homelabHelm import helm
 from lib.util import sub_proc, simple_loading_bar, header
+from lib.bw_cli import BwCLI
 from os import path
 from sys import exit
 import yaml
@@ -24,6 +26,9 @@ def parse_args():
               'k3s or kind. k0s coming soon')
     d_help = 'Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]'
     s_help = 'Install bitnami sealed secrets, defaults to False'
+    p_help = ('Store generated admin passwords directly into your password '
+              'manager. Right now, this defaults to Bitwarden and requires you'
+              ' to input your vault password to unlock the vault temporarily.')
     p = ArgumentParser(description=main.__doc__)
 
     p.add_argument('-k', '--k8s', required=True, help=k_help)
@@ -33,6 +38,8 @@ def parse_args():
     p.add_argument('--argo', action='store_true', default=False, help=a_help)
     p.add_argument('-s', '--sealed_secrets', action='store_true',
                    default=False, help=s_help)
+    p.add_argument('-p', '--password_manager', action='store_true',
+                   default=False, help=p_help)
     p.add_argument('--delete', action='store_true', default=False, help=d_help)
 
     return p.parse_args()
@@ -40,12 +47,12 @@ def parse_args():
 
 def add_default_repos(k8s_distro, argo=True):
     """
-    Add all the default helm chart repos
-    # metallb is for loadbalancing and assigning ips, on metal...
-    # ingress-nginx allows us to do ingress, so access outside the cluster
-    # jetstack is for cert-manager for TLS certs
-    # sealed-secrets - for encrypting k8s secrets files for checking into git
-    # argo is argoCD to manage k8s resources in the future through a gui
+    Add all the default helm chart repos:
+    - metallb is for loadbalancing and assigning ips, on metal...
+    - ingress-nginx allows us to do ingress, so access outside the cluster
+    - jetstack is for cert-manager for TLS certs
+    - sealed-secrets - for encrypting k8s secrets files for checking into git
+    - argo is argoCD to manage k8s resources in the future through a gui
     """
     repos = OrderedDict()
 
@@ -237,23 +244,42 @@ def main():
                                  set_options={'namespace': "sealed-secrets"})
             release.install()
             print("Installing kubeseal with brew...")
+            # TODO: check if installed before running this
             sub_proc("brew install kubeseal", True)
 
+        # then install argo CD :D
         if args.argo:
-            # then install argo CD :D
             argocd_domain = input_variables['domains']['argocd']
-            argocd_opts = {'dex.enabled': 'false',
-                           'server.ingress.enabled': 'true',
-                           'server.ingress.ingressClassName': 'nginx',
-                           'server.ingress.hosts[0]': argocd_domain,
-                           'server.extraArgs[0]': '--insecure'}
+            opts = {'dex.enabled': 'false',
+                    'server.ingress.enabled': 'true',
+                    'server.ingress.ingressClassName': 'nginx',
+                    'server.ingress.hosts[0]': argocd_domain,
+                    'server.extraArgs[0]': '--insecure'}
+
+            # if we're using a password manager, generate a password & save it
+            if args.password_manager:
+                # if we're using bitwarden...
+                bw = BwCLI()
+                bw.unlock()
+                argo_password = bw.generate()
+                bw.create_login(name=argocd_domain,
+                                item_url=argocd_domain,
+                                user="admin",
+                                password=argo_password)
+                bw.lock()
+                admin_pass = bcrypt.hashpw(argo_password.encode('utf-8'),
+                                           bcrypt.gensalt()).decode()
+
+                # this gets passed to the helm cli, but is bcrypted
+                opts['configs.secret.argocdServerAdminPassword'] = admin_pass
+
             release = helm.chart(release_name='argo-cd',
                                  chart_name='argo/argo-cd',
                                  namespace='argocd',
-                                 set_options=argocd_opts)
+                                 set_options=opts)
             release.install(True)
 
-        print("all done")
+    print("Smol K8s Homelab Script complete :)")
 
 
 if __name__ == '__main__':
