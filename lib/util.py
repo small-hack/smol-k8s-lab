@@ -31,13 +31,14 @@ def simple_loading_bar(seconds):
     print('')
 
 
-def sub_proc(command="", error_ok=False):
+def sub_proc(command="", error_ok=False, print_output=True):
     """
     Takes a str commmand to run in BASH, as well as optionals bools to pass on
     errors in stderr/stdout and suppress_output
     """
-    print('')
-    print(f'\n\033[92m Running cmd:\033[00m {command}')
+    if print_output:
+        print('')
+        print(f'\n\033[92m Running cmd:\033[00m {command}')
     cmd = command.split()
     p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return_code = p.returncode
@@ -57,5 +58,6 @@ def sub_proc(command="", error_ok=False):
 
     for output in [res_stdout, res_stderr]:
         if output:
-            print(output.rstrip())
+            if print_output:
+                print(output.rstrip())
             return output
