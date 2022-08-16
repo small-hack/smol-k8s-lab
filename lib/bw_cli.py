@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
+# extremely simple bitwarden cli wrapper
 # Author: @jessebot jessebot@linux.com
+"""
+Example:
+        bw = BwCLI()
+        bw.unlock()
+        bw.generate()
+        bw.create_login(name="test mctest",
+                        item_url="test.tech",
+                        user="admin",
+                        password="fakepassword")
+        bw.lock()
+"""
 import base64
 import json
 from getpass import getpass
-from util import header, sub_proc
+from . import util
 
 
 class BwCLI():
@@ -20,13 +32,13 @@ class BwCLI():
         """
         generate a new password. Takes special_characters bool.
         """
-        header('Generating a new password...')
+        util.header('Generating a new password...')
 
         command = "bw generate --length 24 --uppercase --lowercase --number"
         if special_characters:
             command += " --special"
 
-        password = sub_proc(command)
+        password = util.sub_proc(command, False, False)
         return password
 
     def unlock(self):
@@ -37,16 +49,16 @@ class BwCLI():
         password_prompt = 'Enter your Bitwarden Password: '
         password = getpass(prompt=password_prompt, stream=None)
 
-        header('Unlocking the Bitwarden vault...')
-        self.session = sub_proc(f"bw unlock {password} --raw", False, False)
-        self.session = sub_proc("bw unlock --raw")
+        util.header('Unlocking the Bitwarden vault...')
+        self.session = util.sub_proc(f"bw unlock {password} --raw", False,
+                                     False)
 
     def lock(self):
         """
         lock the local bitwarden vault
         """
-        header('Locking the Bitwarden vault...')
-        sub_proc(f"bw lock --session {self.session}")
+        util.header('Locking the Bitwarden vault...')
+        util.sub_proc(f"bw lock --session {self.session}")
         return
 
     def create_login(self, name="", item_url="", user="", password="",
@@ -55,7 +67,7 @@ class BwCLI():
         Create login items, and only login items
         takes optional organization and collection
         """
-        header('Creating bitwarden login item...')
+        util.header('Creating bitwarden login item...')
         login_obj = json.dumps({
             "organizationId": org,
             "collectionIds": collection,
@@ -78,21 +90,5 @@ class BwCLI():
         encodedBytes = base64.b64encode(login_obj.encode("utf-8"))
         encodedStr = str(encodedBytes, "utf-8")
 
-        sub_proc(f"bw create item {encodedStr} --session {self.session}",
-                 False, False)
-
-
-def main():
-    """
-    main function to run through a test of every function
-    """
-    bw = BwCLI()
-    bw.unlock()
-    bw.generate()
-    bw.create_login(name="test mctest", item_url="test.tech", user="admin",
-                    password="fakepassword")
-    bw.lock()
-
-
-if __name__ == '__main__':
-    main()
+        util.sub_proc(f"bw create item {encodedStr} --session {self.session}",
+                      False, False)
