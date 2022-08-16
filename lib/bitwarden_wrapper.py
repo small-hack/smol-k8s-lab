@@ -131,28 +131,15 @@ class BwRest():
             return res
 
     class loginItem():
-        def __init__(self, login_item_name, login_item_url, username, password,
-                     organization=None, collection=None):
+        def __init__(self, **kwargs):
             """
+            kwarg: name="", item_url="", user="", password="", org="",
+                   collection=""
             Get, modify, and create login items, and only login items
             takes optional organization and collection
             """
-            self.item_name = login_item_name
             self.req_url = f"{self.url}/object/item/"
-            self.login_data_obj = {"organizationId": organization,
-                                   "collectionId": collection,
-                                   "folderId": None,
-                                   "type": 1,
-                                   "name": login_item_url,
-                                   "notes": None,
-                                   "favorite": False,
-                                   "fields": [],
-                                   "login": {"uris": [{"match": 0,
-                                                       "uri": login_item_url}],
-                                             "username": username,
-                                             "password": password,
-                                             "totp": None},
-                                   "reprompt": 0}
+            self.__dict__.update(kwargs)
 
         def get_login_item(self):
             """
@@ -162,37 +149,41 @@ class BwRest():
             json_resp = get(self.req_url, json=self.data_obj).json()
             print(json_resp)
 
-        def post_login_item(self):
+        def create(self):
             """
-            create a new bitwarden login item
+            creates a new bitwarden login item via POST to {URL}/object/item
             Returns: {'success': True,
                       'data': {'object': 'item',
                                'id': '84b9d020-bce6-443b-8d6c-aef300890b83',
-                               'organizationId': None, 'folderId': None,
-                               'type': 1, 'reprompt': 0,
-                               'name': 'test.tech',
-                               'notes': None,
-                               'favorite': False,
-                               'login': {'uris': [
-                               {'match': 0, 'uri': 'test.tech'}],
-                               'username': 'admin',
-                               'password': 'fakepassword',
                                'totp': None, 'passwordRevisionDate': None},
                                'revisionDate': '2022-08-16T08:18:57.786Z',
                                'deletedDate': None}}
             """
             header('Creating bitwarden login item...')
-            data_obj = {}
-            data_obj.update(self.data_obj)
-            data_obj.update(self.login_data_obj)
+            login_data_obj = {"organizationId": self.organization,
+                              "collectionId": self.collection,
+                              "folderId": None,
+                              "type": 1,
+                              "name": self.url,
+                              "notes": None,
+                              "favorite": False,
+                              "fields": [],
+                              "login": {"uris": [{"match": 0,
+                                                  "uri": self.item_url}],
+                                        "username": self.user,
+                                        "password": self.password,
+                                        "totp": None},
+                              "reprompt": 0}
+            login_data_obj.update(self.data_obj)
 
-            res = post(self.req_url, json=data_obj).json()
+            res = post(self.req_url, json=login_data_obj).json()
             if res['success']:
-                print(res['data'])
-                return res['data']
+                header(f"Successfully created {self.login_item_url} with id: "
+                       f"{res['data']['id']}")
+                return res['data']['id']
             else:
-                return res
                 print(res)
+                return res
 
         def edit_login_item(self):
             """
@@ -222,10 +213,12 @@ def main():
     bw_instance = BwRest()
     bw_instance.unlock()
     bw_instance.generate()
-    login_item = bw_instance.loginItem("test mctest",
-                                       "test.tech",
-                                       "admin", "fakepassword")
-    login_item.post_login_item()
+    # kwarg: name="", item_url="", user="", password="", org="", collection=""
+    login_item = bw_instance.loginItem(name="test mctest",
+                                       item_url="test.tech",
+                                       user="admin",
+                                       password="fakepassword")
+    login_item.create()
     bw_instance.lock()
 
 
