@@ -111,8 +111,7 @@ class BwRest():
         """
         header('Locking the Bitwarden vault...')
 
-        self.data_obj = {"session": self.__session_token}
-        res = post(f"{self.url}/lock", json=data_obj).json()
+        res = post(f"{self.url}/lock", json=self.data_obj).json()
 
         if res['success']:
             header(res['data']['title'], False)
@@ -124,16 +123,47 @@ class BwRest():
             return res
 
     class loginItem():
-        def __init__(self, login_item_name, session_token):
-            self.item_url = f"{self.url}/object/item/{login_item_name}"
+        def __init__(self, login_item_name, login_item_url, username, password,
+                     organization=None, collection=None):
+            """
+            Get, modify, and create login items, and only login items
+            takes optional organization and collection
+            """
+            self.item_name = login_item_name
+            self.req_url = f"{self.url}/object/item/"
+            self.login_data_obj = {"organizationId": organization,
+                                   "collectionId": collection,
+                                   "folderId": None,
+                                   "type": 1,
+                                   "name": login_item_url,
+                                   "notes": None,
+                                   "favorite": False,
+                                   "fields": [],
+                                   "login": {"uris": [{"match": 0,
+                                                       "uri": login_item_url}],
+                                             "username": username,
+                                             "password": password,
+                                             "totp": None},
+                                   "reprompt": 0}
 
         def get_login_item(self):
             """
             get an existing bitwarden login item
             """
-            header('Getting bitwarden login item...')
+            header('Checking if bitwarden login item exists...')
+            json_resp = get(self.req_url, json=self.data_obj).json()
+            print(json_resp)
+
+        def post_login_item(self):
+            """
+            create a new bitwarden login item
+            """
+            header('Creating bitwarden login item...')
             data_obj = {}
-            json_resp = get(self.item_url, json=data_obj).json()
+            data_obj.update(self.data_obj)
+            data_obj.update(self.login_data_obj)
+
+            json_resp = post(self.item_url, json=data_obj).json()
             print(json_resp)
 
         def edit_login_item(self):
@@ -146,15 +176,6 @@ class BwRest():
             header('Editing bitwarden login item...')
             data_obj = {}
             json_resp = put(self.item_url, json=data_obj).json()
-            print(json_resp)
-
-        def post_login_item(self):
-            """
-            create a new bitwarden login item
-            """
-            header('Creating bitwarden login item...')
-            data_obj = {}
-            json_resp = post(self.item_url, json=data_obj).json()
             print(json_resp)
 
 
@@ -173,6 +194,10 @@ def main():
     bw_instance = BwRest()
     bw_instance.unlock()
     bw_instance.generate()
+    login_item = bw_instance.loginItem("test mctest",
+                                       "nextcloud.vleermuis.tech",
+                                       "admin", "fakepassword")
+    login_item.post_login_item()
     bw_instance.lock()
 
 
