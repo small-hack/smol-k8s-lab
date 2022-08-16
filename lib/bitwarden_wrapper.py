@@ -1,33 +1,15 @@
 #!/usr/bin/env python3
 # Author: @jessebot jessebot@linux.com
-# import psutil
 from getpass import getpass
 import subprocess
-from requests import post, get, put
+from requests import post, get
 from util import header
-"""
-ref: https://bitwarden.com/help/vault-management-api/
-Wrapped for Bitwarden cli, bw, to give a little help for testing in python
-bw item template looks like:
-
-{"organizationId":null, "collectionIds":null, "folderId":null, "type":1,
- "name":"Item name",
- "notes":"Some notes about this item.",
- "favorite":false,
- "fields":[],
- "login":null,
- "secureNote":null,
- "card":null,
- "identity":null,
- "reprompt":0}
-
-Note: Item of type "Login" is .type=1
-"""
 
 
 class BwRest():
     """
     Python Wrapper for the Bitwarden REST API
+    api ref: https://bitwarden.com/help/vault-management-api/
     """
     def __init__(self, domain="localhost", port=8087, https=False,
                  serve_local_api=True):
@@ -138,16 +120,10 @@ class BwRest():
             Get, modify, and create login items, and only login items
             takes optional organization and collection
             """
+            self.collection = None
+            self.org = None
             self.req_url = f"{self.url}/object/item/"
             self.__dict__.update(kwargs)
-
-        def get_login_item(self):
-            """
-            get an existing bitwarden login item
-            """
-            header('Checking if bitwarden login item exists...')
-            json_resp = get(self.req_url, json=self.data_obj).json()
-            print(json_resp)
 
         def create(self):
             """
@@ -160,11 +136,11 @@ class BwRest():
                                'deletedDate': None}}
             """
             header('Creating bitwarden login item...')
-            login_data_obj = {"organizationId": self.organization,
+            login_data_obj = {"organizationId": self.org,
                               "collectionId": self.collection,
                               "folderId": None,
                               "type": 1,
-                              "name": self.url,
+                              "name": self.item_url,
                               "notes": None,
                               "favorite": False,
                               "fields": [],
@@ -178,24 +154,12 @@ class BwRest():
 
             res = post(self.req_url, json=login_data_obj).json()
             if res['success']:
-                header(f"Successfully created {self.login_item_url} with id: "
+                header(f"Successfully created {self.item_url} with id: "
                        f"{res['data']['id']}")
                 return res['data']['id']
             else:
                 print(res)
                 return res
-
-        def edit_login_item(self):
-            """
-            Edit an existing login, card, secure note, or identity
-            in your Vault by specifying a unique object identifier
-            (e.g. 3a84be8d-12e7-4223-98cd-ae0000eabdec) in the path and
-            the new object contents in the request body.
-            """
-            header('Editing bitwarden login item...')
-            data_obj = {}
-            json_resp = put(self.req_url, json=data_obj).json()
-            print(json_resp)
 
 
 def existing_bw_rest_api():
