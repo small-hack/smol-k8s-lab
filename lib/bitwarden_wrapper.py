@@ -56,6 +56,10 @@ class BwRest():
         if https:
             self.url = f"https://{domain}:{port}"
 
+        self.loginItem.url = self.url
+        self.data_obj = {'session': ""}
+        self.loginItem.data_obj = self.data_obj
+
     def __terminate(self):
         """
         kills the running bitwarden rest api process. if this doesn't run,
@@ -67,22 +71,26 @@ class BwRest():
             self.bw_process.kill()
         return
 
-    def generate(self):
+    def generate(self, special_characters=False):
         """
-        generate a new password
+        generate a new password. Takes special_characters bool.
         if we get an error, return that whole json blob response
         """
         header('Generating a new password...')
+
+        # This is for the complexity of the password
         data_obj = {'length': 18, 'uppercase': True, 'lowercase': True,
                     'number': True}
+        if special_characters:
+            data_obj['special'] = True
+
         res = get(f"{self.url}/generate", json=data_obj).json()
 
         if res['success']:
             print(res['data']['data'])
             return res['data']['data']
-
-        # in case we get an error
-        return res
+        else:
+            return res
 
     def unlock(self):
         """
@@ -101,9 +109,9 @@ class BwRest():
 
         if res['success']:
             header(res['data']['title'], False)
-            self.data_obj = {'session': res['data']['raw']}
-
-        return res
+            self.data_obj['session'] = res['data']['raw']
+        else:
+            return res
 
     def lock(self):
         """
@@ -157,14 +165,34 @@ class BwRest():
         def post_login_item(self):
             """
             create a new bitwarden login item
+            Returns: {'success': True,
+                      'data': {'object': 'item',
+                               'id': '84b9d020-bce6-443b-8d6c-aef300890b83',
+                               'organizationId': None, 'folderId': None,
+                               'type': 1, 'reprompt': 0,
+                               'name': 'test.tech',
+                               'notes': None,
+                               'favorite': False,
+                               'login': {'uris': [
+                               {'match': 0, 'uri': 'test.tech'}],
+                               'username': 'admin',
+                               'password': 'fakepassword',
+                               'totp': None, 'passwordRevisionDate': None},
+                               'revisionDate': '2022-08-16T08:18:57.786Z',
+                               'deletedDate': None}}
             """
             header('Creating bitwarden login item...')
             data_obj = {}
             data_obj.update(self.data_obj)
             data_obj.update(self.login_data_obj)
 
-            json_resp = post(self.item_url, json=data_obj).json()
-            print(json_resp)
+            res = post(self.req_url, json=data_obj).json()
+            if res['success']:
+                print(res['data'])
+                return res['data']
+            else:
+                return res
+                print(res)
 
         def edit_login_item(self):
             """
@@ -175,7 +203,7 @@ class BwRest():
             """
             header('Editing bitwarden login item...')
             data_obj = {}
-            json_resp = put(self.item_url, json=data_obj).json()
+            json_resp = put(self.req_url, json=data_obj).json()
             print(json_resp)
 
 
@@ -195,7 +223,7 @@ def main():
     bw_instance.unlock()
     bw_instance.generate()
     login_item = bw_instance.loginItem("test mctest",
-                                       "nextcloud.social-media-for-dogs.com",
+                                       "test.tech",
                                        "admin", "fakepassword")
     login_item.post_login_item()
     bw_instance.lock()
