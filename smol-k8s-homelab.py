@@ -24,6 +24,9 @@ def parse_args():
               'k3s or kind. k0s coming soon')
     d_help = 'Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]'
     s_help = 'Install bitnami sealed secrets, defaults to False'
+    p_help = ('Store generated admin passwords directly into your password '
+              'manager. Right now, this defaults to Bitwarden and requires you'
+              ' to input your vault password to unlock the vault temporarily.')
     p = ArgumentParser(description=main.__doc__)
 
     p.add_argument('-k', '--k8s', required=True, help=k_help)
@@ -33,6 +36,8 @@ def parse_args():
     p.add_argument('--argo', action='store_true', default=False, help=a_help)
     p.add_argument('-s', '--sealed_secrets', action='store_true',
                    default=False, help=s_help)
+    p.add_argument('-p', '--password_manager', action='store_true',
+                   default=False, help=p_help)
     p.add_argument('--delete', action='store_true', default=False, help=d_help)
 
     return p.parse_args()
