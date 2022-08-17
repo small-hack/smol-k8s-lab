@@ -24,3 +24,6 @@ brew "kubeseal"
 
 # for Argo CD command line interface
 brew "argocd"
+
+# this is for bitwarden to work as your password manager
+brew "bitwarden-cli"
