@@ -29,6 +29,8 @@ def parse_args():
     p_help = ('Store generated admin passwords directly into your password '
               'manager. Right now, this defaults to Bitwarden and requires you'
               ' to input your vault password to unlock the vault temporarily.')
+    e_help = ('Install the external secrets operator to pull secrets from '
+              'somewhere else, so far only supporting gitlab')
     p = ArgumentParser(description=main.__doc__)
 
     p.add_argument('-k', '--k8s', required=True, help=k_help)
@@ -38,6 +40,8 @@ def parse_args():
     p.add_argument('--argo', action='store_true', default=False, help=a_help)
     p.add_argument('-s', '--sealed_secrets', action='store_true',
                    default=False, help=s_help)
+    p.add_argument('-e', '--external_secret_operator', action='store_true',
+                   default=False, help=e_help)
     p.add_argument('-p', '--password_manager', action='store_true',
                    default=False, help=p_help)
     p.add_argument('--delete', action='store_true', default=False, help=d_help)
@@ -60,6 +64,7 @@ def add_default_repos(k8s_distro, argo=True):
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
     repos['sealed-secrets'] = 'https://bitnami-labs.github.io/sealed-secrets'
+    repos['external-secrets'] = 'https://charts.external-secrets.io'
     if argo:
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
@@ -246,6 +251,13 @@ def main():
             print("Installing kubeseal with brew...")
             # TODO: check if installed before running this
             sub_proc("brew install kubeseal", True)
+
+        # this is for external secrets, like from gitlab
+        if args.external_secret_operator:
+            header("Installing External Secrets Operator...")
+            release = helm.chart(release_name='external-secrets-operator',
+                                 chart_name='external-secrets/external-secrets',
+                                 namespace='external-secrets')
 
         # then install argo CD :D
         if args.argo:
