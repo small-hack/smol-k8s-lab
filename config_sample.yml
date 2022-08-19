@@ -8,3 +8,7 @@ domains:
 
 address_pool: "192.168.42.42-192.168.42.50"
 email: "resident-internet-dog@selfhosting4dogs.com"
+
+gitlab:
+  project_id: "8907896"
+  deploy_token: "fjdkalhfjkdlahkhhajsfd"
