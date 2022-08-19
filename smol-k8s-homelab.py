@@ -164,7 +164,7 @@ def configure_cert_manager(email_addr):
     install_custom_resource(issuer)
 
 
-def configure_external_secrets(gitlab_access_token, gitlab_project_id):
+def configure_external_secrets(gitlab_access_token):
     """
     configure external secrets and gitlab provider
     """
@@ -183,17 +183,6 @@ def configure_external_secrets(gitlab_access_token, gitlab_project_id):
                      'stringData': {'token': gitlab_access_token}}
 
     install_custom_resource(gitlab_secret)
-
-    secret_store = {'apiVersion': 'external-secrets.io/v1beta1',
-                    'kind': 'SecretStore',
-                    'metadata': {'name': 'gitlab-secret-store'},
-                    'spec': {'provider': {'gitlab': {'auth': {
-                        'SecretRef': {'accessToken': {
-                            'name': 'gitlab-secret',
-                            'key': 'token'}}},
-                        'projectID': gitlab_project_id}}}}
-
-    install_custom_resource(secret_store)
 
 
 def delete_cluster(k8s_distro="k3s"):
@@ -286,9 +275,8 @@ def main():
 
         # this is for external secrets, like from gitlab
         if args.external_secret_operator:
-            gitlab_access_token = input_variables['gitlab']['deploy_token']
-            gitlab_project_id = input_variables['gitlab']['project_id']
-            configure_external_secrets(gitlab_access_token, gitlab_project_id)
+            gitlab_access_token = input_variables['gitlab']['access_token']
+            configure_external_secrets(gitlab_access_token)
 
         # then install argo CD :D
         if args.argo:
