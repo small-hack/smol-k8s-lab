@@ -164,6 +164,35 @@ def configure_cert_manager(email_addr):
     install_custom_resource(issuer)
 
 
+def configure_external_secrets(gitlab_access_token, gitlab_project_id):
+    """
+    configure external secrets and gitlab provider
+    """
+    header("Installing External Secrets Operator...")
+    release = helm.chart(release_name='external-secrets-operator',
+                         chart_name='external-secrets/external-secrets',
+                         namespace='external-secrets')
+    release.install(True)
+
+    # this currently only works with gitlab
+    gitlab_secret = {'apiVersion:': 'v1',
+                     'kind': 'Secret',
+                     'metadata': {'name': 'gitlab-secret',
+                                  'labels': {'type': 'gitlab'}},
+                     'type': 'Opaque',
+                     'stringData': {'token': gitlab_access_token}}
+    install_custom_resource(gitlab_secret)
+    secret_store = {'apiVersion': 'external-secrets.io/v1beta1',
+                    'kind': 'SecretStore',
+                    'metadata': {'name': 'gitlab-secret-store'},
+                    'spec': {'provider': {'gitlab': {'auth': {
+                        'SecretRef': {'accessToken': {
+                            'name': 'gitlab-secret',
+                            'key': 'token'}}},
+                        'projectID': gitlab_project_id}}}}
+    install_custom_resource(secret_store)
+
+
 def delete_cluster(k8s_distro="k3s"):
     """
     Delete a KIND or K3s cluster entirely.
@@ -254,10 +283,9 @@ def main():
 
         # this is for external secrets, like from gitlab
         if args.external_secret_operator:
-            header("Installing External Secrets Operator...")
-            release = helm.chart(release_name='external-secrets-operator',
-                                 chart_name='external-secrets/external-secrets',
-                                 namespace='external-secrets')
+            gitlab_access_token = input_variables['gitlab']['deploy_token']
+            gitlab_project_id = input_variables['gitlab']['project_id']
+            configure_external_secrets(gitlab_access_token, gitlab_project_id)
 
         # then install argo CD :D
         if args.argo:
