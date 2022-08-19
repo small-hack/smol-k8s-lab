@@ -276,7 +276,5 @@ STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS
 If you'd like to contribute, feel free to open an issue or pull request and we'll take a look!
 
 # TODO
-- install helm for the user. We do it for them.
-- look into https://crossplane.io/ and kubevela
+- install helm for the user. We do it for them. :blue-heart:
 - look into https://kubesec.io/
-- add in bitwarden support
