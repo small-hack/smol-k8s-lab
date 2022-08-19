@@ -33,18 +33,21 @@ def parse_args():
               'somewhere else, so far only supporting gitlab')
     p = ArgumentParser(description=main.__doc__)
 
-    p.add_argument('-k', '--k8s', required=True, help=k_help)
-    p.add_argument('-f', '--file', default='./config.yml', type=str,
-                   help=f_help)
-    p.add_argument('--k9s', action='store_true', default=False, help=k9_help)
-    p.add_argument('--argo', action='store_true', default=False, help=a_help)
-    p.add_argument('-s', '--sealed_secrets', action='store_true',
-                   default=False, help=s_help)
+    p.add_argument('k8s', type=str, help=k_help)
+    p.add_argument('-a', '--argo', action='store_true', default=False,
+                   help=a_help)
+    p.add_argument('-d', '--delete', action='store_true', default=False,
+                   help=d_help)
     p.add_argument('-e', '--external_secret_operator', action='store_true',
                    default=False, help=e_help)
+    p.add_argument('-f', '--file', default='./config.yml', type=str,
+                   help=f_help)
+    p.add_argument('-k', '--k9s', action='store_true', default=False,
+                   help=k9_help)
     p.add_argument('-p', '--password_manager', action='store_true',
                    default=False, help=p_help)
-    p.add_argument('--delete', action='store_true', default=False, help=d_help)
+    p.add_argument('-s', '--sealed_secrets', action='store_true',
+                   default=False, help=s_help)
 
     return p.parse_args()
 
