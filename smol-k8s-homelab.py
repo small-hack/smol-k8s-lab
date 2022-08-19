@@ -181,7 +181,9 @@ def configure_external_secrets(gitlab_access_token, gitlab_project_id):
                                   'labels': {'type': 'gitlab'}},
                      'type': 'Opaque',
                      'stringData': {'token': gitlab_access_token}}
+
     install_custom_resource(gitlab_secret)
+
     secret_store = {'apiVersion': 'external-secrets.io/v1beta1',
                     'kind': 'SecretStore',
                     'metadata': {'name': 'gitlab-secret-store'},
@@ -190,6 +192,7 @@ def configure_external_secrets(gitlab_access_token, gitlab_project_id):
                             'name': 'gitlab-secret',
                             'key': 'token'}}},
                         'projectID': gitlab_project_id}}}}
+
     install_custom_resource(secret_store)
 
 
