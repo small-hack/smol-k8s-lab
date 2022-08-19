@@ -178,7 +178,7 @@ def configure_external_secrets(gitlab_access_token):
     release.install(True)
 
     # this currently only works with gitlab
-    gitlab_secret = {'apiVersion:': 'v1',
+    gitlab_secret = {'apiVersion': 'v1',
                      'kind': 'Secret',
                      'metadata': {'name': 'gitlab-secret',
                                   'labels': {'type': 'gitlab'}},
