@@ -50,25 +50,32 @@ mv config_sample.yml config.yml
 
 The help should return this:
 ```bash
-usage: smol-k8s-homelab.py [-h] -k K8S [-f FILE] [--k9s] [--argo] [-s] [--delete]
+usage: smol-k8s-homelab.py [-h] [-a] [-d] [-e] [-f FILE] [-k] [-p] [-s] k8s
 
 Quickly install a k8s distro for a homelab setup. Installs k3s with metallb, nginx-ingess-controller, cert-manager, and argo
 
+positional arguments:
+  k8s                   distribution of kubernetes to install: k3s or kind. k0s coming soon
+
 optional arguments:
   -h, --help            show this help message and exit
-  -k K8S, --k8s K8S     distribution of kubernetes to install: k3s or kind. k0s coming soon
+  -a, --argo            Install Argo CD as part of this script, defaults to False
+  -d, --delete          Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]
+  -e, --external_secret_operator
+                        Install the external secrets operator to pull secrets from somewhere else, so far only supporting gitlab
   -f FILE, --file FILE  Full path and name of yml to parse, e.g. -f /tmp/config.yml
-  --k9s                 Run k9s as soon as this script is complete, defaults to False
-  --argo                Install Argo CD as part of this script, defaults to False
+  -k, --k9s             Run k9s as soon as this script is complete, defaults to False
+  -p, --password_manager
+                        Store generated admin passwords directly into your password manager. Right now, this defaults to Bitwarden and
+                        requires you to input your vault password to unlock the vault temporarily.
   -s, --sealed_secrets  Install bitnami sealed secrets, defaults to False
-  --delete              Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]
 ```
 
 ### Install distro with python script
 Currently only being tested with k3s and kind, but soon you can do other distros listed above. In the meantime, use the tutorial above for k0s.
 ```bash
 # you can replace k3s with kind
-./smol-k8s-homelab.py --k8s k3s
+./smol-k8s-homelab.py k3s
 ```
 
 #### Install some kubectl plugins (Optional)
@@ -99,7 +106,7 @@ fi
 ### Uninstall distro with python script
 ```bash
 # you can replace k3s with kind
-./smol-k8s-homelab.py --k8s k3s --delete
+./smol-k8s-homelab.py k3s --delete
 ```
 
 ## Quickstart in BASH
