@@ -283,11 +283,11 @@ def main():
 
         # then install argo CD :D
         if args.argo:
-            argocd_domain = input_variables['domains']['argocd']
+            argo_cd_domain = input_variables['domains']['argo_cd']
             opts = {'dex.enabled': 'false',
                     'server.ingress.enabled': 'true',
                     'server.ingress.ingressClassName': 'nginx',
-                    'server.ingress.hosts[0]': argocd_domain,
+                    'server.ingress.hosts[0]': argo_cd_domain,
                     'server.extraArgs[0]': '--insecure'}
 
             # if we're using a password manager, generate a password & save it
@@ -296,8 +296,8 @@ def main():
                 bw = BwCLI()
                 bw.unlock()
                 argo_password = bw.generate()
-                bw.create_login(name=argocd_domain,
-                                item_url=argocd_domain,
+                bw.create_login(name=argo_cd_domain,
+                                item_url=argo_cd_domain,
                                 user="admin",
                                 password=argo_password)
                 bw.lock()
