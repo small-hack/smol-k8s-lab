@@ -167,9 +167,11 @@ def configure_cert_manager(email_addr):
     install_custom_resource(issuer)
 
 
-def configure_external_secrets(gitlab_access_token):
+def configure_external_secrets(external_secrets_config):
     """
-    configure external secrets and gitlab provider
+    configure external secrets and provider. currently only works with gitlab
+    Accepts dict as arg:
+    dict = {'namespace': 'somenamespace', 'access_token': 'tokenhere'}
     """
     header("Installing External Secrets Operator...")
     release = helm.chart(release_name='external-secrets-operator',
@@ -177,10 +179,17 @@ def configure_external_secrets(gitlab_access_token):
                          namespace='external-secrets')
     release.install(True)
 
+    gitlab_access_token = external_secrets_config['access_token']
+    gitlab_namespace = external_secrets_config['namespace']
+
+    # create the namespace if does not exist
+    sub_proc(f'kubectl create namespace {gitlab_namespace}', True)
+
     # this currently only works with gitlab
     gitlab_secret = {'apiVersion': 'v1',
                      'kind': 'Secret',
                      'metadata': {'name': 'gitlab-secret',
+                                  'namespace': gitlab_namespace,
                                   'labels': {'type': 'gitlab'}},
                      'type': 'Opaque',
                      'stringData': {'token': gitlab_access_token}}
@@ -276,10 +285,10 @@ def main():
             # TODO: check if installed before running this
             sub_proc("brew install kubeseal", True)
 
-        # this is for external secrets, like from gitlab
+        # this is for external secrets, currently only supports gitlab
         if args.external_secret_operator:
-            gitlab_access_token = input_variables['gitlab']['access_token']
-            configure_external_secrets(gitlab_access_token)
+            external_secrets = input_variables['external_secrets']['gitlab']
+            configure_external_secrets(external_secrets)
 
         # then install argo CD :D
         if args.argo:
