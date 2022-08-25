@@ -18,6 +18,7 @@ We're biasing towards small and quick distros.
 | [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, needed for web traffic |
 | [cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
 | [k9s](https://k9scli.io/topics/install/) | Terminal based dashboard for kubernetes |
+| [local path provisioner]() | Default simple local file storage |
 
 #### Optionally installed
 | Application/Tool | What is it? |
@@ -236,6 +237,9 @@ Want to get started with argocd? If you've installed it via smol_k8s_homelab, th
 https://github.com/jessebot/argo-example#argo-via-the-gui
 
 Otherwise, if you want to start from scratch, start here: https://github.com/jessebot/argo-example#argocd
+
+Where is your persistent volume data? If you used the local path provisioner it is here:
+`/var/lib/rancher/k3s/storage`
 
 ### Helpful links
 - The k3s knowledge here is in this [kauri.io self hosting guide](https://kauri.io/#collections/Build%20your%20very%20own%20self-hosting%20platform%20with%20Raspberry%20Pi%20and%20Kubernetes/%2838%29-install-and-configure-a-kubernetes-cluster-w/) is invaluable. Thank you kauri.io.
