@@ -86,6 +86,10 @@ kubectl krew update
 kubectl krew install ctx
 kubectl krew install ns
 ```
+To install plugins from my newline-delimited krew file, run:
+```bash
+kubectl krew install < deps/kubectl_krew_plugins
+```
 
 #### Install @jessebot's `.bashrc_k8s` (optional)
 You can copy over the rc file for some helpful aliases:
