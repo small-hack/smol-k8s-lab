@@ -1,4 +1,6 @@
 # context switching
 ctx
+# changing namespaces of context
 ns
-
+# outputting example yaml
+example
