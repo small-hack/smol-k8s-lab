@@ -252,6 +252,19 @@ Where is your persistent volume data? If you used the local path provisioner it 
 
 - Running into issues with metallb assigning IPs, but them some of them not working with nginx-ingress controller? This person explained it really well, but it required hostnetwork to be set on the nginx-ingress chart values.yml. Check out thier guide [here](https://ericsmasal.com/2021/08/nginx-ingress-load-balancer-and-metallb/).
 
+### Why am I getting deprecation notices on certain apps?
+If you have the krew deprecations plugin installed, then you might get something like this:
+```
+Deleted APIs:
+
+PodSecurityPolicy found in policy/v1beta1
+	 ├─ API REMOVED FROM THE CURRENT VERSION AND SHOULD BE MIGRATED IMMEDIATELY!!
+		-> GLOBAL: metallb-controller
+		-> GLOBAL: metallb-speaker
+```
+For Metallb, that's because of this: https://github.com/metallb/metallb/issues/1401#issuecomment-1140806861
+It'll be fixed in October of 2022.
+
 ### Troubleshooting hellish networking issues with coredns
 Can your pod not get out to the internet? Well, first verify that it isn't the entire cluster with this:
 ```bash
@@ -276,12 +289,12 @@ Then decide, "*does having subdomains on my LAN spark joy?*"
 And then update your `ndot` option in your `/etc/resolv.conf` for podDNS to be 1. You can do this in a deployment. You should read this [k8s doc](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) to learn more. The search domain being more than 1-2 dots deep seems to cause all sorts of problems. You can test the `resolv.conf` with the infoblox/dnstools docker image from above. It already has the `vi` text editor, which will allow you to quickly iterate.
 
 #### No, it does not spark joy
-STOP USING SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
+STOP USING MULTIPLE SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
 
 # Contributions and maintainers
 - @cloudymax
 
-If you'd like to contribute, feel free to open an issue or pull request and we'll take a look!
+If you'd like to contribute, feel free to open an issue or pull request and we'll take a look and try to get back to you asap!
 
 # TODO
 - install helm for the user. We do it for them. :blue-heart:
