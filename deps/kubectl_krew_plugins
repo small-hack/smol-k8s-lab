@@ -4,3 +4,5 @@ ctx
 ns
 # outputting example yaml
 example
+# check which things are deprecated
+deprecations
