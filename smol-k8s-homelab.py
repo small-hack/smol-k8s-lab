@@ -214,7 +214,7 @@ def delete_cluster(k8s_distro="k3s"):
 def main():
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
-    with metallb, nginx-ingess-controller, cert-manager, and argo
+    with metallb, nginx-ingess-controller, cert-manager, and argocd
     """
     args = parse_args()
 
