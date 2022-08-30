@@ -23,8 +23,11 @@ We're biasing towards small and quick distros.
 #### Optionally installed
 | Application/Tool | What is it? |
 |:-----------:|:--------------| 
-| [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | generation of encrypted secrets so you can check secrets into git |
+| [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | Encrypts secrets files so you can check them into git |
+| [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
 | [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
+
+If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
 ## Quickstart in Python
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s and kind.
@@ -32,7 +35,7 @@ This is aimed at being a much more scalable experience, but is still being worke
 #### Pre-Req
 - Have Python 3.9 or higher installed as well as pip3
 - [brew](https://brew.sh)
-- **change the values in `config_sample.yml` to your own**
+- **:bell: change the values in `config_sample.yml` to your own**
 - Have internet access.
 
 ```bash
@@ -53,7 +56,7 @@ The help should return this:
 ```bash
 usage: smol-k8s-homelab.py [-h] [-a] [-d] [-e] [-f FILE] [-k] [-p] [-s] k8s
 
-Quickly install a k8s distro for a homelab setup. Installs k3s with metallb, nginx-ingess-controller, cert-manager, and argo
+Quickly install a k8s distro for a homelab setup. Installs k3s with metallb, nginx-ingess-controller, cert-manager, and argocd
 
 positional arguments:
   k8s                   distribution of kubernetes to install: k3s or kind. k0s coming soon
