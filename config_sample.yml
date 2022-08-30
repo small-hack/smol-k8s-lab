@@ -1,10 +1,6 @@
 ---
 domains:
   argo_cd: "argocd.selfhosting4dogs.com"
-  prometheus:
-    prometheus: "prometheus.selfhosting4dogs.com"
-    alert_manager: "alert-manager.selfhosting4dogs.com"
-    grafana: "grafana.selfhosting4dogs.com"
 
 # this is for metallb
 address_pool: "192.168.42.42-192.168.42.50"
