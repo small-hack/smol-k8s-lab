@@ -1,3 +1,11 @@
+---
+layout: default
+title: K0s
+description: "K0s"
+parent: K8s Distros
+permalink: /distros/k0s
+---
+
 # K0s
 
 k0s is a single-binary, 100% upstream, FOSS() Kuberntes Distro. [Docs](https://docs.k0sproject.io/v1.24.3+k0s.0/)

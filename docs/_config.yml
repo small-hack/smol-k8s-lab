@@ -1,0 +1,14 @@
+---
+title: "Smol K8s HomeLab"
+remote_theme: just-the-docs/just-the-docs
+color_scheme: "dark"
+search_enabled: true
+permalink: pretty
+url: "https://jessebot.github.io/smol_k8s_homelab"
+# Aux links for the upper right navigation
+aux_links:
+  "smol_k8s_homelab on GitHub":
+    - "//github.com/jessebot/smol_k8s_homelab"
+
+plugins:
+  - jekyll-seo-tag

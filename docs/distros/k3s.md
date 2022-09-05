@@ -1,3 +1,12 @@
+---
+layout: default
+title: K3s
+description: "K3s"
+parent: K8s Distros
+permalink: /distros/k3s
+---
+
+
 ## create the k3s cluster (just one server node)
 ```bash
 # skip install of traefik & servicelb
