@@ -1,15 +1,14 @@
 # Smol K8s Homelab
 
-Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly, but there's also full tutorials to manually set up each distro in the [docs page](https://jessebot.github.io/smol_k8s_homelab/distros).
+Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as a BASH script for only that distribution.
 
 ### Currently supported k8s distros
-We're biasing towards small and quick distros.
 
-| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)| Tutorial | [Quickstart BASH](#quickstart-in-bash) |
-|:--------------------------------:|:------:|:------------------------------------:|:--------------------------------------:|
-|[k3s](https://k3s.io/)            | ✅     | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/k3s)   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
-|[KinD](https://kind.sigs.k8s.io/) | ✅     | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/kind) | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
-|[k0s](https://k0sproject.io/)     | soon   | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/k0s)   | soon :3                                  |
+| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)| [Quickstart BASH](#quickstart-in-bash) |
+|:---:|:---:|:---:|
+|[k3s](https://k3s.io/)            | ✅   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
+|[KinD](https://kind.sigs.k8s.io/) | ✅   | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
+|[k0s](https://k0sproject.io/)     | soon | soon :3 |
 
 ### Stack We Install on K8s
 We tend to test first one k3s and then kind and then k0s.
@@ -121,97 +120,6 @@ fi
 # you can replace k3s with kind
 ./smol-k8s-homelab.py k3s --delete
 ```
-
-## Quickstart in BASH
-#### Pre-Req
-- Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
-- Have internet access.
-
-### Choose a k8s distro 
-  
-<details>
-  <summary>K3s - (Best for Linux on metal or a bridged VM)</summary>
-
-  These can also be set in a .env file in this directory :)
-
-  ```bash
-    # IP address pool for metallb, this is where your domains will map
-    # back to if you use ingress for your cluster, defaults to 8 ip addresses
-    export CIDR="192.168.42.42-192.168.42.50"
-
-    # email address for lets encrypt
-    export EMAIL="dogontheinternet@coolemails4dogs.com"
-
-    # SECTION FOR GRAFANA AND PROMETHEUS
-    #
-    # this is for prometheus alert manager
-    export ALERT_MANAGER_DOMAIN="alert-manager.selfhosting4dogs.com"
-    # this is for your grafana instance, that is connected to prometheus
-    export GRAFANA_DOMAIN="grafana.selfhosting4dogs.com"
-    # this is for prometheus proper, where you'll go to verify exporters are working
-    export PROMETHEUS_DOMAIN="prometheus.selfhosting4dogs.com"
-  ```
-
-  Then you can run the script! :D
-
-  ```bash
-    # From the cloned repo dir, This should set up k3s and dependencies
-    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/k3s/bash_full_quickstart.sh
-  ```
-
-  #### Ready to clean up this cluster?
-  To delete the whole cluster, the above k3s install also included an uninstall script that should be in your path already:
-
-  ```bash
-    k3s-uninstall.sh
-  ```
-
-</details>
-
-<details>
-  <summary>KinD - (Best path for non-prod testing across linux and macOS)</summary>
-
-  ```bash
-    # this export can also be set in a .env file in the same dir
-    export EMAIL="youremail@coolemail4dogs.com"
-
-    # From the cloned repo dir, This should set up KinD for you
-    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/kind/bash_full_quickstart.sh
-  ```
-
-  #### Ready to clean up this cluster?
-  To delete the whole cluster, run:
-
-  ```bash
-    kind delete cluster
-  ```
-
-</details>
-
-<details>
-  <summary>K0s - (best for large multinode/GPU passthrough)</summary>
-
-  Still being developed, but will probably look something like....
-
-  ```bash
-    # this export can also be set in a .env file in the same dir
-    export EMAIL="youremail@coolemail4dogs.com"
-    
-    # From the cloned repo dir, This should set up KinD for you
-    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/k0s/bash_quickstart.sh
-  ```
-
-  #### Ready to clean up this cluster?
-  To delete the whole cluster, run:
-
-  ```bash
-    ???
-  ```
-
-</details>
 
 ## Final Touches
 
