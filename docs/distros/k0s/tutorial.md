@@ -1,9 +1,9 @@
 ---
 layout: default
-title: K0s
-description: "K0s"
-parent: K8s Distros
-permalink: /distros/k0s
+title: K0s Tutorial
+description: "K0s tutorial"
+parent: K0s
+permalink: /distros/k0s/tutorial
 ---
 
 # K0s

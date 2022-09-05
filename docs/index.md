@@ -46,7 +46,6 @@ We tend to test first one k3s and then kind and then k0s.
 
 If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
-## Final Touches
 
 ### Port Forwarding
 If you want to access an app outside of port forwarding to test, you'll need to make sure your app's ingress is setup correctly and then you'll need to setup your router to port forward 80->80 and 443->443 for your WAN. then setup DNS for your domain if you want the wider internet to access this remotely.
@@ -70,20 +69,5 @@ export REMOTE_USER="cooluser4dogs"
 ./k3s/get-remote-k3s-yaml.sh
 ```
 
----
-
-# Other Notes
-
-Check out the [`optional`](optional) directory for notes on specific apps
-
-e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./optional/postgres/README.md)
-
-Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to here:
-https://github.com/jessebot/argo-example#argo-via-the-gui
-
-Otherwise, if you want to start from scratch, start here: https://github.com/jessebot/argo-example#argocd
-
-Where is your persistent volume data? If you used the local path provisioner it is here:
-`/var/lib/rancher/k3s/storage`
-
+### Troubleshooting
 If you're stuck, checkout the [Troubleshooting section](https://jessebot.github.io/smol_k8s_homelab/troubleshooting) to see if we also got stuck on it at some point :)
