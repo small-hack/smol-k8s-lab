@@ -2,6 +2,7 @@
 layout: default
 title: metallb
 description: "Troubleshooting MetalLB notes"
+parent: Troubleshooting
 permalink: /troubleshooting/metallb
 ---
 
