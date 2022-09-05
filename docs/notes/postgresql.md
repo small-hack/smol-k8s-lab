@@ -2,7 +2,7 @@
 layout: default
 title: Postgresql
 description: "Quick notes on hosting postgresql on Kubernetes"
-nav_order: 2
+parent: Notes
 permalink: /notes/postgresql
 ---
 
