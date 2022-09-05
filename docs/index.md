@@ -15,9 +15,9 @@ We're biasing towards small and quick distros.
 
 | Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)| Tutorial | [Quickstart BASH](#quickstart-in-bash) |
 |:--------------------------------:|:------:|:------------------------------------:|:--------------------------------------:|
-|[k3s](https://k3s.io/)            | ✅     | [./k3s/README.md](./k3s/README.md)   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
-|[KinD](https://kind.sigs.k8s.io/) | ✅     | [./kind/README.md](./kind/README.md) | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
-|[k0s](https://k0sproject.io/)     | soon   | [./k0s/README.md](./k0s/README.md)   | soon :3                                  |
+|[k3s](https://k3s.io/)            | ✅     | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/k3s)   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
+|[KinD](https://kind.sigs.k8s.io/) | ✅     | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/kind) | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
+|[k0s](https://k0sproject.io/)     | soon   | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/k0s)   | soon :3                                  |
 
 ### Stack We Install on K8s
 We tend to test first one k3s and then kind and then k0s.
@@ -261,57 +261,4 @@ Otherwise, if you want to start from scratch, start here: https://github.com/jes
 Where is your persistent volume data? If you used the local path provisioner it is here:
 `/var/lib/rancher/k3s/storage`
 
-### Helpful links
-- The k3s knowledge here is in this [kauri.io self hosting guide](https://kauri.io/#collections/Build%20your%20very%20own%20self-hosting%20platform%20with%20Raspberry%20Pi%20and%20Kubernetes/%2838%29-install-and-configure-a-kubernetes-cluster-w/) is invaluable. Thank you kauri.io.
-
-- This [encrypted secrets in helm charts guide](https://www.thorsten-hans.com/encrypted-secrets-in-helm-charts/) isn't the guide we need, but helm secrets need to be stored somewhere, and vault probably makes sense
-
-- Running into issues with metallb assigning IPs, but them some of them not working with nginx-ingress controller? This person explained it really well, but it required hostnetwork to be set on the nginx-ingress chart values.yml. Check out thier guide [here](https://ericsmasal.com/2021/08/nginx-ingress-load-balancer-and-metallb/).
-
-### Why am I getting deprecation notices on certain apps?
-If you have the krew deprecations plugin installed, then you might get something like this:
-```
-Deleted APIs:
-
-PodSecurityPolicy found in policy/v1beta1
-	 ├─ API REMOVED FROM THE CURRENT VERSION AND SHOULD BE MIGRATED IMMEDIATELY!!
-		-> GLOBAL: metallb-controller
-		-> GLOBAL: metallb-speaker
-```
-For Metallb, that's because of this: https://github.com/metallb/metallb/issues/1401#issuecomment-1140806861
-It'll be fixed in October of 2022.
-
-### Troubleshooting hellish networking issues with coredns
-Can your pod not get out to the internet? Well, first verify that it isn't the entire cluster with this:
-```bash
-kubectl run -it --rm --image=infoblox/dnstools:latest dnstools
-```
-
-Check the `/etc/resolv.conf` and `/etc/hosts` that's been provided by coredns from that pod with:
-```bash
-cat /etc/resolv.conf
-cat /etc/hosts
-
-# also check if this returns linuxfoundation's info correct
-# cross check this with a computer that can hit linuxfoundation.org with no issues
-host linuxfoundation.org
-```
-
-If it doesn't return [linuxfoundation.org](linuxfoundation.org)'s info, you should first go read this [k3s issue](https://github.com/k3s-io/k3s/issues/53) (yes, it's present in KIND as well).
-
-Then decide, "*does having subdomains on my LAN spark joy?*"
-
-#### Yes it sparks joy
-And then update your `ndot` option in your `/etc/resolv.conf` for podDNS to be 1. You can do this in a deployment. You should read this [k8s doc](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config) to learn more. The search domain being more than 1-2 dots deep seems to cause all sorts of problems. You can test the `resolv.conf` with the infoblox/dnstools docker image from above. It already has the `vi` text editor, which will allow you to quickly iterate.
-
-#### No, it does not spark joy
-STOP USING MULTIPLE SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
-
-# Contributions and maintainers
-- @cloudymax
-
-If you'd like to contribute, feel free to open an issue or pull request and we'll take a look and try to get back to you asap!
-
-# TODO
-- install helm for the user. We do it for them. :blue-heart:
-- look into https://kubesec.io/
+If you're stuck, checkout the [Troubleshooting section](https://jessebot.github.io/smol_k8s_homelab/troubleshooting) to see if we also got stuck on it at some point :)
