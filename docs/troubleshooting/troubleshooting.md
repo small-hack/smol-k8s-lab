@@ -3,6 +3,7 @@ layout: default
 title: Troubleshooting
 description: "Troubleshooting thing in k8s"
 nav_order: 1
+has_children: true
 permalink: /troubleshooting
 ---
 
