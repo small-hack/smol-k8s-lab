@@ -40,7 +40,7 @@ We tend to test first one k3s and then kind and then k0s.
 | [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
 | [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
 
-#### Other import stuff we install
+#### Other important stuff we install
 
 - [k9s](https://k9scli.io/topics/install/): Terminal based dashboard for kubernetes
 
