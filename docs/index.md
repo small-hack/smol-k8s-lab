@@ -7,17 +7,16 @@ permalink: /
 ---
 
 # Smol K8s Homelab
-
-Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly, but there's also full tutorials linked in the `README.md` for each distro's directory, if you'd like to learn the commands at your terminal. These tutorials assume you're on Linux or macOS.
+Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros).
 
 ### Currently supported k8s distros
-We're biasing towards small and quick distros.
 
-| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)| Tutorial | [Quickstart BASH](#quickstart-in-bash) |
-|:--------------------------------:|:------:|:------------------------------------:|:--------------------------------------:|
-|[k3s](https://k3s.io/)            | ✅     | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/k3s)   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
-|[KinD](https://kind.sigs.k8s.io/) | ✅     | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/kind) | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
-|[k0s](https://k0sproject.io/)     | soon   | [✅](https://jessebot.github.io/smol_k8s_homelab/distros/k0s)   | soon :3                                  |
+| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)| [Quickstart BASH](#quickstart-in-bash) |
+|:---:|:---:|:---:|
+|[k3s](https://k3s.io/)            | ✅   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
+|[KinD](https://kind.sigs.k8s.io/) | ✅   | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
+|[k0s](https://k0sproject.io/)     | soon | soon :3 |
+
 
 ### Stack We Install on K8s
 We tend to test first one k3s and then kind and then k0s.
