@@ -1,3 +1,11 @@
+---
+layout: default
+title: Kind
+description: "Kind"
+parent: K8s Distros
+permalink: /distros/kind
+---
+
 # Quickly install KIND using the following stack on mac/linux
 - KinD (kubernetes in docker)
 - nginx-ingress-controller (for remote access)
