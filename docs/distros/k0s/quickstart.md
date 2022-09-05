@@ -2,7 +2,7 @@
 layout: default
 title: K0s Quickstart
 description: "Smol K8s Homelab BASH scripts Quickstart"
-parent: k0s
+parent: K0s
 permalink: /distros/k0s/quickstart
 ---
 

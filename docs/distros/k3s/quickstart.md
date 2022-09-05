@@ -1,102 +1,53 @@
 ---
 layout: default
-title: BASH Quickstarts
-description: "Smol K8s Homelab BASH scripts Quickstart"
-parent: K8s Distros
-permalink: /distros/bash-scripts
+title: K3s BASH Quickstart
+description: "k3s BASH script Quickstart"
+parent: K3s
+permalink: /distros/k3s/quickstart
 ---
 
-## Installing a k8s distro using a pre-configured BASH script
+## Installing a k3s using a pre-configured BASH script
+Best for Linux on metal or a bridged VM
 
 #### Pre-Req
 - Have internet access.
 - Optional: Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 
-### Choose a k8s distro 
-  
-<details>
-  <summary>K3s - (Best for Linux on metal or a bridged VM)</summary>
 
-  These can also be set in a .env file in this directory :)
+These can also be set in a .env file in this directory :)
 
-  ```bash
-    # IP address pool for metallb, this is where your domains will map
-    # back to if you use ingress for your cluster, defaults to 8 ip addresses
-    export CIDR="192.168.42.42-192.168.42.50"
+```bash
+# IP address pool for metallb, this is where your domains will map
+# back to if you use ingress for your cluster, defaults to 8 ip addresses
+export CIDR="192.168.42.42-192.168.42.50"
 
-    # email address for lets encrypt
-    export EMAIL="dogontheinternet@coolemails4dogs.com"
+# email address for lets encrypt
+export EMAIL="dogontheinternet@coolemails4dogs.com"
 
-    # SECTION FOR GRAFANA AND PROMETHEUS
-    #
-    # this is for prometheus alert manager
-    export ALERT_MANAGER_DOMAIN="alert-manager.selfhosting4dogs.com"
-    # this is for your grafana instance, that is connected to prometheus
-    export GRAFANA_DOMAIN="grafana.selfhosting4dogs.com"
-    # this is for prometheus proper, where you'll go to verify exporters are working
-    export PROMETHEUS_DOMAIN="prometheus.selfhosting4dogs.com"
-  ```
+# SECTION FOR GRAFANA AND PROMETHEUS
+#
+# this is for prometheus alert manager
+export ALERT_MANAGER_DOMAIN="alert-manager.selfhosting4dogs.com"
+# this is for your grafana instance, that is connected to prometheus
+export GRAFANA_DOMAIN="grafana.selfhosting4dogs.com"
+# this is for prometheus proper, where you'll go to verify exporters are working
+export PROMETHEUS_DOMAIN="prometheus.selfhosting4dogs.com"
+```
 
-  Then you can run the script! :D
+Then you can run the script! :D
 
-  ```bash
-    # From the cloned repo dir, This should set up k3s and dependencies
-    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/k3s/bash_full_quickstart.sh
-  ```
+```bash
+# From the cloned repo dir, This should set up k3s and dependencies
+# Will also launch k9s, like top for k8s, To exit k9s, use type :quit
+./k8s_homelab/k3s/bash_full_quickstart.sh
+```
 
-  #### Ready to clean up this cluster?
-  To delete the whole cluster, the above k3s install also included an uninstall script that should be in your path already:
+#### Ready to clean up this cluster?
+To delete the whole cluster, the above k3s install also included an uninstall script that should be in your path already:
 
-  ```bash
-    k3s-uninstall.sh
-  ```
-
-</details>
-
-<details>
-  <summary>KinD - (Best path for non-prod testing across linux and macOS)</summary>
-
-  ```bash
-    # this export can also be set in a .env file in the same dir
-    export EMAIL="youremail@coolemail4dogs.com"
-
-    # From the cloned repo dir, This should set up KinD for you
-    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/kind/bash_full_quickstart.sh
-  ```
-
-  #### Ready to clean up this cluster?
-  To delete the whole cluster, run:
-
-  ```bash
-    kind delete cluster
-  ```
-
-</details>
-
-<details>
-  <summary>K0s - (best for large multinode/GPU passthrough)</summary>
-
-  Still being developed, but will probably look something like....
-
-  ```bash
-    # this export can also be set in a .env file in the same dir
-    export EMAIL="youremail@coolemail4dogs.com"
-    
-    # From the cloned repo dir, This should set up KinD for you
-    # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-    ./k8s_homelab/k0s/bash_quickstart.sh
-  ```
-
-  #### Ready to clean up this cluster?
-  To delete the whole cluster, run:
-
-  ```bash
-    ???
-  ```
-
-</details>
+```bash
+k3s-uninstall.sh
+```
 
 ## Final Touches
 
