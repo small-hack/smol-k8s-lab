@@ -1,6 +1,6 @@
 # Smol K8s Homelab
 
-Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly, but there's also full tutorials linked in the `README.md` for each distro's directory, if you'd like to learn the commands at your terminal. These tutorials assume you're on Linux or macOS.
+Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly, but there's also full tutorials to manually set up each distro in the [docs page](https://jessebot.github.io/smol_k8s_homelab/distros).
 
 ### Currently supported k8s distros
 We're biasing towards small and quick distros.
@@ -253,8 +253,6 @@ Otherwise, if you want to start from scratch, start here: https://github.com/jes
 Where is your persistent volume data? If you used the local path provisioner it is here:
 `/var/lib/rancher/k3s/storage`
 
-#### No, it does not spark joy
-STOP USING MULTIPLE SUBDOMAINS ON YOUR LOCAL ROUTER. Get a pihole and use it for both DNS and DHCP.
 
 # Contributions and maintainers
 - @cloudymax
