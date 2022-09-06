@@ -7,4 +7,4 @@ has_children: true
 permalink: /distros/kind
 ---
 
-KinD (kubernetes in docker)
+## KinD (kubernetes in docker)
