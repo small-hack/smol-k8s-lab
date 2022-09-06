@@ -1,4 +1,3 @@
-
 ---
 layout: default
 title: K0s Tutorial
