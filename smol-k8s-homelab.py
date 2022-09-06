@@ -87,7 +87,7 @@ def install_k8s_distro(k8s_distro=""):
     install a specific distro of k8s
     options: k3s, kind | coming soon: k0s
     """
-    sub_proc(f"{PWD}/{k8s_distro}/quickstart.sh")
+    sub_proc(f"{PWD}/distros/{k8s_distro}/quickstart.sh")
 
 
 def install_custom_resource(custom_resource_dict):
