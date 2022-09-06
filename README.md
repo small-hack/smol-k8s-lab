@@ -4,7 +4,7 @@ Currently in a beta state. We throw local k8s (kubernetes) testing tools in this
 
 ### Currently supported k8s distros
 
-| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)|
+| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py) Support|
 |:---:|:---:|
 |[k3s](https://k3s.io/)            | ✅   | 
 |[KinD](https://kind.sigs.k8s.io/) | ✅   | 
