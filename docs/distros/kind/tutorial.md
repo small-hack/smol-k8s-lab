@@ -28,6 +28,7 @@ helm repo update
 ```
 
 ## Create the kind cluster
+
 ```bash
 cat <<EOF | kind create cluster --config=-
 kind: Cluster
@@ -50,8 +51,15 @@ nodes:
 EOF
 ```
 
+## Grab your kube config
+
+```bash
+sudo kind get kubeconfig > ~/.kube/kubeconfig
+```
+
 ## MetalLb installation
 Learn more about metallb [here](https://github.com/metallb/metallb/tree/main/charts/metallb).
+
 ```bash
 helm install metallb metallb/metallb -n kube-system --wait
 ```
