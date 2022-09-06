@@ -7,7 +7,7 @@ grand_parent: K8s Distros
 permalink: /distros/k0s/tutorial
 ---
 
-# Install K0s from Scratch
+## Install K0s from Scratch
 
 k0s is a single-binary, 100% upstream, FOSS() Kuberntes Distro. [Docs](https://docs.k0sproject.io/v1.24.3+k0s.0/)
 
@@ -21,7 +21,7 @@ k0s is a single-binary, 100% upstream, FOSS() Kuberntes Distro. [Docs](https://d
   - Datastore backends: etcd is default for multi-node clusters, SQLite is default for single node clusters. Also supports MySQL, and PostgreSQL.
   - Includes Konnectivity service, CoreDNS and Metrics Server
 
-## Install
+### Install
 
 * Add Helm Repos
 
