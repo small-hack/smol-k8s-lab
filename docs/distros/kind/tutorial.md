@@ -3,6 +3,7 @@ layout: default
 title: Kind Tutorial
 description: "Kind Tutorial"
 parent: Kind
+grand_parent: K8s Distros
 permalink: /distros/kind/tutorial
 ---
 
