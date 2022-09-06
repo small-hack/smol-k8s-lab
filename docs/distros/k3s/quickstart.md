@@ -62,7 +62,7 @@ After SSL is working (if it's not, follow the steps in the [cert-manager common 
 
 ### Remote cluster administration
 
-You can also copy your remote k3s kubeconfig with a little script in `k3s/`:
+You can also copy your remote k3s kubeconfig with a little script in `./distros/k3s/`:
 
 ```bash
 # CHANGE THESE TO YOUR OWN DETAILS or not ¯\_(ツ)_/¯
