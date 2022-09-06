@@ -3,7 +3,7 @@ layout: default
 title: K8up
 description: "Quick notes on K8up"
 parent: Notes
-permalink: /notes/nextcloud
+permalink: /notes/k8up
 ---
 
 ## K8up - Restic backups for k8s
