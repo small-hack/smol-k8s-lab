@@ -152,7 +152,10 @@ export REMOTE_USER="cooluser4dogs"
 
 ---
 
-# Other Notes
+## Troubleshooting
+If you're stuck, checkout the [Troubleshooting section](https://jessebot.github.io/smol_k8s_homelab/troubleshooting) to see if we also got stuck on the same thing at some point :)
+
+## Other Notes
 
 Check out the [`optional`](optional) directory for notes on specific apps
 
