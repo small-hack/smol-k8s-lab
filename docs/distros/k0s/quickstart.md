@@ -7,7 +7,7 @@ grand_parent: K8s Distros
 permalink: /distros/k0s/quickstart
 ---
 
-## Installing a K0s distro using a pre-configured BASH script
+# Installing a K0s distro using a pre-configured BASH script
 
 Best distro for large multinode/GPU passthrough.
 

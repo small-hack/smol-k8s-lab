@@ -5,20 +5,10 @@ title: K0s Tutorial
 description: "K0s Tutorial"
 parent: K0s
 grand_parent: K8s Distros
-has_children: true
 permalink: /distros/k0s/tutorial
 ---
 
-
----
-layout: default
-title: K0s Tutorial
-description: "K0s tutorial"
-parent: K0s
-permalink: /distros/k0s/tutorial
----
-
-# K0s
+# Install K0s from Scratch
 
 k0s is a single-binary, 100% upstream, FOSS() Kuberntes Distro. [Docs](https://docs.k0sproject.io/v1.24.3+k0s.0/)
 

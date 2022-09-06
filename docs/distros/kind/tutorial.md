@@ -7,7 +7,9 @@ grand_parent: K8s Distros
 permalink: /distros/kind/tutorial
 ---
 
-# Quickly install KIND using the following stack on mac/linux
+# Install KIND from Scratch
+
+#### Stack we install in this tutorial
 - KinD (kubernetes in docker)
 - nginx-ingress-controller (for remote access)
 - cert-manager (automatic SSL)
