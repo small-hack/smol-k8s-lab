@@ -3,6 +3,7 @@ layout: default
 title: K3s Tutorial
 description: "K3s tutorial"
 parent: K3s
+grand_parent: K8s Distros
 permalink: /distros/k3s/tutorial
 ---
 

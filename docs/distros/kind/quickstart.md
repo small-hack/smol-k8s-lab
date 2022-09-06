@@ -3,6 +3,7 @@ layout: default
 title: Kind BASH Quickstart
 description: "KinD BASH scripts Quickstart"
 parent: Kind
+grand_parent: K8s Distros
 permalink: /distros/kind/quickstart
 ---
 

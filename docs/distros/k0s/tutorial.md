@@ -1,3 +1,15 @@
+
+---
+layout: default
+title: K0s Tutorial
+description: "K0s Tutorial"
+parent: K0s
+grand_parent: K8s Distros
+has_children: true
+permalink: /distros/k0s/tutorial
+---
+
+
 ---
 layout: default
 title: K0s Tutorial
