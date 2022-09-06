@@ -22,8 +22,9 @@ Get started with `smol-k8s-homelab.py` today with our tutorial [here](https://je
 
 ### Stack We Install on K8s
 We tend to test first one k3s and then kind and then k0s.
+
 | Application/Tool | What is it? |
-|:-----------:|:--------------|
+|:---:|:---|
 | [metallb](https://github.io/metallb/metallb) | loadbalancer for metal, since we're mostly selfhosting |
 | [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, needed for web traffic |
 | [cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
@@ -31,18 +32,16 @@ We tend to test first one k3s and then kind and then k0s.
 | [local path provisioner]() | Default simple local file storage |
 
 #### Optionally installed
+
 | Application/Tool | What is it? |
-|:-----------:|:--------------| 
+|:---:|:---| 
 | [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | Encrypts secrets files so you can check them into git |
 | [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
 | [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
 
 If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
-Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to here:
-https://github.com/jessebot/argo-example#argo-via-the-gui
-
-Otherwise, if you want to start from scratch, start here: https://github.com/jessebot/argo-example#argocd
+Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump [here](https://github.com/jessebot/argo-example#argo-via-the-gui). Otherwise, if you want to start from scratch, start [here](https://github.com/jessebot/argo-example#argocd)
 
 #### Other important tools we install
 
