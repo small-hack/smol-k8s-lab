@@ -2,7 +2,7 @@
 layout: default
 title: Troubleshooting
 description: "Troubleshooting thing in k8s"
-nav_order: 1
+nav_order: 3
 has_children: true
 permalink: /troubleshooting
 ---
@@ -21,13 +21,10 @@ Check out the [`optional`](optional) directory for notes on specific apps
 
 e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./optional/postgres/README.md)
 
-Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to here:
-https://github.com/jessebot/argo-example#argo-via-the-gui
+Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to [this Tutorial](https://github.com/jessebot/argo-example#argo-via-the-gui) to get going :)
 
-Otherwise, if you want to start from scratch, start here: https://github.com/jessebot/argo-example#argocd
+Otherwise, if you want to start from scratch, start [here](https://github.com/jessebot/argo-example#argocd).
 
-Where is your persistent volume data? If you used the local path provisioner it is here:
-`/var/lib/rancher/k3s/storage`
 
 ## Helpful links
 - The k3s knowledge here is in this [kauri.io self hosting guide](https://kauri.io/#collections/Build%20your%20very%20own%20self-hosting%20platform%20with%20Raspberry%20Pi%20and%20Kubernetes/%2838%29-install-and-configure-a-kubernetes-cluster-w/) is invaluable. Thank you kauri.io.
