@@ -15,17 +15,6 @@ If you want to access an app outside of port forwarding to test, you'll need to 
 After SSL is working (if it's not, follow the steps in the [cert-manager common error troubleshooting guide](https://cert-manager.io/docs/faq/acme/#common-errors)), you can also change the `letsencrypt-staging` value to `letsencrypt-prod` for any domains you own and can configure to point to your cluster via DNS.
 
 
-# Other Notes
-
-Check out the [`optional`](optional) directory for notes on specific apps
-
-e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./optional/postgres/README.md)
-
-Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to [this Tutorial](https://github.com/jessebot/argo-example#argo-via-the-gui) to get going :)
-
-Otherwise, if you want to start from scratch, start [here](https://github.com/jessebot/argo-example#argocd).
-
-
 ## Helpful links
 - The k3s knowledge here is in this [kauri.io self hosting guide](https://kauri.io/#collections/Build%20your%20very%20own%20self-hosting%20platform%20with%20Raspberry%20Pi%20and%20Kubernetes/%2838%29-install-and-configure-a-kubernetes-cluster-w/) is invaluable. Thank you kauri.io.
 
