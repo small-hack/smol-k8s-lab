@@ -40,7 +40,7 @@ Then you can run the script! :D
 ```bash
 # From the cloned repo dir, This should set up k3s and dependencies
 # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-./k8s_homelab/k3s/bash_full_quickstart.sh
+./distros/k3s/bash_full_quickstart.sh
 ```
 
 #### Ready to clean up this cluster?
@@ -71,5 +71,5 @@ export REMOTE_SSH_PORT="22"
 export REMOTE_USER="cooluser4dogs"
 
 # this script will totally wipe your kubeconfig :) use with CAUTION
-./k3s/get-remote-k3s-yaml.sh
+./distros/k3s/get-remote-k3s-yaml.sh
 ```
