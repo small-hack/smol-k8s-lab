@@ -16,7 +16,7 @@ export EMAIL="youremail@coolemail4dogs.com"
 
 # From the cloned repo dir, This should set up KinD for you
 # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-./k8s_homelab/kind/bash_full_quickstart.sh
+./distros/kind/bash_full_quickstart.sh
 ```
 
 #### Ready to clean up this cluster?
@@ -34,18 +34,3 @@ If you want to access an app outside of port forwarding to test, you'll need to 
 ### SSL/TLS
 
 After SSL is working (if it's not, follow the steps in the [cert-manager common error troubleshooting guide](https://cert-manager.io/docs/faq/acme/#common-errors)), you can also change the `letsencrypt-staging` value to `letsencrypt-prod` for any domains you own and can configure to point to your cluster via DNS.
-
-
-### Remote cluster administration
-
-You can also copy your remote k3s kubeconfig with a little script in `k3s/`:
-
-```bash
-# CHANGE THESE TO YOUR OWN DETAILS or not ¯\_(ツ)_/¯
-export REMOTE_HOST="192.168.20.2"
-export REMOTE_SSH_PORT="22"
-export REMOTE_USER="cooluser4dogs"
-
-# this script will totally wipe your kubeconfig :) use with CAUTION
-./k3s/get-remote-k3s-yaml.sh
-```
