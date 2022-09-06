@@ -7,7 +7,7 @@ grand_parent: K8s Distros
 permalink: /distros/k3s/tutorial
 ---
 
-# K3s
+# Install K3s From Scratch
 
 ## create the k3s cluster (just one server node)
 ```bash
