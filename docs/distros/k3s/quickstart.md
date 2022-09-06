@@ -3,7 +3,7 @@ layout: default
 title: K3s BASH Quickstart
 description: "k3s BASH script Quickstart"
 parent: K3s
-permalink: /distros/k3s/quickstart
+permalink: /distros/k3s/bash-quickstart
 ---
 
 ## Installing a k3s using a pre-configured BASH script

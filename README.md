@@ -1,14 +1,14 @@
 # Smol K8s Homelab
 
-Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as a BASH script for only that distribution.
+Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in each directory under `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`.
 
 ### Currently supported k8s distros
 
-| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)| [Quickstart BASH](#quickstart-in-bash) |
-|:---:|:---:|:---:|
-|[k3s](https://k3s.io/)            | ✅   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
-|[KinD](https://kind.sigs.k8s.io/) | ✅   | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
-|[k0s](https://k0sproject.io/)     | soon | soon :3 |
+| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)|
+|:---:|:---:|
+|[k3s](https://k3s.io/)            | ✅   | 
+|[KinD](https://kind.sigs.k8s.io/) | ✅   | 
+|[k0s](https://k0sproject.io/)     | soon |
 
 ### Stack We Install on K8s
 We tend to test first one k3s and then kind and then k0s.
@@ -27,13 +27,19 @@ We tend to test first one k3s and then kind and then k0s.
 | [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
 | [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
 
-#### Other import stuff we install
+If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
+
+Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to here:
+https://github.com/jessebot/argo-example#argo-via-the-gui
+
+Otherwise, if you want to start from scratch, start here: https://github.com/jessebot/argo-example#argocd
+
+#### Other important tools we install
 
 - [k9s](https://k9scli.io/topics/install/): Terminal based dashboard for kubernetes
 
-If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
-## Quickstart in Python
+## Quickstart
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s and kind.
 
 #### Pre-Req
@@ -79,7 +85,7 @@ optional arguments:
   -s, --sealed_secrets  Install bitnami sealed secrets, defaults to False
 ```
 
-### Install distro with python script
+### Install k8s distro with `./smol-k8s-homelab.py`
 Currently only being tested with k3s and kind, but soon you can do other distros listed above. In the meantime, use the tutorial above for k0s.
 ```bash
 # you can replace k3s with kind
@@ -131,9 +137,8 @@ If you want to access an app outside of port forwarding to test, you'll need to 
 After SSL is working (if it's not, follow the steps in the [cert-manager common error troubleshooting guide](https://cert-manager.io/docs/faq/acme/#common-errors)), you can also change the `letsencrypt-staging` value to `letsencrypt-prod` for any domains you own and can configure to point to your cluster via DNS.
 
 
-### Remote cluster administration
-
-You can also copy your remote k3s kubeconfig with a little script in `k3s/`:
+### Remote cluster administration (k3s only)
+You can also copy your remote k3s kubeconfig with a little script in `./distros/k3s/`:
 
 ```bash
 # CHANGE THESE TO YOUR OWN DETAILS or not ¯\_(ツ)_/¯
@@ -142,7 +147,7 @@ export REMOTE_SSH_PORT="22"
 export REMOTE_USER="cooluser4dogs"
 
 # this script will totally wipe your kubeconfig :) use with CAUTION
-./k3s/get-remote-k3s-yaml.sh
+./distros/k3s/get-remote-k3s-yaml.sh
 ```
 
 ---
@@ -152,15 +157,6 @@ export REMOTE_USER="cooluser4dogs"
 Check out the [`optional`](optional) directory for notes on specific apps
 
 e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./optional/postgres/README.md)
-
-Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to here:
-https://github.com/jessebot/argo-example#argo-via-the-gui
-
-Otherwise, if you want to start from scratch, start here: https://github.com/jessebot/argo-example#argocd
-
-Where is your persistent volume data? If you used the local path provisioner it is here:
-`/var/lib/rancher/k3s/storage`
-
 
 # Contributions and maintainers
 - @cloudymax

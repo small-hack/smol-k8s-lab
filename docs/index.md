@@ -7,44 +7,46 @@ permalink: /
 ---
 
 # Smol K8s Homelab
-Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros).
+Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in each directory under `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`.
 
 ## QuickStart
 Get started with `smol-k8s-homelab.py` today with our tutorial [here](https://jessebot.github.io/smol_k8s_homelab/quickstart).
 
 ### Currently supported k8s distros
 
-| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)| [Quickstart BASH](#quickstart-in-bash) |
-|:---:|:---:|:---:|
-|[k3s](https://k3s.io/)            | ✅   | [./k3s/bash_full_quickstart.sh](./k3s/bash_full_quickstart.sh) |
-|[KinD](https://kind.sigs.k8s.io/) | ✅   | [./kind/bash_full_quickstart.sh](./kind/bash_full_quickstart.sh) |
-|[k0s](https://k0sproject.io/)     | soon | soon :3 |
-
+| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py)|
+|:---:|:---:|
+|[k3s](https://k3s.io/)            | ✅   | 
+|[KinD](https://kind.sigs.k8s.io/) | ✅   | 
+|[k0s](https://k0sproject.io/)     | soon |
 
 ### Stack We Install on K8s
 We tend to test first one k3s and then kind and then k0s.
-
 | Application/Tool | What is it? |
-|:---:|:---|
+|:-----------:|:--------------|
 | [metallb](https://github.io/metallb/metallb) | loadbalancer for metal, since we're mostly selfhosting |
-| [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress: access to the cluster remotely, needed for web traffic |
+| [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, needed for web traffic |
 | [cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
 | [k9s](https://k9scli.io/topics/install/) | Terminal based dashboard for kubernetes |
 | [local path provisioner]() | Default simple local file storage |
 
-### Optionally installed
-
+#### Optionally installed
 | Application/Tool | What is it? |
 |:-----------:|:--------------| 
 | [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | Encrypts secrets files so you can check them into git |
 | [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
 | [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
 
-#### Other important stuff we install
+If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
+
+Want to get started with argocd? If you've installed it via smol_k8s_homelab, then you can jump to here:
+https://github.com/jessebot/argo-example#argo-via-the-gui
+
+Otherwise, if you want to start from scratch, start here: https://github.com/jessebot/argo-example#argocd
+
+#### Other important tools we install
 
 - [k9s](https://k9scli.io/topics/install/): Terminal based dashboard for kubernetes
-
-If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
 
 ### Port Forwarding
