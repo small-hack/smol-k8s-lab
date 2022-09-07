@@ -20,6 +20,13 @@ Check out the current installation docs [here](https://krew.sigs.k8s.io/docs/use
 brew install krew
 ```
 
+### Installing Plugins with Krew
+Example for installing the ctx plugin:
+
+```bash
+kubectl krew install ctx
+```
+
 ### Plugins I actually use
 
 | Plugin | Why/What |
@@ -28,3 +35,12 @@ brew install krew
 | ns      | switch to different namespaces in the current kubeconfig cluster/context |
 | example | outputs example yaml files for a given cluster resource |
 | deprecations | check which cluster resources are deprecated/will be deprecated soon |
+
+todo: fill these in with ascinemas.
+Check out the examples below to see how they're used.
+
+#### ns
+
+#### example
+
+#### deprecations
