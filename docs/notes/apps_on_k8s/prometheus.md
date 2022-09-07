@@ -3,7 +3,7 @@ layout: default
 title: Prometheus
 description: "Quick notes on hosting prometheus on Kubernetes"
 grand_parent: Notes
-parent: Apps running on K8s
+parent: Apps on K8s
 permalink: /notes/apps/prometheus
 ---
 

@@ -3,7 +3,7 @@ layout: default
 title: metallb
 description: "Troubleshooting MetalLB notes"
 grand_parent: Notes
-parent: Apps running on K8s
+parent: Apps on K8s
 permalink: /notes/apps/metallb
 ---
 

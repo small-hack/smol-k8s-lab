@@ -3,7 +3,7 @@ layout: default
 title: coredns
 description: "Troubleshooting Core DNS notes"
 grand_parent: Notes
-parent: Apps running on K8s
+parent: Apps on K8s
 permalink: /notes/apps/coredns
 ---
 
