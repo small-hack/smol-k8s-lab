@@ -2,8 +2,9 @@
 layout: default
 title: Postgresql
 description: "Quick notes on hosting postgresql on Kubernetes"
-parent: Notes
-permalink: /notes/postgresql
+grand_parent: Notes
+parent: Apps running on K8s
+permalink: /notes/apps/postgresql
 ---
 
 ## Deploy PostgreSQL

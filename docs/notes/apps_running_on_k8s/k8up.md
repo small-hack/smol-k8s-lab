@@ -2,8 +2,9 @@
 layout: default
 title: K8up
 description: "Quick notes on K8up"
-parent: Notes
-permalink: /notes/k8up
+grand_parent: Notes
+parent: Apps running on K8s
+permalink: /notes/apps/k8up
 ---
 
 ## K8up - Restic backups for k8s

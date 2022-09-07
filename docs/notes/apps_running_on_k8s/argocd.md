@@ -2,8 +2,9 @@
 layout: default
 title: ArgoCD
 description: "Quick notes on Argo CD"
-parent: Notes
-permalink: /notes/argocd
+grand_parent: Notes
+parent: Apps running on K8s
+permalink: /notes/apps/argocd
 ---
 
 ## ArgoCD

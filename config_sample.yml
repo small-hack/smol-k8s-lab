@@ -1,5 +1,6 @@
 ---
 domains:
+  # this is the for the Argo CD cli and web interface
   argo_cd: "argocd.selfhosting4dogs.com"
 
 # this is for metallb
