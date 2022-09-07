@@ -1,9 +1,9 @@
 ---
 layout: default
-title: ArgoCD
+title: Argo CD
 description: "Quick notes on Argo CD"
 grand_parent: Notes
-parent: Apps running on K8s
+parent: Apps on K8s
 permalink: /notes/apps/argocd
 ---
 

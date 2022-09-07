@@ -3,7 +3,7 @@ layout: default
 title: Postgresql
 description: "Quick notes on hosting postgresql on Kubernetes"
 grand_parent: Notes
-parent: Apps running on K8s
+parent: Apps on K8s
 permalink: /notes/apps/postgresql
 ---
 
