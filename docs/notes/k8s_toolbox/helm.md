@@ -2,7 +2,7 @@
 layout: default
 title: Helm
 description: "Notes on helm, a package manager for k8s"
-grant_parent: Notes
+grand_parent: Notes
 parent: Toolbox
 permalink: /notes/toolbox/helm
 ---
