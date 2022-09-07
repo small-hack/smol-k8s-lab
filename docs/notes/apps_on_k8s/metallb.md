@@ -1,6 +1,6 @@
 ---
 layout: default
-title: metallb
+title: MetalLB
 description: "Troubleshooting MetalLB notes"
 grand_parent: Notes
 parent: Apps on K8s
