@@ -3,7 +3,7 @@
 Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in each directory under `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`.
 
 ## Quickstart
-Head over to the [docs](https://jessebot.github.io/smol_k8s_homelab/quickstart) to get started :blue_heart:
+Head over to the [Quickstart guide](https://jessebot.github.io/smol_k8s_homelab/quickstart) to get started :blue_heart:
 
 ### Currently supported k8s distros
 
@@ -69,13 +69,12 @@ optional arguments:
 ---
 
 ## Troubleshooting
-If you're stuck, checkout the [Troubleshooting section](https://jessebot.github.io/smol_k8s_homelab/troubleshooting) to see if we also got stuck on the same thing at some point :)
+If you're stuck, checkout the [Notes](https://jessebot.github.io/smol_k8s_homelab/notes) to see if we also got stuck on the same thing at some point :) Under each app or tool, we'll have notes on how to learn more about it, as well as any errors we've already battled.
 
 ## Other Notes
+Check out the [`optional`](optional) directory for quick examples on apps this script does not default install.
 
-Check out the [`optional`](optional) directory for notes on specific apps
-
-e.g. for postgres on k8s notes, go to [`./optional/postgres/README.md`](./optional/postgres/README.md)
+e.g. for postgres, go to [`./optional/postgres`](./optional/postgres)
 
 # Contributions and maintainers
 - [@cloudymax](https://github.com/cloudymax)

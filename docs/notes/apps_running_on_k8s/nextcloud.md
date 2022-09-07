@@ -2,8 +2,9 @@
 layout: default
 title: Nextcloud
 description: "Quick notes on Nextcloud"
-parent: Notes
-permalink: /notes/nextcloud
+grand_parent: Notes
+parent: Apps running on K8s
+permalink: /notes/apps/nextcloud
 ---
 
 ## Nextcloud
