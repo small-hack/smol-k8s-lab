@@ -47,8 +47,9 @@ function simple_loading_bar() {
     echo ""
 }
 
-# pretty echo so that I don't have ot remember this incantation
+# pretty echo so that I don't have to remember this
 function p_echo() {
+    # prints with green colors and...
     echo ""
     echo -e "\033[92m  $1 \033[00m"
     echo ""

@@ -1,7 +1,8 @@
-#!/usr/bin/env python3
-# AUTHOR: @jessebot
-# Works with k3s
-from argparse import ArgumentParser
+#!/usr/bin/env python3.10
+"""
+AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
+Works with k3s and KinD
+"""
 import bcrypt
 from collections import OrderedDict
 from lib.homelabHelm import helm
@@ -13,43 +14,6 @@ import yaml
 
 
 PWD = path.dirname(__file__)
-
-
-def parse_args():
-    """
-    Parse arguments and return dict
-    """
-    k9_help = 'Run k9s as soon as this script is complete, defaults to False'
-    a_help = 'Install Argo CD as part of this script, defaults to False'
-    f_help = 'Full path and name of yml to parse, e.g. -f /tmp/config.yml'
-    k_help = ('distribution of kubernetes to install: \n'
-              'k3s or kind. k0s coming soon')
-    d_help = 'Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]'
-    s_help = 'Install bitnami sealed secrets, defaults to False'
-    p_help = ('Store generated admin passwords directly into your password '
-              'manager. Right now, this defaults to Bitwarden and requires you'
-              ' to input your vault password to unlock the vault temporarily.')
-    e_help = ('Install the external secrets operator to pull secrets from '
-              'somewhere else, so far only supporting gitlab')
-    p = ArgumentParser(description=main.__doc__)
-
-    p.add_argument('k8s', type=str, help=k_help)
-    p.add_argument('-a', '--argo', action='store_true', default=False,
-                   help=a_help)
-    p.add_argument('-d', '--delete', action='store_true', default=False,
-                   help=d_help)
-    p.add_argument('-e', '--external_secret_operator', action='store_true',
-                   default=False, help=e_help)
-    p.add_argument('-f', '--file', default='./config.yml', type=str,
-                   help=f_help)
-    p.add_argument('-k', '--k9s', action='store_true', default=False,
-                   help=k9_help)
-    p.add_argument('-p', '--password_manager', action='store_true',
-                   default=False, help=p_help)
-    p.add_argument('-s', '--sealed_secrets', action='store_true',
-                   default=False, help=s_help)
-
-    return p.parse_args()
 
 
 def add_default_repos(k8s_distro, argo=True):
@@ -94,20 +58,13 @@ def install_custom_resource(custom_resource_dict):
     """
     Does a kube apply on a custom resource dict, and retries if it fails
     """
-    # loops until this succeeds
-    while True:
-        try:
-            # Write a YAML representation of data to 'k8s_cr.yaml'.
-            with open('/tmp/k8s_cr.yml', 'w') as cr_file:
-                yaml.dump(custom_resource_dict, cr_file)
+    # Write a YAML representation of data to 'k8s_cr.yaml'.
+    with open('/tmp/k8s_cr.yml', 'w') as cr_file:
+        yaml.dump(custom_resource_dict, cr_file)
 
-            sub_proc('kubectl apply -f /tmp/k8s_cr.yml')
-            break
-
-        except Exception as reason:
-            print(f"Hmmm, that didn't work because: {reason}")
-            simple_loading_bar(3)
-            continue
+    # loops with progress bar until this succeeds
+    command = 'kubectl apply -f /tmp/k8s_cr.yml'
+    simple_loading_bar(3, command)
 
 
 def configure_metallb(address_pool):
