@@ -4,9 +4,11 @@ AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 Works with k3s and KinD
 """
 import bcrypt
+import click
 from collections import OrderedDict
 from lib.homelabHelm import helm
 from lib.util import sub_proc, simple_loading_bar, header
+from lib.rich_click import RichCommand
 from lib.bw_cli import BwCLI
 from os import path
 from sys import exit
@@ -168,43 +170,72 @@ def delete_cluster(k8s_distro="k3s"):
         header("┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
 
 
-def main():
+k9_help = 'Run k9s as soon as this script is complete, defaults to False'
+a_help = 'Install Argo CD as part of this script, defaults to False'
+f_help = 'Full path and name of yml to parse, e.g. -f /tmp/config.yml'
+k_help = ('distribution of kubernete to install: k3s or kind. k0s coming soon')
+d_help = 'Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]'
+s_help = 'Install bitnami sealed secrets, defaults to False'
+p_help = ('Store generated admin passwords directly into your password manager'
+          '. Right now, this defaults to Bitwarden and requires you to input '
+          'your vault password to unlock the vault temporarily.')
+e_help = ('Install the external secrets operator to pull secrets from '
+          'somewhere else, so far only supporting gitlab')
+
+
+@click.command(cls=RichCommand)
+@click.argument("k8s", metavar="<k3s OR kind>", default="")
+@click.option('--argo', '-a', is_flag=True, help=a_help)
+@click.option('--delete', '-d', is_flag=True, help=d_help)
+@click.option('--external_secret_operator', '-e', help=e_help)
+@click.option('--file', '-f', metavar="TEXT", default='./config.yml',
+              help=f_help)
+@click.option('--k9s', '-k', help=k9_help)
+@click.option('--password_manager', '-p', help=p_help)
+@click.option('--sealed_secrets', '-s', help=s_help)
+def main(k8s: str,
+         argo: bool = False,
+         delete: bool = False,
+         external_secret_operator: bool = False,
+         file: str = "",
+         k9s: bool = False,
+         password_manager: bool = False,
+         sealed_secrets: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, nginx-ingess-controller, cert-manager, and argocd
     """
-    args = parse_args()
 
     # make sure we got a valid k8s distro
-    if args.k8s not in ['k3s', 'kind']:
-        print(f'Sorry, {args.k8s} is not a currently supported k8s distro :( '
+    if k8s not in ['k3s', 'kind']:
+        print(f'Sorry, {k8s} is not a currently supported k8s distro :( '
               'Please try again with either -k k3s or -k kind')
         exit()
 
-    if args.delete:
-        delete_cluster(args.k8s)
+    if delete:
+        delete_cluster(k8s)
     else:
-        with open(args.file, 'r') as yaml_file:
+        with open(file, 'r') as yaml_file:
             input_variables = yaml.safe_load(yaml_file)
 
         # install the actual KIND or k3s cluster
-        if args.k8s == 'kind':
+        if k8s == 'kind':
             header('Installing KinD cluster. ' +
                    'This could take 2-3 minutes ʕ•́ᴥ•̀ʔっ♡')
         else:
-            header(f"Installing {args.k8s} cluster.")
-        install_k8s_distro(args.k8s)
+            header(f"Installing {k8s} cluster.")
+        install_k8s_distro(k8s)
 
         # this is where we add all the helm repos we're going to use
         header("Adding/Updating helm repos...")
-        add_default_repos(args.k8s, args.argo)
+        add_default_repos(k8s, argo)
 
         # needed for metal installs
         header("Configuring metallb so we have an ip address pool")
         configure_metallb(input_variables['address_pool'])
 
         # KinD has ingress-nginx install
-        if args.k8s == 'kind':
+        if k8s == 'kind':
             url = 'https://raw.githubusercontent.com/kubernetes/' + \
                   'ingress-nginx/main/deploy/static/provider/kind/deploy.yaml'
             sub_proc(f'kubectl apply -f {url}')
@@ -231,7 +262,7 @@ def main():
         configure_cert_manager(input_variables['email'])
 
         # this allows you to check your secret files into git
-        if args.sealed_secrets:
+        if sealed_secrets:
             header("Installing Bitnami sealed-secrets...")
             release = helm.chart(release_name='sealed-secrets',
                                  chart_name='sealed-secrets/sealed-secrets',
@@ -243,21 +274,21 @@ def main():
             sub_proc("brew install kubeseal", True)
 
         # this is for external secrets, currently only supports gitlab
-        if args.external_secret_operator:
+        if external_secret_operator:
             external_secrets = input_variables['external_secrets']['gitlab']
             configure_external_secrets(external_secrets)
 
         # then install argo CD :D
-        if args.argo:
+        if argo:
             argo_cd_domain = input_variables['domains']['argo_cd']
             opts = {'dex.enabled': 'false',
                     'server.ingress.enabled': 'true',
                     'server.ingress.ingressClassName': 'nginx',
                     'server.ingress.hosts[0]': argo_cd_domain,
-                    'server.extraArgs[0]': '--insecure'}
+                    'server.extra0]': '--insecure'}
 
             # if we're using a password manager, generate a password & save it
-            if args.password_manager:
+            if password_manager:
                 # if we're using bitwarden...
                 bw = BwCLI()
                 bw.unlock()
