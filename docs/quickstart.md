@@ -6,11 +6,11 @@ nav_order: 2
 permalink: /quickstart
 ---
 
-## Quickstart for `smol-k8s-homelab.py`
+## Quickstart for `smol-k8s-lab.py`
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s and kind.
 
 ### Pre-Req
-- Have Python 3.9 or higher installed as well as pip3
+- Have Python 3.10 as well as pip3.10
 - [brew](https://brew.sh)
 - **:bell: change the values in `config_sample.yml` to your own**
 - Have internet access.
@@ -20,18 +20,18 @@ This is aimed at being a much more scalable experience, but is still being worke
 brew bundle --file=./deps/Brewfile
 
 # install the requirements
-pip3 install -r ./deps/requirements.txt
+pip3.10 install -r ./deps/requirements.txt
 
 # change the values in config_sample.yml to your own values then rename it
 mv config_sample.yml config.yml
 
 # test to make sure the script loads
-./smol-k8s-homelab.py --help
+./smol-k8s-lab.py --help
 ```
 
 The help should return this:
 ```bash
-usage: smol-k8s-homelab.py [-h] [-a] [-d] [-e] [-f FILE] [-k] [-p] [-s] k8s
+usage: smol-k8s-lab.py [-h] [-a] [-d] [-e] [-f FILE] [-k] [-p] [-s] k8s
 
 Quickly install a k8s distro for a homelab setup. Installs k3s with metallb, nginx-ingess-controller, cert-manager, and argocd
 
@@ -52,11 +52,11 @@ optional arguments:
   -s, --sealed_secrets  Install bitnami sealed secrets, defaults to False
 ```
 
-## Install a distro of k8s with smol-k8s-homelab.py
+## Install a distro of k8s with smol-k8s-lab.py
 Currently only being tested with k3s and kind, but soon you can do other distros listed above. In the meantime, use the tutorial above for k0s.
 ```bash
 # you can replace k3s with kind
-./smol-k8s-homelab.py k3s
+./smol-k8s-lab.py k3s
 ```
 
 #### Install some kubectl plugins (Optional)
@@ -91,5 +91,5 @@ fi
 ### Uninstall distro with python script
 ```bash
 # you can replace k3s with kind
-./smol-k8s-homelab.py k3s --delete
+./smol-k8s-lab.py k3s --delete
 ```

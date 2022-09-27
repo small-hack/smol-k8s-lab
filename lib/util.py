@@ -1,34 +1,51 @@
 #!/usr/bin/env python3
 """
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
-these are just some quick utilities we'll need to move quickly
+some pretty printing of the help :)
 """
 import subprocess
 from time import sleep
+# this is for rich text, to pretty print things
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import track
+
+
+CONSOLE = Console()
 
 
 def header(text, header=True):
     """
     pretty print a header
     """
-    print('')
+    print('\n')
     if header:
-        print('♡ ₍ᐢ•ﻌ•ᐢ₎  ♥  ૮ ・ﻌ・ა  ♥  ʕᵔᴥᵔ ʔ ♡'.center(80, ' '))
-        print('-'.center(80, '-'))
-        print(f"\033[92m❤︎ {text} ❤︎\033[00m".center(80, ' '))
+        print(Panel(text, title='[green]♡ ₍ᐢ•ﻌ•ᐢ₎  ♥  ૮ ・ﻌ・ა  ♥  ʕᵔᴥᵔ ʔ ♡'))
     else:
-        print(f"\033[92m{text}\033[00m".center(80, ' '))
-    print('')
+        CONSOLE.rule(f"[green]♥ {text} ♥")
+    print('\n')
 
 
-def simple_loading_bar(seconds):
+def simple_loading_bar(seconds=3, command=''):
     """
-    prints a little heart for int(seconds)
+    prints a small loading bar using rich
     """
-    for second in range(seconds):
-        print("\033[92m❤︎\033[00m".center(80), end=" ")
-        sleep(1)
-    print('')
+    print('\n')
+    for i in track(range(5), description="Processing..."):
+        # loops until this succeeds
+        while True:
+            try:
+                sub_proc(command)
+            except Exception as reason:
+                print(f"Hmmm, that didn't work because: {reason}")
+                sleep(seconds)
+                continue
+            # execute if no exception
+            else:
+                seconds = 0
+                break
+    print('\n')
+    return
 
 
 def sub_proc(command="", error_ok=False, print_output=True):

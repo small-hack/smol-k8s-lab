@@ -1,13 +1,13 @@
 # Smol K8s Homelab
 
-Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-homelab.py`](./smol-k8s-homelab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in each directory under `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`.
+Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-lab.py`](./smol-k8s-lab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in each directory under `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`.
 
 ## Quickstart
 Head over to the [Quickstart guide](https://jessebot.github.io/smol_k8s_homelab/quickstart) to get started :blue_heart:
 
 ### Currently supported k8s distros
 
-| Distro | [smol-k8s-homelab.py](./smol-k8s-homelab.py) Support|
+| Distro | [smol-k8s-lab.py](./smol-k8s-lab.py) Support|
 |:---:|:---:|
 |[k3s](https://k3s.io/)            | ✅   | 
 |[KinD](https://kind.sigs.k8s.io/) | ✅   | 
@@ -45,7 +45,7 @@ Otherwise, if you want to start from scratch, start here: https://github.com/jes
 ### CLI Sample
 
 ```bash
-usage: smol-k8s-homelab.py [-h] [-a] [-d] [-e] [-f FILE] [-k] [-p] [-s] k8s
+usage: smol-k8s-lab.py [-h] [-a] [-d] [-e] [-f FILE] [-k] [-p] [-s] k8s
 
 Quickly install a k8s distro for a homelab setup. Installs k3s with metallb, nginx-ingess-controller, cert-manager, and argocd
 
