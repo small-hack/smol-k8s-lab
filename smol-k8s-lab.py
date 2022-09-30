@@ -184,15 +184,32 @@ e_help = ('Install the external secrets operator to pull secrets from '
 
 
 @click.command(cls=RichCommand)
-@click.argument("k8s", metavar="<k3s OR kind>", default="")
-@click.option('--argo', '-a', is_flag=True, help=a_help)
-@click.option('--delete', '-d', is_flag=True, help=d_help)
-@click.option('--external_secret_operator', '-e', help=e_help)
-@click.option('--file', '-f', metavar="TEXT", default='./config.yml',
+@click.argument("k8s",
+                metavar="<k3s OR kind>",
+                default="")
+@click.option('--argo', '-a',
+              is_flag=True,
+              help=a_help)
+@click.option('--delete', '-d',
+              is_flag=True,
+              help=d_help)
+@click.option('--external_secret_operator', '-e',
+              is_flag=True,
+              help=e_help)
+@click.option('--file', '-f',
+              metavar="TEXT",
+              type=str,
+              default='./config.yml',
               help=f_help)
-@click.option('--k9s', '-k', help=k9_help)
-@click.option('--password_manager', '-p', help=p_help)
-@click.option('--sealed_secrets', '-s', help=s_help)
+@click.option('--k9s', '-k',
+              is_flag=True,
+              help=k9_help)
+@click.option('--password_manager', '-p',
+              is_flag=True,
+              help=p_help)
+@click.option('--sealed_secrets', '-s',
+              is_flag=True,
+              help=s_help)
 def main(k8s: str,
          argo: bool = False,
          delete: bool = False,
