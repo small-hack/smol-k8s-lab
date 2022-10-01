@@ -10,7 +10,7 @@ from rich.theme import Theme
 
 class RichCommand(click.Command):
     """
-    Override Clicks help with a Richer version.
+    Override Clicks help with a Rich-er version.
 
     This is from the Textualize/rich-cli project on github.com, link here:
         https://github.com/Textualize/rich-cli
@@ -24,14 +24,14 @@ class RichCommand(click.Command):
 
         highlighter = OptionHighlighter()
 
-        console = Console(theme=Theme({"option": "bold light_steel_blue",
-                                       "switch": "bold royal_blue1"}),
+        console = Console(theme=Theme({"option": "bold cornflower_blue",
+                                       "switch": "bold light_sky_blue1"}),
                           highlighter=highlighter)
 
         title = "☁ [cornflower_blue][b]Smol K8s Lab[/]\n"
-        desc = ("[dim]Quickly install a k8s distro for a lab setup. Installs "
-                "k3s with metallb, nginx-ingess-controller, cert-manager, and "
-                "argocd")
+        desc = ("[steel_blue]Quickly install a k8s distro for a lab setup. "
+                "Installs k3s with metallb, nginx-ingess-controller, "
+                "cert-manager, and argocd")
 
         console.print(title + desc, justify="center")
 

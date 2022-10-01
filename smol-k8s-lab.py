@@ -6,16 +6,27 @@ Works with k3s and KinD
 import bcrypt
 import click
 from collections import OrderedDict
-from lib.homelabHelm import helm
-from lib.util import sub_proc, simple_loading_bar, header
-from lib.rich_click import RichCommand
-from lib.bw_cli import BwCLI
+from util.homelabHelm import helm
+from util.subproc_wrapper import subproc
+from util.util import simple_loading_bar, header
+from util.rich_click import RichCommand
+from util.bw_cli import BwCLI
 from os import path
+# to pretty print things
+from rich import print
+from rich.theme import Theme
+from rich.console import Console
 from sys import exit
 import yaml
 
 
 PWD = path.dirname(__file__)
+
+# this is for rich text, to pretty print things
+soft_theme = Theme({"info": "dim cornflower_blue",
+                    "warning": "yellow",
+                    "danger": "bold magenta"})
+CONSOLE = Console(theme=soft_theme)
 
 
 def add_default_repos(k8s_distro, argo=True):
@@ -53,7 +64,7 @@ def install_k8s_distro(k8s_distro=""):
     install a specific distro of k8s
     options: k3s, kind | coming soon: k0s
     """
-    sub_proc(f"{PWD}/distros/{k8s_distro}/quickstart.sh")
+    subproc(f"{PWD}/distros/{k8s_distro}/quickstart.sh")
 
 
 def install_custom_resource(custom_resource_dict):
@@ -142,7 +153,7 @@ def configure_external_secrets(external_secrets_config):
     gitlab_namespace = external_secrets_config['namespace']
 
     # create the namespace if does not exist
-    sub_proc(f'kubectl create namespace {gitlab_namespace}', True)
+    subproc(f'kubectl create namespace {gitlab_namespace}', True)
 
     # this currently only works with gitlab
     gitlab_secret = {'apiVersion': 'v1',
@@ -163,24 +174,26 @@ def delete_cluster(k8s_distro="k3s"):
     header(f"ヾ(^_^) byebye {k8s_distro}!!")
 
     if k8s_distro == 'k3s':
-        sub_proc('k3s-uninstall.sh')
+        subproc('k3s-uninstall.sh')
     elif k8s_distro == 'kind':
-        sub_proc('kind delete cluster')
+        subproc('kind delete cluster')
     elif k8s_distro == 'k0s':
         header("┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
 
 
-k9_help = 'Run k9s as soon as this script is complete, defaults to False'
-a_help = 'Install Argo CD as part of this script, defaults to False'
-f_help = 'Full path and name of yml to parse, e.g. -f /tmp/config.yml'
-k_help = ('distribution of kubernete to install: k3s or kind. k0s coming soon')
-d_help = 'Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]'
-s_help = 'Install bitnami sealed secrets, defaults to False'
+k9_help = 'Run k9s as soon as this script is complete. Defaults to False'
+a_help = 'Install Argo CD as part of this script. Defaults to False'
+f_help = ('Full path and name of yml to parse. Example: -f '
+          '[light_steel_blue]/tmp/config.yml[/]')
+k_help = ('Distribution of kubernetes to install: [light_steel_blue]k3s[/] or '
+          '[light_steel_blue]kind[/]. k0s coming soon')
+d_help = 'Delete the existing cluster.'
+s_help = 'Install bitnami sealed secrets. Defaults to False'
 p_help = ('Store generated admin passwords directly into your password manager'
           '. Right now, this defaults to Bitwarden and requires you to input '
           'your vault password to unlock the vault temporarily.')
 e_help = ('Install the external secrets operator to pull secrets from '
-          'somewhere else, so far only supporting gitlab')
+          'somewhere else, so far only supporting gitlab.')
 
 
 @click.command(cls=RichCommand)
@@ -197,7 +210,7 @@ e_help = ('Install the external secrets operator to pull secrets from '
               is_flag=True,
               help=e_help)
 @click.option('--file', '-f',
-              metavar="TEXT",
+              metavar="FILE",
               type=str,
               default='./config.yml',
               help=f_help)
@@ -225,8 +238,8 @@ def main(k8s: str,
 
     # make sure we got a valid k8s distro
     if k8s not in ['k3s', 'kind']:
-        print(f'Sorry, {k8s} is not a currently supported k8s distro :( '
-              'Please try again with either -k k3s or -k kind')
+        CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
+                      'k8s distro. Please try again with k3s or kind.\n')
         exit()
 
     if delete:
@@ -255,14 +268,14 @@ def main(k8s: str,
         if k8s == 'kind':
             url = 'https://raw.githubusercontent.com/kubernetes/' + \
                   'ingress-nginx/main/deploy/static/provider/kind/deploy.yaml'
-            sub_proc(f'kubectl apply -f {url}')
+            subproc(f'kubectl apply -f {url}')
 
             # this is to wait for the deployment to come up
-            sub_proc('kubectl rollout status '
-                     'deployment/ingress-nginx-controller -n ingress-nginx')
-            sub_proc('kubectl wait --for=condition=ready pod '
-                     '--selector=app.kubernetes.io/component=controller '
-                     '--timeout=90s -n ingress-nginx')
+            subproc('kubectl rollout status '
+                    'deployment/ingress-nginx-controller -n ingress-nginx')
+            subproc('kubectl wait --for=condition=ready pod '
+                    '--selector=app.kubernetes.io/component=controller '
+                    '--timeout=90s -n ingress-nginx')
         else:
             # you need this to access webpages from outside the cluster
             header("Installing nginx-ingress-controller...")
@@ -286,9 +299,9 @@ def main(k8s: str,
                                  namespace='sealed-secrets',
                                  set_options={'namespace': "sealed-secrets"})
             release.install()
-            print("Installing kubeseal with brew...")
+            CONSOLE.print("Installing kubeseal with brew...")
             # TODO: check if installed before running this
-            sub_proc("brew install kubeseal", True)
+            subproc("brew install kubeseal", True)
 
         # this is for external secrets, currently only supports gitlab
         if external_secret_operator:
