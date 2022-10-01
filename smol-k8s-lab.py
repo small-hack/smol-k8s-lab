@@ -64,7 +64,21 @@ def install_k8s_distro(k8s_distro=""):
     install a specific distro of k8s
     options: k3s, kind | coming soon: k0s
     """
-    subproc(f"{PWD}/distros/{k8s_distro}/quickstart.sh")
+    if k8s_distro == "k3s":
+        # skip install of traefik & servicelb, specify flannel backend
+        ienv = 'INSTALL_K3S_EXEC=" --no-deploy servicelb --no-deploy traefik"'
+        # make the kubeconfig copy-able for later
+        kenv = 'K3S_KUBECONFIG_MODE="644"'
+        # create the k3s cluster (just one server node)
+        k3s_cmd = (f'curl -sfL https://get.k3s.io | {ienv} {kenv} sh -')
+
+        # Grab the kubeconfig and copy it locally
+        kubeconfig_cmd = "mkdir -p ~/.kube"
+        cp_cmd = "sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig"
+        # change the permissions os that it doesn't complain
+        perms_cmd = "chmod 600 ~/.kube/kubeconfig"
+    else:
+        subproc(f"{PWD}/distros/{k8s_distro}/quickstart.sh")
 
 
 def install_custom_resource(custom_resource_dict):
