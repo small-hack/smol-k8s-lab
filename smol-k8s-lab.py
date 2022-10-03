@@ -11,7 +11,8 @@ from util.subproc_wrapper import subproc
 from util.logging import simple_loading_bar, header
 from util.rich_click import RichCommand
 from util.bw_cli import BwCLI
-from os import path
+from os import path, chmod
+from pathlib import Path
 # to pretty print things
 from rich import print
 from rich.theme import Theme
@@ -70,13 +71,17 @@ def install_k8s_distro(k8s_distro=""):
         # make the kubeconfig copy-able for later
         kenv = 'K3S_KUBECONFIG_MODE="644"'
         # create the k3s cluster (just one server node)
-        k3s_cmd = (f'curl -sfL https://get.k3s.io | {ienv} {kenv} sh -')
+        subproc('curl -sfL https://get.k3s.io > install.sh')
+        chmod("./install.sh", 700)
+        subproc(f'{ienv} {kenv} sh install.sh')
 
         # Grab the kubeconfig and copy it locally
-        kubeconfig_cmd = "mkdir -p ~/.kube"
+        Path("~/.kube").mkdir(parents=True, exist_ok=True)
         cp_cmd = "sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig"
+        subproc(cp_cmd)
+
         # change the permissions os that it doesn't complain
-        perms_cmd = "chmod 600 ~/.kube/kubeconfig"
+        chmod("~/.kube/kubeconfig", 600)
     else:
         subproc(f"{PWD}/distros/{k8s_distro}/quickstart.sh")
 
