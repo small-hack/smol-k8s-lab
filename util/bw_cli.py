@@ -15,7 +15,8 @@ Example:
 import base64
 import json
 from getpass import getpass
-from . import util
+from .subproc_wrapper import subproc
+from .logging import header
 
 
 class BwCLI():
@@ -32,13 +33,13 @@ class BwCLI():
         """
         generate a new password. Takes special_characters bool.
         """
-        util.header('Generating a new password...')
+        header('Generating a new password...')
 
         command = "bw generate --length 24 --uppercase --lowercase --number"
         if special_characters:
             command += " --special"
 
-        password = util.sub_proc(command, False, False)
+        password = subproc(command, False, False)
         return password
 
     def unlock(self):
@@ -49,16 +50,15 @@ class BwCLI():
         password_prompt = 'Enter your Bitwarden Password: '
         password = getpass(prompt=password_prompt, stream=None)
 
-        util.header('Unlocking the Bitwarden vault...')
-        self.session = util.sub_proc(f"bw unlock {password} --raw", False,
-                                     False)
+        header('Unlocking the Bitwarden vault...')
+        self.session = subproc(f"bw unlock {password} --raw", False, False)
 
     def lock(self):
         """
         lock the local bitwarden vault
         """
-        util.header('Locking the Bitwarden vault...')
-        util.sub_proc(f"bw lock --session {self.session}")
+        header('Locking the Bitwarden vault...')
+        subproc(f"bw lock --session {self.session}")
         return
 
     def create_login(self, name="", item_url="", user="", password="",
@@ -67,7 +67,7 @@ class BwCLI():
         Create login items, and only login items
         takes optional organization and collection
         """
-        util.header('Creating bitwarden login item...')
+        header('Creating bitwarden login item...')
         login_obj = json.dumps({
             "organizationId": org,
             "collectionIds": collection,
@@ -90,5 +90,5 @@ class BwCLI():
         encodedBytes = base64.b64encode(login_obj.encode("utf-8"))
         encodedStr = str(encodedBytes, "utf-8")
 
-        util.sub_proc(f"bw create item {encodedStr} --session {self.session}",
-                      False, False)
+        subproc(f"bw create item {encodedStr} --session {self.session}",
+                False, False)
