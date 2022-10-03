@@ -8,7 +8,7 @@ import click
 from collections import OrderedDict
 from util.homelabHelm import helm
 from util.subproc_wrapper import subproc
-from util.util import simple_loading_bar, header
+from util.logging import simple_loading_bar, header
 from util.rich_click import RichCommand
 from util.bw_cli import BwCLI
 from os import path
