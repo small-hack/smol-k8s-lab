@@ -37,7 +37,7 @@ def subproc(commands=[], error_ok=False, suppress_output=False, spinner=True,
                     print(output)
     else:
         for command in commands:
-            print("")
+            print('')
             status_line = f"[bold green]Running cmd:[/bold green] {command}"
             with console.status(status_line) as status:
                 output = run_subprocess(command, env_vars, error_ok)
