@@ -29,7 +29,6 @@ def simple_loading_bar(command=''):
     prints a small loading bar using rich
     """
     total_steps = 15
-    print('\n')
     with Progress() as progress:
         task1 = progress.add_task("[green]Processing...", total=total_steps)
         while not progress.finished:
@@ -50,6 +49,5 @@ def simple_loading_bar(command=''):
                 progress.update(task1, advance=total_steps)
                 sleep(.1)
                 break
-
     print('')
     return

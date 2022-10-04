@@ -30,8 +30,8 @@ class RichCommand(click.Command):
 
         title = "☁ [cornflower_blue][b]Smol K8s Lab[/]\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup. "
-                "Installs k3s with metallb, nginx-ingess-controller, "
-                "cert-manager, and argocd")
+                "Installs k3s or kind with metallb, nginx-ingess-controller, "
+                "cert-manager, and optional argo CD, and secrets management.")
 
         console.print(title + desc, justify="center")
 

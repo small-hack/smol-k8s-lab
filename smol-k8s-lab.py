@@ -14,6 +14,7 @@ from rich import print
 from rich.theme import Theme
 from rich.console import Console
 from rich.panel import Panel
+import shutil
 import stat
 from sys import exit
 from yaml import dump, safe_load
@@ -28,7 +29,7 @@ PWD = path.dirname(__file__)
 HOME_DIR = getenv("HOME")
 # this is for rich text, to pretty print things
 soft_theme = Theme({"info": "dim cornflower_blue",
-                    "warning": "yellow",
+                    "warn": "yellow on black",
                     "danger": "bold magenta"})
 CONSOLE = Console(theme=soft_theme)
 
@@ -68,33 +69,58 @@ def install_k8s_distro(k8s_distro=""):
     install a specific distro of k8s
     options: k3s, kind | coming soon: k0s
     """
-    if k8s_distro != "k3s":
-        subproc([f"{PWD}/distros/{k8s_distro}/quickstart.sh"])
+    if k8s_distro == "kind":
+        install_kind_cluster()
+    elif k8s_distro == "k3s":
+        install_k3s_cluster()
     else:
-        # download the k3s installer if we don't have it here already
-        url = requests.get("https://get.k3s.io")
-        k3s_installer_file = open("./install.sh", "wb")
-        k3s_installer_file.write(url.content)
-        k3s_installer_file.close()
-        # make sure we can actually execute the script
-        chmod("./install.sh", stat.S_IRWXU)
+        CONSOLE.print("[danger]Unsure how you made it this far, but [i]only "
+                      "kind/k3s[/i] are supported")
 
-        # create the k3s cluster (just one server node)
-        subproc(['./install.sh --no-deploy servicelb --no-deploy traefik ' +
-                 '--write-kubeconfig-mode 647'],
-                False, False, False)
 
-        # create the ~/.kube directory if it doesn't exist
-        Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
+def install_k3s_cluster():
+    """
+    python installation for k3s
+    """
+    # download the k3s installer if we don't have it here already
+    url = requests.get("https://get.k3s.io")
+    k3s_installer_file = open("./install.sh", "wb")
+    k3s_installer_file.write(url.content)
+    k3s_installer_file.close()
+    # make sure we can actually execute the script
+    chmod("./install.sh", stat.S_IRWXU)
 
-        # Grab the kubeconfig and copy it locally
-        cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {HOME_DIR}/.kube/kubeconfig'
-        # change the permissions os that it doesn't complain
-        chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
-        # run both commands one after the other
-        subproc([cp, chmod_cmd], False, False, False)
-        # remove the script after we're done
-        remove('./install.sh')
+    # create the k3s cluster (just one server node)
+    subproc(['./install.sh --no-deploy servicelb --no-deploy traefik ' +
+             '--write-kubeconfig-mode 647'],
+            False, False, False)
+
+    # create the ~/.kube directory if it doesn't exist
+    Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
+
+    # Grab the kubeconfig and copy it locally
+    cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {HOME_DIR}/.kube/kubeconfig'
+    # change the permissions os that it doesn't complain
+    chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
+    # run both commands one after the other
+    subproc([cp, chmod_cmd], False, False, False)
+    # remove the script after we're done
+    remove('./install.sh')
+
+
+def install_kind_cluster():
+    """
+    python installation process for kind
+    """
+    # make sure kind is installed first, and if not, install it
+    if not shutil.which("kind"):
+        msg = ("ʕ•́ᴥ•̀ʔ [bold]Kind[/bold] is [warn]not installed[/warn]. "
+               "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
+        CONSOLE.print(msg, justify='center')
+        subproc(['brew install kind'])
+    # then use our pre-configured kind file to install a small cluster
+    subproc([f"kind create cluster --config={PWD}/distros/kind/kind_cluster_config.yaml"])
+    return
 
 
 def install_custom_resource(custom_resource_dict):
