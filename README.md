@@ -76,7 +76,7 @@ e.g. for postgres, go to [`./optional/postgres`](./optional/postgres)
 # Contributions and maintainers
 - [@cloudymax](https://github.com/cloudymax)
 
-If you'd like to contribute, feel free to open an issue or pull request and we'll take a look and try to get back to you asap!
+If you'd like to contribute or just found a :bug:, feel free to open an issue or pull request and we'll take a look and try to get back to you asap!
 
 # TODO
 - install helm for the user. We do it for them. :blue-heart:
