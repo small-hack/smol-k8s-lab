@@ -47,10 +47,11 @@ class BwCLI():
         unlocks the local bitwarden vault, and returns session token
         TODO: check local env vars for password or api key
         """
+        header('Unlocking the Bitwarden vault...')
+
         password_prompt = 'Enter your Bitwarden Password: '
         password = getpass(prompt=password_prompt, stream=None)
 
-        header('Unlocking the Bitwarden vault...')
         self.session = subproc([f"bw unlock {password} --raw"], False, True)
 
     def lock(self):
