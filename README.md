@@ -9,6 +9,7 @@ Currently in a beta state. This project is aimed at getting up and running quick
 ## Quickstart
 Head over to the [Quickstart guide](https://jessebot.github.io/smol_k8s_homelab/quickstart) to get started :blue_heart:
 
+## Under the hood
 ### Currently supported k8s distros
 
 |            Distro                | [smol-k8s-lab.py](./smol-k8s-lab.py) Support|
@@ -48,7 +49,16 @@ Otherwise, if you want to start from scratch, start here:
 https://github.com/jessebot/argo-example#argocd
 
 
-#### Other important tools we instal
+### Tooling Used for the script itself and interface
+- python3.10
+- the following libraries
+  - rich (this is what makes all the pretty formatted text)
+  - PyYAML (to handle the k8s yamls and configs)
+  - bcrypt (to pass a password to argocd and automatically update your bitwarden)
+  - click (handles arguments for the script)
+  
+  
+#### Other important tools we install for after k8s is operational
 
 - [k9s](https://k9scli.io/topics/install/): Terminal based dashboard for kubernetes
 
@@ -63,12 +73,6 @@ Check out the [`optional`](optional) directory for quick examples on apps this s
 e.g. for postgres, go to [`./optional/postgres`](./optional/postgres)
 
 
-## Tooling Used for the script itself and interface
-- python3.10
-- the following libraries
-  - rich (this is what makes all the pretty formatted text)
-
-
 # Contributions and maintainers
 - [@cloudymax](https://github.com/cloudymax)
 
@@ -77,3 +81,5 @@ If you'd like to contribute, feel free to open an issue or pull request and we'l
 # TODO
 - install helm for the user. We do it for them. :blue-heart:
 - look into https://kubesec.io/
+- install OPA by default
+- fix loading bar to update a bit more slowly. Right now it goes from 0-100 on retries, and still works, but needs reworking for output clarity.
