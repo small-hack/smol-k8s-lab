@@ -52,27 +52,7 @@ https://github.com/jessebot/argo-example#argocd
 
 ### CLI Sample
 
-```bash
-usage: smol-k8s-lab.py [-h] [-a] [-d] [-e] [-f FILE] [-k] [-p] [-s] k8s
-
-Quickly install a k8s distro for a homelab setup. Installs k3s with metallb, nginx-ingess-controller, cert-manager, and argocd
-
-positional arguments:
-  k8s                   distribution of kubernetes to install: k3s or kind. k0s coming soon
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -a, --argo            Install Argo CD as part of this script, defaults to False
-  -d, --delete          Delete the existing cluster, REQUIRES -k/--k8s [k3s|kind]
-  -e, --external_secret_operator
-                        Install the external secrets operator to pull secrets from somewhere else, so far only supporting gitlab
-  -f FILE, --file FILE  Full path and name of yml to parse, e.g. -f /tmp/config.yml
-  -k, --k9s             Run k9s as soon as this script is complete, defaults to False
-  -p, --password_manager
-                        Store generated admin passwords directly into your password manager. Right now, this defaults to Bitwarden and
-                        requires you to input your vault password to unlock the vault temporarily.
-  -s, --sealed_secrets  Install bitnami sealed secrets, defaults to False
-```
+<img src="./docs/screenshots/help_txt.png" width="850" alt="Output of smol-k8s-lab.py --help after cloning the directory and installing the prerequisites.">
 
 ---
 
