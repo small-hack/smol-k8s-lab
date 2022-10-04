@@ -7,7 +7,7 @@ Example:
         bw.unlock()
         bw.generate()
         bw.create_login(name="test mctest",
-                        item_url="test.tech",
+                        item_url="coolhosting4dogs.tech",
                         user="admin",
                         password="fakepassword")
         bw.lock()
