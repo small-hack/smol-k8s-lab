@@ -79,7 +79,7 @@ e.g. for postgres, go to [`./optional/postgres`](./optional/postgres)
 If you'd like to contribute or just found a :bug:, feel free to open an issue or pull request and we'll take a look and try to get back to you asap!
 
 # TODO
-- install helm for the user. We do it for them. :blue-heart:
+- install OPA (or similar policy manager if there is one) by default
+- fix loading bar to update a bit more slowly. Right now it goes in increments of 3 on retries, and still works, but needs reworking for output clarity.
+- bitwarden: check local env vars for password or api key
 - look into https://kubesec.io/
-- install OPA by default
-- fix loading bar to update a bit more slowly. Right now it goes from 0-100 on retries, and still works, but needs reworking for output clarity.
