@@ -6,23 +6,27 @@ Works with k3s and KinD
 import bcrypt
 import click
 from collections import OrderedDict
+from os import chmod, getenv, path, remove
+from pathlib import Path
+import requests
+# to pretty print things
+from rich import print
+from rich.theme import Theme
+from rich.console import Console
+from rich.panel import Panel
+import stat
+from sys import exit
+from shutil import copy
+from yaml import dump, safe_load
+# custom local libraries
 from util.homelabHelm import helm
 from util.subproc_wrapper import subproc
 from util.logging import simple_loading_bar, header
 from util.rich_click import RichCommand
 from util.bw_cli import BwCLI
-from os import path, chmod
-from pathlib import Path
-# to pretty print things
-from rich import print
-from rich.theme import Theme
-from rich.console import Console
-from sys import exit
-import yaml
-
 
 PWD = path.dirname(__file__)
-
+HOME_DIR = getenv("HOME")
 # this is for rich text, to pretty print things
 soft_theme = Theme({"info": "dim cornflower_blue",
                     "warning": "yellow",
@@ -65,25 +69,33 @@ def install_k8s_distro(k8s_distro=""):
     install a specific distro of k8s
     options: k3s, kind | coming soon: k0s
     """
-    if k8s_distro == "k3s":
-        # skip install of traefik & servicelb, specify flannel backend
-        ienv = 'INSTALL_K3S_EXEC=" --no-deploy servicelb --no-deploy traefik"'
-        # make the kubeconfig copy-able for later
-        kenv = 'K3S_KUBECONFIG_MODE="644"'
+    if k8s_distro != "k3s":
+        subproc([f"{PWD}/distros/{k8s_distro}/quickstart.sh"])
+    else:
+        # download the k3s installer if we don't have it here already
+        url = requests.get("https://get.k3s.io")
+        k3s_installer_file = open("./install.sh", "wb")
+        k3s_installer_file.write(url.content)
+        k3s_installer_file.close()
+        # make sure we can actually execute the script
+        chmod("./install.sh", stat.S_IRWXU)
+
         # create the k3s cluster (just one server node)
-        subproc('curl -sfL https://get.k3s.io > install.sh')
-        chmod("./install.sh", 700)
-        subproc(f'{ienv} {kenv} sh install.sh')
+        subproc([f'./install.sh --no-deploy servicelb --no-deploy traefik ' +
+                  '--write-kubeconfig-mode 647'],
+                False, False, False)
+
+        # create the ~/.kube directory if it doesn't exist
+        Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
 
         # Grab the kubeconfig and copy it locally
-        Path("~/.kube").mkdir(parents=True, exist_ok=True)
-        cp_cmd = "sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/kubeconfig"
-        subproc(cp_cmd)
-
+        cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {HOME_DIR}/.kube/kubeconfig'
         # change the permissions os that it doesn't complain
-        chmod("~/.kube/kubeconfig", 600)
-    else:
-        subproc(f"{PWD}/distros/{k8s_distro}/quickstart.sh")
+        chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
+        # run both commands one after the other
+        subproc([cp, chmod_cmd], False, False, False)
+        # remove the script after we're done
+        remove('./install.sh')
 
 
 def install_custom_resource(custom_resource_dict):
@@ -92,7 +104,7 @@ def install_custom_resource(custom_resource_dict):
     """
     # Write a YAML representation of data to 'k8s_cr.yaml'.
     with open('/tmp/k8s_cr.yml', 'w') as cr_file:
-        yaml.dump(custom_resource_dict, cr_file)
+        dump(custom_resource_dict, cr_file)
 
     # loops with progress bar until this succeeds
     command = 'kubectl apply -f /tmp/k8s_cr.yml'
@@ -172,7 +184,7 @@ def configure_external_secrets(external_secrets_config):
     gitlab_namespace = external_secrets_config['namespace']
 
     # create the namespace if does not exist
-    subproc(f'kubectl create namespace {gitlab_namespace}', True)
+    subproc([f'kubectl create namespace {gitlab_namespace}'], True)
 
     # this currently only works with gitlab
     gitlab_secret = {'apiVersion': 'v1',
@@ -193,9 +205,9 @@ def delete_cluster(k8s_distro="k3s"):
     header(f"ヾ(^_^) byebye {k8s_distro}!!")
 
     if k8s_distro == 'k3s':
-        subproc('k3s-uninstall.sh')
+        subproc(['k3s-uninstall.sh'])
     elif k8s_distro == 'kind':
-        subproc('kind delete cluster')
+        subproc(['kind delete cluster'])
     elif k8s_distro == 'k0s':
         header("┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
 
@@ -265,14 +277,12 @@ def main(k8s: str,
         delete_cluster(k8s)
     else:
         with open(file, 'r') as yaml_file:
-            input_variables = yaml.safe_load(yaml_file)
+            input_variables = safe_load(yaml_file)
 
         # install the actual KIND or k3s cluster
-        if k8s == 'kind':
-            header('Installing KinD cluster. ' +
-                   'This could take 2-3 minutes ʕ•́ᴥ•̀ʔっ♡')
-        else:
-            header(f"Installing {k8s} cluster.")
+        header(f'Installing [green]{k8s}[/] cluster.')
+        CONSOLE.print('[dim]This could take a min ʕ•́ᴥ•̀ʔっ♡ ', justify='center')
+        print('')
         install_k8s_distro(k8s)
 
         # this is where we add all the helm repos we're going to use
@@ -285,16 +295,17 @@ def main(k8s: str,
 
         # KinD has ingress-nginx install
         if k8s == 'kind':
-            url = 'https://raw.githubusercontent.com/kubernetes/' + \
-                  'ingress-nginx/main/deploy/static/provider/kind/deploy.yaml'
-            subproc(f'kubectl apply -f {url}')
+            url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx/'
+                   'main/deploy/static/provider/kind/deploy.yaml')
+            subproc([f'kubectl apply -f {url}'])
 
             # this is to wait for the deployment to come up
-            subproc('kubectl rollout status '
-                    'deployment/ingress-nginx-controller -n ingress-nginx')
-            subproc('kubectl wait --for=condition=ready pod '
-                    '--selector=app.kubernetes.io/component=controller '
-                    '--timeout=90s -n ingress-nginx')
+            rollout_cmd = ('kubectl rollout status -n ingress-nginx deployment/'
+                           'ingress-nginx-controller')
+            wait_cmd = ('kubectl wait --for=condition=ready pod '
+                        '--selector=app.kubernetes.io/component=controller '
+                        '--timeout=90s -n ingress-nginx')
+            subproc([rollout_cmd, wait_cmd])
         else:
             # you need this to access webpages from outside the cluster
             header("Installing nginx-ingress-controller...")
@@ -320,7 +331,7 @@ def main(k8s: str,
             release.install()
             CONSOLE.print("Installing kubeseal with brew...")
             # TODO: check if installed before running this
-            subproc("brew install kubeseal", True)
+            subproc(["brew install kubeseal"], True)
 
         # this is for external secrets, currently only supports gitlab
         if external_secret_operator:
@@ -353,13 +364,14 @@ def main(k8s: str,
                 # this gets passed to the helm cli, but is bcrypted
                 opts['configs.secret.argocdServerAdminPassword'] = admin_pass
 
+            header("Installing Argo CD...")
             release = helm.chart(release_name='argo-cd',
                                  chart_name='argo/argo-cd',
                                  namespace='argocd',
                                  set_options=opts)
             release.install(True)
 
-    print("Smol K8s Homelab Script complete :)")
+    CONSOLE.print(Panel("૮ ・ﻌ・ა Smol K8s Lab completed!", title='[green]♥ Success ♥'))
 
 
 if __name__ == '__main__':

@@ -15,32 +15,35 @@ from .subproc_wrapper import subproc
 CONSOLE = Console()
 
 
-def header(text, header=True):
+def header(text):
     """
     pretty print a header
     """
     print('\n')
-    title = '☁ [cornflower_blue]₍ᐢ•ﻌ•ᐢ₎ ♥  ૮ ・ﻌ・ა  ♥  ʕᵔᴥᵔ ʔ[/] ☁'
-    print(Panel(text, title=title))
-    print('\n')
+    title = f'☁ ₍ᐢ•ﻌ•ᐢ₎ [cyan]{text}[/] ʕᵔᴥᵔ ʔ ☁ '
+    CONSOLE.rule(title, style="cornflower_blue")
+    print('')
 
 
-def simple_loading_bar(seconds=3, command=''):
+def simple_loading_bar(seconds=5, command=''):
     """
     prints a small loading bar using rich
     """
     print('\n')
-    for i in track(range(1), description="Processing..."):
+    not_completed = True
+
+    for i in track(range(seconds), description="Processing..."):
         # loops until this succeeds
-        while True:
+        while not_completed:
             try:
-                subproc(command)
+                subproc([command])
             except Exception as reason:
                 print(f"Hmmm, that didn't work because: {reason}")
                 sleep(seconds)
                 continue
             # execute if no exception
             else:
+                not_completed = False
                 seconds = 0
                 break
     print('\n')

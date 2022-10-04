@@ -6,39 +6,51 @@ even if you don't actually output anything from stdout/stderr of the command.
 import subprocess
 from rich import print
 from rich.console import Console
+from os import environ
 
 
-def subproc(command="", error_ok=False, suppress_output=False, spinner=True):
+console = Console()
+
+
+def subproc(commands=[], error_ok=False, suppress_output=False, spinner=True,
+            env={}):
     """
     Takes a command string to run in a subprocess.
     Optional vars:
         error_ok        - bool, catch errors, defaults to False
         suppress_output - bool, don't output anything form stderr, or stdout
         spinner         - bool, show an animated progress spinner
+        env             - dict, key = name of env var, value = value of env var
     Takes a str commmand to run in BASH, as well as optionals bools to pass on
     errors in stderr/stdout and suppress_output
     """
-    # Sometimes we nee
+    # if certain env vars needed when running, otherwise we pass in defaults
+    env_vars = environ.copy()
+    if env:
+        env_vars = env_vars.update(env)
+
+    # Sometimes we need to not use a little loading bar
     if not spinner:
-        output = run_subprocess(command, error_ok)
+        for command in commands:
+            output = run_subprocess(command, env_vars, error_ok)
+            if output:
+                if not suppress_output:
+                    print('')
+                    print(output)
     else:
-        print("")
-        console = Console()
-        tasks = [command]
-
-        status_line = f"[bold green]Running cmd:[/bold green] {command}"
-        with console.status(status_line) as status:
-            while tasks:
-                output = run_subprocess(command, error_ok)
-                tasks.pop(0)
-
-    if output:
-        if not suppress_output:
-            print(output)
-        return output
+        for command in commands:
+            print("")
+            status_line = f"[bold green]Running cmd:[/bold green] {command}"
+            with console.status(status_line) as status:
+                output = run_subprocess(command, env_vars, error_ok)
+                if output:
+                    if not suppress_output:
+                        print('')
+                        print(output)
+    return output
 
 
-def run_subprocess(command, error_ok=False):
+def run_subprocess(command="", env_vars={}, error_ok=False):
     """
     Takes a str commmand to run in BASH in a subprocess.
     Typically run from subproc, which handles output printing
@@ -48,7 +60,9 @@ def run_subprocess(command, error_ok=False):
     """
     # subprocess expects a list
     cmd = command.split()
-    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(cmd,
+                         env=env_vars,
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return_code = p.returncode
     res = p.communicate()
     res_stdout = res[0].decode('UTF-8')
