@@ -1,6 +1,7 @@
 # Smol K8s Homelab
+<img src="./docs/screenshots/help_txt.png" width="850" alt="Output of smol-k8s-lab.py --help after cloning the directory and installing the prerequisites.">
 
-Currently in a beta state. We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-lab.py`](./smol-k8s-lab.py). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in each directory under `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`.
+Currently in a beta state. This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in each directory under `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`.
 
 
 ## Quickstart
@@ -30,11 +31,11 @@ We tend to test first one k3s and then kind and then k0s.
 
 #### Optionally installed
 
-|                      Application/Tool                            |                         What is it?                      |
-|:----------------------------------------------------------------:|:---------------------------------------------------------| 
-| [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | Encrypts secrets files so you can check them into git    |
-| [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
-| [argo-cd](https://github.io/argoproj/argo-helm)                  | Gitops - Continuous Deployment                           |
+|                      Application/Tool                            |                         What is it?                       |
+|:----------------------------------------------------------------:|:----------------------------------------------------------| 
+| [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | Encrypts secrets files so you can check them into git     |
+| [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab |
+| [argo-cd](https://github.io/argoproj/argo-helm)                  | Gitops - Continuous Deployment                            |
 
 If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
@@ -49,12 +50,6 @@ https://github.com/jessebot/argo-example#argocd
 
 - [k9s](https://k9scli.io/topics/install/): Terminal based dashboard for kubernetes
 
-
-### CLI Sample
-
-<img src="./docs/screenshots/help_txt.png" width="850" alt="Output of smol-k8s-lab.py --help after cloning the directory and installing the prerequisites.">
-
----
 
 ## Troubleshooting
 If you're stuck, checkout the [Notes](https://jessebot.github.io/smol_k8s_homelab/notes) to see if we also got stuck on the same thing at some point :) Under each app or tool, we'll have notes on how to learn more about it, as well as any errors we've already battled.
