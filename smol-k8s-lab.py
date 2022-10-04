@@ -221,6 +221,7 @@ def configure_external_secrets(external_secrets_config):
                      'stringData': {'token': gitlab_access_token}}
 
     install_custom_resource(gitlab_secret)
+    return
 
 
 def delete_cluster(k8s_distro="k3s"):
@@ -233,8 +234,25 @@ def delete_cluster(k8s_distro="k3s"):
         subproc(['k3s-uninstall.sh'])
     elif k8s_distro == 'kind':
         subproc(['kind delete cluster'])
-    elif k8s_distro == 'k0s':
-        header("┌（・Σ・）┘≡З  Whoops. k0s not YET supported.")
+    else:
+        header("┌（・Σ・）┘≡З  Whoops. {k8s_distro} not YET supported.")
+    return
+
+
+def get_helm_ready(k8s_distro="", argo=False):
+    """
+    get helm installed if needed, and then install/update all the helm repos
+    """
+    header("Adding/Updating helm repos...")
+    if not shutil.which("helm"):
+        msg = ("ʕ•́ᴥ•̀ʔ [bold]Helm[/bold] is [warn]not installed[/warn]. "
+               "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
+        CONSOLE.print(msg, justify='center')
+        subproc(['brew install helm'])
+
+    # this is where we add all the helm repos we're going to use
+    add_default_repos(k8s_distro, argo)
+    return
 
 
 k9_help = 'Run k9s as soon as this script is complete. Defaults to False'
@@ -311,11 +329,10 @@ def main(k8s: str,
         print('')
         install_k8s_distro(k8s)
 
-        # this is where we add all the helm repos we're going to use
-        header("Adding/Updating helm repos...")
-        add_default_repos(k8s, argo)
+        # make sure helm is installed and the repos are up to date
+        get_helm_ready(k8s, argo)
 
-        # needed for metal installs
+        # needed for metal (non-cloud provider) installs
         header("Configuring metallb so we have an ip address pool")
         configure_metallb(input_variables['address_pool'])
 
