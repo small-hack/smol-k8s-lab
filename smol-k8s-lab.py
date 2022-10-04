@@ -16,7 +16,6 @@ from rich.console import Console
 from rich.panel import Panel
 import stat
 from sys import exit
-from shutil import copy
 from yaml import dump, safe_load
 # custom local libraries
 from util.homelabHelm import helm
@@ -81,8 +80,8 @@ def install_k8s_distro(k8s_distro=""):
         chmod("./install.sh", stat.S_IRWXU)
 
         # create the k3s cluster (just one server node)
-        subproc([f'./install.sh --no-deploy servicelb --no-deploy traefik ' +
-                  '--write-kubeconfig-mode 647'],
+        subproc(['./install.sh --no-deploy servicelb --no-deploy traefik ' +
+                 '--write-kubeconfig-mode 647'],
                 False, False, False)
 
         # create the ~/.kube directory if it doesn't exist
@@ -214,7 +213,7 @@ def delete_cluster(k8s_distro="k3s"):
 
 k9_help = 'Run k9s as soon as this script is complete. Defaults to False'
 a_help = 'Install Argo CD as part of this script. Defaults to False'
-f_help = ('Full path and name of yml to parse. Example: -f '
+f_help = ('Full path and name of yml to parse.\nExample: -f '
           '[light_steel_blue]/tmp/config.yml[/]')
 k_help = ('Distribution of kubernetes to install: [light_steel_blue]k3s[/] or '
           '[light_steel_blue]kind[/]. k0s coming soon')
@@ -281,7 +280,8 @@ def main(k8s: str,
 
         # install the actual KIND or k3s cluster
         header(f'Installing [green]{k8s}[/] cluster.')
-        CONSOLE.print('[dim]This could take a min ʕ•́ᴥ•̀ʔっ♡ ', justify='center')
+        CONSOLE.print('[dim]This could take a min ʕ•́ᴥ•̀ʔっ♡ ',
+                      justify='center')
         print('')
         install_k8s_distro(k8s)
 
@@ -295,13 +295,13 @@ def main(k8s: str,
 
         # KinD has ingress-nginx install
         if k8s == 'kind':
-            url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx/'
-                   'main/deploy/static/provider/kind/deploy.yaml')
+            url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx'
+                   '/main/deploy/static/provider/kind/deploy.yaml')
             subproc([f'kubectl apply -f {url}'])
 
             # this is to wait for the deployment to come up
-            rollout_cmd = ('kubectl rollout status -n ingress-nginx deployment/'
-                           'ingress-nginx-controller')
+            rollout_cmd = ('kubectl rollout status -n ingress-nginx deployment'
+                           '/ingress-nginx-controller')
             wait_cmd = ('kubectl wait --for=condition=ready pod '
                         '--selector=app.kubernetes.io/component=controller '
                         '--timeout=90s -n ingress-nginx')
@@ -371,7 +371,8 @@ def main(k8s: str,
                                  set_options=opts)
             release.install(True)
 
-    CONSOLE.print(Panel("૮ ・ﻌ・ა Smol K8s Lab completed!", title='[green]♥ Success ♥'))
+    CONSOLE.print(Panel("૮ ・ﻌ・ა Smol K8s Lab completed!",
+                        title='[green]♥ Success ♥'))
 
 
 if __name__ == '__main__':
