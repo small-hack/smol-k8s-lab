@@ -7,8 +7,7 @@ from time import sleep
 # this is for rich text, to pretty print things
 from rich import print
 from rich.console import Console
-from rich.panel import Panel
-from rich.progress import track
+from rich.progress import Progress
 from .subproc_wrapper import subproc
 
 
@@ -25,26 +24,32 @@ def header(text):
     print('')
 
 
-def simple_loading_bar(seconds=5, command=''):
+def simple_loading_bar(command=''):
     """
     prints a small loading bar using rich
     """
+    total_steps = 15
     print('\n')
-    not_completed = True
-
-    for i in track(range(seconds), description="Processing..."):
-        # loops until this succeeds
-        while not_completed:
+    with Progress() as progress:
+        task1 = progress.add_task("[green]Processing...", total=total_steps)
+        while not progress.finished:
+            sleep(1)
+            progress.update(task1, advance=3)
+            total_steps -= 3
+            # loops until this succeeds
             try:
                 subproc([command])
             except Exception as reason:
                 print(f"Hmmm, that didn't work because: {reason}")
-                sleep(seconds)
+                sleep(3)
+                progress.update(task1, advance=3)
+                total_steps -= 3
                 continue
             # execute if no exception
             else:
-                not_completed = False
-                seconds = 0
+                progress.update(task1, advance=total_steps)
+                sleep(.1)
                 break
-    print('\n')
+
+    print('')
     return

@@ -15,14 +15,12 @@ console = Console()
 def subproc(commands=[], error_ok=False, suppress_output=False, spinner=True,
             env={}):
     """
-    Takes a command string to run in a subprocess.
+    Takes a list of command strings to run in subprocess
     Optional vars:
         error_ok        - bool, catch errors, defaults to False
         suppress_output - bool, don't output anything form stderr, or stdout
         spinner         - bool, show an animated progress spinner
         env             - dict, key = name of env var, value = value of env var
-    Takes a str commmand to run in BASH, as well as optionals bools to pass on
-    errors in stderr/stdout and suppress_output
     """
     # if certain env vars needed when running, otherwise we pass in defaults
     env_vars = environ.copy()

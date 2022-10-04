@@ -107,7 +107,7 @@ def install_custom_resource(custom_resource_dict):
 
     # loops with progress bar until this succeeds
     command = 'kubectl apply -f /tmp/k8s_cr.yml'
-    simple_loading_bar(3, command)
+    simple_loading_bar(command)
 
 
 def configure_metallb(address_pool):
