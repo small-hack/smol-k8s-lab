@@ -35,7 +35,7 @@ The help should return this:
 
 
 ## Install a distro of k8s with smol-k8s-lab.py
-Currently only being tested with k3s and kind, but soon you can do other distros listed above. In the meantime, use the tutorial above for k0s.
+Currently only being tested with k3s and kind.
 ```bash
 # you can replace k3s with kind
 ./smol-k8s-lab.py k3s
