@@ -67,7 +67,7 @@ def add_default_repos(k8s_distro, argo=True):
 def install_k8s_distro(k8s_distro=""):
     """
     install a specific distro of k8s
-    options: k3s, kind | coming soon: k0s
+    options: k3s, kind
     """
     if k8s_distro == "kind":
         install_kind_cluster()
@@ -119,7 +119,9 @@ def install_kind_cluster():
         CONSOLE.print(msg, justify='center')
         subproc(['brew install kind'])
     # then use our pre-configured kind file to install a small cluster
-    subproc([f"kind create cluster --config={PWD}/distros/kind/kind_cluster_config.yaml"])
+
+    full_path = path.join(PWD, '/distros/kind/kind_cluster_config.yaml')
+    subproc([f"kind create cluster --config={full_path}"])
     return
 
 
@@ -260,7 +262,7 @@ a_help = 'Install Argo CD as part of this script. Defaults to False'
 f_help = ('Full path and name of yml to parse.\nExample: -f '
           '[light_steel_blue]/tmp/config.yml[/]')
 k_help = ('Distribution of kubernetes to install: [light_steel_blue]k3s[/] or '
-          '[light_steel_blue]kind[/]. k0s coming soon')
+          '[light_steel_blue]kind[/].')
 d_help = 'Delete the existing cluster.'
 s_help = 'Install bitnami sealed secrets. Defaults to False'
 p_help = ('Store generated admin passwords directly into your password manager'

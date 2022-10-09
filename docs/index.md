@@ -18,10 +18,9 @@ Get started with `smol-k8s-lab.py` today with our tutorial [here](https://jesseb
 |:---:|:---:|
 |[k3s](https://k3s.io/)            | ✅   | 
 |[KinD](https://kind.sigs.k8s.io/) | ✅   | 
-|[k0s](https://k0sproject.io/)     | soon |
 
 ### Stack We Install on K8s
-We tend to test first one k3s and then kind and then k0s.
+We tend to test first on k3s and then kind.
 
 | Application/Tool | What is it? |
 |:---:|:---|

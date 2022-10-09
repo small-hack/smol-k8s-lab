@@ -12,16 +12,13 @@ Head over to the [Quickstart guide](https://jessebot.github.io/smol_k8s_homelab/
 ## Under the hood
 ### Currently supported k8s distros
 
-|            Distro                | [smol-k8s-lab.py](./smol-k8s-lab.py) Support|
-|:--------------------------------:|:-------------------------------------------:|
-|[k3s](https://k3s.io/)            |                     ✅                      | 
-|[KinD](https://kind.sigs.k8s.io/) |                     ✅                      | 
-|[k0s](https://k0sproject.io/)     |                    soon                     |
+|             Distro                | [smol-k8s-lab.py](./smol-k8s-lab.py) Support|
+|:---------------------------------:|:-------------------------------------------:|
+| [k3s](https://k3s.io/)            |                     ✅                      | 
+| [KinD](https://kind.sigs.k8s.io/) |                     ✅                      | 
 
 
 ### Stack We Install on K8s
-
-We tend to test first one k3s and then kind and then k0s.
 
 |            Application/Tool                   |                       What is it?                      |
 |:---------------------------------------------:|:-------------------------------------------------------|
