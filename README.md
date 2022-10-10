@@ -5,8 +5,8 @@
 This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
 
 
-## Quickstart and Docs
-Head over to the [Quickstart guide](https://jessebot.github.io/smol_k8s_homelab/quickstart) to get started :3
+## Docs
+[Quickstart guide](https://jessebot.github.io/smol_k8s_homelab/quickstart) for you to jump right in!
 
 There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in:
 
