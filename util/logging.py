@@ -16,11 +16,21 @@ CONSOLE = Console()
 
 def header(text):
     """
-    pretty print a header
+    pretty print a header with lines extending the full width of the terminal
     """
     print('\n')
     title = f'☁ ₍ᐢ•ﻌ•ᐢ₎ [cyan]{text}[/] ʕᵔᴥᵔ ʔ ☁ '
     CONSOLE.rule(title, style="cornflower_blue")
+    print('')
+
+
+def sub_header(text):
+    """
+    pretty print a SUB header
+    """
+    print('\n')
+    title = f'[dim]☁  {text} ☁ [/dim]'
+    CONSOLE.print(title, justify="center")
     print('')
 
 
@@ -29,7 +39,7 @@ def simple_loading_bar(command=''):
     prints a small loading bar using rich
     """
     total_steps = 15
-    with Progress() as progress:
+    with Progress(transient=True) as progress:
         task1 = progress.add_task("[green]Processing...", total=total_steps)
         while not progress.finished:
             sleep(1)

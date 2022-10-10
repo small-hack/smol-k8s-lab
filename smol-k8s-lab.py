@@ -390,10 +390,11 @@ def main(k8s: str,
                     'server.ingress.enabled': 'true',
                     'server.ingress.ingressClassName': 'nginx',
                     'server.ingress.hosts[0]': argo_cd_domain,
-                    'server.extra0]': '--insecure'}
+                    'server.extra[0]': '--insecure'}
 
             # if we're using a password manager, generate a password & save it
             if password_manager:
+                header("Creating a new password in BitWarden")
                 # if we're using bitwarden...
                 bw = BwCLI()
                 bw.unlock()
@@ -410,6 +411,7 @@ def main(k8s: str,
                 opts['configs.secret.argocdServerAdminPassword'] = admin_pass
 
             header("Installing Argo CD...")
+
             release = helm.chart(release_name='argo-cd',
                                  chart_name='argo/argo-cd',
                                  namespace='argocd',
