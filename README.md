@@ -13,9 +13,10 @@ There's also full tutorials to manually set up different distros in the [docs we
 `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`
 
 ## Under the hood
-### Your Choice of k8s distro 
-<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k3s_icon.ico" alt="k3s logo, yellow background black modern windmill" width="26">&nbsp; [k3s](https://k3s.io/) 
-or &nbsp;<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/kind_icon.png" alt="kind logo, ship in a bottle with k8s logo in ship" width="32">&nbsp; [KinD](https://kind.sigs.k8s.io/)
+### Currently supported k8s distros
+
+- [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k3s_icon.ico" width="26">&nbsp;&nbsp;k3s](https://k3s.io/)
+- [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/kind_icon.png" width="32">&nbsp;KinD](https://kind.sigs.k8s.io/)
 
 We tend to test first on k3s and then kind.
 
