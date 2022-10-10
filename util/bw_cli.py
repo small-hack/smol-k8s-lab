@@ -16,7 +16,7 @@ import base64
 import json
 from getpass import getpass
 from .subproc_wrapper import subproc
-from .logging import header
+from .logging import sub_header
 
 
 class BwCLI():
@@ -33,7 +33,7 @@ class BwCLI():
         """
         generate a new password. Takes special_characters bool.
         """
-        header('Generating a new password...')
+        sub_header('Generating a new password...')
 
         command = "bw generate --length 24 --uppercase --lowercase --number"
         if special_characters:
@@ -47,18 +47,19 @@ class BwCLI():
         unlocks the local bitwarden vault, and returns session token
         TODO: check local env vars for password or api key
         """
-        header('Unlocking the Bitwarden vault...')
+        sub_header('Unlocking the Bitwarden vault...')
 
         password_prompt = 'Enter your Bitwarden Password: '
         password = getpass(prompt=password_prompt, stream=None)
 
-        self.session = subproc([f"bw unlock {password} --raw"], False, True)
+        self.session = subproc([f"bw unlock {password} --raw"], False, True,
+                               False)
 
     def lock(self):
         """
         lock the local bitwarden vault
         """
-        header('Locking the Bitwarden vault...')
+        sub_header('Locking the Bitwarden vault...')
         subproc([f"bw lock --session {self.session}"])
         return
 
@@ -68,7 +69,7 @@ class BwCLI():
         Create login items, and only login items
         takes optional organization and collection
         """
-        header('Creating bitwarden login item...')
+        sub_header('Creating bitwarden login item...')
         login_obj = json.dumps({
             "organizationId": org,
             "collectionIds": collection,
