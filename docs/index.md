@@ -16,28 +16,27 @@ Get started with `smol-k8s-lab.py` today with our tutorial [here](https://jesseb
 
 | Distro | [smol-k8s-lab.py](./smol-k8s-lab.py) Support |
 |:-------|:--------------------------------------------:|
-| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k3s_icon.ico" width="32">[k3s](https://k3s.io/)            | ✅ | 
-| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/kind_icon.png" width="32">[KinD](https://kind.sigs.k8s.io/) | ✅ | 
+| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k3s_icon.ico" width="28">&nbsp;[k3s](https://k3s.io/)            | ✅ | 
+| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/kind_icon.png" width="34">&nbsp;[KinD](https://kind.sigs.k8s.io/) | ✅ | 
 
 ### Stack We Install on K8s
-We tend to test first on k3s and then kind.
 
 | Application      | What is it? |
 |:-----------------|:------------|
-| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/metallb_icon.png" width="32"> [metallb](https://github.io/metallb/metallb) | loadbalancer for metal, since we're mostly selfhosting |
-| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/nginx.ico" width="32"> [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, needed for web traffic |
-| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/cert-manager_icon.png" width="32"> [cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
-| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k9s_icon.png" width="32"> [k9s](https://k9scli.io/topics/install/) | Terminal based dashboard for kubernetes |
-| :cow: [Local Path Provisioner](https://github.com/rancher/local-path-provisioner) | Default simple local file storage for persistent data |
+| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/metallb_icon.png" width="32" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">&nbsp; [metallb](https://github.io/metallb/metallb) | loadbalancer for metal, since we're mostly selfhosting |
+| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/nginx.ico" width="32" alt="nginx logo, white letter N with green background">&nbsp; [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, needed for web traffic |
+| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/cert-manager_icon.png" width="32" alt="cert manager logo"> &nbsp;[cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
+| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32"> &nbsp;[k9s](https://k9scli.io/topics/install/) | Terminal based dashboard for kubernetes |
+| &nbsp; :cow: &nbsp;[Local Path Provisioner](https://github.com/rancher/local-path-provisioner) | Default simple local file storage for persistent data |
 
 
 #### Optionally installed
 
 | Application/Tool | What is it? |
-|:---:|:---| 
+|:-----------------|:------------| 
 | [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | Encrypts secrets files so you can check them into git |
-| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/eso_icon.png" width="32"> [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
-| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/argo_icon.png" width="32">[argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
+| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot  iwth astricks in a screen in it's belly">&nbsp; [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
+| <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">&nbsp; [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
 
 If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
