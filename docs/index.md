@@ -14,10 +14,8 @@ Get started with `smol-k8s-lab.py` today with our tutorial [here](https://jesseb
 
 ### Currently supported k8s distros
 
-| Distro | [smol-k8s-lab.py](./smol-k8s-lab.py) Support |
-|:-------|:--------------------------------------------:|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k3s_icon.ico" width="26">&nbsp;k3s](https://k3s.io/)            | ✅ | 
-| [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/kind_icon.png" width="32">&nbsp;KinD](https://kind.sigs.k8s.io/) | ✅ | 
+- [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k3s_icon.ico" width="26">&nbsp;&nbsp;k3s](https://k3s.io/)
+- [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/kind_icon.png" width="32">&nbsp;KinD](https://kind.sigs.k8s.io/)
 
 ### Stack We Install on K8s
 
