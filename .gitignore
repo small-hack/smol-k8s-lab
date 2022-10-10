@@ -3,4 +3,7 @@ config.yml
 .env
 
 # ignore python cache
-**/__pycache__/*.pyc
+**/__pycache__
+
+# ignore apple finder stuff
+**/.DS_Store
