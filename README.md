@@ -23,20 +23,20 @@ We're working on cluster api next :)
 
 | Application      | What is it? |
 |:-----------------|:------------|
+| &nbsp; 🐄  &nbsp;[Local Path Provisioner](https://github.com/rancher/local-path-provisioner) | Default simple local file storage for persistent data |
 | <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/metallb_icon.png" width="32" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">&nbsp; [metallb](https://github.io/metallb/metallb) | loadbalancer for metal, since we're mostly selfhosting |
 | <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/nginx.ico" width="32" alt="nginx logo, white letter N with green background">&nbsp; [nginx-ingress-controller](https://github.io/kubernetes/ingress-nginx) | Ingress allows access to the cluster remotely, needed for web traffic |
 | <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/cert-manager_icon.png" width="32" alt="cert manager logo"> &nbsp;[cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
 | <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32"> &nbsp;[k9s](https://k9scli.io/topics/install/) | Terminal based dashboard for kubernetes |
-| &nbsp; :cow: &nbsp;[Local Path Provisioner](https://github.com/rancher/local-path-provisioner) | Default simple local file storage for persistent data |
 
 
 #### Optionally installed
 
 | Application/Tool | What is it? |
 |:-----------------|:------------| 
-| [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | Encrypts secrets files so you can check them into git |
 | <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot  iwth astricks in a screen in it's belly">&nbsp; [external-secrets-operator](https://external-secrets.io/v0.5.9/) | integrates external secret management systems like GitLab|
 | <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">&nbsp; [argo-cd](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
+| [sealed-secrets](https://github.com/bitnami-labs/sealed-secrets) | Encrypts secrets files so you can check them into git |
 
 If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
@@ -44,18 +44,14 @@ Want to get started with argocd? If you've installed it via smol_k8s_homelab, th
 
 
 ### Tooling Used for the script itself and interface
-- python3.10
-- the following libraries
-  - rich (this is what makes all the pretty formatted text)
-  - PyYAML (to handle the k8s yamls and configs)
-  - bcrypt (to pass a password to argocd and automatically update your bitwarden)
-  - click (handles arguments for the script)
-  
-  
-#### Other important tools we install for after k8s is operational
 
-- [k9s](https://k9scli.io/topics/install/): Terminal based dashboard for kubernetes
+[![made-with-python](https://img.shields.io/badge/Python-FFD43B?style=for-the-badge&logo=python&logoColor=blue)](https://www.python.org/)
 
+- rich (this is what makes all the pretty formatted text)
+- PyYAML (to handle the k8s yamls and configs)
+- bcrypt (to pass a password to argocd and automatically update your bitwarden)
+- click (handles arguments for the script)
+  
 
 ## Troubleshooting
 If you're stuck, checkout the [Notes](https://jessebot.github.io/smol_k8s_homelab/notes) to see if we also got stuck on the same thing at some point :) Under each app or tool, we'll have notes on how to learn more about it, as well as any errors we've already battled.
