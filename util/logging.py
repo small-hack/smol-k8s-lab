@@ -24,11 +24,14 @@ def header(text):
     print('')
 
 
-def sub_header(text):
+def sub_header(text, extra_starting_blank_line=True):
     """
     pretty print a SUB header
     """
-    print('\n')
+    if extra_starting_blank_line:
+        print('\n')
+    else:
+        print('')
     title = f'[dim]☁  {text} ☁ [/dim]'
     CONSOLE.print(title, justify="center")
     print('')
