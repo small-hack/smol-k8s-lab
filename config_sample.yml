@@ -1,16 +1,16 @@
 ---
 domains:
-  # this is the for the Argo CD cli and web interface
-  argo_cd: "argocd.selfhosting4dogs.com"
+  argo_cd: "argocd.coolwebsitefordogs.com"
 
-# this is for metallb
-address_pool: "192.168.42.42-192.168.42.50"
+# these HAVE to be full CIDR notation
+metallb_address_pool:
+  - 192.168.90.01/32
+  - 192.168.90.02/32
+  - 192.168.90.03/32
 
-# this is for cert-manager
-email: "resident-internet-dog@selfhosting4dogs.com"
+email: "coolemailfordogs@onlydogs.com"
 
-# this is for the external secrets operator, currently only works with gitlab
 external_secrets:
   gitlab:
-    access_token: "fjdkalhfjkdlahkhhajsfd"
-    namespace: "default"
+    access_token: "kjdfsk758934fkldsafds"
+    namespace: "nextcloud"

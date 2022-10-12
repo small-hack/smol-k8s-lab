@@ -182,7 +182,7 @@ def configure_metallb(address_pool):
                   'kind': 'IPAddressPool',
                   'metadata': {'name': 'base-pool',
                                'namespace': 'kube-system'},
-                  'spec': {'addresses': [address_pool]}}
+                  'spec': {'addresses': address_pool}}
 
     l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
                     'kind': 'L2Advertisement',
@@ -401,7 +401,7 @@ def main(k8s: str,
 
     # needed for metal (non-cloud provider) installs
     header("Configuring metallb so we have an ip address pool")
-    configure_metallb(input_variables['address_pool'])
+    configure_metallb(input_variables['metallb_address_pool'])
 
     # KinD has ingress-nginx install
     if k8s == 'kind':
