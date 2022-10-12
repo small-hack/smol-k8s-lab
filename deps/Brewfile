@@ -19,9 +19,6 @@ brew "k9s"
 # fuzzy finder
 brew "fzf"
 
-# for managing secrets with bitnami sealed secrets
-brew "kubeseal"
-
 # for Argo CD command line interface
 brew "argocd"
 
