@@ -27,7 +27,7 @@ def header(text):
     pretty print a header with lines extending the full width of the terminal
     """
     print('\n')
-    title = f'☁ ₍ᐢ•ﻌ•ᐢ₎ [cyan]{text}[/] ʕᵔᴥᵔ ʔ ☁ '
+    title = f'[b]☁ ₍ᐢ•ﻌ•ᐢ₎[/] [cyan]{text}[/cyan] [b]ʕᵔᴥᵔ ʔ ☁ [/]'
     CONSOLE.rule(title, style="cornflower_blue")
     print('')
 
@@ -55,7 +55,7 @@ def simple_loading_bar(tasks={}):
         https://rich.readthedocs.io/en/stable/progress.html
     """
     for task_name, task_command in tasks.items():
-        total_steps = 30
+        total_steps = 45
         with Progress(transient=True) as progress:
             task1 = progress.add_task(f"[green]{task_name}...",
                                       total=total_steps)
@@ -65,7 +65,7 @@ def simple_loading_bar(tasks={}):
                 total_steps -= 3
                 # loops until this succeeds
                 try:
-                    subproc([task_command], False, False, False)
+                    subproc([task_command], False, True, False)
                 except Exception as reason:
                     log.debug(f"Encountered Exception: {reason}")
                     sleep(3)

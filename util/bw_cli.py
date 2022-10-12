@@ -45,7 +45,8 @@ class BwCLI():
         if special_characters:
             command += " --special"
 
-        password = subproc([command], False, False, False)
+        password = subproc([command], False, False)
+        log.info('New password generated.')
         return password
 
     def unlock(self):
@@ -58,22 +59,31 @@ class BwCLI():
         password_prompt = 'Enter your Bitwarden Password: '
         password = getpass(prompt=password_prompt, stream=None)
 
-        self.session = subproc([f"bw unlock {password} --raw"], False, True,
+        self.session = subproc([f"bw unlock {password} --raw"], False, False,
                                False)
+        log.info('Unlocked the Bitwarden vault.')
 
     def lock(self):
         """
         lock the local bitwarden vault
         """
         log.info('Locking the Bitwarden vault...')
-        subproc([f"bw lock --session {self.session}"], False, False, False)
+        subproc([f"bw lock --session {self.session}"], False, False)
+        log.info('Bitwarden vault locked.')
         return
 
     def create_login(self, name="", item_url="", user="", password="",
                      org=None, collection=None):
         """
-        Create login items, and only login items
-        takes optional organization and collection
+        Create login item to store a set of credentials for one site.
+        Required Args:
+            - name - str of the name of the item to create in the vault
+            - item_url - str of URL you want to use the credentials for
+            - user - str of username to use for login item
+            - password - str of password you want to use for login item
+        Optional Args:
+            - organization - str
+            - collection - str
         """
         log.info('Creating bitwarden login item...')
         login_obj = json.dumps({
@@ -99,4 +109,5 @@ class BwCLI():
         encodedStr = str(encodedBytes, "utf-8")
 
         subproc([f"bw create item {encodedStr} --session {self.session}"],
-                False, False, False)
+                False, False)
+        log.info('Created bitwarden login item.')
