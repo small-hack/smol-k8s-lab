@@ -50,5 +50,10 @@ else
     echo -e "\nkubectl not installed. Please install kubectl and rerun the script."
 fi
 
+if [ -n "$KUBECONFIG" ]; then
+    echo "export KUBECONFIG=~/.kube/kubeconfig" > ~/.bashrc
+    echo "export KUBECONFIG=~/.kube/kubeconfig" > ~/.bash_profile
+fi
+
 # fin
 echo -e "\nSetup completed."
