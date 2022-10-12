@@ -49,9 +49,9 @@ def subproc(commands=[], error_ok=False, output=True, spinner=True,
                            '[/dim] command.')
         status_line += '\n'
 
+        log.info(status_line, extra={"markup": True})
         # Sometimes we need to not use a little loading bar
         if not spinner:
-            log.info(status_line, extra={"markup": True})
             output = run_subprocess(cmd, env_vars, error_ok, output)
         else:
             with console.status(status_line) as status:
