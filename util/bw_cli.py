@@ -13,10 +13,16 @@ Example:
         bw.lock()
 """
 import base64
-import json
 from getpass import getpass
+import json
+import logging
+from rich.logging import RichHandler
 from .subproc_wrapper import subproc
-from .logging import sub_header
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+)
+log = logging.getLogger("rich")
 
 
 class BwCLI():
@@ -33,13 +39,13 @@ class BwCLI():
         """
         generate a new password. Takes special_characters bool.
         """
-        sub_header('Generating a new password...')
+        log.info('Generating a new password...')
 
         command = "bw generate --length 24 --uppercase --lowercase --number"
         if special_characters:
             command += " --special"
 
-        password = subproc([command])
+        password = subproc([command], False, False, False)
         return password
 
     def unlock(self):
@@ -47,7 +53,7 @@ class BwCLI():
         unlocks the local bitwarden vault, and returns session token
         TODO: check local env vars for password or api key
         """
-        sub_header('Unlocking the Bitwarden vault...')
+        log.info('Unlocking the Bitwarden vault...')
 
         password_prompt = 'Enter your Bitwarden Password: '
         password = getpass(prompt=password_prompt, stream=None)
@@ -59,8 +65,8 @@ class BwCLI():
         """
         lock the local bitwarden vault
         """
-        sub_header('Locking the Bitwarden vault...')
-        subproc([f"bw lock --session {self.session}"])
+        log.info('Locking the Bitwarden vault...')
+        subproc([f"bw lock --session {self.session}"], False, False, False)
         return
 
     def create_login(self, name="", item_url="", user="", password="",
@@ -69,7 +75,7 @@ class BwCLI():
         Create login items, and only login items
         takes optional organization and collection
         """
-        sub_header('Creating bitwarden login item...')
+        log.info('Creating bitwarden login item...')
         login_obj = json.dumps({
             "organizationId": org,
             "collectionIds": collection,
@@ -92,4 +98,5 @@ class BwCLI():
         encodedBytes = base64.b64encode(login_obj.encode("utf-8"))
         encodedStr = str(encodedBytes, "utf-8")
 
-        subproc([f"bw create item {encodedStr} --session {self.session}"])
+        subproc([f"bw create item {encodedStr} --session {self.session}"],
+                False, False, False)

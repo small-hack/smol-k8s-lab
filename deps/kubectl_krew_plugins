@@ -1,8 +1,4 @@
-# context switching
 ctx
-# changing namespaces of context
 ns
-# outputting example yaml
 example
-# check which things are deprecated
 deprecations

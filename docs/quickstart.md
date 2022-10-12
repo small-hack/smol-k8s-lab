@@ -10,27 +10,16 @@ permalink: /quickstart
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s and kind.
 
 ### Pre-Req
-- Have Python 3.10 as well as pip3.10
+- Python 3.10 (`brew install python3.10`)
 - [brew](https://brew.sh)
 - **:bell: change the values in `config_sample.yml` to your own**
 - Have internet access.
 
 ```bash
-# Make sure you have brew installed (https://brew.sh)
-brew bundle --file=./deps/Brewfile
-
-# install the requirements
-pip3.10 install -r ./deps/requirements.txt
-
-# change the values in config_sample.yml to your own values then rename it
-mv config_sample.yml config.yml
-
-# test to make sure the script loads
-./smol-k8s-lab.py --help
+./setup.sh && ./smol-k8s-lab.py --help
 ```
 
 The help should return this:
-
 <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_txt.png" width="850" alt="Output of smol-k8s-lab.py --help after cloning the directory and installing the prerequisites.">
 
 

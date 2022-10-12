@@ -21,23 +21,25 @@ class helm:
         """
         perform add, update, and removal of helm chart repos
         """
-        def __init__(self, repo_name, repo_url):
-            self.repo_name = repo_name
-            self.repo_url = repo_url
+        def __init__(self, repo_dict):
+            """
+            must pass in a repo_dict of {'repo_name': 'repo url'}
+            """
+            self.repo_dict = repo_dict
 
         def add(self):
             """
-            helm repo add
+            helm repo add a dict of repos
             """
-            cmd = f'helm repo add {self.repo_name} {self.repo_url}'
-            subproc([cmd])
+            cmds = []
+            for repo_name, repo_url in self.repo_dict.items():
+                cmds.append(f'helm repo add {repo_name} {repo_url}')
 
-        def update():
-            """
-            helm repo update
-            """
-            cmd = 'helm repo update'
-            subproc([cmd])
+            # update any repos that are out of date
+            cmds.append("helm repo update")
+
+            # fire all of these off at once
+            subproc(cmds)
 
         def remove(self):
             """
@@ -85,7 +87,7 @@ class helm:
                 pass
 
             if wait:
-                cmd += ' --wait'
+                cmd += ' --wait --wait-for-jobs'
 
             subproc([cmd])
 

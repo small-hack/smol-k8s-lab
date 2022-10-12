@@ -7,3 +7,6 @@ config.yml
 
 # ignore apple finder stuff
 **/.DS_Store
+
+# when we do brew installs with a bundle file, we get this
+deps/Brewfile.lock.json

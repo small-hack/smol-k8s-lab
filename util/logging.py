@@ -3,14 +3,22 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 some pretty printing of the help :)
 """
-from time import sleep
+import logging
 # this is for rich text, to pretty print things
 from rich import print
 from rich.console import Console
 from rich.progress import Progress
+from rich.logging import RichHandler
+# custom lib
 from .subproc_wrapper import subproc
+from time import sleep
+FORMAT = "%(message)s"
+logging.basicConfig(
+    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
+)
+log = logging.getLogger("rich")
 
-
+# for console logging only
 CONSOLE = Console()
 
 
@@ -37,30 +45,37 @@ def sub_header(text, extra_starting_blank_line=True):
     print('')
 
 
-def simple_loading_bar(command=''):
+def simple_loading_bar(tasks={}):
     """
-    prints a small loading bar using rich
+    Prints a small loading bar using rich.
+    Accepts a dict of {"task_name": "task"}
+    example: {'Installing custom resource', 'kubectl apply -f thing.yml'}
+
+    read more here:
+        https://rich.readthedocs.io/en/stable/progress.html
     """
-    total_steps = 15
-    with Progress(transient=True) as progress:
-        task1 = progress.add_task("[green]Processing...", total=total_steps)
-        while not progress.finished:
-            sleep(1)
-            progress.update(task1, advance=3)
-            total_steps -= 3
-            # loops until this succeeds
-            try:
-                subproc([command])
-            except Exception as reason:
-                print(f"Hmmm, that didn't work because: {reason}")
-                sleep(3)
+    for task_name, task_command in tasks.items():
+        total_steps = 30
+        with Progress(transient=True) as progress:
+            task1 = progress.add_task(f"[green]{task_name}...",
+                                      total=total_steps)
+            while not progress.finished:
+                sleep(1)
                 progress.update(task1, advance=3)
                 total_steps -= 3
-                continue
-            # execute if no exception
-            else:
-                progress.update(task1, advance=total_steps)
-                sleep(.1)
-                break
+                # loops until this succeeds
+                try:
+                    subproc([task_command], False, False, False)
+                except Exception as reason:
+                    log.debug(f"Encountered Exception: {reason}")
+                    sleep(3)
+                    progress.update(task1, advance=3)
+                    total_steps -= 3
+                    continue
+                # execute if no exception
+                else:
+                    progress.update(task1, completed=15)
+                    sleep(.1)
+                    break
     print('')
     return
