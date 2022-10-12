@@ -106,7 +106,7 @@ def install_k3s_cluster():
     # create the k3s cluster (just one server node)
     cmd = ('./install.sh --disable=servicelb --disable=traefik '
            '--write-kubeconfig-mode=647 --flannel-backend=host-gw')
-    subproc([cmd], False, False, False)
+    subproc([cmd], False, True, False)
 
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
@@ -116,7 +116,7 @@ def install_k3s_cluster():
     # change the permissions os that it doesn't complain
     chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
     # run both commands one after the other
-    subproc([cp, chmod_cmd], False, False, False)
+    subproc([cp, chmod_cmd], False, True, False)
     # remove the script after we're done
     remove('./install.sh')
 
@@ -127,7 +127,7 @@ def install_kind_cluster():
     """
     # make sure kind is installed first, and if not, install it
     if not shutil.which("kind"):
-        msg = ("ʕ•́ᴥ•̀ʔ [bold]Kind[/bold] is [warn]not installed[/warn]. "
+        msg = ("ʕ•́ᴥ•̀ʔ [b]Kind[/b] is [warn]not installed[/warn]. "
                "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
         CONSOLE.print(msg, justify='center')
         subproc(['brew install kind'])
@@ -162,6 +162,14 @@ def configure_metallb(address_pool):
     """
     metallb is special because it has Custom Resources
     """
+    logging.info("Making sure kube-system pod-security is setup...")
+    cmds = []
+    base_cmd = 'kubectl label namespace kube-system'
+    cmds.append(f"{base_cmd} pod-security.kubernetes.io/enforce=privileged")
+    cmds.append(f"{base_cmd} pod-security.kubernetes.io/audit=privileged")
+    cmds.append(f"{base_cmd} pod-security.kubernetes.io/warn=privileged")
+    subproc(cmds)
+
     # install chart and wait
     release = helm.chart(chart_name='metallb/metallb',
                          release_name='metallb',
@@ -170,20 +178,16 @@ def configure_metallb(address_pool):
 
     log.info("Installing IPAddressPool and L2Advertisement custom resources.")
 
-    ip_pool_cr = {
-        'apiVersion': 'metallb.io/v1beta1',
-        'kind': 'IPAddressPool',
-        'metadata': {'name': 'base-pool',
-                     'namespace': 'kube-system'},
-        'spec': {'addresses': [address_pool]}
-    }
+    ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
+                  'kind': 'IPAddressPool',
+                  'metadata': {'name': 'base-pool',
+                               'namespace': 'kube-system'},
+                  'spec': {'addresses': [address_pool]}}
 
-    l2_advert_cr = {
-        'apiVersion': 'metallb.io/v1beta1',
-        'kind': 'L2Advertisement',
-        'metadata': {'name': 'base-pool',
-                     'namespace': 'kube-system'}
-    }
+    l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
+                    'kind': 'L2Advertisement',
+                    'metadata': {'name': 'base-pool-advert',
+                                 'namespace': 'kube-system'}}
 
     install_custom_resources([ip_pool_cr, l2_advert_cr])
 
@@ -253,7 +257,7 @@ def delete_cluster(k8s_distro="k3s"):
     header(f"ヾ(^_^) byebye {k8s_distro}!!")
 
     if k8s_distro == 'k3s':
-        subproc(['k3s-uninstall.sh'], False, False, False)
+        subproc(['k3s-uninstall.sh'], False, True, False)
     elif k8s_distro == 'kind':
         subproc(['kind delete cluster'])
     else:
@@ -269,7 +273,7 @@ def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
     """
     header("Adding/Updating helm repos...")
     if not shutil.which("helm"):
-        msg = ("ʕ•́ᴥ•̀ʔ [bold]Helm[/bold] is [warn]not installed[/warn]. "
+        msg = ("ʕ•́ᴥ•̀ʔ [b]Helm[/b] is [warn]not installed[/warn]. "
                "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
         CONSOLE.print(msg, justify='center')
         subproc(['brew install helm'])
@@ -292,7 +296,7 @@ def install_argocd(argo_cd_domain="", password_manager=False):
 
     # if we're using a password manager, generate a password & save it
     if password_manager:
-        header("Creating a new password in BitWarden")
+        header("🔐 Creating a new password in BitWarden.")
         # if we're using bitwarden...
         bw = BwCLI()
         bw.unlock()

@@ -19,15 +19,15 @@ logging.basicConfig(level="INFO", format=FORMAT, datefmt="[%X]",
 log = logging.getLogger("rich")
 
 
-def subproc(commands=[], error_ok=False, suppress_output=False, spinner=True,
+def subproc(commands=[], error_ok=False, output=True, spinner=True,
             env={}):
     """
     Takes a list of command strings to run in subprocess
-    Optional vars:
-        error_ok        - bool, catch errors, defaults to False
-        suppress_output - bool, don't output anything form stderr, or stdout
-        spinner         - bool, show an animated progress spinner
-        env             - dict, key = name of env var, value = value of env var
+    Optional vars - default, description:
+         error_ok -   False, catch errors, defaults to False
+         output   -   True,  output anything form stderr, or stdout
+         spinner  -   True,  show an animated progress spinner
+         env      -   {},    key = name of env var, value = value of env var
     """
     # if certain env vars needed when running, otherwise we pass in defaults
     env_vars = environ.copy()
@@ -35,20 +35,32 @@ def subproc(commands=[], error_ok=False, suppress_output=False, spinner=True,
         env_vars = env_vars.update(env)
 
     for cmd in commands:
+        if output:
+            status_line = "[green]Running Command:[/green] "
+            # make sure I'm not about to print a password, oof
+            if 'password' not in cmd.lower():
+                status_line += cmd
+            else:
+                status_line += cmd.split('assword')[0] + 'assword!truncated'
+        else:
+            cmd_parts = cmd.split(' ')
+            secret_cmd = " ".join([cmd_parts[0], cmd_parts[1]])
+            status_line = (f'[green]Running a [b]secret [dim]{secret_cmd}[/b]'
+                           '[/dim] command.')
+        status_line += '\n'
+
         # Sometimes we need to not use a little loading bar
-        status_line = f"Running cmd: [green]{cmd}[/]\n"
         if not spinner:
-            if not suppress_output:
-                log.info(status_line, extra={"markup": True})
-            output = run_subprocess(cmd, env_vars, error_ok)
+            log.info(status_line, extra={"markup": True})
+            output = run_subprocess(cmd, env_vars, error_ok, output)
         else:
             with console.status(status_line) as status:
-                output = run_subprocess(cmd, env_vars, error_ok)
+                output = run_subprocess(cmd, env_vars, error_ok, output)
 
     return output
 
 
-def run_subprocess(cmd="", env_vars={}, error_ok=False):
+def run_subprocess(cmd="", env_vars={}, error_ok=False, output=True):
     """
     Takes a str commmand to run in BASH in a subprocess.
     Typically run from subproc, which handles output printing
@@ -61,7 +73,8 @@ def run_subprocess(cmd="", env_vars={}, error_ok=False):
     res = p.communicate()
     return_code = p.returncode
     res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
-    log.info(res_stdout)
+    if output:
+        log.info(res_stdout)
 
     # check return code, raise error if failure
     if not return_code or return_code != 0:
