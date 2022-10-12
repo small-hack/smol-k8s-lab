@@ -315,7 +315,7 @@ def install_argocd(argo_cd_domain="", password_manager=False):
     header("Installing Argo CD...")
 
     release = helm.chart(release_name='argo-cd',
-                         chart_name='argo/argo-cd',
+                         chart_name='argo-cd/argo-cd',
                          namespace='argocd',
                          set_options=opts)
     release.install(True)
@@ -444,7 +444,8 @@ def main(k8s: str,
         argo_cd_domain = input_variables['domains']['argo_cd']
         install_argocd(argo_cd_domain, password_manager)
 
-    CONSOLE.print(Panel("૮ ・ﻌ・ა Smol K8s Lab completed!",
+    CONSOLE.print(Panel("₍ᐢ•ﻌ•ᐢ₎ Smol K8s Lab completed! Make sure you run:\n"
+                        "[green]export KUBECONFIG=/home/you/.kube/kubeconfig",
                         title='[green]♥ Success ♥'))
 
 
