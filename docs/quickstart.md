@@ -6,7 +6,7 @@ nav_order: 2
 permalink: /quickstart
 ---
 
-## Quickstart for `smol-k8s-lab.py`
+## Quickstart for `smol-k8s-lab`
 This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s and kind.
 
 ### Pre-Req
@@ -19,11 +19,11 @@ This is aimed at being a much more scalable experience, but is still being worke
 # install prereqs
 ./setup.sh
 # checkout the help :)
-./smol-k8s-lab.py --help
+./smol-k8s-lab --help
 ```
 
 The help should return this:
-<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab.py --help after cloning the directory and installing the prerequisites.">
+<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
 
 Then you can edit the `config_sample.yml` to be your own values:
 
@@ -46,11 +46,11 @@ external_secrets:
     namespace: "nextcloud"
 ```
 
-## Install a distro of k8s with smol-k8s-lab.py
+## Install a distro of k8s with smol-k8s-lab
 Currently only being tested with k3s and kind.
 ```bash
 # you can replace k3s with kind
-./smol-k8s-lab.py k3s
+./smol-k8s-lab k3s
 ```
 
 #### Install some kubectl plugins (Optional)
@@ -85,5 +85,5 @@ fi
 ### Uninstall distro with python script
 ```bash
 # you can replace k3s with kind
-./smol-k8s-lab.py k3s --delete
+./smol-k8s-lab k3s --delete
 ```
