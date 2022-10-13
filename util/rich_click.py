@@ -31,13 +31,13 @@ class RichCommand(click.Command):
 
         title = "☁ [cornflower_blue][u]Smol K8s Lab[/]\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup. "
-                "Installs k3s or kind with metallb, nginx-ingess-controller, "
-                "cert-manager, and optional argo CD, kynervo, and external "
-                "secrets operator.")
+                "Installs k3s or kind with:\nmetallb, nginx-ingess-controller,"
+                " cert-manager\nand [i]optional[/i] argo CD, kynervo, and "
+                "external secrets operator.")
 
         console.print(title + desc, justify="center")
 
-        console.print("\n[b]Usage[/b]: smol-k8s-lab.py [cornflower_blue]" +
+        console.print("\n[b]Usage[/b]: smol-k8s-lab [cornflower_blue]" +
                       "<k3s OR kind> [royal_blue1][OPTIONS]\n")
 
         options_table = Table(highlight=True, box=None, show_header=False,
