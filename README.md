@@ -38,9 +38,9 @@ We're working on cluster api next :)
 
 | Application/Tool | What is it? |
 |:-----------------|:------------| 
-| [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot  iwth astricks in a screen in it's belly">&nbsp; ESO](https://external-secrets.io/v0.5.9/) | external-secrets-operator integrates external secret management systems like GitLab|
+| [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">&nbsp; ESO](https://external-secrets.io/v0.5.9/) | external-secrets-operator integrates external secret management systems like GitLab|
 | [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">&nbsp; Argo CD](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/kyverno_icon.png"  width="32" alt="kyvero logo">&nbsp;[Kyverno](https://github.com/kyverno/kyverno/) | Kubernetes native policy management to enforce policies on k8s resources |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/icons/kyverno_icon.png"  width="32" alt="kyvero logo">&nbsp; Kyverno](https://github.com/kyverno/kyverno/) | Kubernetes native policy management to enforce policies on k8s resources |
 
 If you install argocd, and you use bitwarden, we'll generate an admin password and automatically place it in your vault if you pass in the `-p` option. Curently only works with Bitwarden.
 
