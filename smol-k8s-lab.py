@@ -445,9 +445,11 @@ def main(k8s: str,
         argo_cd_domain = input_variables['domains']['argo_cd']
         install_argocd(argo_cd_domain, password_manager)
 
-    CONSOLE.print(Panel("₍ᐢ•ﻌ•ᐢ₎ Smol K8s Lab completed! Make sure you run:\n"
-                        "[green]export KUBECONFIG=/home/you/.kube/kubeconfig",
-                        title='[green]♥ Success ♥'))
+    CONSOLE.print(Panel("₍ᐢ•ﻌ•ᐢ₎っ Smol K8s Lab completed!\n"
+                        "Make sure you run:\n[green]"
+                        f"export KUBECONFIG={HOME_DIR}/.kube/kubeconfig",
+                        title='[green]♥ Success',
+                        subtitle='Have a nice day ♥'))
 
 
 if __name__ == '__main__':
