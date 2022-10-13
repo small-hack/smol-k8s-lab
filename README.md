@@ -1,12 +1,12 @@
 # Smol K8s Lab
 
+This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
+
 <p align="center">
   <a href="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg">
       <img src="./docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
   </a>
 </p>
-
-This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
 
 
 ## Docs
@@ -77,7 +77,6 @@ e.g. for postgres, go to [`./optional/postgres`](./optional/postgres)
 If you'd like to contribute or just found a :bug:, feel free to open an issue or pull request and we'll take a look and try to get back to you asap!
 
 # TODO
-- install OPA (or similar policy manager if there is one) by default
-- fix loading bar to update a bit more slowly. Right now it goes in increments of 3 on retries, and still works, but needs reworking for output clarity.
+- Configure base policies for Kyverno
 - bitwarden: check local env vars for password or api key
 - look into https://kubesec.io/
