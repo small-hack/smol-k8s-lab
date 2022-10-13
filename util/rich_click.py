@@ -24,15 +24,15 @@ class RichCommand(click.Command):
 
         highlighter = OptionHighlighter()
 
-        # set Console(record=True) to print the help to an svg
         console = Console(theme=Theme({"option": "cornflower_blue",
                                        "switch": "light_sky_blue1"}),
                           highlighter=highlighter)
+        # , record=True)
 
         title = "☁ [cornflower_blue][u]Smol K8s Lab[/]\n"
-        desc = ("[steel_blue]Quickly install a k8s distro for a lab setup. "
-                "Installs k3s or kind with:\nmetallb, nginx-ingess-controller,"
-                " cert-manager\nand [i]optional[/i] argo CD, kynervo, and "
+        desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
+                "\n[i]Installs:[/i] metallb, nginx-ingess-controller, cert-"
+                "manager\n[i]Optionally Installed:[/i] Argo CD, kynervo, "
                 "external secrets operator.")
 
         console.print(title + desc, justify="center")
