@@ -1,3 +1,5 @@
+# Smol K8s Lab
+
 <p align="center">
   <a href="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg">
       <img src="./docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
