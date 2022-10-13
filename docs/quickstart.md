@@ -22,6 +22,7 @@ This is aimed at being a much more scalable experience, but is still being worke
 ```
 
 The help should return this:
+
 [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg)
 
 🔔 Then you *Have To* edit the `config_sample.yml` to be your own values:
