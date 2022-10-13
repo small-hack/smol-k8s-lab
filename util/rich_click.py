@@ -70,7 +70,7 @@ class RichCommand(click.Command):
 
             options_table.add_row(opt1, opt2, highlighter(help))
 
-        url = "♥ https://jessebot.github.io/smol_k8s_homelab/"
+        url = "♥ https://jessebot.github.io/smol_k8s_lab/"
         console.print(Panel(options_table,
                             border_style="dim light_steel_blue",
                             title="ʕ ᵔᴥᵔʔ Options",

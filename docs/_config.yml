@@ -1,14 +1,14 @@
 ---
-title: "Smol_K8s_HomeLab"
+title: "Smol K8s Lab"
 remote_theme: just-the-docs/just-the-docs
 color_scheme: "new_colors"
 search_enabled: true
 permalink: pretty
-url: "https://jessebot.github.io/smol_k8s_homelab"
+url: "https://jessebot.github.io/smol_k8s_lab"
 # Aux links for the upper right navigation
 aux_links:
-  "smol_k8s_homelab on GitHub":
-    - "//github.com/jessebot/smol_k8s_homelab"
+  "smol_k8s_lab on GitHub":
+    - "//github.com/jessebot/smol_k8s_lab"
 
 plugins:
   - jekyll-seo-tag
