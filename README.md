@@ -1,4 +1,4 @@
-# Smol K8s Lab
+## Smol K8s Lab
 
 This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
 
