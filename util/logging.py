@@ -10,7 +10,7 @@ from rich.console import Console
 from rich.progress import Progress
 from rich.logging import RichHandler
 # custom lib
-from .subproc_wrapper import subproc
+from .subproc import subproc
 from time import sleep
 FORMAT = "%(message)s"
 logging.basicConfig(

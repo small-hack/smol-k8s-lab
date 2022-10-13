@@ -21,7 +21,7 @@ from sys import exit
 from yaml import dump, safe_load
 # custom local libraries
 from util.homelabHelm import helm
-from util.subproc_wrapper import subproc
+from util.subproc import subproc
 from util.logging import simple_loading_bar, header, sub_header
 from util.rich_click import RichCommand
 from util.bw_cli import BwCLI
@@ -105,7 +105,8 @@ def install_k3s_cluster():
 
     # create the k3s cluster (just one server node)
     cmd = ('./install.sh --disable=servicelb --disable=traefik '
-           '--write-kubeconfig-mode=647 --flannel-backend=host-gw')
+           '--write-kubeconfig-mode=647')
+    # --flannel-backend=host-gw')
     subproc([cmd], False, True, False)
 
     # create the ~/.kube directory if it doesn't exist

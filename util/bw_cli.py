@@ -17,7 +17,7 @@ from getpass import getpass
 import json
 import logging
 from rich.logging import RichHandler
-from .subproc_wrapper import subproc
+from .subproc import subproc
 FORMAT = "%(message)s"
 logging.basicConfig(
     level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
