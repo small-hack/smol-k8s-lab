@@ -12,15 +12,18 @@ This is aimed at being a much more scalable experience, but is still being worke
 ### Pre-Req
 - Python 3.10 (`brew install python3.10`)
 - [brew](https://brew.sh)
-- **:bell: change the values in `config_sample.yml` to your own**
+- **:star2: change the values in `config_sample.yml` to your own**!
 - Have internet access.
 
 ```bash
-./setup.sh && ./smol-k8s-lab.py --help
+# install prereqs
+./setup.sh
+# checkout the help :)
+./smol-k8s-lab.py --help
 ```
 
 The help should return this:
-<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_txt.png" width="850" alt="Output of smol-k8s-lab.py --help after cloning the directory and installing the prerequisites.">
+<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab.py --help after cloning the directory and installing the prerequisites.">
 
 
 ## Install a distro of k8s with smol-k8s-lab.py
