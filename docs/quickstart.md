@@ -12,7 +12,7 @@ This is aimed at being a much more scalable experience, but is still being worke
 ### Pre-Req
 - Python 3.10 (`brew install python3.10`)
 - [brew](https://brew.sh)
-- **:star2: change the values in `config_sample.yml` to your own**!
+- **🔔 *change the values in `config_sample.yml` to your own**!*
 - Have internet access.
 
 ```bash
@@ -25,6 +25,26 @@ This is aimed at being a much more scalable experience, but is still being worke
 The help should return this:
 <img src="https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab.py --help after cloning the directory and installing the prerequisites.">
 
+Then you can edit the `config_sample.yml` to be your own values:
+
+```yaml
+---
+domains:
+  argo_cd: "argocd.coolwebsitefordogs.com"
+
+# these HAVE to be full CIDR notation
+metallb_address_pool:
+  - 192.168.90.01/32
+  - 192.168.90.02/32
+  - 192.168.90.03/32
+
+email: "coolemailfordogs@onlydogs.com"
+
+external_secrets:
+  gitlab:
+    access_token: "kjdfsk758934fkldsafds"
+    namespace: "nextcloud"
+```
 
 ## Install a distro of k8s with smol-k8s-lab.py
 Currently only being tested with k3s and kind.
