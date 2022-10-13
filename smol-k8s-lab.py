@@ -18,6 +18,7 @@ from rich.logging import RichHandler
 import shutil
 import stat
 from sys import exit
+from time import sleep
 from yaml import dump, safe_load
 # custom local libraries
 from util.homelabHelm import helm
@@ -84,9 +85,6 @@ def install_k8s_distro(k8s_distro=""):
         install_kind_cluster()
     elif k8s_distro == "k3s":
         install_k3s_cluster()
-    else:
-        CONSOLE.print("[danger]Unsure how you made it this far, but [i]only "
-                      "kind/k3s[/i] are supported")
 
 
 def install_k3s_cluster():
@@ -165,16 +163,21 @@ def configure_metallb(address_pool):
     """
     logging.info("Making sure kube-system pod-security is setup...")
     cmds = []
-    base_cmd = 'kubectl label namespace kube-system'
+    cmds.append("kubectl create namespace metallb-system")
+    base_cmd = 'kubectl label namespace metallb-system'
     cmds.append(f"{base_cmd} pod-security.kubernetes.io/enforce=privileged")
     cmds.append(f"{base_cmd} pod-security.kubernetes.io/audit=privileged")
     cmds.append(f"{base_cmd} pod-security.kubernetes.io/warn=privileged")
+    # install manifest and wait
+    # cmds.append("kubectl apply --wait -f https://raw.githubusercontent.com/"
+    #       "metallb/metallb/v0.13.6/config/manifests/metallb-native.yaml")
     subproc(cmds)
+    sleep(15)
 
-    # install chart and wait
+    # old helm install manifest and wait
     release = helm.chart(chart_name='metallb/metallb',
                          release_name='metallb',
-                         namespace='kube-system')
+                         namespace='metallb-system')
     release.install(True)
 
     log.info("Installing IPAddressPool and L2Advertisement custom resources.")
@@ -182,13 +185,13 @@ def configure_metallb(address_pool):
     ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
                   'kind': 'IPAddressPool',
                   'metadata': {'name': 'base-pool',
-                               'namespace': 'kube-system'},
+                               'namespace': 'metallb-system'},
                   'spec': {'addresses': address_pool}}
 
     l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
                     'kind': 'L2Advertisement',
                     'metadata': {'name': 'base-pool-advert',
-                                 'namespace': 'kube-system'}}
+                                 'namespace': 'metallb-system'}}
 
     install_custom_resources([ip_pool_cr, l2_advert_cr])
 
@@ -258,7 +261,7 @@ def delete_cluster(k8s_distro="k3s"):
     header(f"ヾ(^_^) byebye {k8s_distro}!!")
 
     if k8s_distro == 'k3s':
-        subproc(['k3s-uninstall.sh'], False, True, False)
+        subproc(['k3s-uninstall.sh'], True, True, False)
     elif k8s_distro == 'kind':
         subproc(['kind delete cluster'])
     else:
@@ -297,7 +300,7 @@ def install_argocd(argo_cd_domain="", password_manager=False):
 
     # if we're using a password manager, generate a password & save it
     if password_manager:
-        header("🔐 Creating a new password in BitWarden.")
+        header(":lock: Creating a new password in BitWarden.")
         # if we're using bitwarden...
         bw = BwCLI()
         bw.unlock()
@@ -404,7 +407,8 @@ def main(k8s: str,
     header("Configuring metallb so we have an ip address pool")
     configure_metallb(input_variables['metallb_address_pool'])
 
-    # KinD has ingress-nginx install
+    header("Installing nginx-ingress-controller...")
+    # KinD has special ingress-nginx install
     if k8s == 'kind':
         url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx'
                '/main/deploy/static/provider/kind/deploy.yaml')
@@ -419,13 +423,12 @@ def main(k8s: str,
         subproc([rollout_cmd, wait_cmd])
     else:
         # you need this to access webpages from outside the cluster
-        header("Installing nginx-ingress-controller...")
-        nginx_chart_opts = {'hostNetwork': 'true',
-                            'hostPort.enabled': 'true'}
+        # nginx_chart_opts = {'hostNetwork': 'true',
+        #                     'hostPort.enabled': 'true'}
         release = helm.chart(release_name='nginx-ingress',
                              chart_name='ingress-nginx/ingress-nginx',
-                             namespace='kube-system',
-                             set_options=nginx_chart_opts)
+                             namespace='kube-system')
+        #                     set_options=nginx_chart_opts)
         release.install()
 
     # this is for manager SSL/TLS certificates via lets-encrypt
@@ -445,11 +448,10 @@ def main(k8s: str,
         argo_cd_domain = input_variables['domains']['argo_cd']
         install_argocd(argo_cd_domain, password_manager)
 
-    CONSOLE.print(Panel("₍ᐢ•ﻌ•ᐢ₎っ Smol K8s Lab completed!\n"
-                        "Make sure you run:\n[green]"
-                        f"export KUBECONFIG={HOME_DIR}/.kube/kubeconfig",
-                        title='[green]♥ Success',
-                        subtitle='Have a nice day ♥'))
+    CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
+                        f"[b]export KUBECONFIG={HOME_DIR}/.kube/kubeconfig",
+                        title='[green]₍ᐢ•ﻌ•ᐢ₎っSuccess ♥',
+                        subtitle='[cyan]Have a nice day ♥'))
 
 
 if __name__ == '__main__':

@@ -51,9 +51,14 @@ else
 fi
 
 if [ -n "$KUBECONFIG" ]; then
-    echo "export KUBECONFIG=~/.kube/kubeconfig" > ~/.bashrc
-    echo "export KUBECONFIG=~/.kube/kubeconfig" > ~/.bash_profile
+    if [[ "$(uname)" == *"Darwin"* ]]; then
+        echo "export KUBECONFIG=~/.kube/kubeconfig" >> ~/.bash_profile
+    else
+        echo "export KUBECONFIG=~/.kube/kubeconfig" >> ~/.bashrc
+    fi
 fi
 
 # fin
-echo -e "\nSetup completed."
+echo -e "\033[92m\nSetup completed. Don't forget to run:\n"
+echo 'echo "export KUBECONFIG=~/.kube/kubeconfig" >> ~/.bashrc'
+echo -e "\n(Replace .bashrc with .bash_profile if you are on a mac)"
