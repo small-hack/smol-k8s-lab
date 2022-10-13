@@ -30,9 +30,9 @@ class RichCommand(click.Command):
 
         title = "☁ [cornflower_blue][b]Smol K8s Lab[/]\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup. "
-                "Installs k3s or kind with metallb, kyverno, "
-                " nginx-ingess-controller, cert-manager, and optional argo CD,"
-                " and secrets management.")
+                "Installs k3s or kind with metallb, nginx-ingess-controller, "
+                "cert-manager, and optional argo CD, kynervo, and external "
+                "secrets operator.")
 
         console.print(title + desc, justify="center")
 
@@ -69,6 +69,10 @@ class RichCommand(click.Command):
 
             options_table.add_row(opt1, opt2, highlighter(help))
 
-        console.print(Panel(options_table, border_style="dim light_steel_blue",
+        url = "♥ https://jessebot.github.io/smol_k8s_homelab/"
+        console.print(Panel(options_table,
+                            border_style="dim light_steel_blue",
                             title="ʕ ᵔᴥᵔʔ Options",
-                            title_align="left"))
+                            title_align="left",
+                            subtitle_align="right",
+                            subtitle=url))

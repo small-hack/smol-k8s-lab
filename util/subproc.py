@@ -6,17 +6,27 @@ even if you don't actually output anything from stdout/stderr of the command.
 import logging
 from subprocess import Popen, PIPE
 from rich.console import Console
+from rich.theme import Theme
 from rich.logging import RichHandler
 from os import environ
 
 
 # console logging
-console = Console()
+soft_theme = Theme({"info": "dim cornflower_blue",
+                    "warn": "yellow on black",
+                    "danger": "bold magenta"})
+console = Console(theme=soft_theme)
 # all logging
 FORMAT = "%(message)s"
 logging.basicConfig(level="INFO", format=FORMAT, datefmt="[%X]",
                     handlers=[RichHandler()])
 log = logging.getLogger("rich")
+
+
+def basic_syntax(bash_string=""):
+    """
+    """
+    return
 
 
 def subproc(commands=[], error_ok=False, output=True, spinner=True,
@@ -41,12 +51,12 @@ def subproc(commands=[], error_ok=False, output=True, spinner=True,
             if 'password' not in cmd.lower():
                 status_line += cmd
             else:
-                status_line += cmd.split('assword')[0] + 'assword!truncated'
+                status_line += cmd.split('assword')[0] + \
+                    'assword[warn]:warning: TRUNCATED :warning:'
         else:
             cmd_parts = cmd.split(' ')
-            secret_cmd = " ".join([cmd_parts[0], cmd_parts[1]])
-            status_line = (f'[green]Running a [b]secret [dim]{secret_cmd}[/b]'
-                           '[/dim] command.')
+            msg = '[green]Running [i]secret[/i] command:[b] ' + cmd_parts[0]
+            status_line = " ".join([msg, cmd_parts[1], '[dim]...'])
         status_line += '\n'
 
         log.info(status_line, extra={"markup": True})
@@ -81,8 +91,7 @@ def run_subprocess(cmd="", env_vars={}, error_ok=False, output=True):
         # also scan both stdout and stdin for weird errors
         for output in [res_stdout.lower(), res_stderr.lower()]:
             if 'error' in output:
-                err = ('Return code not zero! ' +
-                       f'Return code: {str(return_code)}')
+                err = f'Return code: "{str(return_code)}". Expected code is 0.'
                 error_msg = f'\033[0;33m{err}\n{output}\033[00m'
                 if error_ok:
                     log.error(error_msg)
