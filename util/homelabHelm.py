@@ -3,7 +3,7 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 USAGE: import homelabHelm as helm
 """
-from .subproc_wrapper import subproc
+from .subproc import subproc
 
 
 class helm:
