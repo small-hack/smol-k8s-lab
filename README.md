@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+  [<img src="./docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg)
 </p>
 
 This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.

@@ -7,10 +7,17 @@ permalink: /
 ---
 
 # Smol K8s Homelab
-We throw local k8s (kubernetes) testing tools in this repo, mainly [`smol-k8s-lab`](./smol-k8s-lab). This project is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script, but there's also full tutorials to manually set up each distro in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in each directory under `./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`.
+
+[<img src="./docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol_k8s_homelab/main/docs/screenshots/help_text.svg)
+
+This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
 
 ## QuickStart
 Get started with `smol-k8s-lab` today with our tutorial [here](https://jessebot.github.io/smol_k8s_homelab/quickstart).
+
+There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol_k8s_homelab/distros) as well as BASH scripts for basic automation of each k8s distro in:
+
+`./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`
 
 ### Currently supported k8s distros
 
