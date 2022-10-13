@@ -359,7 +359,8 @@ def install_kyverno():
              'Example: -f [light_steel_blue]/tmp/config.yml[/]')
 @option('--kyverno',
         is_flag=True,
-        help='[i](Experimental)[/i] Install kyverno. Defaults to False.')
+        help='[i](Experimental)[/i] Install kyverno, a k8s native policy '
+             'manager. Defaults to False.')
 @option('--k9s',
         is_flag=True,
         help='Run k9s as soon as this script is complete. '
