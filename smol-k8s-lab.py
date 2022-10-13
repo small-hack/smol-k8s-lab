@@ -41,6 +41,8 @@ HOME_DIR = getenv("HOME")
 soft_theme = Theme({"info": "dim cornflower_blue",
                     "warn": "yellow on black",
                     "danger": "bold magenta"})
+# this records the session, to export to an svg
+# CONSOLE = Console(theme=soft_theme, record=True)
 CONSOLE = Console(theme=soft_theme)
 
 

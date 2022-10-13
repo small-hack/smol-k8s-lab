@@ -24,11 +24,12 @@ class RichCommand(click.Command):
 
         highlighter = OptionHighlighter()
 
-        console = Console(theme=Theme({"option": "bold cornflower_blue",
-                                       "switch": "bold light_sky_blue1"}),
+        # set Console(record=True) to print the help to an svg
+        console = Console(theme=Theme({"option": "cornflower_blue",
+                                       "switch": "light_sky_blue1"}),
                           highlighter=highlighter)
 
-        title = "☁ [cornflower_blue][b]Smol K8s Lab[/]\n"
+        title = "☁ [cornflower_blue][u]Smol K8s Lab[/]\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup. "
                 "Installs k3s or kind with metallb, nginx-ingess-controller, "
                 "cert-manager, and optional argo CD, kynervo, and external "
@@ -40,7 +41,7 @@ class RichCommand(click.Command):
                       "<k3s OR kind> [royal_blue1][OPTIONS]\n")
 
         options_table = Table(highlight=True, box=None, show_header=False,
-                              row_styles=["bold", ""],
+                              row_styles=["", "dim"],
                               padding=(1, 1, 0, 0))
 
         for param in self.get_params(ctx)[1:]:
@@ -76,3 +77,5 @@ class RichCommand(click.Command):
                             title_align="left",
                             subtitle_align="right",
                             subtitle=url))
+        # I use this to print a pretty svg at the end sometimes
+        # console.save_svg("docs/screenshots/help_text.svg")
