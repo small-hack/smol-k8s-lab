@@ -322,7 +322,11 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
         password_manager: bool, defaults to False, optional
 
     extra ingress annotations for argocd:
-            nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+        'tls': [{'hosts': [argo_cd_domain]}],
+        # ingress resource 4 the Argo CD srvr 4 dedicated [gRPC-ingress]
+        'ingressGrpc': {'enabled': True,
+                        'hosts': [argo_cd_grpc_domain],
+                        'tls': [{'hosts': [argo_cd_grpc_domain]}]}}}
     """
     # this is the base python dict for the values.yaml that is created below
     val = {'dex': {'enabled': 'false'},
@@ -333,15 +337,11 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
                    'enabled': True,
                    'ingressClassName': 'nginx',
                    'hosts': [argo_cd_domain],
-                   'tls': [{'hosts': [argo_cd_domain]}],
                    'annotations': {
+                       "nginx.ingress.kubernetes.io/ssl-passthrough": True,
                        "nginx.ingress.kubernetes.io/force-ssl-redirect": True,
                        "nginx.ingress.kubernetes.io/backend-protocal": 'HTTP'}
-               },
-               # ingress resource 4 the Argo CD srvr 4 dedicated [gRPC-ingress]
-               'ingressGrpc': {'enabled': True,
-                               'hosts': [argo_cd_grpc_domain],
-                               'tls': [{'hosts': [argo_cd_grpc_domain]}]}}}
+               }}}
 
     # if we're using a password manager, generate a password & save it
     if password_manager:
