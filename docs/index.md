@@ -6,8 +6,7 @@ nav_order: 1
 permalink: /
 ---
 
-# Smol K8s Lab
-
+## ☁️  *smol k8s lab* 🧸
 [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol_k8s_lab/main/docs/screenshots/help_text.svg)
 
 This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
