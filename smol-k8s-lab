@@ -338,12 +338,23 @@ def install_argocd(argo_cd_domain="", password_manager=False):
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
+    arg:
+        argo_cd_domain:   str, defaults to "", required
+        password_manager: bool, defaults to False, optional
     """
-    opts = {'dex.enabled': 'false',
-            'server.ingress.enabled': 'true',
-            'server.ingress.ingressClassName': 'nginx',
-            'server.ingress.hosts[0]': argo_cd_domain,
-            'server.insecure': 'true'}
+    header("Installing 🦑 Argo CD...")
+    # this is the base python dict for the values.yaml that is created below
+    val = {'dex': {'enabled': 'false'},
+           'server': {
+               'configs': {'secret': {'argocdServerAdminPassword': ""}},
+               'insecure': 'true',
+               'ingress': {
+                   'enabled': 'true',
+                   'ingressClassName': 'nginx',
+                   'hosts': [argo_cd_domain],
+                   'annotations': {
+                       "nginx.ingress.kubernetes.io/backend-protocal": 'HTTPS'
+                   }}}}
 
     # if we're using a password manager, generate a password & save it
     if password_manager:
@@ -361,14 +372,17 @@ def install_argocd(argo_cd_domain="", password_manager=False):
                                    bcrypt.gensalt()).decode()
 
         # this gets passed to the helm cli, but is bcrypted
-        opts['configs.secret.argocdServerAdminPassword'] = admin_pass
+        val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
 
-    header("Installing Argo CD...")
+    # this creates a values.yaml for us
+    values_file_name = '/tmp/argocd_values.yaml'
+    with open(values_file_name, 'w') as values_file:
+        dump(val, values_file)
 
     release = helm.chart(release_name='argo-cd',
                          chart_name='argo-cd/argo-cd',
                          namespace='argocd',
-                         set_options=opts)
+                         values_file=values_file_name)
     release.install(True)
     return
 
