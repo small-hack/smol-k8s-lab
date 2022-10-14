@@ -70,13 +70,13 @@ Check out the [`optional`](optional) directory for quick examples on apps this s
 
 e.g. for postgres, go to [`./optional/postgres`](./optional/postgres)
 
+# Status
+This is still in beta, as we figure out all the distros we want to support, and pin all the versions, but if you'd like to contribute or just found a :bug:, feel free to open an issue or pull request and we'll take a look and try to get back to you asap!
 
-# Contributions and maintainers
+## Contributions and maintainers
 - [@cloudymax](https://github.com/cloudymax)
 
-If you'd like to contribute or just found a :bug:, feel free to open an issue or pull request and we'll take a look and try to get back to you asap!
-
-# TODO
+## TODO
 - Configure base policies for Kyverno
 - bitwarden: check local env vars for password or api key
 - look into https://kubesec.io/
