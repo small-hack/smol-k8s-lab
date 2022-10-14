@@ -45,7 +45,7 @@ def sub_header(text, extra_starting_blank_line=True):
     print('')
 
 
-def simple_loading_bar(tasks={}):
+def simple_loading_bar(tasks={}, time_to_wait=120):
     """
     Prints a small loading bar using rich.
     Accepts a dict of {"task_name": "task"}
@@ -55,26 +55,23 @@ def simple_loading_bar(tasks={}):
         https://rich.readthedocs.io/en/stable/progress.html
     """
     for task_name, task_command in tasks.items():
-        total_steps = 150
         with Progress(transient=True) as progress:
             task1 = progress.add_task(f"[green]{task_name}...",
-                                      total=total_steps)
+                                      total=time_to_wait)
             while not progress.finished:
                 sleep(1)
-                progress.update(task1, advance=3)
-                total_steps -= 3
+                progress.update(task1, advance=2)
                 # loops until this succeeds
                 try:
                     subproc([task_command], False, True, False)
                 except Exception as reason:
                     log.debug(f"Encountered Exception: {reason}")
                     sleep(3)
-                    progress.update(task1, advance=3)
-                    total_steps -= 3
+                    progress.update(task1, advance=2)
                     continue
                 # execute if no exception
                 else:
-                    progress.update(task1, completed=15)
+                    progress.update(task1, completed=time_to_wait)
                     sleep(.1)
                     break
     print('')

@@ -170,12 +170,12 @@ def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
     return
 
 
-def install_custom_resources(custom_resource_dict_list):
+def apply_custom_resources(custom_resource_dict_list):
     """
     Does a kube apply on a custom resource dict, and retries if it fails
     using loading bar for progress
     """
-    k_cmd = 'kubectl apply -f '
+    k_cmd = 'kubectl apply --wait -f '
     commands = {}
     # Write a YAML representation of data to '/tmp/{resource_name}.yaml'.
     for custom_resource_dict in custom_resource_dict_list:
@@ -190,30 +190,33 @@ def install_custom_resources(custom_resource_dict_list):
     simple_loading_bar(commands)
 
 
+def apply_manifests(manifest_file_name="", namespace="default", deployment="",
+                    selector="component=controller"):
+    """
+    applies a manifest and waits with a nice loading bar
+    """
+    apply = f"kubectl apply --wait -f {manifest_file_name}"
+
+    rollout = f"kubectl rollout status -n {namespace} deployment/{deployment}"
+
+    wait = (f"kubectl wait --for=condition=ready pod --selector={selector} "
+            f"--timeout=90s -n {namespace}")
+
+    # loops with progress bar until this succeeds
+    subproc([apply, rollout, wait])
+
+
 def configure_metallb(address_pool=[]):
     """
     metallb is special because it has Custom Resources
-    Takes address_pool list
-
-    # old helm install manifest and wait
-    log.info("Making sure kube-system pod-security is setup...")
-    # TODO: create manifest for namespace with privileged flags for metallb
-    release = helm.chart(chart_name='metallb/metallb',
-                         release_name='metallb',
-                         namespace='metallb-system')
-    release.install(True)
     """
+
     # install manifest and wait
-    apply = ("kubectl apply --wait -f https://raw.githubusercontent.com/"
-             "metallb/metallb/v0.13.6/config/manifests/metallb-native.yaml")
+    u = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.6/config/"
+         "manifests/metallb-native.yaml")
+    apply_manifests(u, "metallb-system", "controller", "component=controller")
 
-    rollout = "kubectl rollout status -n metallb-system deployment/controller"
-
-    wait = ("kubectl wait --for=condition=ready pod --selector=component="
-            "controller --timeout=90s -n metallb-system")
-
-    subproc([apply, rollout, wait])
-
+    # metallb requires a address pool configured and a layer 2 advertisement CR
     log.info("Installing IPAddressPool and L2Advertisement custom resources.")
 
     ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
@@ -227,52 +230,30 @@ def configure_metallb(address_pool=[]):
                     'metadata': {'name': 'default',
                                  'namespace': 'metallb-system'}}
 
-    install_custom_resources([ip_pool_cr, l2_advert_cr])
+    apply_custom_resources([ip_pool_cr, l2_advert_cr])
     return
 
 
 def configure_ingress_nginx(k8s_distro="k3s"):
     """
-    install nginx ingress controller from manifests
-
-    Old helm install for k3s:
-      # you need this to access webpages from outside the cluster
-       nginx_chart_opts = {'hostNetwork': 'true',
-                           'hostPort.enabled': 'true'}
-       release = helm.chart(release_name='ingress-nginx',
-                            chart_name='ingress-nginx/ingress-nginx',
-                            namespace='ingress-nginx')
-                            set_options=nginx_chart_opts)
-       release.install()
+    install nginx ingress controller from manifests for kind and helm for k3s
     """
-    url = 'https://raw.githubusercontent.com/kubernetes/ingress-nginx/'
     if k8s_distro == 'kind':
-        # kind has a special deployment manifest
-        url += 'main/deploy/static/provider/kind/deploy.yaml'
+        u = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/'
+             'deploy/static/provider/kind/deploy.yaml')
         # this is to wait for the deployment to come up
-        rollout_cmd = ('kubectl rollout status -n ingress-nginx deployment/'
-                       'ingress-nginx-controller')
-
-        wait_cmd = ('kubectl wait --for=condition=ready pod '
-                    '--selector=app.kubernetes.io/component=controller '
-                    '--timeout=90s -n ingress-nginx')
-
-        apply_cmd = 'kubectl apply --wait -f {url}'
-
-        # all 3 commands are run in succession
-        subproc([apply_cmd, rollout_cmd, wait_cmd])
+        apply_manifests(u, "ingress-nginx", "ingress-nginx-controller",
+                        "app.kubernetes.io/component=controller")
     else:
-        # you need this to access webpages from outside the cluster
+        # you need these to access webpages from outside the cluster
         nginx_chart_opts = {'hostNetwork': 'true',
                             'hostPort.enabled': 'true'}
+
         release = helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
                              namespace='ingress-nginx',
                              set_options=nginx_chart_opts)
         release.install()
-        # baremetal: github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/
-        #            index.md#bare-metal-clusters
-        # url+"controller-v1.4.0/deploy/static/provider/baremetal/deploy.yaml"
     return
 
 
@@ -300,7 +281,7 @@ def configure_cert_manager(email_addr):
                                {'http01': {'ingress': {'class': 'nginx'}}}]
                            }}}
 
-    install_custom_resources([issuer])
+    apply_custom_resources([issuer])
 
 
 def configure_external_secrets(external_secrets_config):
@@ -330,29 +311,32 @@ def configure_external_secrets(external_secrets_config):
                      'type': 'Opaque',
                      'stringData': {'token': gitlab_access_token}}
 
-    install_custom_resources([gitlab_secret])
+    apply_custom_resources([gitlab_secret])
     return
 
 
-def install_argocd(argo_cd_domain="", password_manager=False):
+def configure_argocd(argo_cd_domain="", password_manager=False):
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
     arg:
         argo_cd_domain:   str, defaults to "", required
         password_manager: bool, defaults to False, optional
+
+    extra ingress annotations for argocd:
     """
-    header("Installing 🦑 Argo CD...")
     # this is the base python dict for the values.yaml that is created below
     val = {'dex': {'enabled': 'false'},
+           'configs': {'secret': {'argocdServerAdminPassword': ""}},
            'server': {
-               'configs': {'secret': {'argocdServerAdminPassword': ""}},
                'insecure': 'true',
                'ingress': {
                    'enabled': 'true',
                    'ingressClassName': 'nginx',
                    'hosts': [argo_cd_domain],
                    'annotations': {
+                       "nginx.ingress.kubernetes.io/force-ssl-redirect": True,
+                       "nginx.ingress.kubernetes.io/ssl-passthrough": True,
                        "nginx.ingress.kubernetes.io/backend-protocal": 'HTTPS'
                    }}}}
 
@@ -374,7 +358,8 @@ def install_argocd(argo_cd_domain="", password_manager=False):
         # this gets passed to the helm cli, but is bcrypted
         val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
 
-    # this creates a values.yaml for us
+    header("Installing 🦑 Argo CD...")
+    # this creates a values.yaml from from the val dict above
     values_file_name = '/tmp/argocd_values.yaml'
     with open(values_file_name, 'w') as values_file:
         dump(val, values_file)
@@ -488,8 +473,10 @@ def main(k8s: str,
     # then install argo CD :D
     if argo:
         argo_cd_domain = input_variables['domains']['argo_cd']
-        install_argocd(argo_cd_domain, password_manager)
+        configure_argocd(argo_cd_domain, password_manager)
 
+    # we're done :D
+    print("")
     CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
                         f"[b]export KUBECONFIG={HOME_DIR}/.kube/kubeconfig",
                         title='[green]₍ᐢ•ﻌ•ᐢ₎っSuccess ♥',
