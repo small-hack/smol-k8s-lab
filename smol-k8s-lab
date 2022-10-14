@@ -40,8 +40,6 @@ HOME_DIR = getenv("HOME")
 soft_theme = Theme({"info": "dim cornflower_blue",
                     "warn": "yellow on black",
                     "danger": "bold magenta"})
-# this records the session, to export to an svg
-# CONSOLE = Console(theme=soft_theme, record=True)
 CONSOLE = Console(theme=soft_theme)
 
 
@@ -331,7 +329,7 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
            'server': {
                'insecure': 'true',
                'ingress': {
-                   'enabled': 'true',
+                   'enabled': True,
                    'ingressClassName': 'nginx',
                    'hosts': [argo_cd_domain],
                    'tls': {'hosts': [argo_cd_grpc_domain]},
