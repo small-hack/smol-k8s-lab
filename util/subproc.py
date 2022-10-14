@@ -28,17 +28,17 @@ def basic_syntax(bash_string=""):
     splits up a string and does some basic syntax highlighting
     """
     parts = bash_string.split(' ')
-    base_cmd = f'[bold cyan]{parts[0]}[/bold cyan]'
+    base_cmd = f'[magenta]{parts[0]}[/magenta]'
     if len(parts) == 1:
         return base_cmd
     else:
         bash_string = bash_string.replace(parts[0], base_cmd)
         bash_string = bash_string.replace(parts[1],
-                                          f'[cyan]{parts[1]}[/cyan]')
+                                          f'[yellow]{parts[1]}[/yellow]')
         return bash_string
 
 
-def subproc(commands=[], error_ok=False, output=True, spinner=True,
+def subproc(commands=[], error_ok=False, output=True, spinner="aesthetic",
             env={}):
     """
     Takes a list of command strings to run in subprocess
@@ -57,7 +57,7 @@ def subproc(commands=[], error_ok=False, output=True, spinner=True,
         # do some very basic syntax highlighting
         printed_cmd = basic_syntax(cmd)
         if output:
-            status_line = "[bold green]Running:[/bold green] "
+            status_line = "[green] Running:[/green] "
             # make sure I'm not about to print a password, oof
             if 'password' not in cmd.lower():
                 status_line += printed_cmd
@@ -75,7 +75,9 @@ def subproc(commands=[], error_ok=False, output=True, spinner=True,
         if not spinner:
             output = run_subprocess(cmd, error_ok, output, env_vars)
         else:
-            with console.status(status_line, spinner="arrow3") as status:
+            with console.status(status_line,
+                                spinner=spinner,
+                                speed=0.75) as status:
                 output = run_subprocess(cmd, error_ok, output, env_vars)
 
     return output
