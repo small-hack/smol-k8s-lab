@@ -78,7 +78,6 @@ def install_k3s_cluster():
 
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
-
     # Grab the kubeconfig and copy it locally
     cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {HOME_DIR}/.kube/kubeconfig'
     # change the permissions os that it doesn't complain
@@ -181,7 +180,7 @@ def apply_custom_resources(custom_resource_dict_list):
     for custom_resource_dict in custom_resource_dict_list:
         resource_name = "_".join([custom_resource_dict['kind'],
                                   custom_resource_dict['metadata']['name']])
-        yaml_file_name = f'/tmp/{resource_name}.yaml'
+        yaml_file_name = f'/tmp/smol-k8s-lab/{resource_name}.yaml'
         with open(yaml_file_name, 'w') as cr_file:
             dump(custom_resource_dict, cr_file)
         commands[f'Installing {resource_name}'] = k_cmd + yaml_file_name
@@ -365,7 +364,7 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
 
     header("Installing 🦑 Argo CD...")
     # this creates a values.yaml from from the val dict above
-    values_file_name = '/tmp/argocd_values.yaml'
+    values_file_name = '/tmp/smol-k8s-lab/argocd_values.yaml'
     with open(values_file_name, 'w') as values_file:
         dump(val, values_file)
 
@@ -444,8 +443,12 @@ def main(k8s: str,
         # this exist the script after deleting the cluster
         delete_cluster(k8s)
 
+    # load in config file
     with open(file, 'r') as yaml_file:
         input_variables = safe_load(yaml_file)
+
+    # make sure the tmp directory exists, to store stuff
+    Path("/tmp/smol-k8s-lab").mkdir(exist_ok=True)
 
     # install the actual KIND or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
