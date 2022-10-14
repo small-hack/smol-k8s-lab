@@ -26,7 +26,8 @@ class RichCommand(click.Command):
 
         console = Console(theme=Theme({"option": "cornflower_blue",
                                        "switch": "light_sky_blue1"}),
-                          highlighter=highlighter, record=True)
+                          highlighter=highlighter)
+        # , record=True)
 
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸 \n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
@@ -77,4 +78,4 @@ class RichCommand(click.Command):
                             subtitle_align="right",
                             subtitle=url))
         # I use this to print a pretty svg at the end sometimes
-        console.save_svg("docs/screenshots/help_text.svg")
+        # console.save_svg("docs/screenshots/help_text.svg")
