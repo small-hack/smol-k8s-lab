@@ -220,14 +220,12 @@ def configure_metallb(address_pool=[]):
                   'kind': 'IPAddressPool',
                   'metadata': {'name': 'default',
                                'namespace': 'metallb-system'},
-                  'spec': {'addresses': address_pool,
-                           'autoAssign': True}}
+                  'spec': {'addresses': address_pool}}
 
     l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
                     'kind': 'L2Advertisement',
                     'metadata': {'name': 'default',
-                                 'namespace': 'metallb-system'},
-                    'spec': {'ipAddressPools': ['default']}}
+                                 'namespace': 'metallb-system'}}
 
     install_custom_resources([ip_pool_cr, l2_advert_cr])
     return
@@ -251,23 +249,30 @@ def configure_ingress_nginx(k8s_distro="k3s"):
     if k8s_distro == 'kind':
         # kind has a special deployment manifest
         url += 'main/deploy/static/provider/kind/deploy.yaml'
+        # this is to wait for the deployment to come up
+        rollout_cmd = ('kubectl rollout status -n ingress-nginx deployment/'
+                       'ingress-nginx-controller')
+
+        wait_cmd = ('kubectl wait --for=condition=ready pod '
+                    '--selector=app.kubernetes.io/component=controller '
+                    '--timeout=90s -n ingress-nginx')
+
+        apply_cmd = 'kubectl apply --wait -f {url}'
+
+        # all 3 commands are run in succession
+        subproc([apply_cmd, rollout_cmd, wait_cmd])
     else:
+        # you need this to access webpages from outside the cluster
+        nginx_chart_opts = {'hostNetwork': 'true',
+                            'hostPort.enabled': 'true'}
+        release = helm.chart(release_name='ingress-nginx',
+                             chart_name='ingress-nginx/ingress-nginx',
+                             namespace='ingress-nginx',
+                             set_options=nginx_chart_opts)
+        release.install()
         # baremetal: github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/
         #            index.md#bare-metal-clusters
-        url += "controller-v1.4.0/deploy/static/provider/baremetal/deploy.yaml"
-
-    # this is to wait for the deployment to come up
-    rollout_cmd = ('kubectl rollout status -n ingress-nginx deployment/'
-                   'ingress-nginx-controller')
-
-    wait_cmd = ('kubectl wait --for=condition=ready pod '
-                '--selector=app.kubernetes.io/component=controller '
-                '--timeout=90s -n ingress-nginx')
-
-    apply_cmd = 'kubectl apply --wait -f {url}'
-
-    # all 3 commands are run in succession
-    subproc([apply_cmd, rollout_cmd, wait_cmd])
+        # url+"controller-v1.4.0/deploy/static/provider/baremetal/deploy.yaml"
     return
 
 
