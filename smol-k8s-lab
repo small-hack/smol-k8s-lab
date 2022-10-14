@@ -345,7 +345,7 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
 
     # if we're using a password manager, generate a password & save it
     if password_manager:
-        header(":lock: Creating a new password in BitWarden.")
+        sub_header(":lock: Creating a new password in BitWarden.")
         # if we're using bitwarden...
         bw = BwCLI()
         bw.unlock()
