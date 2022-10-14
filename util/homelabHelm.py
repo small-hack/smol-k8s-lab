@@ -69,6 +69,11 @@ class helm:
             """
             installs helm chart to current k8s context, takes optional wait arg
             Defaults to False, if True, will wait till deployments are up
+            keyword args:
+                - release_name: str to call this installation
+                - chart_name: str of helm chart to use (repo/chart)
+                - namespace: str of namespace to deploy release to
+                - values_file: a str of a file to use with --values
             """
             cmd = (f'helm upgrade {self.release_name} {self.chart_name}'
                    f' --install -n {self.namespace} --create-namespace')
