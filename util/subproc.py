@@ -13,7 +13,7 @@ from os import environ
 
 # console logging
 soft_theme = Theme({"info": "dim cornflower_blue",
-                    "warn": "yellow on black",
+                    "warn": "bold black on yellow",
                     "danger": "bold magenta"})
 console = Console(theme=soft_theme)
 # all logging
@@ -25,8 +25,17 @@ log = logging.getLogger("rich")
 
 def basic_syntax(bash_string=""):
     """
+    splits up a string and does some basic syntax highlighting
     """
-    return
+    parts = bash_string.split(' ')
+    base_cmd = f'[bold cyan]{parts[0]}[/bold cyan]'
+    if len(parts) == 1:
+        return base_cmd
+    else:
+        bash_string = bash_string.replace(parts[0], base_cmd)
+        bash_string = bash_string.replace(parts[1],
+                                          f'[cyan]{parts[1]}[/cyan]')
+        return bash_string
 
 
 def subproc(commands=[], error_ok=False, output=True, spinner=True,
@@ -45,16 +54,18 @@ def subproc(commands=[], error_ok=False, output=True, spinner=True,
         env_vars = env_vars.update(env)
 
     for cmd in commands:
+        # do some very basic syntax highlighting
+        printed_cmd = basic_syntax(cmd)
         if output:
-            status_line = "[green]Running Command:[/green] "
+            status_line = "[bold green]Running:[/bold green] "
             # make sure I'm not about to print a password, oof
             if 'password' not in cmd.lower():
-                status_line += cmd
+                status_line += printed_cmd
             else:
-                status_line += cmd.split('assword')[0] + \
-                    'assword[warn]:warning: TRUNCATED :warning:'
+                status_line += printed_cmd.split('assword')[0] + \
+                    'assword[warn]:warning: TRUNCATED'
         else:
-            cmd_parts = cmd.split(' ')
+            cmd_parts = printed_cmd.split(' ')
             msg = '[green]Running [i]secret[/i] command:[b] ' + cmd_parts[0]
             status_line = " ".join([msg, cmd_parts[1], '[dim]...'])
         status_line += '\n'
@@ -62,15 +73,15 @@ def subproc(commands=[], error_ok=False, output=True, spinner=True,
         log.info(status_line, extra={"markup": True})
         # Sometimes we need to not use a little loading bar
         if not spinner:
-            output = run_subprocess(cmd, env_vars, error_ok, output)
+            output = run_subprocess(cmd, error_ok, output, env_vars)
         else:
             with console.status(status_line) as status:
-                output = run_subprocess(cmd, env_vars, error_ok, output)
+                output = run_subprocess(cmd, error_ok, output, env_vars)
 
     return output
 
 
-def run_subprocess(cmd="", env_vars={}, error_ok=False, output=True):
+def run_subprocess(cmd="", error_ok=False, output=True, env_vars={}):
     """
     Takes a str commmand to run in BASH in a subprocess.
     Typically run from subproc, which handles output printing

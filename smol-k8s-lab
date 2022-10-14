@@ -18,7 +18,6 @@ from rich.logging import RichHandler
 import shutil
 import stat
 from sys import exit
-from time import sleep
 from yaml import dump, safe_load
 # custom local libraries
 from util.homelabHelm import helm
@@ -44,38 +43,6 @@ soft_theme = Theme({"info": "dim cornflower_blue",
 # this records the session, to export to an svg
 # CONSOLE = Console(theme=soft_theme, record=True)
 CONSOLE = Console(theme=soft_theme)
-
-
-def add_default_repos(k8s_distro, argo=False, external_secrets=False,
-                      kyverno=False):
-    """
-    Add all the default helm chart repos:
-    - metallb is for loadbalancing and assigning ips, on metal...
-    - ingress-nginx allows us to do ingress, so access outside the cluster
-    - jetstack is for cert-manager for TLS certs
-    - argo is argoCD to manage k8s resources in the future through a gui
-    - kyverno is a k8s native policy manager
-    """
-    repos = OrderedDict()
-
-    repos['metallb'] = 'https://metallb.github.io/metallb'
-    repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
-    repos['jetstack'] = 'https://charts.jetstack.io'
-    if external_secrets:
-        repos['external-secrets'] = 'https://charts.external-secrets.io'
-    if argo:
-        repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
-    if kyverno:
-        repos['kyverno'] = 'https://kyverno.github.io/kyverno/'
-
-    # kind has a special install path
-    if k8s_distro == 'kind':
-        repos.pop('ingress-nginx')
-
-    # install and update any repos needed
-    helm.repo(repos).add()
-
-    return
 
 
 def install_k8s_distro(k8s_distro=""):
@@ -139,6 +106,70 @@ def install_kind_cluster():
     return
 
 
+def delete_cluster(k8s_distro="k3s"):
+    """
+    Delete a KIND or K3s cluster entirely.
+    """
+    header(f"ヾ(^_^) byebye {k8s_distro}!!")
+
+    if k8s_distro == 'k3s':
+        subproc(['k3s-uninstall.sh'], True, True, False)
+    elif k8s_distro == 'kind':
+        subproc(['kind delete cluster'])
+    else:
+        header("┌（・Σ・）┘≡З  Whoops. {k8s_distro} not YET supported.")
+
+    exit()
+
+
+def add_default_repos(k8s_distro, argo=False, external_secrets=False,
+                      kyverno=False):
+    """
+    Add all the default helm chart repos:
+    - metallb is for loadbalancing and assigning ips, on metal...
+    - ingress-nginx allows us to do ingress, so access outside the cluster
+    - jetstack is for cert-manager for TLS certs
+    - argo is argoCD to manage k8s resources in the future through a gui
+    - kyverno is a k8s native policy manager
+    """
+    repos = OrderedDict()
+
+    repos['metallb'] = 'https://metallb.github.io/metallb'
+    repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
+    repos['jetstack'] = 'https://charts.jetstack.io'
+    if external_secrets:
+        repos['external-secrets'] = 'https://charts.external-secrets.io'
+    if argo:
+        repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
+    if kyverno:
+        repos['kyverno'] = 'https://kyverno.github.io/kyverno/'
+
+    # kind has a special install path
+    if k8s_distro == 'kind':
+        repos.pop('ingress-nginx')
+
+    # install and update any repos needed
+    helm.repo(repos).add()
+    return
+
+
+def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
+                 kyverno=False):
+    """
+    get helm installed if needed, and then install/update all the helm repos
+    """
+    header("Adding/Updating helm repos...")
+    if not shutil.which("helm"):
+        msg = ("ʕ•́ᴥ•̀ʔ [b]Helm[/b] is [warn]not installed[/warn]. "
+               "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
+        CONSOLE.print(msg, justify='center')
+        subproc(['brew install helm'])
+
+    # this is where we add all the helm repos we're going to use
+    add_default_repos(k8s_distro, argo, external_secrets, kyverno)
+    return
+
+
 def install_custom_resources(custom_resource_dict_list):
     """
     Does a kube apply on a custom resource dict, and retries if it fails
@@ -159,43 +190,83 @@ def install_custom_resources(custom_resource_dict_list):
     simple_loading_bar(commands)
 
 
-def configure_metallb(address_pool):
+def configure_metallb(address_pool=[]):
     """
     metallb is special because it has Custom Resources
-    """
-    logging.info("Making sure kube-system pod-security is setup...")
-    cmds = []
-    cmds.append("kubectl create namespace metallb-system")
-    base_cmd = 'kubectl label namespace metallb-system'
-    cmds.append(f"{base_cmd} pod-security.kubernetes.io/enforce=privileged")
-    cmds.append(f"{base_cmd} pod-security.kubernetes.io/audit=privileged")
-    cmds.append(f"{base_cmd} pod-security.kubernetes.io/warn=privileged")
-    # install manifest and wait
-    # cmds.append("kubectl apply --wait -f https://raw.githubusercontent.com/"
-    #       "metallb/metallb/v0.13.6/config/manifests/metallb-native.yaml")
-    subproc(cmds)
-    sleep(15)
+    Takes address_pool list
 
     # old helm install manifest and wait
+    log.info("Making sure kube-system pod-security is setup...")
+    # TODO: create manifest for namespace with privileged flags for metallb
     release = helm.chart(chart_name='metallb/metallb',
                          release_name='metallb',
                          namespace='metallb-system')
     release.install(True)
+    """
+    # install manifest and wait
+    apply = ("kubectl apply --wait -f https://raw.githubusercontent.com/"
+             "metallb/metallb/v0.13.6/config/manifests/metallb-native.yaml")
+
+    rollout = "kubectl rollout status -n metallb-system deployment/controller"
+
+    wait = ("kubectl wait --for=condition=ready pod --selector=component="
+            "controller --timeout=90s -n metallb-system")
+
+    subproc([apply, rollout, wait])
 
     log.info("Installing IPAddressPool and L2Advertisement custom resources.")
 
     ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
                   'kind': 'IPAddressPool',
-                  'metadata': {'name': 'base-pool',
+                  'metadata': {'name': 'default',
                                'namespace': 'metallb-system'},
-                  'spec': {'addresses': address_pool}}
+                  'spec': {'addresses': address_pool,
+                           'autoAssign': True}}
 
     l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
                     'kind': 'L2Advertisement',
                     'metadata': {'name': 'base-pool-advert',
-                                 'namespace': 'metallb-system'}}
+                                 'namespace': 'metallb-system'},
+                    'spec': {'ipAddressPools': ['default']}}
 
     install_custom_resources([ip_pool_cr, l2_advert_cr])
+    return
+
+
+def configure_ingress_nginx(k8s_distro="k3s"):
+    """
+    install nginx ingress controller from manifests
+
+    Old helm install for k3s:
+      # you need this to access webpages from outside the cluster
+       nginx_chart_opts = {'hostNetwork': 'true',
+                           'hostPort.enabled': 'true'}
+       release = helm.chart(release_name='ingress-nginx',
+                            chart_name='ingress-nginx/ingress-nginx',
+                            namespace='ingress-nginx')
+                            set_options=nginx_chart_opts)
+       release.install()
+    """
+    url = 'https://raw.githubusercontent.com/kubernetes/ingress-nginx/'
+    # this is to wait for the deployment to come up
+    rollout_cmd = ('kubectl rollout status -n ingress-nginx deployment/'
+                   'ingress-nginx-controller')
+
+    wait_cmd = ('kubectl wait --for=condition=ready pod '
+                '--selector=app.kubernetes.io/component=controller '
+                '--timeout=90s -n ingress-nginx')
+
+    if k8s_distro == 'kind':
+        # kind has a special deployment manifest
+        url += 'main/deploy/static/provider/kind/deploy.yaml'
+    else:
+        # baremetal: github.com/kubernetes/ingress-nginx/blob/main/docs/deploy/
+        #            index.md#bare-metal-clusters
+        url += "controller-v1.4.0/deploy/static/provider/baremetal/deploy.yaml"
+
+    apply_cmd = 'kubectl apply --wait -f {url}'
+    # all 3 commands are run in succession
+    subproc([apply_cmd, rollout_cmd, wait_cmd])
 
 
 def configure_cert_manager(email_addr):
@@ -253,39 +324,6 @@ def configure_external_secrets(external_secrets_config):
                      'stringData': {'token': gitlab_access_token}}
 
     install_custom_resources([gitlab_secret])
-    return
-
-
-def delete_cluster(k8s_distro="k3s"):
-    """
-    Delete a KIND or K3s cluster entirely.
-    """
-    header(f"ヾ(^_^) byebye {k8s_distro}!!")
-
-    if k8s_distro == 'k3s':
-        subproc(['k3s-uninstall.sh'], True, True, False)
-    elif k8s_distro == 'kind':
-        subproc(['kind delete cluster'])
-    else:
-        header("┌（・Σ・）┘≡З  Whoops. {k8s_distro} not YET supported.")
-
-    exit()
-
-
-def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
-                 kyverno=False):
-    """
-    get helm installed if needed, and then install/update all the helm repos
-    """
-    header("Adding/Updating helm repos...")
-    if not shutil.which("helm"):
-        msg = ("ʕ•́ᴥ•̀ʔ [b]Helm[/b] is [warn]not installed[/warn]. "
-               "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
-        CONSOLE.print(msg, justify='center')
-        subproc(['brew install helm'])
-
-    # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, argo, external_secrets, kyverno)
     return
 
 
@@ -411,28 +449,7 @@ def main(k8s: str,
     configure_metallb(input_variables['metallb_address_pool'])
 
     header("Installing nginx-ingress-controller...")
-    # KinD has special ingress-nginx install
-    if k8s == 'kind':
-        url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx'
-               '/main/deploy/static/provider/kind/deploy.yaml')
-        subproc([f'kubectl apply -f {url}'])
-
-        # this is to wait for the deployment to come up
-        rollout_cmd = ('kubectl rollout status -n ingress-nginx deployment'
-                       '/ingress-nginx-controller')
-        wait_cmd = ('kubectl wait --for=condition=ready pod '
-                    '--selector=app.kubernetes.io/component=controller '
-                    '--timeout=90s -n ingress-nginx')
-        subproc([rollout_cmd, wait_cmd])
-    else:
-        # you need this to access webpages from outside the cluster
-        # nginx_chart_opts = {'hostNetwork': 'true',
-        #                     'hostPort.enabled': 'true'}
-        release = helm.chart(release_name='nginx-ingress',
-                             chart_name='ingress-nginx/ingress-nginx',
-                             namespace='kube-system')
-        #                     set_options=nginx_chart_opts)
-        release.install()
+    configure_ingress_nginx(k8s)
 
     # this is for manager SSL/TLS certificates via lets-encrypt
     header("Installing cert-manager for TLS certificates...")

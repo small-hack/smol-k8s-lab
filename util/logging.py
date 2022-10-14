@@ -55,7 +55,7 @@ def simple_loading_bar(tasks={}):
         https://rich.readthedocs.io/en/stable/progress.html
     """
     for task_name, task_command in tasks.items():
-        total_steps = 45
+        total_steps = 150
         with Progress(transient=True) as progress:
             task1 = progress.add_task(f"[green]{task_name}...",
                                       total=total_steps)
