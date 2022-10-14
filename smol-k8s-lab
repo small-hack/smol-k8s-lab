@@ -470,7 +470,7 @@ def main(k8s: str,
     if kyverno:
         install_kyverno()
 
-    # then install argo CD :D
+    # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱
     if argo:
         argo_cd_domain = input_variables['domains']['argo_cd']
         configure_argocd(argo_cd_domain, password_manager)
@@ -479,8 +479,8 @@ def main(k8s: str,
     print("")
     CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
                         f"[b]export KUBECONFIG={HOME_DIR}/.kube/kubeconfig",
-                        title='[green]₍ᐢ•ﻌ•ᐢ₎っSuccess ♥',
-                        subtitle='[cyan]Have a nice day ♥'))
+                        title='[green]◝(ᵔᵕᵔ)◜ Success!',
+                        subtitle='[cyan]♥ Have a nice day ₍ᐢ•ﻌ•ᐢ₎っ'))
 
 
 if __name__ == '__main__':
