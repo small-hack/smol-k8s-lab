@@ -13,9 +13,9 @@ Example:
         bw.lock()
 """
 import base64
-from getpass import getpass
 import json
 import logging
+from rich.prompt import Prompt
 from rich.logging import RichHandler
 from .subproc import subproc
 FORMAT = "%(message)s"
@@ -56,8 +56,8 @@ class BwCLI():
         """
         log.info('Unlocking the Bitwarden vault...')
 
-        password_prompt = 'Enter your Bitwarden Password: '
-        password = getpass(prompt=password_prompt, stream=None)
+        password = Prompt.ask("Enter your Bitwarden vault password.",
+                              password=False)
 
         self.session = subproc([f"bw unlock {password} --raw"], False, False,
                                False)
