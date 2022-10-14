@@ -328,6 +328,7 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
                         'hosts': [argo_cd_grpc_domain],
                         'tls': [{'hosts': [argo_cd_grpc_domain]}]}}}
     """
+    header("Installing 🦑 Argo CD...")
     # this is the base python dict for the values.yaml that is created below
     val = {'dex': {'enabled': 'false'},
            'configs': {'secret': {'argocdServerAdminPassword': ""}},
@@ -361,7 +362,6 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
         # this gets passed to the helm cli, but is bcrypted
         val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
 
-    header("Installing 🦑 Argo CD...")
     # this creates a values.yaml from from the val dict above
     values_file_name = '/tmp/smol-k8s-lab/argocd_values.yaml'
     with open(values_file_name, 'w') as values_file:
@@ -488,7 +488,9 @@ def main(k8s: str,
     CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
                         f"[b]export KUBECONFIG={HOME_DIR}/.kube/kubeconfig",
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
-                        subtitle='♥ [cyan]Have a nice day[/] ₍ᐢ•ﻌ•ᐢ₎っ'))
+                        subtitle='♥ [cyan]Have a nice day[/] ₍ᐢ•ﻌ•ᐢ₎っ',
+                        border_style="cornflower_blue"))
+    print("")
 
 
 if __name__ == '__main__':

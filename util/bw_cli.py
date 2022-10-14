@@ -56,7 +56,7 @@ class BwCLI():
         """
         log.info('Unlocking the Bitwarden vault...')
 
-        password = Prompt.ask("[cyan]Enter your Bitwarden vault password:",
+        password = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
                               password=True)
 
         self.session = subproc([f"bw unlock {password} --raw"], False, False,
