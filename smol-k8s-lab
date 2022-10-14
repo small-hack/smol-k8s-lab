@@ -488,7 +488,7 @@ def main(k8s: str,
     CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
                         f"[b]export KUBECONFIG={HOME_DIR}/.kube/kubeconfig",
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
-                        subtitle='[cyan]♥ Have a nice day ₍ᐢ•ﻌ•ᐢ₎っ'))
+                        subtitle='♥ [cyan]Have a nice day[/] ₍ᐢ•ﻌ•ᐢ₎っ'))
 
 
 if __name__ == '__main__':
