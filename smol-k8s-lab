@@ -315,7 +315,8 @@ def configure_external_secrets(external_secrets_config):
     return
 
 
-def configure_argocd(argo_cd_domain="", password_manager=False):
+def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
+                     password_manager=False):
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
@@ -334,11 +335,15 @@ def configure_argocd(argo_cd_domain="", password_manager=False):
                    'enabled': 'true',
                    'ingressClassName': 'nginx',
                    'hosts': [argo_cd_domain],
+                   'tls': {'hosts': [argo_cd_grpc_domain]},
                    'annotations': {
                        "nginx.ingress.kubernetes.io/force-ssl-redirect": True,
-                       "nginx.ingress.kubernetes.io/ssl-passthrough": True,
-                       "nginx.ingress.kubernetes.io/backend-protocal": 'HTTPS'
-                   }}}}
+                       "nginx.ingress.kubernetes.io/backend-protocal": 'HTTP'}
+               },
+               # ingress resource 4 the Argo CD srvr 4 dedicated [gRPC-ingress]
+               'ingressGrpc': {'enabled': True,
+                               'hosts': [argo_cd_grpc_domain],
+                               'tls': {'hosts': [argo_cd_grpc_domain]}}}}
 
     # if we're using a password manager, generate a password & save it
     if password_manager:
@@ -473,7 +478,8 @@ def main(k8s: str,
     # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱
     if argo:
         argo_cd_domain = input_variables['domains']['argo_cd']
-        configure_argocd(argo_cd_domain, password_manager)
+        argo_cd_grpc_domain = input_variables['domains']['argo_cd_grpc']
+        configure_argocd(argo_cd_domain, argo_cd_grpc_domain, password_manager)
 
     # we're done :D
     print("")

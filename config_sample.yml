@@ -1,6 +1,7 @@
 ---
 domains:
   argo_cd: "argocd.coolwebsitefordogs.com"
+  argo_cd_grpc: "grpc.argocd.coolwebsitefordogs.com"
 
 # these HAVE to be full CIDR notation
 metallb_address_pool:
