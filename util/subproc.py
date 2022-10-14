@@ -75,7 +75,7 @@ def subproc(commands=[], error_ok=False, output=True, spinner=True,
         if not spinner:
             output = run_subprocess(cmd, error_ok, output, env_vars)
         else:
-            with console.status(status_line) as status:
+            with console.status(status_line, spinner="arrow3") as status:
                 output = run_subprocess(cmd, error_ok, output, env_vars)
 
     return output
