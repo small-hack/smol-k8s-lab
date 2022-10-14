@@ -343,7 +343,7 @@ def install_argocd(argo_cd_domain="", password_manager=False):
             'server.ingress.enabled': 'true',
             'server.ingress.ingressClassName': 'nginx',
             'server.ingress.hosts[0]': argo_cd_domain,
-            'server.extra[0]': '--insecure'}
+            'server.insecure': 'true'}
 
     # if we're using a password manager, generate a password & save it
     if password_manager:
