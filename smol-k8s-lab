@@ -107,15 +107,14 @@ def delete_cluster(k8s_distro="k3s"):
     """
     Delete a KIND or K3s cluster entirely.
     """
-    header(f"ヾ(^_^) byebye {k8s_distro}!!")
+    header(f"Bye bye, [b]{k8s_distro}[/b]!")
 
     if k8s_distro == 'k3s':
         subproc(['k3s-uninstall.sh'], True, True, False)
     elif k8s_distro == 'kind':
         subproc(['kind delete cluster'])
     else:
-        header("┌（・Σ・）┘≡З  Whoops. {k8s_distro} not YET supported.")
-
+        header("┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
     exit()
 
 
@@ -205,7 +204,10 @@ def apply_manifests(manifest_file_name="", namespace="default", deployment="",
 
 def configure_metallb(address_pool=[]):
     """
-    metallb is special because it has Custom Resources
+    metallb is special because it has Custom Resources:
+        IPaddressPool and L2Advertisement
+    Requires and accepts one arg:
+        address_pool - list of IP addresses - default: []
     """
 
     # install manifest and wait
@@ -243,13 +245,13 @@ def configure_ingress_nginx(k8s_distro="k3s"):
                         "app.kubernetes.io/component=controller")
     else:
         # you need these to access webpages from outside the cluster
-        nginx_chart_opts = {'hostNetwork': 'true',
-                            'hostPort.enabled': 'true'}
+        # nginx_chart_opts = {'hostNetwork': 'true',
+        #                     'hostPort.enabled': 'true'}
 
         release = helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
-                             namespace='ingress-nginx',
-                             set_options=nginx_chart_opts)
+                             namespace='ingress-nginx')
+        # set_options=nginx_chart_opts)
         release.install()
     return
 
