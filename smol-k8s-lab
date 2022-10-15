@@ -497,7 +497,7 @@ def main(k8s: str,
     # we're done :D
     print("")
     CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
-                        f"[b]export KUBECONFIG={HOME_DIR}/.kube/kubeconfig",
+                        f"[b]export KUBECONFIG={HOME_DIR}/.kube/kubeconfig\n",
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
                         subtitle='♥ [cyan]Have a nice day[/] ♥',
                         border_style="cornflower_blue"))
