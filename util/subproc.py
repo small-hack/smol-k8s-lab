@@ -6,16 +6,25 @@ even if you don't actually output anything from stdout/stderr of the command.
 import logging
 from subprocess import Popen, PIPE
 from rich.console import Console
-from rich.theme import Theme
+from rich.highlighter import RegexHighlighter
 from rich.logging import RichHandler
+from rich.theme import Theme
 from os import environ
 
 
 # console logging
+class OptionHighlighter(RegexHighlighter):
+    highlights = [r"(?P<switch>\-\w)",
+                  r"(?P<option>\-\-[\w\-]+)"]
+
+
+highlighter = OptionHighlighter()
 soft_theme = Theme({"info": "dim cornflower_blue",
                     "warn": "bold black on yellow",
-                    "danger": "bold magenta"})
-console = Console(theme=soft_theme)
+                    "danger": "bold magenta",
+                    "option": "cornflower_blue",
+                    "switch": "light_sky_blue1"})
+console = Console(theme=soft_theme, highlighter=highlighter)
 # all logging
 FORMAT = "%(message)s"
 logging.basicConfig(level="INFO", format=FORMAT, datefmt="[%X]",
@@ -70,7 +79,8 @@ def subproc(commands=[], error_ok=False, output=True, spinner="aesthetic",
             status_line = " ".join([msg, cmd_parts[1], '[dim]...'])
         status_line += '\n'
 
-        log.info(status_line, extra={"markup": True})
+        log.info(status_line, extra={"markup": True,
+                                     "highlighter": highlighter})
         # Sometimes we need to not use a little loading bar
         if not spinner:
             output = run_subprocess(cmd, error_ok, output, env_vars)
@@ -92,8 +102,11 @@ def run_subprocess(cmd="", error_ok=False, output=True, env_vars={}):
         env_vars - dict, environmental variables for shell
         error_ok - bool, catch errors, defaults to False
     """
-    p = Popen(cmd.split(), env=env_vars, stdout=PIPE, stderr=PIPE)
-    res = p.communicate()
+    try:
+        p = Popen(cmd.split(), env=env_vars, stdout=PIPE, stderr=PIPE)
+        res = p.communicate()
+    except Exception as e:
+        log.error(str(e))
     return_code = p.returncode
     res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
     if output:
