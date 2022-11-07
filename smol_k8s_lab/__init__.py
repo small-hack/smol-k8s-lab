@@ -20,11 +20,11 @@ import stat
 from sys import exit
 from yaml import dump, safe_load
 # custom local libraries
-from util.homelabHelm import helm
-from util.subproc import subproc
-from util.logging import simple_loading_bar, header, sub_header
-from util.rich_click import RichCommand
-from util.bw_cli import BwCLI
+from .homelabHelm import helm
+from .subproc import subproc
+from .logging import simple_loading_bar, header, sub_header
+from .rich_click import RichCommand
+from .bw_cli import BwCLI
 
 
 # for console AND file logging
