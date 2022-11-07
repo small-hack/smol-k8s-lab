@@ -10,3 +10,8 @@ config.yml
 
 # when we do brew installs with a bundle file, we get this
 deps/Brewfile.lock.json
+
+# python building
+smol_k8s_lab.egg-info/**
+dist/**
+build/**

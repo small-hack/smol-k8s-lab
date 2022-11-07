@@ -3,20 +3,16 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 some pretty printing of the help :)
 """
-import logging
+import logging as log
 # this is for rich text, to pretty print things
 from rich import print
 from rich.console import Console
 from rich.progress import Progress
-from rich.logging import RichHandler
+
 # custom lib
 from .subproc import subproc
+
 from time import sleep
-FORMAT = "%(message)s"
-logging.basicConfig(
-    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-)
-log = logging.getLogger("rich")
 
 # for console logging only
 CONSOLE = Console()
