@@ -3,11 +3,10 @@ Using Textualize's rich library to pretty print subprocess outputs,
 so during long running commands, the user isn't wondering what's going on,
 even if you don't actually output anything from stdout/stderr of the command.
 """
-import logging
+import logging as log
 from subprocess import Popen, PIPE
 from rich.console import Console
 from rich.theme import Theme
-from rich.logging import RichHandler
 from os import environ
 
 
@@ -16,11 +15,6 @@ soft_theme = Theme({"info": "dim cornflower_blue",
                     "warn": "bold black on yellow",
                     "danger": "bold magenta"})
 console = Console(theme=soft_theme)
-# all logging
-FORMAT = "%(message)s"
-logging.basicConfig(level="INFO", format=FORMAT, datefmt="[%X]",
-                    handlers=[RichHandler()])
-log = logging.getLogger("rich")
 
 
 def basic_syntax(bash_string=""):

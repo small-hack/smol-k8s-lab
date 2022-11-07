@@ -10,19 +10,22 @@ import logging
 from os import chmod, getenv, path, remove
 from pathlib import Path
 import requests
+
 # to pretty print things
 from rich.theme import Theme
 from rich.console import Console
 from rich.panel import Panel
 from rich.logging import RichHandler
+
 import shutil
 import stat
 from sys import exit
 from yaml import dump, safe_load
+
 # custom local libraries
 from .homelabHelm import helm
 from .subproc import subproc
-from .logging import simple_loading_bar, header, sub_header
+from .console_logging import simple_loading_bar, header, sub_header
 from .rich_click import RichCommand
 from .bw_cli import BwCLI
 
@@ -173,6 +176,7 @@ def apply_custom_resources(custom_resource_dict_list):
     """
     k_cmd = 'kubectl apply --wait -f '
     commands = {}
+
     # Write a YAML representation of data to '/tmp/{resource_name}.yaml'.
     for custom_resource_dict in custom_resource_dict_list:
         resource_name = "_".join([custom_resource_dict['kind'],
@@ -211,6 +215,7 @@ def configure_metallb(address_pool=[]):
     """
     u = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.6/config/"
          "manifests/metallb-native.yaml")
+
     # install manifest and wait
     apply_manifests(u, "metallb-system", "controller", "component=controller")
 
@@ -239,14 +244,14 @@ def configure_ingress_nginx(k8s_distro="k3s"):
     # nginx_chart_opts = {'hostNetwork': 'true','hostPort.enabled': 'true'}
     # set_options=nginx_chart_opts)
     """
+    url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/'
+           'deploy/static/provider/kind/deploy.yaml')
+
     if k8s_distro == 'kind':
-        u = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/'
-             'deploy/static/provider/kind/deploy.yaml')
         # this is to wait for the deployment to come up
-        apply_manifests(u, "ingress-nginx", "ingress-nginx-controller",
+        apply_manifests(url, "ingress-nginx", "ingress-nginx-controller",
                         "app.kubernetes.io/component=controller")
     else:
-
         release = helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
                              namespace='ingress-nginx')
@@ -258,6 +263,7 @@ def configure_cert_manager(email_addr):
     """
     installs cert-manager helm chart and letsencrypt-staging clusterissuer
     """
+
     # install chart and wait
     release = helm.chart(release_name='cert-manager',
                          chart_name='jetstack/cert-manager',
@@ -287,6 +293,7 @@ def configure_external_secrets(external_secrets_config):
     Accepts dict as arg:
     dict = {'namespace': 'somenamespace', 'access_token': 'tokenhere'}
     """
+
     header("Installing External Secrets Operator...")
     release = helm.chart(release_name='external-secrets-operator',
                          chart_name='external-secrets/external-secrets',
@@ -411,10 +418,10 @@ def install_kyverno():
         is_flag=True,
         help='Install the external secrets operator to pull secrets from '
              'somewhere else, so far only supporting gitlab.')
-@option('--file', '-f',
-        metavar="FILE",
+@option('--config', '-c',
+        metavar="CONFIG_FILE",
         type=str,
-        default='./config.yml',
+        default='config/config.yml',
         help='Full path and name of yml to parse.\n'
              'Example: -f [light_steel_blue]/tmp/config.yml[/]')
 @option('--kyverno',
@@ -434,7 +441,7 @@ def main(k8s: str,
          argo: bool = False,
          delete: bool = False,
          external_secret_operator: bool = False,
-         file: str = "",
+         config: str = "",
          kyverno: bool = False,
          k9s: bool = False,
          password_manager: bool = False):
@@ -454,7 +461,7 @@ def main(k8s: str,
         delete_cluster(k8s)
 
     # load in config file
-    with open(file, 'r') as yaml_file:
+    with open(config, 'r') as yaml_file:
         input_variables = safe_load(yaml_file)
 
     # make sure the tmp directory exists, to store stuff
@@ -488,7 +495,7 @@ def main(k8s: str,
     if kyverno:
         install_kyverno()
 
-    # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱
+    # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
     if argo:
         argo_cd_domain = input_variables['domains']['argo_cd']
         argo_cd_grpc_domain = input_variables['domains']['argo_cd_grpc']
