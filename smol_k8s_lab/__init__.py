@@ -3,6 +3,7 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 Works with k3s and KinD
 """
+
 import bcrypt
 from click import option, argument, command
 from collections import OrderedDict
@@ -37,13 +38,14 @@ logging.basicConfig(
 )
 log = logging.getLogger("rich")
 
-PWD = path.dirname(__file__)
-HOME_DIR = getenv("HOME")
 # this is for rich text, to pretty print things
 soft_theme = Theme({"info": "dim cornflower_blue",
                     "warn": "yellow on black",
                     "danger": "bold magenta"})
 CONSOLE = Console(theme=soft_theme)
+
+PWD = path.dirname(__file__)
+HOME_DIR = getenv("HOME")
 
 
 def install_k8s_distro(k8s_distro=""):
@@ -421,7 +423,7 @@ def install_kyverno():
 @option('--config', '-c',
         metavar="CONFIG_FILE",
         type=str,
-        default='config/config.yml',
+        default=path.join(HOME_DIR, '.config/smol_k8s_lab/config.yml'),
         help='Full path and name of yml to parse.\n'
              'Example: -f [light_steel_blue]/tmp/config.yml[/]')
 @option('--kyverno',
@@ -461,8 +463,11 @@ def main(k8s: str,
         delete_cluster(k8s)
 
     # load in config file
-    with open(config, 'r') as yaml_file:
-        input_variables = safe_load(yaml_file)
+    try:
+        with open(config, 'r') as yaml_file:
+            input_variables = safe_load(yaml_file)
+    except FileNotFoundError:
+        log.error("Expected config file, {config}, but it was not found")
 
     # make sure the tmp directory exists, to store stuff
     Path("/tmp/smol-k8s-lab").mkdir(exist_ok=True)
