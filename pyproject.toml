@@ -1,0 +1,43 @@
+[project]
+name = "smol_k8s_lab"
+version= "0.8.17_a0"
+description = "bootstrap simple projects on kubernetes with kind and k3s"
+readme = {file = "README.md"}
+requires-python = ">=3.10"
+license = {file = "LICENSE.txt"}
+keywords = ["kubernetes", "homelab", "kind", "k3s", "k8s"]
+authors = [{name = "Jesse Hitch", email = "jessebot@linux.com"}]
+maintainers = [{name = "Jesse Hitch", email = "jessebot@linux.com"}]
+classifiers = ["Development Status :: 3 - Alpha"
+               "Programming Language :: Python :: 3.10"
+               "Operating System :: MacOS :: MacOS X",
+               "Operating System :: POSIX :: Linux",
+               "Intended Audience :: End Users/Desktop",
+               "Topic :: System :: Installation/Setup",
+               "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"
+]
+
+dependencies = ["PyYAML",
+                "rich",
+                "click",
+                "bcrypt",
+                "requests"
+]
+
+[project.urls]
+homepage = "https://jessebot.github.io/smol_k8s_lab"
+documentation = "https://jessebot.github.io/smol_k8s_lab"
+repository = "http://github.com/jessebot/smol_k8s_lab"
+tracker = "http://github.com/jessebot/smol_k8s_lab/issues"
+
+[project.scripts]
+smol-k8s-lab = "smol_k8s_lab:main"
+
+[project.entry-points."smol-k8s-lab"]
+smol-k8s-lab = "smol_k8s_lab:main"
+
+# These were from setup.py and never converted:
+# packages=['smol_k8s_lab'],
+# data_files=[('config', ['config/config_sample.yml'])],
+# include_package_data=True,
+# zip_safe=False)
