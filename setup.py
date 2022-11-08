@@ -1,3 +1,5 @@
+# set of smol_k8s_lab
+
 from setuptools import setup
 
 
@@ -11,7 +13,6 @@ def readme():
 
 lic_class = ('License :: OSI Approved :: GNU Affero General Public License v3'
              ' or later (AGPLv3+)')
-
 
 setup(name='smol_k8s_lab',
       description='bootstrap simple projects on kubernetes with kind and k3s',

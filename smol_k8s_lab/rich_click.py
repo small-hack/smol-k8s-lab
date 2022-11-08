@@ -1,4 +1,5 @@
 # file for rich printing
+
 import click
 from rich.console import Console
 from rich.highlighter import RegexHighlighter
