@@ -32,10 +32,11 @@ from .bw_cli import BwCLI
 
 
 # for console AND file logging
-FORMAT = "%(message)s"
-logging.basicConfig(
-    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-)
+log_config = {"level": "INFO",
+              "format": "%(message)s",
+              "datefmt": "[%X]",
+              "handlers": [RichHandler()]}
+logging.basicConfig(**log_config)
 log = logging.getLogger("rich")
 
 # this is for rich text, to pretty print things
@@ -81,14 +82,20 @@ def install_k3s_cluster():
 
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
+
     # Grab the kubeconfig and copy it locally
     cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {HOME_DIR}/.kube/kubeconfig'
+
     # change the permissions os that it doesn't complain
     chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
+
     # run both commands one after the other
     subproc([cp, chmod_cmd], False, True)
+
     # remove the script after we're done
     remove('./install.sh')
+
+    return
 
 
 def install_kind_cluster():
@@ -97,12 +104,12 @@ def install_kind_cluster():
     """
     # make sure kind is installed first, and if not, install it
     if not shutil.which("kind"):
-        msg = ("ʕ•́ᴥ•̀ʔ [b]Kind[/b] is [warn]not installed[/warn]. "
+        msg = ("ʕ•́ᴥ•̀ʔ [b]kind[/b] is [warn]not installed[/warn]. "
                "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
         CONSOLE.print(msg, justify='center')
         subproc(['brew install kind'])
-    # then use our pre-configured kind file to install a small cluster
 
+    # then use our pre-configured kind file to install a small cluster
     full_path = path.join(PWD, 'distros/kind/kind_cluster_config.yaml')
     subproc([f"kind create cluster --config={full_path}"])
     return
@@ -116,8 +123,10 @@ def delete_cluster(k8s_distro="k3s"):
 
     if k8s_distro == 'k3s':
         subproc(['k3s-uninstall.sh'], True, True, False)
+
     elif k8s_distro == 'kind':
         subproc(['kind delete cluster'])
+
     else:
         header("┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
     exit()
@@ -138,10 +147,13 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
     repos['metallb'] = 'https://metallb.github.io/metallb'
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
+
     if external_secrets:
         repos['external-secrets'] = 'https://charts.external-secrets.io'
+
     if argo:
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
+
     if kyverno:
         repos['kyverno'] = 'https://kyverno.github.io/kyverno/'
 
