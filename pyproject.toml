@@ -1,6 +1,6 @@
 [project]
 name = "smol_k8s_lab"
-version= "0.8.17_a0"
+version = "0.8.17_a0"
 description = "bootstrap simple projects on kubernetes with kind and k3s"
 readme = {file = "README.md"}
 requires-python = ">=3.10"
@@ -16,7 +16,6 @@ classifiers = ["Development Status :: 3 - Alpha",
                "Topic :: System :: Installation/Setup",
                "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"
 ]
-
 dependencies = ["PyYAML",
                 "rich",
                 "click",
@@ -45,7 +44,7 @@ smol-k8s-lab = "smol_k8s_lab:main"
 # poetry specific things:
 
 [tool.poetry]
-name = "poetry-demo"
+name = "smol_k8s_lab"
 version= "0.8.17_a0"
 description = "bootstrap simple projects on kubernetes with kind and k3s"
 authors = ["Jesse Hitch <jessebot@linux.com>"]
