@@ -1,0 +1,18 @@
+---
+domains:
+  base: "coolwebsite4dogs.com"
+  argo_cd: "argocd"
+  argo_cd_grpc: "grpc.argocd"
+
+# these HAVE to be full CIDR notation
+metallb_address_pool:
+  - 192.168.90.01/32
+  - 192.168.90.02/32
+  - 192.168.90.03/32
+
+email: "coolemailfordogs@coolwebsite4dogs.com"
+
+external_secrets:
+  gitlab:
+    access_token: "kjdfsk758934fkldsafds"
+    namespace: "nextcloud"
