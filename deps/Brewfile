@@ -16,9 +16,6 @@ brew "krew"
 # k8s dashboard
 brew "k9s"
 
-# fuzzy finder
-brew "fzf"
-
 # for Argo CD command line interface
 brew "argocd"
 
