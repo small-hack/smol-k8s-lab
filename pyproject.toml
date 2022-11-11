@@ -32,6 +32,12 @@ bcrypt   = "^4.0.1"
 requests = "^2.28.1"
 pyyaml   = "^6.0"
 
+[tools.poetry.plugins."smol_k8s_lab.application.plugin"]
+"smol-k8s-lab" = "smol_k8s_lab:main"
+
+[tool.poetry.scripts]
+smol-k8s-lab = 'smol_k8s_lab:main'
+
 [build-system]
 requires      = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
