@@ -4,6 +4,8 @@ from os import getenv, path, uname
 
 # rich helps pretty print everything
 from rich.prompt import Confirm
+from rich.live import Live
+from rich.table import Table
 import yaml
 
 # custom lib
@@ -57,17 +59,38 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
                     "[cornflower_blue]Compatibility Check")
 
 
+def generate_table() -> Table:
+    """Make a new table."""
+    table = Table()
+    table.add_column("Parameter")
+    table.add_column("Value")
+
+    table.add_row("")
+    return table
+
+
+def create_new_config():
+    """
+    interactive create new config
+    """
+
+    with Live(generate_table(), refresh_per_second=4) as live:
+        live.update(generate_table())
+
+        return
+
+
 def process_configs():
     """
     process the config in ~/.config/smol_k8s_lab/config.yaml if it exists,
     then process the cli dict, and fill in defaults for anything not explicitly
     defined. Returns full final config as dict for use in script.
     """
-    cli_dict = {}
 
-    log.debug(f"cli_dict is:\n{cli_dict}\n", extra={"markup": True})
     if USR_CONFIG_FILE:
         log.debug(f"🗂 ⚙️  user_config_file: \n{USR_CONFIG_FILE}\n",
                   extra={"markup": True})
+    else:
+        USR_CONFIG_FILE = create_new_config()
 
-    return
+    return USR_CONFIG_FILE
