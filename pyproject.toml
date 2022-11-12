@@ -21,9 +21,6 @@ classifiers   = ["Development Status :: 3 - Alpha",
 [tool.poetry.urls]
 "Bug Tracker" = "http://github.com/jessebot/smol_k8s_lab/issues"
 
-[tool.poetry.scripts]
-smol-k8s-lab = "smol_k8s_lab:main"
-
 [tool.poetry.dependencies]
 python   = ">=3.10,<4.0.0"
 rich     = "^12.6.0"
@@ -36,7 +33,7 @@ pyyaml   = "^6.0"
 "smol-k8s-lab" = "smol_k8s_lab:main"
 
 [tool.poetry.scripts]
-smol-k8s-lab = 'smol_k8s_lab:main'
+smol-k8s-lab = "smol_k8s_lab:main"
 
 [build-system]
 requires      = ["poetry-core"]
