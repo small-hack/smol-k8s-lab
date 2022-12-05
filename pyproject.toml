@@ -11,7 +11,7 @@ repository    = "http://github.com/jessebot/smol_k8s_lab"
 documentation = "https://jessebot.github.io/smol_k8s_lab"
 keywords      = ["kubernetes", "homelab", "kind", "k3s", "k8s"]
 classifiers   = ["Development Status :: 3 - Alpha",
-                 "Programming Language :: Python :: 3.10",
+                 "Programming Language :: Python :: 3.11",
                  "Operating System :: MacOS :: MacOS X",
                  "Operating System :: POSIX :: Linux",
                  "Intended Audience :: End Users/Desktop",
@@ -29,6 +29,12 @@ bcrypt   = "^4.0.1"
 requests = "^2.28.1"
 pyyaml   = "^6.0"
 
+[[tool.poetry.source]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+default = false
+secondary = false
+
 [tools.poetry.plugins."smol_k8s_lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
 
@@ -38,3 +44,6 @@ smol-k8s-lab = "smol_k8s_lab:main"
 [build-system]
 requires      = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.urls]
+"Bug Tracker" = "http://github.com/jessebot/smol_k8s_lab/issues"
