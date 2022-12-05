@@ -7,6 +7,7 @@ Works with k3s and KinD
 import bcrypt
 from click import option, argument, command
 from collections import OrderedDict
+from importlib.metadata import version as get_version
 import logging
 from os import chmod, getenv, path, remove
 from pathlib import Path
@@ -451,6 +452,7 @@ def install_kyverno():
         help='Store generated admin passwords directly into your password '
              'manager. Right now, this defaults to Bitwarden and requires you'
              ' to input your vault password to unlock the vault temporarily.')
+@option('--version', is_flag=True, help='print version of the smol k8s lab.')
 def main(k8s: str,
          argo: bool = False,
          delete: bool = False,
@@ -458,11 +460,16 @@ def main(k8s: str,
          config: str = "",
          kyverno: bool = False,
          k9s: bool = False,
-         password_manager: bool = False):
+         password_manager: bool = False,
+         version: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
     """
+    # only return the version if --version was passed in
+    if version:
+        print(f'\n🎉 v{get_version("smol_k8s_lab")}\n')
+        return True
 
     # make sure we got a valid k8s distro
     if k8s not in ['k3s', 'kind']:
