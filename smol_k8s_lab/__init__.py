@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3.11
 """
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 Works with k3s and KinD
