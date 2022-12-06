@@ -14,7 +14,7 @@ from .console_logging import print_panel
 
 def load_yaml(yaml_config_file=""):
     """
-    load config yaml files for smol_k8s_lab and return as dicts
+    load config yaml files for smol-k8s-lab and return as dicts
     """
     if path.exists(yaml_config_file):
         with open(yaml_config_file, 'r') as yaml_file:
@@ -29,7 +29,7 @@ PWD = path.dirname(__file__)
 HOME_DIR = getenv("HOME")
 
 # defaults
-USR_CONFIG_FILE = load_yaml(f'{HOME_DIR}/.config/smol_k8s_lab/config.yaml')
+USR_CONFIG_FILE = load_yaml(f'{HOME_DIR}/.config/smol-k8s-lab/config.yaml')
 
 # env
 SYSINFO = uname()
@@ -82,7 +82,7 @@ def create_new_config():
 
 def process_configs():
     """
-    process the config in ~/.config/smol_k8s_lab/config.yaml if it exists,
+    process the config in ~/.config/smol-k8s-lab/config.yaml if it exists,
     then process the cli dict, and fill in defaults for anything not explicitly
     defined. Returns full final config as dict for use in script.
     """

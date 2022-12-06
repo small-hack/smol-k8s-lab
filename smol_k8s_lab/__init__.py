@@ -465,14 +465,14 @@ def install_kyverno():
 @command(cls=RichCommand)
 @argument("k8s", metavar="<k3s OR kind>", default="")
 @option('--argo', '-a', is_flag=True, help=HELP['argo'])
-@option('--delete', is_flag=True, help=HELP['delete'])
+@option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--external_secret_operator', '-e', is_flag=True,
         help=HELP['external_secret_operator'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
-        default=path.join(HOME_DIR, '.config/smol_k8s_lab/config.yml'),
+        default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yml'),
         help=HELP['config'])
-@option('--kyverno', is_flag=True, help=HELP['kyverno'])
-@option('--k9s', is_flag=True, help=HELP['k9s'])
+@option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
+@option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
 @option('--password_manager', '-p', is_flag=True,
         help=HELP['password_manager'])
 @option('--version', is_flag=True, help=HELP['version'])
@@ -492,7 +492,7 @@ def main(k8s: str,
 
     # only return the version if --version was passed in
     if version:
-        print(f'\n🎉 v{get_version("smol_k8s_lab")}\n')
+        print(f'\n🎉 v{get_version("smol-k8s-lab")}\n')
         return True
 
     # make sure we got a valid k8s distro

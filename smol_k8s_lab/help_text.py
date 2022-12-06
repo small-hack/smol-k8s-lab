@@ -32,8 +32,9 @@ def options_help():
         'Install Argo CD as part of this script. Defaults to False',
 
         'config':
-        'Full path and name of yml to parse.\n'
-        'Example: -f [light_steel_blue]/tmp/config.yml[/]',
+        'Full path and name of yml to parse.'
+        'Default: ~/.config/smol-k8s-lab/config.yml\n'
+        'Example: smol-k8s-lab -f [light_steel_blue]/tmp/config.yml[/]',
 
         'delete':
         'Delete the existing cluster.',
@@ -75,30 +76,30 @@ class RichCommand(click.Command):
         class OptionHighlighter(RegexHighlighter):
             highlights = [r"(?P<switch>\-\w)",
                           r"(?P<option>\-\-[\w\-]+)",
-                          r"(?P<unstable>[b][e][t][a])"]
+                          r"(?P<unstable>[b][e][t][a])",
+                          r"(?P<skl_title>[s][m][o][l]\-[k][8][s]\-[l][a][b])"]
 
         highlighter = OptionHighlighter()
 
-        console = Console(theme=Theme({"option": "cornflower_blue",
-                                       "switch": "deep_sky_blue1",
+        console = Console(theme=Theme({"option": "light_slate_blue",
+                                       "switch": "sky_blue2",
                                        "meta": "light_steel_blue",
-                                       "unstable": "italic cyan"}),
-                          highlighter=highlighter)
-        # , record=True)
+                                       "skl_title": "cornflower_blue"}),
+                          highlighter=highlighter, record=True)
 
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
                 "\n[i]Installs:[/i] metallb, nginx-ingess-controller, cert-"
                 "manager\n[i]Optionally Installed:[/i] Argo CD, kynervo, "
-                "external secrets operator.")
+                "external secrets operator.\n")
 
         console.print(title + desc, justify="center")
 
-        console.print("\n[b]Usage[/b]: smol-k8s-lab [cornflower_blue]" +
-                      "<k3s OR kind> [royal_blue1][OPTIONS]\n")
+        console.print("[steel_blue]Usage:[/] smol-k8s-lab "
+                      "[meta]<k3s OR kind>[meta/] [option][OPTIONS]\n")
 
         options_table = Table(highlight=True, box=None, show_header=False,
-                              row_styles=["", "dim"],
+                              row_styles=["dim", ""],
                               padding=(1, 1, 0, 0))
 
         for param in self.get_params(ctx)[1:]:
@@ -127,13 +128,13 @@ class RichCommand(click.Command):
 
             options_table.add_row(opt1, opt2, highlighter(help))
 
-        url = "♥ https://jessebot.github.io/smol_k8s_lab/"
+        url = "♥ https://jessebot.github.io/smol-k8s-lab/"
         console.print(Panel(options_table,
-                            border_style="dim light_steel_blue",
+                            border_style="light_steel_blue",
                             title="ʕ ᵔᴥᵔʔ Options",
                             title_align="left",
                             subtitle_align="right",
                             subtitle=url))
 
         # I use this to print a pretty svg at the end sometimes
-        # console.save_svg("docs/screenshots/help_text.svg")
+        console.save_svg("docs/screenshots/help_text.svg")

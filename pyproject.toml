@@ -1,14 +1,14 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "0.9.0"
+version       = "0.9.1"
 description   = "bootstrap simple projects on kubernetes with kind and k3s"
 authors       = ["Jesse Hitch <jessebot@linux.com>"]
 readme        = "README.md"
 packages      = [{include = "smol_k8s_lab"}]
 license       = "AGPL-3.0-or-later"
-homepage      = "https://jessebot.github.io/smol_k8s_lab"
-repository    = "http://github.com/jessebot/smol_k8s_lab"
-documentation = "https://jessebot.github.io/smol_k8s_lab"
+homepage      = "https://jessebot.github.io/smol-k8s-lab"
+repository    = "http://github.com/jessebot/smol-k8s-lab"
+documentation = "https://jessebot.github.io/smol-k8s-lab"
 keywords      = ["kubernetes", "homelab", "kind", "k3s", "k8s"]
 classifiers   = ["Development Status :: 3 - Alpha",
                  "Programming Language :: Python :: 3.11",
@@ -19,7 +19,7 @@ classifiers   = ["Development Status :: 3 - Alpha",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
 
 [tool.poetry.urls]
-"Bug Tracker" = "http://github.com/jessebot/smol_k8s_lab/issues"
+"Bug Tracker" = "http://github.com/jessebot/smol-k8s-lab/issues"
 
 [tool.poetry.dependencies]
 python   = ">=3.11,<4.0.0"
@@ -35,7 +35,7 @@ url = "https://test.pypi.org/simple/"
 default = false
 secondary = false
 
-[tools.poetry.plugins."smol_k8s_lab.application.plugin"]
+[tools.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
 
 [tool.poetry.scripts]
