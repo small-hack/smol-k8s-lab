@@ -3,33 +3,18 @@ Using Textualize's rich library to pretty print subprocess outputs,
 so during long running commands, the user isn't wondering what's going on,
 even if you don't actually output anything from stdout/stderr of the command.
 """
-import logging
+import logging as log
 from subprocess import Popen, PIPE
 from rich.console import Console
-from rich.highlighter import RegexHighlighter
-from rich.logging import RichHandler
 from rich.theme import Theme
 from os import environ
-
-
-# console logging
-class OptionHighlighter(RegexHighlighter):
-    highlights = [r"(?P<switch>\-\w)",
-                  r"(?P<option>\-\-[\w\-]+)"]
 
 
 highlighter = OptionHighlighter()
 soft_theme = Theme({"info": "dim cornflower_blue",
                     "warn": "bold black on yellow",
-                    "danger": "bold magenta",
-                    "option": "cornflower_blue",
-                    "switch": "light_sky_blue1"})
-console = Console(theme=soft_theme, highlighter=highlighter)
-# all logging
-FORMAT = "%(message)s"
-logging.basicConfig(level="INFO", format=FORMAT, datefmt="[%X]",
-                    handlers=[RichHandler()])
-log = logging.getLogger("rich")
+                    "danger": "bold magenta"})
+console = Console(theme=soft_theme)
 
 
 def basic_syntax(bash_string=""):

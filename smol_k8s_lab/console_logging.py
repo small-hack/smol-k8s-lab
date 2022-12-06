@@ -3,23 +3,23 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 some pretty printing of the help :)
 """
-import logging
+import logging as log
 # this is for rich text, to pretty print things
 from rich import print
 from rich.console import Console
+from rich.panel import Panel
 from rich.progress import Progress
-from rich.logging import RichHandler
+from rich.table import Table
+from rich.theme import Theme
+from time import sleep
 # custom lib
 from .subproc import subproc
-from time import sleep
-FORMAT = "%(message)s"
-logging.basicConfig(
-    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-)
-log = logging.getLogger("rich")
+
 
 # for console logging only
-CONSOLE = Console()
+CONSOLE = Console(theme=Theme({"warn": "bold yellow",
+                               "grn": "medium_spring_green",
+                               "ohno": "magenta"}))
 
 
 def header(text):
@@ -30,6 +30,7 @@ def header(text):
     title = f'[b]☁  [/]૮ ・ﻌ・ა [cyan]{text}[/cyan] ʕᵔᴥᵔ ʔ [b]☁ [/]'
     CONSOLE.rule(title, style="cornflower_blue")
     print('')
+    return
 
 
 def sub_header(text, extra_starting_blank_line=True):
@@ -43,6 +44,15 @@ def sub_header(text, extra_starting_blank_line=True):
     title = f'[dim]☁  {text} ☁ [/dim]'
     CONSOLE.print(title, justify="center")
     print('')
+    return
+
+
+def print_msg(text='', alignment='center', style='dim italic'):
+    """
+    prints text centered in the width of the terminal
+    """
+    CONSOLE.print(text, justify=alignment, style=style)
+    return
 
 
 def simple_loading_bar(tasks={}, time_to_wait=120):
@@ -75,4 +85,16 @@ def simple_loading_bar(tasks={}, time_to_wait=120):
                     sleep(.1)
                     break
     print('')
+    return
+
+
+def print_panel(content='', title_txt='', title_alignment='center',
+                border_style="light_steel_blue"):
+    """
+    prints text in a box with a light_steel_blue1 border and title_txt
+    """
+    print('')
+    panel = Panel(content, title=title_txt, title_align=title_alignment,
+                  border_style=border_style)
+    CONSOLE.print(panel)
     return

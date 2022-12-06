@@ -1,7 +1,8 @@
 ---
 domains:
-  argo_cd: "argocd.coolwebsitefordogs.com"
-  argo_cd_grpc: "grpc.argocd.coolwebsitefordogs.com"
+  base: "coolwebsite4dogs.com"
+  argo_cd: "argocd"
+  argo_cd_grpc: "grpc.argocd"
 
 # these HAVE to be full CIDR notation
 metallb_address_pool:
@@ -9,7 +10,7 @@ metallb_address_pool:
   - 192.168.90.02/32
   - 192.168.90.03/32
 
-email: "coolemailfordogs@onlydogs.com"
+email: "coolemailfordogs@coolwebsite4dogs.com"
 
 external_secrets:
   gitlab:
