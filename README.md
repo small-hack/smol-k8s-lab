@@ -41,7 +41,7 @@ We're working on cluster api next :)
 #### Optionally installed
 
 | Application/Tool | What is it? |
-|:-----------------|:------------| 
+|:-----------------|:------------|
 | [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">&nbsp; ESO](https://external-secrets.io/v0.5.9/) | external-secrets-operator integrates external secret management systems like GitLab|
 | [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">&nbsp; Argo CD](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">&nbsp; Kyverno](https://github.com/kyverno/kyverno/) | Kubernetes native policy management to enforce policies on k8s resources |
@@ -59,7 +59,7 @@ Want to get started with argocd? If you've installed it via smol_k8s_lab, then y
 - PyYAML (to handle the k8s yamls and configs)
 - bcrypt (to pass a password to argocd and automatically update your bitwarden)
 - click (handles arguments for the script)
-  
+
 
 ## Troubleshooting
 If you're stuck, checkout the [Notes](https://jessebot.github.io/smol_k8s_lab/notes) to see if we also got stuck on the same thing at some point :) Under each app or tool, we'll have notes on how to learn more about it, as well as any errors we've already battled.
@@ -76,9 +76,9 @@ and pin all the versions, but if you'd like to contribute or just found a :bug:,
 feel free to open an issue (or pull request), and we'll take a look! We'll try
 to get back to you asap!
 
-## Contributions and maintainers
-- [@jessebot](https://github.com/jessebot)
-- [@cloudymax](https://github.com/cloudymax)
+## Collaborators
+<!-- readme: collaborators -start -->
+<!-- readme: collaborators -end -->
 
 ## TODO
 - Configure base policies for Kyverno

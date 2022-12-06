@@ -14,15 +14,9 @@ Example:
 """
 import base64
 import json
-import logging
+import logging as log
 from rich.prompt import Prompt
-from rich.logging import RichHandler
 from .subproc import subproc
-FORMAT = "%(message)s"
-logging.basicConfig(
-    level="INFO", format=FORMAT, datefmt="[%X]", handlers=[RichHandler()]
-)
-log = logging.getLogger("rich")
 
 
 class BwCLI():

@@ -10,14 +10,6 @@
 # Treat unset variables as an error
 set -o nounset
 
-# if `which pip3.10` returns a path
-if [ -n "$(which pip3.10)" ]; then
-    echo -e "\nInstalling python dependencies...\n"
-    pip3.10 install -r requirements.txt
-else
-    echo -e "\nPlease install pip3.10 and rerun the script.\n"
-fi
-
 # if `which brew` returns a path
 if [ -n "$(which brew)" ]; then
     echo -e "\nInstalling/Updating brew dependencies...\n"

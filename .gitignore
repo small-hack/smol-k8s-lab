@@ -1,7 +1,3 @@
-# don't check in the config.yml as that may have private info
-config.yml
-.env
-
 # ignore python cache
 **/__pycache__
 
@@ -10,3 +6,9 @@ config.yml
 
 # when we do brew installs with a bundle file, we get this
 deps/Brewfile.lock.json
+
+# python packaging
+smol_k8s_lab.egg-info/**
+dist/**
+build/**
+poetry.lock
