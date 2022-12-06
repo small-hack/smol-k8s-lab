@@ -10,7 +10,6 @@ from rich.theme import Theme
 from os import environ
 
 
-highlighter = OptionHighlighter()
 soft_theme = Theme({"info": "dim cornflower_blue",
                     "warn": "bold black on yellow",
                     "danger": "bold magenta"})
@@ -64,8 +63,7 @@ def subproc(commands=[], error_ok=False, output=True, spinner="aesthetic",
             status_line = " ".join([msg, cmd_parts[1], '[dim]...'])
         status_line += '\n'
 
-        log.info(status_line, extra={"markup": True,
-                                     "highlighter": highlighter})
+        log.info(status_line, extra={"markup": True})
         # Sometimes we need to not use a little loading bar
         if not spinner:
             output = run_subprocess(cmd, error_ok, output, env_vars)
