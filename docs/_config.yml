@@ -4,11 +4,11 @@ remote_theme: just-the-docs/just-the-docs
 color_scheme: "new_colors"
 search_enabled: true
 permalink: pretty
-url: "https://jessebot.github.io/smol_k8s_lab"
+url: "https://jessebot.github.io/smol-k8s-lab"
 # Aux links for the upper right navigation
 aux_links:
-  "smol_k8s_lab on GitHub":
-    - "//github.com/jessebot/smol_k8s_lab"
+  "smol-k8s-lab on GitHub":
+    - "//github.com/jessebot/smol-k8s-lab"
 
 plugins:
   - jekyll-seo-tag

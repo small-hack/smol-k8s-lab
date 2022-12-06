@@ -7,23 +7,40 @@ permalink: /quickstart
 ---
 
 ## Quickstart for `smol-k8s-lab`
-This is aimed at being a much more scalable experience, but is still being worked on. So far, it works for k3s and kind.
 
-### Pre-Req
-- Python 3.10 (`brew install python3.10`)
+You should be able to use `pip` to install things after you've got the one time
+setup pre-reqs listed below.
+
+<details>
+  <summary>One time Pre-Req</summary>
+- Python 3.11 (`brew install python3.11`)
 - [brew](https://brew.sh)
 - Have internet access.
 
 ```bash
-# install prereqs
+# install prereqs like brew
 ./setup.sh
-# checkout the help :)
+```
+
+</details>
+
+### Installation
+
+```bash
+# this will install smol-k8s-lab using python 3.11
+pip3.11 install smol-k8s-lab
+```
+
+Then you should be able to show the help text :)
+
+```bash
+# this will show the help text
 ./smol-k8s-lab --help
 ```
 
 The help should return this:
 
-[<img src="https://raw.githubusercontent.com/jessebot/smol_k8s_lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol_k8s_lab/main/docs/screenshots/help_text.svg)
+[<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
 
 🔔 Then you *Have To* edit the `config_sample.yml` to be your own values:
 
