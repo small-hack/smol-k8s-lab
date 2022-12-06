@@ -1,15 +1,18 @@
 #!/usr/bin/env python3.11
+
 import logging as log
 from os import getenv, path, uname
 
-# rich helps pretty print everything
 from rich.prompt import Confirm
 from rich.live import Live
 from rich.table import Table
 import yaml
+from .console_logging import print_panel
+
+
+# rich helps pretty print everything
 
 # custom lib
-from .console_logging import print_panel
 
 
 def load_yaml(yaml_config_file=""):
@@ -60,7 +63,9 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
 
 
 def generate_table() -> Table:
-    """Make a new table."""
+    """
+    Make a new table.
+    """
     table = Table()
     table.add_column("Parameter")
     table.add_column("Value")

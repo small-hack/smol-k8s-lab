@@ -1,7 +1,9 @@
 #!/usr/bin/env python3.11
 """
-AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
-Works with k3s and KinD
+           NAME: smol-k8s-lab
+    DESCRIPTION: Works with k3s and KinD
+         AUTHOR: jessebot(AT)linux(d0t)com
+        LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
 
 import bcrypt
@@ -22,19 +24,12 @@ import stat
 from sys import exit
 from yaml import dump, safe_load
 from .console_logging import simple_loading_bar, header, sub_header
+from .env_config import check_os_support, USR_CONFIG_FILE
 from .bw_cli import BwCLI
 from .help_text import RichCommand, options_help
 from .homelabHelm import helm
 from .subproc import subproc
 
-
-# for console AND file logging
-log_config = {"level": "INFO",
-              "format": "%(message)s",
-              "datefmt": "[%X]",
-              "handlers": [RichHandler()]}
-logging.basicConfig(**log_config)
-log = logging.getLogger("rich")
 
 # this is for rich text, to pretty print things
 soft_theme = Theme({"info": "dim cornflower_blue",
@@ -465,24 +460,28 @@ def install_kyverno():
 @command(cls=RichCommand)
 @argument("k8s", metavar="<k3s OR kind>", default="")
 @option('--argo', '-a', is_flag=True, help=HELP['argo'])
-@option('--delete', '-D', is_flag=True, help=HELP['delete'])
-@option('--external_secret_operator', '-e', is_flag=True,
-        help=HELP['external_secret_operator'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
         default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yml'),
         help=HELP['config'])
+@option('--delete', '-D', is_flag=True, help=HELP['delete'])
+@option('--external_secret_operator', '-e', is_flag=True,
+        help=HELP['external_secret_operator'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
+@option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
+        type=Choice(['debug', 'info', 'warn', 'error']))
+@option('--log_file', '-o', metavar='LOGFILE', help=HELP['log_file'])
 @option('--password_manager', '-p', is_flag=True,
         help=HELP['password_manager'])
 @option('--version', is_flag=True, help=HELP['version'])
-def main(k8s: str,
+def main(k8s: str = "",
          argo: bool = False,
+         config: str = "",
          delete: bool = False,
          external_secret_operator: bool = False,
-         config: str = "",
          kyverno: bool = False,
          k9s: bool = False,
+         log_level: str = "",
          password_manager: bool = False,
          version: bool = False):
     """
@@ -500,6 +499,12 @@ def main(k8s: str,
         CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
                       'k8s distro. Please try again with k3s or kind.\n')
         exit()
+
+    # before we do anything, we need to make sure this OS is supported
+    check_os_support()
+
+    # setup logging immediately
+    log = setup_logger(log_level, log_file)
 
     if delete:
         # this exist the script after deleting the cluster
