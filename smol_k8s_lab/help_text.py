@@ -9,6 +9,59 @@ from rich.text import Text
 from rich.theme import Theme
 
 
+def pretty_choices(default_list):
+    """
+    Takes a list of default choices and surrounds them with a meta markup tag
+    and join them with a comma for a pretty return "Choices" string.
+    Example: pretty_choices(['beep', 'boop']) returns:
+             'Choices: [meta]beep[/meta], [meta]boop[/meta]'
+    """
+    defaults = '[/meta], [meta]'.join(default_list)
+    return 'Choices: [meta]' + defaults + '[/meta]'
+
+
+def options_help():
+    """
+    Help text for all the options/switches for main()
+    Returns a dict.
+    """
+    logging_choices = pretty_choices(['DEBUG', 'INFO', 'WARN', 'ERROR'])
+
+    return {
+        'argo':
+        'Install Argo CD as part of this script. Defaults to False',
+
+        'config':
+        'Full path and name of yml to parse.\n'
+        'Example: -f [light_steel_blue]/tmp/config.yml[/]',
+
+        'delete':
+        'Delete the existing cluster.',
+
+        'external_secret_operator':
+        'Install the external secrets operator to pull secrets from somewhere '
+        'else, so far only supporting gitlab.',
+
+        'k9s':
+        'Run k9s as soon as this script is complete. Defaults to False.',
+
+        'kyverno':
+        'beta. Install kyverno, a k8s native policy manager. '
+        'Defaults to False',
+
+        'log_level':
+        f'Logging level. {logging_choices} Default: [meta]WARN[/meta].',
+
+        'password_manager':
+        'Store generated admin passwords directly into your password manager.'
+        'Only Bitwarden currently supported. Requires you to manually enter '
+        'your vault password.',
+
+        'version':
+        'Print the installed version of the smol-k8s-lab'
+        }
+
+
 class RichCommand(click.Command):
     """
     Override Clicks help with a Rich-er version.
@@ -21,12 +74,15 @@ class RichCommand(click.Command):
 
         class OptionHighlighter(RegexHighlighter):
             highlights = [r"(?P<switch>\-\w)",
-                          r"(?P<option>\-\-[\w\-]+)"]
+                          r"(?P<option>\-\-[\w\-]+)",
+                          r"(?P<unstable>[b][e][t][a])"]
 
         highlighter = OptionHighlighter()
 
         console = Console(theme=Theme({"option": "cornflower_blue",
-                                       "switch": "light_sky_blue1"}),
+                                       "switch": "deep_sky_blue1",
+                                       "meta": "light_steel_blue",
+                                       "unstable": "italic cyan"}),
                           highlighter=highlighter)
         # , record=True)
 
