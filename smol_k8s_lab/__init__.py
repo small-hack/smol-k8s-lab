@@ -401,21 +401,20 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
                    'https': True}}}
     """
     header("Installing 🦑 Argo CD...")
+
     # this is the base python dict for the values.yaml that is created below
     val = {'dex': {'enabled': False},
-           'configs': {'secret': {'argocdServerAdminPassword': ""},
-                       'params': {'server.insecure': True}},
+           'configs': {'secret': {'argocdServerAdminPassword': ""}},
            'server': {
                'ingress': {
                    'enabled': True,
-                   'ingressClassName': 'nginx',
                    'hosts': [argo_cd_domain],
                    'annotations': {
+                       "kubernetes.io/ingress.class": "nginx",
+                       "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
                        "cert-manager.io/cluster-issuer": "letsencrypt-staging",
                        "kubernetes.io/tls-acme": True,
-                       "nginx.ingress.kubernetes.io/force-ssl-redirect": True,
                        "nginx.ingress.kubernetes.io/ssl-passthrough": True,
-                       "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS"
                    },
                    'https': True,
                    'tls':  [{'secretName': 'argocd-secret',
@@ -546,9 +545,13 @@ def main(k8s: str,
 
     # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
     if argo:
+        # todo: make less ugly
+        base = input_variables['domains']['base']
         argo_cd_domain = input_variables['domains']['argo_cd']
         argo_cd_grpc_domain = input_variables['domains']['argo_cd_grpc']
-        configure_argocd(argo_cd_domain, argo_cd_grpc_domain, password_manager)
+        argocd_fqdn = ".".join([argo_cd_domain, base])
+        argocd_grpc_fqdn = ".".join([argo_cd_grpc_domain, base])
+        configure_argocd(argocd_fqdn, argocd_grpc_fqdn, password_manager)
 
     # we're done :D
     print("")

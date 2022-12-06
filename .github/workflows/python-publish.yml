@@ -1,38 +1,16 @@
-# This workflow'll upload a Python Package using Twine when a release is created
-# For more information see: http://shorturl.at/rsuyC
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Upload Python Package
-
+---
+name: Python package
 on:
-  release:
-    types: [published]
-
-permissions:
-  contents: read
-
+  push:
+    tags:
+      - "v*.*.*"
 jobs:
-  deploy:
-
+  build_and_publish_to_pypi:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v3
+      - uses: actions/checkout@v2
+      - name: Build and publish to pypi
+        uses: JRubics/poetry-publish@v1.15
         with:
-          python-version: '3.10'
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install build
-      - name: Build package
-        run: python -m build
-      - name: Publish package
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.DEPLOY_FROM_GITHUB_SMOL_K8S_LAB }}
+          python_version: "3.11.0"
+          pypi_token: ${{ secrets.DEPLOY_FROM_GITHUB_TO_PYPI_ONBOARDME }}
