@@ -73,7 +73,7 @@ def simple_loading_bar(tasks={}, time_to_wait=120):
                 progress.update(task1, advance=2)
                 # loops until this succeeds
                 try:
-                    subproc([task_command], False, True, False)
+                    subproc([task_command], spinner=False)
                 except Exception as reason:
                     log.debug(f"Encountered Exception: {reason}")
                     sleep(3)
