@@ -7,9 +7,8 @@
 """
 
 import bcrypt
-from click import option, argument, command
+from click import option, argument, command, Choice
 from collections import OrderedDict
-from importlib.metadata import version as get_version
 import logging
 from os import chmod, getenv, path, remove
 from pathlib import Path
@@ -24,11 +23,14 @@ import stat
 from sys import exit
 from yaml import dump, safe_load
 from .console_logging import simple_loading_bar, header, sub_header
-from .env_config import check_os_support, USR_CONFIG_FILE
+from .env_config import check_os_support, USR_CONFIG_FILE, VERSION
 from .bw_cli import BwCLI
 from .help_text import RichCommand, options_help
 from .homelabHelm import helm
 from .subproc import subproc
+
+
+from smol_k8s_lab.console_logging import log
 
 
 # this is for rich text, to pretty print things
@@ -41,6 +43,7 @@ PWD = path.dirname(__file__)
 HOME_DIR = getenv("HOME")
 HELP = options_help()
 
+HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 def setup_logger(level="", log_file=""):
     """
@@ -457,7 +460,7 @@ def install_kyverno():
 
 
 # an ugly list of decorators, but these are the opts/args for the whole script
-@command(cls=RichCommand)
+@command(cls=RichCommand, context_settings=HELP_SETTINGS)
 @argument("k8s", metavar="<k3s OR kind>", default="")
 @option('--argo', '-a', is_flag=True, help=HELP['argo'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
@@ -473,7 +476,7 @@ def install_kyverno():
 @option('--log_file', '-o', metavar='LOGFILE', help=HELP['log_file'])
 @option('--password_manager', '-p', is_flag=True,
         help=HELP['password_manager'])
-@option('--version', is_flag=True, help=HELP['version'])
+@option('--version', '-v', is_flag=True, help=HELP['version'])
 def main(k8s: str = "",
          argo: bool = False,
          config: str = "",
@@ -482,6 +485,7 @@ def main(k8s: str = "",
          kyverno: bool = False,
          k9s: bool = False,
          log_level: str = "",
+         log_file: str = "",
          password_manager: bool = False,
          version: bool = False):
     """
@@ -491,7 +495,7 @@ def main(k8s: str = "",
 
     # only return the version if --version was passed in
     if version:
-        print(f'\n🎉 v{get_version("smol-k8s-lab")}\n')
+        print(f'\n🎉 v{VERSION}\n')
         return True
 
     # make sure we got a valid k8s distro
