@@ -78,7 +78,7 @@ def subproc(commands=[], **kwargs):
             output = run_subprocess(cmd, **kwargs)
         else:
             with console.status(status_line,
-                                spinner=spinner,
+                                spinner='aesthetic',
                                 speed=0.75) as status:
                 output = run_subprocess(cmd, **kwargs)
 
@@ -100,19 +100,18 @@ def run_subprocess(command, **kwargs):
     quiet = kwargs.pop('quiet', False)
     error_ok = kwargs.pop('error_ok', False)
 
-    log.debug(command)
-    log.debug(kwargs)
     try:
         p = Popen(command.split(), stdout=PIPE, stderr=PIPE, **kwargs)
         res = p.communicate()
     except Exception as e:
-        if error_ok and not quiet:
+        if error_ok:
             log.error(str(e))
+        else:
+            raise Exception(e)
 
     return_code = p.returncode
     res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
-    if not quiet:
-        log.info(res_stdout)
+    log.info(res_stdout)
 
     # check return code, raise error if failure
     if not return_code or return_code != 0:
@@ -122,8 +121,7 @@ def run_subprocess(command, **kwargs):
                 err = f'Return code: "{str(return_code)}". Expected code is 0.'
                 error_msg = f'\033[0;33m{err}\n{output}\033[00m'
                 if error_ok:
-                    if not quiet:
-                        log.error(error_msg)
+                    log.error(error_msg)
                 else:
                     raise Exception(error_msg)
 
