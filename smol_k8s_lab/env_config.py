@@ -1,6 +1,5 @@
 #!/usr/bin/env python3.11
 
-import logging as log
 from importlib.metadata import version as get_version
 from os import getenv, path, uname
 
