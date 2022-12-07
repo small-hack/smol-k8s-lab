@@ -22,14 +22,12 @@ import shutil
 import stat
 from sys import exit
 from yaml import dump, safe_load
-from .console_logging import simple_loading_bar, header, sub_header, print_panel
+from .console_logging import simple_loading_bar, header, sub_header
 from .env_config import check_os_support, USR_CONFIG_FILE, VERSION
 from .bw_cli import BwCLI
 from .help_text import RichCommand, options_help
 from .homelabHelm import helm
 from .subproc import subproc
-
-
 from smol_k8s_lab.console_logging import log
 
 
@@ -313,6 +311,7 @@ def configure_ingress_nginx(k8s_distro="k3s"):
     else:
         release = helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
+                             chart_version='4.4.0',
                              namespace='ingress-nginx')
         release.install()
     return
@@ -326,6 +325,7 @@ def configure_cert_manager(email_addr):
     # install chart and wait
     release = helm.chart(release_name='cert-manager',
                          chart_name='jetstack/cert-manager',
+                         chart_version="1.10.1",
                          namespace='kube-system',
                          set_options={'installCRDs': 'true'})
     release.install(True)
@@ -356,6 +356,7 @@ def configure_external_secrets(external_secrets_config):
     header("Installing External Secrets Operator...")
     release = helm.chart(release_name='external-secrets-operator',
                          chart_name='external-secrets/external-secrets',
+                         chart_version='0.6.1',
                          namespace='external-secrets')
     release.install(True)
 
@@ -378,8 +379,7 @@ def configure_external_secrets(external_secrets_config):
     return
 
 
-def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
-                     password_manager=False):
+def configure_argocd(argo_cd_domain="", password_manager=False):
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
@@ -387,18 +387,6 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
         argo_cd_domain:   str, defaults to "", required
         password_manager: bool, defaults to False, optional
 
-    extra ingress annotations for argocd:
-        'tls': [{'hosts': [argo_cd_domain]}],
-               # ingress resource 4 the Argo CD srvr 4 dedicated [gRPC-ingress]
-               'ingressGrpc': {
-                   'enabled': True,
-                   'ingressClassName': 'nginx',
-                   'hosts': [argo_cd_grpc_domain],
-                   'annotations': {
-                       "nginx.ingress.kubernetes.io/backend-protocol": 'GRPC'},
-                   'tls': [{'hosts': [{argo_cd_grpc_domain: {
-                       'secretName': 'argocd-secret'}}]}],
-                   'https': True}}}
     """
     header("Installing 🦑 Argo CD...")
 
@@ -445,6 +433,7 @@ def configure_argocd(argo_cd_domain="", argo_cd_grpc_domain="",
 
     release = helm.chart(release_name='argo-cd',
                          chart_name='argo-cd/argo-cd',
+                         chart_version='5.16.2',
                          namespace='argocd',
                          values_file=values_file_name)
     release.install(True)
@@ -555,13 +544,9 @@ def main(k8s: str = "",
 
     # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
     if argo:
-        # todo: make less ugly
-        base = input_variables['domains']['base']
-        argo_cd_domain = input_variables['domains']['argo_cd']
-        argo_cd_grpc_domain = input_variables['domains']['argo_cd_grpc']
-        argocd_fqdn = ".".join([argo_cd_domain, base])
-        argocd_grpc_fqdn = ".".join([argo_cd_grpc_domain, base])
-        configure_argocd(argocd_fqdn, argocd_grpc_fqdn, password_manager)
+        argocd_fqdn = ".".join([input_variables['domains']['argo_cd'],
+                                input_variables['domains']['base']])
+        configure_argocd(argocd_fqdn, password_manager)
 
     # we're done :D
     print("")
