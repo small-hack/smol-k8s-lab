@@ -71,10 +71,9 @@ def subproc(commands=[], **kwargs):
             status_line = " ".join([msg, cmd_parts[1], '[dim]...'])
         status_line += '\n'
 
-        log.info(status_line, extra={"markup": True})
-
         # Sometimes we need to not use a little loading bar
         if not spinner:
+            log.info(status_line, extra={"markup": True})
             output = run_subprocess(cmd, **kwargs)
         else:
             with console.status(status_line,
