@@ -1,18 +1,21 @@
 #!/usr/bin/env python3.11
-import logging as log
+
+from importlib.metadata import version as get_version
 from os import getenv, path, uname
 
-# rich helps pretty print everything
 from rich.prompt import Confirm
 from rich.live import Live
 from rich.table import Table
+from sys import exit
 import yaml
-
-# custom lib
 from .console_logging import print_panel
 
 
-def load_yaml(yaml_config_file=""):
+HOME_DIR = getenv("HOME")
+
+
+def load_yaml(yaml_config_file=path.join(HOME_DIR,
+                                         ".config/smol-k8s-lab/config.yaml")):
     """
     load config yaml files for smol-k8s-lab and return as dicts
     """
@@ -20,16 +23,18 @@ def load_yaml(yaml_config_file=""):
         with open(yaml_config_file, 'r') as yaml_file:
             return yaml.safe_load(yaml_file)
     else:
-        log.info(f"Config file we got was not present: {yaml_config_file}")
-        return None
+        print(f"Config file does not exist: {yaml_config_file}")
+        exit()
 
 
 # pathing
 PWD = path.dirname(__file__)
-HOME_DIR = getenv("HOME")
+
+# version of smol-k8s-lab
+VERSION = get_version('smol-k8s-lab')
 
 # defaults
-USR_CONFIG_FILE = load_yaml(f'{HOME_DIR}/.config/smol-k8s-lab/config.yaml')
+USR_CONFIG_FILE = load_yaml()
 
 # env
 SYSINFO = uname()
@@ -43,8 +48,8 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
     """
     if OS[0] not in supported_os:
         offical_supported_list = ", ".join(supported_os)
-        msg = (f"[ohno]{OS[0]}[/ohno] isn't officially supported. We have only"
-               f" tested the following: {offical_supported_list}")
+        msg = (f"[ohno]{OS[0]}[/ohno] isn't officially supported in {VERSION}."
+               f" We have only tested the following: {offical_supported_list}")
         print_panel(msg, "⚠️  [warn]WARNING")
 
         quit_y = Confirm.ask("🌊 You're in uncharted waters. Wanna quit?")
@@ -60,7 +65,9 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
 
 
 def generate_table() -> Table:
-    """Make a new table."""
+    """
+    Make a new table.
+    """
     table = Table()
     table.add_column("Parameter")
     table.add_column("Value")
@@ -88,8 +95,7 @@ def process_configs():
     """
 
     if USR_CONFIG_FILE:
-        log.debug(f"🗂 ⚙️  user_config_file: \n{USR_CONFIG_FILE}\n",
-                  extra={"markup": True})
+        print(f"🗂 ⚙️  user_config_file: \n{USR_CONFIG_FILE}\n")
     else:
         USR_CONFIG_FILE = create_new_config()
 

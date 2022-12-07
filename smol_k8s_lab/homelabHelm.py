@@ -45,8 +45,7 @@ class helm:
             """
             helm repo remove
             """
-            cmd = f'helm repo remove {self.repo_name}'
-            subproc([cmd])
+            subproc([f'helm repo remove {self.repo_name}'])
 
     class chart:
         def __init__(self, **kwargs):

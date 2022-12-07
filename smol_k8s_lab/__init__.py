@@ -1,13 +1,14 @@
 #!/usr/bin/env python3.11
 """
-AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
-Works with k3s and KinD
+           NAME: smol-k8s-lab
+    DESCRIPTION: Works with k3s and KinD
+         AUTHOR: jessebot(AT)linux(d0t)com
+        LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
 
 import bcrypt
-from click import option, argument, command
+from click import option, argument, command, Choice
 from collections import OrderedDict
-from importlib.metadata import version as get_version
 import logging
 from os import chmod, getenv, path, remove
 from pathlib import Path
@@ -21,20 +22,16 @@ import shutil
 import stat
 from sys import exit
 from yaml import dump, safe_load
-from .console_logging import simple_loading_bar, header, sub_header
+from .console_logging import simple_loading_bar, header, sub_header, print_panel
+from .env_config import check_os_support, USR_CONFIG_FILE, VERSION
 from .bw_cli import BwCLI
 from .help_text import RichCommand, options_help
 from .homelabHelm import helm
 from .subproc import subproc
 
 
-# for console AND file logging
-log_config = {"level": "INFO",
-              "format": "%(message)s",
-              "datefmt": "[%X]",
-              "handlers": [RichHandler()]}
-logging.basicConfig(**log_config)
-log = logging.getLogger("rich")
+from smol_k8s_lab.console_logging import log
+
 
 # this is for rich text, to pretty print things
 soft_theme = Theme({"info": "dim cornflower_blue",
@@ -45,11 +42,11 @@ CONSOLE = Console(theme=soft_theme)
 PWD = path.dirname(__file__)
 HOME_DIR = getenv("HOME")
 HELP = options_help()
+HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
 def setup_logger(level="", log_file=""):
     """
-    TODO: make this work, not working yet
     Sets up rich logger and stores the values for it in a db for future import
     in other files. Returns logging.getLogger("rich")
     """
@@ -58,7 +55,7 @@ def setup_logger(level="", log_file=""):
         if USR_CONFIG_FILE and 'log' in USR_CONFIG_FILE:
             level = USR_CONFIG_FILE['log']['level']
         else:
-            level = 'warn'
+            level = 'info'
 
     log_level = getattr(logging, level.upper(), None)
 
@@ -81,6 +78,9 @@ def setup_logger(level="", log_file=""):
             # log the name of the function if we're in debug mode :)
             opts['format'] = "[bold]%(funcName)s()[/bold]: %(message)s"
             rich_handler_opts['markup'] = True
+        else:
+            rich_handler_opts['show_path'] = False
+            rich_handler_opts['show_level'] = False
 
         opts['handlers'] = [RichHandler(**rich_handler_opts)]
 
@@ -122,7 +122,7 @@ def install_k3s_cluster():
     # create the k3s cluster (just one server node)
     cmd = ('./install.sh --disable=servicelb --disable=traefik '
            '--write-kubeconfig-mode=647')
-    subproc([cmd], False, True, False)
+    subproc([cmd], spinner=False)
 
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
@@ -134,7 +134,7 @@ def install_k3s_cluster():
     chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
 
     # run both commands one after the other
-    subproc([cp, chmod_cmd], False, True)
+    subproc([cp, chmod_cmd])
 
     # remove the script after we're done
     remove('./install.sh')
@@ -166,7 +166,7 @@ def delete_cluster(k8s_distro="k3s"):
     header(f"Bye bye, [b]{k8s_distro}[/b]!")
 
     if k8s_distro == 'k3s':
-        subproc(['k3s-uninstall.sh'], True, True, False)
+        subproc(['k3s-uninstall.sh'], error_ok=True, spinner=False)
 
     elif k8s_distro == 'kind':
         subproc(['kind delete cluster'])
@@ -279,7 +279,7 @@ def configure_metallb(address_pool=[]):
                     "component=controller")
 
     # metallb requires a address pool configured and a layer 2 advertisement CR
-    log.info("Installing IPAddressPool and L2Advertisement custom resources.")
+    print_panel(log.info("Installing IPAddressPool and L2Advertisement custom resources."))
 
     ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
                   'kind': 'IPAddressPool',
@@ -363,7 +363,7 @@ def configure_external_secrets(external_secrets_config):
     gitlab_namespace = external_secrets_config['namespace']
 
     # create the namespace if does not exist
-    subproc([f'kubectl create namespace {gitlab_namespace}'], True)
+    subproc([f'kubectl create namespace {gitlab_namespace}'], error_ok=True)
 
     # this currently only works with gitlab
     gitlab_secret = {'apiVersion': 'v1',
@@ -462,44 +462,54 @@ def install_kyverno():
 
 
 # an ugly list of decorators, but these are the opts/args for the whole script
-@command(cls=RichCommand)
+@command(cls=RichCommand, context_settings=HELP_SETTINGS)
 @argument("k8s", metavar="<k3s OR kind>", default="")
 @option('--argo', '-a', is_flag=True, help=HELP['argo'])
+@option('--config', '-c', metavar="CONFIG_FILE", type=str,
+        default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
+        help=HELP['config'])
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--external_secret_operator', '-e', is_flag=True,
         help=HELP['external_secret_operator'])
-@option('--config', '-c', metavar="CONFIG_FILE", type=str,
-        default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yml'),
-        help=HELP['config'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
+@option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
+        type=Choice(['debug', 'info', 'warn', 'error']))
+@option('--log_file', '-o', metavar='LOGFILE', help=HELP['log_file'])
 @option('--password_manager', '-p', is_flag=True,
         help=HELP['password_manager'])
-@option('--version', is_flag=True, help=HELP['version'])
-def main(k8s: str,
+@option('--version', '-v', is_flag=True, help=HELP['version'])
+def main(k8s: str = "",
          argo: bool = False,
+         config: str = "",
          delete: bool = False,
          external_secret_operator: bool = False,
-         config: str = "",
          kyverno: bool = False,
          k9s: bool = False,
+         log_level: str = "",
+         log_file: str = "",
          password_manager: bool = False,
          version: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
     """
+    # setup logging immediately
+    log = setup_logger(log_level, log_file)
 
     # only return the version if --version was passed in
     if version:
-        print(f'\n🎉 v{get_version("smol-k8s-lab")}\n')
+        print(f'\n🎉 v{VERSION}\n')
         return True
 
     # make sure we got a valid k8s distro
     if k8s not in ['k3s', 'kind']:
-        CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
-                      'k8s distro. Please try again with k3s or kind.\n')
+        log.error(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported k8s'
+                  ' distro. Please try again with k3s or kind.\n')
         exit()
+
+    # before we do anything, we need to make sure this OS is supported
+    check_os_support()
 
     if delete:
         # this exist the script after deleting the cluster
@@ -510,7 +520,7 @@ def main(k8s: str,
         with open(config, 'r') as yaml_file:
             input_variables = safe_load(yaml_file)
     except FileNotFoundError:
-        log.error("Expected config file, {config}, but it was not found")
+        log.error(f"Expected config file, {config}, but it was not found")
 
     # make sure the tmp directory exists, to store stuff
     Path("/tmp/smol-k8s-lab").mkdir(exist_ok=True)

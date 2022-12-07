@@ -42,25 +42,39 @@ The help should return this:
 
 [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
 
-🔔 Then you *Have To* edit the `config_sample.yml` to be your own values:
+🔔 Then you *have to edit* the `~/.config/smol-k8s-lab/config.yaml` to be your own values (for _right now_).
+
+Here's an example file already filled out with comments:
 
 ```yaml
----
-domains:
-  argo_cd: "argocd.coolwebsitefordogs.com"
+# FQDN to access your web interfaces
+domain:
+  # your base domain for use with subdomains below
+  base: "coolwebsitefordogs.com"
+  # subdomain for Argo CD, so this would be argocd.coolwebsitefordogs.com
+  argo_cd: "argocd"
 
-# these HAVE to be full CIDR notation
+# metallb IPs used for DNS later (make sure they're not in use)
 metallb_address_pool:
+  # HAVE to be full CIDR notation
   - 192.168.90.01/32
-  - 192.168.90.02/32
-  - 192.168.90.03/32
 
-email: "coolemailfordogs@onlydogs.com"
+# Used for letsencrypt-staging, to generate certs
+email: "coolemailfordogs@verygooddogs.net"
 
+# Use the external secrets provider with gitlab
 external_secrets:
   gitlab:
+    # going to be deprecated soon in favor of using another password manager
+    # token from here: https://gitlab.com/-/profile/personal_access_tokens
     access_token: "kjdfsk758934fkldsafds"
     namespace: "nextcloud"
+
+log:
+  # logging level, Options: debug, info, warn, error
+  level: "info"
+  # path of file to log to
+  file: "./smol-k8s-log.log"
 ```
 
 ## Install a distro of k8s with smol-k8s-lab

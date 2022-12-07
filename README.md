@@ -32,7 +32,7 @@ There's also full tutorials to manually set up different distros in the [docs we
 
 We tend to test first on k3s and then kind.
 
-We're working on cluster api next :)
+We're working on k0s next :)
 
 
 ### Stack We Install on K8s

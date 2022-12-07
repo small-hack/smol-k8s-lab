@@ -8,6 +8,8 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
+from .env_config import VERSION
+
 
 def pretty_choices(default_list):
     """
@@ -25,16 +27,16 @@ def options_help():
     Help text for all the options/switches for main()
     Returns a dict.
     """
-    logging_choices = pretty_choices(['DEBUG', 'INFO', 'WARN', 'ERROR'])
+    logging_choices = pretty_choices(['debug', 'info', 'warn', 'error'])
 
     return {
         'argo':
-        'Install Argo CD as part of this script. Defaults to False',
+        'Install Argo CD as part of this script. Default: False',
 
         'config':
-        'Full path and name of yml to parse.'
-        'Default: ~/.config/smol-k8s-lab/config.yml\n'
-        'Example: smol-k8s-lab -f [light_steel_blue]/tmp/config.yml[/]',
+        'Full path and name of yml to parse. '
+        'Default: ~/.config/smol-k8s-lab/config.yaml\n'
+        'Example: smol-k8s-lab -f [light_steel_blue]/tmp/config.yaml[/]',
 
         'delete':
         'Delete the existing cluster.',
@@ -44,22 +46,24 @@ def options_help():
         'else, so far only supporting gitlab.',
 
         'k9s':
-        'Run k9s as soon as this script is complete. Defaults to False.',
+        'Run k9s as soon as this script is complete. Default: False',
 
         'kyverno':
-        'beta. Install kyverno, a k8s native policy manager. '
-        'Defaults to False',
+        'beta. Install kyverno, a k8s native policy manager. Default: False',
 
         'log_level':
-        f'Logging level. {logging_choices} Default: [meta]WARN[/meta].',
+        f'Logging level. {logging_choices} Default: [meta]info[/meta].',
+
+        'log_file':
+        'File to log to. Default: None',
 
         'password_manager':
         'Store generated admin passwords directly into your password manager.'
         'Only Bitwarden currently supported. Requires you to manually enter '
-        'your vault password.',
+        'your vault password. Default: False',
 
         'version':
-        'Print the installed version of the smol-k8s-lab'
+        f'Print the installed version of the smol-k8s-lab (v{VERSION})'
         }
 
 
@@ -85,12 +89,12 @@ class RichCommand(click.Command):
                                        "switch": "sky_blue2",
                                        "meta": "light_steel_blue",
                                        "skl_title": "cornflower_blue"}),
-                          highlighter=highlighter, record=True)
+                          highlighter=highlighter)
 
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
                 "\n[i]Installs:[/i] metallb, nginx-ingess-controller, cert-"
-                "manager\n[i]Optionally Installed:[/i] Argo CD, kynervo, "
+                "manager\n[i]Optional Installs:[/i] Argo CD, kynervo, "
                 "external secrets operator.\n")
 
         console.print(title + desc, justify="center")
@@ -128,7 +132,8 @@ class RichCommand(click.Command):
 
             options_table.add_row(opt1, opt2, highlighter(help))
 
-        url = "♥ https://jessebot.github.io/smol-k8s-lab/"
+        url = ("♥ [link=https://jessebot.github.io/smol-k8s-lab]"
+               "jessebot.github.io/smol-k8s-lab[/link]")
         console.print(Panel(options_table,
                             border_style="light_steel_blue",
                             title="ʕ ᵔᴥᵔʔ Options",
@@ -137,4 +142,4 @@ class RichCommand(click.Command):
                             subtitle=url))
 
         # I use this to print a pretty svg at the end sometimes
-        console.save_svg("docs/screenshots/help_text.svg")
+        # console.save_svg("docs/screenshots/help_text.svg")
