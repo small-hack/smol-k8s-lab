@@ -279,7 +279,7 @@ def configure_metallb(address_pool=[]):
                     "component=controller")
 
     # metallb requires a address pool configured and a layer 2 advertisement CR
-    print_panel(log.info("Installing IPAddressPool and L2Advertisement custom resources."))
+    log.info("Installing IPAddressPool and L2Advertisement custom resources.")
 
     ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
                   'kind': 'IPAddressPool',
