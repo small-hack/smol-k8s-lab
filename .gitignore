@@ -11,4 +11,3 @@ deps/Brewfile.lock.json
 smol_k8s_lab.egg-info/**
 dist/**
 build/**
-poetry.lock
