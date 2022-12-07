@@ -100,7 +100,7 @@ class RichCommand(click.Command):
         console.print(title + desc, justify="center")
 
         console.print("[steel_blue]Usage:[/] smol-k8s-lab "
-                      "[meta]<k3s OR kind>[meta/] [option][OPTIONS]\n")
+                      "[meta]<k0s, k3s, kind>[meta/] [option][OPTIONS]\n")
 
         options_table = Table(highlight=True, box=None, show_header=False,
                               row_styles=["dim", ""],
