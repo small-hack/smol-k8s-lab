@@ -57,9 +57,6 @@ def options_help():
         'log_file':
         'File to log to. Default: None',
 
-        'log_file':
-        'File to log to. Default: None',
-
         'password_manager':
         'Store generated admin passwords directly into your password manager.'
         'Only Bitwarden currently supported. Requires you to manually enter '
