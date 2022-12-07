@@ -43,7 +43,6 @@ HOME_DIR = getenv("HOME")
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
-HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 def setup_logger(level="", log_file=""):
     """
@@ -546,9 +545,6 @@ def main(k8s: str = "",
 
     # before we do anything, we need to make sure this OS is supported
     check_os_support()
-
-    # setup logging immediately
-    log = setup_logger(log_level, log_file)
 
     if delete:
         # this exist the script after deleting the cluster
