@@ -3,6 +3,7 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 USAGE: import homelabHelm as helm
 """
+
 from .subproc import subproc
 
 
@@ -48,12 +49,15 @@ class helm:
             subproc([f'helm repo remove {self.repo_name}'])
 
     class chart:
+        """
+        installs/uninstalls a helm chart.
+        """
         def __init__(self, **kwargs):
             """
-            installs/uninstalls a helm chart. Takes key word args:
-            release_name="", chart_name="", namespace="", values_file="",
-            set_options={}
-            always does values file followed by --set options.
+            Takes key word args:
+            release_name="", chart_name="", chart_version="", namespace="",
+            values_file="", set_options={}
+            order of operations: values file followed by --set options.
             """
             # for each keyword arg's key, create self.key for other methods
             # to reference e.g. pass in namespace='kube-system' and we create
@@ -66,11 +70,12 @@ class helm:
 
         def install(self, wait=False):
             """
-            installs helm chart to current k8s context, takes optional wait arg
+            Installs helm chart to current k8s context, takes optional wait arg
             Defaults to False, if True, will wait till deployments are up
             keyword args:
                 - release_name: str to call this installation
                 - chart_name: str of helm chart to use (repo/chart)
+                - chart_version: version of the chart to install
                 - namespace: str of namespace to deploy release to
                 - values_file: a str of a file to use with --values
             """
@@ -78,17 +83,15 @@ class helm:
                    f' --install -n {self.namespace} --create-namespace')
             # f' --atomic')
 
-            try:
-                cmd += f' --values {self.values_file}'
-            except AttributeError:
-                pass
+            if self.__dict__.get('chart_version', False):
+                cmd += ' --version {version}'
 
-            try:
-                if self.__dict__['set_options']:
-                    for key, value in self.set_options.items():
-                        cmd += f' --set {key}={value}'
-            except KeyError:
-                pass
+            if self.__dict__.get('values_file', False):
+                cmd += f' --values {self.values_file}'
+
+            if self.__dict__.get('set_options', False):
+                for key, value in self.set_options.items():
+                    cmd += f' --set {key}={value}'
 
             if wait:
                 cmd += ' --wait --wait-for-jobs'
