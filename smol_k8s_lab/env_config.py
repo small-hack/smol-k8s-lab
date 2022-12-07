@@ -33,9 +33,6 @@ PWD = path.dirname(__file__)
 # version of smol-k8s-lab
 VERSION = get_version('smol-k8s-lab')
 
-# version of smol-k8s-lab
-VERSION = get_version('smol-k8s-lab')
-
 # defaults
 USR_CONFIG_FILE = load_yaml()
 
