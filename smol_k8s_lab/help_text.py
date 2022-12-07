@@ -35,8 +35,8 @@ def options_help():
 
         'config':
         'Full path and name of yml to parse. '
-        'Default: ~/.config/smol-k8s-lab/config.yml\n'
-        'Example: smol-k8s-lab -f [light_steel_blue]/tmp/config.yml[/]',
+        'Default: ~/.config/smol-k8s-lab/config.yaml\n'
+        'Example: smol-k8s-lab -f [light_steel_blue]/tmp/config.yaml[/]',
 
         'delete':
         'Delete the existing cluster.',
