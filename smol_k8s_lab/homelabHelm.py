@@ -84,7 +84,7 @@ class helm:
             # f' --atomic')
 
             if self.__dict__.get('chart_version', False):
-                cmd += ' --version {version}'
+                cmd += f' --version {self.chart_version}'
 
             if self.__dict__.get('values_file', False):
                 cmd += f' --values {self.values_file}'
