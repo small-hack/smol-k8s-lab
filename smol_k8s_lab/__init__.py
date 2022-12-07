@@ -22,7 +22,7 @@ import shutil
 import stat
 from sys import exit
 from yaml import dump, safe_load
-from .console_logging import simple_loading_bar, header, sub_header
+from .console_logging import simple_loading_bar, header, sub_header, print_panel
 from .env_config import check_os_support, USR_CONFIG_FILE, VERSION
 from .bw_cli import BwCLI
 from .help_text import RichCommand, options_help
@@ -81,8 +81,6 @@ def setup_logger(level="", log_file=""):
         else:
             rich_handler_opts['show_path'] = False
             rich_handler_opts['show_level'] = False
-            rich_handler_opts['show_time'] = False
-
 
         opts['handlers'] = [RichHandler(**rich_handler_opts)]
 
@@ -281,7 +279,7 @@ def configure_metallb(address_pool=[]):
                     "component=controller")
 
     # metallb requires a address pool configured and a layer 2 advertisement CR
-    log.info("Installing IPAddressPool and L2Advertisement custom resources.")
+    print_panel(log.info("Installing IPAddressPool and L2Advertisement custom resources."))
 
     ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
                   'kind': 'IPAddressPool',
@@ -468,7 +466,7 @@ def install_kyverno():
 @argument("k8s", metavar="<k3s OR kind>", default="")
 @option('--argo', '-a', is_flag=True, help=HELP['argo'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
-        default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yml'),
+        default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
         help=HELP['config'])
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--external_secret_operator', '-e', is_flag=True,
@@ -522,7 +520,7 @@ def main(k8s: str = "",
         with open(config, 'r') as yaml_file:
             input_variables = safe_load(yaml_file)
     except FileNotFoundError:
-        log.error("Expected config file, {config}, but it was not found")
+        log.error(f"Expected config file, {config}, but it was not found")
 
     # make sure the tmp directory exists, to store stuff
     Path("/tmp/smol-k8s-lab").mkdir(exist_ok=True)

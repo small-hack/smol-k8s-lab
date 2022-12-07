@@ -11,7 +11,11 @@ import yaml
 from .console_logging import print_panel
 
 
-def load_yaml(yaml_config_file=""):
+HOME_DIR = getenv("HOME")
+
+
+def load_yaml(yaml_config_file=path.join(HOME_DIR,
+                                         ".config/smol-k8s-lab/config.yaml")):
     """
     load config yaml files for smol-k8s-lab and return as dicts
     """
@@ -25,13 +29,12 @@ def load_yaml(yaml_config_file=""):
 
 # pathing
 PWD = path.dirname(__file__)
-HOME_DIR = getenv("HOME")
 
 # version of smol-k8s-lab
 VERSION = get_version('smol-k8s-lab')
 
 # defaults
-USR_CONFIG_FILE = load_yaml(f'{HOME_DIR}/.config/smol-k8s-lab/config.yaml')
+USR_CONFIG_FILE = load_yaml()
 
 # env
 SYSINFO = uname()
