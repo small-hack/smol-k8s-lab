@@ -42,12 +42,11 @@ CONSOLE = Console(theme=soft_theme)
 PWD = path.dirname(__file__)
 HOME_DIR = getenv("HOME")
 HELP = options_help()
-
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
+
 
 def setup_logger(level="", log_file=""):
     """
-    TODO: make this work, not working yet
     Sets up rich logger and stores the values for it in a db for future import
     in other files. Returns logging.getLogger("rich")
     """
@@ -56,7 +55,7 @@ def setup_logger(level="", log_file=""):
         if USR_CONFIG_FILE and 'log' in USR_CONFIG_FILE:
             level = USR_CONFIG_FILE['log']['level']
         else:
-            level = 'warn'
+            level = 'info'
 
     log_level = getattr(logging, level.upper(), None)
 
@@ -79,6 +78,11 @@ def setup_logger(level="", log_file=""):
             # log the name of the function if we're in debug mode :)
             opts['format'] = "[bold]%(funcName)s()[/bold]: %(message)s"
             rich_handler_opts['markup'] = True
+        else:
+            rich_handler_opts['show_path'] = False
+            rich_handler_opts['show_level'] = False
+            rich_handler_opts['show_time'] = False
+
 
         opts['handlers'] = [RichHandler(**rich_handler_opts)]
 
@@ -492,6 +496,8 @@ def main(k8s: str = "",
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
     """
+    # setup logging immediately
+    log = setup_logger(log_level, log_file)
 
     # only return the version if --version was passed in
     if version:
@@ -500,15 +506,12 @@ def main(k8s: str = "",
 
     # make sure we got a valid k8s distro
     if k8s not in ['k3s', 'kind']:
-        CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
-                      'k8s distro. Please try again with k3s or kind.\n')
+        log.error(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported k8s'
+                  ' distro. Please try again with k3s or kind.\n')
         exit()
 
     # before we do anything, we need to make sure this OS is supported
     check_os_support()
-
-    # setup logging immediately
-    log = setup_logger(log_level, log_file)
 
     if delete:
         # this exist the script after deleting the cluster

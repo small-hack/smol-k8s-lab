@@ -1,12 +1,12 @@
 #!/usr/bin/env python3.11
 
-import logging as log
 from importlib.metadata import version as get_version
 from os import getenv, path, uname
 
 from rich.prompt import Confirm
 from rich.live import Live
 from rich.table import Table
+from sys import exit
 import yaml
 from .console_logging import print_panel
 
@@ -19,8 +19,8 @@ def load_yaml(yaml_config_file=""):
         with open(yaml_config_file, 'r') as yaml_file:
             return yaml.safe_load(yaml_file)
     else:
-        log.info(f"Config file we got was not present: {yaml_config_file}")
-        return None
+        print(f"Config file does not exist: {yaml_config_file}")
+        exit()
 
 
 # pathing
@@ -92,8 +92,7 @@ def process_configs():
     """
 
     if USR_CONFIG_FILE:
-        log.debug(f"🗂 ⚙️  user_config_file: \n{USR_CONFIG_FILE}\n",
-                  extra={"markup": True})
+        print(f"🗂 ⚙️  user_config_file: \n{USR_CONFIG_FILE}\n")
     else:
         USR_CONFIG_FILE = create_new_config()
 

@@ -27,7 +27,7 @@ def options_help():
     Help text for all the options/switches for main()
     Returns a dict.
     """
-    logging_choices = pretty_choices(['DEBUG', 'INFO', 'WARN', 'ERROR'])
+    logging_choices = pretty_choices(['debug', 'info', 'warn', 'error'])
 
     return {
         'argo':
@@ -52,7 +52,7 @@ def options_help():
         'beta. Install kyverno, a k8s native policy manager. Default: False',
 
         'log_level':
-        f'Logging level. {logging_choices} Default: [meta]WARN[/meta].',
+        f'Logging level. {logging_choices} Default: [meta]info[/meta].',
 
         'log_file':
         'File to log to. Default: None',

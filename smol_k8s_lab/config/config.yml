@@ -16,3 +16,8 @@ external_secrets:
   gitlab:
     access_token: "kjdfsk758934fkldsafds"
     namespace: "nextcloud"
+
+log:
+  level: "info"
+  # set the file path to log to, defaults to None. Required for logging to file
+  # file: mycoollog.log
