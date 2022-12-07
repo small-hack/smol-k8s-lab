@@ -3,11 +3,11 @@ Using Textualize's rich library to pretty print subprocess outputs,
 so during long running commands, the user isn't wondering what's going on,
 even if you don't actually output anything from stdout/stderr of the command.
 """
+
 import logging as log
 from subprocess import Popen, PIPE
 from rich.console import Console
 from rich.theme import Theme
-from os import environ
 
 
 soft_theme = Theme({"info": "dim cornflower_blue",
@@ -31,26 +31,34 @@ def basic_syntax(bash_string=""):
         return bash_string
 
 
-def subproc(commands=[], error_ok=False, output=True, spinner="aesthetic",
-            env={}):
+def subproc(commands=[], **kwargs):
     """
     Takes a list of command strings to run in subprocess
     Optional vars - default, description:
-         error_ok -   False, catch errors, defaults to False
-         output   -   True,  output anything form stderr, or stdout
-         spinner  -   True,  show an animated progress spinner
-         env      -   {},    key = name of env var, value = value of env var
+        error_ok        - catch Exceptions and log them, default: False
+        quiet           - don't output from stderr/stdout, Default: False
+        spinner         - show an animated progress spinner. can break sudo
+                          prompts and should be turned off. Default: True
+        cwd             - path to run commands in. Default: pwd of user
+        shell           - use shell with subprocess or not. Default: False
+        env             - dictionary of env variables for BASH. Default: None
     """
-    # if certain env vars needed when running, otherwise we pass in defaults
-    env_vars = environ.copy()
-    if env:
-        env_vars = env_vars.update(env)
+    # get/set defaults and remove the 2 output specific args from the key word
+    # args dict so we can use the rest to pass into subproc.Popen later on
+    spinner = kwargs.pop('spinner', True)
+    quiet = kwargs.get('quiet', False)
+
+    if spinner:
+        # only need this if we're doing a progress spinner
+        console = Console()
 
     for cmd in commands:
+
         # do some very basic syntax highlighting
         printed_cmd = basic_syntax(cmd)
-        if output:
+        if not quiet:
             status_line = "[green] Running:[/green] "
+
             # make sure I'm not about to print a password, oof
             if 'password' not in cmd.lower():
                 status_line += printed_cmd
@@ -64,36 +72,46 @@ def subproc(commands=[], error_ok=False, output=True, spinner="aesthetic",
         status_line += '\n'
 
         log.info(status_line, extra={"markup": True})
+
         # Sometimes we need to not use a little loading bar
         if not spinner:
-            output = run_subprocess(cmd, error_ok, output, env_vars)
+            output = run_subprocess(cmd, **kwargs)
         else:
             with console.status(status_line,
-                                spinner=spinner,
+                                spinner='aesthetic',
                                 speed=0.75) as status:
-                output = run_subprocess(cmd, error_ok, output, env_vars)
+                output = run_subprocess(cmd, **kwargs)
 
     return output
 
 
-def run_subprocess(cmd="", error_ok=False, output=True, env_vars={}):
+def run_subprocess(command, **kwargs):
     """
     Takes a str commmand to run in BASH in a subprocess.
-    Typically run from subproc, which handles output printing
-
-    Optional vars:
-        env_vars - dict, environmental variables for shell
-        error_ok - bool, catch errors, defaults to False
+    Typically run from subproc, which handles output printing.
+    error_ok=False, directory="", shell=False
+    Optional keyword vars:
+        error_ok  - bool, catch errors, defaults to False
+        cwd       - str, current working dir which is the dir to run command in
+        shell     - bool, run shell or not
+        env       - environment variables you'd like to pass in
     """
+    # get the values if passed in, otherwise, set defaults
+    quiet = kwargs.pop('quiet', False)
+    error_ok = kwargs.pop('error_ok', False)
+
     try:
-        p = Popen(cmd.split(), env=env_vars, stdout=PIPE, stderr=PIPE)
+        p = Popen(command.split(), stdout=PIPE, stderr=PIPE, **kwargs)
         res = p.communicate()
     except Exception as e:
-        log.error(str(e))
+        if error_ok:
+            log.error(str(e))
+        else:
+            raise Exception(e)
+
     return_code = p.returncode
     res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
-    if output:
-        log.info(res_stdout)
+    log.info(res_stdout)
 
     # check return code, raise error if failure
     if not return_code or return_code != 0:
