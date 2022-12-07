@@ -120,7 +120,7 @@ def install_k3s_cluster():
     # create the k3s cluster (just one server node)
     cmd = ('./install.sh --disable=servicelb --disable=traefik '
            '--write-kubeconfig-mode=647')
-    subproc([cmd], False, True, False)
+    subproc([cmd], spinner=False)
 
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
@@ -132,7 +132,7 @@ def install_k3s_cluster():
     chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
 
     # run both commands one after the other
-    subproc([cp, chmod_cmd], False, True)
+    subproc([cp, chmod_cmd])
 
     # remove the script after we're done
     remove('./install.sh')
@@ -164,7 +164,7 @@ def delete_cluster(k8s_distro="k3s"):
     header(f"Bye bye, [b]{k8s_distro}[/b]!")
 
     if k8s_distro == 'k3s':
-        subproc(['k3s-uninstall.sh'], True, True, False)
+        subproc(['k3s-uninstall.sh'], error_ok=True, spinner=False)
 
     elif k8s_distro == 'kind':
         subproc(['kind delete cluster'])
@@ -361,7 +361,7 @@ def configure_external_secrets(external_secrets_config):
     gitlab_namespace = external_secrets_config['namespace']
 
     # create the namespace if does not exist
-    subproc([f'kubectl create namespace {gitlab_namespace}'], True)
+    subproc([f'kubectl create namespace {gitlab_namespace}'], error_ok=True)
 
     # this currently only works with gitlab
     gitlab_secret = {'apiVersion': 'v1',

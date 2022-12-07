@@ -39,7 +39,7 @@ class BwCLI():
         if special_characters:
             command += " --special"
 
-        password = subproc([command], False, False)
+        password = subproc([command], quiet=True)
         log.info('New password generated.')
         return password
 
@@ -53,8 +53,8 @@ class BwCLI():
         password = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
                               password=True)
 
-        self.session = subproc([f"bw unlock {password} --raw"], False, False,
-                               False)
+        self.session = subproc([f"bw unlock {password} --raw"], quiet=True,
+                               spinner=False)
         log.info('Unlocked the Bitwarden vault.')
 
     def lock(self):
@@ -62,7 +62,7 @@ class BwCLI():
         lock the local bitwarden vault
         """
         log.info('Locking the Bitwarden vault...')
-        subproc([f"bw lock --session {self.session}"], False, False)
+        subproc([f"bw lock --session {self.session}"], quiet=True)
         log.info('Bitwarden vault locked.')
         return
 
@@ -103,5 +103,5 @@ class BwCLI():
         encodedStr = str(encodedBytes, "utf-8")
 
         subproc([f"bw create item {encodedStr} --session {self.session}"],
-                False, False)
+                quiet=True)
         log.info('Created bitwarden login item.')
