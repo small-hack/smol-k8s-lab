@@ -31,6 +31,8 @@ from .subproc import subproc
 from smol_k8s_lab.console_logging import log
 
 
+SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
+
 # this is for rich text, to pretty print things
 soft_theme = Theme({"info": "dim cornflower_blue",
                     "warn": "yellow on black",
@@ -94,12 +96,14 @@ def setup_logger(level="", log_file=""):
 def install_k8s_distro(k8s_distro=""):
     """
     install a specific distro of k8s
-    options: k3s, kind
+    options: k0s, k3s, kind
     """
     if k8s_distro == "kind":
         install_kind_cluster()
     elif k8s_distro == "k3s":
         install_k3s_cluster()
+    elif k8s_distro == "k0s":
+        install_k0s_cluster()
 
 
 def install_k3s_cluster():
@@ -157,9 +161,48 @@ def install_kind_cluster():
     return
 
 
+def install_k0s_cluster():
+    """
+    python installation for k0s
+    """
+
+    # download the k3s installer if we don't have it here already
+    url = requests.get("https://get.k0s.sh")
+    k3s_installer_file = open("./install.sh", "wb")
+    k3s_installer_file.write(url.content)
+    k3s_installer_file.close()
+
+    # make sure we can actually execute the script
+    chmod("./install.sh", stat.S_IRWXU)
+
+    # Installs the k0s cli
+    install = ('sudo ./install.sh')
+
+    # Creates a single-node cluster
+    create = ('sudo k0s install controller --single')
+
+    # Uses a service to persist cluster through reboot
+    persist = ('sudo k0s start')
+
+    subproc([install, create, persist], False, True)
+
+    # create the ~/.kube directory if it doesn't exist
+    Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
+
+    TASK_TEXT = "Installing custom resource"
+    TASK_COMMAND = "sudo k0s kubectl wait --for=condition=ready node bradley-server"
+    TASKS = 
+    simple_loading_bar({TASK_TEXT, TASK_COMMAND}, time_to_wait=5)
+
+    # create a kube config
+    cmd = ('sudo k0s kubeconfig admin > ~/.kube/config')
+    subproc([cmd], False, True, False)
+
+
 def delete_cluster(k8s_distro="k3s"):
     """
-    Delete a KIND or K3s cluster entirely.
+    Delete a KIND, k0s, or K3s cluster entirely. It is suggested to perform 
+    a reboot after deleting a k0s cluster.
     """
     header(f"Bye bye, [b]{k8s_distro}[/b]!")
 
@@ -168,6 +211,9 @@ def delete_cluster(k8s_distro="k3s"):
 
     elif k8s_distro == 'kind':
         subproc(['kind delete cluster'])
+
+    elif k8s_distro == 'k0s':
+        subproc(['sudo k0s stop', 'sudo k0s reset'])
 
     else:
         header("┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
@@ -452,7 +498,7 @@ def install_kyverno():
 
 # an ugly list of decorators, but these are the opts/args for the whole script
 @command(cls=RichCommand, context_settings=HELP_SETTINGS)
-@argument("k8s", metavar="<k3s OR kind>", default="")
+@argument("k8s", metavar="<k0s, k3s, kind>", default="")
 @option('--argo', '-a', is_flag=True, help=HELP['argo'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
         default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
@@ -492,9 +538,10 @@ def main(k8s: str = "",
         return True
 
     # make sure we got a valid k8s distro
-    if k8s not in ['k3s', 'kind']:
-        log.error(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported k8s'
-                  ' distro. Please try again with k3s or kind.\n')
+    if k8s not in SUPPORTED_DISTROS:
+        CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
+                      'k8s distro. Please try again with any of '
+                      f'{SUPPORTED_DISTROS}.\n')
         exit()
 
     # before we do anything, we need to make sure this OS is supported
