@@ -1,6 +1,6 @@
 ## ☁️ *smol k8s lab* 🧸
 
-This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
+A project aimed at getting up and running **quickly** with slimmer k8s distros in one small command line tool.
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg">
