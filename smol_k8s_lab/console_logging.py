@@ -16,7 +16,7 @@ soft_theme = Theme({"info": "dim cornflower_blue",
                     "grn": "medium_spring_green",
                     "warn": "yellow on black",
                     "danger": "bold magenta",
-                    "ohno": "magenta"})
+                    "ohno": "pale_violet_red1"})
 CONSOLE = Console(theme=soft_theme)
 
 
