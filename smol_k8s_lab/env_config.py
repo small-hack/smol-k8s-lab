@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.11
 
 from importlib.metadata import version as get_version
+from getpass import getuser
 from os import getenv, path, uname
 
 from rich.console import Console
@@ -14,6 +15,7 @@ from .console_logging import print_panel
 
 
 HOME_DIR = getenv("HOME")
+USER = getuser()
 
 # this is for rich text, to pretty print things
 soft_theme = Theme({"info": "dim cornflower_blue",
