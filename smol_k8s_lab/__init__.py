@@ -116,7 +116,7 @@ def delete_cluster(k8s_distro="k3s"):
     else:
         header("┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
 
-    sub_header("[green]◝(ᵔᵕᵔ)◜ Success!")
+    sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
     exit()
 
 
