@@ -22,7 +22,7 @@ def header(text):
     pretty print a header with lines extending the full width of the terminal
     """
     print('\n')
-    title = f'[b]☁  [/]૮ ・ﻌ・ა [cyan]{text}[/cyan] ʕᵔᴥᵔ ʔ [b]☁ [/]'
+    title = f'[b]☁  [/]ʕ ᵔﻌᵔʔ [cyan]{text}[/cyan] ʕᵔﻌᵔ ʔ [b]☁ [/]'
     CONSOLE.rule(title, style="cornflower_blue")
     print('')
     return
