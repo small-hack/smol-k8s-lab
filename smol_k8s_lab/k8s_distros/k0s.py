@@ -6,7 +6,7 @@ DESCRIPTION: Install k0s
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
-from os import path, chmod
+from os import path, chmod, remove
 from pathlib import Path
 from requests import get
 from socket import gethostname
@@ -48,6 +48,9 @@ def install_k0s_cluster():
     # Uses a service to persist cluster through reboot
     persist = ('sudo k0s start')
 
+    # cleanup the installer file
+    remove(INSTALL_PATH)
+
     subproc([install, create, persist], spinner=True)
 
     # create the ~/.kube directory if it doesn't exist
@@ -78,7 +81,9 @@ def install_k0s_cluster():
 
 def uninstall_k0s():
     """
-    removes k0s
+    Stop the k0s cluster, then remove all associated resources.
     """
-    subproc(['sudo k0s stop', 'sudo k0s reset'])
+
+    subproc(['sudo k0s stop'], error_ok=True)
+    subproc(['sudo k0s reset'], error_ok=True)
     return True
