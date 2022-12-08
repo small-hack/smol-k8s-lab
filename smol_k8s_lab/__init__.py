@@ -92,21 +92,21 @@ def install_k8s_distro(k8s_distro=""):
 
 def delete_cluster(k8s_distro="k3s"):
     """
-    Delete a KIND, k0s, or K3s cluster entirely. It is suggested to perform
-    a reboot after deleting a k0s cluster.
+    Delete a k0s, k3s, or KinD cluster entirely.
+    It is suggested to perform a reboot after deleting a k0s cluster.
     """
     header(f"Bye bye, [b]{k8s_distro}[/b]!")
 
     if k8s_distro == 'k3s':
-        from k3s import uninstall_k3s
+        from .k8s_distros.k3s import uninstall_k3s
         uninstall_k3s()
 
     elif k8s_distro == 'kind':
-        from kind import uninstall_kind
+        from .k8s_distros.kind import uninstall_kind
         uninstall_kind()
 
     elif k8s_distro == 'k0s':
-        from k0s import uninstall_k0s
+        from .k8s_distros.k0s import uninstall_k0s
         uninstall_k0s()
 
     else:
@@ -210,8 +210,8 @@ def main(k8s: str = "",
 
     # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
     if argo:
-        argocd_fqdn = ".".join([USR_CONFIG_FILE['domains']['argo_cd'],
-                                USR_CONFIG_FILE['domains']['base']])
+        argocd_fqdn = ".".join([USR_CONFIG_FILE['domain']['argo_cd'],
+                                USR_CONFIG_FILE['domain']['base']])
         from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
 
