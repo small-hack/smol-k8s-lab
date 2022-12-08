@@ -29,10 +29,9 @@ There's also full tutorials to manually set up different distros in the [docs we
 
 - [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">&nbsp;&nbsp;k3s](https://k3s.io/)
 - [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">&nbsp;KinD](https://kind.sigs.k8s.io/)
+- [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">&nbsp;k0s](https://k0sproject.io/)
 
 We tend to test first on k3s and then kind.
-
-We're working on k0s next :)
 
 
 ### Stack We Install on K8s
