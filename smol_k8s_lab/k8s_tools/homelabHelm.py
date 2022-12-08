@@ -8,7 +8,7 @@ USAGE: import homelabHelm as helm
 from collections import OrderedDict
 from shutil import which
 from ..subproc import subproc
-from ..console_logging import header
+from ..console_logging import header, sub_header
 
 
 class helm:
@@ -154,7 +154,7 @@ def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
     if not which("helm"):
         msg = ("ʕ•́ᴥ•̀ʔ [b]Helm[/b] is [warn]not installed[/warn]. "
                "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
-        CONSOLE.print(msg, justify='center')
+        sub_header(msg)
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use

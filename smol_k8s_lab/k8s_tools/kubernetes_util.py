@@ -6,9 +6,10 @@ DESCRIPTION: generic kubernetes utilities
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
-
-from ..subproc import subproc, simple_loading_bar
+from os import path
 from yaml import dump
+from ..env_config import XDG_CACHE_DIR
+from ..subproc import subproc, simple_loading_bar
 
 
 def apply_manifests(manifest_file_name="", namespace="default", deployment="",
@@ -36,11 +37,11 @@ def apply_custom_resources(custom_resource_dict_list):
     k_cmd = 'kubectl apply --wait -f '
     commands = {}
 
-    # Write a YAML representation of data to '/tmp/{resource_name}.yaml'.
+    # Write YAML data to '{XDG_CACHE_DIR}/{resource_name}.yaml'.
     for custom_resource_dict in custom_resource_dict_list:
         resource_name = "_".join([custom_resource_dict['kind'],
                                   custom_resource_dict['metadata']['name']])
-        yaml_file_name = f'/tmp/smol-k8s-lab/{resource_name}.yaml'
+        yaml_file_name = path.join(XDG_CACHE_DIR, f'{resource_name}.yaml')
         with open(yaml_file_name, 'w') as cr_file:
             dump(custom_resource_dict, cr_file)
         commands[f'Installing {resource_name}'] = k_cmd + yaml_file_name

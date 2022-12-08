@@ -6,10 +6,12 @@ DESCRIPTION: configure argocd
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 import bcrypt
+from os import path
+from yaml import dump
 from ..bw_cli import BwCLI
 from ..console_logging import header, sub_header
+from ..env_config import XDG_CACHE_DIR
 from ..k8s_tools.homelabHelm import helm
-from yaml import dump
 
 
 def configure_argocd(argo_cd_domain="", password_manager=False):
@@ -60,7 +62,7 @@ def configure_argocd(argo_cd_domain="", password_manager=False):
         val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
 
     # this creates a values.yaml from from the val dict above
-    values_file_name = '/tmp/smol-k8s-lab/argocd_values.yaml'
+    values_file_name = path.join(XDG_CACHE_DIR, 'argocd_values.yaml')
     with open(values_file_name, 'w') as values_file:
         dump(val, values_file)
 

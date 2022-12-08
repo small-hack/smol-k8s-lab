@@ -14,22 +14,23 @@ from rich.panel import Panel
 from rich.logging import RichHandler
 from sys import exit
 
-from .console_logging import header, sub_header
-from .env_config import check_os_support, USR_CONFIG_FILE, VERSION, HOME_DIR
-from .env_config import CONSOLE
+# custom libs and constants
+from .console_logging import CONSOLE, header, sub_header
+from .env_config import check_os_support, HOME_DIR, USR_CONFIG_FILE, VERSION
+from .env_config import XDG_CACHE_DIR
 from .help_text import RichCommand, options_help
 
 
-SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
-
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
+SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
 
 
 def setup_logger(level="", log_file=""):
     """
-    Sets up rich logger and stores the values for it in a db for future import
-    in other files. Returns logging.getLogger("rich")
+    Sets up rich logger for the entire project.
+    ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
+    Returns logging.getLogger("rich")
     """
     # determine logging level
     if not level:
@@ -76,8 +77,10 @@ def setup_logger(level="", log_file=""):
 
 def install_k8s_distro(k8s_distro=""):
     """
-    install a specific distro of k8s
-    options: k0s, k3s, kind
+    Install a specific distro of k8s
+    Takes one variable:
+        k8s_distro - string. options: 'k0s', 'k3s', or 'kind'
+    Returns True
     """
     if k8s_distro == "kind":
         from .k8s_distros.kind import install_kind_cluster
@@ -88,6 +91,7 @@ def install_k8s_distro(k8s_distro=""):
     elif k8s_distro == "k0s":
         from .k8s_distros.k0s import install_k0s_cluster
         install_k0s_cluster()
+    return True
 
 
 def delete_cluster(k8s_distro="k3s"):
@@ -102,8 +106,8 @@ def delete_cluster(k8s_distro="k3s"):
         uninstall_k3s()
 
     elif k8s_distro == 'kind':
-        from .k8s_distros.kind import uninstall_kind
-        uninstall_kind()
+        from .k8s_distros.kind import delete_kind_cluster
+        delete_kind_cluster()
 
     elif k8s_distro == 'k0s':
         from .k8s_distros.k0s import uninstall_k0s
@@ -149,14 +153,14 @@ def main(k8s: str = "",
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
     """
-    # setup logging immediately
-    log = setup_logger(log_level, log_file)
-    log.info("Logging configured")
-
     # only return the version if --version was passed in
     if version:
         print(f'\n🎉 v{VERSION}\n')
         return True
+
+    # setup logging immediately
+    log = setup_logger(log_level, log_file)
+    log.info("Logging configured")
 
     # make sure we got a valid k8s distro
     if k8s not in SUPPORTED_DISTROS:
@@ -165,20 +169,19 @@ def main(k8s: str = "",
                       f'{SUPPORTED_DISTROS}.\n')
         exit()
 
-    # before we do anything, we need to make sure this OS is supported
+    # make sure this OS is supported
     check_os_support()
 
     if delete:
-        # this exist the script after deleting the cluster
+        # exits the script after deleting the cluster
         delete_cluster(k8s)
 
-    # TODO: make this follow XDG base directory spec
-    # make sure the cache directory exists, to store stuff
-    Path(f"{HOME_DIR}/.cache/smol-k8s-lab").mkdir(exist_ok=True)
+    # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
+    Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
 
     # install the actual KIND or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
-    sub_header('This could take a min ʕ•́ᴥ•̀ʔっ♡ ', False)
+    sub_header('This could take a min ʕ•́  ̫•̀ʔっ♡ ', False)
     install_k8s_distro(k8s)
 
     # make sure helm is installed and the repos are up to date
@@ -190,27 +193,28 @@ def main(k8s: str = "",
     from .k8s_apps.metallb import configure_metallb
     configure_metallb(USR_CONFIG_FILE['metallb_address_pool'])
 
-    # this is so we can accept traffic from outside the cluster
+    # ingress controller: so we can accept traffic from outside the cluster
     header("Installing [b]ingress-nginx-controller[/b]...")
     from .k8s_apps.nginx_ingress_controller import configure_ingress_nginx
     configure_ingress_nginx(k8s)
 
-    # this is for manager SSL/TLS certificates via lets-encrypt
+    # manager SSL/TLS certificates via lets-encrypt
     header("Installing [b]cert-manager[/b] for TLS certificates...")
     from .k8s_apps.certmanager import configure_cert_manager
     configure_cert_manager(USR_CONFIG_FILE['email'])
 
-    # this is for external secrets, currently only supports gitlab
+    # external secrets provider: currently only supports gitlab
     if external_secret_operator:
-        external_secrets = USR_CONFIG_FILE['external_secrets']['gitlab']
         from .k8s_apps.external_secrets import configure_external_secrets
+        external_secrets = USR_CONFIG_FILE['external_secrets']['gitlab']
         configure_external_secrets(external_secrets)
 
+    # kyverno: kubernetes native policy manager
     if kyverno:
         from .k8s_apps.kyverno import install_kyverno
         install_kyverno()
 
-    # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
+    # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo:
         argocd_fqdn = ".".join([USR_CONFIG_FILE['domain']['argo_cd'],
                                 USR_CONFIG_FILE['domain']['base']])

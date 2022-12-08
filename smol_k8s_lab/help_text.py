@@ -1,5 +1,7 @@
-# file for rich printing
-
+"""
+Name: help_text
+Desc: the help text for smol-k8s-lab
+"""
 import click
 from rich.console import Console
 from rich.highlighter import RegexHighlighter
@@ -8,7 +10,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
-from .env_config import VERSION
+from .env_config import VERSION, XDG_CONFIG_DIR
 
 
 def pretty_choices(default_list):
@@ -34,8 +36,7 @@ def options_help():
         'Install Argo CD as part of this script. Default: False',
 
         'config':
-        'Full path and name of yml to parse. '
-        'Default: ~/.config/smol-k8s-lab/config.yaml\n'
+        f'Full path and name of yml to parse. Default: {XDG_CONFIG_DIR}\n'
         'Example: smol-k8s-lab -f [light_steel_blue]/tmp/config.yaml[/]',
 
         'delete':
@@ -89,7 +90,7 @@ class RichCommand(click.Command):
                                        "switch": "sky_blue2",
                                        "meta": "light_steel_blue",
                                        "skl_title": "cornflower_blue"}),
-                          highlighter=highlighter)
+                          highlighter=highlighter, record=True)
 
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
@@ -142,4 +143,4 @@ class RichCommand(click.Command):
                             subtitle=url))
 
         # I use this to print a pretty svg at the end sometimes
-        # console.save_svg("docs/screenshots/help_text.svg")
+        console.save_svg("docs/screenshots/help_text.svg")

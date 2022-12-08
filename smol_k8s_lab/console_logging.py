@@ -7,14 +7,17 @@ some pretty printing of the help :)
 from rich import print
 from rich.console import Console
 from rich.panel import Panel
-from rich.table import Table
+# from rich.table import Table
 from rich.theme import Theme
 
 
-# for console logging only
-CONSOLE = Console(theme=Theme({"warn": "bold yellow",
-                               "grn": "medium_spring_green",
-                               "ohno": "magenta"}))
+# this is for rich text, to pretty print things
+soft_theme = Theme({"info": "dim cornflower_blue",
+                    "grn": "medium_spring_green",
+                    "warn": "yellow on black",
+                    "danger": "bold magenta",
+                    "ohno": "magenta"})
+CONSOLE = Console(theme=soft_theme)
 
 
 def header(text):
