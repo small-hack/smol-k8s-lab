@@ -1,4 +1,8 @@
 #!/usr/bin/env python3.11
+"""
+NAME: env_config.py
+DESC: everything to do with initial configuration of a new environment
+"""
 
 from importlib.metadata import version as get_version
 from getpass import getuser
@@ -12,22 +16,17 @@ from rich.table import Table
 from sys import exit
 import yaml
 from .console_logging import print_panel
+from xdg import xdg_cache_home, xdg_config_home
 
 
 HOME_DIR = getenv("HOME")
-USER = getuser()
-
-# this is for rich text, to pretty print things
-soft_theme = Theme({"info": "dim cornflower_blue",
-                    "warn": "yellow on black",
-                    "danger": "bold magenta"})
-CONSOLE = Console(theme=soft_theme)
-
 PWD = path.dirname(__file__)
+USER = getuser()
+XDG_CACHE_DIR = path.join(xdg_cache_home(), 'smol-k8s-lab')
+XDG_CONFIG_DIR = path.join(xdg_config_home(), 'smol-k8s-lab/config.yaml')
 
 
-def load_yaml(yaml_config_file=path.join(HOME_DIR,
-                                         ".config/smol-k8s-lab/config.yaml")):
+def load_yaml(yaml_config_file=XDG_CONFIG_DIR):
     """
     load config yaml files for smol-k8s-lab and return as dicts
     """
