@@ -2,7 +2,7 @@
 name: "\U0001F41B Bug report"
 about: "Create a report to help us improve published features that are broken. \U0001F494"
 title: "[BUG] \U0001F41B ..."
-labels: bug
+labels: ":bug: bug"
 assignees: ''
 
 ---
