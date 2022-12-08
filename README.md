@@ -52,8 +52,8 @@ ingress-nginx 4.4.0
 
 #### Optionally installed
 
-| Application/Tool | What is it? |
-|:-----------------|:------------|
+| Application/Tool | Description |
+|:----------------:|:------------|
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO]</br>[ESO]  | external-secrets-operator integrates external secret management systems like GitLab|
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD]</br>[Argo CD] | Gitops - Continuous Deployment |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno]</br>[Kyverno] | Kubernetes native policy management to enforce policies on k8s resources |
