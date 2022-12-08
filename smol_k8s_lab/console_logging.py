@@ -7,12 +7,8 @@ some pretty printing of the help :)
 from rich import print
 from rich.console import Console
 from rich.panel import Panel
-from rich.progress import Progress
 from rich.table import Table
 from rich.theme import Theme
-from time import sleep
-# custom lib
-from .subproc import subproc
 
 
 # for console logging only

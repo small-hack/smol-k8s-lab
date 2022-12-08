@@ -6,7 +6,6 @@ DESCRIPTION: Install k0s
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
-import logging as log
 from os import path, chmod
 from pathlib import Path
 from requests import get
@@ -14,7 +13,7 @@ from socket import gethostname
 import stat
 
 from ..subproc import subproc, simple_loading_bar
-from ..env_config import HOME_DIR
+from ..env_config import HOME_DIR, USER
 
 
 HOSTNAME = gethostname()
@@ -55,12 +54,12 @@ def install_k0s_cluster():
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
 
     task_text = 'Waiting for node to become active...'
-    take_command = ('sudo k0s kubectl wait --for=condition=ready node ' +
+    task_command = ('sudo k0s kubectl wait --for=condition=ready node ' +
                     HOSTNAME)
     simple_loading_bar({task_text: task_command}, time_to_wait=300)
 
     # sometimes this is owned by root, so we need to fix the permissions
-    if os.path.exists(KUBECONFIG_PATH):
+    if path.exists(KUBECONFIG_PATH):
         chmod_config = f'sudo chmod 644 {KUBECONFIG_PATH}'
         chmod_config = f'sudo chown {USER}: {KUBECONFIG_PATH}'
         subproc([chmod_config], spinner=False)
@@ -77,7 +76,7 @@ def install_k0s_cluster():
     return
 
 
-def uninstall_k0s:
+def uninstall_k0s():
     """
     removes k0s
     """
