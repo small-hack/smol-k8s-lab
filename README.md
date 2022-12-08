@@ -37,13 +37,13 @@ We're working on k0s next :)
 
 ### Stack We Install on K8s
 
-|    Application      | What is it? |
-|:--------------------|:------------|
-| &nbsp;🐄 &nbsp;[Local Path Provisioner](https://github.com/rancher/local-path-provisioner) | Default simple local file storage for persistent data |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">&nbsp; metallb](https://github.io/metallb/metallb) | loadbalancer for metal, since we're mostly selfhosting |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/nginx.ico" width="32" alt="nginx logo, white letter N with green background">&nbsp; nginx-ingress](https://github.io/kubernetes/ingress-nginx) | The ingress controller allows access to the cluster remotely, needed for web traffic |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32" alt="cert manager logo"> &nbsp;cert-manager](https://cert-manager.io/docs/) | For SSL/TLS certificates |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32"> &nbsp;k9s](https://k9scli.io/topics/install/) | Terminal based dashboard for kubernetes |
+|           Application           |                      Description                      |
+|:-------------------------------:|:------------------------------------------------------|
+| 🐄</br>[Local Path Provisioner] | Default simple local file storage for persistent data |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb]</br> [metallb] | loadbalancer for metal, since we're mostly selfhosting |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][nginx-ingress]</br>[nginx-ingress] | The ingress controller allows access to the cluster remotely, needed for web traffic |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager]</br>[cert-manager] | For SSL/TLS certificates |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for kubernetes |
 
 **Current versions**
 cert-manager  v1.10.1
@@ -54,9 +54,9 @@ ingress-nginx 4.4.0
 
 | Application/Tool | What is it? |
 |:-----------------|:------------|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">&nbsp; ESO](https://external-secrets.io/v0.5.9/) | external-secrets-operator integrates external secret management systems like GitLab|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">&nbsp; Argo CD](https://github.io/argoproj/argo-helm) | Gitops - Continuous Deployment |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">&nbsp; Kyverno](https://github.com/kyverno/kyverno/) | Kubernetes native policy management to enforce policies on k8s resources |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO]</br>[ESO]  | external-secrets-operator integrates external secret management systems like GitLab|
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD]</br>[Argo CD] | Gitops - Continuous Deployment |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno]</br>[Kyverno] | Kubernetes native policy management to enforce policies on k8s resources |
 
 **Current versions**
 argo-cd          5.16.2
@@ -113,3 +113,14 @@ to get back to you asap!
     </td></tr>
 </table>
 <!-- readme: contributors -end -->
+
+<!-- link references -->
+[metallb]: https://github.io/metallb/metallb "metallb"
+[Local Path Provisioner]: https://github.com/rancher/local-path-provisioner
+[nginx-ingress]: https://github.io/kubernetes/ingress-nginx
+[cert-manager]: https://cert-manager.io/docs/
+[k9s]: https://k9scli.io/topics/install/
+
+[ESO]: https://external-secrets.io/v0.5.9/
+[Argo CD]: https://github.io/argoproj/argo-helm
+[Kyverno]: https://github.com/kyverno/kyverno/
