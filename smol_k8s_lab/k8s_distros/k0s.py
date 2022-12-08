@@ -6,6 +6,7 @@ DESCRIPTION: Install k0s
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
+import logging as log
 from os import path, chmod
 from pathlib import Path
 from requests import get
