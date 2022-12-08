@@ -1,5 +1,7 @@
-# file for rich printing
-
+"""
+Name: help_text
+Desc: the help text for smol-k8s-lab
+"""
 import click
 from rich.console import Console
 from rich.highlighter import RegexHighlighter
@@ -8,7 +10,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
-from .env_config import VERSION
+from .env_config import VERSION, XDG_CONFIG_DIR
 
 
 def pretty_choices(default_list):
@@ -34,8 +36,7 @@ def options_help():
         'Install Argo CD as part of this script. Default: False',
 
         'config':
-        'Full path and name of yml to parse. '
-        'Default: ~/.config/smol-k8s-lab/config.yaml\n'
+        f'Full path and name of yml to parse. Default: {XDG_CONFIG_DIR}\n'
         'Example: smol-k8s-lab -f [light_steel_blue]/tmp/config.yaml[/]',
 
         'delete':

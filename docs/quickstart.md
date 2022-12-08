@@ -42,7 +42,7 @@ The help should return this:
 
 [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
 
-🔔 Then you *have to edit* the `~/.config/smol-k8s-lab/config.yaml` to be your own values (for _right now_).
+🔔 Then you *have to edit* your `$XDG_CONFIG_DIR` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values. Better cli options and Interactive config setup coming soon!
 
 Here's an example file already filled out with comments:
 
@@ -73,8 +73,8 @@ external_secrets:
 log:
   # logging level, Options: debug, info, warn, error
   level: "info"
-  # path of file to log to
-  file: "./smol-k8s-log.log"
+  # path of file to log to, disabled by default
+  # file: "./smol-k8s-log.log"
 ```
 
 ## Install a distro of k8s with smol-k8s-lab
