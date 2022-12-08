@@ -92,7 +92,7 @@ and pin all the versions, but if you'd like to contribute or just found a :bug:,
 feel free to open an issue (or pull request), and we'll take a look! We'll try
 to get back to you asap!
 
-## Collaborators
+## Contributors
 
-<!-- readme: collaborators -start -->
-<!-- readme: collaborators -end -->
+<!-- readme: contributors -start -->
+<!-- readme: contributors -end -->
