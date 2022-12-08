@@ -2,7 +2,7 @@
 on:
   push:
     branches:
-      - env_config_refactor
+      - main
 
 jobs:
   contrib-readme-job:
