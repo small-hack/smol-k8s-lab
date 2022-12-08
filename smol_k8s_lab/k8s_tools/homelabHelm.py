@@ -4,7 +4,11 @@ AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 USAGE: import homelabHelm as helm
 """
 
-from .subproc import subproc
+
+from collections import OrderedDict
+from shutil import which
+from ..subproc import subproc
+from ..console_logging import header
 
 
 class helm:
@@ -104,3 +108,55 @@ class helm:
             """
             cmd = f'helm uninstall {self.release_name} -n {self.namespace}'
             subproc([cmd])
+            return True
+
+
+def add_default_repos(k8s_distro, argo=False, external_secrets=False,
+                      kyverno=False):
+    """
+    Add all the default helm chart repos:
+    - metallb is for loadbalancing and assigning ips, on metal...
+    - ingress-nginx allows us to do ingress, so access outside the cluster
+    - jetstack is for cert-manager for TLS certs
+    - argo is argoCD to manage k8s resources in the future through a gui
+    - kyverno is a k8s native policy manager
+    """
+    repos = OrderedDict()
+
+    repos['metallb'] = 'https://metallb.github.io/metallb'
+    repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
+    repos['jetstack'] = 'https://charts.jetstack.io'
+
+    if external_secrets:
+        repos['external-secrets'] = 'https://charts.external-secrets.io'
+
+    if argo:
+        repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
+
+    if kyverno:
+        repos['kyverno'] = 'https://kyverno.github.io/kyverno/'
+
+    # kind has a special install path
+    if k8s_distro == 'kind':
+        repos.pop('ingress-nginx')
+
+    # install and update any repos needed
+    helm.repo(repos).add()
+    return
+
+
+def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
+                 kyverno=False):
+    """
+    get helm installed if needed, and then install/update all the helm repos
+    """
+    header("Adding/Updating helm repos...")
+    if not which("helm"):
+        msg = ("ʕ•́ᴥ•̀ʔ [b]Helm[/b] is [warn]not installed[/warn]. "
+               "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
+        CONSOLE.print(msg, justify='center')
+        subproc(['brew install helm'])
+
+    # this is where we add all the helm repos we're going to use
+    add_default_repos(k8s_distro, argo, external_secrets, kyverno)
+    return
