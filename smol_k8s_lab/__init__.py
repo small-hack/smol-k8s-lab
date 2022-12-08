@@ -135,7 +135,7 @@ def install_k3s_cluster():
     chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
 
     # run both commands one after the other
-    subproc([cp, chmod_cmd])
+    subproc([cp, chmod_cmd], spinner=True)
 
     # remove the script after we're done
     remove('./install.sh')
@@ -152,11 +152,11 @@ def install_kind_cluster():
         msg = ("ʕ•́ᴥ•̀ʔ [b]kind[/b] is [warn]not installed[/warn]. "
                "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
         CONSOLE.print(msg, justify='center')
-        subproc(['brew install kind'])
+        subproc(['brew install kind'], spinner=True)
 
     # then use our pre-configured kind file to install a small cluster
     full_path = path.join(PWD, 'distros/kind/kind_cluster_config.yaml')
-    subproc([f"kind create cluster --config={full_path}"])
+    subproc([f"kind create cluster --config={full_path}"], spinner=True)
     return
 
 
@@ -164,18 +164,23 @@ def install_k0s_cluster():
     """
     python installation for k0s
     """
+    INSTALLER_URL = "https://get.k0s.sh"
+    INSTALL_PATH = "./install_k0s.sh"
 
-    # download the k3s installer if we don't have it here already
-    url = requests.get("https://get.k0s.sh")
-    k3s_installer_file = open("./install.sh", "wb")
-    k3s_installer_file.write(url.content)
-    k3s_installer_file.close()
+    # download the installer if we don't have it here already
+    FILE_EXISTS = path.exists(INSTALL_PATH)
+
+    if FILE_EXISTS is not True:
+        website = requests.get(INSTALLER_URL)
+        new_file = open(INSTALL_PATH, "wb")
+        new_file.write(website.content)
+        new_file.close()
 
     # make sure we can actually execute the script
-    chmod("./install.sh", stat.S_IRWXU)
+    chmod(INSTALL_PATH, stat.S_IRWXU)
 
-    # Installs the k0s cli
-    install = ('sudo ./install.sh')
+    # Installs the k0s cli if needed
+    install = f'sudo {INSTALL_PATH}'
 
     # Creates a single-node cluster
     create = ('sudo k0s install controller --single')
@@ -183,19 +188,28 @@ def install_k0s_cluster():
     # Uses a service to persist cluster through reboot
     persist = ('sudo k0s start')
 
-    subproc([install, create, persist], False, True)
+    subproc([install, create, persist], spinner=True)
 
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
 
-    TASK_TEXT = "Installing custom resource"
+    TASK_TEXT = 'Waiting for node to become active...'
     TASK_COMMAND = "sudo k0s kubectl wait --for=condition=ready node bradley-server"
-    TASKS = 
-    simple_loading_bar({TASK_TEXT, TASK_COMMAND}, time_to_wait=5)
+    simple_loading_bar({TASK_TEXT: TASK_COMMAND}, time_to_wait=300)
+    
+    #READY = False
+    #while READY is False:
+    #    COMMAND = "sudo k0s kubectl get nodes -A"
+    #    STATUS = subproc([COMMAND], error_ok=True, spinner=False)
+    #    print(STATUS)
+    #else:
+    #    print("done")
 
     # create a kube config
     cmd = ('sudo k0s kubeconfig admin > ~/.kube/config')
-    subproc([cmd], False, True, False)
+    chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
+    subproc([cmd, chmod_cmd], spinner=False)
+    quit()
 
 
 def delete_cluster(k8s_distro="k3s"):
@@ -322,7 +336,7 @@ def configure_metallb(address_pool=[]):
                     "component=controller")
 
     # metallb requires a address pool configured and a layer 2 advertisement CR
-    log.info("Installing IPAddressPool and L2Advertisement custom resources.")
+    #log.info("Installing IPAddressPool and L2Advertisement custom resources.")
 
     ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
                   'kind': 'IPAddressPool',
