@@ -3,6 +3,8 @@
 from importlib.metadata import version as get_version
 from os import getenv, path, uname
 
+from rich.console import Console
+from rich.theme import Theme
 from rich.prompt import Confirm
 from rich.live import Live
 from rich.table import Table
@@ -12,6 +14,14 @@ from .console_logging import print_panel
 
 
 HOME_DIR = getenv("HOME")
+
+# this is for rich text, to pretty print things
+soft_theme = Theme({"info": "dim cornflower_blue",
+                    "warn": "yellow on black",
+                    "danger": "bold magenta"})
+CONSOLE = Console(theme=soft_theme)
+
+PWD = path.dirname(__file__)
 
 
 def load_yaml(yaml_config_file=path.join(HOME_DIR,

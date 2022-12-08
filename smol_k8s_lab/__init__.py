@@ -6,40 +6,22 @@
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
 
-import bcrypt
 from click import option, argument, command, Choice
-from collections import OrderedDict
 import logging
-from os import chmod, getenv, path, remove
+from os import path
 from pathlib import Path
-import requests
-
-from rich.theme import Theme
-from rich.console import Console
 from rich.panel import Panel
 from rich.logging import RichHandler
-import shutil
-import stat
 from sys import exit
-from yaml import dump, safe_load
-from .console_logging import simple_loading_bar, header, sub_header
-from .env_config import check_os_support, USR_CONFIG_FILE, VERSION
-from .bw_cli import BwCLI
+
+from .console_logging import header, sub_header
+from .env_config import check_os_support, USR_CONFIG_FILE, VERSION, HOME_DIR
+from .env_config import CONSOLE
 from .help_text import RichCommand, options_help
-from .homelabHelm import helm
-from .subproc import subproc
 
 
 SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
 
-# this is for rich text, to pretty print things
-soft_theme = Theme({"info": "dim cornflower_blue",
-                    "warn": "yellow on black",
-                    "danger": "bold magenta"})
-CONSOLE = Console(theme=soft_theme)
-
-PWD = path.dirname(__file__)
-HOME_DIR = getenv("HOME")
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -98,415 +80,38 @@ def install_k8s_distro(k8s_distro=""):
     options: k0s, k3s, kind
     """
     if k8s_distro == "kind":
+        from .kind import install_kind_cluster
         install_kind_cluster()
     elif k8s_distro == "k3s":
+        from .k3s import install_k3s_cluster
         install_k3s_cluster()
     elif k8s_distro == "k0s":
+        from .k0s import install_k0s_cluster
         install_k0s_cluster()
-
-
-def install_k3s_cluster():
-    """
-    python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
-    Notes: --flannel-backend=none will break k3s on metal
-    """
-
-    # download the k3s installer if we don't have it here already
-    url = requests.get("https://get.k3s.io")
-    k3s_installer_file = open("./install.sh", "wb")
-    k3s_installer_file.write(url.content)
-    k3s_installer_file.close()
-
-    # make sure we can actually execute the script
-    chmod("./install.sh", stat.S_IRWXU)
-
-    # create the k3s cluster (just one server node)
-    cmd = ('./install.sh --disable=servicelb --disable=traefik '
-           '--write-kubeconfig-mode=647')
-    subproc([cmd], spinner=False)
-
-    # create the ~/.kube directory if it doesn't exist
-    Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
-
-    # Grab the kubeconfig and copy it locally
-    cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {HOME_DIR}/.kube/kubeconfig'
-
-    # change the permissions os that it doesn't complain
-    chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
-
-    # run both commands one after the other
-    subproc([cp, chmod_cmd], spinner=True)
-
-    # remove the script after we're done
-    remove('./install.sh')
-
-    return
-
-
-def install_kind_cluster():
-    """
-    python installation process for kind
-    """
-    # make sure kind is installed first, and if not, install it
-    if not shutil.which("kind"):
-        msg = ("ʕ•́ᴥ•̀ʔ [b]kind[/b] is [warn]not installed[/warn]. "
-               "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
-        CONSOLE.print(msg, justify='center')
-        subproc(['brew install kind'], spinner=True)
-
-    # then use our pre-configured kind file to install a small cluster
-    full_path = path.join(PWD, 'distros/kind/kind_cluster_config.yaml')
-    subproc([f"kind create cluster --config={full_path}"], spinner=True)
-    return
-
-
-def install_k0s_cluster():
-    """
-    python installation for k0s
-    """
-    INSTALLER_URL = "https://get.k0s.sh"
-    INSTALL_PATH = "./install_k0s.sh"
-
-    # download the installer if we don't have it here already
-    FILE_EXISTS = path.exists(INSTALL_PATH)
-
-    if FILE_EXISTS is not True:
-        website = requests.get(INSTALLER_URL)
-        new_file = open(INSTALL_PATH, "wb")
-        new_file.write(website.content)
-        new_file.close()
-
-    # make sure we can actually execute the script
-    chmod(INSTALL_PATH, stat.S_IRWXU)
-
-    # Installs the k0s cli if needed
-    install = f'sudo {INSTALL_PATH}'
-
-    # Creates a single-node cluster
-    create = ('sudo k0s install controller --single')
-
-    # Uses a service to persist cluster through reboot
-    persist = ('sudo k0s start')
-
-    subproc([install, create, persist], spinner=True)
-
-    # create the ~/.kube directory if it doesn't exist
-    Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
-
-    TASK_TEXT = 'Waiting for node to become active...'
-    TASK_COMMAND = "sudo k0s kubectl wait --for=condition=ready node bradley-server"
-    simple_loading_bar({TASK_TEXT: TASK_COMMAND}, time_to_wait=300)
-    
-    #READY = False
-    #while READY is False:
-    #    COMMAND = "sudo k0s kubectl get nodes -A"
-    #    STATUS = subproc([COMMAND], error_ok=True, spinner=False)
-    #    print(STATUS)
-    #else:
-    #    print("done")
-
-    # create a kube config
-    cmd = ('sudo k0s kubeconfig admin > ~/.kube/config')
-    chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
-    subproc([cmd, chmod_cmd], spinner=False)
-    quit()
 
 
 def delete_cluster(k8s_distro="k3s"):
     """
-    Delete a KIND, k0s, or K3s cluster entirely. It is suggested to perform 
+    Delete a KIND, k0s, or K3s cluster entirely. It is suggested to perform
     a reboot after deleting a k0s cluster.
     """
     header(f"Bye bye, [b]{k8s_distro}[/b]!")
 
     if k8s_distro == 'k3s':
-        subproc(['k3s-uninstall.sh'], error_ok=True, spinner=False)
+        from k3s import uninstall_k3s
+        uninstall_k3s()
 
     elif k8s_distro == 'kind':
-        subproc(['kind delete cluster'])
+        from kind import uninstall_kind
+        uninstall_kind()
 
     elif k8s_distro == 'k0s':
-        subproc(['sudo k0s stop', 'sudo k0s reset'])
+        from k0s import uninstall_k0s
+        uninstall_k0s()
 
     else:
         header("┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
     exit()
-
-
-def add_default_repos(k8s_distro, argo=False, external_secrets=False,
-                      kyverno=False):
-    """
-    Add all the default helm chart repos:
-    - metallb is for loadbalancing and assigning ips, on metal...
-    - ingress-nginx allows us to do ingress, so access outside the cluster
-    - jetstack is for cert-manager for TLS certs
-    - argo is argoCD to manage k8s resources in the future through a gui
-    - kyverno is a k8s native policy manager
-    """
-    repos = OrderedDict()
-
-    repos['metallb'] = 'https://metallb.github.io/metallb'
-    repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
-    repos['jetstack'] = 'https://charts.jetstack.io'
-
-    if external_secrets:
-        repos['external-secrets'] = 'https://charts.external-secrets.io'
-
-    if argo:
-        repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
-
-    if kyverno:
-        repos['kyverno'] = 'https://kyverno.github.io/kyverno/'
-
-    # kind has a special install path
-    if k8s_distro == 'kind':
-        repos.pop('ingress-nginx')
-
-    # install and update any repos needed
-    helm.repo(repos).add()
-    return
-
-
-def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
-                 kyverno=False):
-    """
-    get helm installed if needed, and then install/update all the helm repos
-    """
-    header("Adding/Updating helm repos...")
-    if not shutil.which("helm"):
-        msg = ("ʕ•́ᴥ•̀ʔ [b]Helm[/b] is [warn]not installed[/warn]. "
-               "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
-        CONSOLE.print(msg, justify='center')
-        subproc(['brew install helm'])
-
-    # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, argo, external_secrets, kyverno)
-    return
-
-
-def apply_custom_resources(custom_resource_dict_list):
-    """
-    Does a kube apply on a custom resource dict, and retries if it fails
-    using loading bar for progress
-    """
-    k_cmd = 'kubectl apply --wait -f '
-    commands = {}
-
-    # Write a YAML representation of data to '/tmp/{resource_name}.yaml'.
-    for custom_resource_dict in custom_resource_dict_list:
-        resource_name = "_".join([custom_resource_dict['kind'],
-                                  custom_resource_dict['metadata']['name']])
-        yaml_file_name = f'/tmp/smol-k8s-lab/{resource_name}.yaml'
-        with open(yaml_file_name, 'w') as cr_file:
-            dump(custom_resource_dict, cr_file)
-        commands[f'Installing {resource_name}'] = k_cmd + yaml_file_name
-
-    # loops with progress bar until this succeeds
-    simple_loading_bar(commands)
-
-
-def apply_manifests(manifest_file_name="", namespace="default", deployment="",
-                    selector="component=controller"):
-    """
-    applies a manifest and waits with a nice loading bar
-    """
-    apply = f"kubectl apply --wait -f {manifest_file_name}"
-
-    rollout = f"kubectl rollout status -n {namespace} deployment/{deployment}"
-
-    wait = (f"kubectl wait --for=condition=ready pod --selector={selector} "
-            f"--timeout=90s -n {namespace}")
-
-    # loops with progress bar until this succeeds
-    subproc([apply, rollout, wait])
-
-
-def configure_metallb(address_pool=[]):
-    """
-    metallb is special because it has Custom Resources:
-        IPaddressPool and L2Advertisement
-    Requires and accepts one arg:
-        address_pool - list of IP addresses - default: []
-    """
-    url = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/"
-           "manifests/metallb-native.yaml")
-
-    # install manifest and wait
-    apply_manifests(url, "metallb-system", "controller",
-                    "component=controller")
-
-    # metallb requires a address pool configured and a layer 2 advertisement CR
-    #log.info("Installing IPAddressPool and L2Advertisement custom resources.")
-
-    ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
-                  'kind': 'IPAddressPool',
-                  'metadata': {'name': 'default',
-                               'namespace': 'metallb-system'},
-                  'spec': {'addresses': address_pool}}
-
-    l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
-                    'kind': 'L2Advertisement',
-                    'metadata': {'name': 'default',
-                                 'namespace': 'metallb-system'}}
-
-    apply_custom_resources([ip_pool_cr, l2_advert_cr])
-    return
-
-
-def configure_ingress_nginx(k8s_distro="k3s"):
-    """
-    install nginx ingress controller from manifests for kind and helm for k3s
-    # OLD: you need these to access webpages from outside the cluster
-    # nginx_chart_opts = {'hostNetwork': 'true','hostPort.enabled': 'true'}
-    # set_options=nginx_chart_opts)
-    """
-    url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/'
-           'deploy/static/provider/kind/deploy.yaml')
-
-    if k8s_distro == 'kind':
-        # this is to wait for the deployment to come up
-        apply_manifests(url, "ingress-nginx", "ingress-nginx-controller",
-                        "app.kubernetes.io/component=controller")
-    else:
-        release = helm.chart(release_name='ingress-nginx',
-                             chart_name='ingress-nginx/ingress-nginx',
-                             chart_version='4.4.0',
-                             namespace='ingress-nginx')
-        release.install()
-    return
-
-
-def configure_cert_manager(email_addr):
-    """
-    installs cert-manager helm chart and letsencrypt-staging clusterissuer
-    """
-
-    # install chart and wait
-    release = helm.chart(release_name='cert-manager',
-                         chart_name='jetstack/cert-manager',
-                         chart_version="1.10.1",
-                         namespace='kube-system',
-                         set_options={'installCRDs': 'true'})
-    release.install(True)
-
-    acme_staging = 'https://acme-staging-v02.api.letsencrypt.org/directory'
-    issuer = {'apiVersion': 'cert-manager.io/v1',
-              'kind': 'ClusterIssuer',
-              'metadata': {'name': 'letsencrypt-staging'},
-              'spec': {
-                  'acme': {'email': email_addr,
-                           'server': acme_staging,
-                           'privateKeySecretRef': {
-                               'name': 'letsencrypt-staging'},
-                           'solvers': [
-                               {'http01': {'ingress': {'class': 'nginx'}}}]
-                           }}}
-
-    apply_custom_resources([issuer])
-
-
-def configure_external_secrets(external_secrets_config):
-    """
-    configure external secrets and provider. currently only works with gitlab
-    Accepts dict as arg:
-    dict = {'namespace': 'somenamespace', 'access_token': 'tokenhere'}
-    """
-
-    header("Installing External Secrets Operator...")
-    release = helm.chart(release_name='external-secrets-operator',
-                         chart_name='external-secrets/external-secrets',
-                         chart_version='0.6.1',
-                         namespace='external-secrets')
-    release.install(True)
-
-    gitlab_access_token = external_secrets_config['access_token']
-    gitlab_namespace = external_secrets_config['namespace']
-
-    # create the namespace if does not exist
-    subproc([f'kubectl create namespace {gitlab_namespace}'], error_ok=True)
-
-    # this currently only works with gitlab
-    gitlab_secret = {'apiVersion': 'v1',
-                     'kind': 'Secret',
-                     'metadata': {'name': 'gitlab-secret',
-                                  'namespace': gitlab_namespace,
-                                  'labels': {'type': 'gitlab'}},
-                     'type': 'Opaque',
-                     'stringData': {'token': gitlab_access_token}}
-
-    apply_custom_resources([gitlab_secret])
-    return
-
-
-def configure_argocd(argo_cd_domain="", password_manager=False):
-    """
-    Installs argocd with ingress enabled by default and puts admin pass in a
-    password manager, currently only bitwarden is supported
-    arg:
-        argo_cd_domain:   str, defaults to "", required
-        password_manager: bool, defaults to False, optional
-
-    """
-    header("Installing 🦑 Argo CD...")
-
-    # this is the base python dict for the values.yaml that is created below
-    val = {'dex': {'enabled': False},
-           'configs': {'secret': {'argocdServerAdminPassword': ""}},
-           'server': {
-               'ingress': {
-                   'enabled': True,
-                   'hosts': [argo_cd_domain],
-                   'annotations': {
-                       "kubernetes.io/ingress.class": "nginx",
-                       "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
-                       "cert-manager.io/cluster-issuer": "letsencrypt-staging",
-                       "kubernetes.io/tls-acme": True,
-                       "nginx.ingress.kubernetes.io/ssl-passthrough": True,
-                   },
-                   'https': True,
-                   'tls':  [{'secretName': 'argocd-secret',
-                             'hosts': [argo_cd_domain]}]}}}
-
-    # if we're using a password manager, generate a password & save it
-    if password_manager:
-        sub_header(":lock: Creating a new password in BitWarden.")
-        # if we're using bitwarden...
-        bw = BwCLI()
-        bw.unlock()
-        argo_password = bw.generate()
-        bw.create_login(name=argo_cd_domain,
-                        item_url=argo_cd_domain,
-                        user="admin",
-                        password=argo_password)
-        bw.lock()
-        admin_pass = bcrypt.hashpw(argo_password.encode('utf-8'),
-                                   bcrypt.gensalt()).decode()
-
-        # this gets passed to the helm cli, but is bcrypted
-        val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
-
-    # this creates a values.yaml from from the val dict above
-    values_file_name = '/tmp/smol-k8s-lab/argocd_values.yaml'
-    with open(values_file_name, 'w') as values_file:
-        dump(val, values_file)
-
-    release = helm.chart(release_name='argo-cd',
-                         chart_name='argo-cd/argo-cd',
-                         chart_version='5.16.2',
-                         namespace='argocd',
-                         values_file=values_file_name)
-    release.install(True)
-    return
-
-
-def install_kyverno():
-    """
-    does a helm install of kyverno
-    """
-    release = helm.chart(release_name='kyverno',
-                         chart_name='kyverno/kyverno',
-                         namespace='kyverno')
-    release.install()
 
 
 # an ugly list of decorators, but these are the opts/args for the whole script
@@ -544,6 +149,7 @@ def main(k8s: str = "",
     """
     # setup logging immediately
     log = setup_logger(log_level, log_file)
+    log.info("Logging configured")
 
     # only return the version if --version was passed in
     if version:
@@ -564,15 +170,9 @@ def main(k8s: str = "",
         # this exist the script after deleting the cluster
         delete_cluster(k8s)
 
-    # load in config file
-    try:
-        with open(config, 'r') as yaml_file:
-            input_variables = safe_load(yaml_file)
-    except FileNotFoundError:
-        log.error(f"Expected config file, {config}, but it was not found")
-
-    # make sure the tmp directory exists, to store stuff
-    Path("/tmp/smol-k8s-lab").mkdir(exist_ok=True)
+    # TODO: make this follow XDG base directory spec
+    # make sure the cache directory exists, to store stuff
+    Path(f"{HOME_DIR}/.cache/smol-k8s-lab").mkdir(exist_ok=True)
 
     # install the actual KIND or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
@@ -580,32 +180,39 @@ def main(k8s: str = "",
     install_k8s_distro(k8s)
 
     # make sure helm is installed and the repos are up to date
+    from .k8s_tools.homelabHelm import prepare_helm
     prepare_helm(k8s, argo, external_secret_operator, kyverno)
 
     # needed for metal (non-cloud provider) installs
     header("Installing [b]metallb[/b] so we have an ip address pool")
-    configure_metallb(input_variables['metallb_address_pool'])
+    from .k8s_apps.metallb import configure_metallb
+    configure_metallb(USR_CONFIG_FILE['metallb_address_pool'])
 
     # this is so we can accept traffic from outside the cluster
     header("Installing [b]ingress-nginx-controller[/b]...")
+    from .k8s_apps.nginx_ingress_controller import configure_ingress_nginx
     configure_ingress_nginx(k8s)
 
     # this is for manager SSL/TLS certificates via lets-encrypt
     header("Installing [b]cert-manager[/b] for TLS certificates...")
-    configure_cert_manager(input_variables['email'])
+    from .k8s_apps.certmanager import configure_cert_manager
+    configure_cert_manager(USR_CONFIG_FILE['email'])
 
     # this is for external secrets, currently only supports gitlab
     if external_secret_operator:
-        external_secrets = input_variables['external_secrets']['gitlab']
+        external_secrets = USR_CONFIG_FILE['external_secrets']['gitlab']
+        from .k8s_apps.external_secrets import configure_external_secrets
         configure_external_secrets(external_secrets)
 
     if kyverno:
+        from .k8s_apps.kyverno import install_kyverno
         install_kyverno()
 
     # then install argo CD ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
     if argo:
-        argocd_fqdn = ".".join([input_variables['domains']['argo_cd'],
-                                input_variables['domains']['base']])
+        argocd_fqdn = ".".join([USR_CONFIG_FILE['domains']['argo_cd'],
+                                USR_CONFIG_FILE['domains']['base']])
+        from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
 
     # we're done :D
