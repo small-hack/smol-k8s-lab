@@ -8,6 +8,8 @@ import logging as log
 from subprocess import Popen, PIPE
 from rich.console import Console
 from rich.theme import Theme
+from rich.progress import Progress
+from time import sleep
 
 
 soft_theme = Theme({"info": "dim cornflower_blue",

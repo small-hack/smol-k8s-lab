@@ -80,13 +80,13 @@ def install_k8s_distro(k8s_distro=""):
     options: k0s, k3s, kind
     """
     if k8s_distro == "kind":
-        from .kind import install_kind_cluster
+        from .k8s_distros.kind import install_kind_cluster
         install_kind_cluster()
     elif k8s_distro == "k3s":
-        from .k3s import install_k3s_cluster
+        from .k8s_distros.k3s import install_k3s_cluster
         install_k3s_cluster()
     elif k8s_distro == "k0s":
-        from .k0s import install_k0s_cluster
+        from .k8s_distros.k0s import install_k0s_cluster
         install_k0s_cluster()
 
 
