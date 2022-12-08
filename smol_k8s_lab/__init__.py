@@ -28,7 +28,6 @@ from .bw_cli import BwCLI
 from .help_text import RichCommand, options_help
 from .homelabHelm import helm
 from .subproc import subproc
-from smol_k8s_lab.console_logging import log
 
 
 SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
@@ -44,6 +43,7 @@ HOME_DIR = getenv("HOME")
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
+HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 def setup_logger(level="", log_file=""):
     """

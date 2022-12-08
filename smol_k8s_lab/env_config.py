@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.11
 
+import logging as log
 from importlib.metadata import version as get_version
 from os import getenv, path, uname
 
@@ -29,6 +30,9 @@ def load_yaml(yaml_config_file=path.join(HOME_DIR,
 
 # pathing
 PWD = path.dirname(__file__)
+
+# version of smol-k8s-lab
+VERSION = get_version('smol-k8s-lab')
 
 # version of smol-k8s-lab
 VERSION = get_version('smol-k8s-lab')
