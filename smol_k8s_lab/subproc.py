@@ -112,7 +112,10 @@ def run_subprocess(command, **kwargs):
 
     return_code = p.returncode
     res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
-    log.info(res_stdout)
+
+    # if quiet = True, we hide this
+    if not quiet:
+        log.info(res_stdout)
 
     # check return code, raise error if failure
     if not return_code or return_code != 0:
