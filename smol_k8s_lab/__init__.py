@@ -70,7 +70,7 @@ def setup_logger(level="", log_file=""):
     logging.basicConfig(**opts)
 
     if log_file:
-        return None
+        return logging
     else:
         return logging.getLogger("rich")
 
