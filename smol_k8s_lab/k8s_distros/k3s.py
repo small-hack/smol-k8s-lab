@@ -5,11 +5,12 @@ DESCRIPTION: install k3s :D
      AUTHOR: @Jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-import requests
+import logging as log
 from os import chmod, remove
 from pathlib import Path
+import requests
 import stat
-from ..env_config import HOME_DIR
+from ..env_config import HOME_DIR, USER
 from ..subproc import subproc
 
 
@@ -41,9 +42,10 @@ def install_k3s_cluster():
 
     # change the permissions os that it doesn't complain
     chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
+    chown_cmd = f'sudo chown {USER}: {HOME_DIR}/.kube/kubeconfig'
 
     # run both commands one after the other
-    subproc([cp, chmod_cmd], spinner=True)
+    subproc([cp, chmod_cmd, chown_cmd])
 
     # remove the script after we're done
     remove('./install.sh')
