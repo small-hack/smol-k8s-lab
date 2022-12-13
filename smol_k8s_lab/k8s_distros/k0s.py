@@ -49,11 +49,11 @@ def install_k0s_cluster():
     # Uses a service to persist cluster through reboot
     persist = 'sudo k0s start'
 
-    # cleanup the installer file
-    remove(install_path)
-
     subproc([install, create, persist], spinner=True)
 
+    # cleanup the installer file
+    remove(install_path)
+    
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
 
