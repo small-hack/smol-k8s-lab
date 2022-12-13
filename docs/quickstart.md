@@ -15,14 +15,14 @@ setup pre-reqs listed below.
 <details>
   <summary>One time Pre-Req</summary>
 
-- [brew](https://brew.sh)
-- Python 3.11 (`brew install python3.11`)
-- Have internet access.
+  - [brew](https://brew.sh)
+  - Python 3.11 (`brew install python3.11`)
+  - Have internet access.
 
-```bash
-# install prereqs like brew and krew and drew (I made up drew)
-./setup.sh
-```
+  ```bash
+  # install prereqs like brew and krew and drew (I made up drew)
+  ./setup.sh
+  ```
 
 </details>
 
@@ -43,7 +43,7 @@ Then you should be able to show the help text :)
 <details>
   <summary>Help text example</summary>
 
-[<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
+  [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
 
 </details>
 
