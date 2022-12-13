@@ -2,21 +2,21 @@
 layout: default
 parent: Intro
 title: Quickstart
-description: "Smol K8s Homelab Quickstart"
+description: "Smol K8s Lab Quickstart"
 nav_order: 2
 permalink: /quickstart
 ---
 
-## Quickstart for `smol-k8s-lab`
+## Quickstart
 
-You should be able to use `pip` to install things after you've got the one time setup pre-reqs listed below.
+You should be able to use `pip` to install things after you've got the one time setup prerequisites listed below.
 
 <details>
-  <summary>Pre-Reqs</summary>
+  <summary>Prereqs</summary>
 
-  - [brew](https://brew.sh)
-  - Python 3.11 (`brew install python3.11`)
-  - Have internet access.
+  * [brew](https://brew.sh)
+  * Python 3.11 (`brew install python3.11`)
+  * Have internet access.
 
   ```bash
   # install prereqs like brew and krew and drew (I made up drew)
