@@ -36,8 +36,8 @@ def options_help():
         'Install Argo CD as part of this script. Default: False',
 
         'config':
-        f'Full path and name of yml to parse. Default: {XDG_CONFIG_DIR}\n'
-        'Example: smol-k8s-lab -f [light_steel_blue]/tmp/config.yaml[/]',
+        'Full path and name of yml to parse.\n Defaults to '
+        f'[light_steel_blue]{XDG_CONFIG_DIR}[/]',
 
         'delete':
         'Delete the existing cluster.',
@@ -64,7 +64,7 @@ def options_help():
         'your vault password. Default: False',
 
         'version':
-        f'Print the installed version of the smol-k8s-lab (v{VERSION})'
+        f'Print the version of smol-k8s-lab (v{VERSION})'
         }
 
 
@@ -90,7 +90,7 @@ class RichCommand(click.Command):
                                        "switch": "sky_blue2",
                                        "meta": "light_steel_blue",
                                        "skl_title": "cornflower_blue"}),
-                          highlighter=highlighter)
+                          highlighter=highlighter, record=False)
 
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
@@ -130,6 +130,10 @@ class RichCommand(click.Command):
 
             if param.metavar:
                 options += f" {param.metavar}"
+
+            if "help" in opt1:
+                opt1 = "-h"
+                opt2 = "--help"
 
             options_table.add_row(opt1, opt2, highlighter(help))
 

@@ -9,7 +9,7 @@ permalink: /
 ## ☁️  *smol k8s lab* 🧸
 [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
 
-This is aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
+A project aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
 
 ## QuickStart
 Get started with `smol-k8s-lab` today with our tutorial [here](https://jessebot.github.io/smol-k8s-lab/quickstart).
@@ -23,7 +23,7 @@ We always install the latest version of kubernetes that is available from the di
 
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s]</br>[k0s] | Simple, Solid & Certified Kubernetes Distribution |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s] <p>[k0s]</p> | Simple, Solid & Certified Kubernetes Distribution |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s]</br>[k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD]</br>[KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
