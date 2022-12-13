@@ -98,18 +98,28 @@ smol-k8s-lab kind --delete
 
 <hr>
 
-## Bonus Quickstart Stuff
+## Bonus Stuff
 Everything below here is optional, but will help you get rolling faster.
 
-### Install some kubectl plugins
+### Install some kubectl plugins with krew
+Krew is a plugin manager for `kubectl` plugins. You can install it with `brew install krew` and update plugins with `kubectl krew update`
 
 These together make namespace switching better. Learn more about kubectx + kubens [here](https://github.com/ahmetb/kubectx).
 
 ```bash
-kubectl krew update
 kubectl krew install ctx
 kubectl krew install ns
+```
+
+This will help with generating example k8s resources:
+
+```bash
 kubectl krew install example
+```
+
+This one helps find deprecated stuff in your cluster:
+
+```bash
 kubectl krew install deprecations
 ```
 
@@ -126,7 +136,7 @@ kubectl krew install < kubectl_krew_plugins
 Add some [helpful k8s aliases](https://github.com/jessebot/dot_files/blob/main/.bashrc_k8s):
 
 ```bash
-# copy the file to your home directory
+# copy the file
 curl -O https://raw.githubusercontent.com/jessebot/dot_files/main/.bashrc_k8s
 
 # load the file for your current shell
