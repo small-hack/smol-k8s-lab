@@ -8,8 +8,6 @@ from importlib.metadata import version as get_version
 from getpass import getuser
 from os import getenv, path, uname
 
-from rich.console import Console
-from rich.theme import Theme
 from rich.prompt import Confirm
 from rich.live import Live
 from rich.table import Table
