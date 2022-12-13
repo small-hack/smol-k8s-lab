@@ -1,14 +1,10 @@
 #!/bin/bash -
 #=============================================================================
 #         USAGE: ./setup.sh
-#   DESCRIPTION: Setup the dependencies for the smol k8s lab
-#  REQUIREMENTS: python3.10, brew
-#        AUTHOR: Jessebot
-#       CREATED: 10/11/2022 08:35:56 AM
+#   DESCRIPTION: Setup the extra dependencies for the Smol K8s Lab
+#  REQUIREMENTS: python3.11, brew
+#        AUTHOR: @jessebot
 #=============================================================================
-
-# Treat unset variables as an error
-set -o nounset
 
 # if `which brew` returns a path
 if [ -n "$(which brew)" ]; then
@@ -24,7 +20,7 @@ else
     echo -e "\nThen you can run the setup.sh script again."
 fi
 
-# if kubectl installed
+# if kubectl installed then install plugins with krew plugin manager for kubectl
 if [ -n "$(which kubectl)" ]; then
     echo -e "\nInstalling/Upgrading krew plugins for kubectl...\n"
     echo -e " -------------------------------------------------- "
@@ -42,6 +38,7 @@ else
     echo -e "\nkubectl not installed. Please install kubectl and rerun the script."
 fi
 
+# make sure they've set a KUBECONFIG location 
 if [ -n "$KUBECONFIG" ]; then
     if [[ "$(uname)" == *"Darwin"* ]]; then
         echo "export KUBECONFIG=~/.kube/kubeconfig" >> ~/.bash_profile
