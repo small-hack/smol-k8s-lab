@@ -9,11 +9,10 @@ permalink: /quickstart
 
 ## Quickstart for `smol-k8s-lab`
 
-You should be able to use `pip` to install things after you've got the one time
-setup pre-reqs listed below.
+You should be able to use `pip` to install things after you've got the one time setup pre-reqs listed below.
 
 <details>
-  <summary>One time Pre-Req</summary>
+  <summary>Pre-Reqs</summary>
 
   - [brew](https://brew.sh)
   - Python 3.11 (`brew install python3.11`)
@@ -43,7 +42,9 @@ Then you should be able to show the help text :)
 <details>
   <summary>Help text example</summary>
 
-  [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
+  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg">
+    <img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+  </a>
 
 </details>
 
