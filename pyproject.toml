@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "0.10.3"
+version       = "0.10.4"
 description   = "bootstrap simple projects on kubernetes with kind and k3s"
 authors       = ["Jesse Hitch <jessebot@linux.com>"]
 readme        = "README.md"
@@ -17,6 +17,7 @@ classifiers   = ["Development Status :: 3 - Alpha",
                  "Intended Audience :: End Users/Desktop",
                  "Topic :: System :: Installation/Setup",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
+include       = ["smol_k8s_lab/config/kind_cluster_config.yaml"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "http://github.com/jessebot/smol-k8s-lab/issues"

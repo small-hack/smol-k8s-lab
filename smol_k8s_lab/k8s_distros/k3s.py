@@ -34,6 +34,8 @@ def install_k3s_cluster():
            '--write-kubeconfig-mode=647')
     subproc([cmd], spinner=False)
 
+    log.info(f"Updating your {HOME_DIR}/.kube/kubeconfig")
+
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
 
