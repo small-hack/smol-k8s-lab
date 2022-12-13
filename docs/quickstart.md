@@ -1,28 +1,20 @@
 ---
 layout: default
+parent: Intro
 title: Quickstart
-description: "Smol K8s Homelab Quickstart"
+description: "Smol K8s Lab Quickstart"
 nav_order: 2
 permalink: /quickstart
 ---
 
-## Quickstart for `smol-k8s-lab`
+## Quickstart
 
-You should be able to use `pip` to install things after you've got the one time
-setup pre-reqs listed below.
+#### Prereqs
 
-<details>
-  <summary>One time Pre-Req</summary>
-- Python 3.11 (`brew install python3.11`)
 - [brew](https://brew.sh)
+- Python 3.11 (`brew install python3.11`)
 - Have internet access.
 
-```bash
-# install prereqs like brew
-./setup.sh
-```
-
-</details>
 
 ### Installation
 
@@ -38,13 +30,21 @@ Then you should be able to show the help text :)
 ./smol-k8s-lab --help
 ```
 
-The help should return this:
+<details>
+  <summary>Help text example</summary>
 
-[<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
+  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg">
+    <img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+  </a>
 
-🔔 Then you *have to edit* your `$XDG_CONFIG_DIR` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values. Better cli options and Interactive config setup coming soon!
+</details>
 
-Here's an example file already filled out with comments:
+
+### Configuration
+
+🔔 You *have to edit* your `$XDG_CONFIG_DIR/smol-k8s-lab/config.yaml` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values. Better cli options and Interactive config setup coming soon!
+
+Here's an example config file already filled out with comments:
 
 ```yaml
 # FQDN to access your web interfaces
@@ -77,36 +77,67 @@ log:
   # file: "./smol-k8s-log.log"
 ```
 
-## Install a distro of k8s with smol-k8s-lab
-Currently only being tested with k3s and kind.
+## Install a distro of k8s
+
 ```bash
-# you can replace k3s with kind
-./smol-k8s-lab k3s
+# you can replace kind with k0s or k3s
+smol-k8s-lab kind
 ```
 
-#### Install some kubectl plugins (Optional)
+🎉 You're done!
+
+## UnInstall a distro of k8s
+
+```bash
+# you can replace kind with k0s or k3s
+# --delete can be replaced with -D
+smol-k8s-lab kind --delete
+```
+
+🎉 You're done! Again! 🎉
+
+<hr>
+
+## Bonus Stuff
+Everything below here is optional, but will help you get rolling faster.
+
+### Install some kubectl plugins with krew
+Krew is a plugin manager for `kubectl` plugins. You can install it with `brew install krew` and update plugins with `kubectl krew update`
 
 These together make namespace switching better. Learn more about kubectx + kubens [here](https://github.com/ahmetb/kubectx).
 
 ```bash
-kubectl krew update
 kubectl krew install ctx
 kubectl krew install ns
 ```
 
-To install plugins from my newline-delimited krew file, run:
+This will help with generating example k8s resources:
 
 ```bash
-kubectl krew install < deps/kubectl_krew_plugins
+kubectl krew install example
 ```
 
-#### Install @jessebot's `.bashrc_k8s` (optional)
-
-You can copy over the rc file for some helpful aliases:
+This one helps find deprecated stuff in your cluster:
 
 ```bash
-# copy the file to your home directory
-cp deps/.bashrc_k8s ~
+kubectl krew install deprecations
+```
+
+To install plugins from a krew file, you just need a file with one plugin per line. You can use [this one](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/deps/kubectl_krew_plugins):
+
+```bash
+curl -O https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/deps/kubectl_krew_plugins
+
+kubectl krew install < kubectl_krew_plugins
+```
+
+### k8s shell aliases
+
+Add some [helpful k8s aliases](https://github.com/jessebot/dot_files/blob/main/.bashrc_k8s):
+
+```bash
+# copy the file
+curl -O https://raw.githubusercontent.com/jessebot/dot_files/main/.bashrc_k8s
 
 # load the file for your current shell
 source ~/.bashrc_k8s
@@ -119,11 +150,4 @@ To have the above file sourced every new shell, copy this into your `.bashrc` or
 if [ -f $HOME/.bashrc_k8s ]; then
     . $HOME/.bashrc_k8s
 fi
-```
-
-### Uninstall distro with python script
-
-```bash
-# you can replace k3s with kind
-./smol-k8s-lab k3s --delete
 ```
