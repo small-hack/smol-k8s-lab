@@ -35,9 +35,9 @@ We always install the latest version of kubernetes that is available from the di
 
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s]</br>[k0s] | Simple, Solid & Certified Kubernetes Distribution |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s]</br>[k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD]</br>[KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s] <br /> [k0s] | Simple, Solid & Certified Kubernetes Distribution |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
 We tend to test first on k3s first, then the other distros.
 
@@ -47,10 +47,10 @@ Version is the helm chart version, or manifest version.
 
 |           Application           |    Version    |                      Description                      |
 |:-------------------------------:|:-------------:|:------------------------------------------------------|
-| 🐄</br>[Local Path Provisioner] |   k3s latest  | Default simple local file storage for persistent data |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb]</br> [metallb] | 0.13.7 | loadbalancer for metal, since we're mostly selfhosting |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][nginx-ingress]</br>[nginx-ingress] | 4.4.0 | The ingress controller allows access to the cluster remotely, needed for web traffic |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager]</br>[cert-manager] | 1.10.1 | For SSL/TLS certificates |
+| 🐄 <br /> [Local Path Provisioner] |   k3s latest  | Default simple local file storage for persistent data |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | 0.13.7 | loadbalancer for metal, since we're mostly selfhosting |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][nginx-ingress] <br /> [nginx-ingress] | 4.4.0 | The ingress controller allows access to the cluster remotely, needed for web traffic |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | 1.10.1 | For SSL/TLS certificates |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | latest | Terminal based dashboard for kubernetes |
 
 
@@ -58,9 +58,9 @@ Version is the helm chart version, or manifest version.
 
 | Application/Tool |    Version    | Description |
 |:----------------:|:-------------:|:------------|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO]</br>[ESO] | 0.6.1 | external-secrets-operator integrates external secret management systems like GitLab|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD]</br>[Argo CD] | 5.16.2 | Gitops - Continuous Deployment |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno]</br>[Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.6.1 | external-secrets-operator integrates external secret management systems like GitLab|
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.16.2 | Gitops - Continuous Deployment |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
 
 
 ### Tooling Used for the CLI itself and interface
