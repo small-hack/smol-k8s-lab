@@ -44,7 +44,7 @@ Then you should be able to show the help text :)
 
 🔔 You *have to edit* your `$XDG_CONFIG_DIR/smol-k8s-lab/config.yaml` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values. Better cli options and Interactive config setup coming soon!
 
-Here's an example file already filled out with comments:
+Here's an example config file already filled out with comments:
 
 ```yaml
 # FQDN to access your web interfaces
