@@ -6,6 +6,7 @@ DESCRIPTION: Install k0s
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
+import logging as log
 from os import path, chmod, remove
 from pathlib import Path
 from requests import get
@@ -24,35 +25,35 @@ def install_k0s_cluster():
     """
     python installation for k0s
     """
-    INSTALLER_URL = "https://get.k0s.sh"
-    INSTALL_PATH = "./install_k0s.sh"
+    installer_url = "https://get.k0s.sh"
+    install_path = "./install_k0s.sh"
 
     # download the installer if we don't have it here already
-    FILE_EXISTS = path.exists(INSTALL_PATH)
+    FILE_EXISTS = path.exists(install_path)
 
     if FILE_EXISTS is not True:
-        website = get(INSTALLER_URL)
-        new_file = open(INSTALL_PATH, "wb")
+        website = get(installer_url)
+        new_file = open(install_path, "wb")
         new_file.write(website.content)
         new_file.close()
 
     # make sure we can actually execute the script
-    chmod(INSTALL_PATH, stat.S_IRWXU)
+    chmod(install_path, stat.S_IRWXU)
 
     # Installs the k0s cli if needed
-    install = f'sudo {INSTALL_PATH}'
+    install = f'sudo {install_path}'
 
     # Creates a single-node cluster
-    create = ('sudo k0s install controller --single')
+    create = 'sudo k0s install controller --single'
 
     # Uses a service to persist cluster through reboot
-    persist = ('sudo k0s start')
+    persist = 'sudo k0s start'
 
     subproc([install, create, persist], spinner=True)
 
     # cleanup the installer file
-    remove(INSTALL_PATH)
-
+    remove(install_path)
+    
     # create the ~/.kube directory if it doesn't exist
     Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
 
@@ -61,15 +62,16 @@ def install_k0s_cluster():
                     HOSTNAME)
     simple_loading_bar({task_text: task_command}, time_to_wait=300)
 
-    # sometimes this is owned by root, so we need to fix the permissions
-    if path.exists(KUBECONFIG_PATH):
-        chmod_config = f'sudo chmod 644 {KUBECONFIG_PATH}'
-        chmod_config = f'sudo chown {USER}: {KUBECONFIG_PATH}'
-        subproc([chmod_config], spinner=False)
-
+    log.info("Creating kubeconfig for k0s cluster...")
     # create a kube config
     create_config = 'sudo k0s kubeconfig admin'
     kubeconfig = subproc([create_config], spinner=False)
+
+    # sometimes this is owned by root, so we need to fix the permissions
+    if path.exists(KUBECONFIG_PATH):
+        chmod_config = f'sudo chmod 644 {KUBECONFIG_PATH}'
+        chown_config = f'sudo chown {USER}: {KUBECONFIG_PATH}'
+        subproc([chmod_config, chown_config], spinner=False)
 
     # we still have to write the output of the above command to a file
     with open(KUBECONFIG_PATH, "w") as kubefile:

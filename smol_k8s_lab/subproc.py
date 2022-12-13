@@ -23,13 +23,13 @@ def basic_syntax(bash_string=""):
     splits up a string and does some basic syntax highlighting
     """
     parts = bash_string.split(' ')
-    base_cmd = f'[magenta]{parts[0]}[/magenta]'
+    base_cmd = f'[yellow]{parts[0]}[/yellow]'
     if len(parts) == 1:
         return base_cmd
     else:
-        bash_string = bash_string.replace(parts[0], base_cmd)
-        bash_string = bash_string.replace(parts[1],
-                                          f'[yellow]{parts[1]}[/yellow]')
+        bash_string = bash_string.replace(parts[0], base_cmd, 1)
+        formatted_str = f'[cornflower_blue]{parts[1]}[/cornflower_blue]'
+        bash_string = bash_string.replace(parts[1], formatted_str, 1)
         return bash_string
 
 
@@ -78,6 +78,7 @@ def subproc(commands=[], **kwargs):
             log.info(status_line, extra={"markup": True})
             output = run_subprocess(cmd, **kwargs)
         else:
+            log.debug(cmd)
             with console.status(status_line,
                                 spinner='aesthetic',
                                 speed=0.75) as status:
@@ -112,7 +113,10 @@ def run_subprocess(command, **kwargs):
 
     return_code = p.returncode
     res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
-    log.info(res_stdout)
+
+    # if quiet = True, or res_stdout is empty, we hide this
+    if res_stdout and not quiet:
+        log.info(res_stdout)
 
     # check return code, raise error if failure
     if not return_code or return_code != 0:
