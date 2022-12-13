@@ -14,12 +14,13 @@ setup pre-reqs listed below.
 
 <details>
   <summary>One time Pre-Req</summary>
-- Python 3.11 (`brew install python3.11`)
+
 - [brew](https://brew.sh)
+- Python 3.11 (`brew install python3.11`)
 - Have internet access.
 
 ```bash
-# install prereqs like brew
+# install prereqs like brew and krew and drew (I made up drew)
 ./setup.sh
 ```
 
@@ -39,11 +40,14 @@ Then you should be able to show the help text :)
 ./smol-k8s-lab --help
 ```
 
-The help should return this:
+<details>
+  <summary>Help text example</summary>
 
 [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
 
-🔔 Then you *have to edit* your `$XDG_CONFIG_DIR` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values. Better cli options and Interactive config setup coming soon!
+</details>
+
+🔔 Then you *have to edit* your `$XDG_CONFIG_DIR/smol-k8s-lab/config.yaml` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values. Better cli options and Interactive config setup coming soon!
 
 Here's an example file already filled out with comments:
 
