@@ -70,3 +70,28 @@ After SSL is working (if it's not, follow the steps in the [cert-manager common 
 
 ### Troubleshooting
 If you're stuck, checkout the [Notes section](https://jessebot.github.io/smol-k8s-lab/notes) to see if we also got stuck on the same thing at some point :)
+
+
+<!-- k8s distro link references -->
+[k3s]: https://k3s.io/
+[KinD]: https://kind.sigs.k8s.io/
+[k0s]: https://k0sproject.io/
+
+<!-- k8s apps link references -->
+[metallb]: https://github.io/metallb/metallb "metallb"
+[Local Path Provisioner]: https://github.com/rancher/local-path-provisioner
+[nginx-ingress]: https://github.io/kubernetes/ingress-nginx
+[cert-manager]: https://cert-manager.io/docs/
+[k9s]: https://k9scli.io/topics/install/
+
+[ESO]: https://external-secrets.io/v0.5.9/
+[Argo CD]: https://github.io/argoproj/argo-helm
+[Kyverno]: https://github.com/kyverno/kyverno/
+
+<!-- smol-k8s-lab dependency lib link references -->
+[Poetry]: https://python-poetry.org/
+[rich]: https://github.com/Textualize/richP
+[PyYAML]: https://pyyaml.org/
+[bcrypt]: https://pypi.org/project/bcrypt/
+[click]: https://pypi.org/project/click/
+[Bitwarden cli]: https://bitwarden.com/help/cli/
