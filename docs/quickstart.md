@@ -1,5 +1,6 @@
 ---
 layout: default
+parent: Intro
 title: Quickstart
 description: "Smol K8s Homelab Quickstart"
 nav_order: 2

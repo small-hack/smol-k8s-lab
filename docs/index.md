@@ -2,6 +2,7 @@
 layout: default
 title: Intro
 description: "Smol K8s Lab Overview"
+has_children: true
 nav_order: 1
 permalink: /
 ---
@@ -10,13 +11,6 @@ permalink: /
 [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
 
 A project aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
-
-## QuickStart
-Get started with `smol-k8s-lab` today with our tutorial [here](https://jessebot.github.io/smol-k8s-lab/quickstart).
-
-There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol-k8s-lab/distros) as well as BASH scripts for basic automation of each k8s distro in:
-
-`./distro/[NAME OF K8S DISTRO]/bash_full_quickstart.sh`
 
 ### Supported k8s distributions
 We always install the latest version of kubernetes that is available from the distro's startup script.
@@ -27,7 +21,7 @@ We always install the latest version of kubernetes that is available from the di
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
-We tend to test first on k3s first, then the other distros.
+We tend to test first on kind and k3s first, then k0s.
 
 
 ### Stack We Install on K8s
@@ -61,11 +55,12 @@ smol-k8s-lab is written in Python and built and published using [Poetry]. You ca
 
 We also utilize the [Bitwarden cli], for a password manager so you never have to see/know your argocd password.
 
+## Things we don't handle
+
 ### Port Forwarding
 If you want to access an app outside of port forwarding to test, you'll need to make sure your app's ingress is setup correctly and then you'll need to setup your router to port forward 80->80 and 443->443 for your WAN. then setup DNS for your domain if you want the wider internet to access this remotely.
 
 ### SSL/TLS
-
 After SSL is working (if it's not, follow the steps in the [cert-manager common error troubleshooting guide](https://cert-manager.io/docs/faq/acme/#common-errors)), you can also change the `letsencrypt-staging` value to `letsencrypt-prod` for any domains you own and can configure to point to your cluster via DNS.
 
 ### Troubleshooting
