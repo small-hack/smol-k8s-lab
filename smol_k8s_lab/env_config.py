@@ -17,11 +17,21 @@ from .console_logging import print_panel
 from xdg import xdg_cache_home, xdg_config_home
 
 
+# env
+SYSINFO = uname()
+# this will be something like ('Darwin', 'x86_64')
+OS = (SYSINFO.sysname, SYSINFO.machine)
+
 HOME_DIR = getenv("HOME")
-PWD = path.dirname(__file__)
 USER = getuser()
+
+# pathing
 XDG_CACHE_DIR = path.join(xdg_cache_home(), 'smol-k8s-lab')
 XDG_CONFIG_DIR = path.join(xdg_config_home(), 'smol-k8s-lab/config.yaml')
+PWD = path.dirname(__file__)
+
+# version of smol-k8s-lab
+VERSION = get_version('smol-k8s-lab')
 
 
 def load_yaml(yaml_config_file=XDG_CONFIG_DIR):
@@ -36,19 +46,8 @@ def load_yaml(yaml_config_file=XDG_CONFIG_DIR):
         exit()
 
 
-# pathing
-PWD = path.dirname(__file__)
-
-# version of smol-k8s-lab
-VERSION = get_version('smol-k8s-lab')
-
 # defaults
 USR_CONFIG_FILE = load_yaml()
-
-# env
-SYSINFO = uname()
-# this will be something like ('Darwin', 'x86_64')
-OS = (SYSINFO.sysname, SYSINFO.machine)
 
 
 def check_os_support(supported_os=('Linux', 'Darwin')):
