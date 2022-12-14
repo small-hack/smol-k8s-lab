@@ -160,7 +160,7 @@ def main(k8s: str = "",
 
     # setup logging immediately
     log = setup_logger(log_level, log_file)
-    log.info("Logging configured")
+    log.debug("Logging configured.")
 
     # make sure we got a valid k8s distro
     if k8s not in SUPPORTED_DISTROS:
