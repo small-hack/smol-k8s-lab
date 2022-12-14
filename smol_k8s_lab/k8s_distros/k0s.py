@@ -2,7 +2,7 @@
 """
        Name: k0s
 DESCRIPTION: Install k0s
-     AUTHOR: Max!
+    AUTHORS: <https://github.com/cloudymax>, <https://github.com/jessebot>
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
@@ -10,6 +10,7 @@ import logging as log
 from os import path, chmod, remove
 from pathlib import Path
 from requests import get
+from shutil import which
 from socket import gethostname
 import stat
 
@@ -85,7 +86,11 @@ def uninstall_k0s():
     """
     Stop the k0s cluster, then remove all associated resources.
     """
+    if which('k0s'):
+        subproc(['sudo k0s stop'], error_ok=True)
+        subproc(['sudo k0s reset'], error_ok=True)
+    else:
+        log.debug("K0s is already uninstalled.")
+        sub_header("K0s is already uninstalled.", False, False)
 
-    subproc(['sudo k0s stop'], error_ok=True)
-    subproc(['sudo k0s reset'], error_ok=True)
     return True

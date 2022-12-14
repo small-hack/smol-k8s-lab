@@ -9,7 +9,9 @@ import logging as log
 from os import chmod, remove
 from pathlib import Path
 import requests
+from shutil import which
 import stat
+from ..console_logging import sub_header
 from ..env_config import HOME_DIR, USER
 from ..subproc import subproc
 
@@ -52,11 +54,18 @@ def install_k3s_cluster():
     # remove the script after we're done
     remove('./install.sh')
 
-    return
+    return True
 
 
 def uninstall_k3s():
     """
-    uninstall k3s
+    uninstall k3s if k3s is present
+    returns True
     """
-    subproc(['k3s-uninstall.sh'], error_ok=True, spinner=False)
+    if which('k3s-uninstall.sh'):
+        subproc(['k3s-uninstall.sh'], error_ok=True, spinner=False)
+    else:
+        log.debug("K3s is already uninstalled.")
+        sub_header("K3s is already uninstalled.", False, False)
+
+    return True
