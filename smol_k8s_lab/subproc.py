@@ -105,13 +105,14 @@ def run_subprocess(command, **kwargs):
     try:
         p = Popen(command.split(), stdout=PIPE, stderr=PIPE, **kwargs)
         res = p.communicate()
+        return_code = p.returncode
     except Exception as e:
         if error_ok:
-            log.error(str(e))
+            log.debug(str(e))
+            return str(e)
         else:
             raise Exception(e)
 
-    return_code = p.returncode
     res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
 
     # if quiet = True, or res_stdout is empty, we hide this

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.11
 """
        Name: kind
-DESCRIPTION: create or delete a kind cluster
-     AUTHOR: github.com/jessebot/smol-k8s-lab
+DESCRIPTION: create or delete a kind cluster, part of smol-k8s-lab
+     AUTHOR: <https://github.com/jessebot>
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 import logging as log
@@ -37,8 +37,13 @@ def install_kind_cluster():
 
 def delete_kind_cluster():
     """
-    delete kind cluster
+    delete kind cluster, if kind exists
     returns True
     """
-    subproc(['kind delete cluster'])
+    if which('kind'):
+        subproc(['kind delete cluster'])
+    else:
+        log.debug("Kind is not installed.")
+        sub_header("Kind is not installed.", False, False)
+
     return True
