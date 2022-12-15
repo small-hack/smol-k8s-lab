@@ -164,6 +164,16 @@ def main(k8s: str = "",
     log = setup_logger(log_level, log_file)
     log.debug("Logging configured.")
 
+    # make sure this OS is supported
+    check_os_support()
+
+    if extras:
+        # installs extra tooling such as helm, k9s, and krew
+        from .extras import install_extras
+        install_extras()
+        if not k8s:
+            exit()
+
     # make sure we got a valid k8s distro
     if k8s not in SUPPORTED_DISTROS:
         CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
@@ -171,20 +181,12 @@ def main(k8s: str = "",
                       f'{SUPPORTED_DISTROS}.\n')
         exit()
 
-    # make sure this OS is supported
-    check_os_support()
-
     if delete:
         # exits the script after deleting the cluster
         delete_cluster(k8s)
 
     # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
     Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
-
-    if extras:
-        # installs extra tooling such as helm, k9s, and krew
-        from .extras import install_extras
-        install_extras()
 
     # install the actual KIND or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
