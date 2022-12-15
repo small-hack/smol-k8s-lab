@@ -27,7 +27,7 @@ We've got a [Quickstart guide](https://jessebot.github.io/smol-k8s-lab/quickstar
 
 There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol-k8s-lab/distros) as well as BASH scripts for basic automation of each k8s distro in:
 
-`./distro/{NAME_OF_K8S_DISTRO}/bash_full_quickstart.sh`
+`./bash_scripts/{NAME_OF_K8S_DISTRO}/bash_full_quickstart.sh`
 
 ## Under the hood
 ### Supported k8s distributions
