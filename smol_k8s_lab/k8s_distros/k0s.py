@@ -70,7 +70,7 @@ def install_k0s_cluster():
 
     # sometimes this is owned by root, so we need to fix the permissions
     if path.exists(KUBECONFIG_PATH):
-        chmod_config = f'sudo chmod 644 {KUBECONFIG_PATH}'
+        chmod_config = f'sudo chmod 600 {KUBECONFIG_PATH}'
         chown_config = f'sudo chown {USER}: {KUBECONFIG_PATH}'
         subproc([chmod_config, chown_config], spinner=False)
 
