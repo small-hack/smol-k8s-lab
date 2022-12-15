@@ -33,7 +33,7 @@ def install_k3s_cluster():
 
     # create the k3s cluster (just one server node)
     cmd = ('./install.sh --disable=servicelb --disable=traefik '
-           '--write-kubeconfig-mode=647')
+           '--write-kubeconfig-mode=700')
     subproc([cmd], spinner=False)
 
     log.info(f"Updating your {HOME_DIR}/.kube/kubeconfig")
@@ -45,7 +45,7 @@ def install_k3s_cluster():
     cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {HOME_DIR}/.kube/kubeconfig'
 
     # change the permissions os that it doesn't complain
-    chmod_cmd = f'sudo chmod 644 {HOME_DIR}/.kube/kubeconfig'
+    chmod_cmd = f'sudo chmod 600 {HOME_DIR}/.kube/kubeconfig'
     chown_cmd = f'sudo chown {USER}: {HOME_DIR}/.kube/kubeconfig'
 
     # run both commands one after the other

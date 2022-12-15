@@ -16,7 +16,7 @@ export EMAIL="youremail@coolemail4dogs.com"
 
 # From the cloned repo dir, This should set up KinD for you
 # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-./distros/kind/bash_full_quickstart.sh
+./bash_scripts/kind/bash_full_quickstart.sh
 ```
 
 #### Ready to clean up this cluster?
