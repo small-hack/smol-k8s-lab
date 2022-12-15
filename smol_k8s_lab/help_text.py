@@ -13,6 +13,9 @@ from rich.theme import Theme
 from .env_config import VERSION, XDG_CONFIG_DIR
 
 
+RECORD = False
+
+
 def pretty_choices(default_list):
     """
     Takes a list of default choices and surrounds them with a meta markup tag
@@ -94,7 +97,7 @@ class RichCommand(click.Command):
                                        "switch": "sky_blue2",
                                        "meta": "light_steel_blue",
                                        "skl_title": "cornflower_blue"}),
-                          highlighter=highlighter, record=False)
+                          highlighter=highlighter, record=RECORD)
 
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
@@ -151,4 +154,5 @@ class RichCommand(click.Command):
                             subtitle=url))
 
         # I use this to print a pretty svg at the end sometimes
-        # console.save_svg("docs/screenshots/help_text.svg")
+        if RECORD:
+            console.save_svg("docs/screenshots/help_text.svg")
