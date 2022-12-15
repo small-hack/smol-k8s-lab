@@ -12,6 +12,7 @@ Best for Linux on metal or a bridged VM
 
 #### Pre-Req
 - Have internet access.
+- clone the [smol-k8s-lab repo](https://github.com/jessebot/smol-k8s-lab)
 - Optional: Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 
 
@@ -40,7 +41,7 @@ Then you can run the script! :D
 ```bash
 # From the cloned repo dir, This should set up k3s and dependencies
 # Will also launch k9s, like top for k8s, To exit k9s, use type :quit
-./distros/k3s/bash_full_quickstart.sh
+./bash_scripts/k3s/bash_full_quickstart.sh
 ```
 
 #### Ready to clean up this cluster?
@@ -62,7 +63,7 @@ After SSL is working (if it's not, follow the steps in the [cert-manager common 
 
 ### Remote cluster administration
 
-You can also copy your remote k3s kubeconfig with a little script in `./distros/k3s/`:
+You can also copy your remote k3s kubeconfig with a little script in `./bash_scripts/k3s/`:
 
 ```bash
 # CHANGE THESE TO YOUR OWN DETAILS or not ¯\_(ツ)_/¯
@@ -71,5 +72,5 @@ export REMOTE_SSH_PORT="22"
 export REMOTE_USER="cooluser4dogs"
 
 # this script will totally wipe your kubeconfig :) use with CAUTION
-./distros/k3s/get-remote-k3s-yaml.sh
+./bash_scripts/k3s/get-remote-k3s-yaml.sh
 ```
