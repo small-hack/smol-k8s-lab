@@ -42,6 +42,10 @@ def options_help():
         'delete':
         'Delete the existing cluster.',
 
+        'extras':
+        'Install/update extra tools such as kubectl, krew, k9s, helm, and '
+        ' more via brew.',
+
         'external_secret_operator':
         'Install the external secrets operator to pull secrets from somewhere '
         'else, so far only supporting gitlab.',

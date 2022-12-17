@@ -130,6 +130,7 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--external_secret_operator', '-e', is_flag=True,
         help=HELP['external_secret_operator'])
+@option('--extras', '-E', is_flag=True, help=HELP['extras'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
 @option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
@@ -143,6 +144,7 @@ def main(k8s: str = "",
          config: str = "",
          delete: bool = False,
          external_secret_operator: bool = False,
+         extras: bool = False,
          kyverno: bool = False,
          k9s: bool = False,
          log_level: str = "",
@@ -178,6 +180,11 @@ def main(k8s: str = "",
 
     # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
     Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
+
+    if extras:
+        # installs extra tooling such as helm, k9s, and krew
+        from .extras import install_extras
+        install_extras()
 
     # install the actual KIND or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
