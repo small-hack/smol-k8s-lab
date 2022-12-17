@@ -1,11 +1,8 @@
-# containers for k8s
-brew "docker"
-
 # kubernetes in docker
 brew "kind"
 
 # kubernetes cli
-brew "kubectl"
+brew "kubernetes-cli"
 
 # k8s package manager
 brew "helm"
