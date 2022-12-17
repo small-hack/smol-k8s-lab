@@ -20,7 +20,7 @@ def install_extras():
     returns True
     """
     brewfile = path.join(PWD, 'config/extras/Brewfile')
-    cmds = [f"brew bundle {brewfile}",
+    cmds = [f"brew bundle --file={brewfile}",
             "kubectl krew install ctx",
             "kubectl krew install ns",
             "kubectl krew install example",
