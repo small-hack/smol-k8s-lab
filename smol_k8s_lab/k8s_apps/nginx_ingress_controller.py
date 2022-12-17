@@ -17,7 +17,7 @@ def configure_ingress_nginx(k8s_distro="k3s"):
     # set_options=nginx_chart_opts)
     """
     if k8s_distro == 'kind':
-        # TODO: Pin this version?
+        # TODO: Pin this version? 🤷
         url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx'
                '/main/deploy/static/provider/kind/deploy.yaml')
 
@@ -28,6 +28,7 @@ def configure_ingress_nginx(k8s_distro="k3s"):
         release = helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
                              chart_version='4.4.0',
-                             namespace='ingress-nginx')
+                             namespace='ingress-nginx',
+                             )
         release.install()
     return
