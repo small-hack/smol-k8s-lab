@@ -130,6 +130,7 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--external_secret_operator', '-e', is_flag=True,
         help=HELP['external_secret_operator'])
+@option('--extras', '-E', is_flag=True, help=HELP['extras'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
 @option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
@@ -143,6 +144,7 @@ def main(k8s: str = "",
          config: str = "",
          delete: bool = False,
          external_secret_operator: bool = False,
+         extras: bool = False,
          kyverno: bool = False,
          k9s: bool = False,
          log_level: str = "",
@@ -162,15 +164,22 @@ def main(k8s: str = "",
     log = setup_logger(log_level, log_file)
     log.debug("Logging configured.")
 
+    # make sure this OS is supported
+    check_os_support()
+
+    if extras:
+        # installs extra tooling such as helm, k9s, and krew
+        from .extras import install_extras
+        install_extras()
+        if not k8s:
+            exit()
+
     # make sure we got a valid k8s distro
     if k8s not in SUPPORTED_DISTROS:
         CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
                       'k8s distro. Please try again with any of '
                       f'{SUPPORTED_DISTROS}.\n')
         exit()
-
-    # make sure this OS is supported
-    check_os_support()
 
     if delete:
         # exits the script after deleting the cluster
