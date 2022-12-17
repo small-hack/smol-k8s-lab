@@ -5,7 +5,7 @@
 **/.DS_Store
 
 # when we do brew installs with a bundle file, we get this
-deps/Brewfile.lock.json
+**/Brewfile.lock.json
 
 # python packaging
 smol_k8s_lab.egg-info/**
