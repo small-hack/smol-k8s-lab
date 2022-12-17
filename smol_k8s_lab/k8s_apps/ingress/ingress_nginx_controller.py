@@ -18,10 +18,11 @@ def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str) -> None:
     """
     install nginx ingress controller from manifests for kind and helm for k3s
     """
-    url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/'
-           'deploy/static/provider/kind/deploy.yaml')
-
     if k8s_distro == 'kind':
+        # TODO: Pin this version?
+        url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx'
+               '/main/deploy/static/provider/kind/deploy.yaml')
+
         # this is to wait for the deployment to come up
         k8s_obj.apply_manifests(
                 url,
