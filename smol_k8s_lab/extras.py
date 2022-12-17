@@ -27,6 +27,6 @@ def install_extras():
             "kubectl krew install deprecations",
             "kubectl krew update",
             "kubectl krew upgrade"]
-    subproc(cmds)
+    subproc(cmds, error_ok=True)
 
     return True
