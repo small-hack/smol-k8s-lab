@@ -1,4 +1,4 @@
-## ☁️ *smol k8s lab* 🧸
+## ☁️ *smol k8s lab* 🧸 [![GitHub Release](https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=flat&labelColor=858585&color=6BF847&logo=GitHub&logoColor=white)](https://github.com/jessebot/smol-k8s-lab/releases)
 
 A project aimed at getting up and running **quickly** with slimmer k8s distros locally in one small command line tool, as well as benchmarking various k8s distros.
 
