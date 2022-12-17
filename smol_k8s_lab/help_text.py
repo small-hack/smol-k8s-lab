@@ -47,7 +47,7 @@ def options_help():
 
         'extras':
         'Install/update extra tools such as kubectl, krew, k9s, helm, and '
-        ' more via brew.',
+        'more via brew.',
 
         'external_secret_operator':
         'Install the external secrets operator to pull secrets from somewhere '
