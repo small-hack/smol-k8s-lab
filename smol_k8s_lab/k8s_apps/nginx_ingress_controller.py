@@ -9,7 +9,7 @@ from ..k8s_tools.homelabHelm import helm
 from ..k8s_tools.kubernetes_util import apply_manifests
 
 
-def configure_ingress_nginx(k8s_distro="k3s", prometheus=False):
+def configure_ingress_nginx(k8s_distro="k3s", prometheus="true"):
     """
     install nginx ingress controller from manifests for kind and helm for k3s
     # OLD: you need these to access webpages from outside the cluster
@@ -22,14 +22,11 @@ def configure_ingress_nginx(k8s_distro="k3s", prometheus=False):
                '/main/deploy/static/provider/kind/deploy.yaml')
 
         # this is to wait for the deployment to come up
-        if prometheus:
-            apply_manifests(url, "ingress-nginx", "ingress-nginx-controller",
-                            "app.kubernetes.io/component=controller")
-        else:
-            apply_manifests(url, "ingress-nginx", "ingress-nginx-controller",
+        apply_manifests(url, "ingress-nginx", "ingress-nginx-controller",
                             "app.kubernetes.io/component=controller")
     else:
-        nginx_chart_opts = {"prometheus.create": prometheus}
+        nginx_chart_opts = {"prometheus.create": prometheus,
+                            "prometheus.port": 9901}
         release = helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
                              chart_version='4.4.0',
