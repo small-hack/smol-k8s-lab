@@ -7,6 +7,7 @@ DESCRIPTION: install the nginx ingress controller
 """
 from ..k8s_tools.homelabHelm import helm
 from ..k8s_tools.kubernetes_util import apply_manifests
+from ..subproc import subproc
 
 
 def configure_ingress_nginx(k8s_distro="k3s", prometheus="true"):
@@ -23,7 +24,7 @@ def configure_ingress_nginx(k8s_distro="k3s", prometheus="true"):
 
         # this is to wait for the deployment to come up
         apply_manifests(url, "ingress-nginx", "ingress-nginx-controller",
-                            "app.kubernetes.io/component=controller")
+                        "app.kubernetes.io/component=controller")
     else:
         nginx_chart_opts = {"prometheus.create": prometheus,
                             "prometheus.port": 9901}
@@ -33,4 +34,8 @@ def configure_ingress_nginx(k8s_distro="k3s", prometheus="true"):
                              namespace='ingress-nginx',
                              set_options=nginx_chart_opts)
         release.install()
+
+    # deploy the metrics service
+    kubeapply = 'kubectl apply -f nginx-metrics-service.yaml'
+    subproc([kubeapply], spinner=True)
     return
