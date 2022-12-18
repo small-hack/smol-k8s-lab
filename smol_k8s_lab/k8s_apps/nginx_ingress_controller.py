@@ -7,6 +7,7 @@ DESCRIPTION: install the nginx ingress controller
 """
 from ..k8s_tools.homelabHelm import helm
 from ..k8s_tools.kubernetes_util import apply_manifests
+import os
 from ..subproc import subproc
 
 
@@ -36,6 +37,8 @@ def configure_ingress_nginx(k8s_distro="k3s", prometheus="true"):
         release.install()
 
     # deploy the metrics service
-    kubeapply = 'kubectl apply -f nginx-metrics-service.yaml'
+    full_path = os.path.realpath(__file__)
+    path, filename = os.path.split(full_path)
+    kubeapply = f'kubectl apply -f {path}/nginx-metrics-service.yaml'
     subproc([kubeapply], spinner=True)
     return
