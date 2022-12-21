@@ -19,7 +19,8 @@ from ..env_config import HOME_DIR, USER
 
 
 HOSTNAME = gethostname()
-KUBECONFIG_PATH = f'{HOME_DIR}/.kube/kubeconfig'
+KUBECONFIG = environ['KUBECONFIG']
+#KUBECONFIG_PATH = f'{HOME_DIR}/.kube/kubeconfig'
 
 
 def install_k0s_cluster():
