@@ -1,6 +1,19 @@
-## ☁️ *smol k8s lab* 🧸 [![GitHub Release](https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=flat&labelColor=858585&color=6BF847&logo=GitHub&logoColor=white)](https://github.com/jessebot/smol-k8s-lab/releases)
+<h2 align="center">
+  <img
+    src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png"
+    height="30"
+    width="0px"
+  />
+smol k8s lab 🧸 
+</h2>
 
-A project aimed at getting up and running **quickly** with slimmer k8s distros locally in one small command line tool, as well as benchmarking various k8s distros.
+<p align="center">
+  <a href="https://github.com/jessebot/smol-k8s-lab/releases">
+    <img src="https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white">
+  </a>
+</p>
+
+A tool to get up and running **quickly** with slimmer k8s distros on your local machine. Also helpful for benchmarking various k8s distros!
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg">
