@@ -13,7 +13,7 @@ smol k8s lab 🧸
   </a>
 </p>
 
-A tool to get up and running **quickly** with slimmer k8s distros on your local machine. Also helpful for benchmarking various k8s distros!
+A tool to get up and running **quickly** with slimmer k8s distros on your local machine. Also helpful for benchmarking various k8s distros! :)
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg">
