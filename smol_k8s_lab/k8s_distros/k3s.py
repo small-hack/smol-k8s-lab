@@ -7,12 +7,11 @@ DESCRIPTION: install k3s :D
 """
 import logging as log
 from os import chmod, remove
-from pathlib import Path
 import requests
 from shutil import which
 import stat
 from ..console_logging import sub_header
-from ..env_config import HOME_DIR, USER
+from ..env_config import USER, KUBECONFIG
 from ..subproc import subproc
 
 
@@ -36,17 +35,14 @@ def install_k3s_cluster():
            '--write-kubeconfig-mode=700')
     subproc([cmd], spinner=False)
 
-    log.info(f"Updating your {HOME_DIR}/.kube/kubeconfig")
-
-    # create the ~/.kube directory if it doesn't exist
-    Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
+    log.info(f"Updating your {KUBECONFIG}")
 
     # Grab the kubeconfig and copy it locally
-    cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {HOME_DIR}/.kube/kubeconfig'
+    cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {KUBECONFIG}'
 
     # change the permissions os that it doesn't complain
-    chmod_cmd = f'sudo chmod 600 {HOME_DIR}/.kube/kubeconfig'
-    chown_cmd = f'sudo chown {USER}: {HOME_DIR}/.kube/kubeconfig'
+    chmod_cmd = f'sudo chmod 600 {KUBECONFIG}'
+    chown_cmd = f'sudo chown {USER}: {KUBECONFIG}'
 
     # run both commands one after the other
     subproc([cp, chmod_cmd, chown_cmd])

@@ -8,18 +8,17 @@ DESCRIPTION: Install k0s
 
 import logging as log
 from os import path, chmod, remove
-from pathlib import Path
 from requests import get
 from shutil import which
 from socket import gethostname
 import stat
 
 from ..subproc import subproc, simple_loading_bar
-from ..env_config import HOME_DIR, USER
+from ..env_config import USER, KUBECONFIG
+from ..console_logging import sub_header
 
 
 HOSTNAME = gethostname()
-KUBECONFIG_PATH = f'{HOME_DIR}/.kube/kubeconfig'
 
 
 def install_k0s_cluster():
@@ -54,9 +53,6 @@ def install_k0s_cluster():
 
     # cleanup the installer file
     remove(install_path)
-    
-    # create the ~/.kube directory if it doesn't exist
-    Path(f'{HOME_DIR}/.kube').mkdir(exist_ok=True)
 
     task_text = 'Waiting for node to become active...'
     task_command = ('sudo k0s kubectl wait --for=condition=ready node ' +
@@ -68,16 +64,15 @@ def install_k0s_cluster():
     create_config = 'sudo k0s kubeconfig admin'
     kubeconfig = subproc([create_config], spinner=False)
 
-    # sometimes this is owned by root, so we need to fix the permissions
-    if path.exists(KUBECONFIG_PATH):
-        chmod_config = f'sudo chmod 600 {KUBECONFIG_PATH}'
-        chown_config = f'sudo chown {USER}: {KUBECONFIG_PATH}'
-        subproc([chmod_config, chown_config], spinner=False)
-
     # we still have to write the output of the above command to a file
-    with open(KUBECONFIG_PATH, "w") as kubefile:
+    with open(KUBECONFIG, "w") as kubefile:
         for line in kubeconfig:
             kubefile.write(line)
+
+    # sometimes this is owned by root, so we need to fix the permissions
+    chmod_config = f'sudo chmod 600 {KUBECONFIG}'
+    chown_config = f'sudo chown {USER}: {KUBECONFIG}'
+    subproc([chmod_config, chown_config], spinner=False)
 
     return
 
