@@ -17,7 +17,7 @@ from sys import exit
 # custom libs and constants
 from .console_logging import CONSOLE, header, sub_header
 from .env_config import check_os_support, HOME_DIR, USR_CONFIG_FILE, VERSION
-from .env_config import XDG_CACHE_DIR
+from .env_config import XDG_CACHE_DIR, KUBECONFIG
 from .help_text import RichCommand, options_help
 
 
@@ -233,7 +233,7 @@ def main(k8s: str = "",
     # we're done :D
     print("")
     CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
-                        f"[b]export KUBECONFIG={HOME_DIR}/.kube/kubeconfig\n",
+                        f"[b]export KUBECONFIG={KUBECONFIG}\n",
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
                         subtitle='♥ [cyan]Have a nice day[/] ♥',
                         border_style="cornflower_blue"))

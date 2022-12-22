@@ -34,7 +34,7 @@ XDG_CACHE_DIR = path.join(xdg_cache_home(), 'smol-k8s-lab')
 XDG_CONFIG_DIR = path.join(xdg_config_home(), 'smol-k8s-lab/config.yaml')
 
 # for specifically the kubeconfig file
-XDG_KUBE_FILE = path.join(xdg_config_home, 'kube/config')
+XDG_KUBE_FILE = path.join(xdg_config_home(), 'kube/config')
 # default to ~/.config/kube/config if no KUBECONFIG or XDG_CONFIG set
 KUBECONFIG = environ.get("KUBECONFIG", XDG_KUBE_FILE)
 KUBE_DIR = path.dirname(KUBECONFIG)
