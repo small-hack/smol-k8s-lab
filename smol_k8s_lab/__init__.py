@@ -17,7 +17,7 @@ from sys import exit
 # custom libs and constants
 from .console_logging import CONSOLE, header, sub_header
 from .env_config import check_os_support, HOME_DIR, USR_CONFIG_FILE, VERSION
-from .env_config import XDG_CACHE_DIR, KUBECONFIG
+from .env_config import XDG_CACHE_DIR, XDG_CONFIG_DIR, KUBECONFIG
 from .help_text import RichCommand, options_help
 
 
@@ -187,6 +187,8 @@ def main(k8s: str = "",
 
     # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
     Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
+    # make sure the config directory exists (typically ~/.config/smol-k8s-lab)
+    Path(XDG_CONFIG_DIR).mkdir(exist_ok=True)
 
     # install the actual KIND or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
