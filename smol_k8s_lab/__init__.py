@@ -197,7 +197,7 @@ def main(k8s: str = "",
 
     # make sure helm is installed and the repos are up to date
     from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s, argo, external_secret_operator, kyverno)
+    prepare_helm(k8s, argo, external_secret_operator, kyverno, minio)
 
     # needed for metal (non-cloud provider) installs
     header("Installing [b]metallb[/b] so we have an ip address pool")
@@ -228,7 +228,7 @@ def main(k8s: str = "",
     # minio: local object storage that is s3 compatible
     if minio:
         from .k8s_apps.minio import install_minio
-        install_minio()
+        install_minio(password_manager)
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo:
