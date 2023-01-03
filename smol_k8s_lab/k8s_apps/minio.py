@@ -21,7 +21,8 @@ def install_minio(password_manager=False):
     minio_password = bw.generate()
 
     # for set options in helm
-    val = {'rootUser': 'minio_admin', 'rootPassword': minio_password}
+    val = {'rootUser': 'minio_admin', 'rootPassword': minio_password,
+           'replicas': 2}
 
     # if we're using a password manager, generate a password & save it
     if password_manager:
