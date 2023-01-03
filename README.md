@@ -4,7 +4,7 @@
     height="30"
     width="0px"
   />
-smol k8s lab 🧸 
+smol k8s lab 🧸
 </h2>
 
 <p align="center">
@@ -74,6 +74,7 @@ Version is the helm chart version, or manifest version.
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.6.1 | external-secrets-operator integrates external secret management systems like GitLab|
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.16.2 | Gitops - Continuous Deployment |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/minio_icon.png"  width="32" alt="minio logo">][MinIO] <br /> [MinIO] | | Local object storage, for testing apps that need the S3 API |
 
 
 ### Tooling Used for the CLI itself and interface
@@ -138,11 +139,15 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [Local Path Provisioner]: https://github.com/rancher/local-path-provisioner
 [nginx-ingress]: https://github.io/kubernetes/ingress-nginx
 [cert-manager]: https://cert-manager.io/docs/
-[k9s]: https://k9scli.io/topics/install/
 
+<!-- k8s optional apps link references -->
+[MinIO]: https://github.com/minio/minio/tree/master/helm/minio
 [ESO]: https://external-secrets.io/v0.5.9/
 [Argo CD]: https://github.io/argoproj/argo-helm
 [Kyverno]: https://github.com/kyverno/kyverno/
+
+<!-- k8s tooling reference -->
+[k9s]: https://k9scli.io/topics/install/
 
 <!-- smol-k8s-lab dependency lib link references -->
 [Poetry]: https://python-poetry.org/

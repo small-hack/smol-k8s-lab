@@ -133,6 +133,7 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--extras', '-E', is_flag=True, help=HELP['extras'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
+@option('--minio', '-m', is_flag=True, help=HELP['minio'])
 @option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
         type=Choice(['debug', 'info', 'warn', 'error']))
 @option('--log_file', '-o', metavar='LOGFILE', help=HELP['log_file'])
@@ -150,6 +151,7 @@ def main(k8s: str = "",
          log_level: str = "",
          log_file: str = "",
          password_manager: bool = False,
+         minio: bool = False,
          version: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
@@ -222,6 +224,11 @@ def main(k8s: str = "",
     if kyverno:
         from .k8s_apps.kyverno import install_kyverno
         install_kyverno()
+
+    # minio: local object storage that is s3 compatible
+    if minio:
+        from .k8s_apps.minio import install_minio
+        install_minio()
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo:
