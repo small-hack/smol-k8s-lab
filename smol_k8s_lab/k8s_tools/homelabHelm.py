@@ -77,11 +77,12 @@ class helm:
             Installs helm chart to current k8s context, takes optional wait arg
             Defaults to False, if True, will wait till deployments are up
             keyword args:
-                - release_name: str to call this installation
-                - chart_name: str of helm chart to use (repo/chart)
+                - release_name:  str to call this installation
+                - chart_name:    str of helm chart to use (repo/chart)
                 - chart_version: version of the chart to install
-                - namespace: str of namespace to deploy release to
-                - values_file: a str of a file to use with --values
+                - namespace:     str of namespace to deploy release to
+                - values_file:   str of a file to use with --values
+                - set_options:   dict of key/values to be passed with --set
             """
             cmd = (f'helm upgrade {self.release_name} {self.chart_name}'
                    f' --install -n {self.namespace} --create-namespace')
@@ -112,7 +113,7 @@ class helm:
 
 
 def add_default_repos(k8s_distro, argo=False, external_secrets=False,
-                      kyverno=False):
+                      kyverno=False, minio=False):
     """
     Add all the default helm chart repos:
     - metallb is for loadbalancing and assigning ips, on metal...
@@ -136,6 +137,9 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
     if kyverno:
         repos['kyverno'] = 'https://kyverno.github.io/kyverno/'
 
+    if minio:
+        repos['minio'] = 'https://charts.min.io/'
+
     # kind has a special install path
     if k8s_distro == 'kind':
         repos.pop('ingress-nginx')
@@ -146,7 +150,7 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
 
 
 def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
-                 kyverno=False):
+                 kyverno=False, minio=False):
     """
     get helm installed if needed, and then install/update all the helm repos
     """
@@ -158,5 +162,5 @@ def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, argo, external_secrets, kyverno)
+    add_default_repos(k8s_distro, argo, external_secrets, kyverno, minio)
     return
