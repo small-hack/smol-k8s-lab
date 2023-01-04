@@ -133,6 +133,7 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--extras', '-E', is_flag=True, help=HELP['extras'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
+@option('--minio', '-m', is_flag=True, help=HELP['minio'])
 @option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
         type=Choice(['debug', 'info', 'warn', 'error']))
 @option('--log_file', '-o', metavar='LOGFILE', help=HELP['log_file'])
@@ -150,6 +151,7 @@ def main(k8s: str = "",
          log_level: str = "",
          log_file: str = "",
          password_manager: bool = False,
+         minio: bool = False,
          version: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
@@ -188,14 +190,14 @@ def main(k8s: str = "",
     # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
     Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
 
-    # install the actual KIND or k3s cluster
+    # install the actual KIND, k0s, or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
     sub_header('This could take a min ʕ•́  ̫•̀ʔっ♡ ', False)
     install_k8s_distro(k8s)
 
     # make sure helm is installed and the repos are up to date
     from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s, argo, external_secret_operator, kyverno)
+    prepare_helm(k8s, argo, external_secret_operator, kyverno, minio)
 
     # needed for metal (non-cloud provider) installs
     header("Installing [b]metallb[/b] so we have an ip address pool")
@@ -223,10 +225,27 @@ def main(k8s: str = "",
         from .k8s_apps.kyverno import install_kyverno
         install_kyverno()
 
+    # minio: local object storage that is s3 compatible
+    if minio:
+        # user can configure a special domain for argocd
+        minio_fqdn = USR_CONFIG_FILE['domain']['minio']
+        minio_console_fqdn = USR_CONFIG_FILE['domain']['minio_console']
+        if USR_CONFIG_FILE['domain'].get('base', False):
+            minio_fqdn = ".".join([minio_fqdn,
+                                   USR_CONFIG_FILE['domain']['base']])
+            minio_console_fqdn = ".".join([minio_fqdn,
+                                           USR_CONFIG_FILE['domain']['base']])
+
+        from .k8s_apps.minio import install_minio
+        install_minio(minio_fqdn, minio_console_fqdn, password_manager)
+
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo:
-        argocd_fqdn = ".".join([USR_CONFIG_FILE['domain']['argo_cd'],
-                                USR_CONFIG_FILE['domain']['base']])
+        # user can configure a special domain for argocd
+        argocd_fqdn = USR_CONFIG_FILE['domain']['argo_cd']
+        if USR_CONFIG_FILE['domain'].get('base', False):
+            argocd_fqdn = ".".join([argocd_fqdn,
+                                    USR_CONFIG_FILE['domain']['base']])
         from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
 
