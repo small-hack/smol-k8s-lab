@@ -31,7 +31,7 @@ PWD = path.dirname(__file__)
 
 # for smol-k8s-lab configs and cache
 XDG_CACHE_DIR = path.join(xdg_cache_home(), 'smol-k8s-lab')
-XDG_CONFIG_DIR = path.join(xdg_config_home(), 'smol-k8s-lab/config.yaml')
+XDG_CONFIG_DIR = path.join(xdg_config_home(), 'smol-k8s-lab')
 
 # for specifically the kubeconfig file
 XDG_KUBE_FILE = path.join(xdg_config_home(), 'kube/config')
@@ -45,7 +45,7 @@ Path(KUBE_DIR).mkdir(exist_ok=True)
 VERSION = get_version('smol-k8s-lab')
 
 
-def load_yaml(yaml_config_file=XDG_CONFIG_DIR):
+def load_yaml(yaml_config_file=f'{XDG_CONFIG_DIR}/config.yaml'):
     """
     load config yaml files for smol-k8s-lab and return as dicts
     """

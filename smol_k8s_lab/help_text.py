@@ -40,7 +40,7 @@ def options_help():
 
         'config':
         'Full path and name of yml to parse.\n Defaults to '
-        f'[light_steel_blue]{XDG_CONFIG_DIR}[/]',
+        f'[light_steel_blue]{XDG_CONFIG_DIR}/config.yaml[/]',
 
         'delete':
         'Delete the existing cluster.',
