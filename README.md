@@ -36,7 +36,53 @@ smol-k8s-lab --help
 ```
 
 ### Configuration
-We've got a [Quickstart guide](https://jessebot.github.io/smol-k8s-lab/quickstart) for you to jump right in!
+We've got a [Quickstart guide](https://jessebot.github.io/smol-k8s-lab/quickstart) for you to jump right in, but for sake of getting you up and running quickly, please run the following:
+
+```bash
+# create the directory structure. smol-k8s-lab will also use XDG base dir spec.
+# if you'd like XDG, change the below line to: mkdir -p $XDG_CONFIG_HOME/smol-k8s-lab
+mkdir -p ~/.config/smol-k8s-lab
+
+# this doesn't have to be vim, you can use any editor of your choice :)
+vim config.yaml
+```
+
+In the newly created `config.yaml`, add the following:
+
+```yaml
+# FQDN to access your web interfaces: all of these are only required if you
+# specify optional app installs, such as argo or minio.
+domain:
+  # your base domain for use with subdomains below
+  # if commented out, you need to provide the entire domain name for each app
+  base: "coolwebsitefordogs.com"
+  # subdomain for Argo CD, if you had base set, this would be:
+  # argocd.coolwebsitefordogs.com, otherwise you'd need to change to the FQDN
+  argo_cd: "argocd"
+  minio: "minio"
+  minio_console: "minio.console"
+
+# metallb IPs used for DNS later (make sure they're not in use)
+metallb_address_pool:
+  # Example of required full CIDR notation
+  # - 192.168.90.01/32
+
+# Used for letsencrypt-staging, to generate certs, change this to your email
+email: "coolemailfordogs@verygooddogs.net"
+
+# Use the external secrets provider with gitlab
+external_secrets:
+  gitlab:
+    # token from here: https://gitlab.com/-/profile/personal_access_tokens
+    access_token: "kjdfsk758934fkldsafds"
+    namespace: "nextcloud"
+
+log:
+  # logging level, Options: debug, info, warn, error
+  level: "info"
+  # optional: path of file to log to
+  # file: "./smol-k8s-log.log"
+```
 
 There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol-k8s-lab/distros) as well as BASH scripts for basic automation of each k8s distro in:
 
