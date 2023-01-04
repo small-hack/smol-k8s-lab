@@ -233,7 +233,7 @@ def main(k8s: str = "",
         if USR_CONFIG_FILE['domain'].get('base', False):
             minio_fqdn = ".".join([minio_fqdn,
                                    USR_CONFIG_FILE['domain']['base']])
-            minio_console_fqdn = ".".join([minio_fqdn,
+            minio_console_fqdn = ".".join([minio_console_fqdn,
                                            USR_CONFIG_FILE['domain']['base']])
 
         from .k8s_apps.minio import install_minio
