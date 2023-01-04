@@ -53,7 +53,9 @@ def load_yaml(yaml_config_file=XDG_CONFIG_DIR):
         with open(yaml_config_file, 'r') as yaml_file:
             return yaml.safe_load(yaml_file)
     else:
-        print(f"Config file does not exist: {yaml_config_file}")
+        print_panel(f"😱 Config file does not exist: {yaml_config_file}\n\n"
+              "Please check the documentatation here:\nhttps://small-hack."
+              "github.io/smol-k8s-lab/quickstart#configuration")
         exit()
 
 
