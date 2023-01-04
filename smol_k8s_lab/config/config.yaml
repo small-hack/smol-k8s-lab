@@ -1,4 +1,6 @@
-# FQDN to access your web interfaces
+---
+# FQDN to access your web interfaces: all of these are only required if you
+# specify optional app installs, such as argo or minio.
 domain:
   # your base domain for use with subdomains below
   # if commented out, you need to provide the entire domain name for each app
@@ -11,8 +13,8 @@ domain:
 
 # metallb IPs used for DNS later (make sure they're not in use)
 metallb_address_pool:
-  # Example of required full CIDR notation
-  # - 192.168.90.01/32
+#   Example of required full CIDR notation
+#   - 192.168.90.01/32
 
 # Used for letsencrypt-staging, to generate certs
 email: "coolemailfordogs@verygooddogs.net"
@@ -29,4 +31,4 @@ log:
   # logging level, Options: debug, info, warn, error
   level: "info"
   # path of file to log to
-  file: "./smol-k8s-log.log"
+  # file: "./smol-k8s-log.log"

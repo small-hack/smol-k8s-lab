@@ -47,17 +47,22 @@ Then you should be able to show the help text :)
 Here's an example config file already filled out with comments:
 
 ```yaml
-# FQDN to access your web interfaces
+# FQDN to access your web interfaces: all of these are only required if you
+# specify optional app installs, such as argo or minio.
 domain:
   # your base domain for use with subdomains below
+  # if commented out, you need to provide the entire domain name for each app
   base: "coolwebsitefordogs.com"
-  # subdomain for Argo CD, so this would be argocd.coolwebsitefordogs.com
+  # subdomain for Argo CD, if you had base set, this would be:
+  # argocd.coolwebsitefordogs.com, otherwise you'd need to change to the FQDN
   argo_cd: "argocd"
+  minio: "minio"
+  minio_console: "minio.console"
 
 # metallb IPs used for DNS later (make sure they're not in use)
 metallb_address_pool:
-  # HAVE to be full CIDR notation
-  - 192.168.90.01/32
+#   Example of required full CIDR notation
+#   - 192.168.90.01/32
 
 # Used for letsencrypt-staging, to generate certs
 email: "coolemailfordogs@verygooddogs.net"
@@ -73,7 +78,7 @@ external_secrets:
 log:
   # logging level, Options: debug, info, warn, error
   level: "info"
-  # path of file to log to, disabled by default
+  # path of file to log to
   # file: "./smol-k8s-log.log"
 ```
 
