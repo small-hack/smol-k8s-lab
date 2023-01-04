@@ -4,7 +4,7 @@
     height="30"
     width="0px"
   />
-smol k8s lab 🧸 
+smol k8s lab 🧸
 </h2>
 
 <p align="center">
@@ -36,7 +36,53 @@ smol-k8s-lab --help
 ```
 
 ### Configuration
-We've got a [Quickstart guide](https://jessebot.github.io/smol-k8s-lab/quickstart) for you to jump right in!
+We've got a [Quickstart guide](https://jessebot.github.io/smol-k8s-lab/quickstart) for you to jump right in, but for sake of getting you up and running quickly, please run the following:
+
+```bash
+# create the directory structure. smol-k8s-lab will also use XDG base dir spec.
+# if you'd like XDG, change the below line to: mkdir -p $XDG_CONFIG_HOME/smol-k8s-lab
+mkdir -p ~/.config/smol-k8s-lab
+
+# this doesn't have to be vim, you can use any editor of your choice :)
+vim config.yaml
+```
+
+In the newly created `config.yaml`, add the following:
+
+```yaml
+# FQDN to access your web interfaces: all of these are only required if you
+# specify optional app installs, such as argo or minio.
+domain:
+  # your base domain for use with subdomains below
+  # if commented out, you need to provide the entire domain name for each app
+  base: "coolwebsitefordogs.com"
+  # subdomain for Argo CD, if you had base set, this would be:
+  # argocd.coolwebsitefordogs.com, otherwise you'd need to change to the FQDN
+  argo_cd: "argocd"
+  minio: "minio"
+  minio_console: "minio.console"
+
+# metallb IPs used for DNS later (make sure they're not in use)
+metallb_address_pool:
+  # Example of required full CIDR notation
+  # - 192.168.90.01/32
+
+# Used for letsencrypt-staging, to generate certs, change this to your email
+email: "coolemailfordogs@verygooddogs.net"
+
+# Use the external secrets provider with gitlab
+external_secrets:
+  gitlab:
+    # token from here: https://gitlab.com/-/profile/personal_access_tokens
+    access_token: "kjdfsk758934fkldsafds"
+    namespace: "nextcloud"
+
+log:
+  # logging level, Options: debug, info, warn, error
+  level: "info"
+  # optional: path of file to log to
+  # file: "./smol-k8s-log.log"
+```
 
 There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol-k8s-lab/distros) as well as BASH scripts for basic automation of each k8s distro in:
 
@@ -74,6 +120,7 @@ Version is the helm chart version, or manifest version.
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.6.1 | external-secrets-operator integrates external secret management systems like GitLab|
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.16.2 | Gitops - Continuous Deployment |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/minio_icon.png"  width="32" alt="minio logo">][MinIO] <br /> [MinIO] | | Local object storage, for testing apps that need the S3 API |
 
 
 ### Tooling Used for the CLI itself and interface
@@ -138,11 +185,15 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [Local Path Provisioner]: https://github.com/rancher/local-path-provisioner
 [nginx-ingress]: https://github.io/kubernetes/ingress-nginx
 [cert-manager]: https://cert-manager.io/docs/
-[k9s]: https://k9scli.io/topics/install/
 
+<!-- k8s optional apps link references -->
+[MinIO]: https://github.com/minio/minio/tree/master/helm/minio
 [ESO]: https://external-secrets.io/v0.5.9/
 [Argo CD]: https://github.io/argoproj/argo-helm
 [Kyverno]: https://github.com/kyverno/kyverno/
+
+<!-- k8s tooling reference -->
+[k9s]: https://k9scli.io/topics/install/
 
 <!-- smol-k8s-lab dependency lib link references -->
 [Poetry]: https://python-poetry.org/
