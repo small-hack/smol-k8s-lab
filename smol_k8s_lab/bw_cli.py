@@ -29,6 +29,7 @@ class BwCLI():
         This is mostly for storing the session
         """
         self.session = None
+        self.delete_session = True
 
     def generate(self, special_characters=False):
         """
@@ -51,7 +52,9 @@ class BwCLI():
         """
         self.session = environ.get("BW_SESSION", None)
 
-        if not self.session:
+        if self.session:
+            self.delete_session = False
+        else:
             log.info('Unlocking the Bitwarden vault...')
 
             pw = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
@@ -61,14 +64,14 @@ class BwCLI():
                                    spinner=False)
             log.info('Unlocked the Bitwarden vault.')
 
-    def lock(self):
+    def lock(self) -> None:
         """
-        lock the local bitwarden vault
+        lock bitwarden vault, only if the user didn't have a session env var
         """
-        log.info('Locking the Bitwarden vault...')
-        subproc([f"bw lock --session {self.session}"], quiet=True)
-        log.info('Bitwarden vault locked.')
-        return
+        if self.delete_session:
+            log.info('Locking the Bitwarden vault...')
+            subproc([f"bw lock --session {self.session}"], quiet=True)
+            log.info('Bitwarden vault locked.')
 
     def create_login(self, name="", item_url="", user="", password="",
                      org=None, collection=None):
