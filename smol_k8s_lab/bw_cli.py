@@ -16,6 +16,7 @@ import base64
 import json
 import logging as log
 from rich.prompt import Prompt
+from os import environ
 from .subproc import subproc
 
 
@@ -28,6 +29,7 @@ class BwCLI():
         This is mostly for storing the session
         """
         self.session = None
+        self.delete_session = True
 
     def generate(self, special_characters=False):
         """
@@ -46,25 +48,30 @@ class BwCLI():
     def unlock(self):
         """
         unlocks the local bitwarden vault, and returns session token
-        TODO: check local env vars for password or api key
         """
-        log.info('Unlocking the Bitwarden vault...')
+        self.session = environ.get("BW_SESSION", None)
 
-        password = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
-                              password=True)
+        if self.session:
+            log.info('Using session token from $BW_SESSION env variable')
+            self.delete_session = False
+        else:
+            log.info('Unlocking the Bitwarden vault...')
 
-        self.session = subproc([f"bw unlock {password} --raw"], quiet=True,
-                               spinner=False)
-        log.info('Unlocked the Bitwarden vault.')
+            pw = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
+                            password=True)
 
-    def lock(self):
+            self.session = subproc([f"bw unlock {pw} --raw"], quiet=True,
+                                   spinner=False)
+            log.info('Unlocked the Bitwarden vault.')
+
+    def lock(self) -> None:
         """
-        lock the local bitwarden vault
+        lock bitwarden vault, only if the user didn't have a session env var
         """
-        log.info('Locking the Bitwarden vault...')
-        subproc([f"bw lock --session {self.session}"], quiet=True)
-        log.info('Bitwarden vault locked.')
-        return
+        if self.delete_session:
+            log.info('Locking the Bitwarden vault...')
+            subproc([f"bw lock --session {self.session}"], quiet=True)
+            log.info('Bitwarden vault locked.')
 
     def create_login(self, name="", item_url="", user="", password="",
                      org=None, collection=None):
