@@ -48,11 +48,11 @@ class BwCLI():
     def unlock(self):
         """
         unlocks the local bitwarden vault, and returns session token
-        TODO: check local env vars for password or api key
         """
         self.session = environ.get("BW_SESSION", None)
 
         if self.session:
+            log.info('Using session token from $BW_SESSION env variable')
             self.delete_session = False
         else:
             log.info('Unlocking the Bitwarden vault...')
