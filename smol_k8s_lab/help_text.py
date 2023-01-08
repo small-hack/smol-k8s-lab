@@ -10,7 +10,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
-from .env_config import VERSION, XDG_CONFIG_DIR
+from .constants import VERSION, XDG_CONFIG_DIR
 
 
 RECORD = False

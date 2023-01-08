@@ -1,0 +1,14 @@
+smolK8sClusterInfo {
+    layout: horizontal;
+    background: $boost;
+    height: 5;
+    margin: 1;
+    min-width: 50;
+    padding: 1;
+}
+
+clusterDisplay {
+    content-align: left middle;
+    text-opacity: 60%;
+    height: 3;
+}

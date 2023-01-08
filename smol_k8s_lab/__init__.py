@@ -8,71 +8,21 @@
 
 from click import option, argument, command, Choice
 import logging
-from os import path
-from pathlib import Path
 from rich.panel import Panel
 from rich.logging import RichHandler
 from sys import exit
 
 # custom libs and constants
 from .console_logging import CONSOLE, header, sub_header
-from .env_config import check_os_support, HOME_DIR, USR_CONFIG_FILE, VERSION
-from .env_config import XDG_CACHE_DIR, KUBECONFIG
+from .logger import setup_logger
+from .env_config import check_os_support
+from .constants import KUBECONFIG, XDG_CONFIG_FILE, USR_CONFIG_FILE, VERSION
 from .help_text import RichCommand, options_help
 
 
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
-
-
-def setup_logger(level="", log_file=""):
-    """
-    Sets up rich logger for the entire project.
-    ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
-    Returns logging.getLogger("rich")
-    """
-    # determine logging level
-    if not level:
-        if USR_CONFIG_FILE and 'log' in USR_CONFIG_FILE:
-            level = USR_CONFIG_FILE['log']['level']
-        else:
-            level = 'info'
-
-    log_level = getattr(logging, level.upper(), None)
-
-    # these are params to be passed into logging.basicConfig
-    opts = {'level': log_level, 'format': "%(message)s", 'datefmt': "[%X]"}
-
-    # we only log to a file if one was passed into config.yaml or the cli
-    if not log_file:
-        if USR_CONFIG_FILE:
-            log_file = USR_CONFIG_FILE['log'].get('file', None)
-
-    # rich typically handles much of this but we don't use rich with files
-    if log_file:
-        opts['filename'] = log_file
-        opts['format'] = "%(asctime)s %(levelname)s %(funcName)s: %(message)s"
-    else:
-        rich_handler_opts = {'rich_tracebacks': True}
-        # 10 is the DEBUG logging level int value
-        if log_level == 10:
-            # log the name of the function if we're in debug mode :)
-            opts['format'] = "[bold]%(funcName)s()[/bold]: %(message)s"
-            rich_handler_opts['markup'] = True
-        else:
-            rich_handler_opts['show_path'] = False
-            rich_handler_opts['show_level'] = False
-
-        opts['handlers'] = [RichHandler(**rich_handler_opts)]
-
-    # this uses the opts dictionary as parameters to logging.basicConfig()
-    logging.basicConfig(**opts)
-
-    if log_file:
-        return logging
-    else:
-        return logging.getLogger("rich")
 
 
 def install_k8s_distro(k8s_distro=""):
@@ -125,8 +75,7 @@ def delete_cluster(k8s_distro="k3s"):
 @argument("k8s", metavar="<k0s, k3s, kind>", default="")
 @option('--argo', '-a', is_flag=True, help=HELP['argo'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
-        default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
-        help=HELP['config'])
+        default=XDG_CONFIG_FILE, help=HELP['config'])
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--external_secret_operator', '-e', is_flag=True,
         help=HELP['external_secret_operator'])
@@ -162,7 +111,11 @@ def main(k8s: str = "",
         print(f'\n🎉 v{VERSION}\n')
         return True
 
-    # setup logging immediately
+    # determine logging level and setup logger
+    if not log_level:
+        if USR_CONFIG_FILE and 'log' in USR_CONFIG_FILE:
+            log_level = USR_CONFIG_FILE['log']['level']
+
     log = setup_logger(log_level, log_file)
     log.debug("Logging configured.")
 
@@ -186,9 +139,6 @@ def main(k8s: str = "",
     if delete:
         # exits the script after deleting the cluster
         delete_cluster(k8s)
-
-    # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
-    Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
 
     # install the actual KIND, k0s, or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
