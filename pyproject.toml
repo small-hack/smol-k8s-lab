@@ -1,8 +1,8 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "0.10.11"
+version       = "0.11.0"
 description   = "bootstrap simple projects on kubernetes with kind and k3s"
-authors       = ["Jesse Hitch <jessebot@linux.com>"]
+authors       = ["JesseHitch <jessebot@linux.com>"]
 readme        = "README.md"
 packages      = [{include = "smol_k8s_lab"}]
 license       = "AGPL-3.0-or-later"
