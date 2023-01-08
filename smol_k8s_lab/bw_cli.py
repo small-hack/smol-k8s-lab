@@ -16,6 +16,7 @@ import base64
 import json
 import logging as log
 from rich.prompt import Prompt
+from os import environ
 from .subproc import subproc
 
 
@@ -48,14 +49,17 @@ class BwCLI():
         unlocks the local bitwarden vault, and returns session token
         TODO: check local env vars for password or api key
         """
-        log.info('Unlocking the Bitwarden vault...')
+        self.session = environ.get("BW_SESSION", None)
 
-        password = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
-                              password=True)
+        if not self.session:
+            log.info('Unlocking the Bitwarden vault...')
 
-        self.session = subproc([f"bw unlock {password} --raw"], quiet=True,
-                               spinner=False)
-        log.info('Unlocked the Bitwarden vault.')
+            pw = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
+                            password=True)
+
+            self.session = subproc([f"bw unlock {pw} --raw"], quiet=True,
+                                   spinner=False)
+            log.info('Unlocked the Bitwarden vault.')
 
     def lock(self):
         """
