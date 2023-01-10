@@ -108,7 +108,7 @@ Version is the helm chart version, or manifest version.
 
 |           Application           |    Version    |                      Description                      |
 |:-------------------------------:|:-------------:|:------------------------------------------------------|
-| 🐄 <br /> [Local Path Provisioner] |   k3s latest  | Default simple local file storage for persistent data |
+| 🐄 <br /> [Local Path Provisioner] |    latest  | [**k3s only**] Default simple local file storage for persistent data |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | 0.13.7 | loadbalancer for metal, since we're mostly selfhosting |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][nginx-ingress] <br /> [nginx-ingress] | 4.4.0 | The ingress controller allows access to the cluster remotely, needed for web traffic |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | 1.10.1 | For SSL/TLS certificates |
