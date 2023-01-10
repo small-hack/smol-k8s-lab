@@ -89,6 +89,8 @@ There's also full tutorials to manually set up different distros in the [docs we
 `./bash_scripts/{NAME_OF_K8S_DISTRO}/bash_full_quickstart.sh`
 
 ## Under the hood
+Note: this project is not officially afilliated with any of the below tooling or applications.
+
 ### Supported k8s distributions
 We always install the latest version of kubernetes that is available from the distro's startup script.
 
@@ -120,7 +122,7 @@ Version is the helm chart version, or manifest version.
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.6.1 | external-secrets-operator integrates external secret management systems like GitLab|
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.16.2 | Gitops - Continuous Deployment |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/minio_icon.png"  width="32" alt="minio logo">][MinIO] <br /> [MinIO] | | Local object storage, for testing apps that need the S3 API |
+| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/minio_logo.png"  width="32" alt="minio logo">][MinIO] <br /> [MinIO] | | Local object storage, for testing apps that need the S3 API |
 
 
 ### Tooling Used for the CLI itself and interface
