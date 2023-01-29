@@ -54,12 +54,14 @@ In the newly created `config.yaml`, add the following:
 # specify optional app installs, such as argo or minio.
 domain:
   # your base domain for use with subdomains below
-  # if commented out, you need to provide the entire domain name for each app
+  # if commented out, you need to provide the entire domain name for each app below
   base: "coolwebsitefordogs.com"
   # subdomain for Argo CD, if you had base set, this would be:
-  # argocd.coolwebsitefordogs.com, otherwise you'd need to change to the FQDN
+  # argocd.coolwebsitefordogs.com
   argo_cd: "argocd"
+  # subdomain for minio endpoint
   minio: "minio"
+  # subdomain for minio web console
   minio_console: "console.minio"
 
 # metallb IPs used for DNS later (make sure they're not in use)
@@ -70,8 +72,9 @@ metallb_address_pool:
 # Used for letsencrypt-staging, to generate certs, change this to your email
 email: "coolemailfordogs@verygooddogs.net"
 
-# Use the external secrets provider with gitlab
+# Use the external secrets provider with gitlab (only gitlab is currently supported)
 external_secrets:
+  enabled: false
   gitlab:
     # token from here: https://gitlab.com/-/profile/personal_access_tokens
     access_token: "kjdfsk758934fkldsafds"
