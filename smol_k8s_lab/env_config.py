@@ -12,10 +12,13 @@ from pathlib import Path
 from rich.prompt import Confirm
 from rich.live import Live
 from rich.table import Table
+
 from sys import exit
+from xdg_base_dirs import xdg_cache_home, xdg_config_home
 import yaml
+
+# custom lib
 from .console_logging import print_panel
-from xdg import xdg_cache_home, xdg_config_home
 
 
 # env

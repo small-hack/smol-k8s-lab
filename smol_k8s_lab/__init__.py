@@ -130,6 +130,7 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--external_secret_operator', '-e', is_flag=True,
         help=HELP['external_secret_operator'])
+@option('--gpu_operator', '-g', is_flag=True, help=HELP['gpu_operator'])
 @option('--extras', '-E', is_flag=True, help=HELP['extras'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
@@ -197,7 +198,8 @@ def main(k8s: str = "",
 
     # make sure helm is installed and the repos are up to date
     from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s, argo, external_secret_operator, kyverno, minio)
+    prepare_helm(k8s, argo, external_secret_operator, kyverno, minio,
+                 gpu_operator)
 
     # needed for metal (non-cloud provider) installs
     header("Installing [b]metallb[/b] so we have an ip address pool")

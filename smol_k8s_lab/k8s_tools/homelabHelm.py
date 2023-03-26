@@ -112,8 +112,8 @@ class helm:
             return True
 
 
-def add_default_repos(k8s_distro, argo=False, external_secrets=False,
-                      kyverno=False, minio=False):
+def add_default_repos(k8s_distro="", argo=False, external_secrets=False,
+                      kyverno=False, minio=False, gpu_operator=False):
     """
     Add all the default helm chart repos:
     - metallb is for loadbalancing and assigning ips, on metal...
@@ -121,6 +121,9 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
     - jetstack is for cert-manager for TLS certs
     - argo is argoCD to manage k8s resources in the future through a gui
     - kyverno is a k8s native policy manager
+    - minio is a self hosted S3 service
+    - gpu_operator is NVIDIA's GPU Operator for installing drivers 
+      on a host node based on the containers running on the cluster
     """
     repos = OrderedDict()
 
@@ -130,6 +133,9 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
 
     if external_secrets:
         repos['external-secrets'] = 'https://charts.external-secrets.io'
+
+    if gpu_operator:
+        repos['nvidia'] = 'https://helm.ngc.nvidia.com/nvidia'
 
     if argo:
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
@@ -150,7 +156,7 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
 
 
 def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
-                 kyverno=False, minio=False):
+                 kyverno=False, minio=False, gpu_operator=False):
     """
     get helm installed if needed, and then install/update all the helm repos
     """
@@ -162,5 +168,6 @@ def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, argo, external_secrets, kyverno, minio)
+    add_default_repos(k8s_distro, argo, external_secrets, kyverno, minio,
+                      gpu_operator)
     return
