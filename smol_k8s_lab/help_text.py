@@ -39,7 +39,7 @@ def options_help() -> dict:
         'Install Argo CD as part of this script. Default: False',
 
         'config':
-        'Full path and name of yml to parse.\n Defaults to '
+        'Full path and name of yml to parse.\n Default: '
         f'[light_steel_blue]{XDG_CONFIG_DIR}[/]',
 
         'delete':
@@ -47,15 +47,15 @@ def options_help() -> dict:
 
         'extras':
         'Install/update extra tools such as kubectl, krew, k9s, helm, and '
-        'more via brew.',
+        'more via brew. Default: False',
 
         'external_secret_operator':
         'Install the external secrets operator to pull secrets from somewhere '
-        'else, so far only supporting gitlab.',
+        'else, so far only supporting gitlab. Default: False',
 
         'gpu_operator':
         'beta. Install NVIDIA GPU Operator, installs drivers based on drivers '
-        'configured in container.',
+        'configured in container. Default: False',
 
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
@@ -70,7 +70,8 @@ def options_help() -> dict:
         'File to log to. Default: None',
 
         'minio':
-        'beta. Install MinIO, S3 compatible High Performance Object Storage.',
+        'beta. Install MinIO, S3 compatible High Performance Object Storage. '
+        'Default: False',
 
         'password_manager':
         'Store generated admin passwords directly into your password manager.'
