@@ -16,18 +16,18 @@ from .env_config import VERSION, XDG_CONFIG_DIR
 RECORD = False
 
 
-def pretty_choices(default_list):
+def pretty_choices(choices: list) -> str:
     """
     Takes a list of default choices and surrounds them with a meta markup tag
     and join them with a comma for a pretty return "Choices" string.
     Example: pretty_choices(['beep', 'boop']) returns:
              'Choices: [meta]beep[/meta], [meta]boop[/meta]'
     """
-    defaults = '[/meta], [meta]'.join(default_list)
+    defaults = '[/meta], [meta]'.join(choices)
     return 'Choices: [meta]' + defaults + '[/meta]'
 
 
-def options_help():
+def options_help() -> dict:
     """
     Help text for all the options/switches for main()
     Returns a dict.
@@ -53,20 +53,24 @@ def options_help():
         'Install the external secrets operator to pull secrets from somewhere '
         'else, so far only supporting gitlab.',
 
+        'gpu_operator':
+        'beta. Install NVIDIA GPU Operator, installs drivers based on drivers '
+        'configured in container.',
+
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
 
         'kyverno':
         'beta. Install kyverno, a k8s native policy manager. Default: False',
 
-        'minio':
-        'beta. Install MinIO, S3 compatible High Performance Object Storage.',
-
         'log_level':
         f'Logging level. {logging_choices} Default: [meta]info[/meta].',
 
         'log_file':
         'File to log to. Default: None',
+
+        'minio':
+        'beta. Install MinIO, S3 compatible High Performance Object Storage.',
 
         'password_manager':
         'Store generated admin passwords directly into your password manager.'
@@ -158,4 +162,4 @@ class RichCommand(click.Command):
 
         # I use this to print a pretty svg at the end sometimes
         if RECORD:
-            console.save_svg("docs/screenshots/help_text.svg")
+            console.save_svg("docs/screenshots/help_text.svg", title="term")

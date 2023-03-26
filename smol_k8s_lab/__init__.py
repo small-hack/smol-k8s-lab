@@ -153,6 +153,7 @@ def main(k8s: str = "",
          log_file: str = "",
          password_manager: bool = False,
          minio: bool = False,
+         gpu_operator: bool = False,
          version: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
@@ -250,6 +251,12 @@ def main(k8s: str = "",
                                     USR_CONFIG_FILE['domain']['base']])
         from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
+
+    # 拓 Install GPU Operator: install driver on host based on container driver
+    if gpu_operator:
+        from .k8s_apps.gpu_operator import configure_gpu_operator
+        configure_gpu_operator()
+
 
     # we're done :D
     print("")
