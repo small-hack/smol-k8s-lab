@@ -1,0 +1,19 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cuda-testing 
+spec:
+  selector:
+    matchLabels:
+      app: cuda-testing
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: cuda-testing
+    spec:
+      containers:
+        - name: cuda-testing
+          image: jessebot/cuda-testing:0.0.1
+          imagePullPolicy: IfNotPresent
