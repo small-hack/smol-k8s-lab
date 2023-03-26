@@ -15,5 +15,5 @@ spec:
     spec:
       containers:
         - name: cuda-testing
-          image: jessebot/cuda-testing:0.0.1
+          image: jessebot/cuda-testing:0.1.0
           imagePullPolicy: IfNotPresent
