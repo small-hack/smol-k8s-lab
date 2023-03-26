@@ -19,9 +19,9 @@ def configure_gpu_operator():
 
     header("Installing GPU Operator...")
     release = helm.chart(release_name='gpu-operator',
-                         chart_name='nvidia/',
-                         chart_version='',
+                         chart_name='nvidia/gpu-operator',
                          namespace='gpu-operator')
+                         # chart_version='',
     release.install(True)
 
 
