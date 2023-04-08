@@ -30,7 +30,7 @@ click    = "^8.1"
 bcrypt   = "^4.0"
 requests = "^2.28"
 pyyaml   = "^6.0"
-xdg      = "^5.1"
+xdg      = ">=5.1,<7.0"
 
 [[tool.poetry.source]]
 name = "testpypi"

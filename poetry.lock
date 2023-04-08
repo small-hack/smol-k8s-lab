@@ -278,17 +278,17 @@ socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
 name = "xdg"
-version = "5.1.1"
+version = "6.0.0"
 description = "Variables defined by the XDG Base Directory Specification"
 category = "main"
 optional = false
-python-versions = ">=3.6,<4.0"
+python-versions = ">=3.7,<4.0"
 files = [
-    {file = "xdg-5.1.1-py3-none-any.whl", hash = "sha256:865a7b56ed1d4cd2fce2ead1eddf97360843619757f473cd90b75f1817ca541d"},
-    {file = "xdg-5.1.1.tar.gz", hash = "sha256:aa619f26ccec6088b2a6018721d4ee86e602099b24644a90a8d3308a25acd06c"},
+    {file = "xdg-6.0.0-py3-none-any.whl", hash = "sha256:df3510755b4395157fc04fc3b02467c777f3b3ca383257397f09ab0d4c16f936"},
+    {file = "xdg-6.0.0.tar.gz", hash = "sha256:24278094f2d45e846d1eb28a2ebb92d7b67fc0cab5249ee3ce88c95f649a1c92"},
 ]
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.11,<4.0.0"
-content-hash = "06200486a1a6ae212d22fbc14e1cfa802093c8b35892a26cc7a32aeb44dd1957"
+python-versions = ">=3.11,<4.0"
+content-hash = "54f32ef7750de218dae204dfa3aabdc8b442418096bd0f92991cb5d905064727"
