@@ -15,7 +15,7 @@ from rich.table import Table
 from sys import exit
 import yaml
 from .console_logging import print_panel
-from xdg import xdg_cache_home, xdg_config_home
+from xdg_base_dirs import xdg_cache_home, xdg_config_home
 
 
 # env
