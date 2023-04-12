@@ -11,22 +11,34 @@ from ..k8s_tools.kubernetes_util import apply_custom_resources
 from ..subproc import subproc
 from ..console_logging import header
 import platform
-import lsb_release
 import urllib.request
 import gnupg
 from pprint import pprint
 
-def configure_gpu_operator():
+def install_container_runtime():
     """
-    configure the Nvidia GPU operator
+    install the NVIDIA container runtime
     """
-    # Get the nvidia gpg Key
+    header("Installing the NVIDIA container runtime...")
+    
     gpg = gnupg.GPG()
     target_file = "nvidia-container-toolkit-keyring.gpg"
     server = "https://nvidia.github.io/libnvidia-container/gpgkey"
+
+    # Download the nvidia gpg Key in ASCII format
     urllib.request.urlretrieve(server, target_file)
     key_data = open(target_file).read()
-    subproc([f"cat {target_file} | sudo gpg --dearmor -o /usr/share/keyrings/{target_file}"], error_ok=False)
+
+    # Import the ASCII formatted key
+    import_results = gpg.import_keys(key_data)
+    fingerprint = import_results.results[0]['fingerprint']
+    
+    # Export it again as a binary file because apt doesnt recognize 
+    # ASCII formatted gpg keys.
+    binary = gpg.export_keys(fingerprint, armor=False)
+    with open("my_file.txt", "wb") as binary_file:
+        binary_file.write(binary)
+    
     # Install the container runtime prior to cluster creation
     # see docs.k3s.io/advanced
     # docs.nvidia.com/datacenter/cloud-native/gpu-operator/getting-started.html
@@ -34,10 +46,10 @@ def configure_gpu_operator():
 
     # Get the Linux distribution. Debian12 is not supported so debain11 is entered 
     # to fool the installer into letting it work. We dont support debian10 
-    # so it works out in the end.
+    # so it works out in the end. Also just use Ubuntu 22.04 instead of fighting 
+    # with lsb_release. 20.04 is old anyay.
     if "Ubuntu" in platform.version():
-        release = lsb_release.get_distro_information()['RELEASE']
-        distribution = f"ubuntu{release}"
+        distribution = f"ubuntu22.04"
         print(f"distribution is: {distribution}")
 
     if "Debian" in platform.version():
@@ -61,8 +73,9 @@ def configure_gpu_operator():
     subproc([f"sudo mv {target_file} /etc/apt/sources.list.d/"], error_ok=False)
 
     # update apt package cache and install the toolkit
-    subproc(['sudo apt-get update && sudo apt-get install -y nvidia-container-toolkit'], error_ok=False)
-
+    subproc(['sudo apt-get update'], error_ok=False)
+    subproc(['sudo apt-get install -y nvidia-container-toolkit'], error_ok=False)
+    
     # Set NVIDIA as the default container runtime
     subproc(['sudo nvidia-ctk runtime configure --runtime=docker'], error_ok=False)
 
@@ -72,22 +85,17 @@ def configure_gpu_operator():
     # Edit the config.toml to use root location
     subproc(['sudo sed -i "s/^#root/root/" /etc/nvidia-container-runtime/config.toml'], error_ok=False)
 
-    #header("Installing GPU Operator...")
-    #release = helm.chart(release_name='gpu-operator',
-    #                     chart_name='nvidia/gpu-operator',
-    #                     namespace='gpu-operator')
-    #                     # chart_version='',
-    #release.install(True)
+def configure_gpu_operator():
+    """
+    configure the Nvidia GPU operator
+    """
+    header("Installing GPU Operator...")
+    release = helm.chart(release_name='gpu-operator',
+                         chart_name='nvidia/gpu-operator',
+                         namespace='gpu-operator')
+                         # chart_version='',
+    release.install(True)
 
     # create the namespace if does not exist
-    #subproc(['kubectl create namespace gpu-operator'], error_ok=True)
+    subproc(['kubectl create namespace gpu-operator'], error_ok=True)
 
-    # this currently only works with gitlab
-    # gitlab_secret = {'apiVersion': 'v1',
-    #                  'kind': 'Secret',
-    #                  'metadata': {'name': 'gitlab-secret',
-    #                               'namespace': gitlab_namespace,
-    #                               'labels': {'type': 'gitlab'}},
-    #                  'type': 'Opaque',
-    #                  'stringData': {'token': gitlab_access_token}}
-    # apply_custom_resources([gitlab_secret])

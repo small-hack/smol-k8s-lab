@@ -178,6 +178,11 @@ def main(k8s: str = "",
         if not k8s:
             exit()
 
+    # 拓 Install NVIDIA Container runtime: required for GPU operator
+    if gpu_operator:
+        from .k8s_apps.gpu_operator import install_container_runtime
+        install_container_runtime()
+
     # make sure we got a valid k8s distro
     if k8s not in SUPPORTED_DISTROS:
         CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
@@ -242,6 +247,11 @@ def main(k8s: str = "",
         from .k8s_apps.minio import install_minio
         install_minio(minio_fqdn, minio_console_fqdn, password_manager)
 
+     # 拓 Install GPU Operator: install driver on host based on container driver
+    if gpu_operator:
+        from .k8s_apps.gpu_operator import configure_gpu_operator
+        configure_gpu_operator()   
+    
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo:
         # user can configure a special domain for argocd
@@ -251,12 +261,6 @@ def main(k8s: str = "",
                                     USR_CONFIG_FILE['domain']['base']])
         from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
-
-    # 拓 Install GPU Operator: install driver on host based on container driver
-    if gpu_operator:
-        from .k8s_apps.gpu_operator import configure_gpu_operator
-        configure_gpu_operator()
-
 
     # we're done :D
     print("")
