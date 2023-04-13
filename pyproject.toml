@@ -7,9 +7,9 @@ authors       = ["Jesse Hitch <jessebot@linux.com>",
 readme        = "README.md"
 packages      = [{include = "smol_k8s_lab"}]
 license       = "AGPL-3.0-or-later"
-homepage      = "https://smol-hack.github.io/smol-k8s-lab"
-repository    = "http://github.com/smol-hack/smol-k8s-lab"
-documentation = "https://smol-hack.github.io/smol-k8s-lab"
+homepage      = "https://small-hack.github.io/smol-k8s-lab"
+repository    = "http://github.com/small-hack/smol-k8s-lab"
+documentation = "https://small-hack.github.io/smol-k8s-lab"
 keywords      = ["kubernetes", "homelab", "kind", "k3s", "k8s"]
 classifiers   = ["Development Status :: 3 - Alpha",
                  "Programming Language :: Python :: 3.11",
