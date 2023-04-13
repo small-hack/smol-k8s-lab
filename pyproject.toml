@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "0.11.0"
+version       = "0.11.1"
 description   = "bootstrap simple projects on kubernetes with kind and k3s, with some optionally installed charts such as a GPU operator"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -25,6 +25,7 @@ include       = ["smol_k8s_lab/config/kind_cluster_config.yaml"]
 
 [tool.poetry.dependencies]
 python        = ">=3.11,<4.0.0"
+
 rich          = "^13.0"
 click         = "^8.1"
 bcrypt        = "^4.0"

@@ -19,6 +19,8 @@ import yaml
 
 # custom lib
 from .console_logging import print_panel
+from xdg_base_dirs import xdg_cache_home, xdg_config_home
+
 
 
 # env
