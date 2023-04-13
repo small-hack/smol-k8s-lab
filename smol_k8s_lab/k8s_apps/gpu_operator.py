@@ -36,8 +36,12 @@ def install_container_runtime():
     # Export it again as a binary file because apt doesnt recognize 
     # ASCII formatted gpg keys.
     binary = gpg.export_keys(fingerprint, armor=False)
-    with open("my_file.txt", "wb") as binary_file:
+    keyrings="/usr/share/keyrings"
+    with open(target_file, "wb") as binary_file:
         binary_file.write(binary)
+
+    subproc([f"sudo mv {target_file} {keyrings}/{target_file}"], error_ok=False)
+
     
     # Install the container runtime prior to cluster creation
     # see docs.k3s.io/advanced
@@ -92,8 +96,8 @@ def configure_gpu_operator():
     header("Installing GPU Operator...")
     release = helm.chart(release_name='gpu-operator',
                          chart_name='nvidia/gpu-operator',
-                         namespace='gpu-operator')
-                         # chart_version='',
+                         namespace='gpu-operator',
+                         set_options={'driver.enabled': 'true', 'toolkit.enabled': 'false'})
     release.install(True)
 
     # create the namespace if does not exist
