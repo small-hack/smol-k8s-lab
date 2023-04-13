@@ -181,7 +181,13 @@ def main(k8s: str = "",
     # 拓 Install NVIDIA Container runtime: required for GPU operator
     if gpu_operator:
         from .k8s_apps.gpu_operator import install_container_runtime
+        from .k8s_apps.gpu_operator import import_nvidia_key
+        from .k8s_apps.gpu_operator import create_toolkit_list
+        from .k8s_apps.gpu_operator import set_runtime
+        import_nvidia_key()
+        create_toolkit_list()
         install_container_runtime()
+        set_runtime()
 
     # make sure we got a valid k8s distro
     if k8s not in SUPPORTED_DISTROS:

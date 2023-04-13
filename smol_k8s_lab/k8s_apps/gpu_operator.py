@@ -15,12 +15,10 @@ import urllib.request
 import gnupg
 from pprint import pprint
 
-def install_container_runtime():
+def import_nvidia_key():
     """
-    install the NVIDIA container runtime
+    import the NVIDIA gpg key
     """
-    header("Installing the NVIDIA container runtime...")
-    
     gpg = gnupg.GPG()
     target_file = "nvidia-container-toolkit-keyring.gpg"
     server = "https://nvidia.github.io/libnvidia-container/gpgkey"
@@ -42,12 +40,7 @@ def install_container_runtime():
 
     subproc([f"sudo mv {target_file} {keyrings}/{target_file}"], error_ok=False)
 
-    
-    # Install the container runtime prior to cluster creation
-    # see docs.k3s.io/advanced
-    # docs.nvidia.com/datacenter/cloud-native/gpu-operator/getting-started.html
-    header("Installing the NVIDIA Container Toolkit...")
-
+def create_toolkit_list():
     # Get the Linux distribution. Debian12 is not supported so debain11 is entered 
     # to fool the installer into letting it work. We dont support debian10 
     # so it works out in the end. Also just use Ubuntu 22.04 instead of fighting 
@@ -76,10 +69,24 @@ def install_container_runtime():
 
     subproc([f"sudo mv {target_file} /etc/apt/sources.list.d/"], error_ok=False)
 
+
+def install_container_runtime():
+    """
+    install the NVIDIA container runtime
+    """
+    # Install the container runtime prior to cluster creation
+    # see docs.k3s.io/advanced
+    # docs.nvidia.com/datacenter/cloud-native/gpu-operator/getting-started.html
+    header("Installing the NVIDIA Container Toolkit...")
+
     # update apt package cache and install the toolkit
     subproc(['sudo apt-get update'], error_ok=False)
     subproc(['sudo apt-get install -y nvidia-container-toolkit'], error_ok=False)
-    
+
+def set_runtime():
+    """
+    Set NVIDIA container runtime as default
+    """
     # Set NVIDIA as the default container runtime
     subproc(['sudo nvidia-ctk runtime configure --runtime=docker'], error_ok=False)
 
@@ -87,7 +94,18 @@ def install_container_runtime():
     subproc(['sudo systemctl restart docker'], error_ok=False)
 
     # Edit the config.toml to use root location
-    subproc(['sudo sed -i "s/^#root/root/" /etc/nvidia-container-runtime/config.toml'], error_ok=False)
+    with open("/etc/nvidia-container-runtime/config.toml", 'r') as file :
+        filedata = file.read()
+    
+    # Regex it
+    filedata = filedata.replace('#root', 'root')
+
+    # Save it
+    with open('config.toml', 'w') as file:
+        file.write(filedata)
+
+    subproc(['sudo mv config.toml /etc/nvidia-container-runtime/config.toml'], error_ok=False)
+
 
 def configure_gpu_operator():
     """
