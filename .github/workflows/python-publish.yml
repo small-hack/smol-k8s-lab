@@ -1,11 +1,11 @@
 ---
-name: Python package
+name: Python package build and publish
 on:
   push:
     tags:
       - "v*.*.*"
 jobs:
-  build_and_publish_to_pypi:
+  build_and_publish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,6 +16,6 @@ jobs:
           python_version: "3.11.2"
           pypi_token: ${{ secrets.DEPLOY_FROM_GITHUB_SMOL_K8S_LAB }}
 
-      - name: Release
+      - name: Create a Release on GitHub
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
