@@ -68,7 +68,7 @@ def configure_argocd(argo_cd_domain="", password_manager=False):
 
     release = helm.chart(release_name='argo-cd',
                          chart_name='argo-cd/argo-cd',
-                         chart_version='5.28.1',
+                         chart_version='5.37.0',
                          namespace='argocd',
                          values_file=values_file_name)
     release.install(True)

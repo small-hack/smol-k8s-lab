@@ -131,6 +131,7 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--external_secret_operator', '-e', is_flag=True,
         help=HELP['external_secret_operator'])
 @option('--extras', '-E', is_flag=True, help=HELP['extras'])
+@option('--keycloak', '-y', is_flag=True, help=HELP['keycloak'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
 @option('--minio', '-m', is_flag=True, help=HELP['minio'])
@@ -146,6 +147,7 @@ def main(k8s: str = "",
          delete: bool = False,
          external_secret_operator: bool = False,
          extras: bool = False,
+         keycloak: bool = False,
          kyverno: bool = False,
          k9s: bool = False,
          log_level: str = "",
@@ -223,6 +225,11 @@ def main(k8s: str = "",
     # kyverno: kubernetes native policy manager
     if kyverno:
         from .k8s_apps.kyverno import install_kyverno
+        install_kyverno()
+
+    # keycloak: self hosted IAM 
+    if keycloak:
+        from .k8s_apps.keycloak import configure_keycloak
         install_kyverno()
 
     # minio: local object storage that is s3 compatible

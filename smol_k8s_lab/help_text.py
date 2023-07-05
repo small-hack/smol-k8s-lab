@@ -59,8 +59,11 @@ def options_help():
         'kyverno':
         'beta. Install kyverno, a k8s native policy manager. Default: False',
 
+        'keycloak':
+        'beta. Install keycloak, a self hosted IAM tool. Default: False',
+
         'minio':
-        'beta. Install MinIO, S3 compatible High Performance Object Storage.',
+        'alpha. Install MinIO, S3 compatible High Performance Object Storage.',
 
         'log_level':
         f'Logging level. {logging_choices} Default: [meta]info[/meta].',
@@ -105,8 +108,8 @@ class RichCommand(click.Command):
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
                 "\n[i]Installs:[/i] metallb, nginx-ingess-controller, cert-"
-                "manager\n[i]Optional Installs:[/i] Argo CD, Kynervo, "
-                "External Secrets Operator, MinIO.\n")
+                "manager\n[i]Optional Installs:[/i] Argo CD, Keycloak, Kynervo"
+                ", External Secrets Operator, MinIO.\n")
 
         console.print(title + desc, justify="center")
 
