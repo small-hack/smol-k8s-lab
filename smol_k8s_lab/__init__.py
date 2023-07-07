@@ -29,7 +29,7 @@ SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
 def setup_logger(level="", log_file=""):
     """
     Sets up rich logger for the entire project.
-    ꒰ᐢ.   ̫ .ᐢ꒱ <---- who is he? :3
+    (ᐢ._.ᐢ) <---- who is he? :3
     Returns logging.getLogger("rich")
     """
     # determine logging level
@@ -134,7 +134,6 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--keycloak', '-y', is_flag=True, help=HELP['keycloak'])
 @option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
-@option('--minio', '-m', is_flag=True, help=HELP['minio'])
 @option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
         type=Choice(['debug', 'info', 'warn', 'error']))
 @option('--log_file', '-o', metavar='LOGFILE', help=HELP['log_file'])
@@ -153,7 +152,6 @@ def main(k8s: str = "",
          log_level: str = "",
          log_file: str = "",
          password_manager: bool = False,
-         minio: bool = False,
          version: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
@@ -199,7 +197,7 @@ def main(k8s: str = "",
 
     # make sure helm is installed and the repos are up to date
     from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s, argo, external_secret_operator, kyverno, minio)
+    prepare_helm(k8s, argo, external_secret_operator, keycloak, kyverno)
 
     # needed for metal (non-cloud provider) installs
     header("Installing [b]metallb[/b] so we have an ip address pool")
@@ -216,12 +214,6 @@ def main(k8s: str = "",
     from .k8s_apps.certmanager import configure_cert_manager
     configure_cert_manager(USR_CONFIG_FILE['email'])
 
-    # external secrets provider: currently only supports gitlab
-    if external_secret_operator:
-        from .k8s_apps.external_secrets import configure_external_secrets
-        external_secrets = USR_CONFIG_FILE['external_secrets']['gitlab']
-        configure_external_secrets(external_secrets)
-
     # kyverno: kubernetes native policy manager
     if kyverno:
         from .k8s_apps.kyverno import install_kyverno
@@ -230,21 +222,11 @@ def main(k8s: str = "",
     # keycloak: self hosted IAM 
     if keycloak:
         from .k8s_apps.keycloak import configure_keycloak
-        install_kyverno()
-
-    # minio: local object storage that is s3 compatible
-    if minio:
-        # user can configure a special domain for argocd
-        minio_fqdn = USR_CONFIG_FILE['domain']['minio']
-        minio_console_fqdn = USR_CONFIG_FILE['domain']['minio_console']
+        keycloak_fqdn = USR_CONFIG_FILE['domain']['keycloak']
         if USR_CONFIG_FILE['domain'].get('base', False):
-            minio_fqdn = ".".join([minio_fqdn,
-                                   USR_CONFIG_FILE['domain']['base']])
-            minio_console_fqdn = ".".join([minio_console_fqdn,
-                                           USR_CONFIG_FILE['domain']['base']])
-
-        from .k8s_apps.minio import install_minio
-        install_minio(minio_fqdn, minio_console_fqdn, password_manager)
+            keycloak_fqdn = ".".join([keycloak_fqdn,
+                                      USR_CONFIG_FILE['domain']['base']])
+        configure_keycloak(keycloak_fqdn)
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo:
