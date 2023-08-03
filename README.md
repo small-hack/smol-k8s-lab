@@ -51,7 +51,7 @@ In the newly created `config.yaml`, add the following:
 
 ```yaml
 # FQDN to access your web interfaces: all of these are only required if you
-# specify optional app installs, such as argo or minio.
+# specify optional app installs, such as argocd
 domain:
   # your base domain for use with subdomains below
   # if commented out, you need to provide the entire domain name for each app below
@@ -59,13 +59,10 @@ domain:
   # subdomain for Argo CD, if you had base set, this would be:
   # argocd.coolwebsitefordogs.com
   argo_cd: "argocd"
-  # subdomain for minio endpoint
-  minio: "minio"
-  # subdomain for minio web console
-  minio_console: "console.minio"
 
 # metallb IPs used for DNS later (make sure they're not in use)
 metallb_address_pool:
+  enabled: true
   # Example of required full CIDR notation
   # - 192.168.90.01/32
 
@@ -85,6 +82,8 @@ log:
   level: "info"
   # optional: path of file to log to
   # file: "./smol-k8s-log.log"
+
+extra_k3s_args: ""
 ```
 
 There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol-k8s-lab/distros) as well as BASH scripts for basic automation of each k8s distro in:
@@ -120,11 +119,10 @@ Version is the helm chart version, or manifest version.
 
 | Application/Tool |    Version    | Description |
 |:----------------:|:-------------:|:------------|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.9.0 | external-secrets-operator integrates external secret management systems like GitLab|
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.9.1 | external-secrets-operator integrates external secret management systems like GitLab|
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.42.1 | Gitops - Continuous Deployment |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/keycloak_icon.png"  width="32" alt="keycloak logo">][Keycloak] <br /> [KeyCloak] | 15.1.6 | Self hosted IAM/Oauth2 solution |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/minio_logo.png"  width="18" alt="minio logo">][MinIO] <br /> [MinIO] | latest | Local object storage, for testing apps that need the S3 API |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/keycloak_icon.png"  width="32" alt="keycloak logo">][Keycloak] <br /> [KeyCloak] | 16.0.2 | Self hosted IAM/Oauth2 solution |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | latest | Terminal based dashboard for kubernetes |
 
 
@@ -192,7 +190,6 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [cert-manager]: https://cert-manager.io/docs/
 
 <!-- k8s optional apps link references -->
-[MinIO]: https://github.com/minio/minio/tree/master/helm/minio
 [ESO]: https://external-secrets.io/v0.5.9/
 [Argo CD]: https://github.io/argoproj/argo-helm
 [Kyverno]: https://github.com/kyverno/kyverno/

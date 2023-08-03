@@ -22,7 +22,7 @@ def configure_external_secrets(external_secrets_config):
     header("Installing External Secrets Operator...")
     release = helm.chart(release_name='external-secrets-operator',
                          chart_name='external-secrets/external-secrets',
-                         chart_version='0.9.0',
+                         chart_version='0.9.1',
                          namespace='external-secrets')
     release.install(True)
 
