@@ -83,7 +83,8 @@ log:
   # optional: path of file to log to
   # file: "./smol-k8s-log.log"
 
-extra_k3s_args: ""
+# a list of extra k3s args you'd like to pass in
+extra_k3s_args: []
 ```
 
 There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol-k8s-lab/distros) as well as BASH scripts for basic automation of each k8s distro in:

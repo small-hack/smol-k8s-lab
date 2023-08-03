@@ -78,6 +78,9 @@ log:
   level: "info"
   # path of file to log to
   # file: "./smol-k8s-log.log"
+
+# additional arguments to pass to the k3s install script
+extra_k3s_args: []
 ```
 
 ## Install a distro of k8s
