@@ -191,7 +191,7 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [cert-manager]: https://cert-manager.io/docs/
 
 <!-- k8s optional apps link references -->
-[ESO]: https://external-secrets.io/v0.5.9/
+[ESO]: https://external-secrets.io/v0.8.1/
 [Argo CD]: https://github.io/argoproj/argo-helm
 [Kyverno]: https://github.com/kyverno/kyverno/
 [Keycloak]: https://github.com/bitnami/charts/tree/main/bitnami/keycloak/templates
