@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "0.11.1"
+version       = "0.11.2"
 description   = "bootstrap simple projects on kubernetes with kind and k3s"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
