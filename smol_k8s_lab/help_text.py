@@ -35,7 +35,7 @@ def options_help():
     logging_choices = pretty_choices(['debug', 'info', 'warn', 'error'])
 
     return {
-        'argo':
+        'argocd':
         'Install Argo CD as part of this script. Default: False',
 
         'config':
@@ -45,7 +45,7 @@ def options_help():
         'delete':
         'Delete the existing cluster.',
 
-        'extras':
+        'setup':
         'Install/update extra tools such as kubectl, krew, k9s, helm, and '
         'more via brew.',
 
@@ -56,11 +56,11 @@ def options_help():
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
 
+        'keycloak':
+        'beta. Install keycloak, a self hosted IAM tool. Default: False',
+
         'kyverno':
         'beta. Install kyverno, a k8s native policy manager. Default: False',
-
-        'minio':
-        'beta. Install MinIO, S3 compatible High Performance Object Storage.',
 
         'log_level':
         f'Logging level. {logging_choices} Default: [meta]info[/meta].',
@@ -105,8 +105,9 @@ class RichCommand(click.Command):
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
                 "\n[i]Installs:[/i] metallb, nginx-ingess-controller, cert-"
-                "manager\n[i]Optional Installs:[/i] Argo CD, Kynervo, "
-                "External Secrets Operator, MinIO.\n")
+                "manager\n[i]Optionally[/i] installs Keycloak and ArgoCD and "
+                "will install common ArgoCD apps such as External Secrets "
+                "Operator, Kynervo, Prometheus/Grafana/Loki etc\n")
 
         console.print(title + desc, justify="center")
 
@@ -147,8 +148,8 @@ class RichCommand(click.Command):
 
             options_table.add_row(opt1, opt2, highlighter(help))
 
-        url = ("♥ [link=https://jessebot.github.io/smol-k8s-lab]"
-               "jessebot.github.io/smol-k8s-lab[/link]")
+        url = ("♥ [link=https://github.com/smal-hack/smol-k8s-lab]"
+               "github.com/small-hack/smol-k8s-lab[/link]")
         console.print(Panel(options_table,
                             border_style="light_steel_blue",
                             title="ʕ ᵔᴥᵔʔ Options",

@@ -51,7 +51,7 @@ In the newly created `config.yaml`, add the following:
 
 ```yaml
 # FQDN to access your web interfaces: all of these are only required if you
-# specify optional app installs, such as argo or minio.
+# specify optional app installs, such as argocd
 domain:
   # your base domain for use with subdomains below
   # if commented out, you need to provide the entire domain name for each app below
@@ -59,13 +59,10 @@ domain:
   # subdomain for Argo CD, if you had base set, this would be:
   # argocd.coolwebsitefordogs.com
   argo_cd: "argocd"
-  # subdomain for minio endpoint
-  minio: "minio"
-  # subdomain for minio web console
-  minio_console: "console.minio"
 
 # metallb IPs used for DNS later (make sure they're not in use)
 metallb_address_pool:
+  enabled: true
   # Example of required full CIDR notation
   # - 192.168.90.01/32
 
@@ -85,6 +82,9 @@ log:
   level: "info"
   # optional: path of file to log to
   # file: "./smol-k8s-log.log"
+
+# a list of extra k3s args you'd like to pass in
+extra_k3s_args: []
 ```
 
 There's also full tutorials to manually set up different distros in the [docs we maintain](https://jessebot.github.io/smol-k8s-lab/distros) as well as BASH scripts for basic automation of each k8s distro in:
@@ -99,12 +99,11 @@ We always install the latest version of kubernetes that is available from the di
 
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s] <br /> [k0s] | Simple, Solid & Certified Kubernetes Distribution |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s] <br /> [k0s] | Simple, Solid & Certified Kubernetes Distribution |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
 We tend to test first on k3s first, then the other distros.
-
 
 ### Stack We Install on K8s
 Version is the helm chart version, or manifest version.
@@ -112,21 +111,20 @@ Version is the helm chart version, or manifest version.
 |           Application           |    Version    |                      Description                      |
 |:-------------------------------:|:-------------:|:------------------------------------------------------|
 | 🐄 <br /> [Local Path Provisioner] |    latest  | [**k3s only**] Default simple local file storage for persistent data |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | 0.13.7 | loadbalancer for metal, since we're mostly selfhosting |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][nginx-ingress] <br /> [nginx-ingress] | 4.4.0 | The ingress controller allows access to the cluster remotely, needed for web traffic |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | 1.11.0 | For SSL/TLS certificates |
-
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | 0.13.10 | loadbalancer for metal, since we're mostly selfhosting |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][nginx-ingress] <br /> [nginx-ingress] | 4.7.1 | The ingress controller allows access to the cluster remotely, needed for web traffic |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | 1.12.0 | For SSL/TLS certificates |
 
 
 #### Optionally installed
 
 | Application/Tool |    Version    | Description |
 |:----------------:|:-------------:|:------------|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.6.1 | external-secrets-operator integrates external secret management systems like GitLab|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.28.1 | Gitops - Continuous Deployment |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/minio_logo.png"  width="18" alt="minio logo">][MinIO] <br /> [MinIO] | latest | Local object storage, for testing apps that need the S3 API |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | latest | Terminal based dashboard for kubernetes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.9.1 | external-secrets-operator integrates external secret management systems like GitLab|
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.42.1 | Gitops - Continuous Deployment |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/keycloak_icon.png"  width="32" alt="keycloak logo">][Keycloak] <br /> [KeyCloak] | 16.0.2 | Self hosted IAM/Oauth2 solution |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | latest | Terminal based dashboard for kubernetes |
 
 
 ### Tooling Used for the CLI itself and interface
@@ -193,10 +191,10 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [cert-manager]: https://cert-manager.io/docs/
 
 <!-- k8s optional apps link references -->
-[MinIO]: https://github.com/minio/minio/tree/master/helm/minio
-[ESO]: https://external-secrets.io/v0.5.9/
+[ESO]: https://external-secrets.io/v0.8.1/
 [Argo CD]: https://github.io/argoproj/argo-helm
 [Kyverno]: https://github.com/kyverno/kyverno/
+[Keycloak]: https://github.com/bitnami/charts/tree/main/bitnami/keycloak/templates
 
 <!-- k8s tooling reference -->
 [k9s]: https://k9scli.io/topics/install/
