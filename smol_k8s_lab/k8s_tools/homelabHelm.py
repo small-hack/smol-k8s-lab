@@ -113,7 +113,7 @@ class helm:
 
 
 def add_default_repos(k8s_distro, argo=False, external_secrets=False,
-                      kyverno=False, minio=False):
+                      kyverno=False):
     """
     Add all the default helm chart repos:
     - metallb is for loadbalancing and assigning ips, on metal...
@@ -137,9 +137,6 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
     if kyverno:
         repos['kyverno'] = 'https://kyverno.github.io/kyverno/'
 
-    if minio:
-        repos['minio'] = 'https://charts.min.io/'
-
     # kind has a special install path
     if k8s_distro == 'kind':
         repos.pop('ingress-nginx')
@@ -150,7 +147,7 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
 
 
 def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
-                 kyverno=False, minio=False):
+                 kyverno=False):
     """
     get helm installed if needed, and then install/update all the helm repos
     """
@@ -162,5 +159,5 @@ def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, argo, external_secrets, kyverno, minio)
+    add_default_repos(k8s_distro, argo, external_secrets, kyverno)
     return

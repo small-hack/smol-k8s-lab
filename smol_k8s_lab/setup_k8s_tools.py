@@ -10,7 +10,7 @@ from .subproc import subproc
 from .env_config import PWD
 
 
-def install_extras():
+def do_setup():
     """
     - Install/Update brew dependencies from Brewfile:
       docker, kind, kubectl, helm, krew, k9s, argocd, bitwarden-cli

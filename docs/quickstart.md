@@ -48,7 +48,7 @@ Here's an example config file already filled out with comments:
 
 ```yaml
 # FQDN to access your web interfaces: all of these are only required if you
-# specify optional app installs, such as argo or minio.
+# specify optional app installs, such as argo
 domain:
   # your base domain for use with subdomains below
   # if commented out, you need to provide the entire domain name for each app
@@ -56,8 +56,6 @@ domain:
   # subdomain for Argo CD, if you had base set, this would be:
   # argocd.coolwebsitefordogs.com, otherwise you'd need to change to the FQDN
   argo_cd: "argocd"
-  minio: "minio"
-  minio_console: "console.minio"
 
 # metallb IPs used for DNS later (make sure they're not in use)
 metallb_address_pool:
@@ -80,6 +78,9 @@ log:
   level: "info"
   # path of file to log to
   # file: "./smol-k8s-log.log"
+
+# additional arguments to pass to the k3s install script
+extra_k3s_args: []
 ```
 
 ## Install a distro of k8s

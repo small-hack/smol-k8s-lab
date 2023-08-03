@@ -17,7 +17,7 @@ def configure_cert_manager(email_addr):
     # install chart and wait
     release = helm.chart(release_name='cert-manager',
                          chart_name='jetstack/cert-manager',
-                         chart_version="1.11.0",
+                         chart_version="1.12.0",
                          namespace='kube-system',
                          set_options={'installCRDs': 'true'})
     release.install(True)

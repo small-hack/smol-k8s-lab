@@ -16,7 +16,7 @@ def configure_metallb(address_pool=[]):
     Requires and accepts one arg:
         address_pool - list of IP addresses - default: []
     """
-    url = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.7/config/"
+    url = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/"
            "manifests/metallb-native.yaml")
 
     # install manifest and wait
