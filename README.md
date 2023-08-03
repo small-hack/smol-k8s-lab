@@ -62,6 +62,7 @@ domain:
 
 # metallb IPs used for DNS later (make sure they're not in use)
 metallb_address_pool:
+  # this doesn't work yet, fix incoming
   enabled: true
   # Example of required full CIDR notation
   # - 192.168.90.01/32
@@ -71,6 +72,7 @@ email: "coolemailfordogs@verygooddogs.net"
 
 # Use the external secrets provider with gitlab (only gitlab is currently supported)
 external_secrets:
+  # this doesn't work yet, fix incoming
   enabled: false
   gitlab:
     # token from here: https://gitlab.com/-/profile/personal_access_tokens
