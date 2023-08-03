@@ -87,7 +87,8 @@ def install_k8s_distro(k8s_distro=""):
         install_kind_cluster()
     elif k8s_distro == "k3s":
         from .k8s_distros.k3s import install_k3s_cluster
-        install_k3s_cluster(USR_CONFIG_FILE['extra_k3s_args'])
+        extra_args = USR_CONFIG_FILE.get('extra_k3s_args', [])
+        install_k3s_cluster(extra_args)
     elif k8s_distro == "k0s":
         from .k8s_distros.k0s import install_k0s_cluster
         install_k0s_cluster()
