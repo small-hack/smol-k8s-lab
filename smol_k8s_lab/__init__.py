@@ -123,7 +123,7 @@ def delete_cluster(k8s_distro="k3s"):
 # an ugly list of decorators, but these are the opts/args for the whole script
 @command(cls=RichCommand, context_settings=HELP_SETTINGS)
 @argument("k8s", metavar="<k0s, k3s, kind>", default="")
-@option('--argo', '-a', is_flag=True, help=HELP['argo'])
+@option('--argocd', '-a', is_flag=True, help=HELP['argocd'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
         default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
         help=HELP['config'])
@@ -141,7 +141,7 @@ def delete_cluster(k8s_distro="k3s"):
         help=HELP['password_manager'])
 @option('--version', '-v', is_flag=True, help=HELP['version'])
 def main(k8s: str = "",
-         argo: bool = False,
+         argocd: bool = False,
          config: str = "",
          delete: bool = False,
          external_secret_operator: bool = False,
@@ -197,7 +197,7 @@ def main(k8s: str = "",
 
     # make sure helm is installed and the repos are up to date
     from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s, argo, external_secret_operator, keycloak, kyverno)
+    prepare_helm(k8s, argocd, external_secret_operator, kyverno)
 
     # needed for metal (non-cloud provider) installs
     header("Installing [b]metallb[/b] so we have an ip address pool")
@@ -229,7 +229,7 @@ def main(k8s: str = "",
         configure_keycloak(keycloak_fqdn)
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
-    if argo:
+    if argocd:
         # user can configure a special domain for argocd
         argocd_fqdn = USR_CONFIG_FILE['domain']['argo_cd']
         if USR_CONFIG_FILE['domain'].get('base', False):

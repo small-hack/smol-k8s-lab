@@ -147,7 +147,7 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
 
 
 def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
-                 kyverno=False, keycloak=False):
+                 kyverno=False):
     """
     get helm installed if needed, and then install/update all the helm repos
     """
