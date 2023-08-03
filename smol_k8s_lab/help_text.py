@@ -35,7 +35,7 @@ def options_help():
     logging_choices = pretty_choices(['debug', 'info', 'warn', 'error'])
 
     return {
-        'argo':
+        'argocd':
         'Install Argo CD as part of this script. Default: False',
 
         'config':
