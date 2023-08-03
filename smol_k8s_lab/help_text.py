@@ -49,11 +49,18 @@ def options_help():
         'Install/update extra tools such as kubectl, krew, k9s, helm, and '
         'more via brew.',
 
+        'external_secret_operator':
+        'Install the external secrets operator to pull secrets from somewhere '
+        'else, so far only supporting gitlab.',
+
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
 
         'keycloak':
         'beta. Install keycloak, a self hosted IAM tool. Default: False',
+
+        'kyverno':
+        'beta. Install kyverno, a k8s native policy manager. Default: False',
 
         'log_level':
         f'Logging level. {logging_choices} Default: [meta]info[/meta].',
