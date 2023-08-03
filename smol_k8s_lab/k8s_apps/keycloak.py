@@ -15,8 +15,8 @@ def configure_keycloak():
 
     # install chart and wait
     release = helm.chart(release_name='keycloak',
-                         chart_name='keycloak',
-                         chart_version="1.12.0",
+                         chart_name='oci://registry-1.docker.io/bitnamicharts/keycloak',
+                         chart_version="16.0.2",
                          namespace='keycloak')
     release.install(True)
 
