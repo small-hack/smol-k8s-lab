@@ -16,8 +16,9 @@ from sys import exit
 
 # custom libs and constants
 from .console_logging import CONSOLE, header, sub_header
-from .constants import check_os_support, HOME_DIR, USR_CONFIG_FILE, VERSION
-from .constants import XDG_CACHE_DIR, KUBECONFIG
+from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, USR_CONFIG_FILE,
+                        VERSION)
+from .env_config import check_os_support
 from .help_text import RichCommand, options_help
 
 
