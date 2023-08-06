@@ -14,7 +14,7 @@ from socket import gethostname
 import stat
 
 from ..subproc import subproc, simple_loading_bar
-from ..env_config import USER, KUBECONFIG
+from ..constants import USER, KUBECONFIG
 from ..console_logging import sub_header
 
 

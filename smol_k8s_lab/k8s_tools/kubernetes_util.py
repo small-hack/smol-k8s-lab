@@ -8,7 +8,7 @@ DESCRIPTION: generic kubernetes utilities
 
 from os import path
 from yaml import dump
-from ..env_config import XDG_CACHE_DIR
+from ..constants import XDG_CACHE_DIR
 from ..subproc import subproc, simple_loading_bar
 
 

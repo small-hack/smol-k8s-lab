@@ -1,22 +1,34 @@
 ---
 # the logging of smol-k8s-lab itself
 log:
-  # logging level, Options: debug, info, warn, error
-  level: "info"
   ## path of file to log to if console logging is not desired
   # file: "./smol-k8s-log.log"
+  # logging level, Options: debug, info, warn, error
+  level: "info"
+
+# which kubernetes distro to deploy. Options: k3s, kind, k0s
+kubernetes_distribution: ""
 
 # base domain to access your web interfaces if not specified, you need to 
 # provide the entire fully qualified domain name for each app
 base_domain: "coolwebsitefordogs.com"
 
-# Used for letsencrypt-staging, to generate certs
-email: "coolemailfordogs@verygooddogs.net"
+# enable or disable ingress-nginx
+ingress-nginx:
+  enabled: true
 
-# metallb IPs used for DNS later (make sure they're not in use)
-metallb_address_pool:
-## Example of required full CIDR notation
-# - 192.168.90.01/32
+# enable or disable cert-manager
+cert-manager:
+  enabled: true
+  # Used for letsencrypt-staging, to generate certs
+  email: "coolemailfordogs@verygooddogs.net"
+
+metallb:
+  enabled: true
+  # metallb IPs used for DNS later (make sure they're not in use)
+  address_pool:
+  ## Example of required full CIDR notation
+  # - 192.168.90.01/32
 
 # Install ArgoCD to install other apps
 argo_cd:
@@ -29,11 +41,12 @@ argo_cd:
 # Use the External Secrets Operator
 external_secrets:
   enabled: false
-  gitlab:
-    # going to be unmaintained soon in favor of using another password manager
-    # token from here: https://gitlab.com/-/profile/personal_access_tokens
-    access_token: ""
-    namespace: ""
+  provider:
+    gitlab:
+      # going to be unmaintained soon in favor of using another password manager
+      # token from here: https://gitlab.com/-/profile/personal_access_tokens
+      access_token: ""
+      namespace: ""
 
 # keycloak is an IAM provider that you can use with ArgoCD for user/group 
 # management and oauth2. it can work with vouch to secure domains that 

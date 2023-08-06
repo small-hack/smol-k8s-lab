@@ -11,7 +11,7 @@ import requests
 from shutil import which
 import stat
 from ..console_logging import sub_header
-from ..env_config import USER, KUBECONFIG
+from ..constants import USER, KUBECONFIG
 from ..subproc import subproc
 
 

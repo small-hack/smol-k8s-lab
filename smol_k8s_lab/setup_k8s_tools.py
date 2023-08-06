@@ -7,7 +7,7 @@ DESCRIPTION: install extra tooling related to k8s
 """
 from os import path
 from .subproc import subproc
-from .env_config import PWD
+from .constants import PWD
 
 
 def do_setup():
