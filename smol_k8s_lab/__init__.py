@@ -16,15 +16,16 @@ from sys import exit
 
 # custom libs and constants
 from .console_logging import CONSOLE, header, sub_header
-from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, USR_CONFIG_FILE,
-                        VERSION)
-from .env_config import check_os_support
+from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR,
+                        INITIAL_USR_CONFIG_FILE, VERSION)
+from .env_config import check_os_support, process_configs
 from .help_text import RichCommand, options_help
 
 
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
+USR_CONFIG_FILE = process_configs(INITIAL_USR_CONFIG_FILE)
 
 
 def setup_logger(level="", log_file=""):
@@ -88,7 +89,7 @@ def install_k8s_distro(k8s_distro=""):
         install_kind_cluster()
     elif k8s_distro == "k3s":
         from .k8s_distros.k3s import install_k3s_cluster
-        extra_args = USR_CONFIG_FILE.get('extra_k3s_args', [])
+        extra_args = USR_CONFIG_FILE.get('extra_args', [])
         install_k3s_cluster(extra_args)
     elif k8s_distro == "k0s":
         from .k8s_distros.k0s import install_k0s_cluster

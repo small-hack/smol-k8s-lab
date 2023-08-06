@@ -6,24 +6,32 @@ log:
   # logging level, Options: debug, info, warn, error
   level: "info"
 
-# which kubernetes distro to deploy. Options: k3s, kind, k0s
-kubernetes_distribution: ""
+distribution:
+  k3s:
+    # enable k3s deployment
+    enabled: true
+    # if kubernetes.distribution set to k3s, you can add an array of extra
+    # arguments to pass to the k3s install script
+    extra_args: []
+  kind:
+    # enable kind deployment
+    enabled: false
+  k0s:
+    # enable k0s deployment
+    enabled: false
 
-# base domain to access your web interfaces if not specified, you need to 
-# provide the entire fully qualified domain name for each app
-base_domain: "coolwebsitefordogs.com"
-
-# enable or disable ingress-nginx
 ingress-nginx:
+  # enable or disable ingress-nginx
   enabled: true
 
-# enable or disable cert-manager
 cert-manager:
+  # enable or disable cert-manager
   enabled: true
   # Used for letsencrypt-staging, to generate certs
-  email: "coolemailfordogs@verygooddogs.net"
+  email: ""
 
 metallb:
+  # enable metallb which helps expose IP addresses for loadbalancers on metal
   enabled: true
   # metallb IPs used for DNS later (make sure they're not in use)
   address_pool:
@@ -32,29 +40,25 @@ metallb:
 
 # Install ArgoCD to install other apps
 argo_cd:
-  enabled: false
-  domain: "argocd"
-  # set to "" for basic authentication via ArgoCD directly
-  # only keycloak has been tested so far
+  enabled: true
+  # FQDN domain for accessing the argoCD web interface
+  domain: ""
+  # set to "" for basic authentication via ArgoCD directly only keycloak has 
+  # been tested so far
   identity_provider: "keycloak"
 
-# Use the External Secrets Operator
-external_secrets:
-  enabled: false
-  provider:
-    gitlab:
-      # going to be unmaintained soon in favor of using another password manager
-      # token from here: https://gitlab.com/-/profile/personal_access_tokens
-      access_token: ""
-      namespace: ""
+# allows you to specify a k8s secret with info like your hostnames
+argo_cd_appset_secret_plugin:
+  enabled: true
 
-# keycloak is an IAM provider that you can use with ArgoCD for user/group 
-# management and oauth2. it can work with vouch to secure domains that 
+# keycloak is an IAM provider that you can use with ArgoCD for user/group
+# management and oauth2. it can work with vouch to secure domains that
 # otherwise wouldn't have authentication
 keycloak:
-  enabled: false
-  domain: "iam"
+  enabled: true
+  # domain to use for keycloak
+  domain: ""
 
-# kubernetes native security policy management
 kyverno:
+  # enable kyverno, for k8s native policy management
   enabled: false

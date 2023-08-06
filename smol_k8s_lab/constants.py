@@ -11,8 +11,8 @@ from pathlib import Path
 
 from sys import exit
 import yaml
-from .console_logging import print_panel
 from xdg_base_dirs import xdg_cache_home, xdg_config_home
+import wget
 
 # env
 SYSINFO = uname()
@@ -27,7 +27,8 @@ PWD = path.dirname(__file__)
 
 # for smol-k8s-lab configs and cache
 XDG_CACHE_DIR = path.join(xdg_cache_home(), 'smol-k8s-lab')
-XDG_CONFIG_DIR = path.join(xdg_config_home(), 'smol-k8s-lab/config.yaml')
+XDG_CONFIG_DIR = path.join(xdg_config_home(), 'smol-k8s-lab')
+XDG_CONFIG_FILE = path.join(xdg_config_home(), 'smol-k8s-lab/config.yaml')
 
 # for specifically the kubeconfig file
 XDG_KUBE_FILE = path.join(xdg_config_home(), 'kube/config')
@@ -41,19 +42,23 @@ Path(KUBE_DIR).mkdir(exist_ok=True)
 VERSION = get_version('smol-k8s-lab')
 
 
-def load_yaml(yaml_config_file=XDG_CONFIG_DIR):
+def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
     """
     load config yaml files for smol-k8s-lab and return as dicts
     """
-    if path.exists(yaml_config_file):
-        with open(yaml_config_file, 'r') as yaml_file:
-            return yaml.safe_load(yaml_file)
-    else:
-        print_panel(f"😱 Config file does not exist: {yaml_config_file}\n\n"
-              "Please check the documentatation here:\nhttps://small-hack."
-              "github.io/smol-k8s-lab/quickstart#configuration")
-        exit()
+    # create default pathing and config file if it doesn't exist
+    if not path.exists(yaml_config_file):
+        print("Config dir didn't exist, so well create a default file for you :)")
+        Path(XDG_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
+        # downloads a default config file from default dot files
+        default_config = ("https://raw.githubusercontent.com/small-hack/"
+                          "smol-k8s-lab/main/smol_k8s_lab/config/config.yaml")
+        wget.download(default_config, XDG_CONFIG_DIR)
+
+    # open the yaml config file and then return the dict
+    with open(yaml_config_file, 'r') as yaml_file:
+        return yaml.safe_load(yaml_file)
 
 
 # defaults
-USR_CONFIG_FILE = load_yaml()
+INITIAL_USR_CONFIG_FILE = load_yaml()

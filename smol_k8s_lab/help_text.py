@@ -10,7 +10,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
-from .constants import VERSION, XDG_CONFIG_DIR
+from .constants import VERSION, XDG_CONFIG_FILE
 
 
 RECORD = False
@@ -40,7 +40,7 @@ def options_help():
 
         'config':
         'Full path and name of yml to parse.\n Defaults to '
-        f'[light_steel_blue]{XDG_CONFIG_DIR}[/]',
+        f'[light_steel_blue]{XDG_CONFIG_FILE}[/]',
 
         'delete':
         'Delete the existing cluster.',

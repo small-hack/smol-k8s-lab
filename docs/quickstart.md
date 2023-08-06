@@ -47,40 +47,69 @@ Then you should be able to show the help text :)
 Here's an example config file already filled out with comments:
 
 ```yaml
-# FQDN to access your web interfaces: all of these are only required if you
-# specify optional app installs, such as argo
-domain:
-  # your base domain for use with subdomains below
-  # if commented out, you need to provide the entire domain name for each app
-  base: "coolwebsitefordogs.com"
-  # subdomain for Argo CD, if you had base set, this would be:
-  # argocd.coolwebsitefordogs.com, otherwise you'd need to change to the FQDN
-  argo_cd: "argocd"
-
-# metallb IPs used for DNS later (make sure they're not in use)
-metallb_address_pool:
-#   Example of required full CIDR notation
-#   - 192.168.90.01/32
-
-# Used for letsencrypt-staging, to generate certs
-email: "coolemailfordogs@verygooddogs.net"
-
-# Use the external secrets provider with gitlab
-external_secrets:
-  gitlab:
-    # going to be deprecated soon in favor of using another password manager
-    # token from here: https://gitlab.com/-/profile/personal_access_tokens
-    access_token: "kjdfsk758934fkldsafds"
-    namespace: "nextcloud"
-
+---
+# the logging of smol-k8s-lab itself
 log:
+  ## path of file to log to if console logging is not desired
+  # file: "./smol-k8s-log.log"
   # logging level, Options: debug, info, warn, error
   level: "info"
-  # path of file to log to
-  # file: "./smol-k8s-log.log"
 
-# additional arguments to pass to the k3s install script
-extra_k3s_args: []
+distribution:
+  k3s:
+    # enable k3s deployment
+    enabled: true
+    # if kubernetes.distribution set to k3s, you can add an array of extra
+    # arguments to pass to the k3s install script
+    extra_args: []
+  kind:
+    # enable kind deployment
+    enabled: false
+  k0s:
+    # enable k0s deployment
+    enabled: false
+
+ingress-nginx:
+  # enable or disable ingress-nginx
+  enabled: true
+
+# enable or disable cert-manager
+cert-manager:
+  # enable or disable cert-manager
+  enabled: true
+  # Used for letsencrypt-staging, to generate certs
+  email: "coolemailfordogs@verygooddogs.net"
+
+metallb:
+  enabled: true
+  # metallb IPs used for DNS later (make sure they're not in use)
+  address_pool: []
+  ## Example of required full CIDR notation
+  # - 192.168.90.01/32
+
+argo_cd:
+  # Install ArgoCD to install other apps
+  enabled: true
+  domain: "argocd.coolwebsitesfordogs.com"
+  # set to "" for basic authentication via ArgoCD directly
+  # only keycloak has been tested so far
+  identity_provider: "keycloak"
+
+# plugin allows us to specify a k8s secret with info like your hostnames
+argo_cd_appset_secret_plugin:
+  # this is enabled by default if you enable Argo CD
+  enabled: true
+
+# keycloak is an IAM provider that you can use with ArgoCD for user/group
+# management and oauth2. it can work with vouch to secure domains that
+# otherwise wouldn't have authentication
+keycloak:
+  enabled: true
+  domain: "iam.coolwebsitesfordogs.com"
+
+# kubernetes native security policy management
+kyverno:
+  enabled: false
 ```
 
 ## Install a distro of k8s
