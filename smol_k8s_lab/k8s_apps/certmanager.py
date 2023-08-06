@@ -26,6 +26,8 @@ def configure_cert_manager(email_addr):
     issuers = []
     acme_staging = 'https://acme-staging-v02.api.letsencrypt.org/directory'
     for issuer in ['letsencrypt-prod', 'letsencrypt-staging']:
+        if issuer == "letsencrypt-prod":
+            acme_staging = acme_staging.replace("staging-", "")
         issuers.append({
             'apiVersion': 'cert-manager.io/v1',
             'kind': 'ClusterIssuer',
