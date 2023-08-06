@@ -1,64 +1,226 @@
 ---
-# the logging of smol-k8s-lab itself
+# logging config for the smol-k8s-lab CLI
 log:
-  ## path of file to log to if console logging is not desired
+  # path of file to log to if console logging is NOT desired
   # file: "./smol-k8s-log.log"
   # logging level, Options: debug, info, warn, error
   level: "info"
 
-distribution:
-  k3s:
-    # enable k3s deployment
-    enabled: true
-    # if kubernetes.distribution set to k3s, you can add an array of extra
-    # arguments to pass to the k3s install script
-    extra_args: []
-  kind:
-    # enable kind deployment
-    enabled: false
-  k0s:
-    # enable k0s deployment
-    enabled: false
+# which distro of Kubernetes to deploy. Options: kind, k3s, k0s
+k8s_distribution: "kind"
 
-ingress-nginx:
-  # enable or disable ingress-nginx
-  enabled: true
+k3s:
+  # if k8s_distribution set to k3s, you can add an array of extra
+  # arguments to pass to the k3s install script
+  extra_args: []
 
+# ----------------------------------------------------------------------------
+# Required Kubernetes Apps
+# ----------------------------------------------------------------------------
+# These are installed with helm or manifests depending on which is recommended
+# for your k8s distro. All become managed by ArgoCD if you enable it below
+# ----------------------------------------------------------------------------
+
+# Use LetsEncrypt to generate TLS certs
 cert-manager:
-  # enable or disable cert-manager
-  enabled: true
-  # Used for letsencrypt-staging, to generate certs
-  email: ""
+  # secrets keys to make available to helm and/or ArgoCD ApplicationSets
+  secrets:
+    # Used for letsencrypt-staging, to generate certs
+    email: ""
+  argo:
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "ingress/cert-manager/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
+
+ingress:
+  argo:
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "ingress/ingress-nginx/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
 
 metallb:
   # enable metallb which helps expose IP addresses for loadbalancers on metal
+  # if you're on a vm or container where you can't get an IP, disable this
   enabled: true
-  # metallb IPs used for DNS later (make sure they're not in use)
-  address_pool:
-  ## Example of required full CIDR notation
-  # - 192.168.90.01/32
+  # secrets keys to make available to helm and/or ArgoCD ApplicationSets
+  secrets:
+    # # metallb IPs used for DNS later (make sure they're not in use)
+    ## Example of required full CIDR notation
+    # address_pool:
+    #   - 192.168.90.01/32
+    address_pool: []
+  argo:
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "metallb/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
 
-# Install ArgoCD to install other apps
-argo_cd:
+# ----------------------------------------------------------------------------
+# Argo CD deployed and maintained Applications to run on Kubernetes
+# ----------------------------------------------------------------------------
+# Each of these apps is can only be deployed and maintained by Argo CD
+# ----------------------------------------------------------------------------
+
+argocd:
+  # Enable ArgoCD to install other apps, and also manage itself :)
+  # Set to false if you you just want a bare cluster with only the above apps
   enabled: true
-  # FQDN domain for accessing the argoCD web interface
+  # FQDN domain for accessing the ArgoCD web interface
   domain: ""
-  # set to "" for basic authentication via ArgoCD directly only keycloak has 
-  # been tested so far
+  # set to "basic" for basic authentication via ArgoCD directly, only keycloak
+  # has been tested so far
   identity_provider: "keycloak"
+  # If set to false, we will use a self signed cert for configuring https
+  tls: false
+  argo:
+    # secrets keys to make available to ArgoCD ApplicationSets
+    secrets:
+      domain: ""
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "argocd/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
 
-# allows you to specify a k8s secret with info like your hostnames
 argo_cd_appset_secret_plugin:
+  # This is required if you want to use the default small-hack argo.repo and
+  # default enabled if ArgoCD is enabled, so we can create a k8s Secret with
+  # your more private info such as hostnames, IP addresses, and emails in a
+  # deployment that run alongside ArgoCD to provide Argo CD ApplicationSets
+  # This plugin has no ingress and cannot be reached from outside the cluster
   enabled: true
+  argo:
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "argocd_appset/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
+
+external_secrets_operator:
+  # enable the external secrets operator to pull remote secrets into the cluster
+  enabled: true
+  # if set to "bitwarden", we'll deploy a bitwarden service to use with ESO
+  provider: "bitwarden"
+  argo:
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "external-secrets-operator/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
 
 # keycloak is an IAM provider that you can use with ArgoCD for user/group
-# management and oauth2. it can work with vouch to secure domains that
+# management and oauth2. it also works with vouch to secure domains that
 # otherwise wouldn't have authentication
 keycloak:
   enabled: true
-  # domain to use for keycloak
-  domain: ""
+  # If set to false, we will use a self signed cert for configuring https
+  tls: true
+  argo:
+    # secrets keys to make available to ArgoCD ApplicationSets
+    secrets:
+      domain: ""
+      mail_domain: ""
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "keycloak/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
 
 kyverno:
   # enable kyverno, for k8s native policy management
   enabled: false
+  argo:
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "kyverno/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
+
+kubevirt:
+  # enable kubevirt to create more virtual machines with kubernetes
+  enabled: false
+  argo:
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "kubevirt/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
+
+mastodon:
+  # enable mastodon for a self hosted social media website
+  enabled: false
+  # If set to false, we will use a self signed cert for configuring https
+  tls: true
+  argo:
+    # secrets keys to make available to ArgoCD ApplicationSets
+    secrets:
+      domain: ""
+      mail_domain: ""
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "mastodon/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
+
+matrix:
+  # enable matrix for a self hosted chat service
+  enabled: false
+  argo:
+    # secrets keys to make available to ArgoCD ApplicationSets
+    secrets:
+      domain: ""
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "matrix/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
+
+nextcloud:
+  # enable nextcloud to stand up a nice little self hosted file server
+  enabled: false
+  # If set to false, we will use a self signed cert for configuring https
+  tls: true
+  argo:
+    # secrets keys to make available to ArgoCD ApplicationSets
+    secrets:
+      domain: ""
+      mail_domain: ""
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "nextcloud/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
+
+prometheus:
+  # enable a full monitoring stack with prometheus, grafana, loki, and alert manager
+  enabled: false
+  # If set to false, we will use a self signed cert for configuring https
+  tls: true
+  argo:
+    # secrets keys to make available to ArgoCD ApplicationSets
+    secrets:
+      # FQDN to use for grafana
+      grafana_domain: ""
+      # FQDN to use for Alert Manager web interface
+      alert_manager_domain: ""
+      # FQDN to use for Prometheus web interface
+      prometheus_domain: ""
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "monitoring/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"
+
+vouch:
+  enabled: false
+  argo:
+    repo: "https://github.com/small-hack/argocd-apps"
+    # path in the argo repo to point to. Trailing slash very important!
+    path: "ingress/vouch/"
+    # either the branch or tag to point at in the argo repo above
+    ref: "main"

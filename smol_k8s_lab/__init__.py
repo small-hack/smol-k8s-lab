@@ -16,16 +16,17 @@ from sys import exit
 
 # custom libs and constants
 from .console_logging import CONSOLE, header, sub_header
-from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR,
-                        INITIAL_USR_CONFIG_FILE, VERSION)
-from .env_config import check_os_support, process_configs
+from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
+                        INITIAL_USR_CONFIG, VERSION)
+from .env_config import check_os_support, process_app_configs
 from .help_text import RichCommand, options_help
 
 
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
-USR_CONFIG_FILE = process_configs(INITIAL_USR_CONFIG_FILE)
+# process all of the config file, or create a new one and also grab secrets
+USR_CFG, SECRETS = process_app_configs(DEFUALT_CONFIG, INITIAL_USR_CONFIG)
 
 
 def setup_logger(level="", log_file=""):
@@ -36,10 +37,7 @@ def setup_logger(level="", log_file=""):
     """
     # determine logging level
     if not level:
-        if USR_CONFIG_FILE and 'log' in USR_CONFIG_FILE:
-            level = USR_CONFIG_FILE['log']['level']
-        else:
-            level = 'info'
+        level = USR_CFG['log']['level']
 
     log_level = getattr(logging, level.upper(), None)
 
@@ -48,8 +46,7 @@ def setup_logger(level="", log_file=""):
 
     # we only log to a file if one was passed into config.yaml or the cli
     if not log_file:
-        if USR_CONFIG_FILE:
-            log_file = USR_CONFIG_FILE['log'].get('file', None)
+        log_file = USR_CFG['log'].get('file', None)
 
     # rich typically handles much of this but we don't use rich with files
     if log_file:
@@ -89,7 +86,7 @@ def install_k8s_distro(k8s_distro=""):
         install_kind_cluster()
     elif k8s_distro == "k3s":
         from .k8s_distros.k3s import install_k3s_cluster
-        extra_args = USR_CONFIG_FILE.get('extra_args', [])
+        extra_args = USR_CFG.get('extra_args', [])
         install_k3s_cluster(extra_args)
     elif k8s_distro == "k0s":
         from .k8s_distros.k0s import install_k0s_cluster
@@ -126,16 +123,11 @@ def delete_cluster(k8s_distro="k3s"):
 # an ugly list of decorators, but these are the opts/args for the whole script
 @command(cls=RichCommand, context_settings=HELP_SETTINGS)
 @argument("k8s", metavar="<k0s, k3s, kind>", default="")
-@option('--argocd', '-a', is_flag=True, help=HELP['argocd'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
         default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
         help=HELP['config'])
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
-@option('--external_secret_operator', '-e', is_flag=True,
-        help=HELP['external_secret_operator'])
 @option('--setup', '-s', is_flag=True, help=HELP['setup'])
-@option('--keycloak', '-y', is_flag=True, help=HELP['keycloak'])
-@option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
 @option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
         type=Choice(['debug', 'info', 'warn', 'error']))
@@ -144,13 +136,9 @@ def delete_cluster(k8s_distro="k3s"):
         help=HELP['password_manager'])
 @option('--version', '-v', is_flag=True, help=HELP['version'])
 def main(k8s: str = "",
-         argocd: bool = False,
          config: str = "",
          delete: bool = False,
-         external_secret_operator: bool = False,
          setup: bool = False,
-         keycloak: bool = False,
-         kyverno: bool = False,
          k9s: bool = False,
          log_level: str = "",
          log_file: str = "",
@@ -200,12 +188,13 @@ def main(k8s: str = "",
 
     # make sure helm is installed and the repos are up to date
     from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s, argocd, external_secret_operator, kyverno)
+    prepare_helm(k8s, USR_CFG['metallb']['enabled'])
 
     # needed for metal (non-cloud provider) installs
-    header("Installing [b]metallb[/b] so we have an ip address pool")
-    from .k8s_apps.metallb import configure_metallb
-    configure_metallb(USR_CONFIG_FILE['metallb']['address_pool'])
+    if USR_CFG['metallb']['enabled']:
+        header("Installing [b]metallb[/b] so we have an ip address pool")
+        from .k8s_apps.metallb import configure_metallb
+        configure_metallb(USR_CFG['metallb']['address_pool'])
 
     # ingress controller: so we can accept traffic from outside the cluster
     header("Installing [b]ingress-nginx-controller[/b]...")
@@ -214,24 +203,24 @@ def main(k8s: str = "",
 
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [b]cert-manager[/b] for TLS certificates...")
-    from .k8s_apps.certmanager import configure_cert_manager
-    configure_cert_manager(USR_CONFIG_FILE['cert-manager']['email'])
+    from .k8s_apps.cert_manager import configure_cert_manager
+    configure_cert_manager(USR_CFG['cert-manager']['email'])
 
     # kyverno: kubernetes native policy manager
-    if kyverno:
+    if USR_CFG['kyverno']['enabled']:
         from .k8s_apps.kyverno import install_kyverno
         install_kyverno()
 
     # keycloak: self hosted IAM 
-    if keycloak:
+    if USR_CFG['keycloak']['enabled']:
         from .k8s_apps.keycloak import configure_keycloak
-        keycloak_fqdn = USR_CONFIG_FILE['keycloak']['domain']
+        keycloak_fqdn = USR_CFG['keycloak']['domain']
         configure_keycloak(keycloak_fqdn)
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
-    if argocd:
+    if USR_CFG['argo_cd']['enabled']:
         # user can configure a special domain for argocd
-        argocd_fqdn = USR_CONFIG_FILE['argo_cd']['domain']
+        argocd_fqdn = USR_CFG['argo_cd']['domain']
         from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
 

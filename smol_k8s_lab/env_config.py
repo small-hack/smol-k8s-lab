@@ -32,53 +32,53 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
                     "[cornflower_blue]Compatibility Check")
 
 
-def process_configs(initial_config_file={}):
+def process_app_configs(default_config: dict, config: dict):
     """
-    process the config in ~/.config/smol-k8s-lab/config.yaml and make sure all
-    the correct values are filled in
+    process the config in ~/.config/smol-k8s-lab/config.yaml and ensure each
+    app has a secret if we're using our default Argo CD repo
     """
-    passed_in_dict = initial_config_file
+    # we get this once to avoid getting it like a million times in the loops
+    argocd_enabled = config['argocd'].get('enabled', True)
+    # this is always the same repo, we're not creative
+    default_repo = default_config['argocd']['argo']['repo']
+    # this is the final processed dict we return at the end
+    final_cfg = {}
+    # these are the secrets we also return, so we can create them all at once
+    return_secrets = {}
 
-    # check to make sure we have recieved sensitive fields for cert-manager
-    cert_dict = initial_config_file.get('cert-manager', "")
-    if cert_dict:
-        if cert_dict.get("enabled", True):
-            if not cert_dict.get("email", ""):
-                # prompt if we're missing a field
-                email = Prompt.ask("Please enter an email for lets-encrypt: ")
-                initial_config_file['cert-manager']['email'] = email
+    for app in config.keys():
+        # this is the actual app config
+        app_cfg = config[app]
+        # we immediately populate a third, final return config
+        final_cfg[app] = app_cfg
+        default_enabled = default_config.get('enabled', False)
+        app_enabled = app_cfg.get('enabled', default_enabled)
 
-    # check to make sure we have recieved sensitive fields for metallb
-    metal_dict = initial_config_file.get('metallb', "")
-    if metal_dict:
-        if metal_dict.get("enabled", True):
-            if not metal_dict.get("address_pool", ""):
-                # prompt if we're missing a field
-                cidr = Prompt.ask("Please enter a CIDR for metallb: ")
-                initial_config_file['metallb']['address_pool'] = [cidr]
+        # if app is enabled and Argo CD is enabled
+        if app_enabled and argocd_enabled:
+            argo_section = app_cfg.get('argo', default_config[app]['argo'])
 
-    # check to make sure we have recieved sensitive fields for argo CD
-    argocd_dict = initial_config_file.get('argo_cd', "")
-    if argocd_dict:
-        if argocd_dict.get("enabled", True):
-            if not argocd_dict.get("domain", ""):
-                # prompt if we're missing a field
-                argo_domain = Prompt.ask("Please enter an FQDN for Argo CD: ")
-                initial_config_file['argo_cd']['domain'] = argo_domain
+            # verify they're using our default repo config for this app
+            if argo_section['repo'] == default_repo:
+                # use secret section if exists, else grab from the default cfg
+                default_secrets = default_config[app]['argo']['secrets']
+                secrets = argo_section.get('secrets', default_secrets)
 
-    # check to make sure we have recieved sensitive fields for keycloak
-    keycloak_dict = initial_config_file.get('keycloak', "")
-    if keycloak_dict:
-        if keycloak_dict.get("enabled", True):
-            if not keycloak_dict.get("domain", ""):
-                # prompt if we're missing a field
-                key_domain = Prompt.ask("Please enter an FQDN for Keycloak: ")
-                initial_config_file['keycloak']['domain'] = key_domain
+                # iterate through each secret for the app
+                for secret in default_secrets:
+                    # if the secret is empty, prompt for a new one
+                    if not secrets[secret]:
+                        ask_msg = f"Please enter a(n) {secret} for {app}: "
+                        res = Prompt.ask(ask_msg)
+                        final_cfg[app]['argo']['secrets'][secret] = res
+                        return_secrets[secret] = res
+                    else:
+                        return_secrets[secret] = secrets[secret]
 
-    # Write newly aquired YAML data to config file
-    if initial_config_file != passed_in_dict:
+    # Write newly acquired YAML data to config file
+    if config != final_cfg:
         print("Writing out your newly generated config file :)")
         with open(XDG_CONFIG_FILE, 'w') as conf_file:
-            dump(initial_config_file, conf_file)
+            dump(final_cfg, conf_file)
 
-    return initial_config_file
+    return final_cfg, return_secrets

@@ -9,10 +9,8 @@ from getpass import getuser
 from os import environ, path, uname
 from pathlib import Path
 
-from sys import exit
 import yaml
 from xdg_base_dirs import xdg_cache_home, xdg_config_home
-import wget
 
 # env
 SYSINFO = uname()
@@ -40,6 +38,8 @@ Path(KUBE_DIR).mkdir(exist_ok=True)
 
 # version of smol-k8s-lab
 VERSION = get_version('smol-k8s-lab')
+# grabs the default packaged config file from default dot files
+DEFAULT_CONFIG_FILE = path.join(PWD, 'config/default_config.yaml')
 
 
 def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
@@ -48,17 +48,14 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
     """
     # create default pathing and config file if it doesn't exist
     if not path.exists(yaml_config_file):
-        print("Config dir didn't exist, so well create a default file for you :)")
+        print("Config file didn't exist, so well create a default file :)")
         Path(XDG_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
-        # downloads a default config file from default dot files
-        default_config = ("https://raw.githubusercontent.com/small-hack/"
-                          "smol-k8s-lab/main/smol_k8s_lab/config/config.yaml")
-        wget.download(default_config, XDG_CONFIG_DIR)
+        yaml_config_file = DEFAULT_CONFIG_FILE
 
     # open the yaml config file and then return the dict
     with open(yaml_config_file, 'r') as yaml_file:
         return yaml.safe_load(yaml_file)
 
 
-# defaults
-INITIAL_USR_CONFIG_FILE = load_yaml()
+DEFUALT_CONFIG = load_yaml(DEFAULT_CONFIG_FILE)
+INITIAL_USR_CONFIG = load_yaml()

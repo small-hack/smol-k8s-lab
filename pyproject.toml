@@ -18,7 +18,8 @@ classifiers   = ["Development Status :: 3 - Alpha",
                  "Intended Audience :: End Users/Desktop",
                  "Topic :: System :: Installation/Setup",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
-include       = ["smol_k8s_lab/config/kind_cluster_config.yaml"]
+include       = ["smol_k8s_lab/config/kind_cluster_config.yaml",
+                 "smol_k8s_lab/config/default_config.yaml"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "http://github.com/small-hack/smol-k8s-lab/issues"

@@ -35,11 +35,8 @@ def options_help():
     logging_choices = pretty_choices(['debug', 'info', 'warn', 'error'])
 
     return {
-        'argocd':
-        'Install Argo CD as part of this script. Default: False',
-
         'config':
-        'Full path and name of yml to parse.\n Defaults to '
+        'Full path and name of the YAML config file to parse.\n Defaults to '
         f'[light_steel_blue]{XDG_CONFIG_FILE}[/]',
 
         'delete':
@@ -49,18 +46,8 @@ def options_help():
         'Install/update extra tools such as kubectl, krew, k9s, helm, and '
         'more via brew.',
 
-        'external_secret_operator':
-        'Install the external secrets operator to pull secrets from somewhere '
-        'else, so far only supporting gitlab.',
-
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
-
-        'keycloak':
-        'beta. Install keycloak, a self hosted IAM tool. Default: False',
-
-        'kyverno':
-        'beta. Install kyverno, a k8s native policy manager. Default: False',
 
         'log_level':
         f'Logging level. {logging_choices} Default: [meta]info[/meta].',
@@ -105,9 +92,8 @@ class RichCommand(click.Command):
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
         desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
                 "\n[i]Installs:[/i] metallb, nginx-ingess-controller, cert-"
-                "manager\n[i]Optionally[/i] installs Keycloak and ArgoCD and "
-                "will install common ArgoCD apps such as External Secrets "
-                "Operator, Kynervo, Prometheus/Grafana/Loki etc\n")
+                "manager (optionally as Argo CD native apps with the ability "
+                "to install additional ArgoCD apps from there)\n")
 
         console.print(title + desc, justify="center")
 
