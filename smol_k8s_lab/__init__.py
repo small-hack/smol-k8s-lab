@@ -16,6 +16,7 @@ from sys import exit
 
 # custom libs and constants
 from .k8s_tools.argocd import install_with_argocd
+from .base_install import install_base_apps, install_k8s_distro
 from .console_logging import CONSOLE, header, sub_header
 from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
@@ -73,26 +74,6 @@ def setup_logger(level="", log_file=""):
         return logging
     else:
         return logging.getLogger("rich")
-
-
-def install_k8s_distro(k8s_distro=""):
-    """
-    Install a specific distro of k8s
-    Takes one variable:
-        k8s_distro - string. options: 'k0s', 'k3s', or 'kind'
-    Returns True
-    """
-    if k8s_distro == "kind":
-        from .k8s_distros.kind import install_kind_cluster
-        install_kind_cluster()
-    elif k8s_distro == "k3s":
-        from .k8s_distros.k3s import install_k3s_cluster
-        extra_args = USR_CFG.get('extra_args', [])
-        install_k3s_cluster(extra_args)
-    elif k8s_distro == "k0s":
-        from .k8s_distros.k0s import install_k0s_cluster
-        install_k0s_cluster()
-    return True
 
 
 def delete_cluster(k8s_distro="k3s"):
@@ -182,40 +163,13 @@ def main(k8s: str = "",
     # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
     Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
 
-    argo_enabled = USR_CFG['argocd']['enabled']
-
     # install the actual KIND, k0s, or k3s cluster
-    header(f'Installing [green]{k8s}[/] cluster.')
-    sub_header('This could take a min ʕ•́  ̫•̀ʔっ♡ ', False)
-    install_k8s_distro(k8s, USR_CFG['k3s']['extra_args'])
+    install_k8s_distro(k8s, USR_CFG['k3s'].get('extra_args', []))
 
-    # make sure helm is installed and the repos are up to date
-    from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s, USR_CFG['metallb']['enabled'])
-
-    # needed for metal (non-cloud provider) installs
-    if USR_CFG['metallb']['enabled']:
-        header("Installing [b]metallb[/b] so we have an ip address pool")
-        from .k8s_apps.metallb import configure_metallb
-        configure_metallb(USR_CFG['metallb']['address_pool'])
-
-    # ingress controller: so we can accept traffic from outside the cluster
-    header("Installing [b]ingress-nginx-controller[/b]...")
-    from .k8s_apps.nginx_ingress_controller import configure_ingress_nginx
-    configure_ingress_nginx(k8s)
-
-    # manager SSL/TLS certificates via lets-encrypt
-    header("Installing [b]cert-manager[/b] for TLS certificates...")
-    from .k8s_apps.cert_manager import configure_cert_manager
-    configure_cert_manager(USR_CFG['cert-manager']['email'])
-
-    # kyverno: kubernetes native policy manager
-    if USR_CFG['kyverno']['enabled']:
-        install_with_argocd('kyverno', USR_CFG['kyverno']['argo'])
-
-    # keycloak: self hosted IAM 
-    if USR_CFG['keycloak']['enabled']:
-        install_with_argocd('keycloak', USR_CFG['keycloak']['argo'])
+    # installs all the base apps: metallb, ingess-nginx, and cert-manager
+    install_base_apps(k8s, USR_CFG['metallb']['enabled'],
+                      SECRETS['cert-manager_email'],
+                      SECRETS['metallb_ip']['address_pool'])
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if USR_CFG['argo_cd']['enabled']:
@@ -223,6 +177,10 @@ def main(k8s: str = "",
         argocd_fqdn = USR_CFG['argo_cd']['domain']
         from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
+
+    for app in USR_CFG:
+        if app.get('enabled', False):
+            install_with_argocd(app, USR_CFG[app]['argo'])
 
     # we're done :D
     print("")

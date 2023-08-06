@@ -49,31 +49,38 @@ def process_app_configs(default_config: dict, config: dict):
     for app in config.keys():
         # this is the actual app config
         app_cfg = config[app]
+        default_cfg = default_config[app]
         # we immediately populate a third, final return config
         final_cfg[app] = app_cfg
-        default_enabled = default_config.get('enabled', False)
+        # anything with an "enabled" field is default enabled
+        default_enabled = default_cfg.get('enabled', True)
+        # if the user config doesn't have this section we default to the above
         app_enabled = app_cfg.get('enabled', default_enabled)
 
         # if app is enabled and Argo CD is enabled
         if app_enabled and argocd_enabled:
-            argo_section = app_cfg.get('argo', default_config[app]['argo'])
+            argo_section = app_cfg.get('argo', default_cfg['argo'])
 
             # verify they're using our default repo config for this app
             if argo_section['repo'] == default_repo:
                 # use secret section if exists, else grab from the default cfg
-                default_secrets = default_config[app]['argo']['secrets']
+                default_secrets = default_cfg['argo'].get('secrets', '')
                 secrets = argo_section.get('secrets', default_secrets)
 
-                # iterate through each secret for the app
-                for secret in default_secrets:
-                    # if the secret is empty, prompt for a new one
-                    if not secrets[secret]:
-                        ask_msg = f"Please enter a(n) {secret} for {app}: "
-                        res = Prompt.ask(ask_msg)
-                        final_cfg[app]['argo']['secrets'][secret] = res
-                        return_secrets[secret] = res
-                    else:
-                        return_secrets[secret] = secrets[secret]
+                if secrets:
+                    # iterate through each secret for the app
+                    for secret in default_secrets:
+                        # create app k8s secret key like argocd_domain
+                        secret_key = "_".join([app, secret])
+
+                        # if the secret is empty, prompt for a new one
+                        if not secrets[secret]:
+                            ask_msg = f"Please enter a(n) {secret} for {app}: "
+                            res = Prompt.ask(ask_msg)
+                            final_cfg[app]['argo']['secrets'][secret] = res
+                            return_secrets[secret_key] = res
+                        else:
+                            return_secrets[secret_key] = secrets[secret]
 
     # Write newly acquired YAML data to config file
     if config != final_cfg:
