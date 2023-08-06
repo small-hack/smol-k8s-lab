@@ -205,7 +205,7 @@ def main(k8s: str = "",
     # needed for metal (non-cloud provider) installs
     header("Installing [b]metallb[/b] so we have an ip address pool")
     from .k8s_apps.metallb import configure_metallb
-    configure_metallb(USR_CONFIG_FILE['metallb_address_pool'])
+    configure_metallb(USR_CONFIG_FILE['metallb']['address_pool'])
 
     # ingress controller: so we can accept traffic from outside the cluster
     header("Installing [b]ingress-nginx-controller[/b]...")
@@ -215,7 +215,7 @@ def main(k8s: str = "",
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [b]cert-manager[/b] for TLS certificates...")
     from .k8s_apps.certmanager import configure_cert_manager
-    configure_cert_manager(USR_CONFIG_FILE['email'])
+    configure_cert_manager(USR_CONFIG_FILE['cert-manager']['email'])
 
     # kyverno: kubernetes native policy manager
     if kyverno:
@@ -225,19 +225,13 @@ def main(k8s: str = "",
     # keycloak: self hosted IAM 
     if keycloak:
         from .k8s_apps.keycloak import configure_keycloak
-        keycloak_fqdn = USR_CONFIG_FILE['domain']['keycloak']
-        if USR_CONFIG_FILE['domain'].get('base', False):
-            keycloak_fqdn = ".".join([keycloak_fqdn,
-                                      USR_CONFIG_FILE['domain']['base']])
+        keycloak_fqdn = USR_CONFIG_FILE['keycloak']['domain']
         configure_keycloak(keycloak_fqdn)
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argocd:
         # user can configure a special domain for argocd
-        argocd_fqdn = USR_CONFIG_FILE['domain']['argo_cd']
-        if USR_CONFIG_FILE['domain'].get('base', False):
-            argocd_fqdn = ".".join([argocd_fqdn,
-                                    USR_CONFIG_FILE['domain']['base']])
+        argocd_fqdn = USR_CONFIG_FILE['argo_cd']['domain']
         from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
 
