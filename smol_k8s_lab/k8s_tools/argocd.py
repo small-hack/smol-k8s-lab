@@ -2,13 +2,19 @@
 from ..subproc import subproc
 
 
-def install_with_argocd(app: str, repo: str, path: str, namespace: str):
+def install_with_argocd(app: str, argo_dict: dict):
     """
     create and Argo CD app directly from the command line using passed in
-    app, repo, path, and namespace
+    app and argo_dict which should have str keys for repo, path, and namespace
     """
-    cmd = (f"argocd app create guestbook --repo {repo} --path {path}"
-           f"--dest-namespace {namespace} --dest-server "
-           "https://kubernetes.default.svc")
+    repo = argo_dict['repo']
+    path = argo_dict['path']
+    namespace = argo_dict['namespace']
+
+    cmd = (f"argocd app create {app} "
+           f"--repo {repo} "
+           f"--path {path} "
+           f"--dest-namespace {namespace} "
+           "--dest-server https://kubernetes.default.svc")
 
     subproc([cmd])

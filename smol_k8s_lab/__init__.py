@@ -15,6 +15,7 @@ from rich.logging import RichHandler
 from sys import exit
 
 # custom libs and constants
+from .k8s_tools.argocd import install_with_argocd
 from .console_logging import CONSOLE, header, sub_header
 from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
@@ -181,10 +182,12 @@ def main(k8s: str = "",
     # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
     Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
 
+    argo_enabled = USR_CFG['argocd']['enabled']
+
     # install the actual KIND, k0s, or k3s cluster
     header(f'Installing [green]{k8s}[/] cluster.')
     sub_header('This could take a min ʕ•́  ̫•̀ʔっ♡ ', False)
-    install_k8s_distro(k8s)
+    install_k8s_distro(k8s, USR_CFG['k3s']['extra_args'])
 
     # make sure helm is installed and the repos are up to date
     from .k8s_tools.homelabHelm import prepare_helm
@@ -208,14 +211,11 @@ def main(k8s: str = "",
 
     # kyverno: kubernetes native policy manager
     if USR_CFG['kyverno']['enabled']:
-        from .k8s_apps.kyverno import install_kyverno
-        install_kyverno()
+        install_with_argocd('kyverno', USR_CFG['kyverno']['argo'])
 
     # keycloak: self hosted IAM 
     if USR_CFG['keycloak']['enabled']:
-        from .k8s_apps.keycloak import configure_keycloak
-        keycloak_fqdn = USR_CFG['keycloak']['domain']
-        configure_keycloak(keycloak_fqdn)
+        install_with_argocd('keycloak', USR_CFG['keycloak']['argo'])
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if USR_CFG['argo_cd']['enabled']:
