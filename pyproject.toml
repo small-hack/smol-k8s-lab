@@ -19,6 +19,7 @@ classifiers   = ["Development Status :: 3 - Alpha",
                  "Topic :: System :: Installation/Setup",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
 include       = ["smol_k8s_lab/config/kind_cluster_config.yaml",
+                 "smol_k8s_lab/config/extras/Brewfile",
                  "smol_k8s_lab/config/default_config.yaml"]
 
 [tool.poetry.urls]
