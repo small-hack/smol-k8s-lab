@@ -163,16 +163,19 @@ def main(k8s: str = "",
     # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
     Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
 
-    # install the actual KIND, k0s, or k3s cluster
-    install_k8s_distro(k8s, USR_CFG['k3s'].get('extra_args', []))
-
     # this is a dict of all the apps we can install
     apps = USR_CFG['apps']
-    # check immediately if argo is enabled
+    # check immediately if argo_cd or metallb are enabled
     argo_enabled = apps['argo_cd']['enabled']
+    metallb_enabled = apps['metallb']['enabled']
+
+    # install the actual KIND, k0s, or k3s cluster
+    install_k8s_distro(k8s, metallb_enabled,
+                       USR_CFG['k3s'].get('extra_args', []))
+
 
     # installs all the base apps: metallb, ingess-nginx, and cert-manager
-    install_base_apps(k8s, apps['metallb']['enabled'], argo_enabled,
+    install_base_apps(k8s, metallb_enabled, argo_enabled,
                       apps['argo_cd_appset_secret_plugin']['enabled'],
                       SECRETS['cert-manager_email'],
                       SECRETS['metallb_ip']['address_pool'])

@@ -15,7 +15,7 @@ from ..constants import USER, KUBECONFIG
 from ..subproc import subproc
 
 
-def install_k3s_cluster(additonal_arguments=[]):
+def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
@@ -31,8 +31,11 @@ def install_k3s_cluster(additonal_arguments=[]):
     chmod("./install.sh", stat.S_IRWXU)
 
     # create the k3s cluster (just one server node)
-    cmd = ('./install.sh --disable=servicelb --disable=traefik '
-           '--write-kubeconfig-mode=700')
+    cmd = ('./install.sh --disable=traefik --write-kubeconfig-mode=700 '
+           '--secrets-encryption')
+
+    if disable_servicelb:
+        cmd += ' --disable=servicelb'
 
     # add additional arguments to k3s if there are any
     if additonal_arguments:
