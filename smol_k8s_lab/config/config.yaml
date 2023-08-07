@@ -80,7 +80,7 @@ apps:
   # Each of these apps is can only be deployed and maintained by Argo CD
   # ---------------------------------------------------------------------------
   #
-  argocd:
+  argo_cd:
     # Enable ArgoCD to install other apps, and also manage itself :)
     # Set to false if you you just want a bare cluster with only the above apps
     enabled: true
@@ -113,7 +113,7 @@ apps:
     argo:
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
-      part_of_app_of_apps: "argocd"
+      part_of_app_of_apps: "argo_cd"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!

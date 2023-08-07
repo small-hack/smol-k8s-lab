@@ -177,9 +177,11 @@ def main(k8s: str = "",
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if apps['argo_cd']['enabled']:
         # user can configure a special domain for argocd
-        argocd_fqdn = SECRETS['argo_cd_domain'] 
+        argocd_fqdn = SECRETS['argo_cd_domain']
         from .k8s_apps.argocd import configure_argocd
-        configure_argocd(argocd_fqdn, password_manager)
+        configure_argocd(argocd_fqdn, password_manager,
+                         apps['argo_cd_appset_secret_plugin']['enabled'],
+                         SECRETS)
 
         # after argocd is up, we install all apps as argocd apps
         for app_key, app in apps.items():

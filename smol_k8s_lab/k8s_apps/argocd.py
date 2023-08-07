@@ -7,14 +7,16 @@ DESCRIPTION: configure argocd
 """
 import bcrypt
 from os import path
-from yaml import dump
+import yaml
 from ..bw_cli import BwCLI
 from ..console_logging import header, sub_header
 from ..constants import XDG_CACHE_DIR
 from ..k8s_tools.homelabHelm import helm
+from ..k8s_tools.kubernetes_util import apply_manifests
 
 
-def configure_argocd(argo_cd_domain="", password_manager=False):
+def configure_argocd(argo_cd_domain="", password_manager=False,
+                     secret_creation=False, secret_dict={}):
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
@@ -64,7 +66,7 @@ def configure_argocd(argo_cd_domain="", password_manager=False):
     # this creates a values.yaml from from the val dict above
     values_file_name = path.join(XDG_CACHE_DIR, 'argocd_values.yaml')
     with open(values_file_name, 'w') as values_file:
-        dump(val, values_file)
+        yaml.dump(val, values_file)
 
     release = helm.chart(release_name='argo-cd',
                          chart_name='argo-cd/argo-cd',
@@ -72,4 +74,43 @@ def configure_argocd(argo_cd_domain="", password_manager=False):
                          namespace='argocd',
                          values_file=values_file_name)
     release.install(True)
+
+    if secret_creation:
+        create_secrets(secret_dict)
+
+    return
+
+
+# this lets us do multi line yaml values
+yaml.SafeDumper.org_represent_str = yaml.SafeDumper.represent_str
+
+
+# this too
+def repr_str(dumper, data):
+    if '\n' in data:
+        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='|')
+    return dumper.org_represent_str(data)
+
+
+def create_secrets(secret_dict: dict):
+    """
+    create a k8s secret accessible by Argo CD
+    """
+    # these are all app secrets we collected at the start of the script
+    secret_keys = yaml.dump(secret_dict)
+
+    # this is a standard k8s secrets yaml
+    secret_yaml = {'apiVersion': 'v1',
+                   'kind': 'Secret',
+                   'metadata': {'name': 'appset-secret-vars',
+                                'namespace': 'argocd'},
+                   'stringData': {'secret_vars.yaml': secret_keys}}
+
+    secrets_file_name = path.join(XDG_CACHE_DIR, 'secrets.yaml')
+
+    # write out the file to be applied
+    with open(secrets_file_name, 'w') as secret_file:
+        yaml.safe_dump(secret_yaml, secret_file)
+
+    apply_manifests(secrets_file_name)
     return

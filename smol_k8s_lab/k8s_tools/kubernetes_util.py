@@ -15,17 +15,20 @@ from ..subproc import subproc, simple_loading_bar
 def apply_manifests(manifest_file_name="", namespace="default", deployment="",
                     selector="component=controller"):
     """
-    applies a manifest and waits with a nice loading bar
+    applies a manifest and waits with a nice loading bar if deployment
     """
-    apply = f"kubectl apply --wait -f {manifest_file_name}"
+    cmds = [f"kubectl apply --wait -f {manifest_file_name}"]
 
-    rollout = f"kubectl rollout status -n {namespace} deployment/{deployment}"
+    if deployment:
+        # these commands let us monitor a deployment rollout
+        cmds.append(f"kubectl rollout status -n {namespace} "
+                   f"deployment/{deployment}")
 
-    wait = (f"kubectl wait --for=condition=ready pod --selector={selector} "
-            f"--timeout=90s -n {namespace}")
+        cmds.append("kubectl wait --for=condition=ready pod --selector="
+                   f"{selector} --timeout=90s -n {namespace}")
 
     # loops with progress bar until this succeeds
-    subproc([apply, rollout, wait])
+    subproc(cmds)
     return True
 
 
