@@ -168,14 +168,17 @@ def main(k8s: str = "",
 
     # this is a dict of all the apps we can install
     apps = USR_CFG['apps']
+    # check immediately if argo is enabled
+    argo_enabled = apps['argo_cd']['enabled']
 
     # installs all the base apps: metallb, ingess-nginx, and cert-manager
-    install_base_apps(k8s, apps['metallb']['enabled'],
+    install_base_apps(k8s, apps['metallb']['enabled'], argo_enabled,
+                      apps['argo_cd_appset_secret_plugin']['enabled'],
                       SECRETS['cert-manager_email'],
                       SECRETS['metallb_ip']['address_pool'])
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
-    if apps['argo_cd']['enabled']:
+    if argo_enabled:
         # user can configure a special domain for argocd
         argocd_fqdn = SECRETS['argo_cd_domain']
         from .k8s_apps.argocd import configure_argocd

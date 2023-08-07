@@ -63,7 +63,7 @@ def configure_argocd(argo_cd_domain="", password_manager=False,
         # this gets passed to the helm cli, but is bcrypted
         val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
 
-    # this creates a values.yaml from from the val dict above
+    # this creates a values.yaml from the val dict above
     values_file_name = path.join(XDG_CACHE_DIR, 'argocd_values.yaml')
     with open(values_file_name, 'w') as values_file:
         yaml.dump(val, values_file)
@@ -78,6 +78,20 @@ def configure_argocd(argo_cd_domain="", password_manager=False,
     if secret_creation:
         create_secrets(secret_dict)
 
+        # this creates a values.yaml from this dict
+        val = {'secretVars': {'existingSecret': 'appset-secret-vars'}}
+        values_file_name = path.join(XDG_CACHE_DIR, 'appset_values.yaml')
+        with open(values_file_name, 'w') as values_file:
+            yaml.dump(val, values_file)
+
+        # install the helm chart :)
+        release = helm.chart(release_name='argocd-appset-secret-plugin',
+                             chart_name='argocd-appset',
+                             chart_version='0.2.0',
+                             namespace='argocd',
+                             values_file=values_file_name)
+        release.install(True)
+
     return
 
 
@@ -88,7 +102,8 @@ yaml.SafeDumper.org_represent_str = yaml.SafeDumper.represent_str
 # this too
 def repr_str(dumper, data):
     if '\n' in data:
-        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style='|')
+        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data,
+                                       style='|')
     return dumper.org_represent_str(data)
 
 

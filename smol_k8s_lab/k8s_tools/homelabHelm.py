@@ -112,30 +112,30 @@ class helm:
             return True
 
 
-def add_default_repos(k8s_distro, argo=False, external_secrets=False,
-                      kyverno=False):
+def add_default_repos(k8s_distro, metallb=False, argo=False,
+                      argo_secrets=False):
     """
     Add all the default helm chart repos:
     - metallb is for loadbalancing and assigning ips, on metal...
     - ingress-nginx allows us to do ingress, so access outside the cluster
     - jetstack is for cert-manager for TLS certs
     - argo is argoCD to manage k8s resources in the future through a gui
-    - kyverno is a k8s native policy manager
     """
     repos = OrderedDict()
 
-    repos['metallb'] = 'https://metallb.github.io/metallb'
+    # metallb comes first, but may be skipped
+    if metallb:
+        repos['metallb'] = 'https://metallb.github.io/metallb'
+
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
-
-    if external_secrets:
-        repos['external-secrets'] = 'https://charts.external-secrets.io'
 
     if argo:
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
-    if kyverno:
-        repos['kyverno'] = 'https://kyverno.github.io/kyverno/'
+    if argo_secrets:
+        repos['appset-secrets'] = ('https://jessebot.github.io/argocd-appset-'
+                                   'secret-plugin')
 
     # kind has a special install path
     if k8s_distro == 'kind':
@@ -146,8 +146,7 @@ def add_default_repos(k8s_distro, argo=False, external_secrets=False,
     return
 
 
-def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
-                 kyverno=False):
+def prepare_helm(k8s_distro="", argo=False, argo_app_set=False):
     """
     get helm installed if needed, and then install/update all the helm repos
     """
@@ -159,5 +158,5 @@ def prepare_helm(k8s_distro="", argo=False, external_secrets=False,
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, argo, external_secrets, kyverno)
+    add_default_repos(k8s_distro, argo, argo_app_set)
     return

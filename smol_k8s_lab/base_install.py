@@ -22,7 +22,8 @@ def install_k8s_distro(k8s_distro="", extra_args=[]):
     return True
 
 
-def install_base_apps(k8s_distro="", metallb_enabled=True, email="", cidr=""):
+def install_base_apps(k8s_distro="", metallb_enabled=True, argo_enabled=False,
+                      argo_secrets_enabled=False, email="", cidr=""):
     """ 
     Helm installs all base apps:
         metallb, ingess-nginx, and cert-manager.
@@ -30,7 +31,8 @@ def install_base_apps(k8s_distro="", metallb_enabled=True, email="", cidr=""):
     """
     # make sure helm is installed and the repos are up to date
     from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s_distro, metallb_enabled)
+    prepare_helm(k8s_distro, metallb_enabled, argo_enabled, 
+                 argo_secrets_enabled)
 
     # needed for metal (non-cloud provider) installs
     if metallb_enabled:
