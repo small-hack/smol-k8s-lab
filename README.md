@@ -89,16 +89,8 @@ We also utilize the [Bitwarden cli], for a password manager so you never have to
 If you're stuck, checkout the [Notes](https://jessebot.github.io/smol-k8s-lab/notes) to see if we also got stuck on the same thing at some point :) Under each app or tool, we'll have notes on how to learn more about it, as well as any errors we've already battled.
 
 
-## Other Notes
-Check out the [`optional`](optional) directory for quick examples on apps this script does not default install.
-
-e.g. for postgres, go to [`./optional/postgres`](./optional/postgres)
-
 # Status
-This is still in later alpha, as we figure out all the distros we want to support,
-and pin all the versions, but if you'd like to contribute or just found a :bug:,
-feel free to open an issue (or pull request), and we'll take a look! We'll try
-to get back to you asap!
+This is still in later alpha, as we figure out all the apps and distros we want to support, and pin all the versions, but if you'd like to contribute or just found a :bug:, feel free to open an issue (or pull request), and we'll take a look! We'll try to get back to you asap!
 
 ## Contributors
 

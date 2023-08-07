@@ -166,21 +166,25 @@ def main(k8s: str = "",
     # install the actual KIND, k0s, or k3s cluster
     install_k8s_distro(k8s, USR_CFG['k3s'].get('extra_args', []))
 
+    # this is a dict of all the apps we can install
+    apps = USR_CFG['apps']
+
     # installs all the base apps: metallb, ingess-nginx, and cert-manager
-    install_base_apps(k8s, USR_CFG['metallb']['enabled'],
+    install_base_apps(k8s, apps['metallb']['enabled'],
                       SECRETS['cert-manager_email'],
                       SECRETS['metallb_ip']['address_pool'])
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
-    if USR_CFG['argo_cd']['enabled']:
+    if apps['argo_cd']['enabled']:
         # user can configure a special domain for argocd
-        argocd_fqdn = USR_CFG['argo_cd']['domain']
+        argocd_fqdn = SECRETS['argo_cd_domain'] 
         from .k8s_apps.argocd import configure_argocd
         configure_argocd(argocd_fqdn, password_manager)
 
-    for app in USR_CFG:
-        if app.get('enabled', False):
-            install_with_argocd(app, USR_CFG[app]['argo'])
+        # after argocd is up, we install all apps as argocd apps
+        for app_key, app in apps.items():
+            if app['enabled'] and not app['argo']['part_of_app_of_apps']:
+                install_with_argocd(app_key, app['argo'])
 
     # we're done :D
     print("")
