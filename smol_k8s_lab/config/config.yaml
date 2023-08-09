@@ -140,10 +140,6 @@ apps:
 
   bitwarden_eso_provider:
     # enable the bitwarden ESO provider to
-    secrets:
-      password: ""
-      clientID: ""
-      clientSecret: ""
     enabled: true
     argo:
       # skip installing this app b/c its part of another app of apps with this
