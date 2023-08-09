@@ -97,6 +97,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
+      # change to argocd/argocd to not use app of apps with secret plugin
       path: "argocd/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
@@ -117,7 +118,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "argocd_appset/"
+      path: "argocd/argocd_appset/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
@@ -126,13 +127,32 @@ apps:
   external_secrets_operator:
     # enable the external secrets operator to pull remote secrets
     enabled: true
-    # if set to "bitwarden", we'll deploy a bitwarden service to use with ESO
-    provider: "bitwarden"
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
+      # change to "external-secrets-operator/external-secrets-operator/" to not use app of apps
       path: "external-secrets-operator/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "external-secrets-operator"
+
+  bitwarden_eso_provider:
+    # enable the bitwarden ESO provider to
+    secrets:
+      password: ""
+      clientID: ""
+      clientSecret: ""
+    enabled: true
+    argo:
+      # skip installing this app b/c its part of another app of apps with this
+      # name. If equals "" we'll instead use the repo, path, ref, and namespace
+      part_of_app_of_apps: "external_secrets_operator"
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "external-secrets-operator/bitwarden-eso-provider/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in

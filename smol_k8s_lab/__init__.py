@@ -16,7 +16,8 @@ from sys import exit
 
 # custom libs and constants
 from .k8s_tools.argocd import install_with_argocd
-from .base_install import install_base_apps, install_k8s_distro
+from .k8s_apps.base_install import install_base_apps, install_k8s_distro
+from .k8s_apps.setup_bweso import setup_bweso_secret
 from .console_logging import CONSOLE, header, sub_header
 from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
@@ -179,6 +180,10 @@ def main(k8s: str = "",
                       apps['argo_cd_appset_secret_plugin']['enabled'],
                       SECRETS['cert-manager_email'],
                       SECRETS['metallb_ip']['address_pool'])
+
+    # setup bitwarden external secrets if we're using that
+    if apps['bitwarden_eso_provider']['enabled']:
+        setup_bweso_secret()
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
