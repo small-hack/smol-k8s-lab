@@ -84,11 +84,6 @@ apps:
     # Enable ArgoCD to install other apps, and also manage itself :)
     # Set to false if you you just want a bare cluster with only the above apps
     enabled: true
-    # set to "basic" for basic authentication via ArgoCD directly, only
-    # keycloak has been tested so far
-    identity_provider: "keycloak"
-    # If set to false, we will use a self signed cert for configuring https
-    tls: false
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secrets:
@@ -158,9 +153,7 @@ apps:
   # management and oauth2. it also works with vouch to secure domains that
   # otherwise wouldn't have authentication
   keycloak:
-    enabled: true
-    # If set to false, we will use a self signed cert for configuring https
-    tls: true
+    enabled: false
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secrets:
@@ -204,8 +197,6 @@ apps:
   mastodon:
     # enable mastodon for a self hosted social media website
     enabled: false
-    # If set to false, we will use a self signed cert for configuring https
-    tls: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secrets:
@@ -239,8 +230,6 @@ apps:
   nextcloud:
     # enable nextcloud to stand up a nice little self hosted file server
     enabled: false
-    # If set to false, we will use a self signed cert for configuring https
-    tls: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secrets:
@@ -258,8 +247,6 @@ apps:
   prometheus:
     # enable full monitoring stack w/ prometheus, grafana, loki, alert manager
     enabled: false
-    # If set to false, we will use a self signed cert for configuring https
-    tls: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secrets:
