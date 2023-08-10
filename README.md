@@ -67,8 +67,8 @@ Version is the helm chart version, or manifest version.
 
 | Application/Tool |    Version    | Description |
 |:----------------:|:-------------:|:------------|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.9.1 | external-secrets-operator integrates external secret management systems like GitLab|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.42.1 | Gitops - Continuous Deployment |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | 0.9.2 | external-secrets-operator integrates external secret management systems like GitLab|
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | 5.43.2 | Gitops - Continuous Deployment |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno] | latest | Kubernetes native policy management to enforce policies on k8s resources |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/keycloak_icon.png"  width="32" alt="keycloak logo">][Keycloak] <br /> [KeyCloak] | 16.0.2 | Self hosted IAM/Oauth2 solution |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | latest | Terminal based dashboard for kubernetes |
