@@ -4,7 +4,7 @@
     height="30"
     width="0px"
   />
-smol k8s lab 🧸
+smol k8s lab 🧸 <sub>Now with more :squid:</sub>
 </h2>
 
 <p align="center">
@@ -50,14 +50,13 @@ We always install the latest version of kubernetes that is available from the di
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
-We tend to test first on k3s first, then the other distros.
+We tend to test first on k3s first, then the other distros. k3d support coming soon.
 
 ### Stack We Install on K8s
 Version is the helm chart version, or manifest version.
 
 |           Application           |    Version    |                      Description                      |
 |:-------------------------------:|:-------------:|:------------------------------------------------------|
-| 🐄 <br /> [Local Path Provisioner] |    latest  | [**k3s only**] Default simple local file storage for persistent data |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | 0.13.10 | loadbalancer for metal, since we're mostly selfhosting |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][nginx-ingress] <br /> [nginx-ingress] | 4.7.1 | The ingress controller allows access to the cluster remotely, needed for web traffic |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | 1.12.3 | For SSL/TLS certificates |
@@ -131,7 +130,7 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 
 <!-- k8s optional apps link references -->
 [ESO]: https://external-secrets.io/v0.8.1/
-[Argo CD]: https://github.io/argoproj/argo-helm
+[Argo CD]:https://argo-cd.readthedocs.io/en/latest/
 [Kyverno]: https://github.com/kyverno/kyverno/
 [Keycloak]: https://github.com/bitnami/charts/tree/main/bitnami/keycloak/templates
 
