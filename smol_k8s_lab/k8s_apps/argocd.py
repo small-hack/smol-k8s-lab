@@ -11,18 +11,19 @@ import yaml
 from ..bw_cli import BwCLI
 from ..console_logging import header, sub_header
 from ..constants import XDG_CACHE_DIR
+import k8s_tools
 from ..k8s_tools.homelabHelm import helm
 from ..k8s_tools.kubernetes_util import apply_manifests
 
 
-def configure_argocd(argo_cd_domain="", password_manager=False,
+def configure_argocd(argo_cd_domain="", bitwarden=None,
                      secret_creation=False, secret_dict={}):
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
     arg:
         argo_cd_domain:   str, defaults to "", required
-        password_manager: bool, defaults to False, optional
+        bitwarden: BwCLI() object, defaults to None
 
     """
     header("Installing 🦑 Argo CD...")
@@ -45,23 +46,24 @@ def configure_argocd(argo_cd_domain="", password_manager=False,
                    'tls':  [{'secretName': 'argocd-secret',
                              'hosts': [argo_cd_domain]}]}}}
 
-    # if we're using a password manager, generate a password & save it
-    if password_manager:
+    # if we're using bitwarden, generate a password & save it
+    if bitwarden:
         sub_header(":lock: Creating a new password in BitWarden.")
         # if we're using bitwarden...
-        bw = BwCLI()
-        bw.unlock()
-        argo_password = bw.generate()
-        bw.create_login(name=argo_cd_domain,
-                        item_url=argo_cd_domain,
-                        user="admin",
-                        password=argo_password)
-        bw.lock()
-        admin_pass = bcrypt.hashpw(argo_password.encode('utf-8'),
-                                   bcrypt.gensalt()).decode()
+        argo_password = bitwarden.generate()
+        bitwarden.create_login(name=argo_cd_domain,
+                               item_url=argo_cd_domain,
+                               user="admin",
+                               password=argo_password)
+    # if we're not using bitwarden, just create a password the normal way
+    else:
+        argo_password = k8s_tools.create_password()
 
-        # this gets passed to the helm cli, but is bcrypted
-        val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
+    admin_pass = bcrypt.hashpw(argo_password.encode('utf-8'),
+                               bcrypt.gensalt()).decode()
+
+    # this gets passed to the helm cli, but is bcrypted
+    val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
 
     # this creates a values.yaml from the val dict above
     values_file_name = path.join(XDG_CACHE_DIR, 'argocd_values.yaml')
