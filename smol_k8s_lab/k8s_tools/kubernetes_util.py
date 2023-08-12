@@ -7,6 +7,7 @@ DESCRIPTION: generic kubernetes utilities
 """
 
 from os import path
+import yaml
 from yaml import dump
 from ..constants import XDG_CACHE_DIR
 from ..subproc import subproc, simple_loading_bar
@@ -51,3 +52,48 @@ def apply_custom_resources(custom_resource_dict_list):
 
     # loops with progress bar until this succeeds
     simple_loading_bar(commands)
+
+
+# this lets us do multi line yaml values
+yaml.SafeDumper.org_represent_str = yaml.SafeDumper.represent_str
+
+
+# this too
+def repr_str(dumper, data):
+    if '\n' in data:
+        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data,
+                                       style='|')
+    return dumper.org_represent_str(data)
+
+
+def create_secrets(secret_dict: dict, in_line=False):
+    """
+    create a k8s secret accessible by Argo CD
+    """
+    if in_line:
+        # these are all app secrets we collected at the start of the script
+        secret_keys = yaml.dump(secret_dict)
+
+        # this is a standard k8s secrets yaml
+        secret_yaml = {'apiVersion': 'v1',
+                       'kind': 'Secret',
+                       'metadata': {'name': 'appset-secret-vars',
+                                    'namespace': 'argocd'},
+                       'stringData': {'secret_vars.yaml': secret_keys}}
+    else:
+        # this is a standard k8s secrets yaml
+        secret_yaml = {'apiVersion': 'v1',
+                       'kind': 'Secret',
+                       'metadata': {'name': 'appset-secret-vars',
+                                    'namespace': 'argocd'},
+                       'stringData': secret_dict}
+
+    secrets_file_name = path.join(XDG_CACHE_DIR, 'secrets.yaml')
+
+    # write out the file to be applied
+    with open(secrets_file_name, 'w') as secret_file:
+        yaml.safe_dump(secret_yaml, secret_file)
+
+    apply_manifests(secrets_file_name)
+    return
+
