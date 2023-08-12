@@ -31,19 +31,14 @@ class BwCLI():
         self.session = None
         self.delete_session = True
 
-    def generate(self, special_characters=False):
+    def status(self):
         """
         generate a new password. Takes special_characters bool.
         """
-        log.info('Generating a new password...')
+        log.info('Checking if you are logged in...')
+        vault_status = json.load(subproc(["bw status"], quiet=True))
 
-        command = "bw generate --length 24 --uppercase --lowercase --number"
-        if special_characters:
-            command += " --special"
-
-        password = subproc([command], quiet=True)
-        log.info('New password generated.')
-        return password
+        return vault_status
 
     def unlock(self):
         """
@@ -56,12 +51,38 @@ class BwCLI():
             self.delete_session = False
         else:
             log.info('Unlocking the Bitwarden vault...')
+            # make sure there's not a password in the environment already
+            pw = environ.get("BW_PASSWORD")
+            clientID = environ.get("BW_CLIENTID")
+            clientSecret = environ.get("BW_CLIENTSECRET")
+            status = self.status()
 
-            pw = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
-                            password=True)
+            # if there's no env var called BW_PASSWORD, ask for one
+            if not pw:
+                pw = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
+                                password=True)
 
-            self.session = subproc([f"bw unlock {pw} --raw"], quiet=True,
-                                   spinner=False)
+            # default command is unlock
+            cmd = "bw unlock --passwordenv BW_PASSWORD --raw"
+
+            # verify we're even logged in :)
+            if status == "unauthenticated" and not any([clientSecret,
+                                                        clientID]):
+                if not clientID:
+                    msg = "[cyan]🤫 Enter your Bitwarden client ID"
+                    clientID = Prompt.ask(msg, password=True)
+                if not clientSecret:
+                    msg = "[cyan]🤫 Enter your Bitwarden client Secret"
+                    clientSecret = Prompt.ask(msg, password=True)
+
+                # set command to login if we're unauthenticated
+                cmd = "bw login --passwordenv BW_PASSWORD --apikey --raw"
+
+            # run either bw login or bw unlock depending on bw status
+            self.session = subproc([cmd], quiet=True, spinner=False,
+                                   env={"BW_PASSWORD": pw,
+                                        "BW_CLIENTID": clientID,
+                                        "BW_CLIENTSECRET": clientSecret})
             log.info('Unlocked the Bitwarden vault.')
 
     def lock(self) -> None:
@@ -72,6 +93,21 @@ class BwCLI():
             log.info('Locking the Bitwarden vault...')
             subproc([f"bw lock --session {self.session}"], quiet=True)
             log.info('Bitwarden vault locked.')
+
+    def generate(self, special_characters=False):
+        """
+        generate a new password. Takes special_characters bool.
+        """
+        log.info('Generating a new password...')
+
+        command = "bw generate --length 32 --uppercase --lowercase --number"
+        if special_characters:
+            command += " --special"
+
+        password = subproc([command], quiet=True)
+        log.info('New password generated.')
+        return password
+
 
     def create_login(self, name="", item_url="", user="", password="",
                      org=None, collection=None):

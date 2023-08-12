@@ -186,13 +186,14 @@ def main(k8s: str = "",
     if apps['bitwarden_eso_provider']['enabled']:
         setup_bweso_secret()
 
-    # if we're using bitwarden
-    if bitwarden:
-        bw = BwCLI()
-        bw.unlock()
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
+        # if we're using bitwarden, unlock the vault
+        if bitwarden:
+            bw = BwCLI()
+            bw.unlock()
+
         # user can configure a special domain for argocd
         argocd_fqdn = SECRETS['argo_cd_domain']
         from .k8s_apps.argocd import configure_argocd
@@ -205,8 +206,9 @@ def main(k8s: str = "",
             if app['enabled'] and not app['argo']['part_of_app_of_apps']:
                 install_with_argocd(app_key, app['argo'])
 
-    if password_manager:
-        bw.lock()
+        # lock the bitwarden vault on the way out, to be polite :3
+        if bitwarden:
+            bw.lock()
     # we're done :D
     print("")
     CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
