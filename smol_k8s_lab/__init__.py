@@ -146,7 +146,7 @@ def main(k8s: str = "",
 
     if setup:
         # installs extra tooling such as helm, k9s, and krew
-        from .setup_k8s_tools import do_setup
+        from .utils.setup_k8s_tools import do_setup
         do_setup()
         if not k8s:
             exit()
