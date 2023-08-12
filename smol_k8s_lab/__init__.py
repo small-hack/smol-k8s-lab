@@ -189,6 +189,7 @@ def main(k8s: str = "",
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
+        bw = None
         # if we're using bitwarden, unlock the vault
         if bitwarden:
             bw = BwCLI()
