@@ -20,6 +20,19 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
     """
+    cmd = "kubectl config get-clusters"
+    clusters = subproc([cmd])
+    if 'smol-k8s-lab-k3s' in clusters:
+        log.info("K3s cluster detected in $KUBECONFIG. Checking if it's up.")
+        cmd = "kubectl get pods"
+        try:
+            subproc([cmd])
+        except Exception as e:
+            log.info(e)
+            log.info("Looks like the current k3s cluster is not operational.")
+        else:
+            # exit this function because k3s is already installed
+            return
 
     # download the k3s installer if we don't have it here already
     url = requests.get("https://get.k3s.io")
@@ -49,12 +62,15 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
     # Grab the kubeconfig and copy it locally
     cp = f'sudo cp /etc/rancher/k3s/k3s.yaml {KUBECONFIG}'
 
-    # change the permissions os that it doesn't complain
+    # change the mode (permissions) of kubeconfig so that it doesn't complain
     chmod_cmd = f'sudo chmod 600 {KUBECONFIG}'
+    # change the owner to the current user running this script
     chown_cmd = f'sudo chown {USER}: {KUBECONFIG}'
+    # rename the cluster in your kubeconfig to smol-k8s-lab-k3s
+    cluster_rename = f"sed -i 's/default/smol-k8s-lab-k3s/g' {KUBECONFIG}"
 
-    # run both commands one after the other
-    subproc([cp, chmod_cmd, chown_cmd])
+    # run all 3 commands one after the other
+    subproc([cp, chmod_cmd, chown_cmd, cluster_rename])
 
     # remove the script after we're done
     remove('./install.sh')
