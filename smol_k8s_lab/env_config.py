@@ -61,8 +61,8 @@ def process_app_configs(default_config: dict, config: dict):
             # verify they're using our default repo config for this app
             if argo_section['repo'] == default_repo:
                 # use secret section if exists, else grab from the default cfg
-                default_secrets = default_cfg['argo'].get('secrets', '')
-                secrets = argo_section.get('secrets', default_secrets)
+                default_secrets = default_cfg['argo'].get('secret_keys', '')
+                secrets = argo_section.get('secret_keys', default_secrets)
 
                 if secrets:
                     # iterate through each secret for the app
@@ -74,7 +74,7 @@ def process_app_configs(default_config: dict, config: dict):
                         if not secrets[secret]:
                             ask_msg = f"Please enter a(n) {secret} for {app}: "
                             res = Prompt.ask(ask_msg)
-                            final_cfg[app]['argo']['secrets'][secret] = res
+                            final_cfg[app]['argo']['secret_keys'][secret] = res
                             return_secrets[secret_key] = res
                         else:
                             return_secrets[secret_key] = secrets[secret]

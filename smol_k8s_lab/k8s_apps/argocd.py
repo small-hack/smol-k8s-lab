@@ -11,9 +11,9 @@ import yaml
 from ..bw_cli import BwCLI
 from ..console_logging import header, sub_header
 from ..constants import XDG_CACHE_DIR
-import k8s_tools
 from ..k8s_tools.kubernetes_util import create_secrets
 from ..k8s_tools.homelabHelm import helm
+from ..utils.passwords import create_password
 
 
 def configure_argocd(argo_cd_domain="", bitwarden=None,
@@ -57,7 +57,7 @@ def configure_argocd(argo_cd_domain="", bitwarden=None,
                                password=argo_password)
     # if we're not using bitwarden, just create a password the normal way
     else:
-        argo_password = k8s_tools.create_password()
+        argo_password = create_password()
 
     admin_pass = bcrypt.hashpw(argo_password.encode('utf-8'),
                                bcrypt.gensalt()).decode()

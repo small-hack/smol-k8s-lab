@@ -24,11 +24,10 @@ apps:
   #
   # Use LetsEncrypt to generate TLS certs
   cert-manager:
-    # secrets keys to make available to helm and/or ArgoCD ApplicationSets
-    secrets:
-      # Used for letsencrypt-staging, to generate certs
-      email: ""
     argo:
+      secret_keys:
+        # Used for letsencrypt-staging, to generate certs
+        email: ""
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "", we'll instead use the repo, path, ref, namespace
       part_of_app_of_apps: "ingress"
@@ -58,7 +57,7 @@ apps:
     # if you're on a vm or container where you can't get an IP, disable this
     enabled: true
     # secrets keys to make available to helm and/or ArgoCD ApplicationSets
-    secrets:
+    secret_keys:
       # # metallb IPs used for DNS later (make sure they're not in use)
       ## Example of required full CIDR notation
       # address_pool:
@@ -84,9 +83,17 @@ apps:
     # Enable ArgoCD to install other apps, and also manage itself :)
     # Set to false if you you just want a bare cluster with only the above apps
     enabled: true
+    # create kubernetes secrets only if not using the external-secrets-operator
+    secrets:
+      enabled: true
+      # name of secret to create in kubernetes
+      argocd-keycloak:
+        # keys within secret to generate values for
+        - oidc.keycloak.clientID
+        - oidc.keycloak.clientSecret
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
-      secrets:
+      secret_keys:
         # FQDN domain for accessing the ArgoCD web interface
         domain: ""
       # git repo to install the Argo CD app from
@@ -136,6 +143,16 @@ apps:
   bitwarden_eso_provider:
     # enable the bitwarden ESO provider to
     enabled: true
+    # create kubernetes secrets only if not using the external-secrets-operator
+    secrets:
+      enabled: true
+      # name of secret to create in kubernetes
+      bweso-login:
+        # keys within secret to generate values for
+        - BW_HOST
+        - BW_CLIENTID
+        - BW_CLIENTSECRET
+        - BW_PASSWORD
     argo:
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
@@ -154,9 +171,21 @@ apps:
   # otherwise wouldn't have authentication
   keycloak:
     enabled: true
+    # create kubernetes secrets only if not using the external-secrets-operator
+    # create kubernetes secrets only if not using the external-secrets-operator
+    secrets:
+      enabled: true
+      # name of secret to create in kubernetes
+      keycloak-admin-credentials:
+        # keys within secret to generate values for
+        - password
+      # name of secret to create in kubernetes
+      keycloak-postgres-credentials:
+        # keys within secret to generate values for
+        - POSTGRES_USER_PASSWORD
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
-      secrets:
+      secret_keys:
         domain: ""
         mail_domain: ""
       # git repo to install the Argo CD app from
@@ -197,9 +226,16 @@ apps:
   mastodon:
     # enable mastodon for a self hosted social media website
     enabled: false
+    secrets:
+      enabled: true
+      # name of secret to create in kubernetes
+      mastodon-admin:
+        # keys within secret to generate values for
+        - username
+        - password
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
-      secrets:
+      secret_keys:
         domain: ""
         mail_domain: ""
       # git repo to install the Argo CD app from
@@ -214,9 +250,20 @@ apps:
   matrix:
     # enable matrix for a self hosted chat service
     enabled: false
+    secrets:
+      enabled: true
+      # name of secret to create in kubernetes
+      matrix-registration:
+        # keys within secret to generate values for
+        - registrationSharedSecret
+      matrix-pgsql-credentials:
+        - hostname
+        - username
+        - password
+        - postgresPassword
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
-      secrets:
+      secret_keys:
         domain: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -230,9 +277,24 @@ apps:
   nextcloud:
     # enable nextcloud to stand up a nice little self hosted file server
     enabled: false
+    secrets:
+      enabled: true
+      # name of secret to create in kubernetes
+      nextcloud-admin-credentials:
+        # keys within secret to generate values for
+        - username
+        - password
+        - serverinfo_token
+        - smtpUsername
+        - smtpPassword
+      nextcloud-pgsql-credentials:
+        - nextcloudPassword
+        - postgresPassword
+      nextcloud-redis-credentials:
+        - redis_password 
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
-      secrets:
+      secret_keys:
         domain: ""
         mail_domain: ""
       # git repo to install the Argo CD app from
@@ -247,9 +309,15 @@ apps:
   prometheus:
     # enable full monitoring stack w/ prometheus, grafana, loki, alert manager
     enabled: false
+    secrets:
+      enabled: false
+      # name of secret to create in kubernetes
+      postgres-password:
+        # keys within secret to generate values for
+        - password
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
-      secrets:
+      secret_keys:
         # FQDN to use for grafana
         grafana_domain: ""
         # FQDN to use for Alert Manager web interface
@@ -269,6 +337,12 @@ apps:
 
   vouch:
     enabled: false
+    secrets:
+      enabled: true
+      # name of secret to create in kubernetes
+      vouch-config:
+        # keys within secret to generate values for
+        - config.yaml
     argo:
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
@@ -282,6 +356,12 @@ apps:
 
   # zitadel is still in alpha testing phase. Use with caution
   zitadel:
+    secrets:
+      enabled: true
+      # name of secret to create in kubernetes
+      zitadel-extenal-secret:
+        # keys within secret to generate values for
+        - password
     enabled: false
     argo:
       # repo to install the Argo CD app from
