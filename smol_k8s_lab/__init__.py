@@ -115,9 +115,9 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
 @option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
         type=Choice(['debug', 'info', 'warn', 'error']))
-@option('--log_file', '-o', metavar='LOGFILE', help=HELP['log_file'])
-@option('--bitarden', '-b', is_flag=True,
-        help=HELP['bitwarden'])
+@option('--log_file', '-f', metavar='LOGFILE', help=HELP['log_file'])
+@option('--overwrite' '-O', is_flag=True, help=HELP['overwrite'])
+@option('--bitarden', '-b', is_flag=True, help=HELP['bitwarden'])
 @option('--version', '-v', is_flag=True, help=HELP['version'])
 def main(k8s: str = "",
          config: str = "",

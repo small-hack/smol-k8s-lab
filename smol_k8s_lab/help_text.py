@@ -55,6 +55,9 @@ def options_help():
         'log_file':
         'File to log to. Default: None',
 
+        'overwrite':
+        'Overwrite exsting secrets and bitwarden items.',
+
         'bitwarden':
         'Store generated admin passwords directly into your Bitwarden vault. '
         'Requires you to manually enter your vault password. Default: False',
