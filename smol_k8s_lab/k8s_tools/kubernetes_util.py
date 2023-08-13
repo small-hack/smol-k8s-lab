@@ -6,7 +6,8 @@ DESCRIPTION: generic kubernetes utilities
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
-from os import path
+from base64 import standard_b64encode as b64enc
+from os import path, remove
 import yaml
 from yaml import dump
 from ..constants import XDG_CACHE_DIR
@@ -66,7 +67,7 @@ def repr_str(dumper, data):
     return dumper.org_represent_str(data)
 
 
-def create_secrets(secret_name: str, secret_namespace: str, secret_dict: dict,
+def create_secret(secret_name: str, secret_namespace: str, secret_dict: dict,
                    in_line: bool = False, additonal_labels: dict = None):
     """
     create a k8s secret accessible by Argo CD
@@ -89,12 +90,16 @@ def create_secrets(secret_name: str, secret_namespace: str, secret_dict: dict,
                                     'namespace': secret_namespace},
                        'stringData': {'secret_vars.yaml': secret_keys}}
     else:
+        # base64 encode all the values
+        for key, value in secret_dict.items():
+            secret_dict[key] = b64enc(value)
+
         # this is a standard k8s secrets yaml
         secret_yaml = {'apiVersion': 'v1',
                        'kind': 'Secret',
                        'metadata': {'name': secret_name,
                                     'namespace': secret_namespace},
-                       'stringData': secret_dict}
+                       'data': secret_dict}
 
     if additonal_labels:
         secret_yaml['metadata']['labels'] = additonal_labels
@@ -106,5 +111,9 @@ def create_secrets(secret_name: str, secret_namespace: str, secret_dict: dict,
         yaml.safe_dump(secret_yaml, secret_file)
 
     apply_manifests(secrets_file_name)
+
+    # clean up the secret, because we shouldn't keep that around
+    remove(secrets_file_name)
+
     return True
 

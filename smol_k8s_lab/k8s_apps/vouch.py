@@ -1,6 +1,6 @@
 import logging as log
 from ..console_logging import header
-from ..k8s_tools.kubernetes_util import create_secrets
+from ..k8s_tools.kubernetes_util import create_secret
 from ..k8s_tools.argocd import install_with_argocd
 from ..subproc import subproc
 from ..utils.bw_cli import BwCLI
@@ -49,17 +49,17 @@ def configure_vouch(vouch_config_dict: dict,
     # create vouch k8s secrets if we're not using bitwarden
     else:
         # create oauth OIDC k8s secret
-        create_secrets('vouch-oauth-config', 'vouch',
-                       {'user': 'vouch',
-                        'password': vouch_client_secret,
-                        'authUrl': f'{base_url}auth',
-                        'tokenUrl': f'{base_url}token',
-                        'userInfoUrl': f'{base_url}userinfo',
-                        'callbackUrls': vouch_callback_url})
+        create_secret('vouch-oauth-config', 'vouch',
+                      {'user': 'vouch',
+                       'password': vouch_client_secret,
+                       'authUrl': f'{base_url}auth',
+                       'tokenUrl': f'{base_url}token',
+                       'userInfoUrl': f'{base_url}userinfo',
+                       'callbackUrls': vouch_callback_url})
 
         # create vouch config k8s secret
-        create_secrets('vouch-config', 'vouch',
-                       {'domains': domains, 'allowList': emails})
+        create_secret('vouch-config', 'vouch',
+                      {'domains': domains, 'allowList': emails})
 
     install_with_argocd('vouch', vouch_config_dict['argo'])
     return True 

@@ -3,7 +3,7 @@ import json
 from rich.prompt import Prompt
 from .vouch import configure_vouch
 from ..console_logging import sub_header, header
-from ..k8s_tools.kubernetes_util import create_secrets
+from ..k8s_tools.kubernetes_util import create_secret
 from ..k8s_tools.argocd import install_with_argocd
 from ..subproc import subproc
 from ..utils.bw_cli import BwCLI
@@ -52,12 +52,12 @@ def configure_keycloak_and_vouch(keycloak_config_dict: dict,
         else:
             sub_header("Creating secrets in k8s")
             admin_password = create_password()
-            create_secrets('keycloak-admin-credentials', 'keycloak',
-                           {'password': admin_password})
+            create_secret('keycloak-admin-credentials', 'keycloak',
+                          {'password': admin_password})
             postgres_password = create_password()
-            create_secrets('keycloak-postgres-credentials', 'keycloak',
-                           {'password': postgres_password,
-                            'postgres-password': postgres_password})
+            create_secret('keycloak-postgres-credentials', 'keycloak',
+                          {'password': postgres_password,
+                           'postgres-password': postgres_password})
 
     install_with_argocd('keycloak', keycloak_config_dict['argo'])
 
@@ -128,10 +128,10 @@ def configure_keycloak(realm: str = "", keycloak_domain: str = "",
                                password=argocd_client_secret)
     else:
         # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
-        create_secrets('argocd-keycloak', 'argocd',
-                       {'user': 'argocd',
-                        'password': argocd_client_secret}, False,
-                       {'app.kubernetes.io/part-of': 'argocd'})
+        create_secret('argocd-keycloak', 'argocd',
+                      {'user': 'argocd',
+                       'password': argocd_client_secret}, False,
+                      {'app.kubernetes.io/part-of': 'argocd'})
 
     if vouch_enabled:
         url = (f"https://{keycloak_domain}/realms/{realm}/protocol"
