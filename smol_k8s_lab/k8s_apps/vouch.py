@@ -1,5 +1,5 @@
 import logging as log
-from ..console_logging import header
+from ..pretty_printing.console_logging import header
 from ..k8s_tools.kubernetes_util import create_secret
 from ..k8s_tools.argocd import install_with_argocd
 from ..subproc import subproc

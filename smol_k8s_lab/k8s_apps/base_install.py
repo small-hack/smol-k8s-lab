@@ -1,4 +1,4 @@
-from .console_logging import header, sub_header
+from ..pretty_printing.console_logging import header, sub_header
 
 def install_k8s_distro(k8s_distro="", extra_args=[]):
     """

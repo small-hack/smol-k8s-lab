@@ -21,7 +21,7 @@ from .k8s_apps.keycloak import configure_keycloak_and_vouch
 from .k8s_apps.zitadel import configure_zitadel_and_vouch
 from .k8s_apps.bweso import setup_bweso
 from .bw_cli import BwCLI
-from .console_logging import CONSOLE, header, sub_header
+from .pretty_printing.console_logging import CONSOLE, header, sub_header
 from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
 from .env_config import check_os_support, process_app_configs

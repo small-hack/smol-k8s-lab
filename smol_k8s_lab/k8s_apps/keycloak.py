@@ -2,7 +2,7 @@ import logging as log
 import json
 from rich.prompt import Prompt
 from .vouch import configure_vouch
-from ..console_logging import sub_header, header
+from ..pretty_printing.console_logging import sub_header, header
 from ..k8s_tools.kubernetes_util import create_secret
 from ..k8s_tools.argocd import install_with_argocd
 from ..subproc import subproc

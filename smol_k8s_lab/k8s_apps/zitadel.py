@@ -1,8 +1,9 @@
 import logging as log
 import json
+import requests
 from rich.prompt import Prompt
 from .vouch import configure_vouch
-from ..console_logging import sub_header, header
+from ..pretty_printing.console_logging import sub_header, header
 from ..k8s_tools.kubernetes_util import create_secret
 from ..k8s_tools.argocd import install_with_argocd
 from ..subproc import subproc
@@ -73,39 +74,127 @@ def configure_zitadel(zitadel_domain: str = "", bitwarden=None,
     username = Prompt("What would you like your Zitadel username to be?")
     first_name = Prompt("Enter your First name for your Zitadel profile")
     last_name = Prompt("Enter your Last name for your Zitadel profile")
+    email = Prompt("Enter your email for your Zitadel profile")
 
     begin = ("kubectl exec -n zitadel zitadel-web-app-0 -- "
              "/opt/bitnami/zitadel/bin/kcadm.sh ")
+    url = f"https://{zitadel_domain}/management/v1/"
 
+    # create a new user via the API
     log.info("Creating a new user...")
-    # create a new user
-    create_user = (f"{begin} create users -s username={username}"
-                   f"-s enabled=true -s firstName={first_name} "
-                   f"-s lastName={last_name}")
+    payload = json.dumps({
+      "userName": username,
+      "profile": {
+        "firstName": first_name,
+        "lastName": last_name,
+        "nickName": "friend",
+        "displayName": f"{first_name} {last_name}",
+        "preferredLanguage": "en",
+        "gender": "GENDER_FEMALE"
+      },
+      "email": {
+        "email": email,
+        "isEmailVerified": True
+      },
+      "password": "string",
+      "passwordChangeRequired": True,
+    })
+    headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer <TOKEN>'
+    }
 
-    log.info("Creating an Argo CD client...")
-    # create an argocd client
-    create_argocd_client = (f"{begin} create clients "
-                            f"-s enabled=true -s clientId=argocd")
+    response = requests.request("POST", url + 'users/human/_import',
+                                headers=headers, data=payload)
+    log.info(response.text)
+
+    # create Argo CD OIDC Application
+    log.info("Creating an Argo CD application...")
+
+    payload = json.dumps({
+      "name": "Argo CD",
+      "redirectUris": [
+        "http://localhost:4200/auth/callback"
+      ],
+      "responseTypes": [
+        "OIDC_RESPONSE_TYPE_CODE"
+      ],
+      "grantTypes": [
+        "OIDC_GRANT_TYPE_AUTHORIZATION_CODE"
+      ],
+      "appType": "OIDC_APP_TYPE_WEB",
+      "authMethodType": "OIDC_AUTH_METHOD_TYPE_BASIC",
+      "postLogoutRedirectUris": [
+        "http://localhost:4200/signedout"
+      ],
+      "version": "OIDC_VERSION_1_0",
+      "devMode": True,
+      "accessTokenType": "OIDC_TOKEN_TYPE_BEARER",
+      "accessTokenRoleAssertion": True,
+      "idTokenRoleAssertion": True,
+      "idTokenUserinfoAssertion": True,
+      "clockSkew": "1s",
+      "additionalOrigins": [
+        "scheme://localhost:8080"
+      ],
+      "skipNativeAppSuccessPage": True
+    })
+    headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer <TOKEN>'
+    }
+
+    response = requests.request("POST", url + 'projects/:projectId/apps/oidc',
+                                headers=headers, data=payload)
+    log.info(response.text)
+
+    argocd_client_secret = response.json['clientSecret']
 
     vouch_enabled = vouch_config_dict['enabled']
     if vouch_enabled:
-        log.info("Creating an Argo CD client...")
-        # create a vouch client
-        create_vouch_client = (f"{begin} create clients "
-                               f" -s enabled=true -s clientId=vouch")
+        # create Vouch OIDC Application
+        log.info("Creating a Vouch application...")
 
-    subproc([create_user, create_argocd_client, create_vouch_client])
+        payload = json.dumps({
+          "name": "Vouch",
+          "redirectUris": [
+            "http://localhost:4200/auth/callback"
+          ],
+          "responseTypes": [
+            "OIDC_RESPONSE_TYPE_CODE"
+          ],
+          "grantTypes": [
+            "OIDC_GRANT_TYPE_AUTHORIZATION_CODE"
+          ],
+          "appType": "OIDC_APP_TYPE_WEB",
+          "authMethodType": "OIDC_AUTH_METHOD_TYPE_BASIC",
+          "postLogoutRedirectUris": [
+            "http://localhost:4200/signedout"
+          ],
+          "version": "OIDC_VERSION_1_0",
+          "devMode": True,
+          "accessTokenType": "OIDC_TOKEN_TYPE_BEARER",
+          "accessTokenRoleAssertion": True,
+          "idTokenRoleAssertion": True,
+          "idTokenUserinfoAssertion": True,
+          "clockSkew": "1s",
+          "additionalOrigins": [
+            "scheme://localhost:8080"
+          ],
+          "skipNativeAppSuccessPage": True
+        })
+        headers = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer <TOKEN>'
+        }
+        response = requests.request("POST", url + 'projects/:projectId/apps/oidc',
+                                    headers=headers, data=payload)
+        log.info(response.text)
 
-    # get vouch and argocd client
-    clients = f"{begin} get clients --fields clientId,secret"
-    client_json = json.loads(subproc([clients]))
-
-    for client in client_json:
-        if client_json['clientId'] == 'argocd':
-            argocd_client_secret = client_json['secret']
-        if client_json['clientId'] == 'vouch':
-            vouch_client_secret = client_json['secret']
+        vouch_client_secret = response.json['clientSecret']
 
     if bitwarden:
         sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
@@ -120,7 +209,7 @@ def configure_zitadel(zitadel_domain: str = "", bitwarden=None,
                       {'app.kubernetes.io/part-of': 'argocd'})
 
     if vouch_enabled:
-        url = f"https://{zitadel_domain}/protocol/openid-connect/"
+        url = f""
         configure_vouch(vouch_config_dict, vouch_client_secret, url, bitwarden)
 
-    return True 
+    return True

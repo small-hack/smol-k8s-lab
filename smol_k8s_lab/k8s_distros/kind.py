@@ -8,7 +8,7 @@ DESCRIPTION: create or delete a kind cluster, part of smol-k8s-lab
 import logging as log
 from os import path
 from shutil import which
-from ..console_logging import sub_header
+from ..pretty_printing.console_logging import sub_header
 from ..constants import PWD
 from ..subproc import subproc
 

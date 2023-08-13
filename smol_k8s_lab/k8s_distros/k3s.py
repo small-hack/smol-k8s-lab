@@ -10,7 +10,7 @@ from os import chmod, remove
 import requests
 from shutil import which
 import stat
-from ..console_logging import sub_header
+from ..pretty_printing.console_logging import sub_header
 from ..constants import USER, KUBECONFIG
 from ..subproc import subproc
 

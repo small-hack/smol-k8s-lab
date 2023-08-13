@@ -8,7 +8,7 @@ USAGE: import homelabHelm as helm
 from collections import OrderedDict
 from shutil import which
 from ..subproc import subproc
-from ..console_logging import header, sub_header
+from ..pretty_printing.console_logging import header, sub_header
 
 
 class helm:
