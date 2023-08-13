@@ -74,7 +74,7 @@ def process_log_config(log_dict: dict = {'log':
         return logging.getLogger("rich")
 
 
-def delete_cluster(k8s_distro="k3s"):
+def delete_cluster(k8s_distro="kind"):
     """
     Delete a k0s, k3s, or KinD cluster entirely.
     It is suggested to perform a reboot after deleting a k0s cluster.
@@ -94,7 +94,7 @@ def delete_cluster(k8s_distro="k3s"):
         uninstall_k0s()
 
     else:
-        header("┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
+        header(f"┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
 
     sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
 
@@ -119,17 +119,10 @@ def main(config: str = "",
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
     """
-    # process all of the config file, or create a new one and also grab secrets
-    USR_CFG, SECRETS = process_configs(DEFUALT_CONFIG, INITIAL_USR_CONFIG)
-
     # only return the version if --version was passed in
     if version:
         print(f'\n🎉 v{VERSION}\n')
         return True
-
-    # setup logging immediately
-    log = process_log_config(USR_CFG['log'])
-    log.debug("Logging configured.")
 
     # make sure this OS is supported
     check_os_support()
@@ -139,12 +132,19 @@ def main(config: str = "",
         from .utils.setup_k8s_tools import do_setup
         do_setup()
 
-    k8s = USR_CFG['k8s_distro']
+    k8s = INITIAL_USR_CONFIG.get('k8s_distros', DEFUALT_CONFIG['k8s_distros'])
     if delete:
         for distro in k8s:
             # exits the script after deleting the cluster
             delete_cluster(k8s)
         exit()
+
+    # process all of the config file, or create a new one and also grab secrets
+    USR_CFG, SECRETS = process_configs(DEFUALT_CONFIG, INITIAL_USR_CONFIG)
+
+    # setup logging immediately
+    log = process_log_config(USR_CFG['log'])
+    log.debug("Logging configured.")
 
     for distro in k8s:
         # this is a dict of all the apps we can install
@@ -189,26 +189,26 @@ def main(config: str = "",
                 keycloak = apps.pop('keycloak')
                 vouch = apps.pop('vouch')
                 # initialize set to True here to run keycloak init scripts
-                configure_keycloak_and_vouch(keycloak, vouch, init, bw)
+                configure_keycloak_and_vouch(keycloak, vouch, True, bw)
 
             # setup zitadel if we're using that for OIDC
             elif apps['zitadel']['enabled']:
                 zitadel = apps.pop('zitadel')
                 vouch = apps.pop('vouch')
                 # initialize set to True here to run zitadel init scripts
-                configure_zitadel_and_vouch(zitadel, vouch, init, bw)
+                configure_zitadel_and_vouch(zitadel, vouch, True, bw)
 
             if apps['nextcloud']['enabled']:
                 nextcloud = apps.pop('nextcloud')
-                configure_nextcloud(nextcloud, bw)
+                configure_nextcloud(nextcloud, True, bw)
 
             if apps['mastodon']['enabled']:
                 mastodon = apps.pop('mastodon')
-                configure_mastodon(mastodon, bw)
+                configure_mastodon(mastodon, True, bw)
 
             if apps['matrix']['enabled']:
                 matrix = apps.pop('matrix')
-                configure_matrix(matrix, bw)
+                configure_matrix(matrix, True, bw)
 
             # after argocd, keycloak, bweso, and vouch are up, we install all
             # apps as Argo CD Applications
