@@ -17,7 +17,7 @@ from sys import exit
 # custom libs and constants
 from .k8s_tools.argocd import install_with_argocd
 from .k8s_apps.base_install import install_base_apps, install_k8s_distro
-from .k8s_apps.keycloak import configure_keycloak
+from .k8s_apps.keycloak import configure_keycloak_and_vouch
 from .k8s_apps.setup_bweso import setup_bweso_secret
 from .bw_cli import BwCLI
 from .console_logging import CONSOLE, header, sub_header
@@ -204,8 +204,9 @@ def main(k8s: str = "",
 
         if apps['keycloak']['enabled']:
             keycloak = apps.pop('keycloak')
+            vouch = apps.pop('vouch')
             # initialize set to True here to run keycloak init scripts
-            configure_keycloak(keycloak, bw)
+            configure_keycloak_and_vouch(keycloak, vouch, bw)
 
         # after argocd is up, we install all apps as argocd apps
         for app_key, app in apps.items():
