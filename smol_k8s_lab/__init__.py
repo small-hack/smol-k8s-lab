@@ -9,20 +9,21 @@
 from click import option, argument, command, Choice
 import logging
 from os import path
-from pathlib import Path
 from rich.logging import RichHandler
 from rich.panel import Panel
 from sys import exit
 
 # custom libs and constants
 from .env_config import check_os_support, process_configs
-from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
+from .constants import (KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
 from .k8s_tools.argocd import install_with_argocd
 from .k8s_apps.base_install import install_base_apps, install_k8s_distro
-from .k8s_apps.keycloak import configure_keycloak_and_vouch
-from .k8s_apps.zitadel import configure_zitadel_and_vouch
 from .k8s_apps.bweso import setup_bweso
+from .k8s_apps.keycloak import configure_keycloak_and_vouch
+from .k8s_apps.federated import (configure_nextcloud, configure_matrix,
+                                 configure_mastodon)
+from .k8s_apps.zitadel import configure_zitadel_and_vouch
 from .pretty_printing.console_logging import CONSOLE, header, sub_header
 from .pretty_printing.help_text import RichCommand, options_help
 from .utils.bw_cli import BwCLI
@@ -96,7 +97,6 @@ def delete_cluster(k8s_distro="k3s"):
         header("┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
 
     sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
-    exit()
 
 
 # an ugly list of decorators, but these are the opts/args for the whole script
@@ -107,18 +107,11 @@ def delete_cluster(k8s_distro="k3s"):
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--setup', '-s', is_flag=True, help=HELP['setup'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
-@option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
-        type=Choice(['debug', 'info', 'warn', 'error']))
-@option('--log_file', '-f', metavar='LOGFILE', help=HELP['log_file'])
-@option('--overwrite' '-O', is_flag=True, help=HELP['overwrite'])
-@option('--bitarden', '-b', is_flag=True, help=HELP['bitwarden'])
 @option('--version', '-v', is_flag=True, help=HELP['version'])
-def main(k8s: str = "",
-         config: str = "",
+def main(config: str = "",
          delete: bool = False,
          setup: bool = False,
          k9s: bool = False,
-         log_level: str = "",
          log_file: str = "",
          bitwarden: bool = False,
          version: bool = False):
@@ -135,7 +128,7 @@ def main(k8s: str = "",
         return True
 
     # setup logging immediately
-    log = process_log_config(log_level, log_file)
+    log = process_log_config(USR_CFG['log'])
     log.debug("Logging configured.")
 
     # make sure this OS is supported
@@ -145,75 +138,87 @@ def main(k8s: str = "",
         # installs extra tooling such as helm, k9s, and krew
         from .utils.setup_k8s_tools import do_setup
         do_setup()
-        if not k8s:
-            exit()
 
+    k8s = USR_CFG['k8s_distro']
     if delete:
-        # exits the script after deleting the cluster
-        delete_cluster(k8s)
+        for distro in k8s:
+            # exits the script after deleting the cluster
+            delete_cluster(k8s)
+        exit()
 
-    # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
-    Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
+    for distro in k8s:
+        # this is a dict of all the apps we can install
+        apps = USR_CFG['apps']
+        # check immediately if metallb is enabled
+        metallb_enabled = apps['metallb']['enabled']
 
-    # this is a dict of all the apps we can install
-    apps = USR_CFG['apps']
-    # check immediately if argo_cd or metallb are enabled
-    argo_enabled = apps['argo_cd']['enabled']
-    metallb_enabled = apps['metallb']['enabled']
+        # install the actual KIND, k0s, or k3s cluster
+        install_k8s_distro(k8s, metallb_enabled,
+                           USR_CFG['k3s'].get('extra_args', []))
 
-    # install the actual KIND, k0s, or k3s cluster
-    install_k8s_distro(k8s, metallb_enabled,
-                       USR_CFG['k3s'].get('extra_args', []))
+        argo_enabled = apps['argo_cd']['enabled']
 
+        # installs all the base apps: metallb, ingess-nginx, and cert-manager
+        install_base_apps(k8s, metallb_enabled, argo_enabled,
+                          apps['argo_cd_appset_secret_plugin']['enabled'],
+                          SECRETS['cert-manager_email'],
+                          SECRETS['metallb_ip']['address_pool'])
 
-    # installs all the base apps: metallb, ingess-nginx, and cert-manager
-    install_base_apps(k8s, metallb_enabled, argo_enabled,
-                      apps['argo_cd_appset_secret_plugin']['enabled'],
-                      SECRETS['cert-manager_email'],
-                      SECRETS['metallb_ip']['address_pool'])
+        # 🦑 Install Argo CD: continuous deployment app for k8s
+        if argo_enabled:
+            bw = None
+            # if we're using bitwarden, unlock the vault
+            if bitwarden:
+                bw = BwCLI(USR_CFG['bitwarden']['overwrite'])
+                bw.unlock()
 
-    # 🦑 Install Argo CD: continuous deployment app for k8s
-    if argo_enabled:
-        bw = None
-        # if we're using bitwarden, unlock the vault
-        if bitwarden:
-            bw = BwCLI(USR_CFG['bitwarden']['overwrite'])
-            bw.unlock()
+            # user can configure a special domain for argocd
+            argocd_fqdn = SECRETS['argo_cd_domain']
+            from .k8s_apps.argocd import configure_argocd
+            configure_argocd(argocd_fqdn, bw,
+                             apps['argo_cd_appset_secret_plugin']['enabled'],
+                             SECRETS)
 
-        # user can configure a special domain for argocd
-        argocd_fqdn = SECRETS['argo_cd_domain']
-        from .k8s_apps.argocd import configure_argocd
-        configure_argocd(argocd_fqdn, bw,
-                         apps['argo_cd_appset_secret_plugin']['enabled'],
-                         SECRETS)
+            # setup bitwarden external secrets if we're using that
+            if apps['bitwarden_eso_provider']['enabled']:
+                bitwarden_eso_provider = apps.pop('bitwarden_eso_provider')
+                setup_bweso(bitwarden_eso_provider, bw)
 
-        # setup bitwarden external secrets if we're using that
-        if apps['bitwarden_eso_provider']['enabled']:
-            bitwarden_eso_provider = apps.pop('bitwarden_eso_provider')
-            setup_bweso(bitwarden_eso_provider, bw)
+            # setup keycloak if we're using that for OIDC
+            if apps['keycloak']['enabled']:
+                keycloak = apps.pop('keycloak')
+                vouch = apps.pop('vouch')
+                # initialize set to True here to run keycloak init scripts
+                configure_keycloak_and_vouch(keycloak, vouch, init, bw)
 
-        # setup keycloak if we're using that for OIDC
-        if apps['keycloak']['enabled']:
-            keycloak = apps.pop('keycloak')
-            vouch = apps.pop('vouch')
-            # initialize set to True here to run keycloak init scripts
-            configure_keycloak_and_vouch(keycloak, vouch, bw)
-        # setup zitadel if we're using that for OIDC
-        elif apps['zitadel']['enabled']:
-            zitadel = apps.pop('zitadel')
-            vouch = apps.pop('vouch')
-            # initialize set to True here to run keycloak init scripts
-            configure_zitadel_and_vouch(zitadel, vouch, bw)
+            # setup zitadel if we're using that for OIDC
+            elif apps['zitadel']['enabled']:
+                zitadel = apps.pop('zitadel')
+                vouch = apps.pop('vouch')
+                # initialize set to True here to run zitadel init scripts
+                configure_zitadel_and_vouch(zitadel, vouch, init, bw)
 
-        # after argocd, keycloak, bweso, and vouch are up, we install all apps
-        # as Argo CD Applications
-        for app_key, app in apps.items():
-            if app['enabled'] and not app['argo']['part_of_app_of_apps']:
-                install_with_argocd(app_key, app['argo'])
+            if apps['nextcloud']['enabled']:
+                nextcloud = apps.pop('nextcloud')
+                configure_nextcloud(nextcloud, bw)
 
-        # lock the bitwarden vault on the way out, to be polite :3
-        if bitwarden:
-            bw.lock()
+            if apps['mastodon']['enabled']:
+                mastodon = apps.pop('mastodon')
+                configure_mastodon(mastodon, bw)
+
+            if apps['matrix']['enabled']:
+                matrix = apps.pop('matrix')
+                configure_matrix(matrix, bw)
+
+            # after argocd, keycloak, bweso, and vouch are up, we install all
+            # apps as Argo CD Applications
+            for app_key, app in apps.items():
+                if app['enabled'] and not app['argo']['part_of_app_of_apps']:
+                    install_with_argocd(app_key, app['argo'])
+
+            # lock the bitwarden vault on the way out, to be polite :3
+            if bitwarden:
+                bw.lock()
 
     # we're done :D
     print("")

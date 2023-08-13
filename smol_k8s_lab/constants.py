@@ -25,6 +25,8 @@ PWD = path.dirname(__file__)
 
 # for smol-k8s-lab configs and cache
 XDG_CACHE_DIR = path.join(xdg_cache_home(), 'smol-k8s-lab')
+# make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
+Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
 XDG_CONFIG_DIR = path.join(xdg_config_home(), 'smol-k8s-lab')
 XDG_CONFIG_FILE = path.join(xdg_config_home(), 'smol-k8s-lab/config.yaml')
 
