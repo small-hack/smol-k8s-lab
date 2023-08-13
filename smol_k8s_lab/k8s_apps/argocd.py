@@ -78,7 +78,7 @@ def configure_argocd(argo_cd_domain="", bitwarden=None,
     release.install(True)
 
     if plugin_secret_creation:
-        create_secrets(secret_dict)
+        create_secrets('appset-secret-vars', 'argocd', secret_dict)
 
         # this creates a values.yaml from this dict
         val = {'secretVars': {'existingSecret': 'appset-secret-vars'}}

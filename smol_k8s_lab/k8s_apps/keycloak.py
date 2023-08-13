@@ -1,9 +1,12 @@
 import logging as log
+import json
 from rich.prompt import Prompt
-from ..utils.bw_cli import BwCLI
-from ..subproc import subproc
-from ..k8s_tools.argocd import install_with_argocd
 from ..console_logging import sub_header, header
+from ..k8s_tools.kubernetes_util import create_secrets
+from ..k8s_tools.argocd import install_with_argocd
+from ..subproc import subproc
+from ..utils.bw_cli import BwCLI
+from ..utils.passwords import create_password
 
 
 def configure_keycloak(keycloak_config_dict: dict, init: bool = True,
@@ -19,10 +22,33 @@ def configure_keycloak(keycloak_config_dict: dict, init: bool = True,
     """
     header("🗝️Keycloak Setup")
 
-    secrets = keycloak_config_dict['secrets']
-    if bitwarden:
+    secrets = keycloak_config_dict['argo']['secret_keys']
+
+    # if we're using bitwarden, create the secrets in bitwarden before
+    # creating Argo CD app
+    if bitwarden and init:
+        sub_header("Creating secrets in Bitwarden")
         admin_password = bitwarden.generate()
         postgres_password = bitwarden.generate()
+        bitwarden.create_login(name='keycloak-admin-credentials',
+                               item_url=secrets['keycloak_domain'],
+                               user=secrets['keycloak_admin'],
+                               password=admin_password)
+        bitwarden.create_login(name='keycloak-postgres-credentials',
+                               item_url=secrets['keycloak_domain'],
+                               user='keycloak',
+                               password=postgres_password)
+
+    # if we're not using bitwarden, create the k8s secrets directly
+    if init and not bitwarden:
+        sub_header("Creating secrets in k8s")
+        admin_password = create_password()
+        create_secrets('keycloak-admin-credentials', 'keycloak',
+                       {'password': admin_password})
+        postgres_password = create_password()
+        create_secrets('keycloak-postgres-credentials', 'keycloak',
+                       {'password': postgres_password,
+                        'postgres-password': postgres_password})
 
     install_with_argocd('keycloak', keycloak_config_dict['argo'])
 
@@ -63,12 +89,12 @@ def configure_keycloak(keycloak_config_dict: dict, init: bool = True,
     client_json = json.loads(subproc([clients]))
 
     for client in client_json:
-        if client_json['clientId'] == argocd:
+        if client_json['clientId'] == 'argocd':
             argocd_client_secret = client_json['secret']
-        if client_json['clientId'] == vouch:
-            vouch_client_credentials = client_json['secret']
+        if client_json['clientId'] == 'vouch':
+            vouch_client_secret = client_json['secret']
 
     vouch_client_credentials = {'vouch': vouch_client_secret}
     argocd_client_credentials = {'argocd': argocd_client_secret}
 
-    return argocd_client_secret, vouch_client_credentials
+    return argocd_client_credentials, vouch_client_credentials

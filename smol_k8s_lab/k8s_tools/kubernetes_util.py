@@ -66,7 +66,7 @@ def repr_str(dumper, data):
     return dumper.org_represent_str(data)
 
 
-def create_secrets(secret_dict: dict, in_line=False):
+def create_secrets(secret_name: str, secret_namespace: str, secret_dict: dict, in_line: bool = False):
     """
     create a k8s secret accessible by Argo CD
     """
@@ -77,15 +77,15 @@ def create_secrets(secret_dict: dict, in_line=False):
         # this is a standard k8s secrets yaml
         secret_yaml = {'apiVersion': 'v1',
                        'kind': 'Secret',
-                       'metadata': {'name': 'appset-secret-vars',
-                                    'namespace': 'argocd'},
+                       'metadata': {'name': secret_name,
+                                    'namespace': secret_namespace},
                        'stringData': {'secret_vars.yaml': secret_keys}}
     else:
         # this is a standard k8s secrets yaml
         secret_yaml = {'apiVersion': 'v1',
                        'kind': 'Secret',
-                       'metadata': {'name': 'appset-secret-vars',
-                                    'namespace': 'argocd'},
+                       'metadata': {'name': secret_name,
+                                    'namespace': secret_namespace},
                        'stringData': secret_dict}
 
     secrets_file_name = path.join(XDG_CACHE_DIR, 'secrets.yaml')
@@ -95,5 +95,5 @@ def create_secrets(secret_dict: dict, in_line=False):
         yaml.safe_dump(secret_yaml, secret_file)
 
     apply_manifests(secrets_file_name)
-    return
+    return True
 
