@@ -15,17 +15,17 @@ from rich.logging import RichHandler
 from sys import exit
 
 # custom libs and constants
+from .env_config import check_os_support, process_app_configs
+from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
+                        INITIAL_USR_CONFIG, VERSION)
+from .help_text import RichCommand, options_help
 from .k8s_tools.argocd import install_with_argocd
 from .k8s_apps.base_install import install_base_apps, install_k8s_distro
 from .k8s_apps.keycloak import configure_keycloak_and_vouch
 from .k8s_apps.zitadel import configure_zitadel_and_vouch
 from .k8s_apps.bweso import setup_bweso
-from .bw_cli import BwCLI
 from .pretty_printing.console_logging import CONSOLE, header, sub_header
-from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
-                        INITIAL_USR_CONFIG, VERSION)
-from .env_config import check_os_support, process_app_configs
-from .help_text import RichCommand, options_help
+from .utils.bw_cli import BwCLI
 
 
 HELP = options_help()

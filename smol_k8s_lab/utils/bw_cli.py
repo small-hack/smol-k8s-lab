@@ -17,7 +17,7 @@ import json
 import logging as log
 from rich.prompt import Prompt
 from os import environ
-from .subproc import subproc
+from ..subproc import subproc
 
 
 class BwCLI():

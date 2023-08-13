@@ -3,7 +3,7 @@ from ..k8s_tools.kubernetes_util import create_secret
 from ..utils.bw_cli import BwCLI
 
 
-def setup_bweso_secret(bweso_argo_dict={}, bitwarden=BwCLI()):
+def setup_bweso(bweso_argo_dict={}, bitwarden=BwCLI()):
     """
     Creates an initial secret for use with the bitwarden provider for ESO
     """
