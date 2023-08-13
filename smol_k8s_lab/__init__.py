@@ -188,7 +188,7 @@ def main(k8s: str = "",
         bw = None
         # if we're using bitwarden, unlock the vault
         if bitwarden:
-            bw = BwCLI()
+            bw = BwCLI(USR_CFG['bitwarden']['overwrite'])
             bw.unlock()
 
         # user can configure a special domain for argocd

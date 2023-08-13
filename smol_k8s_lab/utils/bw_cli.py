@@ -24,7 +24,7 @@ class BwCLI():
     """
     Python Wrapper for the Bitwarden cli
     """
-    def __init__(self,):
+    def __init__(self, overwrite: bool = False):
         """
         This is mostly for storing the session
         """
@@ -35,6 +35,7 @@ class BwCLI():
         self.pw = environ.get("BW_PASSWORD")
         self.clientID = environ.get("BW_CLIENTID")
         self.clientSecret = environ.get("BW_CLIENTSECRET")
+        self.overwrite = overwrite
 
     def status(self):
         """
@@ -110,20 +111,51 @@ class BwCLI():
         log.info('New password generated.')
         return password
 
+    def get_item(self, item_name: str = ""):
+        """
+        Get Item and return False if it does not exist else return the item ID
+        Required Args:
+            - item_name: str of name of item
+        """
+        command = f"bw get item {item_name}"
+        response = subproc([command], quiet=True, error_ok=True)
+        if 'not_found' in response:
+            return False
+        else:
+            return json.load(response)['id']
 
-    def create_login(self, name="", item_url=None, user="", password="", 
+    def delete_item(self, item_id: str = ""):
+        """
+        Delete Item
+            - item_name: str of name of item
+        """
+        command = f"bw delete item {item_id}"
+        subproc([command], quiet=True, error_ok=True)
+        return
+
+    def create_login(self, name="", item_url=None, user="", password="",
                      fields={}, org=None, collection=None):
         """
         Create login item to store a set of credentials for one site.
         Required Args:
-            - name - str of the name of the item to create in the vault
-            - user - str of username to use for login item
-            - password - str of password you want to use for login item
+            - name:        str of the name of the item to create in the vault
         Optional Args:
-            - item_url - str of URL you want to use the credentials for
-            - org - str of organization to use for collection
-            - collection - str
+            - user:        str of username to use for login item
+            - password:    str of password you want to use for login item
+            - item_url:    str of URL you want to use the credentials for
+            - org:         str of organization to use for collection
+            - collection:  str
         """
+        item = self.get_item(name)
+
+        if item and self.overwrite:
+            self.delete_item(item)
+        else:
+            log.error(f"😵 Item named {name} already exists in your Bitwarden "
+                      "vault and bitwarden.overwrite is set to false. We will"
+                      " create the item anyway, but the Bitwarden ESO Provider"
+                      "may have trouble finding it :(")
+
         log.info('Creating bitwarden login item...')
         login_obj = json.dumps({
             "organizationId": org,

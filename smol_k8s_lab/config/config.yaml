@@ -14,6 +14,10 @@ k3s:
   # arguments to pass to the k3s install script
   extra_args: []
 
+bitwarden:
+  enabled: true
+  overwrite: false
+
 apps:
   # ---------------------------------------------------------------------------
   # Required Kubernetes Apps
