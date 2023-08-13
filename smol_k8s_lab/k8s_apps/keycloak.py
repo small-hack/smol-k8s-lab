@@ -1,6 +1,7 @@
 import logging as log
 import json
 from rich.prompt import Prompt
+from .vouch import configure_vouch
 from ..console_logging import sub_header, header
 from ..k8s_tools.kubernetes_util import create_secrets
 from ..k8s_tools.argocd import install_with_argocd
@@ -9,46 +10,54 @@ from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 
 
-def configure_keycloak(keycloak_config_dict: dict, bitwarden=None):
+def configure_keycloak_and_vouch(keycloak_config_dict: dict,
+                                 vouch_config_dict: dict={},
+                                 bitwarden=None):
     """
-    installs Keycloak as an Argo CD application.
-    Takes keycloak_config_dict: dict, Argo CD parameters
-          init: boolean, if we should do init scripts
-          bitwarden: BWCLI object, should we store k8s secrets in bitwarden
+    Installs Keycloak and Vouch as Argo CD Applications. If
+    keycloak_config_dict['init'] is True, it also configures Vouch and Argo CD
+    as OIDC Clients.
 
-    If init is True, we return the following dicts:
-        argocd_client_credentials, vouch_client_credentials
-    else, we return True if successful.
+    Required Arguments:
+        keycloak_config_dict: dict, Argo CD parameters for keycloak
+
+    Optional Arguments:
+        vouch_config_dict: dict, Argo CD parameters for vouch
+        bitwarden:         BwCLI obj, [optional] contains bitwarden session
+
+    Returns True if successful.
     """
     header("🗝️Keycloak Setup")
 
-    secrets = keycloak_config_dict['argo']['secret_keys']
-
     # if we're using bitwarden, create the secrets in bitwarden before
     # creating Argo CD app
-    if bitwarden and keycloak_config_dict['init']:
-        sub_header("Creating secrets in Bitwarden")
-        admin_password = bitwarden.generate()
-        postgres_password = bitwarden.generate()
-        bitwarden.create_login(name='keycloak-admin-credentials',
-                               item_url=secrets['keycloak_domain'],
-                               user=secrets['keycloak_admin'],
-                               password=admin_password)
-        bitwarden.create_login(name='keycloak-postgres-credentials',
-                               item_url=secrets['keycloak_domain'],
-                               user='keycloak',
-                               password=postgres_password)
+    if keycloak_config_dict['init']:
+        secrets = keycloak_config_dict['argo']['secret_keys']
+        keycloak_domain = secrets['keycloak_domain']
 
-    # if we're not using bitwarden, create the k8s secrets directly
-    if keycloak_config_dict['init'] and not bitwarden:
-        sub_header("Creating secrets in k8s")
-        admin_password = create_password()
-        create_secrets('keycloak-admin-credentials', 'keycloak',
-                       {'password': admin_password})
-        postgres_password = create_password()
-        create_secrets('keycloak-postgres-credentials', 'keycloak',
-                       {'password': postgres_password,
-                        'postgres-password': postgres_password})
+        if bitwarden:
+            sub_header("Creating secrets in Bitwarden")
+            admin_password = bitwarden.generate()
+            postgres_password = bitwarden.generate()
+            bitwarden.create_login(name='keycloak-admin-credentials',
+                                   item_url=keycloak_domain,
+                                   user=secrets['keycloak_admin'],
+                                   password=admin_password)
+            bitwarden.create_login(name='keycloak-postgres-credentials',
+                                   item_url=keycloak_domain,
+                                   user='keycloak',
+                                   password=postgres_password)
+
+        # if we're not using bitwarden, create the k8s secrets directly
+        else:
+            sub_header("Creating secrets in k8s")
+            admin_password = create_password()
+            create_secrets('keycloak-admin-credentials', 'keycloak',
+                           {'password': admin_password})
+            postgres_password = create_password()
+            create_secrets('keycloak-postgres-credentials', 'keycloak',
+                           {'password': postgres_password,
+                            'postgres-password': postgres_password})
 
     install_with_argocd('keycloak', keycloak_config_dict['argo'])
 
@@ -56,36 +65,54 @@ def configure_keycloak(keycloak_config_dict: dict, bitwarden=None):
     # user and vouch/argocd clients in keycloak
     if not keycloak_config_dict['init']:
         return True
+    else:
+        realm = secrets['default_realm']
+        configure_keycloak(realm, keycloak_domain, bitwarden,
+                           vouch_config_dict)
+
+
+def configure_keycloak(realm: str = "", keycloak_domain: str = "",
+                       bitwarden=None, vouch_config_dict: dict = {}):
+    """
+    Sets up initial Keycloak user, Argo CD client, and optional Vouch client.
+    Arguments:
+        realm:             str, name of the keycloak realm to use
+        bitwarden:         BwCLI obj, [optional] session to use for bitwarden
+        vouch_config_dict: dict, [optional] Argo CD vouch parameters
+    """
 
     sub_header("Configure Keycloak as your OIDC SSO for Argo CD")
     username = Prompt("What would you like your Keycloak username to be?")
     first_name = Prompt("Enter your First name for your keycloak profile")
     last_name = Prompt("Enter your Last name for your keycloak profile")
-    realm = secrets['default_realm']
 
-    c = "kubectl exec -n keycloak keycloak-web-app-0 -- /opt/bitnami/keycloak"
+    begin = ("kubectl exec -n keycloak keycloak-web-app-0 -- "
+             "/opt/bitnami/keycloak/bin/kcadm.sh ")
     end = (f"-o --no-config --server http://localhost:8080/ --realm {realm}"
            "--user KEYCLOAK_ADMIN --password $KEYCLOAK_ADMIN_PASSWORD")
 
     log.info("Creating a new user...")
-
     # create a new user
-    create_user = (f"{c} create users -r {realm} -s username={username} -s "
-                   f"enabled=true -s firstName={first_name} "
+    create_user = (f"{begin} create users -r {realm} -s username={username}"
+                   f"-s enabled=true -s firstName={first_name} "
                    f"-s lastName={last_name} {end}")
 
+    log.info("Creating an Argo CD client...")
     # create an argocd client
-    create_argocd_client = (f"{c} create clients -r {realm} -s enabled=true -s"
-                            f"clientId=argocd {end}")
+    create_argocd_client = (f"{begin} create clients -r {realm} "
+                            f"-s enabled=true -s clientId=argocd {end}")
 
-    # create an vouch client
-    create_vouch_client = (f"{c} create clients -r {realm} -s enabled=true -s "
-                           f"clientId=vouch {end}")
+    vouch_enabled = vouch_config_dict['enabled']
+    if vouch_enabled:
+        log.info("Creating an Argo CD client...")
+        # create a vouch client
+        create_vouch_client = (f"{begin} create clients -r {realm}"
+                               f" -s enabled=true -s clientId=vouch {end}")
 
     subproc([create_user, create_argocd_client, create_vouch_client])
 
     # get vouch and argocd client
-    clients = f"{c} get clients -r {realm} --fields id,clientId,secret {end}"
+    clients = f"{begin} get clients -r {realm} --fields clientId,secret {end}"
     client_json = json.loads(subproc([clients]))
 
     for client in client_json:
@@ -94,7 +121,21 @@ def configure_keycloak(keycloak_config_dict: dict, bitwarden=None):
         if client_json['clientId'] == 'vouch':
             vouch_client_secret = client_json['secret']
 
-    vouch_client_credentials = {'vouch': vouch_client_secret}
-    argocd_client_credentials = {'argocd': argocd_client_secret}
+    if bitwarden:
+        sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
+        bitwarden.create_login(name='argocd-keycloak',
+                               user='argocd',
+                               password=argocd_client_secret)
+    else:
+        # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
+        create_secrets('argocd-keycloak', 'argocd',
+                       {'user': 'argocd',
+                        'password': argocd_client_secret}, False,
+                       {'app.kubernetes.io/part-of': 'argocd'})
 
-    return argocd_client_credentials, vouch_client_credentials
+    if vouch_enabled:
+        url = (f"https://{keycloak_domain}/realms/{realm}/protocol"
+               "/openid-connect/")
+        configure_vouch(vouch_config_dict, vouch_client_secret, url, bitwarden)
+
+    return True 

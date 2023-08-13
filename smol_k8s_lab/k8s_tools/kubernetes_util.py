@@ -67,7 +67,7 @@ def repr_str(dumper, data):
 
 
 def create_secrets(secret_name: str, secret_namespace: str, secret_dict: dict,
-                   in_line: bool = False):
+                   in_line: bool = False, additonal_labels: dict = None):
     """
     create a k8s secret accessible by Argo CD
     """
@@ -95,6 +95,9 @@ def create_secrets(secret_name: str, secret_namespace: str, secret_dict: dict,
                        'metadata': {'name': secret_name,
                                     'namespace': secret_namespace},
                        'stringData': secret_dict}
+
+    if additonal_labels:
+        secret_yaml['metadata']['labels'] = additonal_labels
 
     secrets_file_name = path.join(XDG_CACHE_DIR, 'secrets.yaml')
 

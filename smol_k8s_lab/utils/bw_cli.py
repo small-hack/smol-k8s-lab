@@ -111,17 +111,17 @@ class BwCLI():
         return password
 
 
-    def create_login(self, name="", item_url="", user="", password="",
-                     org=None, collection=None):
+    def create_login(self, name="", item_url=None, user="", password="", 
+                     fields={}, org=None, collection=None):
         """
         Create login item to store a set of credentials for one site.
         Required Args:
             - name - str of the name of the item to create in the vault
-            - item_url - str of URL you want to use the credentials for
             - user - str of username to use for login item
             - password - str of password you want to use for login item
         Optional Args:
-            - organization - str
+            - item_url - str of URL you want to use the credentials for
+            - org - str of organization to use for collection
             - collection - str
         """
         log.info('Creating bitwarden login item...')
@@ -133,7 +133,7 @@ class BwCLI():
             "name": item_url,
             "notes": None,
             "favorite": False,
-            "fields": [],
+            "fields": [fields],
             "login": {"uris": [{"match": 0,
                                 "uri": item_url}],
                       "username": user,

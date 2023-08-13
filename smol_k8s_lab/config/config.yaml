@@ -83,14 +83,6 @@ apps:
     # Enable ArgoCD to install other apps, and also manage itself :)
     # Set to false if you you just want a bare cluster with only the above apps
     enabled: true
-    # create kubernetes secrets only if not using the external-secrets-operator
-    secrets:
-      enabled: true
-      # name of secret to create in kubernetes
-      argocd-keycloak:
-        # keys within secret to generate values for
-        - oidc.keycloak.clientID
-        - oidc.keycloak.clientSecret
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -173,17 +165,6 @@ apps:
     enabled: true
     # initialize keycloak by creating a 1st user & clients for ArgoCD and vouch
     init: true
-    # create kubernetes secrets only if not using the external-secrets-operator
-    secrets:
-      enabled: true
-      # name of secret to create in kubernetes
-      keycloak-admin-credentials:
-        # keys within secret to generate values for
-        - password
-      # name of secret to create in kubernetes
-      keycloak-postgres-credentials:
-        # keys within secret to generate values for
-        - POSTGRES_USER_PASSWORD
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -320,12 +301,12 @@ apps:
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
+        # FQDN to use for Prometheus web interface
+        domain: ""
         # FQDN to use for grafana
         grafana_domain: ""
         # FQDN to use for Alert Manager web interface
         alert_manager_domain: ""
-        # FQDN to use for Prometheus web interface
-        prometheus_domain: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important! This
@@ -339,13 +320,13 @@ apps:
 
   vouch:
     enabled: false
-    secrets:
-      enabled: true
-      # name of secret to create in kubernetes
-      vouch-config:
-        # keys within secret to generate values for
-        - config.yaml
     argo:
+      # secrets keys to make available to ArgoCD ApplicationSets
+      secret_keys:
+        # FQDN to use for vouch
+        domain: ""
+        comma_seperated_allowed_domain_list: ""
+        comma_seperated_allowed_email_list: ""
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
