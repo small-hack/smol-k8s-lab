@@ -171,7 +171,8 @@ apps:
   # otherwise wouldn't have authentication
   keycloak:
     enabled: true
-    # create kubernetes secrets only if not using the external-secrets-operator
+    # initialize keycloak by creating a 1st user & clients for ArgoCD and vouch
+    init: true
     # create kubernetes secrets only if not using the external-secrets-operator
     secrets:
       enabled: true

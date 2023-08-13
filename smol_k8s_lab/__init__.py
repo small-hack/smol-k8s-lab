@@ -205,7 +205,7 @@ def main(k8s: str = "",
         if apps['keycloak']['enabled']:
             keycloak = apps.pop('keycloak')
             # initialize set to True here to run keycloak init scripts
-            configure_keycloak(keycloak, True, bw)
+            configure_keycloak(keycloak, bw)
 
         # after argocd is up, we install all apps as argocd apps
         for app_key, app in apps.items():
