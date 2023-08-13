@@ -286,12 +286,6 @@ apps:
   prometheus:
     # enable full monitoring stack w/ prometheus, grafana, loki, alert manager
     enabled: false
-    secrets:
-      enabled: false
-      # name of secret to create in kubernetes
-      postgres-password:
-        # keys within secret to generate values for
-        - password
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
