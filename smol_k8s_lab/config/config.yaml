@@ -135,16 +135,6 @@ apps:
   bitwarden_eso_provider:
     # enable the bitwarden ESO provider to
     enabled: true
-    # create kubernetes secrets only if not using the external-secrets-operator
-    secrets:
-      enabled: true
-      # name of secret to create in kubernetes
-      bweso-login:
-        # keys within secret to generate values for
-        - BW_HOST
-        - BW_CLIENTID
-        - BW_CLIENTSECRET
-        - BW_PASSWORD
     argo:
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
