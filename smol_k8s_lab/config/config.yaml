@@ -92,6 +92,8 @@ apps:
       secret_keys:
         # FQDN domain for accessing the ArgoCD web interface
         domain: ""
+        # which oidc provider to use for argo cd: keycloak or zitadel
+        oidc_provider: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -203,7 +205,8 @@ apps:
   mastodon:
     # enable mastodon for a self hosted social media website
     enabled: false
-    secrets:
+    # initial secrets to deploy this app from scratch
+    init-secrets:
       enabled: true
       # name of secret to create in kubernetes
       mastodon-admin:
@@ -227,7 +230,8 @@ apps:
   matrix:
     # enable matrix for a self hosted chat service
     enabled: false
-    secrets:
+    # initial secrets to deploy this app from scratch
+    init-secrets:
       enabled: true
       # name of secret to create in kubernetes
       matrix-registration:
@@ -254,7 +258,8 @@ apps:
   nextcloud:
     # enable nextcloud to stand up a nice little self hosted file server
     enabled: false
-    secrets:
+    # initial secrets to deploy this app from scratch
+    init-secrets:
       enabled: true
       # name of secret to create in kubernetes
       nextcloud-admin-credentials:
@@ -327,12 +332,8 @@ apps:
 
   # zitadel is still in alpha testing phase. Use with caution
   zitadel:
-    secrets:
-      enabled: true
-      # name of secret to create in kubernetes
-      zitadel-extenal-secret:
-        # keys within secret to generate values for
-        - password
+    # initial zitadel with a user and two applications for Argo CD and Vouch
+    init: true
     enabled: false
     argo:
       # repo to install the Argo CD app from

@@ -18,6 +18,7 @@ from sys import exit
 from .k8s_tools.argocd import install_with_argocd
 from .k8s_apps.base_install import install_base_apps, install_k8s_distro
 from .k8s_apps.keycloak import configure_keycloak_and_vouch
+from .k8s_apps.zitadel import configure_zitadel_and_vouch
 from .k8s_apps.bweso import setup_bweso
 from .bw_cli import BwCLI
 from .console_logging import CONSOLE, header, sub_header
@@ -203,12 +204,19 @@ def main(k8s: str = "",
             bitwarden_eso_provider = apps.pop('bitwarden_eso_provider')
             setup_bweso(bitwarden_eso_provider, bw)
 
-        # setup keycloak if we're using that
+        # setup keycloak if we're using that for OIDC
         if apps['keycloak']['enabled']:
             keycloak = apps.pop('keycloak')
             vouch = apps.pop('vouch')
             # initialize set to True here to run keycloak init scripts
             configure_keycloak_and_vouch(keycloak, vouch, bw)
+
+        # setup zitadel if we're using that for OIDC
+        if apps['zitadel']['enabled']:
+            zitadel = apps.pop('zitadel')
+            vouch = apps.pop('vouch')
+            # initialize set to True here to run keycloak init scripts
+            configure_zitadel_and_vouch(zitadel, vouch, bw)
 
         # after argocd, keycloak, bweso, and vouch are up, we install all apps
         # as Argo CD Applications

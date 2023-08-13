@@ -123,12 +123,12 @@ def configure_keycloak(realm: str = "", keycloak_domain: str = "",
 
     if bitwarden:
         sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
-        bitwarden.create_login(name='argocd-keycloak',
+        bitwarden.create_login(name='argocd-external-oidc',
                                user='argocd',
                                password=argocd_client_secret)
     else:
         # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
-        create_secret('argocd-keycloak', 'argocd',
+        create_secret('argocd-external-oidc', 'argocd',
                       {'user': 'argocd',
                        'password': argocd_client_secret}, False,
                       {'app.kubernetes.io/part-of': 'argocd'})
