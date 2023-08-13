@@ -17,6 +17,7 @@ from sys import exit
 # custom libs and constants
 from .k8s_tools.argocd import install_with_argocd
 from .k8s_apps.base_install import install_base_apps, install_k8s_distro
+from .k8s_apps.keycloak import configure_keycloak
 from .k8s_apps.setup_bweso import setup_bweso_secret
 from .bw_cli import BwCLI
 from .console_logging import CONSOLE, header, sub_header
@@ -186,7 +187,6 @@ def main(k8s: str = "",
     if apps['bitwarden_eso_provider']['enabled']:
         setup_bweso_secret()
 
-
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
         bw = None
@@ -201,6 +201,11 @@ def main(k8s: str = "",
         configure_argocd(argocd_fqdn, bw,
                          apps['argo_cd_appset_secret_plugin']['enabled'],
                          SECRETS)
+
+        if apps['keycloak']['enabled']:
+            keycloak = apps.pop('keycloak')
+            # both initialize and vouch are set to True here
+            configure_keycloak(keycloak, True, True, bw)
 
         # after argocd is up, we install all apps as argocd apps
         for app_key, app in apps.items():
