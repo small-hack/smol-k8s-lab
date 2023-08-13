@@ -31,7 +31,7 @@ class BwCLI():
         self.session = None
         self.delete_session = True
         # make sure there's not a password in the environment already
-        self.host = environ.get("BW_HOST")
+        self.host = environ.get("BW_HOST", default="https://bitwarden.com")
         self.pw = environ.get("BW_PASSWORD")
         self.clientID = environ.get("BW_CLIENTID")
         self.clientSecret = environ.get("BW_CLIENTSECRET")
