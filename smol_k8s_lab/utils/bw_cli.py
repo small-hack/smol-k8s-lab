@@ -30,6 +30,11 @@ class BwCLI():
         """
         self.session = None
         self.delete_session = True
+        # make sure there's not a password in the environment already
+        self.host = environ.get("BW_HOST")
+        self.pw = environ.get("BW_PASSWORD")
+        self.clientID = environ.get("BW_CLIENTID")
+        self.clientSecret = environ.get("BW_CLIENTSECRET")
 
     def status(self):
         """
@@ -51,38 +56,35 @@ class BwCLI():
             self.delete_session = False
         else:
             log.info('Unlocking the Bitwarden vault...')
-            # make sure there's not a password in the environment already
-            pw = environ.get("BW_PASSWORD")
-            clientID = environ.get("BW_CLIENTID")
-            clientSecret = environ.get("BW_CLIENTSECRET")
             status = self.status()
 
             # if there's no env var called BW_PASSWORD, ask for one
-            if not pw:
-                pw = Prompt.ask("[cyan]🤫 Enter your Bitwarden vault password",
-                                password=True)
+            if not self.pw:
+                pw_prompt = "[cyan]🤫 Enter your Bitwarden vault password"
+                self.pw = Prompt.ask(pw_prompt, password=True)
 
             # default command is unlock
             cmd = "bw unlock --passwordenv BW_PASSWORD --raw"
 
             # verify we're even logged in :)
-            if status == "unauthenticated" and not any([clientSecret,
-                                                        clientID]):
-                if not clientID:
+            if status == "unauthenticated" and not any([self.clientSecret,
+                                                        self.clientID]):
+                if not self.clientID:
                     msg = "[cyan]🤫 Enter your Bitwarden client ID"
-                    clientID = Prompt.ask(msg, password=True)
-                if not clientSecret:
+                    self.clientID = Prompt.ask(msg, password=True)
+                if not self.clientSecret:
                     msg = "[cyan]🤫 Enter your Bitwarden client Secret"
-                    clientSecret = Prompt.ask(msg, password=True)
+                    self.clientSecret = Prompt.ask(msg, password=True)
 
                 # set command to login if we're unauthenticated
                 cmd = "bw login --passwordenv BW_PASSWORD --apikey --raw"
 
             # run either bw login or bw unlock depending on bw status
             self.session = subproc([cmd], quiet=True, spinner=False,
-                                   env={"BW_PASSWORD": pw,
-                                        "BW_CLIENTID": clientID,
-                                        "BW_CLIENTSECRET": clientSecret})
+                                   env={"BW_PASSWORD": self.pw,
+                                        "BW_CLIENTID": self.clientID,
+                                        "BW_CLIENTSECRET": self.clientSecret,
+                                        "BW_HOST": self.host})
             log.info('Unlocked the Bitwarden vault.')
 
     def lock(self) -> None:
