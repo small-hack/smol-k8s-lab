@@ -66,10 +66,18 @@ def repr_str(dumper, data):
     return dumper.org_represent_str(data)
 
 
-def create_secrets(secret_name: str, secret_namespace: str, secret_dict: dict, in_line: bool = False):
+def create_secrets(secret_name: str, secret_namespace: str, secret_dict: dict,
+                   in_line: bool = False):
     """
     create a k8s secret accessible by Argo CD
     """
+
+    # make sure the namespace we're installing into exists
+    try:
+        subproc([f"kubectl get namespace {secret_namespace}"])
+    except Exception:
+        subproc([f"kubectl create namespace {secret_namespace}"])
+
     if in_line:
         # these are all app secrets we collected at the start of the script
         secret_keys = yaml.dump(secret_dict)
