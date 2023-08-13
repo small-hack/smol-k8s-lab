@@ -17,8 +17,9 @@ def configure_keycloak(keycloak_config_dict: dict, init: bool = True,
           init: boolean, if we should do init scripts
           bitwarden: BWCLI object, should we store k8s secrets in bitwarden
 
-    If init = True, we return the following dicts:
+    If init is True, we return the following dicts:
         argocd_client_credentials, vouch_client_credentials
+    else, we return True if successful.
     """
     header("🗝️Keycloak Setup")
 
