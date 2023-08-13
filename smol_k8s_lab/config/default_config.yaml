@@ -6,8 +6,10 @@ log:
   # logging level, Options: debug, info, warn, error
   level: "info"
 
-# which distro of Kubernetes to deploy. Options: kind, k3s, k0s
-k8s_distribution: "kind"
+# which distros of Kubernetes to deploy. Options: kind, k3s, k0s
+# NOTE: only kind is available on macOS at this time
+k8s_distros:
+ - kind
 
 k3s:
   # if k8s_distribution set to k3s, you can add an array of extra

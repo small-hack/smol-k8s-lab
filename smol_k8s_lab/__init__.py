@@ -10,49 +10,42 @@ from click import option, argument, command, Choice
 import logging
 from os import path
 from pathlib import Path
-from rich.panel import Panel
 from rich.logging import RichHandler
+from rich.panel import Panel
 from sys import exit
 
 # custom libs and constants
-from .env_config import check_os_support, process_app_configs
+from .env_config import check_os_support, process_configs
 from .constants import (XDG_CACHE_DIR, KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
-from .help_text import RichCommand, options_help
 from .k8s_tools.argocd import install_with_argocd
 from .k8s_apps.base_install import install_base_apps, install_k8s_distro
 from .k8s_apps.keycloak import configure_keycloak_and_vouch
 from .k8s_apps.zitadel import configure_zitadel_and_vouch
 from .k8s_apps.bweso import setup_bweso
 from .pretty_printing.console_logging import CONSOLE, header, sub_header
+from .pretty_printing.help_text import RichCommand, options_help
 from .utils.bw_cli import BwCLI
-
-
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
-SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
-# process all of the config file, or create a new one and also grab secrets
-USR_CFG, SECRETS = process_app_configs(DEFUALT_CONFIG, INITIAL_USR_CONFIG)
 
 
-def setup_logger(level="", log_file=""):
+def process_log_config(log_dict: dict = {'log':
+                                         {'level': 'warn', 'file': None}}):
     """
-    Sets up rich logger for the entire project.
-    (ᐢ._.ᐢ) <---- who is he? :3
+    Sets up rich logger for the entire project. (ᐢ._.ᐢ) <---- who is he? :3
     Returns logging.getLogger("rich")
     """
     # determine logging level
-    if not level:
-        level = USR_CFG['log']['level']
-
+    level = log_dict.get('level', 'warn')
     log_level = getattr(logging, level.upper(), None)
 
     # these are params to be passed into logging.basicConfig
     opts = {'level': log_level, 'format': "%(message)s", 'datefmt': "[%X]"}
 
-    # we only log to a file if one was passed into config.yaml or the cli
-    if not log_file:
-        log_file = USR_CFG['log'].get('file', None)
+    # we only log to a file if one was passed into config.yaml
+    # determine logging level
+    log_file = log_dict.get('file', None)
 
     # rich typically handles much of this but we don't use rich with files
     if log_file:
@@ -108,7 +101,6 @@ def delete_cluster(k8s_distro="k3s"):
 
 # an ugly list of decorators, but these are the opts/args for the whole script
 @command(cls=RichCommand, context_settings=HELP_SETTINGS)
-@argument("k8s", metavar="<k0s, k3s, kind>", default="")
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
         default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
         help=HELP['config'])
@@ -134,13 +126,16 @@ def main(k8s: str = "",
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
     """
+    # process all of the config file, or create a new one and also grab secrets
+    USR_CFG, SECRETS = process_configs(DEFUALT_CONFIG, INITIAL_USR_CONFIG)
+
     # only return the version if --version was passed in
     if version:
         print(f'\n🎉 v{VERSION}\n')
         return True
 
     # setup logging immediately
-    log = setup_logger(log_level, log_file)
+    log = process_log_config(log_level, log_file)
     log.debug("Logging configured.")
 
     # make sure this OS is supported
@@ -152,13 +147,6 @@ def main(k8s: str = "",
         do_setup()
         if not k8s:
             exit()
-
-    # make sure we got a valid k8s distro
-    if k8s not in SUPPORTED_DISTROS:
-        CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
-                      'k8s distro. Please try again with any of '
-                      f'{SUPPORTED_DISTROS}.\n')
-        exit()
 
     if delete:
         # exits the script after deleting the cluster
@@ -210,9 +198,8 @@ def main(k8s: str = "",
             vouch = apps.pop('vouch')
             # initialize set to True here to run keycloak init scripts
             configure_keycloak_and_vouch(keycloak, vouch, bw)
-
         # setup zitadel if we're using that for OIDC
-        if apps['zitadel']['enabled']:
+        elif apps['zitadel']['enabled']:
             zitadel = apps.pop('zitadel')
             vouch = apps.pop('vouch')
             # initialize set to True here to run keycloak init scripts
@@ -227,6 +214,7 @@ def main(k8s: str = "",
         # lock the bitwarden vault on the way out, to be polite :3
         if bitwarden:
             bw.lock()
+
     # we're done :D
     print("")
     CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"

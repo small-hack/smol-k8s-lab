@@ -10,7 +10,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
-from .constants import VERSION, XDG_CONFIG_FILE
+from ..constants import VERSION, XDG_CONFIG_FILE
 
 
 RECORD = False
@@ -32,8 +32,6 @@ def options_help():
     Help text for all the options/switches for main()
     Returns a dict.
     """
-    logging_choices = pretty_choices(['debug', 'info', 'warn', 'error'])
-
     return {
         'config':
         'Full path and name of the YAML config file to parse.\n Defaults to '
@@ -48,15 +46,6 @@ def options_help():
 
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
-
-        'log_level':
-        f'Logging level. {logging_choices} Default: [meta]info[/meta].',
-
-        'log_file':
-        'File to log to. Default: None',
-
-        'overwrite':
-        'Overwrite existing secrets and bitwarden items.',
 
         'bitwarden':
         'Store generated admin passwords directly into your Bitwarden vault. '
@@ -92,15 +81,15 @@ class RichCommand(click.Command):
                           highlighter=highlighter, record=RECORD)
 
         title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
-        desc = ("[steel_blue]Quickly install a k8s distro for a lab setup."
-                "\n[i]Installs:[/i] metallb, nginx-ingess-controller, cert-"
-                "manager (optionally as Argo CD native apps with the ability "
-                "to install additional ArgoCD apps from there)\n")
+        desc = (
+            "[steel_blue]Quickly install a lightweight Kubernetes distro + "
+            "plus all your apps onto it with Argo CD. Handles all the little"
+            " nuts and bolts for many common k8s apps, but also has a "
+            "comprehensive config file to help you add your own apps.\n")
 
         console.print(title + desc, justify="center")
 
-        console.print("[steel_blue]Usage:[/] smol-k8s-lab "
-                      "[meta]<k0s, k3s, kind>[meta/] [option][OPTIONS]\n")
+        console.print("[steel_blue]Usage:[/] smol-k8s-lab [option][OPTIONS]\n")
 
         options_table = Table(highlight=True, box=None, show_header=False,
                               row_styles=["dim", ""],
@@ -137,7 +126,7 @@ class RichCommand(click.Command):
             options_table.add_row(opt1, opt2, highlighter(help))
 
         url = ("♥ [link=https://github.com/smal-hack/smol-k8s-lab]"
-               "github.com/small-hack/smol-k8s-lab[/link]")
+               "docs: github.com/small-hack/smol-k8s-lab[/link]")
         console.print(Panel(options_table,
                             border_style="light_steel_blue",
                             title="ʕ ᵔᴥᵔʔ Options",
