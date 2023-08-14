@@ -1,4 +1,5 @@
 import logging as log
+from rich.prompt import Confirm, Prompt
 from ..pretty_printing.console_logging import header
 from ..k8s_tools.kubernetes_util import create_secret
 from ..k8s_tools.argocd import install_with_argocd
@@ -21,45 +22,51 @@ def configure_vouch(vouch_config_dict: dict,
     """
     header("🗝️vouch Setup")
 
-    secrets = vouch_config_dict['secrets']
-    vouch_domain = secrets['vouch_domain']
-    domains = secrets['vouch_comma_seperated_allowed_domain_list']
-    emails = secrets['vouch_comma_seperated_allowed_email_list']
-    vouch_callback_url = f'https://{vouch_domain}/auth'
+    if vouch_config_dict['init']:
+        secrets = vouch_config_dict['secrets']
+        vouch_hostname = secrets['vouch_hostname']
 
-    # if we're using bitwarden, put the secret in bitarden and ESO will grab it
-    if bitwarden:
-        # create oauth OIDC bitwarden item
-        bitwarden.create_login(name='vouch-oauth-config',
-                               user='vouch',
-                               password=vouch_client_secret,
-                               fields=[
-                                   {'authUrl': f'{base_url}auth'},
-                                   {'tokenUrl': f'{base_url}token'},
-                                   {'userInfoUrl': f'{base_url}userinfo'},
-                                   {'callbackUrls': vouch_callback_url}
-                                   ])
+        vouch_callback_url = f'https://{vouch_hostname}/auth'
+        m = ("[green]Please enter a comma seperated list of emails that are "
+             "allowed to access domains behind Vouch")
+        emails = Prompt.ask(m)
+        m = ("[green]Please enter a comma seperated list of domains that are "
+             "allowed to use Vouch")
+        domains = Prompt.ask(m)
 
-        # create vouch config bitwarden item
-        bitwarden.create_login(name='vouch-config',
-                               user='vouch',
-                               password='',
-                               fields=[{'domains': domains},
-                                       {'allowList': emails}])
-    # create vouch k8s secrets if we're not using bitwarden
-    else:
-        # create oauth OIDC k8s secret
-        create_secret('vouch-oauth-config', 'vouch',
-                      {'user': 'vouch',
-                       'password': vouch_client_secret,
-                       'authUrl': f'{base_url}auth',
-                       'tokenUrl': f'{base_url}token',
-                       'userInfoUrl': f'{base_url}userinfo',
-                       'callbackUrls': vouch_callback_url})
+        # if using bitwarden, put the secret in bitarden and ESO will grab it
+        if bitwarden:
+            # create oauth OIDC bitwarden item
+            bitwarden.create_login(name='vouch-oauth-config',
+                                   user='vouch',
+                                   password=vouch_client_secret,
+                                   fields=[
+                                       {'authUrl': f'{base_url}auth'},
+                                       {'tokenUrl': f'{base_url}token'},
+                                       {'userInfoUrl': f'{base_url}userinfo'},
+                                       {'callbackUrls': vouch_callback_url}
+                                       ])
 
-        # create vouch config k8s secret
-        create_secret('vouch-config', 'vouch',
-                      {'domains': domains, 'allowList': emails})
+            # create vouch config bitwarden item
+            bitwarden.create_login(name='vouch-config',
+                                   user='vouch',
+                                   password='',
+                                   fields=[{'domains': domains},
+                                           {'allowList': emails}])
+        # create vouch k8s secrets if we're not using bitwarden
+        else:
+            # create oauth OIDC k8s secret
+            create_secret('vouch-oauth-config', 'vouch',
+                          {'user': 'vouch',
+                           'password': vouch_client_secret,
+                           'authUrl': f'{base_url}auth',
+                           'tokenUrl': f'{base_url}token',
+                           'userInfoUrl': f'{base_url}userinfo',
+                           'callbackUrls': vouch_callback_url})
+
+            # create vouch config k8s secret
+            create_secret('vouch-config', 'vouch',
+                          {'domains': domains, 'allowList': emails})
 
     install_with_argocd('vouch', vouch_config_dict['argo'])
     return True 

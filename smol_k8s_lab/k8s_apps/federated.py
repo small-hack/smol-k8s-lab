@@ -1,3 +1,4 @@
+from ..pretty_printing import sub_header
 from ..k8s_tools.argocd import install_with_argocd
 from ..k8s_tools.kubernetes_util import create_secret
 from ..utils.bw_cli import BwCLI
@@ -9,11 +10,12 @@ def configure_nextcloud(argo_dict={}, init=True, bitwarden=BwCLI()):
     """
     if init:
         secrets = argo_dict['secrets']
+        nextcloud_hostname = secrets['nextcloud_hostname']
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             admin_password = bitwarden.generate()
             bitwarden.create_login(name='nextcloud-admin-credentials',
-                                   item_url=nextcloud_domain,
+                                   item_url=nextcloud_hostname,
                                    user=secrets['nextcloud_admin'],
                                    password=admin_password)
         else:
@@ -31,11 +33,12 @@ def configure_mastodon(argo_dict={}, init=True, bitwarden=BwCLI()):
     """
     if init:
         secrets = argo_dict['secrets']
+        mastodon_hostname = secrets['mastodon_hostname']
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             admin_password = bitwarden.generate()
             bitwarden.create_login(name='mastodon-admin-credentials',
-                                   item_url=mastodon_domain,
+                                   item_url=mastodon_hostname,
                                    user=secrets['mastodon_admin'],
                                    password=admin_password)
         else:
@@ -53,11 +56,12 @@ def configure_matrix(argo_dict={}, init=True, bitwarden=BwCLI()):
     """
     if init:
         secrets = argo_dict['secrets']
+        matrix_hostname = secrets['matrix_hostname']
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             admin_password = bitwarden.generate()
             bitwarden.create_login(name='matrix-admin-credentials',
-                                   item_url=matrix_domain,
+                                   item_url=matrix_hostname,
                                    user=secrets['matrix_admin'],
                                    password=admin_password)
         else:

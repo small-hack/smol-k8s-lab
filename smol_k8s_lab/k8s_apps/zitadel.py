@@ -34,13 +34,13 @@ def configure_zitadel_and_vouch(zitadel_config_dict: dict = {},
     # creating Argo CD app
     if zitadel_config_dict['init']:
         secrets = zitadel_config_dict['argo']['secret_keys']
-        zitadel_domain = secrets['zitadel_domain']
+        zitadel_hostname = secrets['zitadel_hostname']
 
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             admin_password = bitwarden.generate()
             bitwarden.create_login(name='zitadel-admin-credentials',
-                                   item_url=zitadel_domain,
+                                   item_url=zitadel_hostname,
                                    user=secrets['zitadel_admin'],
                                    password=admin_password)
 
@@ -58,10 +58,10 @@ def configure_zitadel_and_vouch(zitadel_config_dict: dict = {},
     if not zitadel_config_dict['init']:
         return True
     else:
-        configure_zitadel(zitadel_domain, bitwarden, vouch_config_dict)
+        configure_zitadel(zitadel_hostname, bitwarden, vouch_config_dict)
 
 
-def configure_zitadel(zitadel_domain: str = "", bitwarden=None,
+def configure_zitadel(zitadel_hostname: str = "", bitwarden=None,
                       vouch_config_dict: dict = {}):
     """
     Sets up initial zitadel user, Argo CD client, and optional Vouch client.
@@ -78,7 +78,7 @@ def configure_zitadel(zitadel_domain: str = "", bitwarden=None,
 
     begin = ("kubectl exec -n zitadel zitadel-web-app-0 -- "
              "/opt/bitnami/zitadel/bin/kcadm.sh ")
-    url = f"https://{zitadel_domain}/management/v1/"
+    url = f"https://{zitadel_hostname}/management/v1/"
 
     # create a new user via the API
     log.info("Creating a new user...")

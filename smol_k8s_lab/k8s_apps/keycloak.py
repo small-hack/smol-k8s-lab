@@ -33,18 +33,18 @@ def configure_keycloak_and_vouch(keycloak_config_dict: dict,
     # creating Argo CD app
     if keycloak_config_dict['init']:
         secrets = keycloak_config_dict['argo']['secret_keys']
-        keycloak_domain = secrets['keycloak_domain']
+        keycloak_hostname = secrets['keycloak_hostname']
 
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             admin_password = bitwarden.generate()
             postgres_password = bitwarden.generate()
             bitwarden.create_login(name='keycloak-admin-credentials',
-                                   item_url=keycloak_domain,
+                                   item_url=keycloak_hostname,
                                    user=secrets['keycloak_admin'],
                                    password=admin_password)
             bitwarden.create_login(name='keycloak-postgres-credentials',
-                                   item_url=keycloak_domain,
+                                   item_url=keycloak_hostname,
                                    user='keycloak',
                                    password=postgres_password)
 
@@ -67,11 +67,11 @@ def configure_keycloak_and_vouch(keycloak_config_dict: dict,
         return True
     else:
         realm = secrets['default_realm']
-        configure_keycloak(realm, keycloak_domain, bitwarden,
+        configure_keycloak(realm, keycloak_hostname, bitwarden,
                            vouch_config_dict)
 
 
-def configure_keycloak(realm: str = "", keycloak_domain: str = "",
+def configure_keycloak(realm: str = "", keycloak_hostname: str = "",
                        bitwarden=None, vouch_config_dict: dict = {}):
     """
     Sets up initial Keycloak user, Argo CD client, and optional Vouch client.
@@ -134,7 +134,7 @@ def configure_keycloak(realm: str = "", keycloak_domain: str = "",
                       {'app.kubernetes.io/part-of': 'argocd'})
 
     if vouch_enabled:
-        url = (f"https://{keycloak_domain}/realms/{realm}/protocol"
+        url = (f"https://{keycloak_hostname}/realms/{realm}/protocol"
                "/openid-connect/")
         configure_vouch(vouch_config_dict, vouch_client_secret, url, bitwarden)
 

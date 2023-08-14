@@ -108,13 +108,13 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}):
 
                 # iterate through each secret for the app
                 for secret_key, secret in default_secrets.items():
-                    # create app k8s secret key like argocd_domain
+                    # create app k8s secret key like argocd_hostname
                     k8s_secret_key = "_".join([app_key, secret])
 
                     # if the secret is empty, prompt for a new one
                     if not secret:
-                        msg = f"Please enter a(n) {secret_key} for {app_key}: "
-                        res = Prompt.ask(msg)
+                        m = f"[green]Please enter a {secret_key} for {app_key}"
+                        res = Prompt.ask(m)
                         return_secrets[secret_key] = res
                         apps[app_key]['argo']['secrets'][secret_key] = res
                         continue
@@ -126,10 +126,15 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}):
 
 
 def initialize_apps_config(config: dict = {}):
+    """
+    Initializes a fresh apps configuration for smol-k8s-lab by ensuring each
+    field is filled out.
+    """
     # these are the secrets we also return, so we can create them all at once
     return_secrets = {}
 
-    for app_key, app in config['apps'].items():
+    # key is equal to the name of the of application. app is the dict
+    for key, app in config['apps'].items():
         # if the user config doesn't have this section we default to the above
         app_enabled = app.get('enabled', True)
 
@@ -138,22 +143,25 @@ def initialize_apps_config(config: dict = {}):
             argo_section = app['argo']
 
             # use secret section if exists, else grab from the default cfg
-            secrets = argo_section['secret_keys']
+            secrets = argo_section.get('secret_keys', None)
 
-            if secrets:
-                # iterate through each secret for the app
-                for secret in secrets:
-                    # create app k8s secret key like argocd_domain
-                    secret_key = "_".join([app_key, secret])
+            if not secrets:
+                # if there's no secrets for this app, continue the loop
+                continue
 
-                    # if the secret is empty, prompt for a new one
-                    if not secrets[secret]:
-                        ask_msg = f"Please enter a(n) {secret} for {app_key}: "
-                        res = Prompt.ask(ask_msg)
-                        config[app]['argo']['secret_keys'][secret] = res
-                        return_secrets[secret_key] = res
-                    else:
-                        return_secrets[secret_key] = secrets[secret]
+            # iterate through each secret for the app
+            for secret in secrets:
+                # create app k8s secret key like argocd_hostname
+                secret_key = "_".join([key, secret])
+
+                # if the secret is empty, prompt for a new one
+                if not secrets[secret]:
+                    msg = f"[green]Please enter a {secret} for {key}"
+                    res = Prompt.ask(msg)
+                    config['apps'][key]['argo']['secret_keys'][secret] = res
+                    return_secrets[secret_key] = res
+                else:
+                    return_secrets[secret_key] = secrets[secret]
 
     return config, return_secrets
 
