@@ -113,7 +113,7 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}):
 
                     # if the secret is empty, prompt for a new one
                     if not secret:
-                        msg = f"Please enter a(n) {secret_key} for {app}: "
+                        msg = f"Please enter a(n) {secret_key} for {app_key}: "
                         res = Prompt.ask(msg)
                         return_secrets[secret_key] = res
                         apps[app_key]['argo']['secrets'][secret_key] = res
@@ -148,7 +148,7 @@ def initialize_apps_config(config: dict = {}):
 
                     # if the secret is empty, prompt for a new one
                     if not secrets[secret]:
-                        ask_msg = f"Please enter a(n) {secret} for {app}: "
+                        ask_msg = f"Please enter a(n) {secret} for {app_key}: "
                         res = Prompt.ask(ask_msg)
                         config[app]['argo']['secret_keys'][secret] = res
                         return_secrets[secret_key] = res

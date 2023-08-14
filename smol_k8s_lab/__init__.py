@@ -79,8 +79,6 @@ def delete_cluster(k8s_distro="kind"):
     Delete a k0s, k3s, or KinD cluster entirely.
     It is suggested to perform a reboot after deleting a k0s cluster.
     """
-    header(f"Bye bye, [b]{k8s_distro}[/b]!")
-
     if k8s_distro == 'k3s':
         from .k8s_distros.k3s import uninstall_k3s
         uninstall_k3s()
