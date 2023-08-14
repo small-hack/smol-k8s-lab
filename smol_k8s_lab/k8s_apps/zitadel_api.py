@@ -1,6 +1,7 @@
 import logging as log
 import json
-import requests
+from ..subproc import subproc
+from requests import request
 from rich.prompt import Prompt
 
 
@@ -8,20 +9,25 @@ class Zitadel():
     """
     Python Wrapper for the Zitadel API
     """
-    def __init__(self, base_api_url: str = "", api_token: str = ""):
+    def __init__(self, api_url: str = ""):
         """
         This is mostly for storing the session token and api base url
         """
-        self.base_api_url = base_api_url
-        self.api_token = api_token
-        self.project_id = self.get_project_id()
+        self.api_url = api_url
+
+        cmd = ("kubectl get secret -n zitadel zitadel-admin-sa -o "
+               "jsonpath='{ .data.zitadel-admin-sa\.json }' | base64 --decode")
+        self.api_token = subproc([cmd])
+
         self.headers = {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': f'Bearer {self.api_token}'
         }
 
-    def get_project_id(self,):
+        self.project_id = self.get_project_id()
+
+    def get_project_id(self,) -> str:
         """
         zitadel.com/docs/apis/resources/mgmt/management-service-list-projects
         """
@@ -42,32 +48,30 @@ class Zitadel():
           ]
         })
 
-        response = requests.request("PUT",
-                                    self.base_api_url + "projects/_search",
-                                    headers=self.headers, data=payload)
+        response = request("PUT", self.api_url + "projects/_search",
+                           headers=self.headers, data=payload)
 
-        log.info(response.text) 
+        log.info(response.text)
+        return response.json['result'][0]['id']
 
-    def create_user(self, role_key: str = ""):
+    def create_user(self,) -> str:
         """
         Creates an initial user in zitadel.
-        Arguments:
-            role_key:   str, key of the role to assign to the user
-
         prompts a user for username, first name, last name, and email.
-        Returns True
+
+        Returns string of user_id.
         """
-        username = Prompt("What would you like your Zitadel username to be?")
-        first_name = Prompt("Enter your First name for your Zitadel profile")
-        last_name = Prompt("Enter your Last name for your Zitadel profile")
-        email = Prompt("Enter your email for your Zitadel profile")
-        gender = Prompt("Please select a gender (more genders coming soon)",
+        user = Prompt("[green]Enter a new username for Zitadel")
+        first_name = Prompt("[Green]Enter your First name for your profile")
+        last_name = Prompt("[Green]Enter your Last name for your profile")
+        email = Prompt("[Green]Enter your email for your profile")
+        gender = Prompt("[Green]Please select a gender (more coming soon)",
                         choices=["GENDER_FEMALE", "GENDER_MALE", "OTHER"])
 
         # create a new user via the API
         log.info("Creating a new user...")
         payload = json.dumps({
-          "userName": username,
+          "userName": user,
           "profile": {
             "firstName": first_name,
             "lastName": last_name,
@@ -85,40 +89,46 @@ class Zitadel():
         })
 
         # get the user ID from the response
-        response = requests.request("POST", self.base_api_url + 'users/human/_import',
-                                    headers=self.headers, data=payload)
+        response = request("POST", self.api_url + 'users/human/_import',
+                           headers=self.headers, data=payload)
         log.info(response.text)
-        user_id = response.json['userId']
+        return response.json['userId']
+
+
+    def create_user_grant(self, user_id: str = "", role_key: str = ""):
+        """
+        Grants a role to a user.
+
+        Arguments:
+            user_id:    ID of the user we're grants a role to
+            role_key:   key of the role to assign to the user
+        """
 
         # make sure this user has access to the new application role we setup
         # zitadel.com/docs/apis/resources/mgmt/management-service-add-user-grant
         payload = json.dumps({
           "projectId": self.project_id,
-          "projectGrantId": "9847026806489455",
           "roleKeys": [role_key]
         })
 
-        response = requests.request(
-                "POST",
-                self.base_api_url + f"users/{user_id}/grants",
-                headers=self.headers, data=payload
-                )
+        response = request("POST",
+                           self.api_url + f"users/{user_id}/grants",
+                           headers=self.headers, data=payload)
         log.info(response.text)
 
-
-        return True
+        return response.json['userId']
 
 
     def create_application(self, app_name: str = "", redirect_uris: list = [],
-                           post_logout_redirect_uris: list = []):
+                           post_logout_redirect_uris: list = []) -> dict:
         """
         Create an OIDC Application in Zitadel via the API.
         Arguments:
-            api_url:      str, base URL of the API endpoint for zitadel
-            app_name:     str, name of the applcation to create
-            redirectUris: list, list of redirect Uri strings
+            app_name:                  name of the applcation to create
+            redirect_uris:             list of redirect Uri strings
+            post_logout_redirect_uris: list of redirect Uri strings
 
-        Returns clientSecret of application.
+        Returns dict of application_id, client_id, client_secret
         """
         payload = json.dumps({
           "name": app_name,
@@ -145,21 +155,21 @@ class Zitadel():
           "skipNativeAppSuccessPage": True
         })
 
-        response = requests.request(
-                "POST",
-                self.base_api_url + f'projects/{self.project_id}/apps/oidc',
-                headers=self.headers,
-                data=payload
-                )
+        response = request("POST",
+                           f'{self.api_url}projects/{self.proj_id}/apps/oidc',
+                           headers=self.headers, data=payload)
         log.info(response.text)
+        json_res = response.json
 
-        return response.json['clientSecret']
+        return {"application_id": json_res['appId'],
+                "client_id": json_res['clientId'],
+                "client_secret": json_res['clientSecret']}
 
 
-    def create_action(self,):
-        """ 
+    def create_action(self, name: str = "") -> bool:
+        """
         create an action for zitadel. Currently only creates one kind of action,
-        a group mapper action.
+        a group mapper action. Returns True on success.
         """
 
         payload = json.dumps({
@@ -169,19 +179,21 @@ class Zitadel():
           "allowedToFail": True
         })
 
-        response = requests.request("POST", self.base_api_url + "actions",
-                                    headers=self.headers, data=payload)
+        response = request("POST", self.api_url + "actions",
+                           headers=self.headers, data=payload)
         log.info(response.text)
         return True
 
 
-    def create_role(self, role_key: str = "",
-                            display_name: str = "", group: str = ""):
+    def create_role(self, role_key: str = "", display_name: str = "",
+                    group: str = "") -> bool:
         """
         create a role in zitadel from given:
             role_key:     name of the role - no spaces allowed!
             display_name: human readable name of the role
             group:        group that this role applies to
+
+        Returns True on success.
         """
         payload = json.dumps({
           "roleKey": role_key,
@@ -189,20 +201,18 @@ class Zitadel():
           "group": group
         })
 
-        response = requests.request(
-                "POST",
-                f"{self.api_url}projects/{self.project_id}/roles",
-                headers=self.headers,
-                data=payload
-                )
+        response = request("POST",
+                           f"{self.api_url}projects/{self.project_id}/roles",
+                           headers=self.headers, data=payload)
 
         log.info(response.text)
         return True
 
 
-    def update_project_settings(self, project_name: str = ""):
-        """ 
+    def update_project_settings(self, project_name: str = "") -> bool:
+        """
         updates the settings of the role
+        Returns True on success
         """
         payload = json.dumps({
           "name": project_name,
@@ -212,14 +222,10 @@ class Zitadel():
           "privateLabelingSetting": "PRIVATE_LABELING_SETTING_UNSPECIFIED"
         })
 
-        response = requests.request(
-                "PUT",
-                self.base_api_url + f"projects/{self.project_id}",
-                headers=self.headers,
-                data=payload
-                )
+        response = request("PUT",
+                           self.api_url + f"projects/{self.project_id}",
+                           headers=self.headers,
+                           data=payload)
 
         log.info(response.text)
         return True
-
-
