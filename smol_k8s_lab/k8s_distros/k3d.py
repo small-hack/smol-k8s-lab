@@ -12,6 +12,7 @@ from ..subproc import subproc
 
 def install_k3d_cluster() -> bool:
     """
+    https://k3d.io/v5.5.2/#install-script
     python installation for k3d
     returns true if it worked
     """
