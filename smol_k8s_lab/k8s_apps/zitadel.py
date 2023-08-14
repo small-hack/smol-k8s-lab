@@ -1,8 +1,10 @@
 import logging as log
+import json
+from ..subproc import subproc
 from .vouch import configure_vouch
 from .zitadel_api import Zitadel
 from ..pretty_printing.console_logging import sub_header, header
-from ..k8s_tools.kubernetes_util import create_secret
+from ..k8s_tools.kubernetes_util import create_secret, update_secret_key
 from ..k8s_tools.argocd import install_with_argocd
 from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
@@ -73,20 +75,42 @@ def configure_zitadel(zitadel_hostname: str = "", argocd_hostname: str = "",
     """
 
     sub_header("Configure zitadel as your OIDC SSO for Argo CD")
-    zitadel =  Zitadel(f"https://{zitadel_hostname}/management/v1/",
-                       token)
+    zitadel =  Zitadel(f"https://{zitadel_hostname}/management/v1/")
 
     # create Argo CD OIDC Application
     log.info("Creating an Argo CD application...")
     redirect_uris = [f"https://{argocd_hostname}/auth/callback"]
     logout_uris = [f"https://{argocd_hostname}"]
-    argocd_client_secret = zitadel.create_application("argocd", redirect_uris,
-                                                      logout_uris)
+    argocd_client = zitadel.create_application("argocd", redirect_uris,
+                                               logout_uris)
 
     # create roles for both Argo CD Admins and regular users
     zitadel.create_role("argocd_administrators", "Argo CD Administrators",
                         "argocd_administrators")
     zitadel.create_role("argocd_users", "Argo CD Users", "argocd_users")
+
+    # update the existing appset-secret-vars secret with issuer and client_id
+    update_secret_key('appset-secret-vars', 'argocd',
+                      {'argocd_oidc_client_id': argocd_client['client_id'],
+                       'argocd_oidc_issuer': f"https://{zitadel_hostname}"},
+                      True)
+
+    if bitwarden:
+        sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
+        bitwarden.create_login(name='argocd-external-oidc',
+                               user='argocd',
+                               password=argocd_client['client_secret'])
+    else:
+        # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
+        create_secret('argocd-external-oidc', 'argocd',
+                      {'user': 'argocd',
+                       'password': argocd_client['client_secret']}, False,
+                      {'app.kubernetes.io/part-of': 'argocd'})
+
+    # create zitadel user and grants now that the clients are setup
+    log.info("Creating a Zitadel user...")
+    user_id = zitadel.create_user()
+    zitadel.create_user_grant(user_id, 'argocd_administrators')
 
     vouch_enabled = vouch_config_dict['enabled']
     if vouch_enabled:
@@ -98,21 +122,6 @@ def configure_zitadel(zitadel_hostname: str = "", argocd_hostname: str = "",
         vouch_client_secret = zitadel.create_application("vouch",
                                                          redirect_uris,
                                                          logout_uris)
-
-    log.info("Creating a Zitadel user...")
-    zitadel.create_user()
-
-    if bitwarden:
-        sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
-        bitwarden.create_login(name='argocd-external-oidc',
-                               user='argocd',
-                               password=argocd_client_secret)
-    else:
-        # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
-        create_secret('argocd-external-oidc', 'argocd',
-                      {'user': 'argocd',
-                       'password': argocd_client_secret}, False,
-                      {'app.kubernetes.io/part-of': 'argocd'})
 
     if vouch_enabled:
         url = f"https://{zitadel_hostname}/"

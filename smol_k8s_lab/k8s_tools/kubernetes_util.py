@@ -7,6 +7,8 @@ DESCRIPTION: generic kubernetes utilities
 """
 
 from base64 import standard_b64encode as b64enc
+from base64 import b64decode as b64dec
+import json
 from os import path, remove
 import yaml
 from yaml import dump
@@ -68,7 +70,7 @@ def repr_str(dumper, data):
 
 
 def create_secret(secret_name: str, secret_namespace: str, secret_dict: dict,
-                   in_line: bool = False, additonal_labels: dict = None):
+                  in_line: bool = False, additonal_labels: dict = None):
     """
     create a k8s secret accessible by Argo CD
     """
@@ -104,7 +106,7 @@ def create_secret(secret_name: str, secret_namespace: str, secret_dict: dict,
     if additonal_labels:
         secret_yaml['metadata']['labels'] = additonal_labels
 
-    secrets_file_name = path.join(XDG_CACHE_DIR, 'secrets.yaml')
+    secrets_file_name = path.join(XDG_CACHE_DIR, f'secret-{secret_name}.yaml')
 
     # write out the file to be applied
     with open(secrets_file_name, 'w') as secret_file:
@@ -117,3 +119,42 @@ def create_secret(secret_name: str, secret_namespace: str, secret_dict: dict,
 
     return True
 
+
+def update_secret_key(secret_name: str, secret_namespace: str,
+                      updated_values_dict: dict = {},
+                      in_line: bool = False,
+                      in_line_file_name: str = 'secret_vars.yaml'):
+    """
+    update a key in a k8s secret accessible by Argo CD
+    if in_line is set to True, you can specify a base key in a secret that
+    contains an inline yaml block
+    """
+    cm = f"kubectl get secret -n {secret_namespace} {secret_namespace} -o json"
+    k8s_secret = json.loads(subproc([cm]))
+    secret_data = k8s_secret['data']
+
+    # if this is a secret with a filename key and then inline yaml inside...
+    if in_line and in_line_file_name:
+        # load the yaml as a python dictionary
+        in_line_yaml = yaml.safe_load(b64dec(secret_data[in_line_file_name]))
+        # for each key, updated_value in updated_values_dict
+        for key, updated_value in updated_values_dict.items():
+           # update the in-line yaml
+           in_line_yaml[key] = updated_value
+        # update the inline yaml for the dict we'll feed back to 
+        k8s_secret['data'][in_line_file_name] = b64enc(yaml.dump(in_line_yaml))
+    else:
+        for key, updated_value in updated_values_dict.items():
+           # update the keys in the secret yaml one by one
+           secret_data[key] = b64enc(updated_value)
+        k8s_secret['data'] = secret_data
+
+    secrets_file_name = path.join(XDG_CACHE_DIR, f'secret-{secret_name}.yaml')
+    # write out the file to be applied
+    with open(secrets_file_name, 'w') as secret_file:
+        yaml.safe_dump(k8s_secret, secret_file)
+
+    # clean up the secret, because we shouldn't keep that around
+    remove(secrets_file_name)
+
+    return True

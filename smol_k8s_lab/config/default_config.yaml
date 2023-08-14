@@ -94,8 +94,8 @@ apps:
       secret_keys:
         # FQDN hostname for accessing the ArgoCD web interface
         hostname: ""
-        # which oidc provider to use for argo cd: keycloak or zitadel
-        oidc_provider: ""
+        # which oidc provider to use for argo cd: zitadel (or keycloak)
+        oidc_provider: "zitadel"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -160,7 +160,7 @@ apps:
   # management and oauth2. it also works with vouch to secure hostnames that
   # otherwise wouldn't have authentication
   keycloak:
-    enabled: true
+    enabled: false
     # initialize keycloak by creating a 1st user & clients for ArgoCD and vouch
     init: true
     argo:
@@ -302,13 +302,13 @@ apps:
   zitadel:
     # initial zitadel with a user and two applications for Argo CD and Vouch
     init: true
-    enabled: false
+    enabled: true
     argo:
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/zitadel/"
+      path: "zitadel/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
