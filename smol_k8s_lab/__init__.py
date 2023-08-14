@@ -161,7 +161,7 @@ def main(config: str = "",
         install_base_apps(k8s, metallb_enabled, argo_enabled,
                           apps['argo_cd_appset_secret_plugin']['enabled'],
                           SECRETS['cert-manager_email'],
-                          SECRETS['metallb_ip']['address_pool'])
+                          SECRETS['metallb_address_pool'])
 
         # 🦑 Install Argo CD: continuous deployment app for k8s
         if argo_enabled:
