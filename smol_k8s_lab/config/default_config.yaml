@@ -298,12 +298,16 @@ apps:
       # namespace to install the k8s app in
       namespace: "ingress"
 
-  # zitadel is still in alpha testing phase. Use with caution
+  # zitadel is still in alpha testing phase. Use with caution 🤷
   zitadel:
     # initial zitadel with a user and two applications for Argo CD and Vouch
     init: true
     enabled: true
     argo:
+      # secrets keys to make available to ArgoCD ApplicationSets
+      secret_keys:
+        # FQDN to use for zitadel
+        hostname: ""
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
