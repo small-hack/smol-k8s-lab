@@ -186,27 +186,25 @@ def main(config: str = "",
             if apps['keycloak']['enabled']:
                 keycloak = apps.pop('keycloak')
                 vouch = apps.pop('vouch')
-                # initialize set to True here to run keycloak init scripts
-                configure_keycloak_and_vouch(keycloak, vouch, True, bw)
+                configure_keycloak_and_vouch(keycloak, vouch, bw)
 
             # setup zitadel if we're using that for OIDC
             elif apps['zitadel']['enabled']:
                 zitadel = apps.pop('zitadel')
                 vouch = apps.pop('vouch')
-                # initialize set to True here to run zitadel init scripts
-                configure_zitadel_and_vouch(zitadel, vouch, True, bw)
+                configure_zitadel_and_vouch(zitadel, vouch, bw)
 
             if apps['nextcloud']['enabled']:
                 nextcloud = apps.pop('nextcloud')
-                configure_nextcloud(nextcloud, True, bw)
+                configure_nextcloud(nextcloud, bw)
 
             if apps['mastodon']['enabled']:
                 mastodon = apps.pop('mastodon')
-                configure_mastodon(mastodon, True, bw)
+                configure_mastodon(mastodon, bw)
 
             if apps['matrix']['enabled']:
                 matrix = apps.pop('matrix')
-                configure_matrix(matrix, True, bw)
+                configure_matrix(matrix, bw)
 
             # after argocd, keycloak, bweso, and vouch are up, we install all
             # apps as Argo CD Applications

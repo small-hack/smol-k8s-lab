@@ -4,10 +4,13 @@ import string
 
 def create_password():
     """
-    Generate a ten-character alphanumeric password with at least one lowercase character, at least one uppercase character, and at least three digits:
+    Generate a 32 alphanumeric password with at least one lowercase character,
+    at least one uppercase character, and at least three digits:
     https://docs.python.org/3/library/secrets.html#recipes-and-best-practices
 
-    returns password
+    Takes no arguments.
+
+    returns password.
     """
     alphabet = string.ascii_letters + string.digits
     while True:

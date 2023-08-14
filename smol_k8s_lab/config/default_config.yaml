@@ -207,14 +207,7 @@ apps:
   mastodon:
     # enable mastodon for a self hosted social media website
     enabled: false
-    # initial secrets to deploy this app from scratch
-    init-secrets:
-      enabled: true
-      # name of secret to create in kubernetes
-      mastodon-admin:
-        # keys within secret to generate values for
-        - username
-        - password
+    init: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -232,18 +225,7 @@ apps:
   matrix:
     # enable matrix for a self hosted chat service
     enabled: false
-    # initial secrets to deploy this app from scratch
-    init-secrets:
-      enabled: true
-      # name of secret to create in kubernetes
-      matrix-registration:
-        # keys within secret to generate values for
-        - registrationSharedSecret
-      matrix-pgsql-credentials:
-        - hostname
-        - username
-        - password
-        - postgresPassword
+    init: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -260,22 +242,7 @@ apps:
   nextcloud:
     # enable nextcloud to stand up a nice little self hosted file server
     enabled: false
-    # initial secrets to deploy this app from scratch
-    init-secrets:
-      enabled: true
-      # name of secret to create in kubernetes
-      nextcloud-admin-credentials:
-        # keys within secret to generate values for
-        - username
-        - password
-        - serverinfo_token
-        - smtpUsername
-        - smtpPassword
-      nextcloud-pgsql-credentials:
-        - nextcloudPassword
-        - postgresPassword
-      nextcloud-redis-credentials:
-        - redis_password 
+    init: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
