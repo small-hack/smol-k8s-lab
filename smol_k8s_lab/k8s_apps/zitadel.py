@@ -1,6 +1,4 @@
 import logging as log
-import json
-from ..subproc import subproc
 from .vouch import configure_vouch
 from .zitadel_api import Zitadel
 from ..pretty_printing.console_logging import sub_header, header
@@ -77,6 +75,9 @@ def configure_zitadel(zitadel_hostname: str = "", argocd_hostname: str = "",
     sub_header("Configure zitadel as your OIDC SSO for Argo CD")
     zitadel =  Zitadel(f"https://{zitadel_hostname}/management/v1/")
 
+    log.info("Creating a groups Zitadel Action (sends group info to Argo)")
+    zitadel.create_action("groupsClaim")
+
     # create Argo CD OIDC Application
     log.info("Creating an Argo CD application...")
     redirect_uris = [f"https://{argocd_hostname}/auth/callback"]
@@ -119,12 +120,12 @@ def configure_zitadel(zitadel_hostname: str = "", argocd_hostname: str = "",
         log.info("Creating a Vouch application...")
         redirect_uris = [f"https://{vouch_hostname}/auth/callback"]
         logout_uris = [f"https://{vouch_hostname}"]
-        vouch_client_secret = zitadel.create_application("vouch",
-                                                         redirect_uris,
-                                                         logout_uris)
+        vouch_client_creds = zitadel.create_application("vouch",
+                                                        redirect_uris,
+                                                        logout_uris)
 
     if vouch_enabled:
         url = f"https://{zitadel_hostname}/"
-        configure_vouch(vouch_config_dict, vouch_client_secret, url, bitwarden)
+        configure_vouch(vouch_config_dict, vouch_client_creds, url, bitwarden)
 
     return True

@@ -135,7 +135,7 @@ def configure_keycloak(realm: str = "", keycloak_hostname: str = "",
 
     if vouch_enabled:
         url = (f"https://{keycloak_hostname}/realms/{realm}/protocol"
-               "/openid-connect/")
+               "/openid-connect")
         configure_vouch(vouch_config_dict, vouch_client_secret, url, bitwarden)
 
     return True 

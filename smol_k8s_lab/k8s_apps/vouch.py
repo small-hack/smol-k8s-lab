@@ -1,21 +1,21 @@
 import logging as log
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Prompt
 from ..pretty_printing.console_logging import header
 from ..k8s_tools.kubernetes_util import create_secret
 from ..k8s_tools.argocd import install_with_argocd
-from ..subproc import subproc
 from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 
 
 def configure_vouch(vouch_config_dict: dict,
-                    vouch_client_secret: str = "",
+                    vouch_client_credentials: dict = {},
                     base_url: str = "",
-                    bitwarden=None):
+                    bitwarden=None) -> bool:
     """
     Installs vouch-proxy as an Argo CD application on Kubernetes
 
-    Takes vouch_config_dict: dict, Argo CD parameters
+    Takes Args:
+          vouch_config_dict: dict, Argo CD parameters
           bitwarden: BWCLI object, to store k8s secrets in bitwarden
 
     returns True if successful
@@ -25,6 +25,8 @@ def configure_vouch(vouch_config_dict: dict,
     if vouch_config_dict['init']:
         secrets = vouch_config_dict['secrets']
         vouch_hostname = secrets['vouch_hostname']
+        client_secret = vouch_client_credentials['client_secret']
+        client_id = vouch_client_credentials['client_id']
 
         vouch_callback_url = f'https://{vouch_hostname}/auth'
         m = ("[green]Please enter a comma seperated list of emails that are "
@@ -38,8 +40,8 @@ def configure_vouch(vouch_config_dict: dict,
         if bitwarden:
             # create oauth OIDC bitwarden item
             bitwarden.create_login(name='vouch-oauth-config',
-                                   user='vouch',
-                                   password=vouch_client_secret,
+                                   user=client_id,
+                                   password=client_secret,
                                    fields=[
                                        {'authUrl': f'{base_url}auth'},
                                        {'tokenUrl': f'{base_url}token'},
@@ -57,11 +59,11 @@ def configure_vouch(vouch_config_dict: dict,
         else:
             # create oauth OIDC k8s secret
             create_secret('vouch-oauth-config', 'vouch',
-                          {'user': 'vouch',
-                           'password': vouch_client_secret,
-                           'authUrl': f'{base_url}auth',
-                           'tokenUrl': f'{base_url}token',
-                           'userInfoUrl': f'{base_url}userinfo',
+                          {'user': client_id,
+                           'password': client_secret,
+                           'authUrl': f'{base_url}/auth',
+                           'tokenUrl': f'{base_url}/token',
+                           'userInfoUrl': f'{base_url}/userinfo',
                            'callbackUrls': vouch_callback_url})
 
             # create vouch config k8s secret
