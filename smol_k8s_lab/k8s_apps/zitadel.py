@@ -11,6 +11,7 @@ from ..utils.passwords import create_password
 
 
 def configure_zitadel_and_vouch(zitadel_config_dict: dict = {},
+                                argocd_hostname: str = "",
                                 vouch_config_dict: dict = {},
                                 bitwarden=None):
     """
@@ -22,6 +23,7 @@ def configure_zitadel_and_vouch(zitadel_config_dict: dict = {},
         zitadel_config_dict: dict, Argo CD parameters for zitadel
 
     Optional Arguments:
+        argocd_hostname:   str, the hostname of Argo CD
         vouch_config_dict: dict, Argo CD parameters for vouch
         bitwarden:         BwCLI obj, [optional] contains bitwarden session
 
@@ -60,13 +62,14 @@ def configure_zitadel_and_vouch(zitadel_config_dict: dict = {},
         configure_zitadel(zitadel_hostname, bitwarden, vouch_config_dict)
 
 
-def configure_zitadel(zitadel_hostname: str = "", bitwarden=None,
-                      vouch_config_dict: dict = {}):
+def configure_zitadel(zitadel_hostname: str = "", argocd_hostname: str = "",
+                      bitwarden=None, vouch_config_dict: dict = {}):
     """
     Sets up initial zitadel user, Argo CD client, and optional Vouch client.
     Arguments:
         bitwarden:         BwCLI obj, [optional] session to use for bitwarden
         vouch_config_dict: dict, [optional] Argo CD vouch parameters
+        argocd_hostname:   str, the hostname of Argo CD
     """
 
     sub_header("Configure zitadel as your OIDC SSO for Argo CD")
@@ -77,13 +80,27 @@ def configure_zitadel(zitadel_hostname: str = "", bitwarden=None,
 
     # create Argo CD OIDC Application
     log.info("Creating an Argo CD application...")
-    argocd_client_secret = create_zitadel_application(api_url, "argocd")
+    redirect_uris = [f"https://{argocd_hostname}/auth/callback"]
+    logout_uris = [f"https://{argocd_hostname}"]
+    argocd_client_secret = create_zitadel_application(api_url, "argocd",
+                                                      redirect_uris,
+                                                      logout_uris)
+    # create roles for both Argo CD Admins and regular users
+    create_zitadel_role(api_url, "argocd_administrators",
+                        "Argo CD Administrators", "argocd_administrators")
+    create_zitadel_role(api_url, "argocd_users",
+                        "Argo CD Users", "argocd_users")
 
     vouch_enabled = vouch_config_dict['enabled']
     if vouch_enabled:
+        vouch_hostname = vouch_config_dict['argo']['secret_keys']['hostname']
         # create Vouch OIDC Application
         log.info("Creating a Vouch application...")
-        vouch_client_secret = create_zitadel_application(api_url, "vouch")
+        redirect_uris = [f"https://{vouch_hostname}/auth/callback"]
+        logout_uris = [f"https://{vouch_hostname}"]
+        vouch_client_secret = create_zitadel_application(api_url, "vouch",
+                                                         redirect_uris,
+                                                         logout_uris)
 
     if bitwarden:
         sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
@@ -98,7 +115,7 @@ def configure_zitadel(zitadel_hostname: str = "", bitwarden=None,
                       {'app.kubernetes.io/part-of': 'argocd'})
 
     if vouch_enabled:
-        url = f""
+        url = f"https://{zitadel_hostname}/"
         configure_vouch(vouch_config_dict, vouch_client_secret, url, bitwarden)
 
     return True
@@ -147,7 +164,8 @@ def create_zitadel_user(api_url: str = ""):
 
 
 def create_zitadel_application(api_url: str = "", app_name: str = "",
-                               redirectUris: list = []):
+                               redirect_uris: list = [],
+                               post_logout_redirect_uris: list = []):
     """
     Create an OIDC Application in Zitadel via the API.
     Arguments:
@@ -159,9 +177,7 @@ def create_zitadel_application(api_url: str = "", app_name: str = "",
     """
     payload = json.dumps({
       "name": app_name,
-      "redirectUris": [
-        "http://localhost:4200/auth/callback"
-      ],
+      "redirectUris": redirect_uris,
       "responseTypes": [
         "OIDC_RESPONSE_TYPE_CODE"
       ],
@@ -170,9 +186,7 @@ def create_zitadel_application(api_url: str = "", app_name: str = "",
       ],
       "appType": "OIDC_APP_TYPE_WEB",
       "authMethodType": "OIDC_AUTH_METHOD_TYPE_BASIC",
-      "postLogoutRedirectUris": [
-        "http://localhost:4200/signedout"
-      ],
+      "postLogoutRedirectUris": post_logout_redirect_uris,
       "version": "OIDC_VERSION_1_0",
       "devMode": True,
       "accessTokenType": "OIDC_TOKEN_TYPE_BEARER",
@@ -197,3 +211,81 @@ def create_zitadel_application(api_url: str = "", app_name: str = "",
     log.info(response.text)
 
     return response.json['clientSecret']
+
+
+def create_zitadel_action(api_url: str = ""):
+    """ 
+    create an action for zitadel. Currently only creates one kind of action,
+    a group mapper action.
+    """
+
+    payload = json.dumps({
+      "name": "groupsClaim",
+      "script": "function groupsClaim(ctx, api) { if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) { return; } let grants = []; ctx.v1.user.grants.grants.forEach(claim => { claim.roles.forEach(role => { grants.push(role)  }) }) api.v1.claims.setClaim('groups', grants) }",
+      "timeout": "10",
+      "allowedToFail": True
+    })
+    headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer <TOKEN>'
+    }
+
+    response = requests.request("POST", api_url + "actions", 
+                                headers=headers, data=payload)
+    print(response.text)
+    return True
+
+
+def create_zitadel_role(api_url: str = "", role_key: str = "",
+                        display_name: str = "", group: str = ""):
+    """
+    create a role in zitadel from given:
+        api_url:      base api url to work with
+        role_key:     name of the role - no spaces allowed!
+        display_name: human readable name of the role
+        group:        group that this role applies to
+    """
+    payload = json.dumps({
+      "roleKey": role_key,
+      "displayName": display_name,
+      "group": group
+    })
+
+    headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer <TOKEN>'
+    }
+
+    response = requests.request("POST", api_url + "projects/:projectId/roles",
+                                headers=headers, data=payload)
+
+    print(response.text)
+    return True
+
+
+def update_zitadel_project_settings(api_url: str = "", project_name: str = ""):
+    """ 
+    updates the settings of the role
+    """
+    import requests
+
+    payload = json.dumps({
+      "name": project_name,
+      "projectRoleAssertion": True,
+      "projectRoleCheck": True,
+      "hasProjectCheck": True,
+      "privateLabelingSetting": "PRIVATE_LABELING_SETTING_UNSPECIFIED"
+    })
+    headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer <TOKEN>'
+    }
+
+    response = requests.request("PUT", api_url + "projects/:id",
+                                headers=headers, data=payload)
+
+    print(response.text)
+    return True
