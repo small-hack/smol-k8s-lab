@@ -37,8 +37,6 @@ def process_configs(default_config: dict, config: dict):
     process the config in ~/.config/smol-k8s-lab/config.yaml and ensure each
     app has a secret if we're using our default Argo CD repo
     """
-    initial_config = config
-
     # process just the app sections because they're the bulk of the config
     default_apps =  default_config['apps']
     config_apps = config.get('apps', None)
@@ -47,10 +45,11 @@ def process_configs(default_config: dict, config: dict):
     # and return that to avoid extra computations on comparing the default conf
     if not config_apps or default_config == config:
         sub_header("No application confgiurations found 😮")
-        apps_config, secrets = initialize_apps_config(default_config)
+        apps_config, secrets = initialize_apps_config(default_apps)
     else:
-        sub_header("Found existing Application confgiurations 🩵 ")
-        apps_config, secrets = process_app_configs(config_apps, default_apps)
+        sub_header("Found existing Application confgiurations 🩵")
+        apps_config, secrets = process_app_configs(config['apps'],
+                                                   default_apps)
     config['apps'] = apps_config
 
     config['log'] = config.get("log", default_config["log"])
@@ -58,8 +57,8 @@ def process_configs(default_config: dict, config: dict):
     k8s_distros = config.get('k8s_distros', default_config['k8s_distros'])
     config['k8s_distros'] = process_k8s_distros(k8s_distros)
 
-    # Write newly acquired YAML data to config file
-    if initial_config != config:
+    # Write newly updated YAML data to config file
+    if default_config != config:
         print("Writing out your newly updated config file :)")
         with open(XDG_CONFIG_FILE, 'w') as conf_file:
             dump(config, conf_file)
@@ -67,7 +66,7 @@ def process_configs(default_config: dict, config: dict):
     return config, secrets
 
 
-def process_app_configs(apps: dict = {}, default_apps: dict = {}):
+def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
     """
     process an existing applications config dict and fill in any missing fields
     """
@@ -117,23 +116,23 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}):
                 # iterate through each secret for the app
                 for secret_key, secret in default_secrets.items():
                     # create app k8s secret key like argocd_hostname
-                    k8s_secret_key = "_".join([app_key, secret])
+                    k8s_secret_key = "_".join([app_key, secret_key])
 
                     # if the secret is empty, prompt for a new one
-                    if not secret:
+                    if not secret or len(secret) == 0:
                         m = f"[green]Please enter a {secret_key} for {app_key}"
                         res = Prompt.ask(m)
                         return_secrets[secret_key] = res
-                        apps[app_key]['argo']['secrets'][secret_key] = res
+                        apps[app_key]['argo']['secret_keys'][secret_key] = res
                         continue
 
                     # else just set the secret to the same thing it was
-                    return_secrets[k8s_secret_key] = secrets[secret]
+                    return_secrets[k8s_secret_key] = secret
 
     return apps, return_secrets
 
 
-def initialize_apps_config(config: dict = {}):
+def initialize_apps_config(config: dict = {}) -> list:
     """
     Initializes a fresh apps configuration for smol-k8s-lab by ensuring each
     field is filled out.
@@ -143,33 +142,42 @@ def initialize_apps_config(config: dict = {}):
     return_secrets = {}
 
     # key is equal to the name of the of application. app is the dict
-    for key, app in config['apps'].items():
+    for key, app in config.items():
+        header(key)
+
         # if the user config doesn't have this section we default to the above
         app_enabled = app.get('enabled', True)
 
         # if app is enabled
         if app_enabled:
             argo_section = app['argo']
+            print(argo_section)
 
+            sub_header("Welcome to Secrets Town")
             # use secret section if exists, else grab from the default cfg
             secrets = argo_section.get('secret_keys', None)
+            print(secrets)
 
             if not secrets:
+                print(f"no secrets for {key}")
                 # if there's no secrets for this app, continue the loop
                 continue
 
             # iterate through each secret for the app
             for secret in secrets.keys():
+                print(f"secret item in secrets.keys() {secret}")
+                print(f"secrets[secret] '{secrets[secret]}'")
                 # create app k8s secret key like argocd_hostname
                 secret_key = "_".join([key, secret])
 
                 # if the secret is empty, prompt for a new one
-                if not secrets[secret]:
+                if not secrets[secret] or type(secrets[secret]) is not str:
                     msg = f"[green]Please enter a {secret} for {key}"
                     res = Prompt.ask(msg)
-                    config['apps'][key]['argo']['secret_keys'][secret] = res
+                    config[key]['argo']['secret_keys'][secret] = res
                     return_secrets[secret_key] = res
                 else:
+                    config[key]['argo']['secret_keys'][secret] = secrets[secret]
                     return_secrets[secret_key] = secrets[secret]
 
     return config, return_secrets

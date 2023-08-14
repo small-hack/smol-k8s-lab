@@ -62,14 +62,14 @@ apps:
     # enable metallb which helps expose IP addresses for loadbalancers on metal
     # if you're on a vm or container where you can't get an IP, disable this
     enabled: true
-    # secret keys to make available to helm and/or ArgoCD ApplicationSets
-    secret_keys:
-      # metallb IPs used for DNS later (make sure they're not in use)
-      # Example of required full CIDR notation
-      # address_pool:
-      #   - 192.168.90.01/32
-      address_pool: []
     argo:
+      # secret keys to make available to helm and/or ArgoCD ApplicationSets
+      secret_keys:
+        # metallb IPs used for DNS later (make sure they're not in use)
+        # Example of required full CIDR notation
+        # address_pool:
+        #   - 192.168.90.01/32
+        address_pool: []
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!

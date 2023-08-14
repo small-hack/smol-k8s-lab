@@ -15,7 +15,7 @@ from sys import exit
 
 # custom libs and constants
 from .env_config import check_os_support, process_configs
-from .constants import (KUBECONFIG, HOME_DIR, DEFUALT_CONFIG,
+from .constants import (KUBECONFIG, HOME_DIR, DEFAULT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
 from .k8s_tools.argocd import install_with_argocd
 from .k8s_apps.base_install import install_base_apps, install_k8s_distro
@@ -131,7 +131,7 @@ def main(config: str = "",
         from .utils.setup_k8s_tools import do_setup
         do_setup()
 
-    k8s = INITIAL_USR_CONFIG.get('k8s_distros', DEFUALT_CONFIG['k8s_distros'])
+    k8s = INITIAL_USR_CONFIG.get('k8s_distros', DEFAULT_CONFIG['k8s_distros'])
     if delete:
         for distro in k8s:
             # exits the script after deleting the cluster
@@ -139,7 +139,7 @@ def main(config: str = "",
         exit()
 
     # process all of the config file, or create a new one and also grab secrets
-    USR_CFG, SECRETS = process_configs(DEFUALT_CONFIG, INITIAL_USR_CONFIG)
+    USR_CFG, SECRETS = process_configs(DEFAULT_CONFIG, INITIAL_USR_CONFIG)
 
     # setup logging immediately
     log = process_log_config(USR_CFG['log'])

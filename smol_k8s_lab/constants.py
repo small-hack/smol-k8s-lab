@@ -52,7 +52,6 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
     # create default pathing and config file if it doesn't exist
     if not path.exists(yaml_config_file):
         Path(XDG_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
-        yaml_config_file = DEFAULT_CONFIG_FILE
         copyfile(DEFAULT_CONFIG_FILE, XDG_CONFIG_FILE)
 
     # open the yaml config file and then return the dict
@@ -60,5 +59,5 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
         return yaml.safe_load(yaml_file)
 
 
-DEFUALT_CONFIG = load_yaml(DEFAULT_CONFIG_FILE)
+DEFAULT_CONFIG = load_yaml(DEFAULT_CONFIG_FILE)
 INITIAL_USR_CONFIG = load_yaml()
