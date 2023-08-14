@@ -159,7 +159,7 @@ def initialize_apps_config(config: dict = {}):
                 continue
 
             # iterate through each secret for the app
-            for secret in secrets:
+            for secret in secrets.keys():
                 # create app k8s secret key like argocd_hostname
                 secret_key = "_".join([key, secret])
 
