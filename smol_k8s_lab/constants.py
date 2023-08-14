@@ -7,6 +7,7 @@ DESC: everything to do with initial configuration of a new environment
 from importlib.metadata import version as get_version
 from getpass import getuser
 from os import environ, path, uname
+from shutil import copyfile
 from pathlib import Path
 
 import yaml
@@ -52,6 +53,7 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
     if not path.exists(yaml_config_file):
         Path(XDG_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
         yaml_config_file = DEFAULT_CONFIG_FILE
+        copyfile(DEFAULT_CONFIG_FILE, XDG_CONFIG_FILE)
 
     # open the yaml config file and then return the dict
     with open(yaml_config_file, 'r') as yaml_file:
