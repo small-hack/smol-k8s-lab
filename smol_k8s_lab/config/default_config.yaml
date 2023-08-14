@@ -9,7 +9,7 @@ log:
 # which distros of Kubernetes to deploy. Options: kind, k3s, k0s
 # NOTE: only kind is available on macOS at this time
 k8s_distros:
- - kind
+  - kind
 
 k3s:
   # if k8s_distribution set to k3s, you can add an array of extra
