@@ -6,7 +6,7 @@ DESC: everything to do with initial configuration of a new environment
 
 from rich.prompt import Confirm, Prompt
 from .constants import OS, VERSION, XDG_CONFIG_FILE
-from .pretty_printing.console_logging import print_panel
+from .pretty_printing.console_logging import print_panel, header, sub_header
 from yaml import dump
 
 
@@ -46,8 +46,10 @@ def process_configs(default_config: dict, config: dict):
     # if the config doesn't have the apps section, then we initialize a new one
     # and return that to avoid extra computations on comparing the default conf
     if not config_apps or default_config == config:
+        sub_header("No application confgiurations found 😮")
         apps_config, secrets = initialize_apps_config(default_config)
     else:
+        sub_header("Found existing Application confgiurations 🩵 ")
         apps_config, secrets = process_app_configs(config_apps, default_apps)
     config['apps'] = apps_config
 
@@ -64,6 +66,10 @@ def process_configs(default_config: dict, config: dict):
 
 
 def process_app_configs(apps: dict = {}, default_apps: dict = {}):
+    """
+    process an existing applications config dict and fill in any missing fields
+    """
+    header("Validating Application Configs")
     # check if argo cd is enabled
     argocd_enabled = apps.get('argo_cd', 'missing')
     # if argo_cd isn't an app in thier config, we create it with defaults
@@ -130,6 +136,7 @@ def initialize_apps_config(config: dict = {}):
     Initializes a fresh apps configuration for smol-k8s-lab by ensuring each
     field is filled out.
     """
+    header("Initializing a fresh config file for you!")
     # these are the secrets we also return, so we can create them all at once
     return_secrets = {}
 

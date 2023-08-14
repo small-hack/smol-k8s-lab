@@ -50,7 +50,6 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
     """
     # create default pathing and config file if it doesn't exist
     if not path.exists(yaml_config_file):
-        print("Config file didn't exist, so well create a default file :)")
         Path(XDG_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
         yaml_config_file = DEFAULT_CONFIG_FILE
 
