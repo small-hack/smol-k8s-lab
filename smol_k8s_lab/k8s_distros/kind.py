@@ -40,12 +40,12 @@ def delete_kind_cluster():
     delete kind cluster, if kind exists
     returns True
     """
+    er = "smol-k8s-lab hasn't installed a [green]kind[/green] cluster here yet"
     if which('kind'):
         if 'smol-k8s-lab-kind' in subproc(['kind get clusters']):
             subproc(['kind delete cluster --name smol-k8s-lab-kind'])
         else:
-            sub_header("smol-k8s-lab hasn't installed a kind cluster here yet",
-                       False, False)
+            sub_header(er, False, False)
     else:
         log.debug("Kind is not installed.")
         sub_header("Kind is not installed.", False, False)

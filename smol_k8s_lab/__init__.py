@@ -74,25 +74,26 @@ def process_log_config(log_dict: dict = {'log':
         return logging.getLogger("rich")
 
 
-def delete_cluster(k8s_distro="kind"):
+def delete_cluster(k8s_distros=["kind"]):
     """
     Delete a k0s, k3s, or KinD cluster entirely.
     It is suggested to perform a reboot after deleting a k0s cluster.
     """
-    if k8s_distro == 'k3s':
-        from .k8s_distros.k3s import uninstall_k3s
-        uninstall_k3s()
+    for k8s_distro in k8s_distros:
+        if k8s_distro == 'k3s':
+            from .k8s_distros.k3s import uninstall_k3s
+            uninstall_k3s()
 
-    elif k8s_distro == 'kind':
-        from .k8s_distros.kind import delete_kind_cluster
-        delete_kind_cluster()
+        elif k8s_distro == 'kind':
+            from .k8s_distros.kind import delete_kind_cluster
+            delete_kind_cluster()
 
-    elif k8s_distro == 'k0s':
-        from .k8s_distros.k0s import uninstall_k0s
-        uninstall_k0s()
+        elif k8s_distro == 'k0s':
+            from .k8s_distros.k0s import uninstall_k0s
+            uninstall_k0s()
 
-    else:
-        header(f"┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
+        else:
+            header(f"┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
 
     sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
 
