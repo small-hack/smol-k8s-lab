@@ -64,6 +64,8 @@ def process_configs(default_config: dict, config: dict):
         with open(XDG_CONFIG_FILE, 'w') as conf_file:
             dump(config, conf_file)
 
+    return config, secrets
+
 
 def process_app_configs(apps: dict = {}, default_apps: dict = {}):
     """
