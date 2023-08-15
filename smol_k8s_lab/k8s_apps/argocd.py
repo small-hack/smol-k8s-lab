@@ -8,7 +8,7 @@ DESCRIPTION: configure argocd
 import bcrypt
 from os import path
 import yaml
-from ..bw_cli import BwCLI
+from ..utils.bw_cli import BwCLI
 from ..pretty_printing.console_logging import header, sub_header
 from ..constants import XDG_CACHE_DIR
 from ..k8s_tools.kubernetes_util import create_secret
