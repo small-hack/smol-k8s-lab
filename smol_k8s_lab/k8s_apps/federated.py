@@ -1,12 +1,14 @@
 from rich.prompt import Prompt
 from ..pretty_printing.console_logging import sub_header
 from ..k8s_tools.argocd import install_with_argocd
-from ..k8s_tools.kubernetes_util import create_secret
+from ..k8s_tools.k8s_lib import K8s
 from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 
 
-def configure_nextcloud(argo_dict={}, bitwarden=BwCLI()):
+def configure_nextcloud(k8s_obj: K8s() = K8s(),
+                        argo_dict: dict = {},
+                        bitwarden=None) -> bool:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
     """
@@ -51,7 +53,7 @@ def configure_nextcloud(argo_dict={}, bitwarden=BwCLI()):
             # these are standard k8s secrets
             token = create_password()
             password = create_password()
-            create_secret('nextcloud-admin-credentials', 'nextcloud',
+            k8s_obj.create_secret('nextcloud-admin-credentials', 'nextcloud',
                           {"username": username,
                            "password": password,
                            "serverinfo_token": token,
@@ -59,18 +61,20 @@ def configure_nextcloud(argo_dict={}, bitwarden=BwCLI()):
                            "smtpPassword": mail_pass})
 
             nextcloud_pgsql_password = create_password()
-            create_secret('nextcloud-pgsql-credentials', 'nextcloud',
+            k8s_obj.create_secret('nextcloud-pgsql-credentials', 'nextcloud',
                           {"password": nextcloud_pgsql_password})
 
             nextcloud_redis_password = create_password()
-            create_secret('nextcloud-redis-credentials', 'nextcloud',
+            k8s_obj.create_secret('nextcloud-redis-credentials', 'nextcloud',
                           {"password": nextcloud_redis_password})
 
     install_with_argocd('nextcloud', argo_dict)
     return True
 
 
-def configure_mastodon(argo_dict={}, init=True, bitwarden=BwCLI()):
+def configure_mastodon(k8s_obj: K8s() = K8s(),
+                       argo_dict: dict = {},
+                       bitwarden=None) -> bool:
     """
     creates a mastodon app and initializes it with secrets if you'd like :)
     """
@@ -109,25 +113,27 @@ def configure_mastodon(argo_dict={}, init=True, bitwarden=BwCLI()):
         else:
             password = create_password()
             # this is a standard k8s secrets yaml
-            create_secret('mastodon-admin-credentials', 'mastodon',
+            k8s_obj.create_secret('mastodon-admin-credentials', 'mastodon',
                           {"username": username,
                            "password": password,
                            "email": email})
 
             mastodon_pgsql_password = create_password()
-            create_secret('mastodon-pgsql-credentials', 'mastodon',
+            k8s_obj.create_secret('mastodon-pgsql-credentials', 'mastodon',
                           {"password": mastodon_pgsql_password,
                            'postrgesPassword': mastodon_pgsql_password})
 
             mastodon_redis_password = create_password()
-            create_secret('mastodon-redis-credentials', 'mastodon',
+            k8s_obj.create_secret('mastodon-redis-credentials', 'mastodon',
                           {"password": mastodon_redis_password})
 
     install_with_argocd('mastodon', argo_dict)
     return True
 
 
-def configure_matrix(argo_dict={}, init=True, bitwarden=BwCLI()):
+def configure_matrix(k8s_obj: K8s() = K8s(),
+                     argo_dict: dict = {},
+                     bitwarden=None) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
     """
@@ -148,7 +154,7 @@ def configure_matrix(argo_dict={}, init=True, bitwarden=BwCLI()):
                     )
         else:
             matrix_pgsql_password = create_password()
-            create_secret('matrix-pgsql-credentials', 'matrix',
+            k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',
                           {"password": matrix_pgsql_password})
 
     install_with_argocd('matrix', argo_dict)

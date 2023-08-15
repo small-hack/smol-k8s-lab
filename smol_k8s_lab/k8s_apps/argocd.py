@@ -11,7 +11,8 @@ import yaml
 from ..utils.bw_cli import BwCLI
 from ..pretty_printing.console_logging import header, sub_header
 from ..constants import XDG_CACHE_DIR
-from ..k8s_tools.kubernetes_util import create_secret
+# from ..k8s_tools.kubernetes_util import create_secret
+from ..k8s_tools.k8s_lib import K8s
 from ..k8s_tools.homelabHelm import helm
 from ..utils.passwords import create_password
 
@@ -78,7 +79,9 @@ def configure_argocd(argo_cd_domain="", bitwarden=None,
     release.install(True)
 
     if plugin_secret_creation:
-        create_secret('appset-secret-vars', 'argocd', secret_dict)
+        kubernetes_client = K8s()
+        kubernetes_client.create_secret('appset-secret-vars', 'argocd',
+                                        secret_dict, 'secret_vars.yaml')
 
         # this creates a values.yaml from this dict
         val = {'secretVars': {'existingSecret': 'appset-secret-vars'}}

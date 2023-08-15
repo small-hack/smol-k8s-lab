@@ -6,12 +6,12 @@ DESCRIPTION: generic kubernetes utilities
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
-from base64 import standard_b64encode as b64enc
 from base64 import b64decode as b64dec
 import json
-from os import path, remove
+from os import path
 import yaml
 from yaml import dump
+from .k8s_lib import K8s
 from ..constants import XDG_CACHE_DIR
 from ..subproc import subproc, simple_loading_bar
 
@@ -36,7 +36,7 @@ def apply_manifests(manifest_file_name="", namespace="default", deployment="",
     return True
 
 
-def apply_custom_resources(custom_resource_dict_list):
+def apply_custom_resources(custom_resource_dict_list: dict = {}):
     """
     Does a kube apply on a custom resource dict, and retries if it fails
     using loading bar for progress
@@ -57,104 +57,34 @@ def apply_custom_resources(custom_resource_dict_list):
     simple_loading_bar(commands)
 
 
-# this lets us do multi line yaml values
-yaml.SafeDumper.org_represent_str = yaml.SafeDumper.represent_str
-
-
-# this too
-def repr_str(dumper, data):
-    if '\n' in data:
-        return dumper.represent_scalar(u'tag:yaml.org,2002:str', data,
-                                       style='|')
-    return dumper.org_represent_str(data)
-
-
-def create_secret(secret_name: str, secret_namespace: str, secret_dict: dict,
-                  in_line: bool = False, additonal_labels: dict = None):
-    """
-    create a k8s secret accessible by Argo CD
-    """
-
-    # make sure the namespace we're installing into exists
-    try:
-        subproc([f"kubectl get namespace {secret_namespace}"])
-    except Exception:
-        subproc([f"kubectl create namespace {secret_namespace}"])
-
-    if in_line:
-        # these are all app secrets we collected at the start of the script
-        secret_keys = yaml.dump(secret_dict)
-
-        # this is a standard k8s secrets yaml
-        secret_yaml = {'apiVersion': 'v1',
-                       'kind': 'Secret',
-                       'metadata': {'name': secret_name,
-                                    'namespace': secret_namespace},
-                       'stringData': {'secret_vars.yaml': secret_keys}}
-    else:
-        # base64 encode all the values
-        for key, value in secret_dict.items():
-            secret_dict[key] = b64enc(value)
-
-        # this is a standard k8s secrets yaml
-        secret_yaml = {'apiVersion': 'v1',
-                       'kind': 'Secret',
-                       'metadata': {'name': secret_name,
-                                    'namespace': secret_namespace},
-                       'data': secret_dict}
-
-    if additonal_labels:
-        secret_yaml['metadata']['labels'] = additonal_labels
-
-    secrets_file_name = path.join(XDG_CACHE_DIR, f'secret-{secret_name}.yaml')
-
-    # write out the file to be applied
-    with open(secrets_file_name, 'w') as secret_file:
-        yaml.safe_dump(secret_yaml, secret_file)
-
-    apply_manifests(secrets_file_name)
-
-    # clean up the secret, because we shouldn't keep that around
-    remove(secrets_file_name)
-
-    return True
-
-
-def update_secret_key(secret_name: str, secret_namespace: str,
+def update_secret_key(k8s_obj: K8s() = K8s(),
+                      secret_name: str = "",
+                      secret_namespace: str = "",
                       updated_values_dict: dict = {},
-                      in_line: bool = False,
-                      in_line_file_name: str = 'secret_vars.yaml'):
+                      in_line_key_name: str = 'secret_vars.yaml') -> True:
     """
-    update a key in a k8s secret accessible by Argo CD
-    if in_line is set to True, you can specify a base key in a secret that
-    contains an inline yaml block
+    update a key in a k8s secret
+    if in_line_key_name is set to a key name, you can specify a base key in a
+    secret that contains an inline yaml block
     """
-    cm = f"kubectl get secret -n {secret_namespace} {secret_namespace} -o json"
+    cm = f"kubectl get secret -n {secret_namespace} {secret_name} -o json"
     k8s_secret = json.loads(subproc([cm]))
     secret_data = k8s_secret['data']
 
     # if this is a secret with a filename key and then inline yaml inside...
-    if in_line and in_line_file_name:
+    if in_line_key_name:
         # load the yaml as a python dictionary
-        in_line_yaml = yaml.safe_load(b64dec(secret_data[in_line_file_name]))
+        in_line_yaml = yaml.safe_load(b64dec(secret_data[in_line_key_name]))
         # for each key, updated_value in updated_values_dict
         for key, updated_value in updated_values_dict.items():
            # update the in-line yaml
            in_line_yaml[key] = updated_value
-        # update the inline yaml for the dict we'll feed back to 
-        k8s_secret['data'][in_line_file_name] = b64enc(yaml.dump(in_line_yaml))
+        # update the inline yaml for the dict we'll feed back to
+        k8s_obj.create_secret(secret_name, secret_namespace,
+                              yaml.dump(in_line_yaml), in_line_key_name)
     else:
         for key, updated_value in updated_values_dict.items():
            # update the keys in the secret yaml one by one
-           secret_data[key] = b64enc(updated_value)
-        k8s_secret['data'] = secret_data
-
-    secrets_file_name = path.join(XDG_CACHE_DIR, f'secret-{secret_name}.yaml')
-    # write out the file to be applied
-    with open(secrets_file_name, 'w') as secret_file:
-        yaml.safe_dump(k8s_secret, secret_file)
-
-    # clean up the secret, because we shouldn't keep that around
-    remove(secrets_file_name)
-
+           secret_data[key] = updated_value
+        k8s_obj.create_secret(secret_name, secret_namespace, secret_data)
     return True
