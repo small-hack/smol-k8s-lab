@@ -90,8 +90,9 @@ def configure_argocd(argo_cd_domain="", bitwarden=None,
             yaml.dump(val, values_file)
 
         # install the helm chart :)
+        chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
         release = helm.chart(release_name='argocd-appset-secret-plugin',
-                             chart_name='argocd-appset',
+                             chart_name=chart_name,
                              chart_version='0.2.0',
                              namespace='argocd',
                              values_file=values_file_name)

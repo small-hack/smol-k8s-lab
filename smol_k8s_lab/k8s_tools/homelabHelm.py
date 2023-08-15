@@ -136,8 +136,8 @@ def add_default_repos(k8s_distro: str = "",
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
     if argo_secrets:
-        repos['appset-secrets'] = ('https://jessebot.github.io/argocd-appset-'
-                                   'secret-plugin')
+        repos['appset-secret-plugin'] = ('https://jessebot.github.io/'
+                                         'argocd-appset-secret-plugin')
 
     # kind has a special install path
     if k8s_distro == 'kind':
@@ -151,7 +151,7 @@ def add_default_repos(k8s_distro: str = "",
 def prepare_helm(k8s_distro: str = "",
                  argo: bool = False,
                  metallb: bool = True,
-                 argo_app_set=False) -> bool:
+                 argo_app_set: bool = False) -> bool:
     """
     get helm installed if needed, and then install/update all the helm repos
     """
