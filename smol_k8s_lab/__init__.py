@@ -162,8 +162,8 @@ def main(config: str = "",
             if apps['external_secrets_operator']['enabled']:
                 eso = apps.pop('external_secrets_operator')
                 bitwarden_eso_provider = apps.pop('bitwarden_eso_provider')
-                configure_external_secrets(k8s_obj, eso, bitwarden_eso_provider,
-                                           bw)
+                configure_external_secrets(k8s_obj, eso['argo'],
+                                           bitwarden_eso_provider, bw)
 
             # setup keycloak if we're using that for OIDC
             if apps['keycloak']['enabled']:
