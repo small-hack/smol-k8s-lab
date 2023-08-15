@@ -1,4 +1,5 @@
 from ..pretty_printing.console_logging import header, sub_header
+from ..k8s_tools.homelabHelm import prepare_helm
 
 def install_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
                        extra_args: list = []):
@@ -12,17 +13,17 @@ def install_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
     sub_header('This could take a min ʕ•́ _ ̫•̀ʔっ♡ ', False)
 
     if k8s_distro == "kind":
-        from .k8s_distros.kind import install_kind_cluster
+        from ..k8s_distros.kind import install_kind_cluster
         install_kind_cluster()
     elif k8s_distro == "k3s":
-        from .k8s_distros.k3s import install_k3s_cluster
+        from ..k8s_distros.k3s import install_k3s_cluster
         install_k3s_cluster(metallb_enabled, extra_args)
     # curently unsupported - in alpha state
     elif k8s_distro == "k3d":
-        from .k8s_distros.k3d import install_k3d_cluster
+        from ..k8s_distros.k3d import install_k3d_cluster
         install_k3d_cluster()
     elif k8s_distro == "k0s":
-        from .k8s_distros.k0s import install_k0s_cluster
+        from ..k8s_distros.k0s import install_k0s_cluster
         install_k0s_cluster()
     return True
 
@@ -35,7 +36,6 @@ def install_base_apps(k8s_distro="", metallb_enabled=True, argo_enabled=False,
     All Needed for getting Argo CD up and running.
     """
     # make sure helm is installed and the repos are up to date
-    from .k8s_tools.homelabHelm import prepare_helm
     prepare_helm(k8s_distro, metallb_enabled, argo_enabled, 
                  argo_secrets_enabled)
 

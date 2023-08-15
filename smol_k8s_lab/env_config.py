@@ -71,11 +71,9 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
     process an existing applications config dict and fill in any missing fields
     """
     header("Validating Application Configs")
-    # check if argo cd is enabled
-    argocd_enabled = apps.get('argo_cd', 'missing')
-    # if argo_cd isn't an app in thier config, we create it with defaults
-    if argocd_enabled == 'missing':
-        argocd_enabled = apps['argo_cd'] = default_apps['argo_cd']
+    # check if argo cd is enabled and if argo_cd isn't an app in thier config,
+    # we create it with defaults
+    argocd_enabled = apps.get('argo_cd', default_apps['argo_cd'])['enabled']
 
     # this is always the same repo, we're not creative
     default_repo = default_apps['argo_cd']['argo']['repo']
@@ -103,15 +101,14 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
             # verify they're using our default repo config for this app
             if argo_section['repo'] == default_repo:
                 # use secret section if exists, else grab from the default cfg
-                default_secrets = default_cfg['argo'].get('secret_keys', '')
-                secrets = argo_section.get('secret_keys', 'missing')
-                if secrets == 'missing':
-                    if default_secrets:
-                        apps[app_key]['argo']['secret_keys'] = default_secrets
-                        secrets = default_secrets
-                    # if not secrets or default_secrets, continue apps loop
-                    else:
-                        continue
+                default_secrets = argo_section.get('secret_keys', '')
+                secrets = argo_section.get('secret_keys', '')
+
+                if not secrets and not default_secrets:
+                    continue
+                if default_secrets:
+                    apps[app_key]['argo']['secret_keys'] = default_secrets
+                    secrets = default_secrets
 
                 # iterate through each secret for the app
                 for secret_key, secret in default_secrets.items():
@@ -119,7 +116,7 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
                     k8s_secret_key = "_".join([app_key, secret_key])
 
                     # if the secret is empty, prompt for a new one
-                    if not secret or len(secret) == 0:
+                    if not secret:
                         m = f"[green]Please enter a {secret_key} for {app_key}"
                         res = Prompt.ask(m)
                         return_secrets[secret_key] = res
