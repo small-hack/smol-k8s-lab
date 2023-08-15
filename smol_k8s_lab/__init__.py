@@ -18,6 +18,7 @@ from .env_config import check_os_support, process_configs
 from .constants import (KUBECONFIG, HOME_DIR, DEFAULT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
 from .k8s_tools.argocd import install_with_argocd
+from .k8s_tools.k8s_lib import K8s
 from .k8s_distros.base import create_k8s_distro, delete_cluster
 from .k8s_apps.base_install import install_base_apps
 from .k8s_apps.bweso import setup_bweso
@@ -130,12 +131,14 @@ def main(config: str = "",
 
         # install the actual KIND, k0s, k3s, or k3d (experimental) cluster
         create_k8s_distro(distro, metallb_enabled,
-                           USR_CFG['k3s'].get('extra_args', []))
+                          USR_CFG['k3s'].get('extra_args', []))
 
         argo_enabled = apps['argo_cd']['enabled']
 
+        k8s_obj = K8s()
+
         # installs all the base apps: metallb, ingess-nginx, and cert-manager
-        install_base_apps(k8s, metallb_enabled, argo_enabled,
+        install_base_apps(k8s_obj, k8s, metallb_enabled, argo_enabled,
                           apps['argo_cd_appset_secret_plugin']['enabled'],
                           SECRETS['cert-manager_email'],
                           SECRETS['metallb_address_pool'])
@@ -170,7 +173,7 @@ def main(config: str = "",
             elif apps['zitadel']['enabled']:
                 zitadel = apps.pop('zitadel')
                 vouch = apps.pop('vouch')
-                configure_zitadel_and_vouch(zitadel, vouch, bw)
+                configure_zitadel_and_vouch(k8s_obj, zitadel, vouch, bw)
 
             if apps['nextcloud']['enabled']:
                 nextcloud = apps.pop('nextcloud')

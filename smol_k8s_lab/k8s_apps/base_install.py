@@ -1,9 +1,12 @@
 from ..pretty_printing.console_logging import header, sub_header
 from ..k8s_tools.homelabHelm import prepare_helm
+from ..k8s_tools.k8s_lib import K8s
 
 
-def install_base_apps(k8s_distro="", metallb_enabled=True, argo_enabled=False,
-                      argo_secrets_enabled=False, email="", cidr=""):
+def install_base_apps(k8s_obj: K8s, k8s_distro: str = "",
+                      metallb_enabled: bool = True, argo_enabled: bool = False,
+                      argo_secrets_enabled: bool = False, email: str = "",
+                      cidr: str = "") -> bool:
     """ 
     Helm installs all base apps:
         metallb, ingess-nginx, and cert-manager.
@@ -27,4 +30,7 @@ def install_base_apps(k8s_distro="", metallb_enabled=True, argo_enabled=False,
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [b]cert-manager[/b] for TLS certificates...")
     from ..k8s_apps.cert_manager import configure_cert_manager
-    configure_cert_manager(email)
+    configure_cert_manager(k8s_obj, email)
+
+    # success!
+    return True

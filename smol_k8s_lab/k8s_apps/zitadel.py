@@ -9,8 +9,8 @@ from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 
 
-def configure_zitadel_and_vouch(zitadel_config_dict: dict = {},
-                                k8s_obj: K8s() = K8s(),
+def configure_zitadel_and_vouch(k8s_obj: K8s,
+                                zitadel_config_dict: dict = {},
                                 argocd_hostname: str = "",
                                 vouch_config_dict: dict = {},
                                 bitwarden=None):
@@ -60,12 +60,13 @@ def configure_zitadel_and_vouch(zitadel_config_dict: dict = {},
     if not zitadel_config_dict['init']:
         return True
     else:
-        configure_zitadel(zitadel_hostname, argocd_hostname, bitwarden,
-                          vouch_config_dict)
+        configure_zitadel(k8s_obj, zitadel_hostname, argocd_hostname,
+                          bitwarden, vouch_config_dict)
 
 
-def configure_zitadel(zitadel_hostname: str = "", argocd_hostname: str = "",
-                      k8s_obj: K8s() = K8s(), bitwarden=None,
+def configure_zitadel(k8s_obj: K8s, zitadel_hostname: str = "",
+                      argocd_hostname: str = "",
+                      bitwarden=None,
                       vouch_config_dict: dict = {}):
     """
     Sets up initial zitadel user, Argo CD client, and optional Vouch client.

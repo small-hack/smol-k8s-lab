@@ -57,7 +57,7 @@ def apply_custom_resources(custom_resource_dict_list: dict = {}):
     simple_loading_bar(commands)
 
 
-def update_secret_key(k8s_obj: K8s() = K8s(),
+def update_secret_key(k8s_obj: K8s,
                       secret_name: str = "",
                       secret_namespace: str = "",
                       updated_values_dict: dict = {},

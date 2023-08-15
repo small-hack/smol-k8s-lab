@@ -6,7 +6,7 @@ from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 
 
-def configure_nextcloud(k8s_obj: K8s() = K8s(),
+def configure_nextcloud(k8s_obj: K8s,
                         argo_dict: dict = {},
                         bitwarden=None) -> bool:
     """
@@ -72,7 +72,7 @@ def configure_nextcloud(k8s_obj: K8s() = K8s(),
     return True
 
 
-def configure_mastodon(k8s_obj: K8s() = K8s(),
+def configure_mastodon(k8s_obj: K8s,
                        argo_dict: dict = {},
                        bitwarden=None) -> bool:
     """
@@ -131,7 +131,7 @@ def configure_mastodon(k8s_obj: K8s() = K8s(),
     return True
 
 
-def configure_matrix(k8s_obj: K8s() = K8s(),
+def configure_matrix(k8s_obj: K8s,
                      argo_dict: dict = {},
                      bitwarden=None) -> bool:
     """

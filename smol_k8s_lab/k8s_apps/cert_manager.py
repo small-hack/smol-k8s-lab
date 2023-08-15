@@ -7,10 +7,10 @@ DESCRIPTION: configure cert manager
 """
 from ..k8s_tools.homelabHelm import helm
 from ..k8s_tools.k8s_lib import K8s
+from ..k8s_tools.kubernetes_util import apply_custom_resources
 
 
-def configure_cert_manager(k8s_obj: K8s() = K8s(),
-                           email_addr: str = "") -> True:
+def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
     """
     Installs cert-manager helm chart and letsencrypt clusterIssuers for both
     staging and production
@@ -25,23 +25,26 @@ def configure_cert_manager(k8s_obj: K8s() = K8s(),
     release.install(True)
 
     # we create a ClusterIssuer for both staging and prod
-    issuers = []
-    acme_staging = 'https://acme-staging-v02.api.letsencrypt.org/directory'
-    for issuer in ['letsencrypt-prod', 'letsencrypt-staging']:
+    acme_staging = '"https://acme-staging-v02.api.letsencrypt.org/directory"'
+    for issuer in ['letsencrypt-staging', 'letsencrypt-prod']:
         if issuer == "letsencrypt-prod":
             acme_staging = acme_staging.replace("staging-", "")
-        issuers.append({
-            'apiVersion': 'cert-manager.io/v1',
+        issuers_dict = {
+            'apiVersion': "cert-manager.io/v1",
             'kind': 'ClusterIssuer',
             'metadata': {'name': issuer},
-            'spec': {'acme': {'email': email_addr,
-                              'server': acme_staging,
-                              'privateKeySecretRef': {
-                                  'name': 'letsencrypt-staging'
-                                  },
-                              'solvers': [{'http01': {'ingress':
-                                                      {'class': 'nginx'}}}]
-                               }}})
-        k8s_obj.create_from_manifest_dict(issuer)
+            'spec': {
+                'acme': {'email': email_addr,
+                         'server': acme_staging,
+                         'privateKeySecretRef': {
+                             'name': '"letsencrypt-staging"'
+                             },
+                             'solvers': [
+                                 {'http01': {'ingress': {'class': 'nginx'}}}
+                                 ]
+                              }
+                     }
+            }
+        apply_custom_resources(issuers_dict)
 
     return True

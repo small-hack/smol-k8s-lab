@@ -10,7 +10,7 @@ from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 
 
-def configure_keycloak_and_vouch(k8s_obj: K8s() = K8s(),
+def configure_keycloak_and_vouch(k8s_obj: K8s,
                                  keycloak_config_dict: dict = {},
                                  vouch_config_dict: dict = {},
                                  bitwarden=None):
@@ -72,7 +72,7 @@ def configure_keycloak_and_vouch(k8s_obj: K8s() = K8s(),
                            vouch_config_dict)
 
 
-def configure_keycloak(k8s_obj: K8s() = K8s(), realm: str = "",
+def configure_keycloak(k8s_obj: K8s, realm: str = "",
                        keycloak_hostname: str = "", bitwarden=None,
                        vouch_config_dict: dict = {}):
     """

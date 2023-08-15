@@ -28,12 +28,30 @@ class K8s():
         config.load_kube_config()
         self.api_client = client.ApiClient()
         self.api_instance = client.CoreV1Api(self.api_client)
+        self.custom_obj_api = client.CustomObjectsApi()
 
-    def create_from_manifest_dict(self, manifest_dict: dict = {}) -> bool:
+    def create_from_manifest_dict(self,
+                                  api_group: str = "",
+                                  api_version: str = "",
+                                  namespace: str = "",
+                                  plural_obj_name: str = "",
+                                  manifest_dict: dict = {}) -> bool:
         """
         creates any resource in k8s from a python dictionary
+        not working!! https://github.com/kubernetes-client/python/issues/2103
         """
-        utils.create_from_dict(self.api_client, manifest_dict)
+        try:
+            # create the resource
+            self.custom_obj_api.create_namespaced_custom_object(
+                    group=api_group,
+                    version=api_version,
+                    namespace=namespace,
+                    plural=plural_obj_name,
+                    body=manifest_dict,
+                )
+        except ApiException as e:
+            log.error("Exception when calling "
+                      f"CustomObjectsApi->create_namespaced_custom_object: {e}")
         return True
 
     def create_secret(self,

@@ -5,7 +5,7 @@ from ..k8s_tools.k8s_lib import K8s
 from ..utils.bw_cli import BwCLI
 
 
-def configure_vouch(k8s_obj: K8s() = K8s(),
+def configure_vouch(k8s_obj: K8s,
                     vouch_config_dict: dict = {},
                     vouch_client_credentials: dict = {},
                     base_url: str = "",

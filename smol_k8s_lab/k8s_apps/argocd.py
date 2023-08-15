@@ -84,18 +84,15 @@ def configure_argocd(argo_cd_domain="", bitwarden=None,
                                         secret_dict, 'secret_vars.yaml')
 
         # this creates a values.yaml from this dict
-        val = {'secretVars': {'existingSecret': 'appset-secret-vars'}}
-        values_file_name = path.join(XDG_CACHE_DIR, 'appset_values.yaml')
-        with open(values_file_name, 'w') as values_file:
-            yaml.dump(val, values_file)
+        set_opts = {'secretVars.existingSecret': 'appset-secret-vars'}
 
         # install the helm chart :)
         chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
         release = helm.chart(release_name='argocd-appset-secret-plugin',
                              chart_name=chart_name,
-                             chart_version='0.2.0',
+                             chart_version='0.2.1',
                              namespace='argocd',
-                             values_file=values_file_name)
+                             set_options=set_opts)
         release.install(True)
 
     return
