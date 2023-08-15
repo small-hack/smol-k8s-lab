@@ -18,7 +18,7 @@ from .env_config import check_os_support, process_configs
 from .constants import (KUBECONFIG, HOME_DIR, DEFAULT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
 from .k8s_tools.argocd import install_with_argocd
-from .k8s_distros.base import install_k8s_distro
+from .k8s_distros.base import create_k8s_distro, delete_cluster
 from .k8s_apps.base_install import install_base_apps
 from .k8s_apps.bweso import setup_bweso
 from .k8s_apps.keycloak import configure_keycloak_and_vouch
@@ -75,30 +75,6 @@ def process_log_config(log_dict: dict = {'log':
         return logging.getLogger("rich")
 
 
-def delete_cluster(k8s_distros=["kind"]):
-    """
-    Delete a k0s, k3s, or KinD cluster entirely.
-    It is suggested to perform a reboot after deleting a k0s cluster.
-    """
-    for k8s_distro in k8s_distros:
-        if k8s_distro == 'k3s':
-            from .k8s_distros.k3s import uninstall_k3s
-            uninstall_k3s()
-
-        elif k8s_distro == 'kind':
-            from .k8s_distros.kind import delete_kind_cluster
-            delete_kind_cluster()
-
-        elif k8s_distro == 'k0s':
-            from .k8s_distros.k0s import uninstall_k0s
-            uninstall_k0s()
-
-        else:
-            header(f"┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
-
-    sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
-
-
 # an ugly list of decorators, but these are the opts/args for the whole script
 @command(cls=RichCommand, context_settings=HELP_SETTINGS)
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
@@ -152,8 +128,8 @@ def main(config: str = "",
         # check immediately if metallb is enabled
         metallb_enabled = apps['metallb']['enabled']
 
-        # install the actual KIND, k0s, or k3s cluster
-        install_k8s_distro(distro, metallb_enabled,
+        # install the actual KIND, k0s, k3s, or k3d (experimental) cluster
+        create_k8s_distro(distro, metallb_enabled,
                            USR_CFG['k3s'].get('extra_args', []))
 
         argo_enabled = apps['argo_cd']['enabled']
