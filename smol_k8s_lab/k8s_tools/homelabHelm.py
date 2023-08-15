@@ -112,8 +112,10 @@ class helm:
             return True
 
 
-def add_default_repos(k8s_distro, metallb=False, argo=False,
-                      argo_secrets=False):
+def add_default_repos(k8s_distro: str = "",
+                      metallb: bool = False,
+                      argo: bool = False,
+                      argo_secrets: bool = False) -> bool:
     """
     Add all the default helm chart repos:
     - metallb is for loadbalancing and assigning ips, on metal...
@@ -143,10 +145,13 @@ def add_default_repos(k8s_distro, metallb=False, argo=False,
 
     # install and update any repos needed
     helm.repo(repos).add()
-    return
+    return True
 
 
-def prepare_helm(k8s_distro="", argo=False, argo_app_set=False):
+def prepare_helm(k8s_distro: str = "",
+                 argo: bool = False,
+                 metallb: bool = True,
+                 argo_app_set=False) -> bool:
     """
     get helm installed if needed, and then install/update all the helm repos
     """
@@ -158,5 +163,5 @@ def prepare_helm(k8s_distro="", argo=False, argo_app_set=False):
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, argo, argo_app_set)
-    return
+    add_default_repos(k8s_distro, metallb, argo, argo_app_set)
+    return True
