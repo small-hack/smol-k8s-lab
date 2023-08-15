@@ -47,10 +47,6 @@ def options_help():
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
 
-        'bitwarden':
-        'Store generated admin passwords directly into your Bitwarden vault. '
-        'Requires you to manually enter your vault password. Default: False',
-
         'version':
         f'Print the version of smol-k8s-lab (v{VERSION})'
         }

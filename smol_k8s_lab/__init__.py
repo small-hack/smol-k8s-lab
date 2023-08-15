@@ -90,7 +90,6 @@ def main(config: str = "",
          setup: bool = False,
          k9s: bool = False,
          log_file: str = "",
-         bitwarden: bool = False,
          version: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
@@ -147,7 +146,7 @@ def main(config: str = "",
         if argo_enabled:
             bw = None
             # if we're using bitwarden, unlock the vault
-            if bitwarden:
+            if USR_CFG['bitwarden']:
                 bw = BwCLI(USR_CFG['bitwarden']['overwrite'])
                 bw.unlock()
 
