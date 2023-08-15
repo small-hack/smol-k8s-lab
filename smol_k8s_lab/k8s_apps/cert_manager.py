@@ -6,12 +6,14 @@ DESCRIPTION: configure cert manager
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 from ..k8s_tools.homelabHelm import helm
-from ..k8s_tools.kubernetes_util import apply_custom_resources
+from ..k8s_tools.k8s_lib import K8s
 
 
-def configure_cert_manager(email_addr):
+def configure_cert_manager(k8s_obj: K8s() = K8s(),
+                           email_addr: str = "") -> True:
     """
-    installs cert-manager helm chart and letsencrypt clusterissuers
+    Installs cert-manager helm chart and letsencrypt clusterIssuers for both
+    staging and production
     """
 
     # install chart and wait
@@ -40,6 +42,6 @@ def configure_cert_manager(email_addr):
                               'solvers': [{'http01': {'ingress':
                                                       {'class': 'nginx'}}}]
                                }}})
+        k8s_obj.create_from_manifest_dict(issuer)
 
-    apply_custom_resources(issuers)
     return True
