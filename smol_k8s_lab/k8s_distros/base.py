@@ -42,15 +42,15 @@ def delete_cluster(k8s_distros=["kind"]):
     """
     for k8s_distro in k8s_distros:
         if k8s_distro == 'k3s':
-            from .k8s_distros.k3s import uninstall_k3s
+            from .k3s import uninstall_k3s
             uninstall_k3s()
 
         elif k8s_distro == 'kind':
-            from .k8s_distros.kind import delete_kind_cluster
+            from .kind import delete_kind_cluster
             delete_kind_cluster()
 
         elif k8s_distro == 'k0s':
-            from .k8s_distros.k0s import uninstall_k0s
+            from .k0s import uninstall_k0s
             uninstall_k0s()
 
         else:
