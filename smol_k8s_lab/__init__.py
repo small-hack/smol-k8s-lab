@@ -153,7 +153,7 @@ def main(config: str = "",
         metallb_enabled = apps['metallb']['enabled']
 
         # install the actual KIND, k0s, or k3s cluster
-        install_k8s_distro(k8s, metallb_enabled,
+        install_k8s_distro(distro, metallb_enabled,
                            USR_CFG['k3s'].get('extra_args', []))
 
         argo_enabled = apps['argo_cd']['enabled']
