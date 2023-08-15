@@ -6,7 +6,7 @@
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
 
-from click import option, argument, command, Choice
+from click import option, command
 import logging
 from os import path
 from rich.logging import RichHandler
@@ -21,7 +21,7 @@ from .k8s_tools.argocd import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
 from .k8s_distros.base import create_k8s_distro, delete_cluster
 from .k8s_apps.base_install import install_base_apps
-from .k8s_apps.bweso import setup_bweso
+from .k8s_apps.external_secrets_operator import configure_external_secrets
 from .k8s_apps.keycloak import configure_keycloak_and_vouch
 from .k8s_apps.federated import (configure_nextcloud, configure_matrix,
                                  configure_mastodon)
@@ -154,20 +154,22 @@ def main(config: str = "",
             # user can configure a special domain for argocd
             argocd_fqdn = SECRETS['argo_cd_hostname']
             from .k8s_apps.argocd import configure_argocd
-            configure_argocd(argocd_fqdn, bw,
+            configure_argocd(k8s_obj, argocd_fqdn, bw,
                              apps['argo_cd_appset_secret_plugin']['enabled'],
                              SECRETS)
 
             # setup bitwarden external secrets if we're using that
-            if apps['bitwarden_eso_provider']['enabled']:
+            if apps['external_secrets_operator']['enabled']:
+                eso = apps.pop('external_secrets_operator')
                 bitwarden_eso_provider = apps.pop('bitwarden_eso_provider')
-                setup_bweso(bitwarden_eso_provider, bw)
+                configure_external_secrets(k8s_obj, eso, bitwarden_eso_provider,
+                                           bw)
 
             # setup keycloak if we're using that for OIDC
             if apps['keycloak']['enabled']:
                 keycloak = apps.pop('keycloak')
                 vouch = apps.pop('vouch')
-                configure_keycloak_and_vouch(keycloak, vouch, bw)
+                configure_keycloak_and_vouch(k8s_obj, keycloak, vouch, bw)
 
             # setup zitadel if we're using that for OIDC
             elif apps['zitadel']['enabled']:
@@ -177,15 +179,15 @@ def main(config: str = "",
 
             if apps['nextcloud']['enabled']:
                 nextcloud = apps.pop('nextcloud')
-                configure_nextcloud(nextcloud, bw)
+                configure_nextcloud(k8s_obj, nextcloud, bw)
 
             if apps['mastodon']['enabled']:
                 mastodon = apps.pop('mastodon')
-                configure_mastodon(mastodon, bw)
+                configure_mastodon(k8s_obj, mastodon, bw)
 
             if apps['matrix']['enabled']:
                 matrix = apps.pop('matrix')
-                configure_matrix(matrix, bw)
+                configure_matrix(k8s_obj, matrix, bw)
 
             # after argocd, keycloak, bweso, and vouch are up, we install all
             # apps as Argo CD Applications

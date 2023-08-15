@@ -45,6 +45,6 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
                               }
                      }
             }
-        apply_custom_resources(issuers_dict)
+        apply_custom_resources([issuers_dict])
 
     return True

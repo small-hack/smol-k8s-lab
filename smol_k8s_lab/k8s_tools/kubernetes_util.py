@@ -11,6 +11,7 @@ from base64 import standard_b64encode as b64enc
 from os import path
 import yaml
 from yaml import dump
+import logging as log
 from .k8s_lib import K8s
 from ..constants import XDG_CACHE_DIR
 from ..subproc import subproc, simple_loading_bar
@@ -43,6 +44,7 @@ def apply_custom_resources(custom_resource_dict_list: dict = {}):
     """
     k_cmd = 'kubectl apply --wait -f '
     commands = {}
+    log.debug(custom_resource_dict_list)
 
     # Write YAML data to '{XDG_CACHE_DIR}/{resource_name}.yaml'.
     for custom_resource_dict in custom_resource_dict_list:
