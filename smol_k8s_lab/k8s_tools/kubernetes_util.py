@@ -7,7 +7,7 @@ DESCRIPTION: generic kubernetes utilities
 """
 
 from base64 import b64decode as b64dec
-import json
+from base64 import standard_b64encode as b64enc
 from os import path
 import yaml
 from yaml import dump
@@ -67,14 +67,13 @@ def update_secret_key(k8s_obj: K8s() = K8s(),
     if in_line_key_name is set to a key name, you can specify a base key in a
     secret that contains an inline yaml block
     """
-    cm = f"kubectl get secret -n {secret_namespace} {secret_name} -o json"
-    k8s_secret = json.loads(subproc([cm]))
-    secret_data = k8s_secret['data']
+    secret_data = k8s_obj.get_secret(secret_name, secret_namespace)['data']
 
     # if this is a secret with a filename key and then inline yaml inside...
     if in_line_key_name:
+        decoded_data = b64dec(bytes(secret_data[in_line_key_name]))
         # load the yaml as a python dictionary
-        in_line_yaml = yaml.safe_load(b64dec(secret_data[in_line_key_name]))
+        in_line_yaml = yaml.safe_load(decoded_data)
         # for each key, updated_value in updated_values_dict
         for key, updated_value in updated_values_dict.items():
            # update the in-line yaml
@@ -85,6 +84,6 @@ def update_secret_key(k8s_obj: K8s() = K8s(),
     else:
         for key, updated_value in updated_values_dict.items():
            # update the keys in the secret yaml one by one
-           secret_data[key] = updated_value
+           secret_data[key] = b64enc(bytes(updated_value))
         k8s_obj.create_secret(secret_name, secret_namespace, secret_data)
     return True

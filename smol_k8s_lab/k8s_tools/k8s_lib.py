@@ -72,3 +72,12 @@ class K8s():
         except ApiException as e:
             log.error("Exception when calling "
                       f"CoreV1Api->create_namespaced_secret: {e}")
+
+    def get_secret(self, name: str = "", namespace: str = "") -> dict:
+        """
+        get an existing k8s secret
+        """
+        k = self.api_instance.list_namespaced_secret(namespace)
+        for i in k.items:
+            if i.metadata.name == name:
+                return i
