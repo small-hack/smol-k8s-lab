@@ -18,7 +18,8 @@ from .env_config import check_os_support, process_configs
 from .constants import (KUBECONFIG, HOME_DIR, DEFAULT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
 from .k8s_tools.argocd import install_with_argocd
-from .k8s_apps.base_install import install_base_apps, install_k8s_distro
+from .k8s_distros.base import install_k8s_distro
+from .k8s_apps.base_install import install_base_apps
 from .k8s_apps.bweso import setup_bweso
 from .k8s_apps.keycloak import configure_keycloak_and_vouch
 from .k8s_apps.federated import (configure_nextcloud, configure_matrix,

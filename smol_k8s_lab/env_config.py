@@ -59,7 +59,7 @@ def process_configs(default_config: dict, config: dict):
 
     # Write newly updated YAML data to config file
     if default_config != config:
-        print("Writing out your newly updated config file :)")
+        sub_header("Writing out your newly updated config file :)")
         with open(XDG_CONFIG_FILE, 'w') as conf_file:
             dump(config, conf_file)
 

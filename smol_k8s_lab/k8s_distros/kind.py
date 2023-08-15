@@ -30,7 +30,8 @@ def install_kind_cluster():
 
     # use our pre-configured kind file to install a small cluster
     full_path = path.join(PWD, 'config/kind_cluster_config.yaml')
-    subproc([f"kind create cluster --config={full_path}"])
+    cmd = f"kind create cluster --name smol-k8s-lab-kind --config={full_path}"
+    subproc([cmd])
 
     return True
 

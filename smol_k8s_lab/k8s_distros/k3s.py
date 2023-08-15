@@ -20,20 +20,6 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
     """
-    cmd = "kubectl config get-clusters"
-    clusters = subproc([cmd])
-    if 'smol-k8s-lab-k3s' in clusters:
-        log.info("K3s cluster detected in $KUBECONFIG. Checking if it's up.")
-        cmd = "kubectl get pods"
-        try:
-            subproc([cmd])
-        except Exception as e:
-            log.info(e)
-            log.info("Looks like the current k3s cluster is not operational.")
-        else:
-            # exit this function because k3s is already installed
-            return
-
     # download the k3s installer if we don't have it here already
     url = requests.get("https://get.k3s.io")
     k3s_installer_file = open("./install.sh", "wb")

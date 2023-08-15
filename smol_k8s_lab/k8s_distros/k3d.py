@@ -16,20 +16,6 @@ def install_k3d_cluster() -> bool:
     python installation for k3d
     returns true if it worked
     """
-    cmd = "kubectl config get-clusters"
-    clusters = subproc([cmd])
-    if 'smol-k8s-lab-k3d' in clusters:
-        log.info("k3d cluster detected in $KUBECONFIG. Checking if it's up.")
-        cmd = "kubectl get pods"
-        try:
-            subproc([cmd])
-        except Exception as e:
-            log.info(e)
-            log.info("Looks like the current k3d cluster is not operational.")
-        else:
-            # exit this function because k3s is already installed
-            return
-
     sub_header("Creating k3d cluster...")
     subproc(['k3d create cluster smol-k8s-lab-k3d'])
     return True
