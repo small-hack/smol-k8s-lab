@@ -149,7 +149,7 @@ def main(config: str = "",
                 bw.unlock()
 
             # user can configure a special domain for argocd
-            argocd_fqdn = SECRETS['argo_cd_domain']
+            argocd_fqdn = SECRETS['argo_cd_hostname']
             from .k8s_apps.argocd import configure_argocd
             configure_argocd(argocd_fqdn, bw,
                              apps['argo_cd_appset_secret_plugin']['enabled'],
