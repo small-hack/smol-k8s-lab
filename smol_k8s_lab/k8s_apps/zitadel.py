@@ -36,6 +36,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     # creating Argo CD app
     if zitadel_config_dict['init']:
         secrets = zitadel_config_dict['argo']['secret_keys']
+        log.debug(f"zitadel secrets are: {secrets}")
         zitadel_hostname = secrets['zitadel_hostname']
 
         if bitwarden:
@@ -53,7 +54,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
             k8s_obj.create_secret('zitadel-admin-credentials', 'zitadel',
                                   {'password': admin_password})
 
-    install_with_argocd('zitadel', zitadel_config_dict['argo'])
+    install_with_argocd(k8s_obj, 'zitadel', zitadel_config_dict['argo'])
 
     # only continue through the rest of the function if we're initializes a
     # user and vouch/argocd clients in zitadel

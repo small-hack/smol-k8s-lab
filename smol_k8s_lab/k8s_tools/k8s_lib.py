@@ -95,7 +95,33 @@ class K8s():
         """
         get an existing k8s secret
         """
-        k = self.core_v1_api.list_namespaced_secret(namespace)
-        for i in k.items:
-            if i.metadata.name == name:
-                return i
+        secrets = self.core_v1_api.list_namespaced_secret(namespace)
+        for secret in secrets.items:
+            if secret.metadata.name == name:
+                return secret
+
+    def get_namespace(self, namespace_name: str = "") -> bool:
+        """ 
+        checks for specific namespace and returns True if it exists,
+        returns False if namespace does not exist
+        """
+        nameSpaceList = self.core_v1_api.list_namespace()
+        for nameSpace in nameSpaceList.items:
+            if nameSpace.metadata.name == namespace_name:
+                return True
+        log.debug(f"namespace, {namespace_name}, does not exist yet")
+        return False
+
+    def create_namespace(self, namespace_name: str = "") -> True:
+        """
+        Create namespace with namespace_name
+        """
+        if not self.get_namespace(namespace_name):
+            log.info(f"Creating namespace: {namespace_name}")
+            meta = client.V1ObjectMeta(name=namespace_name)
+            namespace = client.V1Namespace(metadata=meta)
+
+            self.core_v1_api.create_namespace(namespace)
+        else:
+            log.debug(f"namespace, {namespace_name}, already exists")
+        return True

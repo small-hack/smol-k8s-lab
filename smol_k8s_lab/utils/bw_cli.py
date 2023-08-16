@@ -156,11 +156,16 @@ class BwCLI():
                            env={"BW_SESSION": f"'{self.session}'",
                                 "PATH": f"'{self.user_path}'",
                                 "HOME": self.home})
-        log.debug(response)
         if 'Not found' in response:
+            log.debug(response)
             return False
+        elif 'More than one result was found' in response:
+            item_list = response.split('\n')
+            item_list.pop(0)
+            log.debug(f"found more than 1 entry for {item_name}: {item_list}")
+            return item_list 
         else:
-            return json.loads(response)['id']
+            return [json.loads(response)['id']]
 
     def delete_item(self, item_id: str = ""):
         """
@@ -193,7 +198,8 @@ class BwCLI():
             if self.overwrite:
                 log.info("bitwarden.overwrite set to true, so we will delete"
                          f"the existing item: {item}")
-                self.delete_item(item)
+                for id in item:
+                    self.delete_item(id)
             else:
                 msg = (f"😵 Item named {name} already exists in your Bitwarden"
                        " vault and bitwarden.overwrite is set to false. We "

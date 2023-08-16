@@ -60,7 +60,7 @@ def configure_keycloak_and_vouch(k8s_obj: K8s,
                                   {'password': postgres_password,
                                    'postgres-password': postgres_password})
 
-    install_with_argocd('keycloak', keycloak_config_dict['argo'])
+    install_with_argocd(k8s_obj, 'keycloak', keycloak_config_dict['argo'])
 
     # only continue through the rest of the function if we're initializes a
     # user and vouch/argocd clients in keycloak

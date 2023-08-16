@@ -103,5 +103,6 @@ def configure_argocd(k8s_obj: K8s,
         release.install(True)
 
     # setup argo to talk to k8s directly
-    subproc(['argocd login --core'])
+    subproc(['kubectl config set-context --current --namespace=argocd',
+             'argocd login --core'])
     return True

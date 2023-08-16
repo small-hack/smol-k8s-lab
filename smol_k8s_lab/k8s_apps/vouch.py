@@ -72,5 +72,5 @@ def configure_vouch(k8s_obj: K8s,
             k8s_obj.create_secret('vouch-config', 'vouch',
                                   {'domains': domains, 'allowList': emails})
 
-    install_with_argocd('vouch', vouch_config_dict['argo'])
+    install_with_argocd(k8s_obj, 'vouch', vouch_config_dict['argo'])
     return True 

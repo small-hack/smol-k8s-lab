@@ -68,7 +68,7 @@ def configure_nextcloud(k8s_obj: K8s,
             k8s_obj.create_secret('nextcloud-redis-credentials', 'nextcloud',
                           {"password": nextcloud_redis_password})
 
-    install_with_argocd('nextcloud', argo_dict)
+    install_with_argocd(k8s_obj, 'nextcloud', argo_dict)
     return True
 
 
@@ -127,7 +127,7 @@ def configure_mastodon(k8s_obj: K8s,
             k8s_obj.create_secret('mastodon-redis-credentials', 'mastodon',
                           {"password": mastodon_redis_password})
 
-    install_with_argocd('mastodon', argo_dict)
+    install_with_argocd(k8s_obj, 'mastodon', argo_dict)
     return True
 
 
@@ -157,5 +157,5 @@ def configure_matrix(k8s_obj: K8s,
             k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',
                           {"password": matrix_pgsql_password})
 
-    install_with_argocd('matrix', argo_dict)
+    install_with_argocd(k8s_obj, 'matrix', argo_dict)
     return True

@@ -22,7 +22,7 @@ def configure_external_secrets(k8s_obj: K8s,
     configure external secrets and provider. (and optionally bweso)
     """
     header("🤫 Installing External Secrets Operator...")
-    install_with_argocd('external-secrets-operator', eso_argo_dict)
+    install_with_argocd(k8s_obj, 'external-secrets-operator', eso_argo_dict)
 
     if bweso_dict['enabled']:
         setup_bweso(k8s_obj, bweso_dict['argo'], bitwarden)
@@ -42,6 +42,8 @@ def setup_bweso(k8s_obj: K8s, bweso_argo_dict: dict = {},
                            "BW_CLIENTSECRET": bitwarden.client_secret,
                            "BW_CLIENTID": bitwarden.client_id,
                            "BW_HOST": bitwarden.host})
+
+    install_with_argocd(k8s_obj, 'bitwarden-eso-provider', bweso_argo_dict)
     return True
 
 
