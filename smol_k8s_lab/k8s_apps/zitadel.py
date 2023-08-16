@@ -39,7 +39,8 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     if not zitadel_config_dict['init']:
         return True
     else:
-        configure_zitadel(k8s_obj, zitadel_hostname, argocd_hostname,
+        zitadel_domain = zitadel_config_dict['argo']['secret_keys']['hostname']
+        configure_zitadel(k8s_obj, zitadel_domain, argocd_hostname,
                           bitwarden, vouch_config_dict)
 
 
