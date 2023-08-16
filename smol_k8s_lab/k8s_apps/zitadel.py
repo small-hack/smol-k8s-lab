@@ -5,7 +5,7 @@ from .zitadel_api import Zitadel
 from ..pretty_printing.console_logging import sub_header, header
 from ..k8s_tools.kubernetes_util import update_secret_key
 from ..k8s_tools.k8s_lib import K8s
-from ..k8s_tools.argocd import install_with_argocd
+from ..k8s_tools.argocd_util import install_with_argocd
 from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 

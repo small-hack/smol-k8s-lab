@@ -8,7 +8,7 @@ DESCRIPTION: configures external secrets, currently only with gitlab
 """
 import logging as log
 from ..pretty_printing.console_logging import header, sub_header
-from ..k8s_tools.argocd import install_with_argocd
+from ..k8s_tools.argocd_util import install_with_argocd
 from ..k8s_tools.k8s_lib import K8s
 from ..k8s_tools.kubernetes_util import apply_custom_resources
 from ..subproc import subproc

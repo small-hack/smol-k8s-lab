@@ -17,7 +17,7 @@ from sys import exit
 from .env_config import check_os_support, process_configs
 from .constants import (KUBECONFIG, HOME_DIR, DEFAULT_CONFIG,
                         INITIAL_USR_CONFIG, VERSION)
-from .k8s_tools.argocd import install_with_argocd
+from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
 from .k8s_distros.base import create_k8s_distro, delete_cluster
 from .k8s_apps.base_install import install_base_apps
