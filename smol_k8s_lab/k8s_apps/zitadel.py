@@ -37,7 +37,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     if zitadel_config_dict['init']:
         secrets = zitadel_config_dict['argo']['secret_keys']
         log.debug(f"zitadel secrets are: {secrets}")
-        zitadel_hostname = secrets['zitadel_hostname']
+        zitadel_hostname = secrets['hostname']
 
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")

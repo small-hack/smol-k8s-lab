@@ -34,7 +34,7 @@ def configure_keycloak_and_vouch(k8s_obj: K8s,
     # creating Argo CD app
     if keycloak_config_dict['init']:
         secrets = keycloak_config_dict['argo']['secret_keys']
-        keycloak_hostname = secrets['keycloak_hostname']
+        keycloak_hostname = secrets['hostname']
 
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
