@@ -138,7 +138,7 @@ apps:
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
-      namespace: "external-secrets-operator"
+      namespace: "external-secrets"
 
   bitwarden_eso_provider:
     # enable the bitwarden ESO provider to
@@ -154,7 +154,7 @@ apps:
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
-      namespace: "external-secrets-operator"
+      namespace: "external-secrets"
 
   # keycloak is an IAM provider that you can use with ArgoCD for user/group
   # management and oauth2. it also works with vouch to secure hostnames that
