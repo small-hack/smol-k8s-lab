@@ -1,5 +1,5 @@
 from __future__ import print_function
-from kubernetes import client, config, utils
+from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import logging as log
 import yaml
@@ -19,7 +19,7 @@ def repr_str(dumper, data):
 
 class K8s():
     """
-    Python Wrapper for the Bitwarden cli
+    Class for the kubernetes python client
     """
     def __init__(self,):
         """
@@ -27,8 +27,8 @@ class K8s():
         """
         config.load_kube_config()
         self.api_client = client.ApiClient()
-        self.api_instance = client.CoreV1Api(self.api_client)
-        self.custom_obj_api = client.CustomObjectsApi()
+        self.core_v1_api = client.CoreV1Api(self.api_client)
+        self.custom_obj_api = client.CustomObjectsApi(self.api_client)
 
     def create_from_manifest_dict(self,
                                   api_group: str = "",
@@ -50,8 +50,8 @@ class K8s():
                     body=manifest_dict,
                 )
         except ApiException as e:
-            log.error("Exception when calling "
-                      f"CustomObjectsApi->create_namespaced_custom_object: {e}")
+            log.error("Exception when calling CustomObjectsApi->"
+                      f"create_namespaced_custom_object: {e}")
         return True
 
     def create_secret(self,
@@ -84,8 +84,8 @@ class K8s():
         pretty = True
 
         try:
-            res = self.api_instance.create_namespaced_secret(namespace, body,
-                                                             pretty=pretty)
+            res = self.core_v1_api.create_namespaced_secret(namespace, body,
+                                                            pretty=pretty)
             log.info(res)
         except ApiException as e:
             log.error("Exception when calling "
@@ -95,7 +95,7 @@ class K8s():
         """
         get an existing k8s secret
         """
-        k = self.api_instance.list_namespaced_secret(namespace)
+        k = self.core_v1_api.list_namespaced_secret(namespace)
         for i in k.items:
             if i.metadata.name == name:
                 return i

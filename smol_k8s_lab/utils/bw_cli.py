@@ -26,15 +26,42 @@ class BwCLI():
     """
     def __init__(self, overwrite: bool = False):
         """
-        This is mostly for storing the session
+        This is mostly for storing the session, credentials, and overwrite bool
         """
-        self.session = None
+        # if we clean up the session when we're done or not
         self.delete_session = True
-        # make sure there's not a password in the environment already
+
+        # make sure there's not a session token in the env vars already
+        self.session = environ.get("BW_SESSION", None)
+
         self.host = environ.get("BW_HOST", default="https://bitwarden.com")
-        self.pw = environ.get("BW_PASSWORD")
-        self.clientID = environ.get("BW_CLIENTID")
-        self.clientSecret = environ.get("BW_CLIENTSECRET")
+        log.debug(f"Using {self.host} as $BW_HOST")
+
+        # get password from env var, and if empty, prompt user for input
+        self.password = environ.get("BW_PASSWORD", None)
+        if not self.password:
+            pw_prompt = "[cyan]🤫 Enter your Bitwarden vault password"
+            self.password = Prompt.ask(pw_prompt, password=True)
+        else:
+            log.debug("Using passsword from env var: $BW_PASSWORD")
+
+        # get clientID from env var, and if empty, prompt user for input
+        self.client_id = environ.get("BW_CLIENTID", None)
+        if not self.client_id:
+            msg = "[cyan]🤫 Enter your Bitwarden client _id"
+            self.client_id = Prompt.ask(msg, password=True)
+        else:
+            log.debug("Using clientId from env var: $BW_CLIENTID")
+
+        # get clientSecret from env var, and if empty, prompt user for input
+        self.client_secret = environ.get("BW_CLIENTSECRET", None)
+        if not self.client_secret:
+            msg = "[cyan]🤫 Enter your Bitwarden client Secret"
+            self.client_secret = Prompt.ask(msg, password=True)
+        else:
+            log.debug("Using clientSecret from env var: $BW_CLIENTSECRET")
+
+        # controls if we overwrite the existing items when creating new items
         self.overwrite = overwrite
 
     def status(self):
@@ -50,41 +77,30 @@ class BwCLI():
         """
         unlocks the local bitwarden vault, and returns session token
         """
-        self.session = environ.get("BW_SESSION", None)
 
         if self.session:
             log.info('Using session token from $BW_SESSION env variable')
             self.delete_session = False
         else:
-            log.info('Unlocking the Bitwarden vault...')
             status = self.status()
 
-            # if there's no env var called BW_PASSWORD, ask for one
-            if not self.pw:
-                pw_prompt = "[cyan]🤫 Enter your Bitwarden vault password"
-                self.pw = Prompt.ask(pw_prompt, password=True)
-
-            # default command is unlock
-            cmd = "bw unlock --passwordenv BW_PASSWORD --raw"
-
             # verify we're even logged in :)
-            if status == "unauthenticated" and not any([self.clientSecret,
-                                                        self.clientID]):
-                if not self.clientID:
-                    msg = "[cyan]🤫 Enter your Bitwarden client ID"
-                    self.clientID = Prompt.ask(msg, password=True)
-                if not self.clientSecret:
-                    msg = "[cyan]🤫 Enter your Bitwarden client Secret"
-                    self.clientSecret = Prompt.ask(msg, password=True)
-
+            if status == "unauthenticated":
+                log.info('Logging into the Bitwarden vault...')
                 # set command to login if we're unauthenticated
                 cmd = "bw login --passwordenv BW_PASSWORD --apikey --raw"
+            else:
+                log.info('Unlocking the Bitwarden vault...')
+                # default command is unlock
+                cmd = "bw unlock --passwordenv BW_PASSWORD --raw"
+
+            log.debug(cmd)
 
             # run either bw login or bw unlock depending on bw status
             self.session = subproc([cmd], quiet=True, spinner=False,
-                                   env={"BW_PASSWORD": self.pw,
-                                        "BW_CLIENTID": self.clientID,
-                                        "BW_CLIENTSECRET": self.clientSecret,
+                                   env={"BW_PASSWORD": self.password,
+                                        "BW_CLIENTID": self.client_id,
+                                        "BW_CLIENTSECRET": self.client_secret,
                                         "BW_HOST": self.host})
             log.info('Unlocked the Bitwarden vault.')
 

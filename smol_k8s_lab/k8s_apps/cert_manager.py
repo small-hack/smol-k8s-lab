@@ -20,7 +20,7 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
     release = helm.chart(release_name='cert-manager',
                          chart_name='jetstack/cert-manager',
                          chart_version="1.12.3",
-                         namespace='kube-system',
+                         namespace='ingress',
                          set_options={'installCRDs': 'true'})
     release.install(True)
 
@@ -45,6 +45,15 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
                               }
                      }
             }
+
+        # not working: https://github.com/kubernetes-client/python/issues/2103
+        # k8s_obj.create_from_manifest_dict(api_group="cert-manager.io",
+        #                                   api_version="v1",
+        #                                   namespace='ingress',
+        #                                   plural_obj_name='clusterissuers',
+        #                                   manifest_dict=issuers_dict)
+
+        # backup plan till above issue is resolved
         apply_custom_resources([issuers_dict])
 
     return True
