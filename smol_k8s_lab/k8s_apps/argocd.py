@@ -26,8 +26,10 @@ def configure_argocd(k8s_obj: K8s,
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
     arg:
-        argo_cd_domain:   str, defaults to "", required
-        bitwarden:        BwCLI() object, defaults to None
+      argo_cd_domain:          fqdn for argocd
+      bitwarden:               BwCLI() object, defaults to None
+      plugin_secret_creation:  boolean for creating the plugin secret generator
+      secret_dict:             set of secrets to create for secret plugin
     """
     header("Installing 🦑 Argo CD...")
     release_dict = {'release_name': 'argo-cd', 'namespace': 'argocd'}
