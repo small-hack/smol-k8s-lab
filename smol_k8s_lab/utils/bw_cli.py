@@ -18,7 +18,7 @@ import logging as log
 from rich.prompt import Prompt
 from shutil import which
 from sys import exit
-from os import environ
+from os import environ as env
 from ..subproc import subproc
 
 
@@ -30,34 +30,50 @@ class BwCLI():
         """
         This is mostly for storing the session, credentials, and overwrite bool
         """
-        self.bw_path = which("bw")
+        self.user_path = env.get("PATH")
+        self.home = env.get("HOME")
+        self.bw_path = str(which("bw"))
+        log.debug(f"self.bw_path is {self.bw_path}")
         if not self.bw_path:
             log.error("whoops, looks like bw isn't installed. "
-                      "Try brew install bw")
+                      "Try [green]brew install bw")
             exit()
         # if we clean up the session when we're done or not
         self.delete_session = True
 
         # make sure there's not a session token in the env vars already
-        self.session = environ.get("BW_SESSION", None)
+        self.session = env.get("BW_SESSION", default=None)
 
-        self.host = environ.get("BW_HOST", default="https://bitwarden.com")
+        self.host = env.get("BW_HOST", default="https://bitwarden.com")
         log.debug(f"Using {self.host} as $BW_HOST")
 
         # get password from env var, and if empty, prompt user for input
-        self.password = environ.get("BW_PASSWORD",
-                                    self.__get_credential__("password"))
+        self.password = env.get("BW_PASSWORD", None)
+        if not self.password:
+            self.password = self.__get_credential__("password")
 
         # get clientID from env var, and if empty, prompt user for input
-        self.client_id = environ.get("BW_CLIENTID",
-                                    self.__get_credential__("clientID"))
+        self.client_id = env.get("BW_CLIENTID", None)
+        if not self.client_id:
+            self.client_id = self.__get_credential__("clientID")
 
         # get clientSecret from env var, and if empty, prompt user for input
-        self.client_secret = environ.get("BW_CLIENTSECRET",
-                                    self.__get_credential__("clientSecret"))
+        self.client_secret = env.get("BW_CLIENTSECRET", None)
+        if not self.client_secret:
+            self.client_secret = self.__get_credential__("clientSecret")
 
         # controls if we overwrite the existing items when creating new items
         self.overwrite = overwrite
+
+        self.sync()
+
+    def sync(self):
+        """
+        syncs your bitwaren vault on initialize of this class
+        """
+        subproc([f"{self.bw_path} sync"], env={"BW_SESSION": self.session})
+        log.info('Synced Bitwarden vault (to update local items before start)')
+        return True
 
     def __get_credential__(self, credential: str = ""):
         """
@@ -72,7 +88,7 @@ class BwCLI():
         generate a new password. Takes special_characters bool.
         """
         log.info('Checking if you are logged in...')
-        vault_status = json.loads(subproc(["bw status"], quiet=True))['status']
+        vault_status = json.loads(subproc(["bw status"]))['status']
 
         return vault_status
 
@@ -137,8 +153,11 @@ class BwCLI():
         """
         command = f"{self.bw_path} get item {item_name}"
         response = subproc([command], error_ok=True,
-                           env={"BW_SESSION": self.session})
-        if 'Not found.' in response:
+                           env={"BW_SESSION": f"'{self.session}'",
+                                "PATH": f"'{self.user_path}'",
+                                "HOME": self.home})
+        log.debug(response)
+        if 'Not found' in response:
             return False
         else:
             return json.loads(response)['id']
@@ -149,8 +168,10 @@ class BwCLI():
             - item_name: str of name of item
         """
         command = f"{self.bw_path} delete item {item_id}"
-        subproc([command], error_ok=True,
-                env={"BW_SESSION": self.session})
+        subproc([command],
+                env={"BW_SESSION": self.session,
+                     "PATH": self.user_path,
+                     "HOME": self.home})
         return
 
     def create_login(self, name="", item_url=None, user="", password="",
@@ -174,11 +195,11 @@ class BwCLI():
                          f"the existing item: {item}")
                 self.delete_item(item)
             else:
-                err = (f"😵 Item named {name} already exists in your Bitwarden"
+                msg = (f"😵 Item named {name} already exists in your Bitwarden"
                        " vault and bitwarden.overwrite is set to false. We "
                        "will create the item anyway, but the Bitwarden ESO "
                        "Provider may have trouble finding it :(")
-                log.error(err)
+                log.warn(msg)
 
         log.info('Creating bitwarden login item...')
         login_obj = json.dumps({
@@ -204,5 +225,7 @@ class BwCLI():
         encodedStr = str(encodedBytes, "utf-8")
 
         subproc([f"{self.bw_path} create item {encodedStr}"],
-                env={"BW_SESSION": self.session})
+                env={"BW_SESSION": self.session,
+                     "PATH": self.user_path,
+                     "HOME": self.home})
         log.info('Created bitwarden login item.')

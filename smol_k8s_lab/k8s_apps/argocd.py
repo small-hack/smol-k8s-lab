@@ -16,66 +16,72 @@ from ..k8s_tools.homelabHelm import helm
 from ..utils.passwords import create_password
 
 
-def configure_argocd(k8s_obj: K8s, argo_cd_domain="", bitwarden=None,
-                     plugin_secret_creation=False, secret_dict={}):
+def configure_argocd(k8s_obj: K8s,
+                     argo_cd_domain: str = "",
+                     bitwarden: BwCLI = None,
+                     plugin_secret_creation: bool = False,
+                     secret_dict: dict = {}):
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
     arg:
         argo_cd_domain:   str, defaults to "", required
-        bitwarden: BwCLI() object, defaults to None
-
+        bitwarden:        BwCLI() object, defaults to None
     """
     header("Installing 🦑 Argo CD...")
+    release_dict = {'release_name': 'argo-cd', 'namespace': 'argocd'}
 
-    # this is the base python dict for the values.yaml that is created below
-    val = {'dex': {'enabled': False},
-           'configs': {'secret': {'argocdServerAdminPassword': ""}},
-           'server': {
-               'ingress': {
-                   'enabled': True,
-                   'hosts': [argo_cd_domain],
-                   'annotations': {
-                       "kubernetes.io/ingress.class": "nginx",
-                       "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
-                       "cert-manager.io/cluster-issuer": "letsencrypt-staging",
-                       "kubernetes.io/tls-acme": True,
-                       "nginx.ingress.kubernetes.io/ssl-passthrough": True,
-                   },
-                   'https': True,
-                   'tls':  [{'secretName': 'argocd-secret',
-                             'hosts': [argo_cd_domain]}]}}}
+    release = helm.chart(**release_dict)
+    already_installed = release.check_existing()
+    if not already_installed:
+        # this is the base python dict for the values.yaml that is created below
+        val = {'dex': {'enabled': False},
+               'configs': {'secret': {'argocdServerAdminPassword': ""}},
+               'server': {
+                   'ingress': {
+                       'enabled': True,
+                       'hosts': [argo_cd_domain],
+                       'annotations': {
+                           "kubernetes.io/ingress.class": "nginx",
+                           "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
+                           "cert-manager.io/cluster-issuer": "letsencrypt-staging",
+                           "kubernetes.io/tls-acme": True,
+                           "nginx.ingress.kubernetes.io/ssl-passthrough": True,
+                       },
+                       'https': True,
+                       'tls':  [{'secretName': 'argocd-secret',
+                                 'hosts': [argo_cd_domain]}]}}}
 
-    # if we're using bitwarden, generate a password & save it
-    if bitwarden:
-        sub_header(":lock: Creating a new password in BitWarden.")
-        # if we're using bitwarden...
-        argo_password = bitwarden.generate()
-        bitwarden.create_login(name=argo_cd_domain,
-                               item_url=argo_cd_domain,
-                               user="admin",
-                               password=argo_password)
-    # if we're not using bitwarden, just create a password the normal way
-    else:
-        argo_password = create_password()
+        # if we're using bitwarden, generate a password & save it
+        if bitwarden:
+            sub_header(":lock: Creating a new password in BitWarden.")
+            # if we're using bitwarden...
+            argo_password = bitwarden.generate()
+            bitwarden.create_login(name=argo_cd_domain,
+                                   item_url=argo_cd_domain,
+                                   user="admin",
+                                   password=argo_password)
+        # if we're not using bitwarden, just create a password the normal way
+        else:
+            argo_password = create_password()
 
-    admin_pass = bcrypt.hashpw(argo_password.encode('utf-8'),
-                               bcrypt.gensalt()).decode()
+        admin_pass = bcrypt.hashpw(argo_password.encode('utf-8'),
+                                   bcrypt.gensalt()).decode()
 
-    # this gets passed to the helm cli, but is bcrypted
-    val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
+        # this gets passed to the helm cli, but is bcrypted
+        val['configs']['secret']['argocdServerAdminPassword'] = admin_pass
 
-    # this creates a values.yaml from the val dict above
-    values_file_name = path.join(XDG_CACHE_DIR, 'argocd_values.yaml')
-    with open(values_file_name, 'w') as values_file:
-        yaml.dump(val, values_file)
+        # this creates a values.yaml from the val dict above
+        values_file_name = path.join(XDG_CACHE_DIR, 'argocd_values.yaml')
+        with open(values_file_name, 'w') as values_file:
+            yaml.dump(val, values_file)
 
-    release = helm.chart(release_name='argo-cd',
-                         chart_name='argo-cd/argo-cd',
-                         chart_version='5.43.2',
-                         namespace='argocd',
-                         values_file=values_file_name)
-    release.install(True)
+        release_dict['values_file'] = values_file_name
+        release_dict['chart_name'] = 'argo-cd/argo-cd'
+        release_dict['chart_version'] = '5.43.2'
+
+        release = helm.chart(**release_dict)
+        release.install(True)
 
     if plugin_secret_creation:
         sub_header("🔌 Installing the ApplicationSet Secret Plugin Generator "
