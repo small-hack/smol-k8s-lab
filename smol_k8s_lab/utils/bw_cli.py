@@ -140,7 +140,7 @@ class BwCLI():
         if 'not_found' in response:
             return False
         else:
-            return json.load(response)['id']
+            return json.loads(response)['id']
 
     def delete_item(self, item_id: str = ""):
         """
@@ -166,13 +166,17 @@ class BwCLI():
         """
         item = self.get_item(name)
 
-        if item and self.overwrite:
-            self.delete_item(item)
-        else:
-            log.error(f"😵 Item named {name} already exists in your Bitwarden "
-                      "vault and bitwarden.overwrite is set to false. We will"
-                      " create the item anyway, but the Bitwarden ESO Provider"
-                      "may have trouble finding it :(")
+        if item:
+            if self.overwrite:
+                log.info("bitwarden.overwrite set to true, so we will delete"
+                         f"the existing item: {item}")
+                self.delete_item(item)
+            else:
+                err = (f"😵 Item named {name} already exists in your Bitwarden"
+                       " vault and bitwarden.overwrite is set to false. We "
+                       "will create the item anyway, but the Bitwarden ESO "
+                       "Provider may have trouble finding it :(")
+                log.error(err)
 
         log.info('Creating bitwarden login item...')
         login_obj = json.dumps({
