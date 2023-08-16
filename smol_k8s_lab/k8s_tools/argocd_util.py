@@ -24,6 +24,11 @@ def install_with_argocd(k8s_obj: K8s,
     # make sure the namespace already exists
     k8s_obj.create_namespace(namespace)
 
+    source_repos = argo_dict.get('project_source_repos', None)
+    if source_repos:
+        source_repos.append(repo)
+        create_argocd_project(app, app, namespace, source_repos)
+
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
            f"--path {path} "
@@ -37,17 +42,13 @@ def install_with_argocd(k8s_obj: K8s,
     return True
 
 
-def create_argocd_project(k8s_obj: K8s,
-                          project_name: str = "",
+def create_argocd_project(project_name: str = "",
                           app: str = "",
                           namespace: str = "",
                           source_repos: list = []) -> True:
     """
     create an argocd project
     """
-    # make sure the namespace already exists
-    k8s_obj.create_namespace(namespace)
-
     argocd_proj = {
         "apiVersion": "argoproj.io/v1alpha1",
         "kind": "AppProject",
@@ -77,14 +78,9 @@ def create_argocd_project(k8s_obj: K8s,
                 }
             ],
             "orphanedResources": {},
-            "sourceRepos": [
-                "https://github.com/small-hack/argocd-apps.git"
-            ]
+            "sourceRepos": source_repos
         },
         "status": {}
     }
-
-    if source_repos:
-        argocd_proj['spec']['sourceRepos'].extend(source_repos)
 
     apply_custom_resources(argocd_proj)
