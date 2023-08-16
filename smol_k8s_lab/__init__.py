@@ -174,7 +174,8 @@ def main(config: str = "",
             elif apps['zitadel']['enabled']:
                 zitadel = apps.pop('zitadel')
                 vouch = apps.pop('vouch')
-                configure_zitadel_and_vouch(k8s_obj, zitadel, vouch, bw)
+                configure_zitadel_and_vouch(k8s_obj, zitadel, argocd_fqdn,
+                                            vouch, bw)
 
             if apps['nextcloud']['enabled']:
                 nextcloud = apps.pop('nextcloud')
