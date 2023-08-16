@@ -8,6 +8,7 @@ DESCRIPTION: configure argocd
 import bcrypt
 from os import path
 import yaml
+from ..subproc import subproc
 from ..utils.bw_cli import BwCLI
 from ..pretty_printing.console_logging import header, sub_header
 from ..constants import XDG_CACHE_DIR
@@ -20,7 +21,7 @@ def configure_argocd(k8s_obj: K8s,
                      argo_cd_domain: str = "",
                      bitwarden: BwCLI = None,
                      plugin_secret_creation: bool = False,
-                     secret_dict: dict = {}):
+                     secret_dict: dict = {}) -> True:
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
@@ -101,4 +102,6 @@ def configure_argocd(k8s_obj: K8s,
                              set_options=set_opts)
         release.install(True)
 
-    return
+    # setup argo to talk to k8s directly
+    subproc(['argocd login --core'])
+    return True
