@@ -42,7 +42,7 @@ class BwCLI():
         generate a new password. Takes special_characters bool.
         """
         log.info('Checking if you are logged in...')
-        vault_status = json.load(subproc(["bw status"], quiet=True))
+        vault_status = json.loads(subproc(["bw status"], quiet=True))['status']
 
         return vault_status
 
