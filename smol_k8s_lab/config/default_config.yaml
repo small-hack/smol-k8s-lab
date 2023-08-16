@@ -57,6 +57,12 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "ingress"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - https://charts.jetstack.io
+        - "https://kubernetes.github.io/ingress-nginx"
+        - "https://jessebot.github.io/vouch-helm-chart"
+        - "https://github.com/kubernetes/ingress-nginx"
 
   metallb:
     # enable metallb which helps expose IP addresses for loadbalancers on metal
@@ -141,6 +147,11 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - "https://jessebot.github.io/bitwarden-eso-provider"
+        - "https://charts.external-secrets.io"
+
 
   bitwarden_eso_provider:
     # enable the bitwarden ESO provider to
@@ -180,6 +191,10 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "keycloak"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - "registry-1.docker.io"
+
 
   kyverno:
     # enable kyverno, for k8s native policy management
@@ -193,6 +208,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "kyvero"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos: []
 
   kubevirt:
     # enable kubevirt to create more virtual machines with kubernetes
@@ -206,6 +223,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "kubevirt"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos: []
 
   mastodon:
     # enable mastodon for a self hosted social media website
@@ -224,6 +243,11 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "social"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - "registry-1.docker.io"
+        - "https://jessebot.github.io/mastodon-helm-chart"
+
 
   matrix:
     # enable matrix for a self hosted chat service
@@ -241,6 +265,10 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "matrix"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - "registry-1.docker.io"
+        - "https://jessebot.github.io/matrix-chart"
 
   nextcloud:
     # enable nextcloud to stand up a nice little self hosted file server
@@ -259,6 +287,10 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "nextcloud"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - "registry-1.docker.io"
+        - "https://nextcloud.github.io/helm"
 
   prometheus:
     # enable full monitoring stack w/ prometheus, grafana, loki, alert manager
@@ -282,6 +314,10 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "monitoring"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - "registry-1.docker.io"
+        - "https://prometheus-community.github.io/helm-charts"
 
   vouch:
     enabled: false
@@ -320,3 +356,7 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "zitadel"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - "https://charts.zitadel.com"
+        - "https://charts.cockroachdb.com/"
