@@ -95,7 +95,9 @@ class K8s():
         """
         get an existing k8s secret
         """
+        log.debug(f"Searching for secret: {name}, namespace: {namespace}")
         secrets = self.core_v1_api.list_namespaced_secret(namespace)
+        log.debug(secrets)
         for secret in secrets.items:
             if secret.metadata.name == name:
                 return secret
