@@ -13,7 +13,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
                                 zitadel_config_dict: dict = {},
                                 argocd_hostname: str = "",
                                 vouch_config_dict: dict = {},
-                                bitwarden=None):
+                                bitwarden: BwCLI = None):
     """
     Installs zitadel and Vouch as Argo CD Applications. If
     zitadel_config_dict['init'] is True, it also configures Vouch and Argo CD
