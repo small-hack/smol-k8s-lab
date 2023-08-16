@@ -99,7 +99,7 @@ class BwCLI():
                 cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
 
             # run either bw login or bw unlock depending on bw status
-            self.session = subproc([cmd], quiet=False, spinner=True,
+            self.session = subproc([cmd],
                                    env={"BW_PASSWORD": self.password,
                                         "BW_CLIENTID": self.client_id,
                                         "BW_CLIENTSECRET": self.client_secret,
@@ -112,8 +112,7 @@ class BwCLI():
         """
         if self.delete_session:
             log.info('Locking the Bitwarden vault...')
-            subproc([f"{self.bw_path} lock"], quiet=True,
-                    env={"BW_SESSION": self.session})
+            subproc([f"{self.bw_path} lock"], env={"BW_SESSION": self.session})
             log.info('Bitwarden vault locked.')
 
     def generate(self, special_characters=False):
@@ -150,7 +149,7 @@ class BwCLI():
             - item_name: str of name of item
         """
         command = f"{self.bw_path} delete item {item_id}"
-        subproc([command], quiet=True, error_ok=True,
+        subproc([command], error_ok=True,
                 env={"BW_SESSION": self.session})
         return
 
