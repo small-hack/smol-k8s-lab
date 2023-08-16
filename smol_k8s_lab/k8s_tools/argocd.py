@@ -15,6 +15,11 @@ def install_with_argocd(k8s_obj: K8s,
     path = argo_dict['path']
     namespace = argo_dict['namespace']
 
+    if argo_dict.get('part_of_app_of_apps', None):
+        log.debug("Looks like this app is actually part of an app of apps "
+                  "that will be deployed")
+        return True
+
     # make sure the namespace already exists
     k8s_obj.create_namespace(namespace)
 

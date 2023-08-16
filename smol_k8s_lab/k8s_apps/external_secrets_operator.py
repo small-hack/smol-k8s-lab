@@ -6,6 +6,7 @@ DESCRIPTION: configures external secrets, currently only with gitlab
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
+import logging as log
 from ..pretty_printing.console_logging import header, sub_header
 from ..k8s_tools.argocd import install_with_argocd
 from ..k8s_tools.k8s_lib import K8s
@@ -42,6 +43,11 @@ def setup_bweso(k8s_obj: K8s, bweso_argo_dict: dict = {},
                            "BW_CLIENTSECRET": bitwarden.client_secret,
                            "BW_CLIENTID": bitwarden.client_id,
                            "BW_HOST": bitwarden.host})
+
+    if bweso_argo_dict.get('part_of_app_of_apps', None):
+        log.debug("Looks like this app is actually part of an app of apps "
+                  "that will be deployed")
+        return True
 
     install_with_argocd(k8s_obj, 'bitwarden-eso-provider', bweso_argo_dict)
     return True
