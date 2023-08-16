@@ -16,6 +16,8 @@ import base64
 import json
 import logging as log
 from rich.prompt import Prompt
+from shutil import which
+from sys import exit
 from os import environ
 from ..subproc import subproc
 
@@ -28,6 +30,11 @@ class BwCLI():
         """
         This is mostly for storing the session, credentials, and overwrite bool
         """
+        self.bw_path = which("bw")
+        if not self.bw_path:
+            log.error("whoops, looks like bw isn't installed. "
+                      "Try brew install bw")
+            exit()
         # if we clean up the session when we're done or not
         self.delete_session = True
 
@@ -38,31 +45,27 @@ class BwCLI():
         log.debug(f"Using {self.host} as $BW_HOST")
 
         # get password from env var, and if empty, prompt user for input
-        self.password = environ.get("BW_PASSWORD", None)
-        if not self.password:
-            pw_prompt = "[cyan]🤫 Enter your Bitwarden vault password"
-            self.password = Prompt.ask(pw_prompt, password=True)
-        else:
-            log.debug("Using passsword from env var: $BW_PASSWORD")
+        self.password = environ.get("BW_PASSWORD",
+                                    self.__get_credential__("password"))
 
         # get clientID from env var, and if empty, prompt user for input
-        self.client_id = environ.get("BW_CLIENTID", None)
-        if not self.client_id:
-            msg = "[cyan]🤫 Enter your Bitwarden client _id"
-            self.client_id = Prompt.ask(msg, password=True)
-        else:
-            log.debug("Using clientId from env var: $BW_CLIENTID")
+        self.client_id = environ.get("BW_CLIENTID",
+                                    self.__get_credential__("clientID"))
 
         # get clientSecret from env var, and if empty, prompt user for input
-        self.client_secret = environ.get("BW_CLIENTSECRET", None)
-        if not self.client_secret:
-            msg = "[cyan]🤫 Enter your Bitwarden client Secret"
-            self.client_secret = Prompt.ask(msg, password=True)
-        else:
-            log.debug("Using clientSecret from env var: $BW_CLIENTSECRET")
+        self.client_secret = environ.get("BW_CLIENTSECRET",
+                                    self.__get_credential__("clientSecret"))
 
         # controls if we overwrite the existing items when creating new items
         self.overwrite = overwrite
+
+    def __get_credential__(self, credential: str = ""):
+        """
+        prompts a user for a specific credential
+        """
+        cred_prompt = f"[cyan]🤫 Enter your Bitwarden vault {credential}"
+        credential = Prompt.ask(cred_prompt, password=True)
+        return credential
 
     def status(self):
         """
@@ -88,16 +91,15 @@ class BwCLI():
             if status == "unauthenticated":
                 log.info('Logging into the Bitwarden vault...')
                 # set command to login if we're unauthenticated
-                cmd = "bw login --passwordenv BW_PASSWORD --apikey --raw"
+                cmd = (f"{self.bw_path} login --passwordenv BW_PASSWORD "
+                       "--apikey --raw")
             else:
                 log.info('Unlocking the Bitwarden vault...')
                 # default command is unlock
-                cmd = "bw unlock --passwordenv BW_PASSWORD --raw"
-
-            log.debug(cmd)
+                cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
 
             # run either bw login or bw unlock depending on bw status
-            self.session = subproc([cmd], quiet=True, spinner=False,
+            self.session = subproc([cmd], quiet=False, spinner=True,
                                    env={"BW_PASSWORD": self.password,
                                         "BW_CLIENTID": self.client_id,
                                         "BW_CLIENTSECRET": self.client_secret,

@@ -30,7 +30,7 @@ def configure_external_secrets(k8s_obj: K8s,
 
 
 def setup_bweso(k8s_obj: K8s, bweso_argo_dict: dict = {},
-                bitwarden: BwCLI() = BwCLI()):
+                bitwarden: BwCLI = None):
     """
     Creates an initial secret for use with the bitwarden provider for ESO
     """

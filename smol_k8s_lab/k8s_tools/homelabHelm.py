@@ -3,9 +3,8 @@
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
 USAGE: import homelabHelm as helm
 """
-
-
 from collections import OrderedDict
+import logging as log
 from shutil import which
 from ..subproc import subproc
 from ..pretty_printing.console_logging import header, sub_header
@@ -72,7 +71,16 @@ class helm:
             if not kwargs['namespace']:
                 self.namespace = 'default'
 
-        def install(self, wait=False):
+        def check_existing(self,):
+            """
+            check if we already have an existing install
+            """
+            cmd = (f'helm list --short --filter {self.release_name} '
+                   f' -n {self.namespace}')
+            return subproc([cmd])
+
+
+        def install(self, wait=False) -> True:
             """
             Installs helm chart to current k8s context, takes optional wait arg
             Defaults to False, if True, will wait till deployments are up
@@ -84,6 +92,10 @@ class helm:
                 - values_file:   str of a file to use with --values
                 - set_options:   dict of key/values to be passed with --set
             """
+            if self.check_existing():
+                log.info(f"{self.release_name} is already installed :)")
+                return True
+
             cmd = (f'helm upgrade {self.release_name} {self.chart_name}'
                    f' --install -n {self.namespace} --create-namespace')
             # f' --atomic')
@@ -102,6 +114,7 @@ class helm:
                 cmd += ' --wait --wait-for-jobs'
 
             subproc([cmd])
+            return True
 
         def uninstall(self):
             """
