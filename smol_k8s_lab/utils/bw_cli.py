@@ -138,7 +138,7 @@ class BwCLI():
         command = f"{self.bw_path} get item {item_name}"
         response = subproc([command], error_ok=True,
                            env={"BW_SESSION": self.session})
-        if 'not_found' in response:
+        if 'Not found.' in response:
             return False
         else:
             return json.loads(response)['id']
