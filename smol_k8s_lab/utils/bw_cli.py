@@ -112,7 +112,8 @@ class BwCLI():
         """
         if self.delete_session:
             log.info('Locking the Bitwarden vault...')
-            subproc([f"bw lock --session {self.session}"], quiet=True)
+            subproc([f"{self.bw_path} lock"], quiet=True,
+                    env={"BW_SESSION": self.session})
             log.info('Bitwarden vault locked.')
 
     def generate(self, special_characters=False):
@@ -135,8 +136,9 @@ class BwCLI():
         Required Args:
             - item_name: str of name of item
         """
-        command = f"bw get item {item_name}"
-        response = subproc([command], quiet=True, error_ok=True)
+        command = f"{self.bw_path} get item {item_name}"
+        response = subproc([command], error_ok=True,
+                           env={"BW_SESSION": self.session})
         if 'not_found' in response:
             return False
         else:
@@ -147,8 +149,9 @@ class BwCLI():
         Delete Item
             - item_name: str of name of item
         """
-        command = f"bw delete item {item_id}"
-        subproc([command], quiet=True, error_ok=True)
+        command = f"{self.bw_path} delete item {item_id}"
+        subproc([command], quiet=True, error_ok=True,
+                env={"BW_SESSION": self.session})
         return
 
     def create_login(self, name="", item_url=None, user="", password="",
@@ -201,6 +204,6 @@ class BwCLI():
         encodedBytes = base64.b64encode(login_obj.encode("utf-8"))
         encodedStr = str(encodedBytes, "utf-8")
 
-        subproc([f"bw create item {encodedStr} --session {self.session}"],
-                quiet=True)
+        subproc([f"{self.bw_path} create item {encodedStr}"],
+                env={"BW_SESSION": self.session})
         log.info('Created bitwarden login item.')
