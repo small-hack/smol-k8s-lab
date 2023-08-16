@@ -34,11 +34,18 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     header("🔑 Zitadel Setup")
 
     if zitadel_config_dict['init']:
-        new_key = create_password()
-        secret_dict = {'masterkey': new_key}
-        k8s_obj.create_secret(name="zitadel-core-key",
-                              namespace="zitadel",
-                              str_data=secret_dict)
+        log.debug("Creating core key for zitadel...")
+        if bitwarden:
+            new_key = bitwarden.generate()
+            bitwarden.create_login(name="zitadel-core-key",
+                                   user="admin",
+                                   password=new_key)
+        else:
+            new_key = create_password()
+            secret_dict = {'masterkey': new_key}
+            k8s_obj.create_secret(name="zitadel-core-key",
+                                  namespace="zitadel",
+                                  str_data=secret_dict)
 
     install_with_argocd(k8s_obj, 'zitadel', zitadel_config_dict['argo'])
 
