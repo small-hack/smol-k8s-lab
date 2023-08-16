@@ -7,6 +7,7 @@ from ..k8s_tools.kubernetes_util import update_secret_key
 from ..k8s_tools.k8s_lib import K8s
 from ..k8s_tools.argocd import install_with_argocd
 from ..utils.bw_cli import BwCLI
+from ..utils.passwords import create_password
 
 
 def configure_zitadel_and_vouch(k8s_obj: K8s,
@@ -32,6 +33,13 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     """
     header("🔑 Zitadel Setup")
 
+    if zitadel_config_dict['init']:
+        new_key = create_password()
+        secret_dict = {'masterkey': new_key}
+        k8s_obj.create_secret(name="zitadel-core-key",
+                              namespace="zitadel",
+                              str_data=secret_dict)
+
     install_with_argocd(k8s_obj, 'zitadel', zitadel_config_dict['argo'])
 
     # only continue through the rest of the function if we're initializes a
@@ -44,7 +52,8 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
                           bitwarden, vouch_config_dict)
 
 
-def configure_zitadel(k8s_obj: K8s, zitadel_hostname: str = "",
+def configure_zitadel(k8s_obj: K8s,
+                      zitadel_hostname: str = "",
                       argocd_hostname: str = "",
                       bitwarden=None,
                       vouch_config_dict: dict = {}):
@@ -72,7 +81,8 @@ def configure_zitadel(k8s_obj: K8s, zitadel_hostname: str = "",
     log.info("Creating an Argo CD application...")
     redirect_uris = [f"https://{argocd_hostname}/auth/callback"]
     logout_uris = [f"https://{argocd_hostname}"]
-    argocd_client = zitadel.create_application("argocd", redirect_uris,
+    argocd_client = zitadel.create_application("argocd",
+                                               redirect_uris,
                                                logout_uris)
 
     # create roles for both Argo CD Admins and regular users
