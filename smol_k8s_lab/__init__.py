@@ -195,7 +195,7 @@ def main(config: str = "",
                     install_with_argocd(app_key, app['argo'])
 
             # lock the bitwarden vault on the way out, to be polite :3
-            if bitwarden:
+            if bw:
                 bw.lock()
 
     # we're done :D
