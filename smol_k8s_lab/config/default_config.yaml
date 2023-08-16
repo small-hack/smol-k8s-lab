@@ -61,6 +61,7 @@ apps:
   metallb:
     # enable metallb which helps expose IP addresses for loadbalancers on metal
     # if you're on a vm or container where you can't get an IP, disable this
+    # most useful on linux, but you can probably also use it on a mac 🤷
     enabled: true
     argo:
       # secret keys to make available to helm and/or ArgoCD ApplicationSets
@@ -68,7 +69,7 @@ apps:
         # metallb IPs used for DNS later (make sure they're not in use)
         # Example of required full CIDR notation
         # address_pool:
-        #   - 192.168.90.01/32
+        #   - 192.168.20.23/32
         address_pool: []
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -133,7 +134,8 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      # change to "external-secrets-operator/external-secrets-operator/" to not use app of apps
+      # change to external-secrets-operator/external-secrets-operator/ to not
+      # use app of apps and therefore we will not deploy the bitwarden eso provider
       path: "external-secrets-operator/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
@@ -162,6 +164,7 @@ apps:
   keycloak:
     enabled: false
     # initialize keycloak by creating a 1st user & clients for ArgoCD and vouch
+    # this will also prompt you for input for creating an admin user
     init: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
