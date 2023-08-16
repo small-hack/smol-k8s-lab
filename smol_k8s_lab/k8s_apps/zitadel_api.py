@@ -1,6 +1,5 @@
 import logging as log
 import json
-from ..subproc import subproc
 from requests import request
 from rich.prompt import Prompt
 
@@ -9,15 +8,13 @@ class Zitadel():
     """
     Python Wrapper for the Zitadel API
     """
-    def __init__(self, api_url: str = ""):
+    def __init__(self, api_url: str = "", api_token: str = ""):
         """
         This is mostly for storing the session token and api base url
         """
         self.api_url = api_url
 
-        cmd = ("kubectl get secret -n zitadel zitadel-admin-sa -o "
-               "jsonpath='{ .data.zitadel-admin-sa\.json }' | base64 --decode")
-        self.api_token = subproc([cmd])
+        self.api_token = api_token
 
         self.headers = {
           'Content-Type': 'application/json',

@@ -1,3 +1,4 @@
+from base64 import standard_b64decode as b64dec
 import logging as log
 from .vouch import configure_vouch
 from .zitadel_api import Zitadel
@@ -6,7 +7,6 @@ from ..k8s_tools.kubernetes_util import update_secret_key
 from ..k8s_tools.k8s_lib import K8s
 from ..k8s_tools.argocd import install_with_argocd
 from ..utils.bw_cli import BwCLI
-from ..utils.passwords import create_password
 
 
 def configure_zitadel_and_vouch(k8s_obj: K8s,
@@ -59,7 +59,11 @@ def configure_zitadel(k8s_obj: K8s, zitadel_hostname: str = "",
     """
 
     sub_header("Configure zitadel as your OIDC SSO for Argo CD")
-    zitadel =  Zitadel(f"https://{zitadel_hostname}/management/v1/")
+
+    # setup the zitadel python api wrapper
+    adm_secret = k8s_obj.get_secret('zitadel-admin-sa', 'zitadel')
+    api_token = b64dec(bytes(adm_secret['data']['zitadel-admin-sa.json']))
+    zitadel =  Zitadel(f"https://{zitadel_hostname}/management/v1/", api_token)
 
     log.info("Creating a groups Zitadel Action (sends group info to Argo)")
     zitadel.create_action("groupsClaim")
