@@ -35,17 +35,13 @@ def setup_bweso(k8s_obj: K8s, bweso_argo_dict: dict = {},
     Creates an initial secret for use with the bitwarden provider for ESO
     """
     sub_header("Installing the Bitwarden External Secrets Provider...")
-    bw_client_id = bitwarden.clientID
-    bw_client_secret = bitwarden.clientSecret
-    bw_host = bitwarden.host
-    bw_pass = bitwarden.pw
 
     # this is a standard k8s secrets yaml
     k8s_obj.create_secret('bweso-login', 'external-secrets',
-                          {"BW_PASSWORD": bw_pass,
-                           "BW_CLIENTSECRET": bw_client_secret,
-                           "BW_CLIENTID": bw_client_id,
-                           "BW_HOST": bw_host})
+                          {"BW_PASSWORD": bitwarden.password,
+                           "BW_CLIENTSECRET": bitwarden.client_secret,
+                           "BW_CLIENTID": bitwarden.client_id,
+                           "BW_HOST": bitwarden.host})
     return True
 
 
