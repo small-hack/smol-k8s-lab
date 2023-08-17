@@ -136,7 +136,7 @@ def main(config: str = "",
         k8s_obj = K8s()
 
         # installs all the base apps: metallb, ingess-nginx, and cert-manager
-        install_base_apps(k8s_obj, k8s, metallb_enabled, argo_enabled,
+        install_base_apps(k8s_obj, distro, metallb_enabled, argo_enabled,
                           apps['argo_cd_appset_secret_plugin']['enabled'],
                           SECRETS['cert-manager_email'],
                           SECRETS['metallb_address_pool'])
@@ -161,7 +161,7 @@ def main(config: str = "",
                 eso = apps.pop('external_secrets_operator')
                 bitwarden_eso_provider = apps.pop('bitwarden_eso_provider')
                 configure_external_secrets(k8s_obj, eso['argo'],
-                                           bitwarden_eso_provider, bw)
+                                           bitwarden_eso_provider, distro, bw)
 
             # setup keycloak if we're using that for OIDC
             if apps['keycloak']['enabled']:

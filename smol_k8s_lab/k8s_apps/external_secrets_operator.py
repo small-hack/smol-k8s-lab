@@ -18,6 +18,7 @@ from ..utils.bw_cli import BwCLI
 def configure_external_secrets(k8s_obj: K8s,
                                eso_argo_dict: dict = {},
                                bweso_dict: dict = {},
+                               distro: str = "",
                                bitwarden: BwCLI = None) -> True:
     """
     configure external secrets and provider. (and optionally bweso)
@@ -26,11 +27,11 @@ def configure_external_secrets(k8s_obj: K8s,
     install_with_argocd(k8s_obj, 'external-secrets-operator', eso_argo_dict)
 
     if bweso_dict['enabled']:
-        setup_bweso(k8s_obj, bweso_dict['argo'], bitwarden)
+        setup_bweso(k8s_obj, distro, bweso_dict['argo'], bitwarden)
     return True
 
 
-def setup_bweso(k8s_obj: K8s, bweso_argo_dict: dict = {},
+def setup_bweso(k8s_obj: K8s, distro: str = "", bweso_argo_dict: dict = {},
                 bitwarden: BwCLI = None):
     """
     Creates an initial secret for use with the bitwarden provider for ESO
@@ -44,15 +45,16 @@ def setup_bweso(k8s_obj: K8s, bweso_argo_dict: dict = {},
                            "BW_CLIENTID": bitwarden.client_id,
                            "BW_HOST": bitwarden.host})
 
+    if distro == 'kind':
+        image = "docker.io/jessebot/bweso:v0.2.0"
+        cmds = [f"docker pull --platform=linux/amd64 {image}",
+                f"kind load docker-image {image} --name smol-k8s-lab-kind"]
+        subproc(cmds)
+
     if bweso_argo_dict.get('part_of_app_of_apps', None):
         log.debug("Looks like this app is actually part of an app of apps "
                   "that will be deployed")
         return True
-
-    image = "docker.io/jessebot/bweso:v0.2.0"
-    cmds = [f"docker pull --platform=linux/amd64 {image}",
-            f"kind load docker-image {image} --name smol-k8s-lab-kind"]
-    subproc(cmds)
 
     install_with_argocd(k8s_obj, 'bitwarden-eso-provider', bweso_argo_dict)
     return True
