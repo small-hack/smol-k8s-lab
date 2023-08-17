@@ -179,8 +179,9 @@ class BwCLI():
                      "HOME": self.home})
         return
 
-    def create_login(self, name="", item_url=None, user="", password="",
-                     fields={}, org=None, collection=None):
+    def create_login(self, name: str = "", item_url: str = "", user: str = "",
+                     password: str = "", fields: dict = {}, org: str = "",
+                     collection: str = ""):
         """
         Create login item to store a set of credentials for one site.
         Required Args:
@@ -208,12 +209,18 @@ class BwCLI():
                 log.warn(msg)
 
         log.info('Creating bitwarden login item...')
+
+        if name:
+            item_name = name
+        else:
+            item_name = item_url
+
         login_obj = json.dumps({
             "organizationId": org,
             "collectionIds": collection,
             "folderId": None,
             "type": 1,
-            "name": item_url,
+            "name": item_name,
             "notes": None,
             "favorite": False,
             "fields": [fields],
