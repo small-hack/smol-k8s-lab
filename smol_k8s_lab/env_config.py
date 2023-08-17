@@ -59,7 +59,7 @@ def process_configs(config: dict):
 
     config['log'] = config.get("log", DEFAULT_CONFIG["log"])
 
-    k8s_distros = config.get('k8s_distros', DEFAULT_CONFIG['k8s_distros'])
+    k8s_distros = config.get('k8s_distros', None)
     config['k8s_distros'] = process_k8s_distros(k8s_distros)
 
     # Write newly updated YAML data to config file
@@ -190,7 +190,7 @@ def initialize_apps_config() -> list:
     return config, return_secrets
 
 
-def process_k8s_distros(k8s_distros: list = ['kind']):
+def process_k8s_distros(k8s_distros: list = None):
     """
     make sure the k8s distro passed into the config is supported and valid for
     the current operating system
@@ -211,7 +211,8 @@ def process_k8s_distros(k8s_distros: list = ['kind']):
             k8s_distros.pop(distro)
 
     if not k8s_distros:
-        print("Hate to see you leave empty handed. We'll setup kind :)")
-        k8s_distros = ["kind"]
+        msg = "[green]Which K8s distro would you like to use for your cluster?"
+        distro = Prompt.ask(msg, choices=default_distros)
+        k8s_distros = [distro]
 
     return k8s_distros
