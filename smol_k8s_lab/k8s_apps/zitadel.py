@@ -32,13 +32,15 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     Returns True if successful.
     """
     header("🔑 Zitadel Setup")
+    zitadel_domain = zitadel_config_dict['argo']['secret_keys']['hostname']
 
     if zitadel_config_dict['init']:
         log.debug("Creating core key for zitadel...")
         if bitwarden:
             new_key = bitwarden.generate()
             bitwarden.create_login(name="zitadel-core-key",
-                                   user="admin",
+                                   user="admin-service-account",
+                                   item_url=zitadel_domain,
                                    password=new_key)
         else:
             new_key = create_password()
@@ -54,7 +56,6 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     if not zitadel_config_dict['init']:
         return True
     else:
-        zitadel_domain = zitadel_config_dict['argo']['secret_keys']['hostname']
         configure_zitadel(k8s_obj, zitadel_domain, argocd_hostname,
                           bitwarden, vouch_config_dict)
 
