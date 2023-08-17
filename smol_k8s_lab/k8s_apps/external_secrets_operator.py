@@ -49,6 +49,11 @@ def setup_bweso(k8s_obj: K8s, bweso_argo_dict: dict = {},
                   "that will be deployed")
         return True
 
+    image = "docker.io/jessebot/bweso:v0.2.0"
+    cmds = [f"docker pull --platform=linux/amd64 {image}",
+            f"kind load docker-image {image} --name smol-k8s-lab-kind"]
+    subproc(cmds)
+
     install_with_argocd(k8s_obj, 'bitwarden-eso-provider', bweso_argo_dict)
     return True
 
