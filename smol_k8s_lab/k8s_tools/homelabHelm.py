@@ -77,7 +77,7 @@ class helm:
             """
             cmd = (f'helm list --short --filter {self.release_name} '
                    f' -n {self.namespace}')
-            return subproc([cmd])
+            return subproc([cmd], quiet=True)
 
 
         def install(self, wait=False) -> True:
