@@ -37,7 +37,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
 
     if zitadel_config_dict['init']:
         log.debug("Creating core key and DB credenitals for zitadel...")
-        if database_type in any(["postgres", "psql", "postgresql"]):
+        if database_type in ["postgres", "psql", "pgsql", "postgresql"]:
             admin_user = "postgres"
         else:
             admin_user = "root"
