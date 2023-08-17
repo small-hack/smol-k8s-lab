@@ -83,4 +83,4 @@ def create_argocd_project(project_name: str = "",
         "status": {}
     }
 
-    apply_custom_resources(argocd_proj)
+    apply_custom_resources([argocd_proj])
