@@ -104,7 +104,7 @@ def main(config: str = "",
     check_os_support()
 
     if setup:
-        # installs extra tooling such as helm, k9s, and krew
+        # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
         from .utils.setup_k8s_tools import do_setup
         do_setup()
 

@@ -41,13 +41,16 @@ def process_configs(default_config: dict, config: dict):
     default_apps =  default_config['apps']
     config_apps = config.get('apps', None)
 
+    header("Checking Application Configuration...")
     # if the config doesn't have the apps section, then we initialize a new one
     # and return that to avoid extra computations on comparing the default conf
     if not config_apps or default_config == config:
-        sub_header("No application confgiurations found 😮")
+        sub_header("🌱 No application confgiurations found, so we'll "
+                   "initialize one for you")
         apps_config, secrets = initialize_apps_config(default_apps)
     else:
-        sub_header("Found existing Application confgiurations 🩵")
+        sub_header("🔍 Found existing Application configurations to validate",
+                   True, False)
         apps_config, secrets = process_app_configs(config['apps'],
                                                    default_apps)
     config['apps'] = apps_config
@@ -69,8 +72,20 @@ def process_configs(default_config: dict, config: dict):
 def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
     """
     process an existing applications config dict and fill in any missing fields
+    arguments:
+        - apps: applcations dict schema as described:
+            {"my_app": {"enabled": true,
+                        "init": true,
+                        "argo": {"repo": "",
+                                 "namespace": "",
+                                 "secret_keys": {"hostname": ""},
+                                 "source_repos": []}
+                        }
+             }
+        - default_apps: default applications dict schema, similar to above,
+                        used to validate the first dict
     """
-    header("Validating Application Configs")
+
     # check if argo cd is enabled and if argo_cd isn't an app in thier config,
     # we create it with defaults
     argocd_enabled = apps.get('argo_cd', default_apps['argo_cd'])['enabled']
@@ -134,13 +149,11 @@ def initialize_apps_config(config: dict = {}) -> list:
     Initializes a fresh apps configuration for smol-k8s-lab by ensuring each
     field is filled out.
     """
-    header("Initializing a fresh config file for you!")
     # these are the secrets we also return, so we can create them all at once
     return_secrets = {}
 
     # key is equal to the name of the of application. app is the dict
     for key, app in config.items():
-        header(key)
 
         # if the user config doesn't have this section we default to the above
         app_enabled = app.get('enabled', True)
@@ -148,22 +161,16 @@ def initialize_apps_config(config: dict = {}) -> list:
         # if app is enabled
         if app_enabled:
             argo_section = app['argo']
-            print(argo_section)
 
-            sub_header("Welcome to Secrets Town")
             # use secret section if exists, else grab from the default cfg
             secrets = argo_section.get('secret_keys', None)
-            print(secrets)
 
             if not secrets:
-                print(f"no secrets for {key}")
                 # if there's no secrets for this app, continue the loop
                 continue
 
             # iterate through each secret for the app
             for secret in secrets.keys():
-                print(f"secret item in secrets.keys() {secret}")
-                print(f"secrets[secret] '{secrets[secret]}'")
                 # create app k8s secret key like argocd_hostname
                 secret_key = "_".join([key, secret])
 
@@ -185,11 +192,14 @@ def process_k8s_distros(k8s_distros: list = ['kind']):
     make sure the k8s distro passed into the config is supported and valid for
     the current operating system
     """
-    default_distros = ['kind', 'k3s', 'k0s']
+    default_distros = ['kind', 'k3s', 'k3d', 'k0s']
 
     if OS[0] == 'Darwin' and 'k3s' in k8s_distros:
         print("k3s does not run on macOS at this time :(")
         k8s_distros.pop("k3s")
+
+    if 'k3d' in k8s_distros:
+        print("⚠️ warning: k3d is experimental at this time")
 
     # verify the distros are supported
     for distro in k8s_distros:
