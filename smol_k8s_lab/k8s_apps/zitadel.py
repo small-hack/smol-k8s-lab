@@ -33,19 +33,43 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     """
     header("🔑 Zitadel Setup")
     zitadel_domain = zitadel_config_dict['argo']['secret_keys']['hostname']
+    database_type = zitadel_config_dict['argo']['secret_keys']['database_type']
 
     if zitadel_config_dict['init']:
-        log.debug("Creating core key for zitadel...")
+        log.debug("Creating core key and DB credenitals for zitadel...")
+        if database_type in any(["postgres", "psql", "postgresql"]):
+            admin_user = "postgres"
+        else:
+            admin_user = "root"
         if bitwarden:
             new_key = bitwarden.generate()
             bitwarden.create_login(name="zitadel-core-key",
                                    user="admin-service-account",
                                    item_url=zitadel_domain,
                                    password=new_key)
+
+            password = bitwarden.generate()
+            admin_password = bitwarden.generate()
+            bitwarden.create_login(name="zitadel-db-credentials",
+                                   user="zitadel",
+                                   item_url=zitadel_domain,
+                                   password=password,
+                                   fields=[{"adminPassword": admin_password},
+                                           {"adminUsername": admin_user}])
         else:
             new_key = create_password()
             secret_dict = {'masterkey': new_key}
             k8s_obj.create_secret(name="zitadel-core-key",
+                                  namespace="zitadel",
+                                  str_data=secret_dict)
+
+            password = create_password()
+            admin_password = create_password()
+            secret_dict = {'username': 'zitadel',
+                           'password': password,
+                           'adminUsername': admin_user,
+                           'adminPassword': admin_password}
+            k8s_obj.create_secret(name="zitadel-db-credentials",
                                   namespace="zitadel",
                                   str_data=secret_dict)
 

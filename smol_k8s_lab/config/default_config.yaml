@@ -347,6 +347,8 @@ apps:
       secret_keys:
         # FQDN to use for zitadel
         hostname: ""
+        # type of database to use: postgresql or cockroachdb
+        database_type: "postgresql"
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
