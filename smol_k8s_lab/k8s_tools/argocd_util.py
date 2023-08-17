@@ -70,6 +70,11 @@ def create_argocd_project(project_name: str = "",
                     "namespace": namespace,
                     "server": "https://kubernetes.default.svc"
                 },
+                {
+                    "name": "in-cluster",
+                    "namespace": 'argocd',
+                    "server": "https://kubernetes.default.svc"
+                },
             ],
             "namespaceResourceWhitelist": [
                 {
