@@ -54,7 +54,7 @@ def create_argocd_project(project_name: str = "",
         "kind": "AppProject",
         "metadata": {
             "name": project_name,
-            "namespace": namespace,
+            "namespace": 'argocd',
         },
         "spec": {
             "clusterResourceWhitelist": [

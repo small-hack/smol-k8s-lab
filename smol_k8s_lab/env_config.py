@@ -5,7 +5,7 @@ DESC: everything to do with initial configuration of a new environment
 """
 
 from rich.prompt import Confirm, Prompt
-from .constants import OS, VERSION, XDG_CONFIG_FILE
+from .constants import OS, VERSION, XDG_CONFIG_FILE, DEFAULT_CONFIG
 from .pretty_printing.console_logging import print_panel, header, sub_header
 from yaml import dump
 
@@ -32,22 +32,24 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
                     "[cornflower_blue]Compatibility Check")
 
 
-def process_configs(default_config: dict, config: dict):
+def process_configs(config: dict):
     """
     process the config in ~/.config/smol-k8s-lab/config.yaml and ensure each
     app has a secret if we're using our default Argo CD repo
     """
+    initialize = False
     # process just the app sections because they're the bulk of the config
-    default_apps =  default_config['apps']
+    default_apps =  DEFAULT_CONFIG['apps']
     config_apps = config.get('apps', None)
 
     header("Checking Application Configuration...")
     # if the config doesn't have the apps section, then we initialize a new one
     # and return that to avoid extra computations on comparing the default conf
-    if not config_apps or default_config == config:
-        sub_header("🌱 No application confgiurations found, so we'll "
-                   "initialize one for you")
-        apps_config, secrets = initialize_apps_config(default_apps)
+    if not config_apps or default_apps == config_apps:
+        sub_header("No application configurations found. 🌱 We'll initialize"
+                   " them for you")
+        initialize = True
+        apps_config, secrets = initialize_apps_config()
     else:
         sub_header("🔍 Found existing Application configurations to validate",
                    True, False)
@@ -55,13 +57,13 @@ def process_configs(default_config: dict, config: dict):
                                                    default_apps)
     config['apps'] = apps_config
 
-    config['log'] = config.get("log", default_config["log"])
+    config['log'] = config.get("log", DEFAULT_CONFIG["log"])
 
-    k8s_distros = config.get('k8s_distros', default_config['k8s_distros'])
+    k8s_distros = config.get('k8s_distros', DEFAULT_CONFIG['k8s_distros'])
     config['k8s_distros'] = process_k8s_distros(k8s_distros)
 
     # Write newly updated YAML data to config file
-    if default_config != config:
+    if initialize or DEFAULT_CONFIG != config:
         sub_header("Writing out your newly updated config file :)")
         with open(XDG_CONFIG_FILE, 'w') as conf_file:
             dump(config, conf_file)
@@ -144,11 +146,12 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
     return apps, return_secrets
 
 
-def initialize_apps_config(config: dict = {}) -> list:
+def initialize_apps_config() -> list:
     """
     Initializes a fresh apps configuration for smol-k8s-lab by ensuring each
     field is filled out.
     """
+    config = DEFAULT_CONFIG['apps']
     # these are the secrets we also return, so we can create them all at once
     return_secrets = {}
 
