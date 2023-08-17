@@ -179,9 +179,10 @@ class BwCLI():
                      "HOME": self.home})
         return
 
-    def create_login(self, name: str = "", item_url: str = "", user: str = "",
-                     password: str = "", fields: dict = {}, org: str = "",
-                     collection: str = ""):
+    def create_login(self, name: str = "", item_url: str = "",
+                     user: str = "", password: str = "",
+                     fields: list = [], org: str = None,
+                     collection: str = None):
         """
         Create login item to store a set of credentials for one site.
         Required Args:
@@ -191,7 +192,8 @@ class BwCLI():
             - password:    str of password you want to use for login item
             - item_url:    str of URL you want to use the credentials for
             - org:         str of organization to use for collection
-            - collection:  str
+            - collection:  str collection inside organization to user
+            - fields:      list of {key: value} dicts for custom fields
         """
         item = self.get_item(name)
 
