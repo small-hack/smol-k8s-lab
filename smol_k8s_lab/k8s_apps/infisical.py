@@ -24,14 +24,14 @@ def configure_infisical(k8s_obj: K8s, infisical_dict: dict = {}):
     k8s_obj.create_namespace('infisical')
 
     if infisical_dict['init']:
-        create_backend_secret(k8s_obj)
-        create_mongo_secrets(k8s_obj)
+        mongo_password = create_mongo_secrets(k8s_obj)
+        create_backend_secret(k8s_obj, mongo_password)
 
     install_with_argocd(k8s_obj, 'infisical', infisical_dict['argo'])
     return True
 
 
-def create_backend_secret(k8s_obj: K8s):
+def create_backend_secret(k8s_obj: K8s, mongo_password: str = ""):
     """
     generates an smtp dict for env vars AND 16-bytes hex value, 32-characters hex:
     Command to generate the required value (linux): openssl rand -hex 16
@@ -42,6 +42,8 @@ def create_backend_secret(k8s_obj: K8s):
     from_address = Prompt.ask(f"{base} 'from address' for Infisical")
     username = Prompt.ask(f"{base} username for Infisical", password=True)
     password = Prompt.ask(f"{base} password for Infisical", password=True)
+
+    mongo_url = f"mongodb://infisical:{mongo_password}@mongodb:27017/infisical"
 
     secrets_dict = {"SMTP_HOST": host,
                     "SMTP_PORT": '587',
@@ -56,7 +58,8 @@ def create_backend_secret(k8s_obj: K8s):
                     "JWT_AUTH_SECRET": randbytes(16).hex(),
                     "JWT_SERVICE_SECRET": randbytes(16).hex(),
                     "JWT_MFA_SECRET": randbytes(16).hex(),
-                    "JWT_PROVIDER_AUTH_SECRET": randbytes(16).hex()}
+                    "JWT_PROVIDER_AUTH_SECRET": randbytes(16).hex(),
+                    "MONGO_URL": mongo_url}
 
     k8s_obj.create_secret('infisical-backend-secrets', 'infisical',
                           secrets_dict)
@@ -70,10 +73,14 @@ def create_mongo_secrets(k8s_obj: K8s):
             mongodb-metrics-password
 
             mongodb-replica-set-key
+
+    returns mongo password
     """
-    secrets_dict = {"mongodb-passwords": create_password(),
+    mongo_pass = create_password()
+    secrets_dict = {"mongodb-passwords": yaml.dump([mongo_pass]),
                     "mongodb-root-password": create_password(),
                     "mongodb-metrics-password": create_password()}
 
     k8s_obj.create_secret('infisical-mongo-credentials', 'infisical',
                           secrets_dict)
+    return mongo_pass
