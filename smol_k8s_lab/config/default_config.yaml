@@ -11,14 +11,22 @@ log:
 k8s_distros:
   - kind
 
+
 k3s:
   # if k8s_distribution set to k3s, you can add an array of extra
   # arguments to pass to the k3s install script
   extra_args: []
 
-bitwarden:
-  enabled: true
-  overwrite: false
+
+# store your password and tokens directly in your local password manager
+local_password_manager:
+  # To use Bitwarden, you must export the following environment variables:
+  # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
+  # If you're missing any of these, smol-k8s-lab will prompt for them
+  bitwarden:
+    # enable the use of bitwarden as your password manager.
+    enabled: true
+    overwrite: false
 
 apps:
   # ---------------------------------------------------------------------------
@@ -28,7 +36,7 @@ apps:
   # for your k8s distro. All become managed by ArgoCD if you enable it below
   # ---------------------------------------------------------------------------
   #
-  # Use LetsEncrypt to generate TLS certs
+  # Use LetsEncrypt to generate TLS certs for all your apps with ingress
   cert-manager:
     argo:
       secret_keys:
@@ -46,6 +54,8 @@ apps:
       # namespace to install the k8s app in
       namespace: "ingress"
 
+  # deploy ingress-nginx and cert-manager as one argocd app of apps and project 
+  # in the same namespace
   ingress:
     argo:
       # git repo to install the Argo CD app from
@@ -64,6 +74,8 @@ apps:
         - "https://jessebot.github.io/vouch-helm-chart"
         - "https://github.com/kubernetes/ingress-nginx"
 
+  # all apps below this point are optional
+  # ---------------------------------------------------------------------------
   metallb:
     # enable metallb which helps expose IP addresses for loadbalancers on metal
     # if you're on a vm or container where you can't get an IP, disable this
@@ -135,13 +147,16 @@ apps:
 
   external_secrets_operator:
     # enable the external secrets operator to pull remote secrets
-    enabled: true
+    enabled: false
+    provider: bitwarden
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      # change to external-secrets-operator/external-secrets-operator/ to not
-      # use app of apps and therefore we will not deploy the bitwarden eso provider
+      # change to external-secrets-operator/external-secrets-operator/ to deploy
+      # ONLY the external-secrets-operator, so this will not use app of apps and 
+      # therefore we will not deploy the bitwarden eso provider. Use if you want to use
+      # a different provider
       path: "external-secrets-operator/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
@@ -149,13 +164,14 @@ apps:
       namespace: "external-secrets"
       # source repos for Argo CD App Project (in addition to argo.repo)
       project_source_repos:
-        - "https://jessebot.github.io/bitwarden-eso-provider"
         - "https://charts.external-secrets.io"
+        # you can remove this one if you're not using bitwarden to store your k8s secrets
+        - "https://jessebot.github.io/bitwarden-eso-provider"
 
 
   bitwarden_eso_provider:
-    # enable the bitwarden ESO provider to
-    enabled: true
+    # enable the bitwarden ESO provider to store k8s secrets in bitwarden
+    enabled: false
     argo:
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
@@ -168,6 +184,18 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
+
+  infiscal:
+    enabled: true
+    argo:
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "infiscal/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "infiscal"
 
   # keycloak is an IAM provider that you can use with ArgoCD for user/group
   # management and oauth2. it also works with vouch to secure hostnames that
@@ -229,6 +257,7 @@ apps:
   mastodon:
     # enable mastodon for a self hosted social media website
     enabled: false
+    # initialize the app by setting up new k8s secrets and/or bitwarden items
     init: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
@@ -252,6 +281,7 @@ apps:
   matrix:
     # enable matrix for a self hosted chat service
     enabled: false
+    # initialize the app by setting up new k8s secrets and/or bitwarden items
     init: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
@@ -273,6 +303,7 @@ apps:
   nextcloud:
     # enable nextcloud to stand up a nice little self hosted file server
     enabled: false
+    # initialize the app by setting up new k8s secrets and/or bitwarden items
     init: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
@@ -364,3 +395,4 @@ apps:
         - "https://charts.zitadel.com"
         - "https://zitadel.github.io/zitadel-charts"
         - "https://charts.cockroachdb.com/"
+        - "registry-1.docker.io"
