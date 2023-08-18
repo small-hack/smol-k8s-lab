@@ -29,7 +29,7 @@ def configure_infisical(k8s_obj: K8s, infisical_dict: dict = {}):
         mongo_password = create_mongo_secrets(k8s_obj)
         create_backend_secret(k8s_obj,
                               mongo_password,
-                              argo_dict['secrets_keys']['hostname'])
+                              argo_dict['secret_keys']['hostname'])
 
     install_with_argocd(k8s_obj, 'infisical', argo_dict)
     return True
