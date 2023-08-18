@@ -29,7 +29,7 @@ local_password_manager:
     overwrite: false
 
 apps:
-  # ---------------------------------------------------------------------------
+  # --------------------------
   # Required Kubernetes Apps
   # ---------------------------------------------------------------------------
   # These are installed with helm or manifests depending on what is recommended
@@ -147,7 +147,7 @@ apps:
 
   external_secrets_operator:
     # enable the external secrets operator to pull remote secrets
-    enabled: false
+    enabled: true
     provider: bitwarden
     argo:
       # git repo to install the Argo CD app from
@@ -162,7 +162,7 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
-      # source repos for Argo CD App Project (in addition to argo.repo)
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
       project_source_repos:
         - "https://charts.external-secrets.io"
         # you can remove this one if you're not using bitwarden to store your k8s secrets
@@ -171,7 +171,7 @@ apps:
 
   bitwarden_eso_provider:
     # enable the bitwarden ESO provider to store k8s secrets in bitwarden
-    enabled: false
+    enabled: true
     argo:
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
@@ -188,8 +188,11 @@ apps:
   infisical:
     # Infisical is an open-source, end-to-end encrypted secret management
     # platform that enables teams to easily manage and sync their env vars
-    enabled: true
+    enabled: false
+    init: true
     argo:
+      secret_keys:
+        hostname: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -198,6 +201,9 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "infisical"
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
+      project_source_repos:
+      - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts"
 
   # keycloak is an IAM provider that you can use with ArgoCD for user/group
   # management and oauth2. it also works with vouch to secure hostnames that
