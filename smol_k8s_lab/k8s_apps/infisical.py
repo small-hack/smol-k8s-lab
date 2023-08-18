@@ -24,15 +24,21 @@ def configure_infisical(k8s_obj: K8s, infisical_dict: dict = {}):
     header("Installing the Infisical app and Secrets operator...")
     k8s_obj.create_namespace('infisical')
 
+    argo_dict = infisical_dict['argo']
+
     if infisical_dict['init']:
         mongo_password = create_mongo_secrets(k8s_obj)
-        create_backend_secret(k8s_obj, mongo_password)
+        create_backend_secret(k8s_obj,
+                              mongo_password,
+                              argo_dict['secrets_keys']['hostname'])
 
-    install_with_argocd(k8s_obj, 'infisical', infisical_dict['argo'])
+    install_with_argocd(k8s_obj, 'infisical', argo_dict)
     return True
 
 
-def create_backend_secret(k8s_obj: K8s, mongo_password: str = ""):
+def create_backend_secret(k8s_obj: K8s,
+                          mongo_password: str = "",
+                          hostname: str = ""):
     """
     generates an smtp dict for env vars AND 16-bytes hex value, 32-characters hex:
     Command to generate the required value (linux): openssl rand -hex 16
@@ -47,6 +53,7 @@ def create_backend_secret(k8s_obj: K8s, mongo_password: str = ""):
     mongo_url = f"mongodb://infisical:{mongo_password}@mongodb:27017/infisical"
 
     secrets_dict = {"SMTP_HOST": host,
+                    "SITE_URL": f"https://{hostname}",
                     "SMTP_PORT": '587',
                     "SMTP_SECURE": 'true',
                     "SMTP_FROM_NAME": "Infisical",
