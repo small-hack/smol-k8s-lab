@@ -203,7 +203,7 @@ apps:
       namespace: "infisical"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project_source_repos:
-      - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts"
+        - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
 
   # keycloak is an IAM provider that you can use with ArgoCD for user/group
   # management and oauth2. it also works with vouch to secure hostnames that
