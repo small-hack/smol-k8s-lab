@@ -145,7 +145,7 @@ def main(config: str = "",
         if argo_enabled:
             bw = None
             # if we're using bitwarden, unlock the vault
-            if USR_CFG['bitwarden']:
+            if USR_CFG['bitwarden']['enabled']:
                 bw = BwCLI(USR_CFG['bitwarden']['overwrite'])
                 bw.unlock()
 
