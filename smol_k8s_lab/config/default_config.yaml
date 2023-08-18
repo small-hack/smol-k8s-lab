@@ -185,17 +185,19 @@ apps:
       # namespace to install the k8s app in
       namespace: "external-secrets"
 
-  infiscal:
+  infisical:
+    # Infisical is an open-source, end-to-end encrypted secret management
+    # platform that enables teams to easily manage and sync their env vars
     enabled: true
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "infiscal/"
+      path: "infisical/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
-      namespace: "infiscal"
+      namespace: "infisical"
 
   # keycloak is an IAM provider that you can use with ArgoCD for user/group
   # management and oauth2. it also works with vouch to secure hostnames that
