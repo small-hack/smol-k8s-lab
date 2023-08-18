@@ -11,6 +11,7 @@ from rich.prompt import Prompt
 from random import randbytes
 from ..pretty_printing.console_logging import header
 from ..k8s_tools.argocd_util import install_with_argocd
+from ..utils.passwords import create_password
 from ..k8s_tools.k8s_lib import K8s
 
 
@@ -23,7 +24,8 @@ def configure_infisical(k8s_obj: K8s, infisical_dict: dict = {}):
     k8s_obj.create_namespace('infisical')
 
     if infisical_dict['init']:
-        create_backend_secret()
+        create_backend_secret(k8s_obj)
+        create_mongo_secrets(k8s_obj)
 
     install_with_argocd(k8s_obj, 'infisical', infisical_dict['argo'])
     return True
@@ -57,4 +59,21 @@ def create_backend_secret(k8s_obj: K8s):
                     "JWT_PROVIDER_AUTH_SECRET": randbytes(16).hex()}
 
     k8s_obj.create_secret('infisical-backend-secrets', 'infisical',
+                          secrets_dict)
+
+
+def create_mongo_secrets(k8s_obj: K8s):
+    """
+    auth.existingSecret Existing secret with MongoDB credentials:
+      keys: mongodb-passwords
+            mongodb-root-password
+            mongodb-metrics-password
+
+            mongodb-replica-set-key
+    """
+    secrets_dict = {"mongodb-passwords": create_password(),
+                    "mongodb-root-password": create_password(),
+                    "mongodb-metrics-password": create_password()}
+
+    k8s_obj.create_secret('infisical-mongo-credentials', 'infisical',
                           secrets_dict)
