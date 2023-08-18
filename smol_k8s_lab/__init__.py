@@ -20,12 +20,13 @@ from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
 from .k8s_distros.base import create_k8s_distro, delete_cluster
 from .k8s_apps.base_install import install_base_apps
+from .k8s_apps.infisical import configure_infisical
 from .k8s_apps.external_secrets_operator import configure_external_secrets
 from .k8s_apps.keycloak import configure_keycloak_and_vouch
 from .k8s_apps.federated import (configure_nextcloud, configure_matrix,
                                  configure_mastodon)
 from .k8s_apps.zitadel import configure_zitadel_and_vouch
-from .pretty_printing.console_logging import CONSOLE, header, sub_header
+from .pretty_printing.console_logging import CONSOLE
 from .pretty_printing.help_text import RichCommand, options_help
 from .utils.bw_cli import BwCLI
 HELP = options_help()
@@ -162,6 +163,11 @@ def main(config: str = "",
                 bitwarden_eso_provider = apps.pop('bitwarden_eso_provider')
                 configure_external_secrets(k8s_obj, eso['argo'],
                                            bitwarden_eso_provider, distro, bw)
+
+            # setup infisical
+            if apps['infisical']['enabled']:
+                infisical = apps.pop('infisical')
+                configure_infisical(k8s_obj, infisical, distro)
 
             # setup keycloak if we're using that for OIDC
             if apps['keycloak']['enabled']:

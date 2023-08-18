@@ -9,18 +9,18 @@ DESCRIPTION: configures infisical app and secrets operator
 """
 import logging as log
 from rich.prompt import Prompt
-from ..pretty_printing.console_logging import header, sub_header
+from ..pretty_printing.console_logging import header
 from ..k8s_tools.argocd_util import install_with_argocd
 from ..k8s_tools.k8s_lib import K8s
 
 
-def configure_infisical(k8s_obj: K8s, distro: str = "", argo_dict: dict = {}):
+def configure_infisical(k8s_obj: K8s, infisical_dict: dict = {}):
     """
     configures the infisical app by asking for smtp credentials
     """
-    sub_header("Installing the Bitwarden External Secrets Provider...")
+    header("Installing the Infisical app and Secrets operator...")
 
-    if argo_dict['init']:
+    if infisical_dict['init']:
         host = Prompt.ask("Please enter your SMTP host for Infisical")
         msg = "Please enter your SMTP from address for Infisical"
         from_address = Prompt.ask(msg)
@@ -39,5 +39,5 @@ def configure_infisical(k8s_obj: K8s, distro: str = "", argo_dict: dict = {}):
         k8s_obj.create_secret('infisical-credentials', 'infisical',
                               secrets_dict)
 
-    install_with_argocd(k8s_obj, 'infisical', argo_dict)
+    install_with_argocd(k8s_obj, 'infisical', infisical_dict['argo'])
     return True
