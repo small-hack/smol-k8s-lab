@@ -167,7 +167,7 @@ def main(config: str = "",
             # setup infisical
             if apps['infisical']['enabled']:
                 infisical = apps.pop('infisical')
-                configure_infisical(k8s_obj, infisical, distro)
+                configure_infisical(k8s_obj, infisical)
 
             # setup keycloak if we're using that for OIDC
             if apps['keycloak']['enabled']:
