@@ -9,6 +9,7 @@ DESCRIPTION: configures infisical app and secrets operator
 """
 from rich.prompt import Prompt
 from random import randbytes
+from yaml import dump
 from ..pretty_printing.console_logging import header
 from ..k8s_tools.argocd_util import install_with_argocd
 from ..utils.passwords import create_password
@@ -77,7 +78,7 @@ def create_mongo_secrets(k8s_obj: K8s):
     returns mongo password
     """
     mongo_pass = create_password()
-    secrets_dict = {"mongodb-passwords": yaml.dump([mongo_pass]),
+    secrets_dict = {"mongodb-passwords": dump([mongo_pass]),
                     "mongodb-root-password": create_password(),
                     "mongodb-metrics-password": create_password()}
 
