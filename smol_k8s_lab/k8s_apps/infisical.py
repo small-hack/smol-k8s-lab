@@ -26,10 +26,12 @@ def configure_infisical(k8s_obj: K8s, infisical_dict: dict = {}):
     argo_dict = infisical_dict['argo']
 
     if infisical_dict['init']:
-        mongo_password = create_mongo_secrets(k8s_obj)
-        create_backend_secret(k8s_obj,
-                              mongo_password,
-                              argo_dict['secret_keys']['hostname'])
+        if not k8s_obj.get_secret('infisical-mongo-credentials', 'infisical'):
+            mongo_password = create_mongo_secrets(k8s_obj)
+        if not k8s_obj.get_secret('infisical-backend-secrets', 'infisical'):
+            create_backend_secret(k8s_obj,
+                                  mongo_password,
+                                  argo_dict['secret_keys']['hostname'])
 
     install_with_argocd(k8s_obj, 'infisical', argo_dict)
     return True
