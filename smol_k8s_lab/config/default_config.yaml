@@ -13,12 +13,10 @@ log:
 #   - k3s
 k8s_distros: []
 
-
 k3s:
   # if k8s_distribution set to k3s, you can add an array of extra
   # arguments to pass to the k3s install script
   extra_args: []
-
 
 # store your password and tokens directly in your local password manager
 local_password_manager:
@@ -105,7 +103,6 @@ apps:
   # ---------------------------------------------------------------------------
   # Each of these apps is can only be deployed and maintained by Argo CD
   # ---------------------------------------------------------------------------
-  #
   argo_cd:
     # Enable ArgoCD to install other apps, and also manage itself :)
     # Set to false if you you just want a bare cluster with only the above apps
@@ -156,7 +153,7 @@ apps:
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       # change to external-secrets-operator/external-secrets-operator/ to deploy
-      # ONLY the external-secrets-operator, so this will not use app of apps and 
+      # ONLY the external-secrets-operator, so this will not use app of apps and
       # therefore we will not deploy the bitwarden eso provider. Use if you want to use
       # a different provider
       path: "external-secrets-operator/"
@@ -170,13 +167,12 @@ apps:
         # you can remove this one if you're not using bitwarden to store your k8s secrets
         - "https://jessebot.github.io/bitwarden-eso-provider"
 
-
   bitwarden_eso_provider:
     # enable the bitwarden ESO provider to store k8s secrets in bitwarden
-    enabled: false
+    enabled: true
     argo:
       # skip installing this app b/c its part of another app of apps with this
-      # name. If equals "" we'll instead use the repo, path, ref, and namespace
+      # name. If equals "" we'll instead use the below repo, path, ref, and namespace
       part_of_app_of_apps: "external_secrets_operator"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -190,6 +186,8 @@ apps:
   infisical:
     # Infisical is an open-source, end-to-end encrypted secret management
     # platform that enables teams to easily manage and sync their env vars
+    # however it is not currently production ready for self hosting so we've
+    # kept it disabled
     enabled: false
     init: true
     argo:
@@ -233,7 +231,6 @@ apps:
       # source repos for Argo CD App Project (in addition to argo.repo)
       project_source_repos:
         - "registry-1.docker.io"
-
 
   kyverno:
     # enable kyverno, for k8s native policy management
