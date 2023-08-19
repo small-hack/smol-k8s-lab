@@ -42,20 +42,29 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
         else:
             admin_user = "root"
         if bitwarden:
+            # create zitadel core key
             new_key = bitwarden.generate()
             bitwarden.create_login(name="zitadel-core-key",
                                    user="admin-service-account",
                                    item_url=zitadel_domain,
                                    password=new_key)
 
+            # create db credentials password dict
             password = bitwarden.generate()
             admin_password = bitwarden.generate()
+            admin_user_obj = {"name": "adminUsername",
+                              "value": admin_user,
+                              "type": 1,
+                              "linkedId": None}
+            admin_pass_obj = {"name": "adminPassword",
+                              "value": admin_password,
+                              "type": 1,
+                              "linkedId": None}
             bitwarden.create_login(name="zitadel-db-credentials",
                                    user="zitadel",
                                    item_url=zitadel_domain,
                                    password=password,
-                                   fields=[{"adminPassword": admin_password,
-                                            "adminUsername": admin_user}])
+                                   fields=[admin_user_obj, admin_pass_obj])
         else:
             new_key = create_password()
             secret_dict = {'masterkey': new_key}
