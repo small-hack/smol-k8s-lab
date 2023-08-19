@@ -227,7 +227,7 @@ class BwCLI():
             "name": item_name,
             "notes": None,
             "favorite": False,
-            "fields": [fields],
+            "fields": fields,
             "login": {"uris": [{"match": 0,
                                 "uri": item_url}],
                       "username": user,

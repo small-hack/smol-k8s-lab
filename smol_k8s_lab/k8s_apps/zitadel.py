@@ -54,8 +54,8 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
                                    user="zitadel",
                                    item_url=zitadel_domain,
                                    password=password,
-                                   fields=[{"adminPassword": admin_password},
-                                           {"adminUsername": admin_user}])
+                                   fields=[{"adminPassword": admin_password,
+                                            "adminUsername": admin_user}])
         else:
             new_key = create_password()
             secret_dict = {'masterkey': new_key}
