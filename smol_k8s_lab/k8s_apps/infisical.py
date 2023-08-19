@@ -53,15 +53,16 @@ def create_backend_secret(k8s_obj: K8s,
 
     mongo_url = f"mongodb://infisical:{mongo_password}@mongodb:27017/infisical"
 
-    secrets_dict = {"SMTP_HOST": host,
+    secrets_dict = {"ENCRYPTION_KEY": randbytes(16).hex(),
+                    "INVITE_ONLY_SIGNUP": "false",
                     "SITE_URL": f"https://{hostname}",
+                    "SMTP_HOST": host,
                     "SMTP_PORT": '587',
                     "SMTP_SECURE": 'true',
                     "SMTP_FROM_NAME": "Infisical",
                     "SMTP_FROM_ADDRESS": from_address,
                     "SMTP_USERNAME": username,
                     "SMTP_PASSWORD": password,
-                    "ENCRYPTION_KEY": randbytes(16).hex(),
                     "JWT_SIGNUP_SECRET": randbytes(16).hex(),
                     "JWT_REFRESH_SECRET": randbytes(16).hex(),
                     "JWT_AUTH_SECRET": randbytes(16).hex(),

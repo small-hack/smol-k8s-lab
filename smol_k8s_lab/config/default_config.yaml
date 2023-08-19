@@ -149,7 +149,7 @@ apps:
 
   external_secrets_operator:
     # enable the external secrets operator to pull remote secrets
-    enabled: false
+    enabled: true
     provider: bitwarden
     argo:
       # git repo to install the Argo CD app from
@@ -190,7 +190,7 @@ apps:
   infisical:
     # Infisical is an open-source, end-to-end encrypted secret management
     # platform that enables teams to easily manage and sync their env vars
-    enabled: true
+    enabled: false
     init: true
     argo:
       secret_keys:
