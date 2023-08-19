@@ -108,15 +108,15 @@ def main(config: str = "",
         from .utils.setup_k8s_tools import do_setup
         do_setup()
 
-    k8s = INITIAL_USR_CONFIG.get('k8s_distros', None)
+    # process all of the config file, or create a new one and also grab secrets
+    USR_CFG, SECRETS = process_configs(INITIAL_USR_CONFIG, delete)
+
+    k8s = USR_CFG.get('k8s_distros', None)
     if delete and k8s:
         for distro in k8s:
             # exits the script after deleting the cluster
             delete_cluster(k8s)
         exit()
-
-    # process all of the config file, or create a new one and also grab secrets
-    USR_CFG, SECRETS = process_configs(INITIAL_USR_CONFIG)
 
     # setup logging immediately
     log = process_log_config(USR_CFG['log'])
