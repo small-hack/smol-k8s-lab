@@ -113,11 +113,14 @@ class BwCLI():
                 cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
 
             # run either bw login or bw unlock depending on bw status
-            self.session = subproc([cmd],
+            self.session = subproc([cmd], quiet=True,
                                    env={"BW_PASSWORD": self.password,
                                         "BW_CLIENTID": self.client_id,
                                         "BW_CLIENTSECRET": self.client_secret,
-                                        "BW_HOST": self.host})
+                                        "BW_HOST": self.host,
+                                        "PATH": self.user_path,
+                                        "HOME": self.home})
+            # log.debug(f"session is {self.session}")
             log.info('Unlocked the Bitwarden vault.')
 
     def lock(self) -> None:

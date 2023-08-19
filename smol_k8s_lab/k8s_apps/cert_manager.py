@@ -37,7 +37,7 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
                 'acme': {'email': email_addr,
                          'server': acme_staging,
                          'privateKeySecretRef': {
-                             'name': '"letsencrypt-staging"'
+                             'name': "letsencrypt-staging"
                              },
                              'solvers': [
                                  {'http01': {'ingress': {'class': 'nginx'}}}
