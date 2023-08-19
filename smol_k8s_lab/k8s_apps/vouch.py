@@ -40,16 +40,28 @@ def configure_vouch(k8s_obj: K8s,
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
+            auth_url = {"name": "authUrl",
+                        "value": f'{base_url}auth',
+                        "type": 1,
+                        "linkedId": None}
+            token_url = {"name": "tokenUrl",
+                         "value": f'{base_url}token',
+                         "type": 1,
+                         "linkedId": None}
+            user_info_url = {"name": "userInfoUrl",
+                             "value": f'{base_url}userinfo',
+                             "type": 1,
+                             "linkedId": None}
+            callback_urls = {"name": "callbackUrls",
+                             "value": vouch_callback_url,
+                             "type": 1,
+                             "linkedId": None}
             # create oauth OIDC bitwarden item
             bitwarden.create_login(name='vouch-oauth-config',
                                    user=client_id,
                                    password=client_secret,
-                                   fields=[
-                                       {'authUrl': f'{base_url}auth'},
-                                       {'tokenUrl': f'{base_url}token'},
-                                       {'userInfoUrl': f'{base_url}userinfo'},
-                                       {'callbackUrls': vouch_callback_url}
-                                       ])
+                                   fields=[auth_url, token_url, user_info_url,
+                                           callback_urls])
 
             # create vouch config bitwarden item
             bitwarden.create_login(name='vouch-config',
