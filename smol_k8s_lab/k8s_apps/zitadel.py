@@ -5,7 +5,7 @@ from .zitadel_api import Zitadel
 from ..pretty_printing.console_logging import sub_header, header
 from ..k8s_tools.kubernetes_util import update_secret_key
 from ..k8s_tools.k8s_lib import K8s
-from ..k8s_tools.argocd_util import install_with_argocd
+from ..k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
 from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 
@@ -82,6 +82,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
                                   namespace="zitadel",
                                   str_data=secret_dict)
 
+    # install Zitadel using ArgoCD
     install_with_argocd(k8s_obj, 'zitadel', zitadel_config_dict['argo'])
 
     # only continue through the rest of the function if we're initializes a
@@ -89,6 +90,8 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     if not zitadel_config_dict['init']:
         return True
     else:
+        # Before initialization, we need to wait for zitadel's API to be up
+        wait_for_argocd_app(k8s_obj)
         configure_zitadel(k8s_obj, zitadel_domain, argocd_hostname,
                           bitwarden, vouch_config_dict)
 

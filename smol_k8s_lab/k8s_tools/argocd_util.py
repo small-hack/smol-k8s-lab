@@ -42,6 +42,14 @@ def install_with_argocd(k8s_obj: K8s,
     return True
 
 
+def wait_for_argocd_app(app: str = ""):
+    """
+    checks the status of an Argo CD app and waits till it is ready
+    """
+    subproc([f"argocd app wait {app}"])
+    return True
+
+
 def create_argocd_project(project_name: str = "",
                           app: str = "",
                           namespace: str = "",
