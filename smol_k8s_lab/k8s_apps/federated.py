@@ -30,13 +30,24 @@ def configure_nextcloud(k8s_obj: K8s,
             sub_header("Creating secrets in Bitwarden")
             token = bitwarden.generate()
             password = bitwarden.generate()
+            serverinfo_token_obj = {"name": "serverinfo_token",
+                                    "value": token,
+                                    "type": 1,
+                                    "linkedId": None}
+            smtpUsername = {"name": "smtpUsername",
+                            "value": mail_user,
+                            "type": 1,
+                            "linkedId": None}
+            smtpPassword = {"name": "smtpPassword",
+                            "value": mail_pass,
+                            "type": 1,
+                            "linkedId": None}
             bitwarden.create_login(name='nextcloud-admin-credentials',
                                    item_url=nextcloud_hostname,
                                    user=username,
                                    password=password,
-                                   fields=[{'serverinfo_token': token},
-                                           {'smtpUsername': mail_user},
-                                           {'smtpPassword': mail_pass}])
+                                   fields=[serverinfo_token_obj, smtpUsername,
+                                           smtpPassword])
 
             nextcloud_pgsql_password = bitwarden.generate()
             bitwarden.create_login(name='nextcloud-pgsql-credentials',
@@ -88,22 +99,28 @@ def configure_mastodon(k8s_obj: K8s,
         secrets = argo_dict['secrets']
         mastodon_hostname = secrets['mastodon_hostname']
         if bitwarden:
+            email_obj = {"name": "email",
+                         "value": email,
+                         "type": 1,
+                         "linkedId": None}
             sub_header("Creating secrets in Bitwarden")
             password = bitwarden.generate()
             bitwarden.create_login(name='mastodon-admin-credentials',
                                    item_url=mastodon_hostname,
                                    user=username,
                                    password=password,
-                                   fields=[{'email': email}])
+                                   fields=[email_obj])
 
             mastodon_pgsql_password = bitwarden.generate()
-            bitwarden.create_login(
-                    name='mastodon-pgsql-credentials',
-                    item_url=mastodon_hostname,
-                    user='mastodon',
-                    password=mastodon_pgsql_password,
-                    fields=[{'postrgesPassword': mastodon_pgsql_password}]
-                    )
+            postrges_pass_obj = {"name": "postrgesPassword",
+                                 "value": mastodon_pgsql_password,
+                                 "type": 1,
+                                 "linkedId": None}
+            bitwarden.create_login(name='mastodon-pgsql-credentials',
+                                   item_url=mastodon_hostname,
+                                   user='mastodon',
+                                   password=mastodon_pgsql_password,
+                                   fields=[postrges_pass_obj])
 
             mastodon_redis_password = bitwarden.generate()
             bitwarden.create_login(name='mastodon-redis-credentials',
@@ -145,13 +162,16 @@ def configure_matrix(k8s_obj: K8s,
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             matrix_pgsql_password = bitwarden.generate()
+            postgres_hostname = {"name": "hostname",
+                                 "value": 'matrix-web-app-postgresql',
+                                 "type": 1,
+                                 "linkedId": None}
             bitwarden.create_login(
                     name='matrix-pgsql-credentials',
                     item_url=matrix_hostname,
                     user='matrix',
                     password=matrix_pgsql_password,
-                    fields=[{'hostname': 'matrix-web-app-postgresql'}]
-                    )
+                    fields=[postgres_hostname])
         else:
             matrix_pgsql_password = create_password()
             k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',
