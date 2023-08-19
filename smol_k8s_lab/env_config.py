@@ -42,7 +42,7 @@ def process_configs(config: dict = {}, delete: bool = False):
 
     # just return this part if we're deleting the cluster
     if delete:
-        return config
+        return config, {}
 
     initialize = False
     # process just the app sections because they're the bulk of the config
