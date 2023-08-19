@@ -387,13 +387,13 @@ apps:
         # FQDN to use for zitadel
         hostname: ""
         # type of database to use: postgresql or cockroachdb
-        database_type: "postgresql"
+        database_type: "cockroachdb"
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       # if you want to use cockroachdb, change to zitadel/zitadel_and_cockroachdb
-      path: "zitadel/zitadel_and_postgresql"
+      path: "zitadel/zitadel_and_cockroachdb"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
