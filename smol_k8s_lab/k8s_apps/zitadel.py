@@ -52,7 +52,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
             # create db credentials password dict
             password = bitwarden.generate()
             admin_password = bitwarden.generate()
-            admin_user_obj = {"name": "adminUsername",
+            admin_user_obj = {"name": "adminUser",
                               "value": admin_user,
                               "type": 1,
                               "linkedId": None}
