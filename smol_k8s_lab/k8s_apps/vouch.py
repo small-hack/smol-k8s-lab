@@ -63,12 +63,19 @@ def configure_vouch(k8s_obj: K8s,
                                    fields=[auth_url, token_url, user_info_url,
                                            callback_urls])
 
+            domains_obj = {"name": "domains",
+                           "value": domains,
+                           "type": 1,
+                           "linkedId": None}
+            emails_obj = {"name": "allowList",
+                          "value": emails,
+                          "type": 1,
+                          "linkedId": None}
             # create vouch config bitwarden item
             bitwarden.create_login(name='vouch-config',
                                    user='vouch',
                                    password='',
-                                   fields=[{'domains': domains},
-                                           {'allowList': emails}])
+                                   fields=[domains_obj, emails_obj])
         # create vouch k8s secrets if we're not using bitwarden
         else:
             # create oauth OIDC k8s secret
