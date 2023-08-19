@@ -147,7 +147,7 @@ def main(config: str = "",
             bw = None
             # if we're using bitwarden, unlock the vault
             if USR_CFG['local_password_manager']['bitwarden']['enabled']:
-                bw = BwCLI(USR_CFG['bitwarden']['overwrite'])
+                bw = BwCLI(USR_CFG['local_password_manager']['bitwarden']['overwrite'])
                 bw.unlock()
 
             # user can configure a special domain for argocd
