@@ -65,8 +65,6 @@ class BwCLI():
         # controls if we overwrite the existing items when creating new items
         self.overwrite = overwrite
 
-        self.sync()
-
     def sync(self):
         """
         syncs your bitwaren vault on initialize of this class
@@ -151,6 +149,7 @@ class BwCLI():
         Required Args:
             - item_name: str of name of item
         """
+        self.sync()
         command = f"{self.bw_path} get item {item_name}"
         response = subproc([command], error_ok=True,
                            env={"BW_SESSION": f"'{self.session}'",
