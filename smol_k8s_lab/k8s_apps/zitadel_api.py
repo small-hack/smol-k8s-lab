@@ -238,7 +238,7 @@ class Zitadel():
         return True
 
 
-def create_token(private_key: str = "") -> str:
+def generate_token(private_key: str = "", hostname: str = "") -> str:
     """
     Takes a Zitadel service account private key and generates an API token.
     """
@@ -248,3 +248,6 @@ def create_token(private_key: str = "") -> str:
         log.info(msg)
         cmd = "go install github.com/zitadel/zitadel-tools@latest"
         subproc([cmd])
+
+    cmd = f"zitadel-tools key2jwt --audience=https://{hostname} --key=key.json"
+    subproc([cmd])
