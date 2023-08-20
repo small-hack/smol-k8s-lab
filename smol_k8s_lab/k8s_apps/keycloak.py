@@ -13,7 +13,7 @@ from ..utils.passwords import create_password
 def configure_keycloak_and_vouch(k8s_obj: K8s,
                                  keycloak_config_dict: dict = {},
                                  vouch_config_dict: dict = {},
-                                 bitwarden=None):
+                                 bitwarden: BwCLI = None) -> True:
     """
     Installs Keycloak and Vouch as Argo CD Applications. If
     keycloak_config_dict['init'] is True, it also configures Vouch and Argo CD
@@ -21,6 +21,8 @@ def configure_keycloak_and_vouch(k8s_obj: K8s,
 
     Required Arguments:
         keycloak_config_dict: dict, Argo CD parameters for keycloak
+        K8s: K8s() class instance so we can create secrets and install with
+             argo using a direct connection to the cluster
 
     Optional Arguments:
         vouch_config_dict: dict, Argo CD parameters for vouch
@@ -64,12 +66,12 @@ def configure_keycloak_and_vouch(k8s_obj: K8s,
 
     # only continue through the rest of the function if we're initializes a
     # user and vouch/argocd clients in keycloak
-    if not keycloak_config_dict['init']:
-        return True
-    else:
+    if keycloak_config_dict['init']:
         realm = secrets['default_realm']
         configure_keycloak(k8s_obj, realm, keycloak_hostname, bitwarden,
                            vouch_config_dict)
+    # always return True
+    return True
 
 
 def configure_keycloak(k8s_obj: K8s, realm: str = "",
