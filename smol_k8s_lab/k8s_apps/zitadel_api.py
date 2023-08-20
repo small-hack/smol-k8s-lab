@@ -18,14 +18,15 @@ class Zitadel():
         self.api_url = f"https://{hostname}/management/v1/"
         log.debug(f"API URL is [blue]{self.api_url}[/]")
 
-        api_token = generate_token(hostname, service_account_key_file)
-        self.api_token = api_token
+        self.api_token = generate_token(hostname, service_account_key_file)
 
         self.headers = {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': f'Bearer {self.api_token}'
         }
+
+        log.debug(self.headers)
 
         self.project_id = self.get_project_id()
         log.debug(f"project id is {self.project_id}")
@@ -250,6 +251,6 @@ def generate_token(hostname: str = "", secret_file: str = "") -> str:
         cmd = "go install github.com/zitadel/zitadel-tools@latest"
         subproc([cmd])
 
-    url = f"https://{hostname}"
-    res = subproc([f"zitadel-tools key2jwt --audience={url} --key={secret_file}"])
+    cmd = f"zitadel-tools key2jwt --audience=https://{hostname} --key={secret_file}"
+    res = subproc([cmd], quiet=True)
     return res.rstrip()
