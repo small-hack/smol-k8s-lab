@@ -117,7 +117,7 @@ def configure_zitadel(k8s_obj: K8s,
     # setup the zitadel python api wrapper
     adm_secret = k8s_obj.get_secret('zitadel-admin-sa', 'zitadel').data
     adm_secret_file = adm_secret['zitadel-admin-sa.json']
-    api_token = b64dec(bytes(adm_secret_file))
+    api_token = b64dec(str.encode(adm_secret_file))
     zitadel =  Zitadel(f"https://{zitadel_hostname}/management/v1/", api_token)
 
     log.info("Creating a groups Zitadel Action (sends group info to Argo)")
