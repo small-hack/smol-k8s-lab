@@ -51,8 +51,9 @@ class Zitadel():
           ]
         })
 
+        log.debug("Listing projects to get current project ID via the Zitadel API")
         response = request("PUT", self.api_url + "projects/_search",
-                           headers=self.headers, data=payload)
+                           headers=self.headers, data=payload, verify=False)
 
         log.info(response.text)
         return response.json['result'][0]['id']
