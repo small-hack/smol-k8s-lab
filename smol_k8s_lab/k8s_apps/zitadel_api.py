@@ -14,8 +14,9 @@ class Zitadel():
         """
         log.debug("Initializing zitadel API object")
         self.api_url = api_url
-        log.debug(f"API URL is {api_url}")
+        log.debug(f"API URL is [blue]{api_url}[/]")
         self.api_token = api_token
+        # log.debug(f"API Token is {api_token}")
 
         self.headers = {
           'Content-Type': 'application/json',
