@@ -250,4 +250,5 @@ def generate_token(hostname: str = "", secret_file: str = "") -> str:
         subproc([cmd])
 
     url = f"https://{hostname}"
-    subproc([f"zitadel-tools key2jwt --audience={url} --key={secret_file}"])
+    res = subproc([f"zitadel-tools key2jwt --audience={url} --key={secret_file}"])
+    return res

@@ -1,5 +1,5 @@
 from base64 import standard_b64decode as b64dec
-from json import dump
+from json import dump, loads
 import logging as log
 from .vouch import configure_vouch
 from .zitadel_api import Zitadel
@@ -121,7 +121,8 @@ def configure_zitadel(k8s_obj: K8s,
     adm_secret_file = adm_secret.data['zitadel-admin-sa.json']
     secret_file = f'{XDG_CACHE_DIR}/zitadel-admin-sa.json'
     with open(secret_file, 'w') as json_key_file:
-        dump(b64dec(str.encode(adm_secret_file)).decode('utf8'), json_key_file)
+        blob = loads(b64dec(str.encode(adm_secret_file)).decode('utf8'))
+        dump(blob, json_key_file)
 
     zitadel =  Zitadel(zitadel_hostname, secret_file)
 
