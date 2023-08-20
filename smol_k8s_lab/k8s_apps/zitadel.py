@@ -92,6 +92,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     else:
         # Before initialization, we need to wait for zitadel's API to be up
         wait_for_argocd_app('zitadel')
+        wait_for_argocd_app('zitadel-web-app')
         configure_zitadel(k8s_obj, zitadel_domain, argocd_hostname,
                           bitwarden, vouch_config_dict)
 
