@@ -182,6 +182,9 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
+      project_source_repos:
+        - "https://jessebot.github.io/bitwarden-eso-provider"
 
   infisical:
     # Infisical is an open-source, end-to-end encrypted secret management
@@ -205,6 +208,21 @@ apps:
       project_source_repos:
         - "registry-1.docker.io"
         - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
+
+  k8up:
+    enabled: true
+    argo:
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "k8up/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "k8up"
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
+      project_source_repos:
+        - "https://k8up-io.github.io/k8up"
 
   # keycloak is an IAM provider that you can use with ArgoCD for user/group
   # management and oauth2. it also works with vouch to secure hostnames that
