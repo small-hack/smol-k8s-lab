@@ -10,16 +10,16 @@ class Zitadel():
     """
     Python Wrapper for the Zitadel API
     """
-    def __init__(self, api_url: str = "", private_key: str = ""):
+    def __init__(self, hostname: str = "", service_account_key_file: str = ""):
         """
         This is mostly for storing the session token and api base url
         """
         log.debug("Initializing zitadel API object")
-        self.api_url = api_url
-        log.debug(f"API URL is [blue]{api_url}[/]")
-        api_token = generate_token(private_key)
+        self.api_url = f"https://{hostname}/management/v1/"
+        log.debug(f"API URL is [blue]{self.api_url}[/]")
+
+        api_token = generate_token(hostname, service_account_key_file)
         self.api_token = api_token
-        # log.debug(f"private key is {private_key}")
 
         self.headers = {
           'Content-Type': 'application/json',
@@ -238,7 +238,7 @@ class Zitadel():
         return True
 
 
-def generate_token(private_key: str = "", hostname: str = "") -> str:
+def generate_token(hostname: str = "", secret_file: str = "") -> str:
     """
     Takes a Zitadel service account private key and generates an API token.
     """
@@ -249,5 +249,5 @@ def generate_token(private_key: str = "", hostname: str = "") -> str:
         cmd = "go install github.com/zitadel/zitadel-tools@latest"
         subproc([cmd])
 
-    cmd = f"zitadel-tools key2jwt --audience=https://{hostname} --key=key.json"
-    subproc([cmd])
+    url = f"https://{hostname}"
+    subproc([f"zitadel-tools key2jwt --audience={url} --key={secret_file}"])
