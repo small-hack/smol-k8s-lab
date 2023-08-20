@@ -12,8 +12,9 @@ class Zitadel():
         """
         This is mostly for storing the session token and api base url
         """
+        log.debug("Initializing zitadel API object")
         self.api_url = api_url
-
+        log.debug(f"API URL is {api_url}")
         self.api_token = api_token
 
         self.headers = {
@@ -23,6 +24,7 @@ class Zitadel():
         }
 
         self.project_id = self.get_project_id()
+        log.debug(f"project id is {self.project_id}")
 
     def get_project_id(self,) -> str:
         """
