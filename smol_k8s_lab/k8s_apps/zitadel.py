@@ -1,4 +1,5 @@
 from base64 import standard_b64decode as b64dec
+from json import loads
 import logging as log
 from .vouch import configure_vouch
 from .zitadel_api import Zitadel
@@ -117,7 +118,8 @@ def configure_zitadel(k8s_obj: K8s,
     # setup the zitadel python api wrapper
     adm_secret = k8s_obj.get_secret('zitadel-admin-sa', 'zitadel').data
     adm_secret_file = adm_secret['zitadel-admin-sa.json']
-    api_token = b64dec(str.encode(adm_secret_file))
+    api_token = loads(b64dec(str.encode(adm_secret_file)).decode('utf8'))
+
     zitadel =  Zitadel(f"https://{zitadel_hostname}/management/v1/", api_token)
 
     log.info("Creating a groups Zitadel Action (sends group info to Argo)")
