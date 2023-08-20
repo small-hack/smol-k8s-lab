@@ -2,21 +2,24 @@ import logging as log
 import json
 from requests import request
 from rich.prompt import Prompt
+from shutil import which
+from ..subproc import subproc
 
 
 class Zitadel():
     """
     Python Wrapper for the Zitadel API
     """
-    def __init__(self, api_url: str = "", api_token: str = ""):
+    def __init__(self, api_url: str = "", private_key: str = ""):
         """
         This is mostly for storing the session token and api base url
         """
         log.debug("Initializing zitadel API object")
         self.api_url = api_url
         log.debug(f"API URL is [blue]{api_url}[/]")
+        api_token = generate_token(private_key)
         self.api_token = api_token
-        # log.debug(f"API Token is {api_token}")
+        # log.debug(f"private key is {private_key}")
 
         self.headers = {
           'Content-Type': 'application/json',
@@ -119,7 +122,9 @@ class Zitadel():
         return response.json['userId']
 
 
-    def create_application(self, app_name: str = "", redirect_uris: list = [],
+    def create_application(self,
+                           app_name: str = "",
+                           redirect_uris: list = [],
                            post_logout_redirect_uris: list = []) -> dict:
         """
         Create an OIDC Application in Zitadel via the API.
@@ -185,7 +190,9 @@ class Zitadel():
         return True
 
 
-    def create_role(self, role_key: str = "", display_name: str = "",
+    def create_role(self,
+                    role_key: str = "",
+                    display_name: str = "",
                     group: str = "") -> bool:
         """
         create a role in zitadel from given:
@@ -229,3 +236,15 @@ class Zitadel():
 
         log.info(response.text)
         return True
+
+
+def create_token(private_key: str = "") -> str:
+    """
+    Takes a Zitadel service account private key and generates an API token.
+    """
+    if not which("zitadel-tools"):
+        msg = ("Installing [green]zitadel-tools[/], a cli tool to generate an "
+               "API token from a private key.")
+        log.info(msg)
+        cmd = "go install github.com/zitadel/zitadel-tools@latest"
+        subproc([cmd])
