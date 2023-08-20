@@ -69,8 +69,9 @@ class BwCLI():
         """
         syncs your bitwaren vault on initialize of this class
         """
-        subproc([f"{self.bw_path} sync"], env={"BW_SESSION": self.session})
-        log.info('Synced Bitwarden vault (to update local items before start)')
+        res = subproc([f"{self.bw_path} sync"],
+                      env={"BW_SESSION": self.session})
+        log.info(res)
         return True
 
     def __get_credential__(self, credential: str = ""):
