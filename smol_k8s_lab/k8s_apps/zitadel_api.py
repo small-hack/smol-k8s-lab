@@ -1,3 +1,4 @@
+from datetime import datetime, timezone, timedelta
 import logging as log
 from json import dumps
 # see for jwt docs: https://github.com/jpadilla/pyjwt/
@@ -36,24 +37,38 @@ class Zitadel():
 
     def generate_token(self, hostname: str = "", secret_blob: str = "") -> str:
         """
-        Takes a Zitadel hostname string and service account private key secret_blob
-        and generates an API token.
+        Takes a Zitadel hostname string and service account private key json,
+        and generates first a JWT and then an API token.
 
-        This does the equivelent of this this curl command to get the token:
+        API token request is the equiv of:
             curl --request POST \
-              --url https://{your_domain}.zitadel.cloud/oauth/v2/token \
+              --url https://${hostname}/oauth/v2/token \
               --header 'Content-Type: application/x-www-form-urlencoded' \
               --data grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer \
               --data scope='openid profile email' \
               --data assertion=eyJ0eXAiOiJKV1QiL...
         """
-        encoded = jwt.encode(secret_blob, "secret", algorithm="HS256")
-        auth_url = f"https://{hostname}.zitadel.cloud/oauth/v2/token"
+        # Generating a JWT from a private key
+        log.info("Creating a jwt so we can request an Oauth token from zitadel")
+        now = datetime.now(timezone.utc)
+        # JWT is valid for one hour
+        hour_from_now = now + timedelta(hours=1)
+        payload = {"iss": secret_blob['userId'],
+                   "sub": secret_blob['userId'],
+                   "aud": f"https://{hostname}",
+                   "iat": now,
+                   "exp": hour_from_now}
+        key = secret_blob['key']
+        encoded = jwt.encode(payload, key, algorithm="RS256")
+
+        # actual creation of API token
+        log.info("Requesting an API token from zitadel...")
+        auth_url = f"https://{hostname}/oauth/v2/token"
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                    'scope': 'openid profile email',
                    'assertion': encoded}
-        res = request("POST", auth_url, headers=headers, data=dumps(payload),
+        res = request("POST", auth_url, headers=headers, data=payload,
                       verify=False)
         log.info(res.text)
         return(res.json['access_token'])

@@ -46,10 +46,6 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
     log.info(f"Updating your {KUBECONFIG}")
 
     k3s_kubeconfig = "/etc/rancher/k3s/k3s.yaml"
-    # rename the cluster in your kubeconfig to smol-k8s-lab-k3s
-    cluster_rename = ("sudo kubectl config rename-context "
-                      f"--kubeconfig {k3s_kubeconfig} default smol-k8s-lab-k3s")
-
     # Grab the kubeconfig and copy it locally
     cp = f'sudo cp {k3s_kubeconfig} {KUBECONFIG}'
 
@@ -58,8 +54,11 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
     # change the owner to the current user running this script
     chown_cmd = f'sudo chown {USER}: {KUBECONFIG}'
 
+    # rename the cluster in your kubeconfig to smol-k8s-lab-k3s
+    cluster_rename = "kubectl config rename-context default smol-k8s-lab-k3s"
+
     # run all 3 commands one after the other
-    subproc([cluster_rename, cp, chmod_cmd, chown_cmd])
+    subproc([cp, chmod_cmd, chown_cmd, cluster_rename])
 
     # remove the script after we're done
     remove('./install.sh')
