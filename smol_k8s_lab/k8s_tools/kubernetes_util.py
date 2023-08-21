@@ -46,7 +46,7 @@ def apply_custom_resources(custom_resource_dict_list: dict = {}):
     commands = {}
     log.debug(custom_resource_dict_list)
 
-    # Write YAML data to '{XDG_CACHE_DIR}/{resource_name}.yaml'.
+    # Write YAML data to f'{XDG_CACHE_DIR}/{resource_name}.yaml'.
     for custom_resource_dict in custom_resource_dict_list:
         resource_name = "_".join([custom_resource_dict['kind'],
                                   custom_resource_dict['metadata']['name']])
@@ -69,7 +69,7 @@ def update_secret_key(k8s_obj: K8s,
     if in_line_key_name is set to a key name, you can specify a base key in a
     secret that contains an inline yaml block
     """
-    secret_data = k8s_obj.get_secret(secret_name, secret_namespace)['data']
+    secret_data = k8s_obj.get_secret(secret_name, secret_namespace).data
 
     # if this is a secret with a filename key and then inline yaml inside...
     if in_line_key_name:
