@@ -1,3 +1,4 @@
+import logging as log
 from ..pretty_printing.console_logging import sub_header, header
 from ..subproc import subproc
 
@@ -13,6 +14,7 @@ def create_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
     header(f"Initializing your [green]{k8s_distro}[/] cluster")
     cmd = "kubectl config get-contexts"
     clusters = subproc([cmd], error_ok=True, quiet=True)
+    log.debug(clusters)
     if f'smol-k8s-lab-{k8s_distro}' in clusters:
         sub_header(f'We already have a [green]{k8s_distro}[/] cluster ♡')
         return True
