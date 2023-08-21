@@ -70,7 +70,8 @@ def update_secret_key(k8s_obj: K8s,
     if in_line_key_name is set to a key name, you can specify a base key in a
     secret that contains an inline yaml block
     """
-    secret_data = k8s_obj.get_secret(secret_name, secret_namespace).data
+    secret_data = k8s_obj.get_secret(secret_name, secret_namespace)['data']
+    log.debug(secret_data)
 
     # if this is a secret with a filename key and then inline yaml inside...
     if in_line_key_name:

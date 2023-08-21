@@ -3,6 +3,8 @@ from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import logging as log
 import yaml
+# local imports
+from ..subproc import subproc
 
 
 # this lets us do multi line yaml values
@@ -28,31 +30,6 @@ class K8s():
         config.load_kube_config()
         self.api_client = client.ApiClient()
         self.core_v1_api = client.CoreV1Api(self.api_client)
-        self.custom_obj_api = client.CustomObjectsApi(self.api_client)
-
-    def create_from_manifest_dict(self,
-                                  api_group: str = "",
-                                  api_version: str = "",
-                                  namespace: str = "",
-                                  plural_obj_name: str = "",
-                                  manifest_dict: dict = {}) -> bool:
-        """
-        creates any resource in k8s from a python dictionary
-        not working!! https://github.com/kubernetes-client/python/issues/2103
-        """
-        try:
-            # create the resource
-            self.custom_obj_api.create_namespaced_custom_object(
-                    group=api_group,
-                    version=api_version,
-                    namespace=namespace,
-                    plural=plural_obj_name,
-                    body=manifest_dict,
-                )
-        except ApiException as e:
-            log.error("Exception when calling CustomObjectsApi->"
-                      f"create_namespaced_custom_object: {e}")
-        return True
 
     def create_secret(self,
                       name: str = "",
@@ -95,46 +72,69 @@ class K8s():
         """
         get an existing k8s secret
         """
-        log.debug(f"Searching for secret: {name}, namespace: {namespace}")
-        secrets = self.core_v1_api.list_namespaced_secret(namespace)
-        log.debug(secrets)
-        for secret in secrets.items:
-            if secret.metadata.name == name:
-                return secret
+        log.debug(f"Getting secret: {name} in namespace: {namespace}")
 
-    def get_namespace(self, namespace_name: str = "") -> bool:
-        """ 
+        res = subproc([f"kubectl get secret -n {namespace} {name} -o json"])
+        return res.json
+
+    def get_namespace(self, name: str = "") -> bool:
+        """
         checks for specific namespace and returns True if it exists,
         returns False if namespace does not exist
         """
         nameSpaceList = self.core_v1_api.list_namespace()
-        for nameSpace in nameSpaceList.items:
-            if nameSpace.metadata.name == namespace_name:
+        for nameSpace_obj in nameSpaceList.items:
+            if nameSpace_obj.metadata.name == name:
                 return True
-        log.debug(f"namespace, {namespace_name}, does not exist yet")
+        log.debug(f"Namespace, {name}, does not exist yet")
         return False
 
-    def create_namespace(self, namespace_name: str = "") -> True:
+    def create_namespace(self, name: str = "") -> True:
         """
-        Create namespace with namespace_name
+        Create namespace with name
         """
-        if not self.get_namespace(namespace_name):
-            log.info(f"Creating namespace: {namespace_name}")
-            meta = client.V1ObjectMeta(name=namespace_name)
+        if not self.get_namespace(name):
+            log.info(f"Creating namespace: {name}")
+            meta = client.V1ObjectMeta(name=name)
             namespace = client.V1Namespace(metadata=meta)
 
             self.core_v1_api.create_namespace(namespace)
         else:
-            log.debug(f"namespace, {namespace_name}, already exists")
+            log.debug(f"Namespace, {name}, already exists")
         return True
 
-    def delete_pod_of_deployment(self, name: str = "",
-                                 namespace: str = "") -> True:
+    def reload_deployment(self, name: str = "", namespace: str = "") -> True:
         """
-        restart a deployment's pod by deleting it
+        restart a deployment's pod scaling it up and then down again
+        currently only works with one pod
         """
-        pods = self.core_v1_api.list_namespaced_pod(namespace)
-        for pod in pods.items:
-            if name in pod.metadata.name:
-                log.info(f"Deleting pod, [orange]{pod.metadata.name}[/]")
-                self.core_v1_api.delete_namespaced_pod(pod, namespace)
+        subproc([f"kubectl scale deploy -n {namespace} {name} --replicas=0",
+                 "sleep 3",
+                 f"kubectl scale deploy -n {namespace} {name} --replicas=1"])
+
+
+    # def create_from_manifest_dict(self,
+    #                               api_group: str = "",
+    #                               api_version: str = "",
+    #                               namespace: str = "",
+    #                               plural_obj_name: str = "",
+    #                               manifest_dict: dict = {}) -> bool:
+    #     """
+    #     NOT working! see: https://github.com/kubernetes-client/python/issues/2103
+    #     I just don't want to have to write this again if the bug is fixed
+    #     creates any resource in k8s from a python dictionary
+    #     """
+    #     custom_obj_api = client.CustomObjectsApi(self.api_client)
+    #     try:
+    #         # create the resource
+    #         custom_obj_api.create_namespaced_custom_object(
+    #                 group=api_group,
+    #                 version=api_version,
+    #                 namespace=namespace,
+    #                 plural=plural_obj_name,
+    #                 body=manifest_dict,
+    #             )
+    #     except ApiException as e:
+    #         log.error("Exception when calling CustomObjectsApi->"
+    #                   f"create_namespaced_custom_object: {e}")
+    #     return True
