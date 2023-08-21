@@ -8,7 +8,6 @@ DESCRIPTION: generic kubernetes utilities
 
 from base64 import b64decode as b64dec
 from base64 import standard_b64encode as b64enc
-from json import loads
 from os import path
 import yaml
 from yaml import dump
@@ -76,7 +75,7 @@ def update_secret_key(k8s_obj: K8s,
     # if this is a secret with a filename key and then inline yaml inside...
     if in_line_key_name:
         file_key = secret_data[in_line_key_name]
-        decoded_data  = loads(b64dec(str.encode(file_key)).decode('utf8'))
+        decoded_data  = b64dec(str.encode(file_key)).decode('utf8')
         # load the yaml as a python dictionary
         in_line_yaml = yaml.safe_load(decoded_data)
         # for each key, updated_value in updated_values_dict
