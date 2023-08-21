@@ -131,7 +131,7 @@ class Zitadel():
         response = request("POST", self.api_url + 'users/human/_import',
                            headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
-        return response.json['userId']
+        return response.json()['userId']
 
 
     def create_user_grant(self, user_id: str = "", role_key: str = ""):
@@ -155,7 +155,7 @@ class Zitadel():
                            headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
 
-        return response.json['userId']
+        return response.json()['userId']
 
 
     def create_application(self,
@@ -200,7 +200,7 @@ class Zitadel():
                            f'{self.api_url}projects/{self.project_id}/apps/oidc',
                            headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
-        json_res = response.json
+        json_res = response.json()
 
         return {"application_id": json_res['appId'],
                 "client_id": json_res['clientId'],
@@ -216,7 +216,7 @@ class Zitadel():
         payload = dumps({
           "name": "groupsClaim",
           "script": "function groupsClaim(ctx, api) { if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) { return; } let grants = []; ctx.v1.user.grants.grants.forEach(claim => { claim.roles.forEach(role => { grants.push(role)  }) }) api.v1.claims.setClaim('groups', grants) }",
-          "timeout": "10",
+          "timeout": "10s",
           "allowedToFail": True
         })
 
