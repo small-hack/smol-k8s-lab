@@ -1,6 +1,6 @@
 from ..utils.passwords import create_password
 from datetime import datetime, timezone, timedelta
-from json import dumps
+from json import dumps, dump
 import jwt
 import logging as log
 import cryptography
@@ -109,23 +109,22 @@ class Zitadel():
 
         # create a new user via the API
         log.info("Creating a new user...")
-        payload = dumps({
-          "userName": user,
-          "profile": {
-            "firstName": first_name,
-            "lastName": last_name,
-            "nickName": "friend",
-            "displayName": f"{first_name} {last_name}",
-            "preferredLanguage": "en",
-            "gender": gender
-          },
-          "email": {
-            "email": email,
-            "isEmailVerified": True
-          },
-          "password": password,
-          "passwordChangeRequired": True,
-        })
+        payload = dump({"userName": user,
+                          "profile": {
+                            "firstName": first_name,
+                            "lastName": last_name,
+                            "nickName": "friend",
+                            "displayName": f"{first_name} {last_name}",
+                            "preferredLanguage": "en",
+                            "gender": gender
+                          },
+                          "email": {
+                            "email": email,
+                            "isEmailVerified": True
+                          },
+                          "password": password,
+                          "passwordChangeRequired": True,
+                        })
 
         # get the user ID from the response
         response = request("POST", self.api_url + 'users/human/_import',

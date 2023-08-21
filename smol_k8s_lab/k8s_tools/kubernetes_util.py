@@ -82,6 +82,7 @@ def update_secret_key(k8s_obj: K8s,
         for key, updated_value in updated_values_dict.items():
            # update the in-line yaml
            in_line_yaml[key] = updated_value
+        k8s_obj.delete_secret(secret_name, secret_namespace)
         # update the inline yaml for the dict we'll feed back to
         k8s_obj.create_secret(secret_name, secret_namespace,
                               yaml.dump(in_line_yaml), in_line_key_name)
@@ -89,5 +90,6 @@ def update_secret_key(k8s_obj: K8s,
         for key, updated_value in updated_values_dict.items():
            # update the keys in the secret yaml one by one
            secret_data[key] = b64enc(bytes(updated_value))
+        k8s_obj.delete_secret(secret_name, secret_namespace)
         k8s_obj.create_secret(secret_name, secret_namespace, secret_data)
     return True

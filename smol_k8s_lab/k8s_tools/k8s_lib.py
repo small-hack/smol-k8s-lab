@@ -78,6 +78,15 @@ class K8s():
         res = subproc([f"kubectl get secret -n {namespace} {name} -o json"])
         return loads(res)
 
+    def delete_secret(self, name: str = "", namespace: str = "") -> dict:
+        """
+        get an existing k8s secret
+        """
+        log.debug(f"Deleting secret: {name} in namespace: {namespace}")
+
+        res = subproc([f"kubectl delete secret -n {namespace} {name} -o json"])
+        return loads(res)
+
     def get_namespace(self, name: str = "") -> bool:
         """
         checks for specific namespace and returns True if it exists,
