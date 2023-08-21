@@ -1,7 +1,6 @@
 from ..utils.passwords import create_password
 from datetime import datetime, timezone, timedelta
 from json import dumps
-# see for jwt docs: https://github.com/jpadilla/pyjwt/
 import jwt
 import logging as log
 import cryptography
@@ -21,6 +20,8 @@ class Zitadel():
         self.api_url = f"https://{hostname}/management/v1/"
         log.debug(f"API URL is [blue]{self.api_url}[/]")
 
+        self.verify = False
+
         self.api_token = self.generate_token(hostname, service_account_key_obj)
 
         self.headers = {
@@ -35,10 +36,12 @@ class Zitadel():
         Takes a Zitadel hostname string and service account private key json,
         and generates first a JWT and then an API token.
 
+        For python jwt docs: https://github.com/jpadilla/pyjwt/
+
         secret_blob dictionary should look like:
         {"type":"serviceaccount",
          "keyId":"100509901696068329",
-         "key":"-----BEGIN RSA PRIVATE KEY----- [...] -----END RSA PRIVATE KEY-----\n",
+         "key":"-----BEGIN RSA PRIVATE KEY-----...-----END RSA PRIVATE KEY-----\n",
          "userId":"100507859606888466"}
 
         https://zitadel.com/docs/guides/integrate/private-key-jwt
@@ -65,7 +68,7 @@ class Zitadel():
                    'scope': scopes,
                    'assertion': encoded}
         res = request("POST", f"https://{hostname}/oauth/v2/token",
-                      headers=headers, data=payload, verify=False)
+                      headers=headers, data=payload, verify=self.verify)
         return(res.json()['access_token'])
 
     def create_project(self,) -> list[str]:
@@ -82,7 +85,7 @@ class Zitadel():
             })
 
         response = request("POST", self.api_url + "projects",
-                           headers=self.headers, data=payload, verify=False)
+                           headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
         json_blob = response.json()
         self.project_id = json_blob['id']
@@ -126,7 +129,7 @@ class Zitadel():
 
         # get the user ID from the response
         response = request("POST", self.api_url + 'users/human/_import',
-                           headers=self.headers, data=payload)
+                           headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
         return response.json['userId']
 
@@ -149,7 +152,7 @@ class Zitadel():
 
         response = request("POST",
                            self.api_url + f"users/{user_id}/grants",
-                           headers=self.headers, data=payload)
+                           headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
 
         return response.json['userId']
@@ -195,7 +198,7 @@ class Zitadel():
 
         response = request("POST",
                            f'{self.api_url}projects/{self.proj_id}/apps/oidc',
-                           headers=self.headers, data=payload)
+                           headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
         json_res = response.json
 
@@ -218,7 +221,7 @@ class Zitadel():
         })
 
         response = request("POST", self.api_url + "actions",
-                           headers=self.headers, data=payload)
+                           headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
         return True
 
@@ -243,7 +246,7 @@ class Zitadel():
 
         response = request("POST",
                            f"{self.api_url}projects/{self.project_id}/roles",
-                           headers=self.headers, data=payload)
+                           headers=self.headers, data=payload, verify=self.verify)
 
         log.info(response.text)
         return True
