@@ -10,13 +10,13 @@ def create_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
         k8s_distro - string. options: 'k0s', 'k3s', 'k3d', or 'kind'
     Returns True
     """
-    cmd = "kubectl config get-clusters"
+    header(f"Initializing your [green]{k8s_distro}[/] cluster")
+    cmd = "kubectl config get-contexts"
     clusters = subproc([cmd], error_ok=True, quiet=True)
     if f'smol-k8s-lab-{k8s_distro}' in clusters:
-        header(f'We already have a {k8s_distro} cluster ♡')
+        sub_header(f'We already have a [green]{k8s_distro}[/] cluster ♡')
         return True
 
-    header(f'Creating a [green]{k8s_distro}[/] cluster.')
     sub_header('This could take a min ʕ•́ _ ̫•̀ʔっ♡ ', False)
 
     if k8s_distro == "kind":
