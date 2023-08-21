@@ -28,17 +28,22 @@ class Zitadel():
           'Accept': 'application/json',
           'Authorization': f'Bearer {self.api_token}'
         }
-
-        log.debug(self.headers)
+        # log.debug(self.headers)
 
         self.project_id = self.get_project_id()
         log.debug(f"project id is {self.project_id}")
 
 
-    def generate_token(self, hostname: str = "", secret_blob: str = "") -> str:
+    def generate_token(self, hostname: str = "", secret_blob: dict = {}) -> str:
         """
         Takes a Zitadel hostname string and service account private key json,
         and generates first a JWT and then an API token.
+
+        secret_blob dictionary should look like:
+        {"type":"serviceaccount",
+         "keyId":"100509901696068329",
+         "key":"-----BEGIN RSA PRIVATE KEY----- [...] -----END RSA PRIVATE KEY-----\n",
+         "userId":"100507859606888466"}
 
         API token request is the equiv of:
             curl --request POST \
@@ -50,16 +55,14 @@ class Zitadel():
         """
         # Generating a JWT from a private key
         log.info("Creating a jwt so we can request an Oauth token from zitadel")
-        now = datetime.now(timezone.utc)
-        # JWT is valid for one hour
-        hour_from_now = now + timedelta(hours=1)
         payload = {"iss": secret_blob['userId'],
                    "sub": secret_blob['userId'],
                    "aud": f"https://{hostname}",
-                   "iat": now,
-                   "exp": hour_from_now}
+                   "iat": datetime.now(tz=timezone.utc),
+                   "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=30)}
         key = secret_blob['key']
-        encoded = jwt.encode(payload, key, algorithm="RS256")
+        encoded = jwt.encode(payload, key, algorithm="RS256",
+                             headers={"kid": secret_blob['keyId']})
 
         # actual creation of API token
         log.info("Requesting an API token from zitadel...")
@@ -70,8 +73,7 @@ class Zitadel():
                    'assertion': encoded}
         res = request("POST", auth_url, headers=headers, data=payload,
                       verify=False)
-        log.info(res.text)
-        return(res.json['access_token'])
+        return(res.json()['access_token'])
 
     def get_project_id(self,) -> str:
         """
