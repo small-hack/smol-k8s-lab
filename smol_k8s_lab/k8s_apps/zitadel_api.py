@@ -3,10 +3,9 @@ import logging as log
 from json import dumps
 # see for jwt docs: https://github.com/jpadilla/pyjwt/
 import jwt
+import cryptography
 from requests import request
 from rich.prompt import Prompt
-# from shutil import which
-# from ..subproc import subproc
 
 
 class Zitadel():
@@ -24,11 +23,10 @@ class Zitadel():
         self.api_token = self.generate_token(hostname, service_account_key_obj)
 
         self.headers = {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
           'Accept': 'application/json',
           'Authorization': f'Bearer {self.api_token}'
         }
-        # log.debug(self.headers)
 
         self.project_id = self.get_project_id()
         log.debug(f"project id is {self.project_id}")
@@ -45,34 +43,31 @@ class Zitadel():
          "key":"-----BEGIN RSA PRIVATE KEY----- [...] -----END RSA PRIVATE KEY-----\n",
          "userId":"100507859606888466"}
 
-        API token request is the equiv of:
-            curl --request POST \
-              --url https://${hostname}/oauth/v2/token \
-              --header 'Content-Type: application/x-www-form-urlencoded' \
-              --data grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer \
-              --data scope='openid profile email' \
-              --data assertion=eyJ0eXAiOiJKV1QiL...
+        https://zitadel.com/docs/guides/integrate/private-key-jwt
+        #2-create-a-jwt-and-sign-with-private-key
         """
         # Generating a JWT from a private key
         log.info("Creating a jwt so we can request an Oauth token from zitadel")
-        payload = {"iss": secret_blob['userId'],
-                   "sub": secret_blob['userId'],
-                   "aud": f"https://{hostname}",
-                   "iat": datetime.now(tz=timezone.utc),
-                   "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=30)}
-        key = secret_blob['key']
-        encoded = jwt.encode(payload, key, algorithm="RS256",
+        jwt_payload = {
+                "iss": secret_blob['userId'],
+                "sub": secret_blob['userId'],
+                "aud": f"https://{hostname}",
+                "iat": datetime.now(tz=timezone.utc),
+                "exp": datetime.now(tz=timezone.utc) + timedelta(minutes=30)
+                }
+        private_key = secret_blob['key']
+        encoded = jwt.encode(jwt_payload, private_key, algorithm="RS256",
                              headers={"kid": secret_blob['keyId']})
 
         # actual creation of API token
         log.info("Requesting an API token from zitadel...")
-        auth_url = f"https://{hostname}/oauth/v2/token"
+        scopes = 'openid profile email urn:zitadel:iam:org:project:id:zitadel:aud'
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-                   'scope': 'openid profile email',
+                   'scope': scopes,
                    'assertion': encoded}
-        res = request("POST", auth_url, headers=headers, data=payload,
-                      verify=False)
+        res = request("POST", f"https://{hostname}/oauth/v2/token",
+                      headers=headers, data=payload, verify=False)
         return(res.json()['access_token'])
 
     def get_project_id(self,) -> str:
@@ -101,7 +96,7 @@ class Zitadel():
                            headers=self.headers, data=payload, verify=False)
 
         log.info(response.text)
-        return response.json['result'][0]['id']
+        return response.json()['result'][0]['id']
 
     def create_user(self,) -> str:
         """
