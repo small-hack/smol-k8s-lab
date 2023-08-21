@@ -1,8 +1,9 @@
+from ..utils.passwords import create_password
 from datetime import datetime, timezone, timedelta
-import logging as log
 from json import dumps
 # see for jwt docs: https://github.com/jpadilla/pyjwt/
 import jwt
+import logging as log
 import cryptography
 from requests import request
 from rich.prompt import Prompt
@@ -27,9 +28,6 @@ class Zitadel():
           'Accept': 'application/json',
           'Authorization': f'Bearer {self.api_token}'
         }
-
-        self.project_id = self.get_project_id()
-        log.debug(f"project id is {self.project_id}")
 
 
     def generate_token(self, hostname: str = "", secret_blob: dict = {}) -> str:
@@ -70,35 +68,27 @@ class Zitadel():
                       headers=headers, data=payload, verify=False)
         return(res.json()['access_token'])
 
-    def get_project_id(self,) -> str:
+    def create_project(self,) -> list[str]:
         """
-        zitadel.com/docs/apis/resources/mgmt/management-service-list-projects
+        Creates a new project and returns the project id and resource owner
         """
-
+        log.info("Creating a new project called [green]Core[/]")
         payload = dumps({
-          "query": {
-            "offset": "0",
-            "limit": 100,
-            "asc": True
-          },
-          "queries": [
-            {
-              "nameQuery": {
-                "name": "ZITADEL",
-                "method": "TEXT_QUERY_METHOD_EQUALS"
-              }
-            }
-          ]
-        })
+              "name": "Core",
+              "projectRoleAssertion": True,
+              "projectRoleCheck": True,
+              "hasProjectCheck": True,
+              "privateLabelingSetting": "PRIVATE_LABELING_SETTING_UNSPECIFIED"
+            })
 
-        log.debug("Listing projects to get current project ID via the Zitadel API")
-        response = request("PUT", self.api_url + "projects/_search",
+        response = request("POST", self.api_url + "projects",
                            headers=self.headers, data=payload, verify=False)
-
         log.info(response.text)
-        return response.json()['result'][0]['id']
+        json_blob = response.json()
+        self.project_id = json_blob['id']
+        self.resource_owner = json_blob['details']['resourceOwner']
 
-    def create_user(self,) -> str:
+    def create_user(self, ) -> str:
         """
         Creates an initial user in zitadel.
         prompts a user for username, first name, last name, and email.
@@ -111,6 +101,8 @@ class Zitadel():
         email = Prompt("[Green]Enter your email for your profile")
         gender = Prompt("[Green]Please select a gender (more coming soon)",
                         choices=["GENDER_FEMALE", "GENDER_MALE", "OTHER"])
+
+        password = create_password()
 
         # create a new user via the API
         log.info("Creating a new user...")
@@ -128,7 +120,7 @@ class Zitadel():
             "email": email,
             "isEmailVerified": True
           },
-          "password": "string",
+          "password": password,
           "passwordChangeRequired": True,
         })
 
@@ -252,28 +244,6 @@ class Zitadel():
         response = request("POST",
                            f"{self.api_url}projects/{self.project_id}/roles",
                            headers=self.headers, data=payload)
-
-        log.info(response.text)
-        return True
-
-
-    def update_project_settings(self, project_name: str = "") -> bool:
-        """
-        updates the settings of the role
-        Returns True on success
-        """
-        payload = dumps({
-          "name": project_name,
-          "projectRoleAssertion": True,
-          "projectRoleCheck": True,
-          "hasProjectCheck": True,
-          "privateLabelingSetting": "PRIVATE_LABELING_SETTING_UNSPECIFIED"
-        })
-
-        response = request("PUT",
-                           self.api_url + f"projects/{self.project_id}",
-                           headers=self.headers,
-                           data=payload)
 
         log.info(response.text)
         return True

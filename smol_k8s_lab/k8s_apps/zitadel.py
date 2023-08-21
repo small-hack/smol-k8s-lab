@@ -122,7 +122,10 @@ def configure_zitadel(k8s_obj: K8s,
     # setup the zitadel python api wrapper
     zitadel =  Zitadel(zitadel_hostname, private_key_obj)
 
-    log.info("Creating a groups Zitadel Action (sends group info to Argo)")
+    # create our first project
+    zitadel.create_project()
+
+    log.info("Creating a groups Zitadel Action (sends group info to Argo CD)")
     zitadel.create_action("groupsClaim")
 
     # create Argo CD OIDC Application
@@ -142,7 +145,7 @@ def configure_zitadel(k8s_obj: K8s,
     update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd',
                       {'argocd_oidc_client_id': argocd_client['client_id'],
                        'argocd_oidc_issuer': f"https://{zitadel_hostname}"},
-                      'secret_vars.yaml')
+                       'secret_vars.yaml')
 
     if bitwarden:
         sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
@@ -171,8 +174,6 @@ def configure_zitadel(k8s_obj: K8s,
         vouch_client_creds = zitadel.create_application("vouch",
                                                         redirect_uris,
                                                         logout_uris)
-
-    if vouch_enabled:
         url = f"https://{zitadel_hostname}/"
         configure_vouch(vouch_config_dict, vouch_client_creds, url, bitwarden)
 
