@@ -197,7 +197,7 @@ class Zitadel():
         })
 
         response = request("POST",
-                           f'{self.api_url}projects/{self.proj_id}/apps/oidc',
+                           f'{self.api_url}projects/{self.project_id}/apps/oidc',
                            headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
         json_res = response.json
