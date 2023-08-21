@@ -1,4 +1,5 @@
 from __future__ import print_function
+from json import loads
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import logging as log
@@ -75,7 +76,7 @@ class K8s():
         log.debug(f"Getting secret: {name} in namespace: {namespace}")
 
         res = subproc([f"kubectl get secret -n {namespace} {name} -o json"])
-        return res.json
+        return loads(res)
 
     def get_namespace(self, name: str = "") -> bool:
         """
