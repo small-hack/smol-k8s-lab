@@ -117,7 +117,7 @@ def configure_zitadel(k8s_obj: K8s,
 
     # get the zitadel service account private key json for generating a jwt
     adm_secret = k8s_obj.get_secret('zitadel-admin-sa', 'zitadel')
-    adm_secret_file = adm_secret.data['zitadel-admin-sa.json']
+    adm_secret_file = adm_secret['data']['zitadel-admin-sa.json']
     private_key_obj = loads(b64dec(str.encode(adm_secret_file)).decode('utf8'))
     # setup the zitadel python api wrapper
     zitadel =  Zitadel(zitadel_hostname, private_key_obj)
