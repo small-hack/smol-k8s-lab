@@ -243,6 +243,7 @@ class Zitadel():
 def generate_token(hostname: str = "", secret_file: str = "") -> str:
     """
     Takes a Zitadel service account private key and generates an API token.
+    replace with https://github.com/jpadilla/pyjwt/
     """
     if not which("zitadel-tools"):
         msg = ("Installing [green]zitadel-tools[/], a cli tool to generate an "

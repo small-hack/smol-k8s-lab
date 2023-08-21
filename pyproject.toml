@@ -34,6 +34,7 @@ kubernetes    = "^27.2"
 requests      = "^2.28"
 pyyaml        = "^6.0"
 xdg-base-dirs = "^6.0"
+pyjwt = "^2.8.0"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
