@@ -127,3 +127,14 @@ class K8s():
         else:
             log.debug(f"namespace, {namespace_name}, already exists")
         return True
+
+    def delete_pod_of_deployment(self, name: str = "",
+                                 namespace: str = "") -> True:
+        """
+        restart a deployment's pod by deleting it
+        """
+        pods = self.core_v1_api.list_namespaced_pod(namespace)
+        for pod in pods.items:
+            if name in pod.metadata.name:
+                log.info(f"Deleting pod, [orange]{pod.metadata.name}[/]")
+                self.core_v1_api.delete_namespaced_pod(pod, namespace)

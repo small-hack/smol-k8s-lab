@@ -146,6 +146,7 @@ def configure_zitadel(k8s_obj: K8s,
                       {'argocd_oidc_client_id': argocd_client['client_id'],
                        'argocd_oidc_issuer': f"https://{zitadel_hostname}"},
                        'secret_vars.yaml')
+    k8s_obj.delete_pod_of_deployment('argocd-appset-secret-plugin', 'argocd')
 
     if bitwarden:
         sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
