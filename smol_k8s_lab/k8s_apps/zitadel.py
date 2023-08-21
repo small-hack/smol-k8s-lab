@@ -1,9 +1,8 @@
 from base64 import standard_b64decode as b64dec
-from json import dump, loads
+from json import loads
 import logging as log
 from .vouch import configure_vouch
 from .zitadel_api import Zitadel
-from ..constants import XDG_CACHE_DIR
 from ..pretty_printing.console_logging import sub_header, header
 from ..k8s_tools.kubernetes_util import update_secret_key
 from ..k8s_tools.k8s_lib import K8s
@@ -116,15 +115,12 @@ def configure_zitadel(k8s_obj: K8s,
 
     sub_header("Configuring zitadel as your OIDC SSO for Argo CD")
 
-    # setup the zitadel python api wrapper
+    # get the zitadel service account private key json for generating a jwt
     adm_secret = k8s_obj.get_secret('zitadel-admin-sa', 'zitadel')
     adm_secret_file = adm_secret.data['zitadel-admin-sa.json']
-    secret_file = f'{XDG_CACHE_DIR}/zitadel-admin-sa.json'
-    with open(secret_file, 'w') as json_key_file:
-        blob = loads(b64dec(str.encode(adm_secret_file)).decode('utf8'))
-        dump(blob, json_key_file)
-
-    zitadel =  Zitadel(zitadel_hostname, secret_file)
+    private_key_obj = loads(b64dec(str.encode(adm_secret_file)).decode('utf8'))
+    # setup the zitadel python api wrapper
+    zitadel =  Zitadel(zitadel_hostname, private_key_obj)
 
     log.info("Creating a groups Zitadel Action (sends group info to Argo)")
     zitadel.create_action("groupsClaim")

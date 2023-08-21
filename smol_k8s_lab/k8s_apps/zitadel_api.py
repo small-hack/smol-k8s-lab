@@ -1,16 +1,18 @@
 import logging as log
-import json
+from json import dumps
+# see for jwt docs: https://github.com/jpadilla/pyjwt/
+import jwt
 from requests import request
 from rich.prompt import Prompt
-from shutil import which
-from ..subproc import subproc
+# from shutil import which
+# from ..subproc import subproc
 
 
 class Zitadel():
     """
     Python Wrapper for the Zitadel API
     """
-    def __init__(self, hostname: str = "", service_account_key_file: str = ""):
+    def __init__(self, hostname: str = "", service_account_key_obj: dict = {}):
         """
         This is mostly for storing the session token and api base url
         """
@@ -18,7 +20,7 @@ class Zitadel():
         self.api_url = f"https://{hostname}/management/v1/"
         log.debug(f"API URL is [blue]{self.api_url}[/]")
 
-        self.api_token = generate_token(hostname, service_account_key_file)
+        self.api_token = self.generate_token(hostname, service_account_key_obj)
 
         self.headers = {
           'Content-Type': 'application/json',
@@ -31,12 +33,37 @@ class Zitadel():
         self.project_id = self.get_project_id()
         log.debug(f"project id is {self.project_id}")
 
+
+    def generate_token(self, hostname: str = "", secret_blob: str = "") -> str:
+        """
+        Takes a Zitadel hostname string and service account private key secret_blob
+        and generates an API token.
+
+        This does the equivelent of this this curl command to get the token:
+            curl --request POST \
+              --url https://{your_domain}.zitadel.cloud/oauth/v2/token \
+              --header 'Content-Type: application/x-www-form-urlencoded' \
+              --data grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer \
+              --data scope='openid profile email' \
+              --data assertion=eyJ0eXAiOiJKV1QiL...
+        """
+        encoded = jwt.encode(secret_blob, "secret", algorithm="HS256")
+        auth_url = f"https://{hostname}.zitadel.cloud/oauth/v2/token"
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+        payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                   'scope': 'openid profile email',
+                   'assertion': encoded}
+        res = request("POST", auth_url, headers=headers, data=dumps(payload),
+                      verify=False)
+        log.info(res.text)
+        return(res.json['access_token'])
+
     def get_project_id(self,) -> str:
         """
         zitadel.com/docs/apis/resources/mgmt/management-service-list-projects
         """
 
-        payload = json.dumps({
+        payload = dumps({
           "query": {
             "offset": "0",
             "limit": 100,
@@ -75,7 +102,7 @@ class Zitadel():
 
         # create a new user via the API
         log.info("Creating a new user...")
-        payload = json.dumps({
+        payload = dumps({
           "userName": user,
           "profile": {
             "firstName": first_name,
@@ -111,7 +138,7 @@ class Zitadel():
 
         # make sure this user has access to the new application role we setup
         # zitadel.com/docs/apis/resources/mgmt/management-service-add-user-grant
-        payload = json.dumps({
+        payload = dumps({
           "projectId": self.project_id,
           "roleKeys": [role_key]
         })
@@ -137,7 +164,7 @@ class Zitadel():
 
         Returns dict of application_id, client_id, client_secret
         """
-        payload = json.dumps({
+        payload = dumps({
           "name": app_name,
           "redirectUris": redirect_uris,
           "responseTypes": [
@@ -179,7 +206,7 @@ class Zitadel():
         a group mapper action. Returns True on success.
         """
 
-        payload = json.dumps({
+        payload = dumps({
           "name": "groupsClaim",
           "script": "function groupsClaim(ctx, api) { if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) { return; } let grants = []; ctx.v1.user.grants.grants.forEach(claim => { claim.roles.forEach(role => { grants.push(role)  }) }) api.v1.claims.setClaim('groups', grants) }",
           "timeout": "10",
@@ -204,7 +231,7 @@ class Zitadel():
 
         Returns True on success.
         """
-        payload = json.dumps({
+        payload = dumps({
           "roleKey": role_key,
           "displayName": display_name,
           "group": group
@@ -223,7 +250,7 @@ class Zitadel():
         updates the settings of the role
         Returns True on success
         """
-        payload = json.dumps({
+        payload = dumps({
           "name": project_name,
           "projectRoleAssertion": True,
           "projectRoleCheck": True,
@@ -238,20 +265,3 @@ class Zitadel():
 
         log.info(response.text)
         return True
-
-
-def generate_token(hostname: str = "", secret_file: str = "") -> str:
-    """
-    Takes a Zitadel service account private key and generates an API token.
-    replace with https://github.com/jpadilla/pyjwt/
-    """
-    if not which("zitadel-tools"):
-        msg = ("Installing [green]zitadel-tools[/], a cli tool to generate an "
-               "API token from a private key.")
-        log.info(msg)
-        cmd = "go install github.com/zitadel/zitadel-tools@latest"
-        subproc([cmd])
-
-    cmd = f"zitadel-tools key2jwt --audience=https://{hostname} --key={secret_file}"
-    res = subproc([cmd], quiet=True)
-    return res.rstrip()
