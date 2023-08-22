@@ -67,14 +67,14 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
 
 def uninstall_k3s(context: dict = {}):
     """
-    uninstall k3s if k3s is present
+    uninstall k3s and cleans up your kubeconfig as well
     returns True
     """
     log.debug("Uninstalling k3s")
     cmds = ["k3s-uninstall.sh",
             f"kubectl config delete-cluster {context['cluster']}",
             f"kubectl config delete-context {context['context']}",
-            f"kubectl config delete-user {context['context']}"]
+            f"kubectl config delete-user {context['user']}"]
 
     subproc(cmds, spinner=False)
 
