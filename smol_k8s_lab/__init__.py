@@ -115,10 +115,10 @@ def main(config: str = "",
     log = process_log_config(USR_CFG['log'])
     log.debug("Logging configured.")
 
-    k8s = USR_CFG.get('k8s_distros', None)
-    if delete and k8s:
+    k8s_distros = USR_CFG.get('k8s_distros', None)
+    if delete and k8s_distros:
         logging.debug("Delete was requested")
-        for distro in k8s:
+        for k8s in k8s_distros:
             # exits the script after deleting the cluster
             delete_cluster(k8s)
         exit()

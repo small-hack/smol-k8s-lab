@@ -70,9 +70,11 @@ def uninstall_k3s(context: dict = {}):
     uninstall k3s if k3s is present
     returns True
     """
+    log.debug("Uninstalling k3s")
     cmds = ["k3s-uninstall.sh",
             f"kubectl config delete-cluster {context['cluster']}",
-            f"kubectl config delete-context {context['context']}"]
+            f"kubectl config delete-context {context['context']}",
+            f"kubectl config delete-user {context['context']}"]
 
     subproc(cmds, spinner=False)
 
