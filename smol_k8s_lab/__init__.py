@@ -118,12 +118,12 @@ def main(config: str = "",
     k8s_distros = USR_CFG.get('k8s_distros', None)
     if delete and k8s_distros:
         logging.debug("Delete was requested")
-        for k8s in k8s_distros:
+        for distro in k8s_distros:
             # exits the script after deleting the cluster
-            delete_cluster(k8s)
+            delete_cluster(distro)
         exit()
 
-    for distro in k8s:
+    for distro in k8s_distros:
         # this is a dict of all the apps we can install
         apps = USR_CFG['apps']
         # check immediately if metallb is enabled
