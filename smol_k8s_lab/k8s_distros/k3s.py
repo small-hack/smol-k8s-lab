@@ -71,9 +71,16 @@ def uninstall_k3s():
     uninstall k3s if k3s is present
     returns True
     """
+    cmds = []
+
     if which('k3s-uninstall.sh'):
-        subproc(['k3s-uninstall.sh'], error_ok=True, spinner=False)
-    else:
+        cmds.append('k3s-uninstall.sh')
+
+    cmds.append("kubectl config delete-context smol-k8s-lab-k3s")
+
+    try:
+        subproc(cmds, spinner=False)
+    except Exception:
         log.debug("K3s is already uninstalled.")
         sub_header("K3s is already uninstalled.", False, False)
 
