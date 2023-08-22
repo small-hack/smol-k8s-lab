@@ -84,7 +84,7 @@ class K8s():
         """
         log.debug(f"Deleting secret: {name} in namespace: {namespace}")
 
-        res = subproc([f"kubectl delete secret -n {namespace} {name} -o json"])
+        res = subproc([f"kubectl delete secret -n {namespace} {name}"])
         return loads(res)
 
     def get_namespace(self, name: str = "") -> bool:
