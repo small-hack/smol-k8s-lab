@@ -8,7 +8,6 @@ DESCRIPTION: install k3s :D
 import logging as log
 from os import chmod, remove
 import requests
-from shutil import which
 import stat
 from ..pretty_printing.console_logging import sub_header
 from ..constants import USER, KUBECONFIG
@@ -66,19 +65,15 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
     return True
 
 
-def uninstall_k3s():
+def uninstall_k3s(context: dict = {}):
     """
     uninstall k3s if k3s is present
     returns True
     """
     cmds = ["k3s-uninstall.sh",
-            "kubectl config delete-context smol-k8s-lab-k3s",
-            "kubectl config delete-cluster smol-k8s-lab-k3s"]
+            f"kubectl config delete-cluster {context['cluster']}",
+            f"kubectl config delete-context {context['context']}"]
 
-    try:
-        subproc(cmds, spinner=False)
-    except Exception:
-        log.debug("K3s is already uninstalled.")
-        sub_header("K3s is already uninstalled.", False, False)
+    subproc(cmds, spinner=False)
 
     return True

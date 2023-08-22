@@ -42,6 +42,7 @@ def process_configs(config: dict = {}, delete: bool = False):
 
     # just return this part if we're deleting the cluster
     if delete:
+        # print("process_configs found that delete was passed in")
         return config, {}
 
     initialize = False

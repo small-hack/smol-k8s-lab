@@ -111,16 +111,17 @@ def main(config: str = "",
     # process all of the config file, or create a new one and also grab secrets
     USR_CFG, SECRETS = process_configs(INITIAL_USR_CONFIG, delete)
 
+    # setup logging immediately
+    log = process_log_config(USR_CFG['log'])
+    log.debug("Logging configured.")
+
     k8s = USR_CFG.get('k8s_distros', None)
     if delete and k8s:
+        logging.debug("Delete was requested")
         for distro in k8s:
             # exits the script after deleting the cluster
             delete_cluster(k8s)
         exit()
-
-    # setup logging immediately
-    log = process_log_config(USR_CFG['log'])
-    log.debug("Logging configured.")
 
     for distro in k8s:
         # this is a dict of all the apps we can install

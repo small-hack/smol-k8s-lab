@@ -3,6 +3,29 @@ from ..pretty_printing.console_logging import sub_header, header
 from ..subproc import subproc
 
 
+def check_contexts(k8s_distro: str = ""):
+    """
+    gets current context and if any have have smol-k8s-lab-{distro} returns and
+    dict of {"context": context_name, "cluster": cluster_name}
+    returns False if there's no clusters with smol-k8s-lab-{distro} as the context
+    """
+    cmd = "kubectl config get-contexts --no-headers"
+    contexts = subproc([cmd], error_ok=True, quiet=True)
+    log.debug(contexts)
+    if contexts:
+        for k8s_context in contexts.split():
+            fields = k8s_context.split()
+            log.debug(fields)
+            if f'smol-k8s-lab-{k8s_distro}' in k8s_context:
+                if len(fields) == 5:
+                    return {"context": fields[1],
+                            "cluster": fields[2]}
+                elif len(fields) == 4:
+                    return {"context": fields[0],
+                            "cluster": fields[1]}
+    return False
+
+
 def create_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
                        extra_args: list = []):
     """
@@ -12,12 +35,9 @@ def create_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
     Returns True
     """
     header(f"Initializing your [green]{k8s_distro}[/] cluster")
-    cmd = "kubectl config get-contexts"
-    clusters = subproc([cmd], error_ok=True, quiet=True)
-    log.debug(clusters)
-    if f'smol-k8s-lab-{k8s_distro}' in clusters:
+    contexts = check_contexts(k8s_distro)
+    if contexts:
         sub_header(f'We already have a [green]{k8s_distro}[/] cluster ♡')
-        return True
 
     sub_header('This could take a min ʕ•́ _ ̫•̀ʔっ♡ ', False)
 
@@ -42,10 +62,15 @@ def delete_cluster(k8s_distros=["kind"]):
     Delete a k0s, k3s, or KinD cluster entirely.
     It is suggested to perform a reboot after deleting a k0s cluster.
     """
+    contexts = check_contexts(k8s_distros)
+
+    if not contexts:
+        return True
+
     for k8s_distro in k8s_distros:
         if k8s_distro == 'k3s':
             from .k3s import uninstall_k3s
-            uninstall_k3s()
+            uninstall_k3s(contexts)
 
         elif k8s_distro == 'kind':
             from .kind import delete_kind_cluster
