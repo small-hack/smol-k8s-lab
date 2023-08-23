@@ -68,8 +68,8 @@ class Zitadel():
                    'scope': scopes,
                    'assertion': encoded}
         res = request("POST", f"https://{hostname}/oauth/v2/token",
-                      headers=headers, data=payload, verify=self.verify)
-        return(res.json()['access_token'])
+                      headers=headers, data=payload, verify=self.verify).json
+        return(res['access_token'])
 
     def create_project(self,) -> list[str]:
         """
