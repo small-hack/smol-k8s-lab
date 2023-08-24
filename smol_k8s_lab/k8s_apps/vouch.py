@@ -26,7 +26,7 @@ def configure_vouch(k8s_obj: K8s,
 
     if vouch_config_dict['init']:
         secrets = vouch_config_dict['argo']['secret_keys']
-        vouch_hostname = secrets['vouch_hostname']
+        vouch_hostname = secrets['hostname']
         client_secret = vouch_client_credentials['client_secret']
         client_id = vouch_client_credentials['client_id']
 
