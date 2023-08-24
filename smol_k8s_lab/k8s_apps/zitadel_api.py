@@ -1,5 +1,5 @@
 from ..utils.passwords import create_password
-from ..utils.bw_cl import Bwcli
+from ..utils.bw_cli import Bwcli
 from datetime import datetime, timezone, timedelta
 from json import dumps, dump
 import jwt
