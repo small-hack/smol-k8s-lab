@@ -136,7 +136,8 @@ class Zitadel():
         last_name = Prompt.ask("[green]Enter your Last name for your profile")
         email = Prompt.ask("[green]Enter your email for your profile")
         gender = Prompt.ask("[green]Please select a gender (more coming soon)",
-                            choices=["GENDER_FEMALE", "GENDER_MALE", "OTHER"])
+                            choices=["GENDER_FEMALE", "GENDER_MALE",
+                                     "GENDER_DIVERSE", "GENDER_UNSPECIFIED"])
 
         password = create_password()
 
