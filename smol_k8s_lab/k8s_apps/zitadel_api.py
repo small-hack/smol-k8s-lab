@@ -68,8 +68,20 @@ class Zitadel():
                    'scope': scopes,
                    'assertion': encoded}
         res = request("POST", f"https://{hostname}/oauth/v2/token",
-                      headers=headers, data=payload, verify=self.verify).json
-        return(res['access_token'])
+                      headers=headers, data=payload, verify=self.verify)
+
+        # I literally don't know if you should use json or json()
+        try:
+            json_blob = res.json()
+            log.debug(f"json_blob is {json_blob}")
+            access_token = json_blob['access_token']
+        except TypeError:
+            log.debug("there was a type error, we'll try again another way")
+            json_blob = res.json
+            log.debug(f"json_blob is {json_blob}")
+            access_token = json_blob['access_token']
+
+        return(access_token)
 
     def create_project(self,) -> list[str]:
         """
