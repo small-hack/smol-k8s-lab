@@ -25,7 +25,7 @@ def configure_vouch(k8s_obj: K8s,
     header("🗝️ Vouch Setup")
 
     if vouch_config_dict['init']:
-        secrets = vouch_config_dict['secret_keys']
+        secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['vouch_hostname']
         client_secret = vouch_client_credentials['client_secret']
         client_id = vouch_client_credentials['client_id']
@@ -58,7 +58,7 @@ def configure_vouch(k8s_obj: K8s,
             # create vouch config bitwarden item
             bitwarden.create_login(name='vouch-config',
                                    user='vouch',
-                                   password='',
+                                   password='none',
                                    fields=[domains_obj, emails_obj])
         # create vouch k8s secrets if we're not using bitwarden
         else:
