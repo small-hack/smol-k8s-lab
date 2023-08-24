@@ -12,7 +12,9 @@ class Zitadel():
     """
     Python Wrapper for the Zitadel API
     """
-    def __init__(self, hostname: str = "", service_account_key_obj: dict = {}):
+    def __init__(self, hostname: str = "",
+                 service_account_key_obj: dict = {},
+                 tls_verify: bool = False):
         """
         This is mostly for storing the session token and api base url
         """
@@ -20,8 +22,12 @@ class Zitadel():
         self.api_url = f"https://{hostname}/management/v1/"
         log.debug(f"API URL is [blue]{self.api_url}[/]")
 
-        self.verify = False
+        self.verify = tls_verify
 
+        # verify the api is even up
+        self.check_api_health()
+
+        # then get the token
         self.api_token = self.generate_token(hostname, service_account_key_obj)
 
         self.headers = {
@@ -30,6 +36,20 @@ class Zitadel():
           'Authorization': f'Bearer {self.api_token}'
         }
 
+    def check_api_health(self,) -> True:
+        """
+        Loops and checks https://{self.api_url}healthz for an HTTP status.
+        Returns True when the status code is 200 (success).
+        """
+        while True:
+            log.debug("checking if api is up by querying the healthz endpoint")
+            res = request("GET", f"{self.api_url}healthz", verify=self.verify)
+            if res.status_code == 200:
+                log.info("Zitadel API is up now :)")
+                break
+            else:
+                log.debug("Zitadel API is not yet up")
+        return True
 
     def generate_token(self, hostname: str = "", secret_blob: dict = {}) -> str:
         """
@@ -69,14 +89,15 @@ class Zitadel():
                    'assertion': encoded}
         res = request("POST", f"https://{hostname}/oauth/v2/token",
                       headers=headers, data=payload, verify=self.verify)
+        log.debug(f"res is {res}")
 
         # I literally don't know if you should use json or json()
         try:
             json_blob = res.json()
             log.debug(f"json_blob is {json_blob}")
             access_token = json_blob['access_token']
-        except TypeError:
-            log.debug("there was a type error, we'll try again another way")
+        except Exception as e:
+            log.debug(f"there was an error: {e}")
             json_blob = res.json
             log.debug(f"json_blob is {json_blob}")
             access_token = json_blob['access_token']
@@ -121,8 +142,8 @@ class Zitadel():
 
         # create a new user via the API
         log.info("Creating a new user...")
-        payload = dump({"userName": user,
-                          "profile": {
+        payload = dumps({"userName": user,
+                         "profile": {
                             "firstName": first_name,
                             "lastName": last_name,
                             "nickName": "friend",
@@ -137,6 +158,7 @@ class Zitadel():
                           "password": password,
                           "passwordChangeRequired": True,
                         })
+        log.info(f"payload for create user is {payload}")
 
         # get the user ID from the response
         response = request("POST", self.api_url + 'users/human/_import',
