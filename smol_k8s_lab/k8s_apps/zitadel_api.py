@@ -131,12 +131,12 @@ class Zitadel():
 
         Returns string of user_id.
         """
-        user = Prompt("[green]Enter a new username for Zitadel")
-        first_name = Prompt("[Green]Enter your First name for your profile")
-        last_name = Prompt("[Green]Enter your Last name for your profile")
-        email = Prompt("[Green]Enter your email for your profile")
-        gender = Prompt("[Green]Please select a gender (more coming soon)",
-                        choices=["GENDER_FEMALE", "GENDER_MALE", "OTHER"])
+        user = Prompt.ask("[green]Enter a new username for Zitadel")
+        first_name = Prompt.ask("[Green]Enter your First name for your profile")
+        last_name = Prompt.ask("[Green]Enter your Last name for your profile")
+        email = Prompt.ask("[Green]Enter your email for your profile")
+        gender = Prompt.ask("[Green]Please select a gender (more coming soon)",
+                            choices=["GENDER_FEMALE", "GENDER_MALE", "OTHER"])
 
         password = create_password()
 
