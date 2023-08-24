@@ -172,8 +172,7 @@ class Zitadel():
         log.info(response.text)
         return response.json()['userId']
 
-
-    def create_user_grant(self, user_id: str = "", role_key: str = ""):
+    def create_user_grant(self, user_id: str = "", role_key: str = "") -> True:
         """
         Grants a role to a user.
 
@@ -194,8 +193,7 @@ class Zitadel():
                            headers=self.headers, data=payload, verify=self.verify)
         log.info(response.text)
 
-        return response.json()['userId']
-
+        return True
 
     def create_application(self,
                            app_name: str = "",
