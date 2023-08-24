@@ -1,5 +1,5 @@
 from ..utils.passwords import create_password
-from ..utils.bw_cli import Bwcli
+from ..utils.bw_cli import BwCLI
 from datetime import datetime, timezone, timedelta
 from json import dumps, dump
 import jwt
@@ -125,7 +125,7 @@ class Zitadel():
         self.project_id = json_blob['id']
         self.resource_owner = json_blob['details']['resourceOwner']
 
-    def create_user(self, bitwarden: Bwcli = None) -> str:
+    def create_user(self, bitwarden: BwCLI = None) -> str:
         """
         Creates an initial user in zitadel.
         prompts a user for username, first name, last name, and email.
