@@ -22,7 +22,7 @@ def configure_vouch(k8s_obj: K8s,
 
     returns True if successful
     """
-    header("🗝️vouch Setup")
+    header("🗝️ Vouch Setup")
 
     if vouch_config_dict['init']:
         secrets = vouch_config_dict['secrets']

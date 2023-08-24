@@ -176,6 +176,7 @@ def configure_zitadel(k8s_obj: K8s,
                                                         redirect_uris,
                                                         logout_uris)
         url = f"https://{zitadel_hostname}/"
-        configure_vouch(vouch_config_dict, vouch_client_creds, url, bitwarden)
+        configure_vouch(k8s_obj, vouch_config_dict, vouch_client_creds, url,
+                        bitwarden)
 
     return True
