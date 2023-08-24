@@ -1,15 +1,15 @@
 from rich.prompt import Prompt
-from ..pretty_printing.console_logging import header
 from ..k8s_tools.argocd_util import install_with_argocd
 from ..k8s_tools.k8s_lib import K8s
-from ..utils.bw_cli import BwCLI
+from ..pretty_printing.console_logging import header
+from ..utils.bw_cli import BwCLI, create_custom_field
 
 
 def configure_vouch(k8s_obj: K8s,
                     vouch_config_dict: dict = {},
                     vouch_client_credentials: dict = {},
                     base_url: str = "",
-                    bitwarden=None) -> bool:
+                    bitwarden: BwCLI = None) -> bool:
     """
     Installs vouch-proxy as an Argo CD application on Kubernetes
 
@@ -40,37 +40,21 @@ def configure_vouch(k8s_obj: K8s,
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
-            auth_url = {"name": "authUrl",
-                        "value": f'{base_url}auth',
-                        "type": 1,
-                        "linkedId": None}
-            token_url = {"name": "tokenUrl",
-                         "value": f'{base_url}token',
-                         "type": 1,
-                         "linkedId": None}
-            user_info_url = {"name": "userInfoUrl",
-                             "value": f'{base_url}userinfo',
-                             "type": 1,
-                             "linkedId": None}
-            callback_urls = {"name": "callbackUrls",
-                             "value": vouch_callback_url,
-                             "type": 1,
-                             "linkedId": None}
+            auth_url = create_custom_field("authUrl", f'{base_url}auth')
+            token_url = create_custom_field("tokenUrl", f'{base_url}token')
+            user_info_url = create_custom_field("userInfoUrl", f'{base_url}userinfo')
+            callback_urls = create_custom_field("callbackUrls", vouch_callback_url)
             # create oauth OIDC bitwarden item
             bitwarden.create_login(name='vouch-oauth-config',
                                    user=client_id,
                                    password=client_secret,
-                                   fields=[auth_url, token_url, user_info_url,
+                                   fields=[auth_url,
+                                           token_url,
+                                           user_info_url,
                                            callback_urls])
 
-            domains_obj = {"name": "domains",
-                           "value": domains,
-                           "type": 1,
-                           "linkedId": None}
-            emails_obj = {"name": "allowList",
-                          "value": emails,
-                          "type": 1,
-                          "linkedId": None}
+            domains_obj = create_custom_field("domains", domains)
+            emails_obj = create_custom_field("allowList", emails)
             # create vouch config bitwarden item
             bitwarden.create_login(name='vouch-config',
                                    user='vouch',

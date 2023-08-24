@@ -22,6 +22,19 @@ from os import environ as env
 from ..subproc import subproc
 
 
+
+def create_custom_field(custom_field_name: str, value: str) -> dict:
+   """
+   creates a custom field dict for a bitwarden login item
+   """
+   custom_field = {"name": custom_field_name,
+                   "value": value,
+                   "type": 1,
+                   "linkedId": None}
+
+   return custom_field
+
+
 class BwCLI():
     """
     Python Wrapper for the Bitwarden cli

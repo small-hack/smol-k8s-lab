@@ -2,7 +2,7 @@ from rich.prompt import Prompt
 from ..pretty_printing.console_logging import sub_header
 from ..k8s_tools.argocd_util import install_with_argocd
 from ..k8s_tools.k8s_lib import K8s
-from ..utils.bw_cli import BwCLI
+from ..utils.bw_cli import BwCLI, create_custom_field
 from ..utils.passwords import create_password
 
 
@@ -30,18 +30,9 @@ def configure_nextcloud(k8s_obj: K8s,
             sub_header("Creating secrets in Bitwarden")
             token = bitwarden.generate()
             password = bitwarden.generate()
-            serverinfo_token_obj = {"name": "serverinfo_token",
-                                    "value": token,
-                                    "type": 1,
-                                    "linkedId": None}
-            smtpUsername = {"name": "smtpUsername",
-                            "value": mail_user,
-                            "type": 1,
-                            "linkedId": None}
-            smtpPassword = {"name": "smtpPassword",
-                            "value": mail_pass,
-                            "type": 1,
-                            "linkedId": None}
+            serverinfo_token_obj = create_custom_field("serverinfo_token", token)
+            smtpUsername = create_custom_field("smtpUsername", mail_user)
+            smtpPassword = create_custom_field("smtpPassword", mail_pass)
             bitwarden.create_login(name='nextcloud-admin-credentials',
                                    item_url=nextcloud_hostname,
                                    user=username,
@@ -65,11 +56,11 @@ def configure_nextcloud(k8s_obj: K8s,
             token = create_password()
             password = create_password()
             k8s_obj.create_secret('nextcloud-admin-credentials', 'nextcloud',
-                          {"username": username,
-                           "password": password,
-                           "serverinfo_token": token,
-                           "smtpUsername": mail_user,
-                           "smtpPassword": mail_pass})
+                                  {"username": username,
+                                   "password": password,
+                                   "serverinfo_token": token,
+                                   "smtpUsername": mail_user,
+                                   "smtpPassword": mail_pass})
 
             nextcloud_pgsql_password = create_password()
             k8s_obj.create_secret('nextcloud-pgsql-credentials', 'nextcloud',
@@ -99,10 +90,7 @@ def configure_mastodon(k8s_obj: K8s,
         secrets = argo_dict['secerts_keys']
         mastodon_hostname = secrets['mastodon_hostname']
         if bitwarden:
-            email_obj = {"name": "email",
-                         "value": email,
-                         "type": 1,
-                         "linkedId": None}
+            email_obj = create_custom_field("email", email)
             sub_header("Creating secrets in Bitwarden")
             password = bitwarden.generate()
             bitwarden.create_login(name='mastodon-admin-credentials',
@@ -112,10 +100,8 @@ def configure_mastodon(k8s_obj: K8s,
                                    fields=[email_obj])
 
             mastodon_pgsql_password = bitwarden.generate()
-            postrges_pass_obj = {"name": "postrgesPassword",
-                                 "value": mastodon_pgsql_password,
-                                 "type": 1,
-                                 "linkedId": None}
+            postrges_pass_obj = create_custom_field("postrgesPassword",
+                                                    mastodon_pgsql_password)
             bitwarden.create_login(name='mastodon-pgsql-credentials',
                                    item_url=mastodon_hostname,
                                    user='mastodon',
@@ -162,10 +148,8 @@ def configure_matrix(k8s_obj: K8s,
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             matrix_pgsql_password = bitwarden.generate()
-            postgres_hostname = {"name": "hostname",
-                                 "value": 'matrix-web-app-postgresql',
-                                 "type": 1,
-                                 "linkedId": None}
+            postgres_hostname = create_custom_field("hostname",
+                                                    'matrix-web-app-postgresql')
             bitwarden.create_login(
                     name='matrix-pgsql-credentials',
                     item_url=matrix_hostname,

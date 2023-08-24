@@ -7,7 +7,7 @@ from ..pretty_printing.console_logging import sub_header, header
 from ..k8s_tools.kubernetes_util import update_secret_key
 from ..k8s_tools.k8s_lib import K8s
 from ..k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
-from ..utils.bw_cli import BwCLI
+from ..utils.bw_cli import BwCLI, create_custom_field
 from ..utils.passwords import create_password
 
 
@@ -53,14 +53,8 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
             # create db credentials password dict
             password = bitwarden.generate()
             admin_password = bitwarden.generate()
-            admin_user_obj = {"name": "adminUser",
-                              "value": admin_user,
-                              "type": 1,
-                              "linkedId": None}
-            admin_pass_obj = {"name": "adminPassword",
-                              "value": admin_password,
-                              "type": 1,
-                              "linkedId": None}
+            admin_user_obj = create_custom_field("adminUser", admin_user)
+            admin_pass_obj = create_custom_field("adminPassword", admin_password)
             bitwarden.create_login(name="zitadel-db-credentials",
                                    user="zitadel",
                                    item_url=zitadel_domain,
