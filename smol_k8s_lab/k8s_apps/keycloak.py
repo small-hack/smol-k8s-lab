@@ -1,7 +1,6 @@
 import logging as log
 import json
 from rich.prompt import Prompt
-from .vouch import configure_vouch
 from ..pretty_printing.console_logging import sub_header, header
 from ..k8s_tools.k8s_lib import K8s
 from ..k8s_tools.argocd_util import install_with_argocd
@@ -10,22 +9,19 @@ from ..utils.bw_cli import BwCLI
 from ..utils.passwords import create_password
 
 
-def configure_keycloak_and_vouch(k8s_obj: K8s,
-                                 keycloak_config_dict: dict = {},
-                                 vouch_config_dict: dict = {},
-                                 bitwarden: BwCLI = None) -> True:
+def configure_keycloak(k8s_obj: K8s,
+                       keycloak_config_dict: dict = {},
+                       bitwarden: BwCLI = None) -> True:
     """
-    Installs Keycloak and Vouch as Argo CD Applications. If
-    keycloak_config_dict['init'] is True, it also configures Vouch and Argo CD
-    as OIDC Clients.
+    Installs Keycloak as an Argo CD Application. If keycloak_config_dict['init']
+    is True, it also configures Argo CD as OIDC Client.
 
     Required Arguments:
-        keycloak_config_dict: dict, Argo CD parameters for keycloak
         K8s: K8s() class instance so we can create secrets and install with
              argo using a direct connection to the cluster
+        keycloak_config_dict: dict, Argo CD parameters for keycloak
 
     Optional Arguments:
-        vouch_config_dict: dict, Argo CD parameters for vouch
         bitwarden:         BwCLI obj, [optional] contains bitwarden session
 
     Returns True if successful.
@@ -65,24 +61,23 @@ def configure_keycloak_and_vouch(k8s_obj: K8s,
     install_with_argocd(k8s_obj, 'keycloak', keycloak_config_dict['argo'])
 
     # only continue through the rest of the function if we're initializes a
-    # user and vouch/argocd clients in keycloak
+    # user and argocd client in keycloak
     if keycloak_config_dict['init']:
         realm = secrets['default_realm']
-        configure_keycloak(k8s_obj, realm, keycloak_hostname, bitwarden,
-                           vouch_config_dict)
+        initialize_keycloak(k8s_obj, realm, keycloak_hostname, bitwarden)
     # always return True
     return True
 
 
-def configure_keycloak(k8s_obj: K8s, realm: str = "",
-                       keycloak_hostname: str = "", bitwarden=None,
-                       vouch_config_dict: dict = {}):
+def initialize_keycloak(k8s_obj: K8s,
+                        realm: str = "",
+                        keycloak_hostname: str = "",
+                        bitwarden=None) -> True:
     """
-    Sets up initial Keycloak user, Argo CD client, and optional Vouch client.
+    Sets up initial Keycloak user, Argo CD client.
     Arguments:
         realm:             str, name of the keycloak realm to use
         bitwarden:         BwCLI obj, [optional] session to use for bitwarden
-        vouch_config_dict: dict, [optional] Argo CD vouch parameters
     """
 
     sub_header("Configure Keycloak as your OIDC SSO for Argo CD")
@@ -106,27 +101,14 @@ def configure_keycloak(k8s_obj: K8s, realm: str = "",
     create_argocd_client = (f"{begin} create clients -r {realm} "
                             f"-s enabled=true -s clientId=argocd {end}")
 
-    vouch_enabled = vouch_config_dict['enabled']
-    if vouch_enabled:
-        log.info("Creating an Argo CD client...")
-        # create a vouch client
-        create_vouch_client = (f"{begin} create clients -r {realm}"
-                               f" -s enabled=true -s clientId=vouch {end}")
+    subproc([create_user, create_argocd_client])
 
-    subproc([create_user, create_argocd_client, create_vouch_client])
-
-    # get vouch and argocd client
-    clients = f"{begin} get clients -r {realm} --fields clientId,secret {end}"
-    client_json = json.loads(subproc([clients]))
-
-    for client in client_json:
-        if client_json['clientId'] == 'argocd':
-            argocd_client_secret = client_json['secret']
-        if client_json['clientId'] == 'vouch':
-            vouch_client_secret = client_json['secret']
+    # get argocd client
+    clients = f"{begin} get clients -r {realm} --fields clientId,secret --query argocd {end}"
+    argocd_client_secret = json.loads(subproc([clients]))['secret']
 
     if bitwarden:
-        sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
+        sub_header("Creating OIDC secret for Argo CD OIDC in Bitwarden")
         bitwarden.create_login(name='argocd-external-oidc',
                                user='argocd',
                                password=argocd_client_secret)
@@ -136,11 +118,5 @@ def configure_keycloak(k8s_obj: K8s, realm: str = "",
                               {'user': 'argocd',
                                'password': argocd_client_secret}, False,
                               {'app.kubernetes.io/part-of': 'argocd'})
-
-    if vouch_enabled:
-        url = (f"https://{keycloak_hostname}/realms/{realm}/protocol"
-               "/openid-connect")
-        configure_vouch(k8s_obj, vouch_config_dict, vouch_client_secret, url,
-                        bitwarden)
 
     return True 

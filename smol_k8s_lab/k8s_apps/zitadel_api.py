@@ -13,9 +13,11 @@ class Zitadel():
     """
     Python Wrapper for the Zitadel API
     """
-    def __init__(self, hostname: str = "",
+    def __init__(self,
+                 hostname: str = "",
                  service_account_key_obj: dict = {},
-                 tls_verify: bool = False):
+                 tls_verify: bool = False,
+                 project_id: str = ""):
         """
         This is mostly for storing the session token and api base url
         """

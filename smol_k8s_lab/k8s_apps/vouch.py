@@ -1,24 +1,32 @@
+from json import loads
+import logging as log
 from rich.prompt import Prompt
+from ..k8s_apps.zitadel_api import Zitadel
 from ..k8s_tools.argocd_util import install_with_argocd
 from ..k8s_tools.k8s_lib import K8s
 from ..pretty_printing.console_logging import header
 from ..utils.bw_cli import BwCLI, create_custom_field
+from ..subproc import subproc
 
 
 def configure_vouch(k8s_obj: K8s,
                     vouch_config_dict: dict = {},
-                    vouch_client_credentials: dict = {},
-                    base_url: str = "",
-                    bitwarden: BwCLI = None) -> bool:
+                    oidc_provider_name: str = "",
+                    oidc_provider_hostname: str = "",
+                    bitwarden: BwCLI = None,
+                    realm: str = "",
+                    zitadel: Zitadel = None) -> bool:
     """
     Installs vouch-proxy as an Argo CD application on Kubernetes
 
     Takes Args:
-          k8s_obj:                  K8s(), for the authenticated k8s client
-          vouch_config_dict:        dict, Argo CD parameters
-          vouch_client_credentials: dict, OIDC client credentials
-          base_url:                 str, OIDC URL for keycloak or zitadel
-          bitwarden:                BwCLI, to store k8s secrets in bitwarden
+      k8s_obj:                K8s(), for the authenticated k8s client
+      vouch_config_dict:      Argo CD parameters
+      oidc_provider_name:     OIDC provider name. options: keycloak, zitadel
+      oidc_provider_hostname: OIDC provider hostname e.g. zitadel.example.com
+      bitwarden:              BwCLI, to store k8s secrets in bitwarden
+      realm:                  keycloak realm to use
+      zitadel:                Zitadel object so we don't have to create an api token
 
     returns True if successful
     """
@@ -27,15 +35,16 @@ def configure_vouch(k8s_obj: K8s,
     if vouch_config_dict['init']:
         secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['hostname']
-        client_secret = vouch_client_credentials['client_secret']
-        client_id = vouch_client_credentials['client_id']
+        base_url, client_id, client_secret = create_vouch_app(vouch_hostname,
+                                                              oidc_provider_name,
+                                                              oidc_provider_hostname)
 
         vouch_callback_url = f'https://{vouch_hostname}/auth'
-        m = ("[green]Please enter a comma seperated list of emails that are "
-             "allowed to access domains behind Vouch")
+        m = ("[green]Please enter a comma seperated list of [yellow]emails[/] that"
+             " are allowed to access domains behind Vouch")
         emails = Prompt.ask(m)
-        m = ("[green]Please enter a comma seperated list of domains that are "
-             "allowed to use Vouch")
+        m = ("[green]Please enter a comma seperated list of [yellow]domains[/] that"
+             " are allowed to use Vouch")
         domains = Prompt.ask(m)
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
@@ -76,4 +85,49 @@ def configure_vouch(k8s_obj: K8s,
                                   {'domains': domains, 'allowList': emails})
 
     install_with_argocd(k8s_obj, 'vouch', vouch_config_dict['argo'])
-    return True 
+    return True
+
+
+def create_vouch_app(vouch_hostname: str = "",
+                     provider: str = 'zitadel',
+                     provider_hostname: str = "",
+                     realm: str = "default",
+                     zitadel: Zitadel = False):
+    """
+    creates a vouch OIDC application in either keycloak or zitadel
+    """
+    if provider == 'zitadel':
+        # create Vouch OIDC Application
+        log.info("Creating a Vouch application...")
+        redirect_uris = [f"https://{vouch_hostname}/auth/callback"]
+        logout_uris = [f"https://{vouch_hostname}"]
+        vouch_client_creds = zitadel.create_application("vouch",
+                                                        redirect_uris,
+                                                        logout_uris)
+        client_id = vouch_client_creds['client_id']
+        client_secret = vouch_client_creds['client_secret']
+        url = f"https://{provider_hostname}/"
+
+    elif provider == 'keycloak':
+        # create a vouch client
+        cmd = ("kubectl exec -n keycloak keycloak-web-app-0 -- "
+               f"/opt/bitnami/keycloak/bin/kcadm.sh create clients -r {realm} "
+               "-s enabled=true -s clientId=vouch -o --no-config --server "
+               f"http://localhost:8080/ --realm {realm} --user KEYCLOAK_ADMIN "
+               "--password $KEYCLOAK_ADMIN_PASSWORD")
+        subproc([cmd])
+
+        # get vouch client secret
+        clients = (f"kubectl exec -n keycloak keycloak-web-app-0 -- "
+                   f"/opt/bitnami/keycloak/bin/kcadm.sh get clients -r {realm} "
+                   f"--fields clientId,secret --query vouch -o --no-config --server "
+                   f"http://localhost:8080/ --realm {realm} "
+                   "--user KEYCLOAK_ADMIN --password $KEYCLOAK_ADMIN_PASSWORD")
+        client_id = 'vouch'
+        client_secret = loads(subproc([clients]))['secret']
+        url = f"https://{provider_hostname}/realms/{realm}/protocol/openid-connect"
+    else:
+        log.error("niether zitadel nor keycloak was passed into "
+                  "create_vouch_app, got {provider} instead.")
+
+    return url, client_id, client_secret

@@ -1,7 +1,6 @@
 from base64 import standard_b64decode as b64dec
 from json import loads
 import logging as log
-from .vouch import configure_vouch
 from .zitadel_api import Zitadel
 from ..pretty_printing.console_logging import sub_header, header
 from ..k8s_tools.kubernetes_util import update_secret_key
@@ -11,15 +10,13 @@ from ..utils.bw_cli import BwCLI, create_custom_field
 from ..utils.passwords import create_password
 
 
-def configure_zitadel_and_vouch(k8s_obj: K8s,
-                                zitadel_config_dict: dict = {},
-                                argocd_hostname: str = "",
-                                vouch_config_dict: dict = {},
-                                bitwarden: BwCLI = None):
+def configure_zitadel(k8s_obj: K8s,
+                      zitadel_config_dict: dict = {},
+                      argocd_hostname: str = "",
+                      bitwarden: BwCLI = None):
     """
-    Installs zitadel and Vouch as Argo CD Applications. If
-    zitadel_config_dict['init'] is True, it also configures Vouch and Argo CD
-    as OIDC Clients.
+    Installs zitadel as a Argo CD Applications. If
+    zitadel_config_dict['init'] is True, it also configures Argo CD as OIDC Clients.
 
     Required Arguments:
         zitadel_config_dict: dict, Argo CD parameters for zitadel
@@ -27,7 +24,6 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
 
     Optional Arguments:
         argocd_hostname:   str, the hostname of Argo CD
-        vouch_config_dict: dict, Argo CD parameters for vouch
         bitwarden:         BwCLI obj, [optional] contains bitwarden session
 
     Returns True if successful.
@@ -81,30 +77,29 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
     install_with_argocd(k8s_obj, 'zitadel', zitadel_config_dict['argo'])
 
     # only continue through the rest of the function if we're initializes a
-    # user and vouch/argocd clients in zitadel
+    # user and argocd client in zitadel
     if not zitadel_config_dict['init']:
         return True
     else:
         # Before initialization, we need to wait for zitadel's API to be up
         wait_for_argocd_app('zitadel')
         wait_for_argocd_app('zitadel-web-app')
-        configure_zitadel(k8s_obj, zitadel_domain, argocd_hostname,
-                          bitwarden, vouch_config_dict)
+        initialize_zitadel(k8s_obj, zitadel_domain, argocd_hostname, bitwarden)
 
 
-def configure_zitadel(k8s_obj: K8s,
-                      zitadel_hostname: str = "",
-                      argocd_hostname: str = "",
-                      bitwarden: BwCLI = None,
-                      vouch_config_dict: dict = {}):
+def initialize_zitadel(k8s_obj: K8s,
+                       zitadel_hostname: str = "",
+                       argocd_hostname: str = "",
+                       bitwarden: BwCLI = None) -> Zitadel:
     """
-    Sets up initial zitadel user, Argo CD client, and optional Vouch client.
+    Sets up initial zitadel user, Argo CD client
     Arguments:
         zitadel_hostname:  str, the hostname of Zitadel
         argocd_hostname:   str, the hostname of Argo CD
         k8s_obj:             K8s(), kubrenetes client for creating secrets
         bitwarden:         BwCLI obj, [optional] session to use for bitwarden
-        vouch_config_dict: dict, [optional] Argo CD vouch parameters
+
+    returns zitadel object
     """
 
     sub_header("Configuring zitadel as your OIDC SSO for Argo CD")
@@ -143,7 +138,7 @@ def configure_zitadel(k8s_obj: K8s,
     k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
 
     if bitwarden:
-        sub_header("Creating OIDC secrets for Argo CD and Vouch in Bitwarden")
+        sub_header("Creating OIDC secret for Argo CD in Bitwarden")
         bitwarden.create_login(name='argocd-external-oidc',
                                user='argocd',
                                password=argocd_client['client_secret'])
@@ -159,18 +154,4 @@ def configure_zitadel(k8s_obj: K8s,
     user_id = zitadel.create_user(bitwarden)
     zitadel.create_user_grant(user_id, 'argocd_administrators')
 
-    vouch_enabled = vouch_config_dict['enabled']
-    if vouch_enabled:
-        vouch_hostname = vouch_config_dict['argo']['secret_keys']['hostname']
-        # create Vouch OIDC Application
-        log.info("Creating a Vouch application...")
-        redirect_uris = [f"https://{vouch_hostname}/auth/callback"]
-        logout_uris = [f"https://{vouch_hostname}"]
-        vouch_client_creds = zitadel.create_application("vouch",
-                                                        redirect_uris,
-                                                        logout_uris)
-        url = f"https://{zitadel_hostname}/"
-        configure_vouch(k8s_obj, vouch_config_dict, vouch_client_creds, url,
-                        bitwarden)
-
-    return True
+    return zitadel
