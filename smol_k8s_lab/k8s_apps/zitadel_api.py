@@ -1,4 +1,5 @@
 from ..utils.passwords import create_password
+from ..utils.bw_cl import Bwcli
 from datetime import datetime, timezone, timedelta
 from json import dumps, dump
 import jwt
@@ -124,7 +125,7 @@ class Zitadel():
         self.project_id = json_blob['id']
         self.resource_owner = json_blob['details']['resourceOwner']
 
-    def create_user(self, ) -> str:
+    def create_user(self, bitwarden: Bwcli = None) -> str:
         """
         Creates an initial user in zitadel.
         prompts a user for username, first name, last name, and email.
@@ -139,7 +140,11 @@ class Zitadel():
                             choices=["GENDER_FEMALE", "GENDER_MALE",
                                      "GENDER_DIVERSE", "GENDER_UNSPECIFIED"])
 
-        password = create_password()
+        # create a 32 character password with a randomly placed special character
+        password = create_password(True)
+        if bitwarden:
+            bitwarden.create_login('zitadel_admin', self.api_url, user,
+                                   password)
 
         # create a new user via the API
         log.info("Creating a new user...")

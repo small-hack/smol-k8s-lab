@@ -101,7 +101,7 @@ def configure_zitadel_and_vouch(k8s_obj: K8s,
 def configure_zitadel(k8s_obj: K8s,
                       zitadel_hostname: str = "",
                       argocd_hostname: str = "",
-                      bitwarden=None,
+                      bitwarden: BwCLI = None,
                       vouch_config_dict: dict = {}):
     """
     Sets up initial zitadel user, Argo CD client, and optional Vouch client.
@@ -162,7 +162,7 @@ def configure_zitadel(k8s_obj: K8s,
 
     # create zitadel user and grants now that the clients are setup
     log.info("Creating a Zitadel user...")
-    user_id = zitadel.create_user()
+    user_id = zitadel.create_user(bitwarden)
     zitadel.create_user_grant(user_id, 'argocd_administrators')
 
     vouch_enabled = vouch_config_dict['enabled']
