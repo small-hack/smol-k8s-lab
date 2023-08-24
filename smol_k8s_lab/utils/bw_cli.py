@@ -70,7 +70,9 @@ class BwCLI():
         syncs your bitwaren vault on initialize of this class
         """
         res = subproc([f"{self.bw_path} sync"],
-                      env={"BW_SESSION": self.session})
+                      env={"BW_SESSION": self.session,
+                           "PATH": self.user_path,
+                           "HOME": self.home})
         log.info(res)
         return True
 
