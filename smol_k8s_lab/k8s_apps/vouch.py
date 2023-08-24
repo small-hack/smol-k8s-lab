@@ -25,7 +25,7 @@ def configure_vouch(k8s_obj: K8s,
     header("🗝️ Vouch Setup")
 
     if vouch_config_dict['init']:
-        secrets = vouch_config_dict['secrets']
+        secrets = vouch_config_dict['secret_keys']
         vouch_hostname = secrets['vouch_hostname']
         client_secret = vouch_client_credentials['client_secret']
         client_id = vouch_client_credentials['client_id']
