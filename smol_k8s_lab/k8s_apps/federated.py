@@ -8,12 +8,12 @@ from ..utils.passwords import create_password
 
 def configure_nextcloud(k8s_obj: K8s,
                         argo_dict: dict = {},
-                        bitwarden=None) -> bool:
+                        bitwarden: BwCLI = None) -> bool:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
     """
     if argo_dict['init']:
-        secrets = argo_dict['secrets']
+        secrets = argo_dict['secerts_keys']
         nextcloud_hostname = secrets['nextcloud_hostname']
 
         # configure the admin user credentials
@@ -73,11 +73,11 @@ def configure_nextcloud(k8s_obj: K8s,
 
             nextcloud_pgsql_password = create_password()
             k8s_obj.create_secret('nextcloud-pgsql-credentials', 'nextcloud',
-                          {"password": nextcloud_pgsql_password})
+                                  {"password": nextcloud_pgsql_password})
 
             nextcloud_redis_password = create_password()
             k8s_obj.create_secret('nextcloud-redis-credentials', 'nextcloud',
-                          {"password": nextcloud_redis_password})
+                                  {"password": nextcloud_redis_password})
 
     install_with_argocd(k8s_obj, 'nextcloud', argo_dict)
     return True
@@ -85,7 +85,7 @@ def configure_nextcloud(k8s_obj: K8s,
 
 def configure_mastodon(k8s_obj: K8s,
                        argo_dict: dict = {},
-                       bitwarden=None) -> bool:
+                       bitwarden: BwCLI = None) -> bool:
     """
     creates a mastodon app and initializes it with secrets if you'd like :)
     """
@@ -96,7 +96,7 @@ def configure_mastodon(k8s_obj: K8s,
         m = f"Please enter the email of {username} user for mastodon"
         email = Prompt.ask(m)
 
-        secrets = argo_dict['secrets']
+        secrets = argo_dict['secerts_keys']
         mastodon_hostname = secrets['mastodon_hostname']
         if bitwarden:
             email_obj = {"name": "email",
@@ -142,7 +142,7 @@ def configure_mastodon(k8s_obj: K8s,
 
             mastodon_redis_password = create_password()
             k8s_obj.create_secret('mastodon-redis-credentials', 'mastodon',
-                          {"password": mastodon_redis_password})
+                                  {"password": mastodon_redis_password})
 
     install_with_argocd(k8s_obj, 'mastodon', argo_dict)
     return True
@@ -150,14 +150,14 @@ def configure_mastodon(k8s_obj: K8s,
 
 def configure_matrix(k8s_obj: K8s,
                      argo_dict: dict = {},
-                     bitwarden=None) -> bool:
+                     bitwarden: BwCLI = None) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
     """
     # initial secrets to deploy this app from scratch
 
     if argo_dict['init']:
-        secrets = argo_dict['secrets']
+        secrets = argo_dict['secerts_keys']
         matrix_hostname = secrets['matrix_hostname']
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
@@ -175,7 +175,7 @@ def configure_matrix(k8s_obj: K8s,
         else:
             matrix_pgsql_password = create_password()
             k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',
-                          {"password": matrix_pgsql_password})
+                                  {"password": matrix_pgsql_password})
 
     install_with_argocd(k8s_obj, 'matrix', argo_dict)
     return True
