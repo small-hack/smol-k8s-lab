@@ -154,10 +154,11 @@ def initialize_zitadel(k8s_obj: K8s,
                                'password': argocd_client['client_secret']},
                               labels={'app.kubernetes.io/part-of': 'argocd'})
 
-    # create zitadel user and grants now that the clients are setup
+    # create zitadel admin user and grants now that the clients are setup
     log.info("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
     zitadel.create_user_grant(user_id, 'argocd_administrators')
+    zitadel.create_user_grant(user_id, 'admin')
 
     log.debug(f"Zitadel obj before finishing configure_zitadel is {zitadel}")
 
