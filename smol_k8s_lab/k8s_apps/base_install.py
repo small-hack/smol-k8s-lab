@@ -6,6 +6,7 @@ DESCRIPTION: installs helm repos, updates them, and installs charts for metallb,
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
+from rich.prompt import Prompt
 from ..pretty_printing.console_logging import header
 from ..k8s_tools.homelabHelm import prepare_helm
 from ..k8s_tools.k8s_lib import K8s
@@ -13,15 +14,15 @@ from ..k8s_tools.k8s_lib import K8s
 
 def install_base_apps(k8s_obj: K8s,
                       k8s_distro: str = "",
-                      metallb_enabled: bool = True,
+                      metallb_dict: dict = {},
+                      cert_manager_dict: dict = {},
                       argo_enabled: bool = False,
-                      argo_secrets_enabled: bool = False,
-                      email: str = "",
-                      cidr: str = "") -> bool:
+                      argo_secrets_enabled: bool = False) -> bool:
     """ 
     Helm installs all base apps: metallb, ingess-nginx, and cert-manager
     All Needed for getting Argo CD up and running.
     """
+    metallb_enabled = metallb_dict['enabled']
     # make sure helm is installed and the repos are up to date
     prepare_helm(k8s_distro, metallb_enabled, argo_enabled, 
                  argo_secrets_enabled)
@@ -30,7 +31,13 @@ def install_base_apps(k8s_obj: K8s,
     if metallb_enabled:
         header("Installing [b]metallb[/b] so we have an IP address pool.")
         from ..k8s_apps.metallb import configure_metallb
-        configure_metallb(cidr)
+        if metallb_dict['init']['enabled']:
+            cidr = metallb_dict['init']['values']['address_pool']
+            if not cidr:
+                m = "[green]Please enter a comma seperated list of IPs or CIDRs"
+                cidr = Prompt.ask(m).split(',')
+
+            configure_metallb(cidr)
 
     # ingress controller: so we can accept traffic from outside the cluster
     # nginx just because that's most supported, treafik support may be added later

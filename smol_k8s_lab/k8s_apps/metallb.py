@@ -9,13 +9,13 @@ import logging as log
 from ..k8s_tools.kubernetes_util import apply_custom_resources, apply_manifests
 
 
-def configure_metallb(address_pool: str = ""):
+def configure_metallb(address_pool: list = []):
     """
     installs metallb from the manifests in their official repo
 
-    Optionally accepts address_pool arg, comma seperated list of IP addresses,
-    to create an IPaddressPool and L2Advertisement. If address_pool is not passed
-    in or is "", then we don't create IPaddressPool or L2Advertisement
+    Optionally accepts address_pool arg, list of ip addresses or CIDRs to create
+    an IPaddressPool and L2Advertisement. If address_pool is not passed in or
+    is "", then we don't create IPaddressPool or L2Advertisement
     """
     url = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/"
            "manifests/metallb-native.yaml")
@@ -32,7 +32,7 @@ def configure_metallb(address_pool: str = ""):
                       'kind': 'IPAddressPool',
                       'metadata': {'name': 'default',
                                    'namespace': 'metallb-system'},
-                      'spec': {'addresses': address_pool.split(',')}}
+                      'spec': {'addresses': address_pool}}
 
         l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
                         'kind': 'L2Advertisement',

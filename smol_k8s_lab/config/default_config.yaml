@@ -4,7 +4,7 @@ log:
   # path of file to log to if console logging is NOT desired
   # file: "./smol-k8s-log.log"
   # logging level, Options: debug, info, warn, error
-  level: "info"
+  level: "debug"
 
 # which distros of Kubernetes to deploy. Options: kind, k3s, k0s
 # NOTE: only kind is available on macOS at this time
@@ -92,8 +92,8 @@ apps:
     # Initialize of the app through smol-k8s-lab
     init:
       # Deploys default l2Advertisement and prompts for an IPAddressPool if
-      # metallb.init.address_pool is not set. Change to false if you don't want to
-      # deploy these resources
+      # metallb.init.address_pool is not set. Change to false if you don't want
+      # to deploy these resources
       enabled: true
       values:
         address_pool: []

@@ -140,8 +140,6 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
                     # if the secret is empty, prompt for a new one
                     if not secret:
                         m = f"[green]Please enter a {secret_key} for {app_key}"
-                        if app_key == 'metallb':
-                            m += ". Enter a comma sperated list of IPs or CIDRs"
                         res = Prompt.ask(m)
                         return_secrets[secret_key] = res
                         apps[app_key]['argo']['secret_keys'][secret_key] = res

@@ -137,8 +137,7 @@ def main(config: str = "",
         metallb_enabled = apps['metallb']['enabled']
 
         # install the actual KIND, k0s, k3s, or k3d (experimental) cluster
-        create_k8s_distro(distro, metallb_enabled,
-                          USR_CFG['k3s'].get('extra_args', []))
+        create_k8s_distro(distro, metallb_enabled, USR_CFG['k3s'].get('extra_args', []))
 
         argo_enabled = apps['argo_cd']['enabled']
 
@@ -148,7 +147,7 @@ def main(config: str = "",
         install_base_apps(k8s_obj, distro, metallb_enabled, argo_enabled,
                           apps['argo_cd_appset_secret_plugin']['enabled'],
                           SECRETS.get('cert-manager_email', None),
-                          SECRETS.get('metallb_address_pool', None))
+                          apps['metallb']['init']['values']['address_pool'])
 
         # 🦑 Install Argo CD: continuous deployment app for k8s
         if argo_enabled:
