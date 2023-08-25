@@ -24,8 +24,7 @@ def install_base_apps(k8s_obj: K8s,
     """
     metallb_enabled = metallb_dict['enabled']
     # make sure helm is installed and the repos are up to date
-    prepare_helm(k8s_distro, metallb_enabled, argo_enabled, 
-                 argo_secrets_enabled)
+    prepare_helm(k8s_distro, metallb_enabled, argo_enabled, argo_secrets_enabled)
 
     # needed for metal (non-cloud provider) installs
     if metallb_enabled:
@@ -50,7 +49,7 @@ def install_base_apps(k8s_obj: K8s,
     from ..k8s_apps.cert_manager import configure_cert_manager
     cert_manager_init = cert_manager_dict['init']['enabled']
     if cert_manager_init:
-        email = cert_manager_dict['init']['values']['email']
+        email = cert_manager_dict['argo']['secret_keys']['email']
     else:
         email = ""
     configure_cert_manager(k8s_obj, email)
