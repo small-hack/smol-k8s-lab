@@ -127,30 +127,42 @@ class Zitadel():
         self.project_id = json_blob['id']
         self.resource_owner = json_blob['details']['resourceOwner']
 
-    def create_user(self, bitwarden: BwCLI = None) -> str:
+    def create_user(self,
+                    username: str = "",
+                    first_name: str = "",
+                    last_name: str = "",
+                    email: str = "",
+                    gender: str = "",
+                    bitwarden: BwCLI = None) -> str:
         """
         Creates an initial user in zitadel.
-        prompts a user for username, first name, last name, and email.
+        prompts a user for username, first name, last name, and email if Arguments
+        are not passed in
 
         Returns string of user_id.
         """
-        user = Prompt.ask("[green]Enter a new username for Zitadel")
-        first_name = Prompt.ask("[green]Enter your First name for your profile")
-        last_name = Prompt.ask("[green]Enter your Last name for your profile")
-        email = Prompt.ask("[green]Enter your email for your profile")
-        gender = Prompt.ask("[green]Please select a gender (more coming soon)",
-                            choices=["GENDER_FEMALE", "GENDER_MALE",
-                                     "GENDER_DIVERSE", "GENDER_UNSPECIFIED"])
+        if not username:
+            username = Prompt.ask("[green]Enter a new username for Zitadel")
+        if not first_name:
+            first_name = Prompt.ask("[green]Enter your First name for your profile")
+        if not last_name:
+            last_name = Prompt.ask("[green]Enter your Last name for your profile")
+        if not email:
+            email = Prompt.ask("[green]Enter your email for your profile")
+        if not gender:
+            gender = Prompt.ask("[green]Please select a gender (more coming soon)",
+                                choices=["GENDER_FEMALE", "GENDER_MALE",
+                                         "GENDER_DIVERSE", "GENDER_UNSPECIFIED"])
 
         # create a 32 character password with a randomly placed special character
         password = create_password(True)
         if bitwarden:
-            bitwarden.create_login('zitadel_admin', self.api_url, user,
+            bitwarden.create_login('zitadel_admin', self.api_url, username,
                                    password)
 
         # create a new user via the API
         log.info("Creating a new user...")
-        payload = dumps({"userName": user,
+        payload = dumps({"userName": username,
                          "profile": {
                             "firstName": first_name,
                             "lastName": last_name,

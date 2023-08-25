@@ -176,7 +176,11 @@ def initialize_apps_config() -> list:
             secrets = argo_section.get('secret_keys', None)
 
             if not secrets:
-                # if there's no secrets for this app, continue the loop
+                # if there's no secrets for this app, continue the loop to next app
+                continue
+
+            # if secrets are set, but init is disabled, continue the loop to next app
+            if not app['init']['enabled']:
                 continue
 
             # iterate through each secret for the app

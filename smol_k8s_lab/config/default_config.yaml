@@ -20,13 +20,16 @@ k3s:
 
 # store your password and tokens directly in your local password manager
 local_password_manager:
+  enabled: true
+  # enable the use of bitwarden as your password manager.
   # To use Bitwarden, you must export the following environment variables:
   # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
   # If you're missing any of these, smol-k8s-lab will prompt for them
-  bitwarden:
-    # enable the use of bitwarden as your password manager.
-    enabled: true
-    overwrite: false
+  name: bitwarden
+  # if existing items are found in your password manager, give smol-k8s-lab
+  # permission to delete the old item and create a new one.
+  # If set to false, we attempt to create a second item
+  overwrite: false
 
 apps:
   # --------------------------
@@ -38,6 +41,12 @@ apps:
   #
   # Use LetsEncrypt to generate TLS certs for all your apps with ingress
   cert-manager:
+    # Initialize of the app through smol-k8s-lab
+    init:
+      # Deploys staging and prod ClusterIssuers and prompts you for
+      # cert-manager.argo.secret_keys if they were not set. Switch to false if
+      # you don't want to deploy any ClusterIssuers
+      enabled: true
     argo:
       secret_keys:
         # Used for letsencrypt-staging, to generate certs
@@ -79,16 +88,16 @@ apps:
   metallb:
     # enable metallb which helps expose IP addresses for loadbalancers on metal
     # if you're on a vm or container where you can't get an IP, disable this
-    # most useful on linux, but you can probably also use it on a mac 🤷
     enabled: true
-    argo:
-      # secret keys to make available to helm and/or ArgoCD ApplicationSets
-      secret_keys:
-        # metallb IPs used for DNS later (make sure they're not in use)
-        # Example of required full CIDR notation
-        # address_pool:
-        #   - 192.168.20.23/32
+    # Initialize of the app through smol-k8s-lab
+    init:
+      # Deploys default l2Advertisement and prompts for an IPAddressPool if
+      # metallb.init.address_pool is not set. Change to false if you don't want to
+      # deploy these resources
+      enabled: true
+      values:
         address_pool: []
+    argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -107,6 +116,11 @@ apps:
     # Enable ArgoCD to install other apps, and also manage itself :)
     # Set to false if you you just want a bare cluster with only the above apps
     enabled: true
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to false if you don't want to use the argo_cd_appset_secret_plugin
+      # but then you can't use the default repo
+      enabled: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -125,12 +139,17 @@ apps:
       namespace: "argocd"
 
   argo_cd_appset_secret_plugin:
-    # This is required if you want to use the default small-hack argo.repo and
+    # Required if you want to use the default small-hack/argocd-apps argo.repo and
     # default enabled if ArgoCD is enabled, so we can create a k8s Secret with
     # your more private info such as hostnames, IP addresses, and emails in a
-    # deployment that run alongside ArgoCD to provide Argo CD ApplicationSets
+    # deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets
     # This plugin has no ingress and cannot be reached from outside the cluster
     enabled: true
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to false if you don't want to deploy a default secret with all
+      # keys in each apps.{app}.argo.secret_keys
+      enabled: true
     argo:
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
@@ -147,6 +166,7 @@ apps:
   external_secrets_operator:
     # enable the external secrets operator to pull remote secrets
     enabled: true
+    # use bitwarden as a default external secret provider
     provider: bitwarden
     argo:
       # git repo to install the Argo CD app from
@@ -168,8 +188,16 @@ apps:
         - "https://jessebot.github.io/bitwarden-eso-provider"
 
   bitwarden_eso_provider:
-    # enable the bitwarden ESO provider to store k8s secrets in bitwarden
+    # enable the bitwarden ESO provider to store k8s secrets in bitwarden. This
+    # deployment has no ingress and can't be connected to from outside the cluster
+    # there is a networkPolicy that only allows the pod to communicate with ESO
+    # in the same namespace
     enabled: true
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to false if you don't want to be prompted for your Bitwarden
+      # API credentials to be created as a kubernetes secret.
+      enabled: true
     argo:
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the below repo, path, ref, and namespace
@@ -184,15 +212,19 @@ apps:
       namespace: "external-secrets"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project_source_repos:
+        # where the helm chart lives. Go here for more info
         - "https://jessebot.github.io/bitwarden-eso-provider"
 
   infisical:
-    # Infisical is an open-source, end-to-end encrypted secret management
-    # platform that enables teams to easily manage and sync their env vars
-    # however it is not currently production ready for self hosting so we've
-    # kept it disabled
+    # ALPHA TESTING: Infisical is an open-source, end-to-end encrypted secret
+    # management platform that enables teams to easily manage and sync their env
+    # vars however it is not currently production ready for self hosting so we've
+    # kept it disabled.
     enabled: false
-    init: true
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to false if you don't want to 
+      enabled: true
     argo:
       secret_keys:
         hostname: ""
@@ -229,11 +261,20 @@ apps:
   # otherwise wouldn't have authentication
   keycloak:
     enabled: false
-    # initialize keycloak by creating a 1st user & clients for ArgoCD and vouch
-    # this will also prompt you for input for creating an admin user
-    init: true
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # initialize keycloak by creating a 1st user & clients for ArgoCD and
+      # vouch this will also prompt you for input for creating an admin user
+      # Switch to false if you want to use your own argo repo that does not not
+      # use the argo_cd_appset_secret_plugin or setup an initial user/clients
+      enabled: true
+      values:
+        # first human user to setup
+        username: ""
+        first_name: ""
+        last_name: ""
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrelast_name ts keys to make available to ArgoCD ApplicationSets
       secret_keys:
         hostname: ""
         mail_hostname: ""
@@ -266,7 +307,8 @@ apps:
       project_source_repos: []
 
   kubevirt:
-    # enable kubevirt to create more virtual machines with kubernetes
+    # ALPHA TESTING enable kubevirt to create more virtual machines with
+    # kubernetes default disable while a helm chart is being actively developed
     enabled: false
     argo:
       # git repo to install the Argo CD app from
@@ -284,7 +326,10 @@ apps:
     # enable mastodon for a self hosted social media website
     enabled: false
     # initialize the app by setting up new k8s secrets and/or bitwarden items
-    init: true
+    init:
+      # Switch to false if you don't want to setup your create initial secrets for
+      # your hostnames, and credentials for: redis, postgresql, admin user, SMTP
+      enabled: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -308,7 +353,10 @@ apps:
     # enable matrix for a self hosted chat service
     enabled: false
     # initialize the app by setting up new k8s secrets and/or bitwarden items
-    init: true
+    init:
+      # Switch to false if you don't want to setup your create initial secrets for
+      # your hostnames, and credentials for: postgresql, admin user, SMTP
+      enabled: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -330,7 +378,10 @@ apps:
     # enable nextcloud to stand up a nice little self hosted file server
     enabled: false
     # initialize the app by setting up new k8s secrets and/or bitwarden items
-    init: true
+    init:
+      # Switch to false if you don't want to create inital k8s secrets for your
+      # hostnames, admin credentials, SMTP credentials, redis credentials, and postgresql
+      enabled: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -352,6 +403,10 @@ apps:
   prometheus:
     # enable full monitoring stack w/ prometheus, grafana, loki, alert manager
     enabled: false
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to false if you don't want to use create initial k8s secrets with hostnames
+      enabled: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -378,7 +433,11 @@ apps:
 
   vouch:
     enabled: false
-    init: true
+    # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
+    init:
+      # Switch to false if you don't want to deploy initial k8s secret_keys
+      # or use keycloak or zitadel as your OIDC providers
+      enabled: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -397,8 +456,23 @@ apps:
   # zitadel is still in alpha testing phase. Use with caution 🤷
   zitadel:
     # initial zitadel with a user and two applications for Argo CD and Vouch
-    init: true
     enabled: true
+    # Initialization of the app through smol-k8s-lab. Creates bitwarden and/or k8s secrets
+    # and also creates an initial OIDC application for Argo CD, a human admin user,
+    # and two groups for argo (users/admins) along with a groupsClaim action. Updates
+    # your values in the argo_cd_appset_secret_plugin secret and refreshes the pod
+    init:
+      # Switch to false if you don't want to create intial secrets or use a the 
+      # API via a service acocunt to create the above described resources
+      enabled: true
+      values:
+        username: ""
+        email: ""
+        first_name: ""
+        last_name: ""
+        # options: GENDER_UNSPECIFIED, GENDER_MALE, GENDER_FEMALE, GENDER_DIVERSE
+        # more coming soon, see: https://github.com/zitadel/zitadel/issues/6355
+        gender: "GENDER_UNSPECIFIED"
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:

@@ -11,10 +11,11 @@ from ..k8s_tools.kubernetes_util import apply_custom_resources, apply_manifests
 
 def configure_metallb(address_pool: str = ""):
     """
-    metallb is special because it has Custom Resources:
-        IPaddressPool and L2Advertisement
-    Requires and accepts one arg:
-        address_pool - comma seperated list of IP addresses
+    installs metallb from the manifests in their official repo
+
+    Optionally accepts address_pool arg, comma seperated list of IP addresses,
+    to create an IPaddressPool and L2Advertisement. If address_pool is not passed
+    in or is "", then we don't create IPaddressPool or L2Advertisement
     """
     url = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/"
            "manifests/metallb-native.yaml")
@@ -23,19 +24,21 @@ def configure_metallb(address_pool: str = ""):
     apply_manifests(url, "metallb-system", "controller",
                     "component=controller")
 
-    # metallb requires a address pool configured and a layer 2 advertisement CR
-    log.info("Installing IPAddressPool and L2Advertisement custom resources.")
+    if address_pool:
+        # metallb requires a address pool configured and a layer 2 advertisement CR
+        log.info("Installing IPAddressPool and L2Advertisement custom resources.")
 
-    ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
-                  'kind': 'IPAddressPool',
-                  'metadata': {'name': 'default',
-                               'namespace': 'metallb-system'},
-                  'spec': {'addresses': address_pool.split(',')}}
+        ip_pool_cr = {'apiVersion': 'metallb.io/v1beta1',
+                      'kind': 'IPAddressPool',
+                      'metadata': {'name': 'default',
+                                   'namespace': 'metallb-system'},
+                      'spec': {'addresses': address_pool.split(',')}}
 
-    l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
-                    'kind': 'L2Advertisement',
-                    'metadata': {'name': 'default',
-                                 'namespace': 'metallb-system'}}
+        l2_advert_cr = {'apiVersion': 'metallb.io/v1beta1',
+                        'kind': 'L2Advertisement',
+                        'metadata': {'name': 'default',
+                                     'namespace': 'metallb-system'}}
 
-    apply_custom_resources([ip_pool_cr, l2_advert_cr])
-    return
+        apply_custom_resources([ip_pool_cr, l2_advert_cr])
+
+    return True

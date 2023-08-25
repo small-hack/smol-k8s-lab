@@ -1,15 +1,25 @@
-from ..pretty_printing.console_logging import header, sub_header
+#!/usr/bin/env python3.11
+"""
+       Name: base_install
+DESCRIPTION: installs helm repos, updates them, and installs charts for metallb,
+             cert-manager, and ingress-nginx
+     AUTHOR: @jessebot
+    LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
+"""
+from ..pretty_printing.console_logging import header
 from ..k8s_tools.homelabHelm import prepare_helm
 from ..k8s_tools.k8s_lib import K8s
 
 
-def install_base_apps(k8s_obj: K8s, k8s_distro: str = "",
-                      metallb_enabled: bool = True, argo_enabled: bool = False,
-                      argo_secrets_enabled: bool = False, email: str = "",
+def install_base_apps(k8s_obj: K8s,
+                      k8s_distro: str = "",
+                      metallb_enabled: bool = True,
+                      argo_enabled: bool = False,
+                      argo_secrets_enabled: bool = False,
+                      email: str = "",
                       cidr: str = "") -> bool:
     """ 
-    Helm installs all base apps:
-        metallb, ingess-nginx, and cert-manager.
+    Helm installs all base apps: metallb, ingess-nginx, and cert-manager
     All Needed for getting Argo CD up and running.
     """
     # make sure helm is installed and the repos are up to date
@@ -23,6 +33,7 @@ def install_base_apps(k8s_obj: K8s, k8s_distro: str = "",
         configure_metallb(cidr)
 
     # ingress controller: so we can accept traffic from outside the cluster
+    # nginx just because that's most supported, treafik support may be added later
     header("Installing [b]ingress-nginx-controller[/b]...")
     from ..k8s_apps.nginx_ingress_controller import configure_ingress_nginx
     configure_ingress_nginx(k8s_distro)

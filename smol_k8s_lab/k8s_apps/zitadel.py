@@ -11,28 +11,28 @@ from ..utils.passwords import create_password
 
 
 def configure_zitadel(k8s_obj: K8s,
-                      zitadel_config_dict: dict = {},
+                      config_dict: dict = {},
                       argocd_hostname: str = "",
                       bitwarden: BwCLI = None):
     """
-    Installs zitadel as a Argo CD Applications. If
-    zitadel_config_dict['init'] is True, it also configures Argo CD as OIDC Clients.
+    Installs zitadel as a Argo CD Applications. If config_dict['init']['enabled']
+    is True, it also configures Argo CD as OIDC Clients.
 
     Required Arguments:
-        zitadel_config_dict: dict, Argo CD parameters for zitadel
-        k8s_obj:             K8s(), kubrenetes client for creating secrets
+        k8s_obj:      K8s(), kubrenetes client for creating secrets
+        config_dict:  dict, Argo CD parameters for zitadel
 
     Optional Arguments:
-        argocd_hostname:   str, the hostname of Argo CD
-        bitwarden:         BwCLI obj, [optional] contains bitwarden session
+        argocd_hostname:  str, the hostname of Argo CD
+        bitwarden:        BwCLI obj, [optional] contains bitwarden session
 
     Returns True if successful.
     """
     header("🔑 Zitadel Setup")
-    zitadel_domain = zitadel_config_dict['argo']['secret_keys']['hostname']
-    database_type = zitadel_config_dict['argo']['secret_keys']['database_type']
+    zitadel_domain = config_dict['argo']['secret_keys']['hostname']
+    database_type = config_dict['argo']['secret_keys']['database_type']
 
-    if zitadel_config_dict['init']:
+    if config_dict['init']['enabled']:
         log.debug("Creating core key and DB credenitals for zitadel...")
         if database_type in ["postgres", "psql", "pgsql", "postgresql"]:
             admin_user = "postgres"
@@ -74,30 +74,34 @@ def configure_zitadel(k8s_obj: K8s,
                                   str_data=secret_dict)
 
     # install Zitadel using ArgoCD
-    install_with_argocd(k8s_obj, 'zitadel', zitadel_config_dict['argo'])
+    install_with_argocd(k8s_obj, 'zitadel', config_dict['argo'])
 
     # only continue through the rest of the function if we're initializes a
     # user and argocd client in zitadel
-    if not zitadel_config_dict['init']:
+    if not config_dict['init']['enabled']:
         return True
     else:
+        initial_user_dict = config_dict['init']['values']
         # Before initialization, we need to wait for zitadel's API to be up
         wait_for_argocd_app('zitadel')
         wait_for_argocd_app('zitadel-web-app')
-        initialize_zitadel(k8s_obj, zitadel_domain, argocd_hostname, bitwarden)
+        initialize_zitadel(k8s_obj, zitadel_domain, initial_user_dict,
+                           argocd_hostname, bitwarden)
 
 
 def initialize_zitadel(k8s_obj: K8s,
-                       zitadel_hostname: str = "",
+                       zitadel_hostname: str,
+                       user_dict: dict = {},
                        argocd_hostname: str = "",
                        bitwarden: BwCLI = None) -> Zitadel:
     """
     Sets up initial zitadel user, Argo CD client
     Arguments:
-        zitadel_hostname:  str, the hostname of Zitadel
-        argocd_hostname:   str, the hostname of Argo CD
-        k8s_obj:             K8s(), kubrenetes client for creating secrets
-        bitwarden:         BwCLI obj, [optional] session to use for bitwarden
+      zitadel_hostname:  str, the hostname of Zitadel
+      user_dict:         dict of initial username, email, first name, last name, gender
+      argocd_hostname:   str, the hostname of Argo CD
+      k8s_obj:           K8s(), kubrenetes client for creating secrets
+      bitwarden:         BwCLI obj, [optional] session to use for bitwarden
 
     returns zitadel object
     """
@@ -151,7 +155,7 @@ def initialize_zitadel(k8s_obj: K8s,
 
     # create zitadel user and grants now that the clients are setup
     log.info("Creating a Zitadel user...")
-    user_id = zitadel.create_user(bitwarden)
+    user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
     zitadel.create_user_grant(user_id, 'argocd_administrators')
 
     return zitadel

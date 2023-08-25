@@ -12,7 +12,7 @@ def configure_nextcloud(k8s_obj: K8s,
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
     """
-    if argo_dict['init']:
+    if argo_dict['init']['enabled']:
         secrets = argo_dict['argo']['secret_keys']
         nextcloud_hostname = secrets['nextcloud_hostname']
 
@@ -80,7 +80,7 @@ def configure_mastodon(k8s_obj: K8s,
     """
     creates a mastodon app and initializes it with secrets if you'd like :)
     """
-    if argo_dict['init']:
+    if argo_dict['init']['enabled']:
         # configure the admin user credentials
         m = "Please enter the name of the administrator user for mastodon"
         username = Prompt.ask(m)
@@ -142,7 +142,7 @@ def configure_matrix(k8s_obj: K8s,
     """
     # initial secrets to deploy this app from scratch
 
-    if argo_dict['init']:
+    if argo_dict['init']['enabled']:
         secrets = argo_dict['argo']['secret_keys']
         matrix_hostname = secrets['matrix_hostname']
         if bitwarden:
