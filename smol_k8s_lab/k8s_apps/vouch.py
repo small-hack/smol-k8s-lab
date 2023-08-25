@@ -36,6 +36,7 @@ def configure_vouch(k8s_obj: K8s,
     if vouch_config_dict['init']:
         secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['hostname']
+        log.debug(f"zitadel object is {zitadel}")
         base_url, client_id, client_secret = create_vouch_app(vouch_hostname,
                                                               oidc_provider_name,
                                                               oidc_provider_hostname,

@@ -25,6 +25,7 @@ def setup_oidc_provider(k8s_obj: K8s,
     elif provider_name == 'zitadel':
         log.debug("Setting up zitadel")
         zitadel = configure_zitadel(k8s_obj, provider_dict, argocd_fqdn, bw)
+        log.debug(f"zitadel obj fresh out of configure_zitadel is {zitadel}")
 
     if vouch_dict:
         if vouch_dict['enabled']:
@@ -37,12 +38,13 @@ def setup_oidc_provider(k8s_obj: K8s,
                                 bw,
                                 realm)
             elif provider_name == 'zitadel':
+                log.debug(f"zitadel obj is {zitadel}")
                 configure_vouch(k8s_obj,
                                 vouch_dict,
                                 provider_name,
                                 provider_dict['argo']['secret_keys']['hostname'],
                                 bw,
-                                None,
+                                "",
                                 zitadel)
             else:
                 configure_vouch(k8s_obj,
