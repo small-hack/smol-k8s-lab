@@ -199,10 +199,9 @@ def main(config: str = "",
             for app_key, app in apps.items():
                 if app.get('enabled', True):
                     if not app['argo'].get('part_of_app_of_apps', False):
-                        sub_header(f"Installing app: {app_key}")
-                        log.info(app)
-                        log.info(app['argo'])
-                        install_with_argocd(k8s_obj, app_key, app['argo'])
+                        argo_app = app_key.replace('_', '-')
+                        sub_header(f"Installing app: {argo_app}")
+                        install_with_argocd(k8s_obj, argo_app, app['argo'])
 
             # lock the bitwarden vault on the way out, to be polite :3
             if bw:

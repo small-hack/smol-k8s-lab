@@ -1,6 +1,7 @@
 from json import loads
 import logging as log
 from rich.prompt import Prompt
+from ..k8s_apps.keycloak import Keycloak
 from ..k8s_apps.zitadel_api import Zitadel
 from ..k8s_tools.argocd_util import install_with_argocd
 from ..k8s_tools.k8s_lib import K8s
@@ -37,7 +38,9 @@ def configure_vouch(k8s_obj: K8s,
         vouch_hostname = secrets['hostname']
         base_url, client_id, client_secret = create_vouch_app(vouch_hostname,
                                                               oidc_provider_name,
-                                                              oidc_provider_hostname)
+                                                              oidc_provider_hostname,
+                                                              realm,
+                                                              zitadel)
 
         vouch_callback_url = f'https://{vouch_hostname}/auth'
         m = ("[green]Please enter a comma seperated list of [yellow]emails[/] that"
@@ -109,22 +112,9 @@ def create_vouch_app(vouch_hostname: str = "",
         url = f"https://{provider_hostname}/"
 
     elif provider == 'keycloak':
+        keycloak = Keycloak()
         # create a vouch client
-        cmd = ("kubectl exec -n keycloak keycloak-web-app-0 -- "
-               f"/opt/bitnami/keycloak/bin/kcadm.sh create clients -r {realm} "
-               "-s enabled=true -s clientId=vouch -o --no-config --server "
-               f"http://localhost:8080/ --realm {realm} --user KEYCLOAK_ADMIN "
-               "--password $KEYCLOAK_ADMIN_PASSWORD")
-        subproc([cmd])
-
-        # get vouch client secret
-        clients = (f"kubectl exec -n keycloak keycloak-web-app-0 -- "
-                   f"/opt/bitnami/keycloak/bin/kcadm.sh get clients -r {realm} "
-                   f"--fields clientId,secret --query vouch -o --no-config --server "
-                   f"http://localhost:8080/ --realm {realm} "
-                   "--user KEYCLOAK_ADMIN --password $KEYCLOAK_ADMIN_PASSWORD")
-        client_id = 'vouch'
-        client_secret = loads(subproc([clients]))['secret']
+        client_secret = keycloak.create_client('vouch')
         url = f"https://{provider_hostname}/realms/{realm}/protocol/openid-connect"
     else:
         log.error("niether zitadel nor keycloak was passed into "
