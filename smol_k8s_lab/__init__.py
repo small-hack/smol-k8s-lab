@@ -122,6 +122,14 @@ def main(config: str = "",
             delete_cluster(distro)
         exit()
 
+    bw = None
+    # if we're using bitwarden, unlock the vault
+    pw_manager_enabled = USR_CFG['local_password_manager']['enabled']
+    pw_manager = USR_CFG['local_password_manager']['name']
+    if pw_manager_enabled and pw_manager == 'bitwarden':
+        bw = BwCLI(USR_CFG['local_password_manager']['overwrite'])
+        bw.unlock()
+
     for distro in k8s_distros:
         # this is a dict of all the apps we can install
         apps = USR_CFG['apps']
@@ -144,12 +152,6 @@ def main(config: str = "",
 
         # 🦑 Install Argo CD: continuous deployment app for k8s
         if argo_enabled:
-            bw = None
-            # if we're using bitwarden, unlock the vault
-            if USR_CFG['local_password_manager']['bitwarden']['enabled']:
-                bw = BwCLI(USR_CFG['local_password_manager']['bitwarden']['overwrite'])
-                bw.unlock()
-
             # user can configure a special domain for argocd
             argocd_fqdn = SECRETS['argo_cd_hostname']
             from .k8s_apps.argocd import configure_argocd
