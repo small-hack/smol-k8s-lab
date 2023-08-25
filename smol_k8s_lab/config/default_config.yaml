@@ -255,6 +255,7 @@ apps:
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project_source_repos:
         - "https://k8up-io.github.io/k8up"
+        - "https://github.com/k8up-io/k8up.git"
 
   # keycloak is an IAM provider that you can use with ArgoCD for user/group
   # management and oauth2. it also works with vouch to secure hostnames that
