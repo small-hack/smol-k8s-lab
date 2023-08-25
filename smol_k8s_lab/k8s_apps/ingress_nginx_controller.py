@@ -24,7 +24,7 @@ def configure_ingress_nginx(k8s_distro="k3s"):
         apply_manifests(url, "ingress-nginx", "ingress-nginx-controller",
                         "app.kubernetes.io/component=controller")
     else:
-        release = helm.chart(release_name='ingress',
+        release = helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
                              chart_version='4.7.1',
                              namespace='ingress')
