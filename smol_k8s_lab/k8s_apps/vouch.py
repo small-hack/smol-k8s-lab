@@ -95,7 +95,7 @@ def create_vouch_app(vouch_hostname: str = "",
                      provider: str = 'zitadel',
                      provider_hostname: str = "",
                      realm: str = "default",
-                     zitadel: Zitadel = False):
+                     zitadel: Zitadel = None) -> list:
     """
     creates a vouch OIDC application in either keycloak or zitadel
     """
