@@ -48,6 +48,11 @@ def install_base_apps(k8s_obj: K8s,
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [b]cert-manager[/b] for TLS certificates...")
     from ..k8s_apps.cert_manager import configure_cert_manager
+    cert_manager_init = cert_manager_dict['init']['enabled']
+    if cert_manager_init:
+        email = cert_manager_dict['init']['values']['email']
+    else:
+        email = ""
     configure_cert_manager(k8s_obj, email)
 
     # success!
