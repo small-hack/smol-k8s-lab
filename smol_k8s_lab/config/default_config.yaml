@@ -403,7 +403,7 @@ apps:
 
   prometheus:
     # enable full monitoring stack w/ prometheus, grafana, loki, alert manager
-    enabled: false
+    enabled: true
     # Initialization of the app through smol-k8s-lab
     init:
       # Switch to false if you don't want to use create initial k8s secrets with hostnames
