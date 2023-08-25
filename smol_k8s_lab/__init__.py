@@ -25,7 +25,7 @@ from .k8s_apps.infisical import configure_infisical
 from .k8s_apps.external_secrets_operator import configure_external_secrets
 from .k8s_apps.federated import (configure_nextcloud, configure_matrix,
                                  configure_mastodon)
-from .pretty_printing.console_logging import CONSOLE
+from .pretty_printing.console_logging import CONSOLE, sub_header, header
 from .pretty_printing.help_text import RichCommand, options_help
 from .utils.bw_cli import BwCLI
 HELP = options_help()
@@ -195,10 +195,14 @@ def main(config: str = "",
 
             # after argocd, keycloak, bweso, and vouch are up, we install all
             # apps as Argo CD Applications
+            header("Installing the rest of the Argo CD apps")
             for app_key, app in apps.items():
-                if app['enabled']:
+                if app.get('enabled', True):
                     if not app['argo'].get('part_of_app_of_apps', False):
-                        install_with_argocd(app_key, app['argo'])
+                        sub_header(f"Installing app: {app_key}")
+                        log.info(app)
+                        log.info(app['argo'])
+                        install_with_argocd(k8s_obj, app_key, app['argo'])
 
             # lock the bitwarden vault on the way out, to be polite :3
             if bw:
