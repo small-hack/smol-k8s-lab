@@ -432,7 +432,7 @@ apps:
         - "https://prometheus-community.github.io/helm-charts"
 
   vouch:
-    enabled: false
+    enabled: true
     # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
     init:
       # Switch to false if you don't want to deploy initial k8s secret_keys

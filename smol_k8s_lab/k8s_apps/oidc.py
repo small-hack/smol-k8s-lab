@@ -27,8 +27,8 @@ def setup_oidc_provider(k8s_obj: K8s,
         extra = {'zitadel': configure_zitadel(k8s_obj, provider_dict, argocd_fqdn, bw)}
 
     if vouch_dict:
-        log.debug("Setting up vouch")
         if vouch_dict['enabled']:
+            log.debug("Setting up vouch")
             configure_vouch(k8s_obj,
                             vouch_dict,
                             provider_name,
