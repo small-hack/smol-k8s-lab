@@ -139,8 +139,8 @@ def initialize_zitadel(k8s_obj: K8s,
     update_secret_key(k8s_obj,
                       'appset-secret-vars',
                       'argocd',
-                      {'argocd_oidc_client_id': argocd_client['client_id'],
-                       'argocd_oidc_issuer': f"https://{zitadel_hostname}"},
+                      {'argo_cd_oidc_client_id': argocd_client['client_id'],
+                       'argo_cd_oidc_issuer': f"https://{zitadel_hostname}"},
                        'secret_vars.yaml')
     k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
 
