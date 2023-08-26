@@ -137,6 +137,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "argocd"
+      project_source_repos:
+        - https://argoproj.github.io/argo-helm
 
   argo_cd_appset_secret_plugin:
     # Required if you want to use the default small-hack/argocd-apps argo.repo and
@@ -162,6 +164,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "argocd"
+      project_source_repos:
+        - https://jessebot.github.io/argocd-appset-secret-plugin
 
   external_secrets_operator:
     # enable the external secrets operator to pull remote secrets
