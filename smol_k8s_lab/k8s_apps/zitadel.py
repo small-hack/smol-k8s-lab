@@ -136,7 +136,9 @@ def initialize_zitadel(k8s_obj: K8s,
     zitadel.create_role("argocd_users", "Argo CD Users", "argocd_users")
 
     # update the existing appset-secret-vars secret with issuer and client_id
-    update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd',
+    update_secret_key(k8s_obj,
+                      'appset-secret-vars',
+                      'argocd',
                       {'argocd_oidc_client_id': argocd_client['client_id'],
                        'argocd_oidc_issuer': f"https://{zitadel_hostname}"},
                        'secret_vars.yaml')
@@ -144,12 +146,13 @@ def initialize_zitadel(k8s_obj: K8s,
 
     if bitwarden:
         sub_header("Creating OIDC secret for Argo CD in Bitwarden")
-        bitwarden.create_login(name='argocd-external-oidc',
+        bitwarden.create_login(name='argocd-oidc-credentials',
                                user='argocd',
                                password=argocd_client['client_secret'])
     else:
         # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
-        k8s_obj.create_secret('argocd-external-oidc', 'argocd',
+        k8s_obj.create_secret('argocd-oidc-credentials',
+                              'argocd',
                               {'user': 'argocd',
                                'password': argocd_client['client_secret']},
                               labels={'app.kubernetes.io/part-of': 'argocd'})
