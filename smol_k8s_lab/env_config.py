@@ -187,7 +187,9 @@ def initialize_apps_config() -> list:
                 secret_key = "_".join([key, secret])
 
                 # if the secret is empty, prompt for a new one
-                if not secrets[secret] or type(secrets[secret]) is not str:
+                # might need to add this back
+                # if not secrets[secret] or type(secrets[secret]) is not str:
+                if not secrets[secret]:
                     msg = f"[green]Please enter a {secret} for {key}"
                     res = Prompt.ask(msg)
                     config[key]['argo']['secret_keys'][secret] = res
@@ -199,29 +201,32 @@ def initialize_apps_config() -> list:
     return config, return_secrets
 
 
-def process_k8s_distros(k8s_distros: list = None):
+def process_k8s_distros(k8s_distros: dict = {}):
     """
     make sure the k8s distro passed into the config is supported and valid for
     the current operating system
     """
     default_distros = ['kind', 'k3s', 'k3d', 'k0s']
 
-    if OS[0] == 'Darwin' and 'k3s' in k8s_distros:
-        print("k3s does not run on macOS at this time :(")
-        k8s_distros.pop("k3s")
+    if OS[0] == 'Darwin':
+        default_distros.pop('k3s')
 
-    if 'k3d' in k8s_distros:
-        print("⚠️ warning: k3d is experimental at this time")
+    # keep track if we even have any enabled
+    distros_enabled = False
 
-    # verify the distros are supported
-    for distro in k8s_distros:
-        if distro not in default_distros:
-            print(f"{distro} is not supported at this time. :(")
-            k8s_distros.pop(distro)
+    if k8s_distros:
+        # verify the distros are supported
+        for distro, metadata in k8s_distros.items():
+            if distro not in default_distros:
+                print(f"{distro} is not supported on {OS[0]} at this time. :(")
+                k8s_distros.pop(distro)
+            else:
+              if metadata.get('enabled', False):
+                  distros_enabled = True
 
-    if not k8s_distros:
+    if not distros_enabled:
         msg = "[green]Which K8s distro would you like to use for your cluster?"
         distro = Prompt.ask(msg, choices=default_distros)
-        k8s_distros = [distro]
+        k8s_distros = {distro: {'enabled': True}}
 
     return k8s_distros

@@ -8,15 +8,36 @@ log:
 
 # which distros of Kubernetes to deploy. Options: kind, k3s, k0s
 # NOTE: only kind is available on macOS at this time
-# example:
-# k8s_distros:
-#   - k3s
-k8s_distros: []
+k8s_distros:
+  # k3s is a small Kubernetes distro maintained by Rancher, which is owned by Suse Linux
+  k3s:
+    # set to true to enable deploying a kubernetes cluster using k3s
+    enabled: false
+    # if k8s_distribution set to k3s, you can add an array of extra
+    # arguments to pass to the k3s install script
+    extra_args: []
+  # WARNING: NOT tested yet. k3d is k3s in docker.
+  k3d:
+    # set to true to enable deploying a kubernetes cluster using k3d
+    enabled: false
+  # KinD stands for Kubernetes in Docker, and is developed by the Kubernetes Project
+  kind:
+    # set to true to enable deploying a kubernetes cluster using kind
+    enabled: false
+  # k0s is a minimal distro of kubernetes
+  k0s:
+    # set to true to enable deploying a kubernetes cluster using k0s
+    enabled: false
 
-k3s:
-  # if k8s_distribution set to k3s, you can add an array of extra
-  # arguments to pass to the k3s install script
-  extra_args: []
+# k9s is a terminal UI dashboard and interface for interacting with kubernetes
+k9s:
+  # when set to true, smol-k8s-lab runs k9s immediately after the cluster and 
+  # enabled apps have been installed
+  enabled: false
+  # default command to run when k9s launches. defaults to application.argoproj.io
+  # so that you can view the status of all of your argo apps immediately. This
+  # default results in running: k9s --command applications.argoproj.io
+  command: 'applications.argoproj.io'
 
 # store your password and tokens directly in your local password manager
 local_password_manager:

@@ -30,12 +30,15 @@ def check_contexts(k8s_distro: str = ""):
     return False
 
 
-def create_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
-                       extra_args: list = []):
+def create_k8s_distro(k8s_distro: str,
+                      distro_metadata: dict = {},
+                      metallb_enabled: bool = True) -> True:
     """
     Install a specific distro of k8s
-    Takes one variable:
-        k8s_distro - string. options: 'k0s', 'k3s', 'k3d', or 'kind'
+    Arguments:
+        k8s_distro:       options: 'k0s', 'k3s', 'k3d', 'kind'
+        distro_metadata:  any extra data objects to be passed to the install funcs
+        metallb_enabled:  if we're enabling metallb which requires we disable servicelb
     Returns True
     """
     header(f"Initializing your [green]{k8s_distro}[/] cluster")
@@ -50,6 +53,7 @@ def create_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
         install_kind_cluster()
     elif k8s_distro == "k3s":
         from .k3s import install_k3s_cluster
+        extra_args = distro_metadata.get('extra_args', [])
         install_k3s_cluster(metallb_enabled, extra_args)
     # curently unsupported - in alpha state
     elif k8s_distro == "k3d":
@@ -61,7 +65,7 @@ def create_k8s_distro(k8s_distro: str = "", metallb_enabled: bool = True,
     return True
 
 
-def delete_cluster(k8s_distro: str = "kind"):
+def delete_cluster(k8s_distro: str) -> True:
     """
     Delete a k0s, k3s, or KinD cluster entirely.
     It is suggested to perform a reboot after deleting a k0s cluster.
@@ -88,3 +92,4 @@ def delete_cluster(k8s_distro: str = "kind"):
         header(f"┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
 
     sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
+    return True

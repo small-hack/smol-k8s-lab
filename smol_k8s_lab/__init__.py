@@ -99,13 +99,13 @@ def main(config: str = "",
         print(f'\n🎉 v{VERSION}\n')
         return True
 
-    # make sure this OS is supported
-    check_os_support()
-
     if setup:
         # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
         from .utils.setup_k8s_tools import do_setup
         do_setup()
+
+    # make sure this OS is supported
+    check_os_support()
 
     # process all of the config file, or create a new one and also grab secrets
     USR_CFG, SECRETS = process_configs(INITIAL_USR_CONFIG, delete)
@@ -114,12 +114,13 @@ def main(config: str = "",
     log = process_log_config(USR_CFG['log'])
     log.debug("Logging configured.")
 
-    k8s_distros = USR_CFG.get('k8s_distros', None)
-    if delete and k8s_distros:
-        logging.debug("Delete was requested")
-        for distro in k8s_distros:
-            # exits the script after deleting the cluster
-            delete_cluster(distro)
+    k8s_distros = USR_CFG.get['k8s_distros']
+    if delete:
+        logging.debug("Cluster deletion was requested")
+        for distro, metadata in k8s_distros.items():
+            if metadata.get('enabled', False):
+                # exits the script after deleting the cluster
+                delete_cluster(distro)
         exit()
 
     bw = None
@@ -130,14 +131,17 @@ def main(config: str = "",
         bw = BwCLI(USR_CFG['local_password_manager']['overwrite'])
         bw.unlock()
 
-    for distro in k8s_distros:
+    for distro, metadata in k8s_distros.items():
+        # if the cluster isn't enabled, just continue on
+        if not k8s_distros[distro].get('enabled', False):
+            continue
         # this is a dict of all the apps we can install
         apps = USR_CFG['apps']
         # check immediately if metallb is enabled
         metallb_enabled = apps['metallb']['enabled']
 
         # install the actual KIND, k0s, k3s, or k3d (experimental) cluster
-        create_k8s_distro(distro, metallb_enabled, USR_CFG['k3s'].get('extra_args', []))
+        create_k8s_distro(distro, metadata, metallb_enabled)
 
         argo_enabled = apps['argo_cd']['enabled']
 
@@ -215,6 +219,8 @@ def main(config: str = "",
                         subtitle='♥ [cyan]Have a nice day[/] ♥',
                         border_style="cornflower_blue"))
     print("")
+
+    subproc(['k9s --command applications.argoproj.io'])
 
 
 if __name__ == '__main__':
