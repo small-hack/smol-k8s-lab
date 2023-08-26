@@ -10,7 +10,7 @@ from base64 import b64decode as b64dec
 from base64 import standard_b64encode as b64enc
 from os import path
 import yaml
-from yaml import dump, dumps
+from yaml import dump
 import logging as log
 from .k8s_lib import K8s
 from ..constants import XDG_CACHE_DIR
