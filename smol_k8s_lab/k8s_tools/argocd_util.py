@@ -51,10 +51,10 @@ def wait_for_argocd_app(app: str = ""):
     return True
 
 
-def create_argocd_project(project_name: str = "",
-                          app: str = "",
-                          namespace: str = "",
-                          source_repos: list = []) -> True:
+def create_argocd_project(project_name: str,
+                          app: str,
+                          namespace: str,
+                          source_repos: list) -> True:
     """
     create an argocd project
     """
