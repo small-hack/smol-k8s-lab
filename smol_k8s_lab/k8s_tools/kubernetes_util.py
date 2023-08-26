@@ -9,8 +9,7 @@ DESCRIPTION: generic kubernetes utilities
 from base64 import b64decode as b64dec
 from base64 import standard_b64encode as b64enc
 from os import path
-from json import loads
-from yaml import dump
+from yaml import dump, safe_load
 import logging as log
 from .k8s_lib import K8s
 from ..constants import XDG_CACHE_DIR
@@ -77,7 +76,7 @@ def update_secret_key(k8s_obj: K8s,
         file_key = secret_data[in_line_key_name]
         decoded_data  = b64dec(str.encode(file_key)).decode('utf8')
         # load the yaml as a python dictionary
-        in_line_yaml = loads(decoded_data)
+        in_line_yaml = safe_load(decoded_data)
         # for each key, updated_value in updated_values_dict
         for key, updated_value in updated_values_dict.items():
            # update the in-line yaml

@@ -17,6 +17,7 @@ from sys import exit
 from .env_config import check_os_support, process_configs
 from .constants import KUBECONFIG, HOME_DIR, INITIAL_USR_CONFIG, VERSION
 from .k8s_tools.argocd_util import install_with_argocd
+from .k8s_tools.k9s import run_k9s
 from .k8s_tools.k8s_lib import K8s
 from .k8s_distros.base import create_k8s_distro, delete_cluster
 from .k8s_apps.base_install import install_base_apps
@@ -220,7 +221,8 @@ def main(config: str = "",
                         border_style="cornflower_blue"))
     print("")
 
-    subproc(['k9s --command applications.argoproj.io'])
+    if k9s or USR_CFG['k9s'].get('enabled', False):
+        run_k9s(USR_CFG['k9s'].get('command', 'applications.argoproj.io'))
 
 
 if __name__ == '__main__':
