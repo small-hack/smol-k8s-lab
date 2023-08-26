@@ -439,6 +439,12 @@ apps:
       # Switch to false if you don't want to deploy initial k8s secret_keys
       # or use keycloak or zitadel as your OIDC providers
       enabled: true
+      values:
+        # list of domains allowed to be behind vouch such as example.com
+        domains: []
+        # - example.com
+        # email addresses allowed to authenticate via vouch such as beep@boop.com
+        emails: []
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
