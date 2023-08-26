@@ -106,6 +106,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "metallb-system"
+      project_source_repos:
+        - 'https://github.com/metallb/metallb.git'
 
   # ---------------------------------------------------------------------------
   # Argo CD deployed and maintained Applications to run on Kubernetes
