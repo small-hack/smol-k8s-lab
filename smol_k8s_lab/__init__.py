@@ -114,7 +114,7 @@ def main(config: str = "",
     log = process_log_config(USR_CFG['log'])
     log.debug("Logging configured.")
 
-    k8s_distros = USR_CFG.get['k8s_distros']
+    k8s_distros = USR_CFG['k8s_distros']
     if delete:
         logging.debug("Cluster deletion was requested")
         for distro, metadata in k8s_distros.items():
