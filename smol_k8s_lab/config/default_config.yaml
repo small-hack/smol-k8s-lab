@@ -41,6 +41,10 @@ apps:
   #
   # Use LetsEncrypt to generate TLS certs for all your apps with ingress
   cert-manager:
+    # ! NOTE: you currently can't set this to false. It is necessary to deploy
+    # most of our supported Argo CD apps since they often have TLS enabled either
+    # for pod connectivity or ingress
+    enabled: true
     # Initialize of the app through smol-k8s-lab
     init:
       # Deploys staging and prod ClusterIssuers and prompts you for
@@ -62,6 +66,9 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "ingress"
+      # source repos for cert-manager CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - https://charts.jetstack.io
 
   # deploy ingress-nginx and cert-manager as one argocd app of apps and project 
   # in the same namespace
@@ -106,6 +113,7 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "metallb-system"
+      # source repos for Argo CD metallb Project (in addition to metallb.argo.repo)
       project_source_repos:
         - 'https://github.com/metallb/metallb.git'
 
@@ -139,8 +147,10 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "argocd"
+      # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project_source_repos:
         - https://argoproj.github.io/argo-helm
+        - https://jessebot.github.io/argocd-appset-secret-plugin
 
   argo_cd_appset_secret_plugin:
     # Required if you want to use the default small-hack/argocd-apps argo.repo and
@@ -465,8 +475,10 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "ingress"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - https://jessebot.github.io/vouch-helm-chart
 
-  # zitadel is still in alpha testing phase. Use with caution 🤷
   zitadel:
     # initial zitadel with a user and two applications for Argo CD and Vouch
     enabled: true
