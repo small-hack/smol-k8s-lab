@@ -10,7 +10,7 @@ from base64 import b64decode as b64dec
 from base64 import standard_b64encode as b64enc
 from os import path
 import yaml
-from yaml import dump
+from yaml import dump, dumps
 import logging as log
 from .k8s_lib import K8s
 from ..constants import XDG_CACHE_DIR
@@ -77,15 +77,17 @@ def update_secret_key(k8s_obj: K8s,
         file_key = secret_data[in_line_key_name]
         decoded_data  = b64dec(str.encode(file_key)).decode('utf8')
         # load the yaml as a python dictionary
-        in_line_yaml = yaml.safe_load(decoded_data)
+        in_line_yaml = yaml.loads(decoded_data)
         # for each key, updated_value in updated_values_dict
         for key, updated_value in updated_values_dict.items():
            # update the in-line yaml
            in_line_yaml[key] = updated_value
         k8s_obj.delete_secret(secret_name, secret_namespace)
         # update the inline yaml for the dict we'll feed back to
-        k8s_obj.create_secret(secret_name, secret_namespace,
-                              yaml.dump(in_line_yaml), in_line_key_name)
+        k8s_obj.create_secret(secret_name,
+                              secret_namespace,
+                              in_line_yaml,
+                              in_line_key_name)
     else:
         for key, updated_value in updated_values_dict.items():
            # update the keys in the secret yaml one by one
