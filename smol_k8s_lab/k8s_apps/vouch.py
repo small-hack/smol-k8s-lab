@@ -33,7 +33,7 @@ def configure_vouch(k8s_obj: K8s,
     """
     header("🗝️ Vouch Setup")
 
-    if vouch_config_dict['init']:
+    if vouch_config_dict['init']['enabled']:
         secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['hostname']
         log.debug(f"zitadel object is {zitadel}")
@@ -44,12 +44,16 @@ def configure_vouch(k8s_obj: K8s,
                                                               zitadel)
 
         vouch_callback_url = f'https://{vouch_hostname}/auth'
-        m = ("[green]Please enter a comma seperated list of [yellow]emails[/] that"
-             " are allowed to access domains behind Vouch")
-        emails = Prompt.ask(m)
-        m = ("[green]Please enter a comma seperated list of [yellow]domains[/] that"
-             " are allowed to use Vouch")
-        domains = Prompt.ask(m)
+        emails = vouch_config_dict['init']['values']['emails']
+        if not emails:
+            m = ("[green]Please enter a comma seperated list of [yellow]emails[/]"
+                 " that are allowed to access domains behind Vouch")
+            emails = Prompt.ask(m)
+        domains = vouch_config_dict['init']['values']['domains']
+        if not domains:
+            m = ("[green]Please enter a comma seperated list of [yellow]domains[/]"
+                 " that are allowed to use Vouch")
+            domains = Prompt.ask(m)
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
