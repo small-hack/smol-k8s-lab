@@ -24,10 +24,11 @@ def install_with_argocd(k8s_obj: K8s,
     # make sure the namespace already exists
     k8s_obj.create_namespace(namespace)
 
-    source_repos = argo_dict.get('project_source_repos', None)
-    if source_repos:
-        source_repos.append(repo)
-        create_argocd_project(app, app, namespace, source_repos)
+    source_repos = [repo]
+    extra_source_repos = argo_dict.get('project_source_repos', [])
+    if extra_source_repos:
+        source_repos.extend(extra_source_repos)
+    create_argocd_project(app, app, namespace, source_repos)
 
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
