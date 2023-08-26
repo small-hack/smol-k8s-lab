@@ -3,7 +3,7 @@ from ..pretty_printing.console_logging import sub_header, header
 from ..subproc import subproc
 
 
-def check_contexts(k8s_distro: str = ""):
+def check_contexts(k8s_distro: str):
     """
     gets current context and if any have have smol-k8s-lab-{distro} returns and
     dict of {"context": context_name, "cluster": cluster_name, "user": auto_info}
@@ -89,6 +89,7 @@ def delete_cluster(k8s_distro: str) -> True:
         uninstall_k0s()
 
     else:
+        # how did you even make it this far?
         header(f"┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
 
     sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
