@@ -41,11 +41,16 @@ def configure_nextcloud(k8s_obj: K8s,
                                    fields=[serverinfo_token_obj, smtpUsername,
                                            smtpPassword])
 
-            nextcloud_pgsql_password = bitwarden.generate()
+            nextcloud_pgsql_password = create_custom_field('nextcloudPassword',
+                                                           bitwarden.generate())
+            nextcloud_pgsql_admin_password = create_custom_field('postgresPassword',
+                                                                 bitwarden.generate())
             bitwarden.create_login(name='nextcloud-pgsql-credentials',
                                    item_url=nextcloud_hostname,
                                    user='nextcloud',
-                                   password=nextcloud_pgsql_password)
+                                   password='none',
+                                   fields=[nextcloud_pgsql_password,
+                                           nextcloud_pgsql_admin_password])
 
             nextcloud_redis_password = bitwarden.generate()
             bitwarden.create_login(name='nextcloud-redis-credentials',
@@ -64,8 +69,10 @@ def configure_nextcloud(k8s_obj: K8s,
                                    "smtpPassword": mail_pass})
 
             nextcloud_pgsql_password = create_password()
+            nextcloud_pgsql_admin_password = create_password()
             k8s_obj.create_secret('nextcloud-pgsql-credentials', 'nextcloud',
-                                  {"password": nextcloud_pgsql_password})
+                                  {"nextcloudPassword": nextcloud_pgsql_password,
+                                   "postgresPassword": nextcloud_pgsql_admin_password})
 
             nextcloud_redis_password = create_password()
             k8s_obj.create_secret('nextcloud-redis-credentials', 'nextcloud',
