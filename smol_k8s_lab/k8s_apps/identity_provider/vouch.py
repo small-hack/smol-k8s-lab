@@ -28,7 +28,7 @@ def configure_vouch(k8s_obj: K8s,
       oidc_provider_name:     OIDC provider name. options: keycloak, zitadel
       oidc_provider_hostname: OIDC provider hostname e.g. zitadel.example.com
       bitwarden:              BwCLI, to store k8s secrets in bitwarden
-      user:                   list of user to give access to vouch app
+      users:                   list of user to give access to vouch app
       realm:                  keycloak realm to use
       zitadel:                Zitadel object so we don't have to create an api token
 
@@ -44,6 +44,7 @@ def configure_vouch(k8s_obj: K8s,
         base_url, client_id, client_secret = create_vouch_app(oidc_provider_name,
                                                               oidc_provider_hostname,
                                                               vouch_hostname,
+                                                              users,
                                                               realm,
                                                               zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
