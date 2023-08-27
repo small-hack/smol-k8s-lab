@@ -32,7 +32,7 @@ def configure_vouch(k8s_obj: K8s,
 
     returns True if successful
     """
-    header("🗝️ Vouch Setup")
+    header("Setting up [green]Vouch[/] to use Oauth for insecure frontends", "🗝️")
 
     if vouch_config_dict['init']['enabled']:
         # this handles the vouch-oauth-config secret data
@@ -45,7 +45,7 @@ def configure_vouch(k8s_obj: K8s,
                                                               realm,
                                                               zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
-        preferred_domain = '""'
+        preferred_domain = "'""'"
 
         # this is handling the vouch-config secret
         emails = vouch_config_dict['init']['values']['emails']
