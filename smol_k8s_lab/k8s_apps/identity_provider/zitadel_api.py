@@ -217,7 +217,7 @@ class Zitadel():
 
         return True
 
-    def create_user_membership(self, user_id: str, role: str) -> True:
+    def create_user_project_membership(self, user_id: str, role: str) -> True:
         """
         Grants an ADMIN role to a user.
 
