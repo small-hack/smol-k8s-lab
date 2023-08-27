@@ -20,21 +20,25 @@ soft_theme = Theme({"info": "dim cornflower_blue",
 CONSOLE = Console(theme=soft_theme)
 
 
-def header(text=""):
+def header(text: str, emoji: str = ""):
     """
     pretty print a header with lines extending the full width of the terminal
+    Accepts optional emoji to use to surround header text
     """
     print('\n')
-    title = f'[b]☁  [/]ʕ ᵔﻌᵔʔ [cyan]{text}[/cyan] ʕᵔﻌᵔ ʔ [b]☁ [/]'
+    if emoji:
+        title = f'[b]☁ [/]{emoji} [cyan]{text}[/cyan] {emoji} [b]☁ [/]'
+    else:
+        title = f'[b]☁  [/]ʕ ᵔﻌᵔʔ [cyan]{text}[/cyan] ʕᵔﻌᵔ ʔ [b]☁ [/]'
     CONSOLE.rule(title, style="cornflower_blue")
     print('')
 
     return True
 
 
-def sub_header(text="",
-               extra_starting_blank_line=True,
-               ending_blank_line=True):
+def sub_header(text: str,
+               extra_starting_blank_line: bool = True,
+               ending_blank_line: bool = True):
     """
     pretty print a SUB header. params:
       text                      - "", text to pretty print. REQUIRED.
@@ -55,7 +59,9 @@ def sub_header(text="",
     return
 
 
-def print_msg(text='', alignment='center', style='dim italic'):
+def print_msg(text: str,
+              alignment: str = 'center',
+              style: str = 'dim italic'):
     """
     prints text centered in the width of the terminal
     """
@@ -64,8 +70,10 @@ def print_msg(text='', alignment='center', style='dim italic'):
     return True
 
 
-def print_panel(content='', title_txt='', title_alignment='center',
-                border_style="light_steel_blue"):
+def print_panel(content: str,
+                title_txt: str = '',
+                title_alignment: str = 'center',
+                border_style: str = "light_steel_blue"):
     """
     prints text in a box with a light_steel_blue border and title_txt
     """
