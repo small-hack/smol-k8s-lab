@@ -225,14 +225,14 @@ class Zitadel():
             user_id: ID of the user we're grants a role to
             role:    name of the role to assign to the user
         """
-        log.debug(f"Assiging user_id, {user_id} the role of [green]{role}[/]")
+        log.debug(f"Assiging user_id, {user_id} the membership for [green]{role}[/]")
         payload = dumps({
           "userId": user_id,
           "roles": [role]
         })
 
         response = request("POST",
-                           self.api_url + "orgs/me/members",
+                           self.api_url + f"projects/{self.project_id}/members",
                            headers=self.headers,
                            data=payload,
                            verify=self.verify)

@@ -165,7 +165,7 @@ def initialize_zitadel(k8s_obj: K8s,
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
     zitadel.create_user_grant(user_id, 'argocd_administrators')
     # grant admin access to first user
-    zitadel.create_user_membership(user_id, 'IAM_OWNER')
+    zitadel.create_user_project_membership(user_id, 'IAM_OWNER')
 
     log.debug(f"Zitadel obj before finishing configure_zitadel is {zitadel}")
 
