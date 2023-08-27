@@ -2,7 +2,7 @@ from rich.prompt import Prompt
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header
+from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 
@@ -12,9 +12,10 @@ def configure_nextcloud(k8s_obj: K8s,
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
     """
+    header("Setting up [green]Nextcloud[/green], so you can self host your files", '🩵')
     if argo_dict['init']['enabled']:
         secrets = argo_dict['argo']['secret_keys']
-        nextcloud_hostname = secrets['nextcloud_hostname']
+        nextcloud_hostname = secrets['hostname']
 
         # configure the admin user credentials
         m = "Please enter the name of the administrator user for nextcloud"
@@ -80,6 +81,8 @@ def configure_mastodon(k8s_obj: K8s,
     """
     creates a mastodon app and initializes it with secrets if you'd like :)
     """
+    header("Setting up [green]Mastodon[/green], so you can self host your social media"
+           '🐘')
     if argo_dict['init']['enabled']:
         # configure the admin user credentials
         m = "Please enter the name of the administrator user for mastodon"
@@ -88,7 +91,7 @@ def configure_mastodon(k8s_obj: K8s,
         email = Prompt.ask(m)
 
         secrets = argo_dict['argo']['secret_keys']
-        mastodon_hostname = secrets['mastodon_hostname']
+        mastodon_hostname = secrets['hostname']
         if bitwarden:
             email_obj = create_custom_field("email", email)
             sub_header("Creating secrets in Bitwarden")
@@ -140,11 +143,13 @@ def configure_matrix(k8s_obj: K8s,
     """
     creates a matrix app and initializes it with secrets if you'd like :)
     """
-    # initial secrets to deploy this app from scratch
+    header("Setting up [green]Matrix[/green], so you can self host your own chat"
+           '🐘')
 
+    # initial secrets to deploy this app from scratch
     if argo_dict['init']['enabled']:
         secrets = argo_dict['argo']['secret_keys']
-        matrix_hostname = secrets['matrix_hostname']
+        matrix_hostname = secrets['hostname']
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             matrix_pgsql_password = bitwarden.generate()
