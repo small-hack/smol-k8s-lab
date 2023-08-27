@@ -190,7 +190,7 @@ class Zitadel():
         log.info(response.text)
         return response.json()['userId']
 
-    def create_user_grant(self, user_id: str = "", role_key: str = "") -> True:
+    def create_user_grant(self, user_id: str, role_key: str) -> True:
         """
         Grants a role to non-admin a user.
 
@@ -208,7 +208,9 @@ class Zitadel():
 
         response = request("POST",
                            self.api_url + f"users/{user_id}/grants",
-                           headers=self.headers, data=payload, verify=self.verify)
+                           headers=self.headers,
+                           data=payload,
+                           verify=self.verify)
         log.info(response.text)
 
         return True
@@ -222,13 +224,16 @@ class Zitadel():
             role_key:   key of the role to assign to the user
         """
         payload = dumps({
-          "projectId": self.project_id,
+          "userId": user_id,
           "roleKeys": [role_key]
         })
+        log.debug(payload)
 
         response = request("POST",
                            self.api_url + "orgs/me/members",
-                           headers=self.headers, data=payload, verify=self.verify)
+                           headers=self.headers,
+                           data=payload,
+                           verify=self.verify)
         log.info(response.text)
 
         return True
