@@ -167,7 +167,8 @@ def main(config: str = "",
                                          distro,
                                          apps.pop('external_secrets_operator'),
                                          apps.pop('bitwarden_eso_provider'),
-                                         apps.pop('infisical'))
+                                         apps.pop('infisical'),
+                                         bw)
 
             setup_oidc_provider(k8s_obj,
                                 apps.pop('keycloak'),
