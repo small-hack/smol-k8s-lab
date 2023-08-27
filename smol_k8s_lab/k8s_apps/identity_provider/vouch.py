@@ -14,6 +14,7 @@ def configure_vouch(k8s_obj: K8s,
                     oidc_provider_name: str = "",
                     oidc_provider_hostname: str = "",
                     bitwarden: BwCLI = None,
+                    users: list = [],
                     realm: str = "",
                     zitadel: Zitadel = None) -> bool:
     """
@@ -27,6 +28,7 @@ def configure_vouch(k8s_obj: K8s,
       oidc_provider_name:     OIDC provider name. options: keycloak, zitadel
       oidc_provider_hostname: OIDC provider hostname e.g. zitadel.example.com
       bitwarden:              BwCLI, to store k8s secrets in bitwarden
+      user:                   list of user to give access to vouch app
       realm:                  keycloak realm to use
       zitadel:                Zitadel object so we don't have to create an api token
 
@@ -120,6 +122,7 @@ def configure_vouch(k8s_obj: K8s,
 def create_vouch_app(provider: str,
                      provider_hostname: str,
                      vouch_hostname: str = "",
+                     users: list = [],
                      realm: str = "default",
                      zitadel: Zitadel = None) -> list:
     """
@@ -144,6 +147,10 @@ def create_vouch_app(provider: str,
                                                         logout_uris)
         client_id = vouch_client_creds['client_id']
         client_secret = vouch_client_creds['client_secret']
+        zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
+        if users:
+            for user in users:
+                zitadel.create_user_grant(user, "vouch_users")
         url = f"https://{provider_hostname}/"
 
     elif provider == 'keycloak':

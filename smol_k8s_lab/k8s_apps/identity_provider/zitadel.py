@@ -79,15 +79,18 @@ def configure_zitadel(k8s_obj: K8s,
     # only continue through the rest of the function if we're initializes a
     # user and argocd client in zitadel
     if not config_dict['init']['enabled']:
-        return True
+        return True, False
     else:
         initial_user_dict = config_dict['init']['values']
         # Before initialization, we need to wait for zitadel's API to be up
         wait_for_argocd_app('zitadel')
         wait_for_argocd_app('zitadel-web-app')
-        zitadel = initialize_zitadel(k8s_obj, zitadel_domain, initial_user_dict,
-                                     argocd_hostname, bitwarden)
-        return zitadel
+        zitadel, user_id = initialize_zitadel(k8s_obj,
+                                              zitadel_domain,
+                                              initial_user_dict,
+                                              argocd_hostname,
+                                              bitwarden)
+        return zitadel, user_id
 
 
 def initialize_zitadel(k8s_obj: K8s,
@@ -166,4 +169,4 @@ def initialize_zitadel(k8s_obj: K8s,
 
     log.debug(f"Zitadel obj before finishing configure_zitadel is {zitadel}")
 
-    return zitadel
+    return zitadel, user_id
