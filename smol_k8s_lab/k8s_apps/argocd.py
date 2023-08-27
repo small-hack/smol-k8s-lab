@@ -101,7 +101,7 @@ def configure_argocd(k8s_obj: K8s,
 
         # this creates a values.yaml from this dict
         set_opts = {'secretVars.existingSecret': 'appset-secret-vars',
-                    'token.existingSecret': 'argocd-appset-token'}
+                    'token.existingSecret': 'appset-secret-token'}
 
         # install the helm chart :)
         chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
