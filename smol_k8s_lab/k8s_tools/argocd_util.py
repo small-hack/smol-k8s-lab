@@ -33,7 +33,9 @@ def install_with_argocd(k8s_obj: K8s,
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
            f"--path {path} "
-           "--sync-policy automated --self-heal --auto-prune "
+           "--sync-policy automated "
+           "--sync-option ApplyOutOfSyncOnly=true "
+           "--self-heal "
            f"--dest-namespace {namespace} "
            "--dest-server https://kubernetes.default.svc")
 

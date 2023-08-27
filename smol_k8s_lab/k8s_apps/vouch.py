@@ -5,6 +5,7 @@ from ..k8s_apps.keycloak import Keycloak
 from ..k8s_apps.zitadel_api import Zitadel
 from ..k8s_tools.argocd_util import install_with_argocd
 from ..k8s_tools.k8s_lib import K8s
+from ..utils.passwords import create_password
 from ..pretty_printing.console_logging import header
 from ..utils.bw_cli import BwCLI, create_custom_field
 from ..subproc import subproc
@@ -58,6 +59,14 @@ def configure_vouch(k8s_obj: K8s,
                  " that are allowed to use Vouch")
             domains = Prompt.ask(m).split(',')
 
+        domains = vouch_config_dict['init']['values']['domains']
+        if not domains:
+            m = ("[green]Please enter a comma seperated list of [yellow]domains[/]"
+                 " that are allowed to use Vouch")
+            domains = Prompt.ask(m).split(',')
+
+        jwt_secret = create_password()
+
         log.debug(f"Allowing vouch to be used by these domains: {domains}")
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
@@ -77,16 +86,18 @@ def configure_vouch(k8s_obj: K8s,
 
             domains_obj = create_custom_field("domains", domains)
             emails_obj = create_custom_field("allowList", emails)
+            jwt_secret_obj = create_password("jwtSecret", jwt_secret)
             log.debug(f"emails_obj is {emails_obj} and domains_obj is {domains_obj}")
             # create vouch config bitwarden item
             bitwarden.create_login(name='vouch-config',
                                    user='vouch',
                                    password='none',
-                                   fields=[domains_obj, emails_obj])
+                                   fields=[domains_obj, emails_obj, jwt_secret_obj])
         # create vouch k8s secrets if we're not using bitwarden
         else:
             # create oauth OIDC k8s secret
-            k8s_obj.create_secret('vouch-oauth-config', 'vouch',
+            k8s_obj.create_secret('vouch-oauth-config',
+                                  'vouch',
                                   {'user': client_id,
                                    'password': client_secret,
                                    'authUrl': f'{base_url}/auth',
@@ -96,7 +107,9 @@ def configure_vouch(k8s_obj: K8s,
 
             # create vouch config k8s secret
             k8s_obj.create_secret('vouch-config', 'vouch',
-                                  {'domains': domains, 'allowList': emails})
+                                  {'domains': domains,
+                                   'allowList': emails,
+                                   'jwtSecret': jwt_secret})
 
     install_with_argocd(k8s_obj, 'vouch', vouch_config_dict['argo'])
     return True
