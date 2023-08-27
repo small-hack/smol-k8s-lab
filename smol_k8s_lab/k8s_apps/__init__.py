@@ -17,6 +17,7 @@ from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.vouch import configure_vouch
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
+from .social.federated import configure_matrix, configure_mastodon, configure_nextcloud
 
 
 def setup_k8s_secrets_management(k8s_obj: K8s,
