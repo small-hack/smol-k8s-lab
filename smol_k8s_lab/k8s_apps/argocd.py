@@ -8,13 +8,13 @@ DESCRIPTION: configure argocd
 import bcrypt
 from os import path
 import yaml
-from ..utils.subproc import subproc
-from ..utils.bw_cli import BwCLI
-from ..pretty_printing.console_logging import header, sub_header
 from ..constants import XDG_CACHE_DIR
-from ..k8s_tools.k8s_lib import K8s
 from ..k8s_tools.homelabHelm import helm
+from ..k8s_tools.k8s_lib import K8s
+from ..utils.bw_cli import BwCLI
+from ..utils.subproc import subproc
 from ..utils.passwords import create_password
+from ..utils.pretty_printing.console_logging import header, sub_header
 
 
 def configure_argocd(k8s_obj: K8s,

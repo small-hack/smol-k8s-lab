@@ -130,7 +130,8 @@ def setup_base_apps(k8s_obj: K8s,
 
     # ingress controller: so we can accept traffic from outside the cluster
     # nginx just because that's most supported, treafik support may be added later
-    header("Installing [b]ingress-nginx-controller[/b]...")
+    header("Installing [green]ingress-nginx-controller[/green] to access web apps "
+           "outside the cluster")
     configure_ingress_nginx(k8s_distro)
 
     # manager SSL/TLS certificates via lets-encrypt

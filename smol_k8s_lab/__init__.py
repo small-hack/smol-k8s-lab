@@ -166,7 +166,7 @@ def main(config: str = "",
             setup_k8s_secrets_management(k8s_obj,
                                          distro,
                                          apps.pop('external_secrets_operator'),
-                                         apps.pop('bitwarden_external_secrets_provider'),
+                                         apps.pop('bitwarden_eso_provider'),
                                          apps.pop('infisical'))
 
             setup_oidc_provider(k8s_obj,
