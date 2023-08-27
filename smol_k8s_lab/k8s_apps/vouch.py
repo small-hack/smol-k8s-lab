@@ -48,12 +48,17 @@ def configure_vouch(k8s_obj: K8s,
         if not emails:
             m = ("[green]Please enter a comma seperated list of [yellow]emails[/]"
                  " that are allowed to access domains behind Vouch")
-            emails = Prompt.ask(m)
+            emails = Prompt.ask(m).split(',')
+
+        log.debug(f"Allowing vouch to be accessed by emails: {emails}")
+
         domains = vouch_config_dict['init']['values']['domains']
         if not domains:
             m = ("[green]Please enter a comma seperated list of [yellow]domains[/]"
                  " that are allowed to use Vouch")
-            domains = Prompt.ask(m)
+            domains = Prompt.ask(m).split(',')
+
+        log.debug(f"Allowing vouch to be used by these domains: {domains}")
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
@@ -72,6 +77,7 @@ def configure_vouch(k8s_obj: K8s,
 
             domains_obj = create_custom_field("domains", domains)
             emails_obj = create_custom_field("allowList", emails)
+            log.debug(f"emails_obj is {emails_obj} and domains_obj is {domains_obj}")
             # create vouch config bitwarden item
             bitwarden.create_login(name='vouch-config',
                                    user='vouch',
