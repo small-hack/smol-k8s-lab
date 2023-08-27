@@ -119,7 +119,7 @@ def setup_base_apps(k8s_obj: K8s,
 
     # needed for metal (non-cloud provider) installs
     if metallb_enabled:
-        header("Installing [green]metallb[/green] so we have an IP address pool.")
+        header("Installing [green]metallb[/green] so we have an IP address pool.", '🛜')
         if metallb_dict['init']['enabled']:
             cidr = metallb_dict['init']['values']['address_pool']
             if not cidr:
@@ -131,11 +131,11 @@ def setup_base_apps(k8s_obj: K8s,
     # ingress controller: so we can accept traffic from outside the cluster
     # nginx just because that's most supported, treafik support may be added later
     header("Installing [green]ingress-nginx-controller[/green] to access web apps "
-           "outside the cluster")
+           "outside the cluster", "🌐")
     configure_ingress_nginx(k8s_distro)
 
     # manager SSL/TLS certificates via lets-encrypt
-    header("Installing [green]cert-manager[/green] for TLS certificates...")
+    header("Installing [green]cert-manager[/green] for TLS certificates...", '📜')
     cert_manager_init = cert_manager_dict['init']['enabled']
     if cert_manager_init:
         email = cert_manager_dict['argo']['secret_keys']['email']
