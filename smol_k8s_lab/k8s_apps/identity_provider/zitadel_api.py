@@ -198,6 +198,8 @@ class Zitadel():
             user_id:    ID of the user we're grants a role to
             role_key:   key of the role to assign to the user
         """
+        log.debug(f"Assiging user_id, {user_id} the role of "
+                  f"[green]{role_key}[/] in {self.project_id}")
 
         # make sure this user has access to the new application role we setup
         # zitadel.com/docs/apis/resources/mgmt/management-service-add-user-grant
@@ -215,19 +217,19 @@ class Zitadel():
 
         return True
 
-    def create_user_membership(self, user_id: str, role_key: str) -> True:
+    def create_user_membership(self, user_id: str, role: str) -> True:
         """
         Grants an ADMIN role to a user.
 
         Arguments:
-            user_id:    ID of the user we're grants a role to
-            role_key:   key of the role to assign to the user
+            user_id: ID of the user we're grants a role to
+            role:    name of the role to assign to the user
         """
+        log.debug(f"Assiging user_id, {user_id} the role of [green]{role}[/]")
         payload = dumps({
           "userId": user_id,
-          "roleKeys": [role_key]
+          "roles": [role]
         })
-        log.debug(payload)
 
         response = request("POST",
                            self.api_url + "orgs/me/members",
