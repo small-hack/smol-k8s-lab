@@ -119,7 +119,7 @@ def setup_base_apps(k8s_obj: K8s,
 
     # needed for metal (non-cloud provider) installs
     if metallb_enabled:
-        header("Installing [b]metallb[/b] so we have an IP address pool.")
+        header("Installing [green]metallb[/green] so we have an IP address pool.")
         if metallb_dict['init']['enabled']:
             cidr = metallb_dict['init']['values']['address_pool']
             if not cidr:
@@ -134,7 +134,7 @@ def setup_base_apps(k8s_obj: K8s,
     configure_ingress_nginx(k8s_distro)
 
     # manager SSL/TLS certificates via lets-encrypt
-    header("Installing [b]cert-manager[/b] for TLS certificates...")
+    header("Installing [green]cert-manager[/green] for TLS certificates...")
     cert_manager_init = cert_manager_dict['init']['enabled']
     if cert_manager_init:
         email = cert_manager_dict['argo']['secret_keys']['email']
