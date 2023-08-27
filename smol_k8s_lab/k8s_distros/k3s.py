@@ -11,7 +11,7 @@ import requests
 import stat
 from ..pretty_printing.console_logging import sub_header
 from ..constants import USER, KUBECONFIG
-from ..subproc import subproc
+from ..utils.subproc import subproc
 
 
 def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
@@ -40,7 +40,7 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
         for argument in additonal_arguments:
             cmd += ' ' + argument
 
-    subproc([cmd], spinner=False)
+  ..utils.subproc([cmd], spinner=False)
 
     log.info(f"Updating your {KUBECONFIG}")
 
@@ -57,7 +57,7 @@ def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
     cluster_rename = "kubectl config rename-context default smol-k8s-lab-k3s"
 
     # run all 3 commands one after the other
-    subproc([cp, chmod_cmd, chown_cmd, cluster_rename])
+  ..utils.subproc([cp, chmod_cmd, chown_cmd, cluster_rename])
 
     # remove the script after we're done
     remove('./install.sh')
@@ -76,6 +76,6 @@ def uninstall_k3s(context: dict = {}):
             f"kubectl config delete-context {context['context']}",
             f"kubectl config delete-user {context['user']}"]
 
-    subproc(cmds, spinner=False)
+  ..utils.subproc(cmds, spinner=False)
 
     return True

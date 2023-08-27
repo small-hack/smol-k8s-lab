@@ -2,12 +2,12 @@ from base64 import standard_b64decode as b64dec
 from json import loads
 import logging as log
 from .zitadel_api import Zitadel
-from ..pretty_printing.console_logging import sub_header, header
-from ..k8s_tools.kubernetes_util import update_secret_key
-from ..k8s_tools.k8s_lib import K8s
-from ..k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
-from ..utils.bw_cli import BwCLI, create_custom_field
-from ..utils.passwords import create_password
+from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
+from smol_k8s_lab.utils.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.utils.passwords import create_password
+from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header, header
 
 
 def configure_zitadel(k8s_obj: K8s,

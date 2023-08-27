@@ -8,7 +8,7 @@ DESCRIPTION: configure argocd
 import bcrypt
 from os import path
 import yaml
-from ..subproc import subproc
+from ..utils.subproc import subproc
 from ..utils.bw_cli import BwCLI
 from ..pretty_printing.console_logging import header, sub_header
 from ..constants import XDG_CACHE_DIR
@@ -113,6 +113,6 @@ def configure_argocd(k8s_obj: K8s,
         release.install(True)
 
     # setup argo to talk to k8s directly
-    subproc(['kubectl config set-context --current --namespace=argocd',
+  ..utils.subproc(['kubectl config set-context --current --namespace=argocd',
              'argocd login --core'])
     return True

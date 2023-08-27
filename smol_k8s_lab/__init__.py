@@ -20,14 +20,12 @@ from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k9s import run_k9s
 from .k8s_tools.k8s_lib import K8s
 from .k8s_distros.base import create_k8s_distro, delete_cluster
-from .k8s_apps.base_install import install_base_apps
-from .k8s_apps.oidc import setup_oidc_provider
-from .k8s_apps.infisical import configure_infisical
-from .k8s_apps.external_secrets_operator import configure_external_secrets
-from .k8s_apps.federated import (configure_nextcloud, configure_matrix,
-                                 configure_mastodon)
-from .pretty_printing.console_logging import CONSOLE, sub_header, header
-from .pretty_printing.help_text import RichCommand, options_help
+from .k8s_apps import setup_oidc_provider
+from .k8s_apps import setup_base_apps
+from .k8s_apps import setup_k8s_secrets_management
+from .k8s_apps import setup_federated_apps
+from .utils.pretty_printing.console_logging import CONSOLE, sub_header, header
+from .utils.pretty_printing.help_text import RichCommand, options_help
 from .utils.bw_cli import BwCLI
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -149,12 +147,12 @@ def main(config: str = "",
         k8s_obj = K8s()
 
         # installs all the base apps: metallb, ingess-nginx, and cert-manager
-        install_base_apps(k8s_obj,
-                          distro,
-                          apps['metallb'],
-                          apps['cert_manager'],
-                          argo_enabled,
-                          apps['argo_cd_appset_secret_plugin']['enabled'])
+        setup_base_apps(k8s_obj,
+                        distro,
+                        apps['metallb'],
+                        apps['cert_manager'],
+                        argo_enabled,
+                        apps['argo_cd_appset_secret_plugin']['enabled'])
 
         # 🦑 Install Argo CD: continuous deployment app for k8s
         if argo_enabled:
@@ -165,42 +163,23 @@ def main(config: str = "",
                              apps['argo_cd_appset_secret_plugin']['enabled'],
                              SECRETS)
 
-            # setup bitwarden external secrets if we're using that
-            if apps['external_secrets_operator']['enabled']:
-                eso = apps.pop('external_secrets_operator')
-                bitwarden_eso_provider = apps.pop('bitwarden_eso_provider')
-                configure_external_secrets(k8s_obj, eso['argo'],
-                                           bitwarden_eso_provider, distro, bw)
+            setup_k8s_secrets_management(k8s_obj,
+                                         distro,
+                                         apps.pop('external_secrets_operator'),
+                                         apps.pop('bitwarden_external_secrets_provider'),
+                                         apps.pop('infisical'))
 
-            # setup infisical - an secrets manager and operator for k8s
-            if apps['infisical']['enabled']:
-                infisical = apps.pop('infisical')
-                configure_infisical(k8s_obj, infisical)
+            setup_oidc_provider(k8s_obj,
+                                apps.pop('keycloak'),
+                                apps.pop('zitadel'),
+                                apps.pop('vouch'),
+                                bw,
+                                argocd_fqdn)
 
-            # header("Setting up OIDC/Oauth applications")
-            # vouch doesn't need to be installed below, as it's installed here
-            vouch = apps.pop('vouch')
-            keycloak = apps.pop('keycloak')
-            zitadel = apps.pop('zitadel')
-
-            # setup keycloak if we're using that for OIDC
-            if keycloak['enabled']:
-                setup_oidc_provider(k8s_obj, 'keycloak', keycloak, vouch, bw)
-            # setup zitadel if we're using that for OIDC
-            elif zitadel['enabled']:
-                setup_oidc_provider(k8s_obj, 'zitadel', zitadel, vouch, bw, argocd_fqdn)
-
-            if apps['nextcloud']['enabled']:
-                nextcloud = apps.pop('nextcloud')
-                configure_nextcloud(k8s_obj, nextcloud, bw)
-
-            if apps['mastodon']['enabled']:
-                mastodon = apps.pop('mastodon')
-                configure_mastodon(k8s_obj, mastodon, bw)
-
-            if apps['matrix']['enabled']:
-                matrix = apps.pop('matrix')
-                configure_matrix(k8s_obj, matrix, bw)
+            setup_federated_apps(apps.pop('nextcloud'),
+                                 apps.pop('mastodon'),
+                                 apps.pop('matrix'),
+                                 bw)
 
             # after argocd, keycloak, bweso, and vouch are up, we install all
             # apps as Argo CD Applications

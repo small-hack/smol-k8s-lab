@@ -6,7 +6,7 @@ DESC: everything to do with initial configuration of a new environment
 
 from rich.prompt import Confirm, Prompt
 from .constants import OS, VERSION, XDG_CONFIG_FILE, DEFAULT_CONFIG
-from .pretty_printing.console_logging import print_panel, header, sub_header
+from .utils.pretty_printing.console_logging import print_panel, header, sub_header
 from yaml import dump
 
 

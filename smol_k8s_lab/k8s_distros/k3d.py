@@ -7,7 +7,7 @@ DESCRIPTION: install k3d :D
 """
 import logging as log
 from ..pretty_printing.console_logging import sub_header
-from ..subproc import subproc
+from ..utils.subproc import subproc
 
 
 def install_k3d_cluster() -> bool:
@@ -17,5 +17,5 @@ def install_k3d_cluster() -> bool:
     returns true if it worked
     """
     sub_header("Creating k3d cluster...")
-    subproc(['k3d create cluster smol-k8s-lab-k3d'])
+  ..utils.subproc(['k3d create cluster smol-k8s-lab-k3d'])
     return True

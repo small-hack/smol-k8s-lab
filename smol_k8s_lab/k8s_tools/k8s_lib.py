@@ -5,7 +5,7 @@ from kubernetes.client.rest import ApiException
 import logging as log
 import yaml
 # local imports
-from ..subproc import subproc
+from ..utils.subproc import subproc
 
 
 # this lets us do multi line yaml values

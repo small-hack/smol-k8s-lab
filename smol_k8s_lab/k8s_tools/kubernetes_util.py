@@ -13,7 +13,7 @@ from yaml import dump, safe_load
 import logging as log
 from .k8s_lib import K8s
 from ..constants import XDG_CACHE_DIR
-from ..subproc import subproc, simple_loading_bar
+from ..utils.subproc import subproc, simple_loading_bar
 
 
 def apply_manifests(manifest_file_name="", namespace="default", deployment="",

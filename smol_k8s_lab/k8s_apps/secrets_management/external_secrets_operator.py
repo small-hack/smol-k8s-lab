@@ -7,12 +7,12 @@ DESCRIPTION: configures external secrets, currently only with gitlab
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 import logging as log
-from ..pretty_printing.console_logging import header, sub_header
-from ..k8s_tools.argocd_util import install_with_argocd
-from ..k8s_tools.k8s_lib import K8s
-from ..k8s_tools.kubernetes_util import apply_custom_resources
-from ..subproc import subproc
-from ..utils.bw_cli import BwCLI
+from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
+from smol_k8s_lab.utils.bw_cli import BwCLI
+from smol_k8s_lab.utils.pretty_printing.console_logging import header, sub_header
+from smol_k8s_lab.utils.subproc import subproc
 
 
 def configure_external_secrets(k8s_obj: K8s,

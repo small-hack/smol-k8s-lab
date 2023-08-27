@@ -1,12 +1,12 @@
 import logging as log
 from rich.prompt import Prompt
-from ..k8s_apps.keycloak import Keycloak
-from ..k8s_apps.zitadel_api import Zitadel
-from ..k8s_tools.argocd_util import install_with_argocd
-from ..k8s_tools.k8s_lib import K8s
-from ..utils.passwords import create_password
-from ..pretty_printing.console_logging import header
-from ..utils.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.utils.pretty_printing.console_logging import header
+from smol_k8s_lab.utils.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.utils.passwords import create_password
+from .keycloak import Keycloak
+from .zitadel_api import Zitadel
 
 
 def configure_vouch(k8s_obj: K8s,

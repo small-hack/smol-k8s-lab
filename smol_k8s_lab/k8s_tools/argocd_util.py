@@ -2,7 +2,7 @@
 import logging as log
 from .k8s_lib import K8s
 from .kubernetes_util import apply_custom_resources
-from ..subproc import subproc
+from ..utils.subproc import subproc
 
 
 def install_with_argocd(k8s_obj: K8s,

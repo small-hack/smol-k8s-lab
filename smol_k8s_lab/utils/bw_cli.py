@@ -19,8 +19,7 @@ from rich.prompt import Prompt
 from shutil import which
 from sys import exit
 from os import environ as env
-from ..subproc import subproc
-
+from .subproc import subproc
 
 
 def create_custom_field(custom_field_name: str, value: str) -> dict:

@@ -1,12 +1,16 @@
-from ..utils.passwords import create_password
-from ..utils.bw_cli import BwCLI
-from datetime import datetime, timezone, timedelta
-from json import dumps, dump
-import jwt
-import logging as log
+"""
+Small Zitadel API wrapper focused on k8s service accounts
+"""
+
 import cryptography
+from datetime import datetime, timezone, timedelta
+import logging as log
+from json import dumps
+import jwt
 from requests import request
 from rich.prompt import Prompt
+from smol_k8s_lab.utils.passwords import create_password
+from smol_k8s_lab.utils.bw_cli import BwCLI
 
 
 class Zitadel():

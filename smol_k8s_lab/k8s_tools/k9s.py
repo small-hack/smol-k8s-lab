@@ -1,4 +1,4 @@
-from ..subproc import subproc
+from ..utils.subproc import subproc
 
 
 def run_k9s(command: str = 'applications.argoproj.io'):

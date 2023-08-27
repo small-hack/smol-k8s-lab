@@ -6,7 +6,7 @@ DESCRIPTION: install extra tooling related to k8s
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 from os import path
-from .subproc import subproc
+from..utils.subproc import subproc
 from .constants import PWD
 
 
@@ -27,6 +27,6 @@ def do_setup():
             "kubectl krew install deprecations",
             "kubectl krew update",
             "kubectl krew upgrade"]
-    subproc(cmds, error_ok=True)
+  ..utils.subproc(cmds, error_ok=True)
 
     return True

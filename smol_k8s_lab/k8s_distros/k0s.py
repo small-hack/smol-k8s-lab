@@ -13,7 +13,7 @@ from shutil import which
 from socket import gethostname
 import stat
 
-from ..subproc import subproc, simple_loading_bar
+from ..utils.subproc import subproc, simple_loading_bar
 from ..constants import USER, KUBECONFIG
 from ..pretty_printing.console_logging import sub_header
 
@@ -49,7 +49,7 @@ def install_k0s_cluster():
     # Uses a service to persist cluster through reboot
     persist = 'sudo k0s start'
 
-    subproc([install, create, persist], spinner=True)
+  ..utils.subproc([install, create, persist], spinner=True)
 
     # cleanup the installer file
     remove(install_path)
@@ -62,7 +62,7 @@ def install_k0s_cluster():
     log.info("Creating kubeconfig for k0s cluster...")
     # create a kube config
     create_config = 'sudo k0s kubeconfig admin'
-    kubeconfig = subproc([create_config], spinner=False)
+    kubeconfig ..utils.subproc([create_config], spinner=False)
 
     # we still have to write the output of the above command to a file
     with open(KUBECONFIG, "w") as kubefile:
@@ -72,7 +72,7 @@ def install_k0s_cluster():
     # sometimes this is owned by root, so we need to fix the permissions
     chmod_config = f'sudo chmod 600 {KUBECONFIG}'
     chown_config = f'sudo chown {USER}: {KUBECONFIG}'
-    subproc([chmod_config, chown_config], spinner=False)
+  ..utils.subproc([chmod_config, chown_config], spinner=False)
 
     return
 
@@ -82,8 +82,8 @@ def uninstall_k0s():
     Stop the k0s cluster, then remove all associated resources.
     """
     if which('k0s'):
-        subproc(['sudo k0s stop'], error_ok=True)
-        subproc(['sudo k0s reset'], error_ok=True)
+      ..utils.subproc(['sudo k0s stop'], error_ok=True)
+      ..utils.subproc(['sudo k0s reset'], error_ok=True)
     else:
         log.debug("K0s is already uninstalled.")
         sub_header("K0s is already uninstalled.", False, False)

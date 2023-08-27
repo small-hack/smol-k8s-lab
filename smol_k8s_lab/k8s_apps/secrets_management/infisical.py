@@ -9,10 +9,10 @@ DESCRIPTION: configures infisical app and secrets operator
 """
 from rich.prompt import Prompt
 from random import randbytes
-from ..pretty_printing.console_logging import header
-from ..k8s_tools.argocd_util import install_with_argocd
-from ..utils.passwords import create_password
-from ..k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.utils.passwords import create_password
+from smol_k8s_lab.utils.pretty_printing.console_logging import header
 
 
 def configure_infisical(k8s_obj: K8s, infisical_dict: dict = {}):

@@ -1,6 +1,6 @@
 import logging as log
-from ..pretty_printing.console_logging import sub_header, header
-from ..subproc import subproc
+from ..utils.pretty_printing.console_logging import sub_header, header
+from ..utils.subproc import subproc
 
 
 def check_contexts(k8s_distro: str):

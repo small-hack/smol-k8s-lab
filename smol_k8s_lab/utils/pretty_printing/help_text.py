@@ -10,7 +10,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
-from ..constants import VERSION, XDG_CONFIG_FILE
+from smol_k8s_lab.constants import VERSION, XDG_CONFIG_FILE
 
 
 RECORD = False
