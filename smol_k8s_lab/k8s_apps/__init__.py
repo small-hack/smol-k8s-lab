@@ -33,14 +33,14 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
     sets up k8s secrets management tooling
     """
     # secrets management section
-    header_msg = "🤫 Setting up K8s secret management with [green]"
+    header_msg = "Setting up K8s secret management with [green]"
 
     # setup external secrets operator and bitwarden external secrets
     if eso_dict['enabled']:
         header_msg += 'External Secrets Operator[/]'
         if bitwarden_eso_provider_dict['enabled']:
             header_msg += ' and [blue]Bitwarden[/] as the Provider'
-        header(header_msg)
+        header(header_msg, '🤫')
         configure_external_secrets(k8s_obj,
                                    eso_dict,
                                    bitwarden_eso_provider_dict,
@@ -50,7 +50,7 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
     # setup infisical - an secrets manager and operator for k8s
     elif infisical_dict['enabled']:
         header_msg += 'Infisical Secrets Operator[/]'
-        header(header_msg)
+        header(header_msg, '🤫')
         configure_infisical(k8s_obj, infisical_dict)
 
     return True

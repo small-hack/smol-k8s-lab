@@ -28,7 +28,7 @@ def configure_zitadel(k8s_obj: K8s,
 
     Returns True if successful.
     """
-    header("🔑 Zitadel Setup")
+    header("Setting up [green]Zitadel[/green], our identity management solution", "👥")
     zitadel_domain = config_dict['argo']['secret_keys']['hostname']
     database_type = config_dict['argo']['secret_keys']['database_type']
 

@@ -41,12 +41,12 @@ def create_k8s_distro(k8s_distro: str,
         metallb_enabled:  if we're enabling metallb which requires we disable servicelb
     Returns True
     """
-    header(f"Initializing your [green]{k8s_distro}[/] cluster")
+    header(f"Initializing your [green]{k8s_distro}[/] cluster", "💙")
     contexts = check_contexts(k8s_distro)
     if contexts:
         sub_header(f'We already have a [green]{k8s_distro}[/] cluster ♡')
 
-    sub_header('This could take a min ʕ•́ _ ̫•̀ʔっ♡ ', False)
+    sub_header('This could take a min ʕ•́  ̫•̀ʔっ♡ ', False)
 
     if k8s_distro == "kind":
         from .kind import install_kind_cluster

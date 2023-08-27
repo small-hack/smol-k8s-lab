@@ -10,7 +10,6 @@ from os import chmod, remove
 import requests
 import stat
 from ..constants import USER, KUBECONFIG
-from ..utils.pretty_printing.console_logging import sub_header
 from ..utils.subproc import subproc
 
 

@@ -177,7 +177,8 @@ def main(config: str = "",
                                 bw,
                                 argocd_fqdn)
 
-            setup_federated_apps(apps.pop('nextcloud'),
+            setup_federated_apps(k8s_obj,
+                                 apps.pop('nextcloud'),
                                  apps.pop('mastodon'),
                                  apps.pop('matrix'),
                                  bw)
