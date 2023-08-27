@@ -463,7 +463,7 @@ apps:
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
-      namespace: "monitoring"
+      namespace: "prometheus"
       # source repos for Argo CD App Project (in addition to argo.repo)
       project_source_repos:
         - "registry-1.docker.io"
