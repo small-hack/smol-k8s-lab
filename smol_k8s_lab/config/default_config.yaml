@@ -61,7 +61,7 @@ apps:
   # ---------------------------------------------------------------------------
   #
   # Use LetsEncrypt to generate TLS certs for all your apps with ingress
-  cert-manager:
+  cert_manager:
     # ! NOTE: you currently can't set this to false. It is necessary to deploy
     # most of our supported Argo CD apps since they often have TLS enabled either
     # for pod connectivity or ingress

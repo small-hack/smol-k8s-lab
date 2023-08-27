@@ -149,8 +149,12 @@ def main(config: str = "",
         k8s_obj = K8s()
 
         # installs all the base apps: metallb, ingess-nginx, and cert-manager
-        install_base_apps(k8s_obj, distro, apps['metallb'], apps['cert-manager'],
-                          argo_enabled, apps['argo_cd_appset_secret_plugin']['enabled'])
+        install_base_apps(k8s_obj,
+                          distro,
+                          apps['metallb'],
+                          apps['cert_manager'],
+                          argo_enabled,
+                          apps['argo_cd_appset_secret_plugin']['enabled'])
 
         # 🦑 Install Argo CD: continuous deployment app for k8s
         if argo_enabled:
