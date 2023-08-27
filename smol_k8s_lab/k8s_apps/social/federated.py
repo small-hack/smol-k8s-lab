@@ -1,9 +1,9 @@
 from rich.prompt import Prompt
-from ..pretty_printing.console_logging import sub_header
-from ..k8s_tools.argocd_util import install_with_argocd
-from ..k8s_tools.k8s_lib import K8s
-from ..utils.bw_cli import BwCLI, create_custom_field
-from ..utils.passwords import create_password
+from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.utils.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header
+from smol_k8s_lab.utils.passwords import create_password
 
 
 def configure_nextcloud(k8s_obj: K8s,
