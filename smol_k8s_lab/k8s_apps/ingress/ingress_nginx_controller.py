@@ -5,8 +5,8 @@ DESCRIPTION: install the nginx ingress controller
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-from ..k8s_tools.homelabHelm import helm
-from ..k8s_tools.kubernetes_util import apply_manifests
+from smol_k8s_lab.k8s_tools.homelabHelm import helm
+from smol_k8s_lab.k8s_tools.kubernetes_util import apply_manifests
 
 
 def configure_ingress_nginx(k8s_distro="k3s"):

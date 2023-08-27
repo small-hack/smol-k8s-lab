@@ -5,9 +5,9 @@ DESCRIPTION: helm install, and optionally configure, cert manager
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-from ..k8s_tools.homelabHelm import helm
-from ..k8s_tools.k8s_lib import K8s
-from ..k8s_tools.kubernetes_util import apply_custom_resources
+from smol_k8s_lab.k8s_tools.homelabHelm import helm
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
 
 
 def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
