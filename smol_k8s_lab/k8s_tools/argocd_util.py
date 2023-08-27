@@ -85,7 +85,7 @@ def create_argocd_project(project_name: str,
                     "name": "in-cluster",
                     "namespace": 'argocd',
                     "server": "https://kubernetes.default.svc"
-                },
+                }
             ],
             "namespaceResourceWhitelist": [
                 {
@@ -98,5 +98,11 @@ def create_argocd_project(project_name: str,
         },
         "status": {}
     }
+
+    if project_name == 'prometheus':
+        extra_namespace = {"name": "in-cluster",
+                           "namespace": 'kube-system',
+                           "server": "https://kubernetes.default.svc"}
+        argocd_proj['spec']['destinations'].append(extra_namespace)
 
     apply_custom_resources([argocd_proj])
