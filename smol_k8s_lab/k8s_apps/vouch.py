@@ -84,7 +84,7 @@ def configure_vouch(k8s_obj: K8s,
 
             domains_obj = create_custom_field("domains", domains)
             emails_obj = create_custom_field("allowList", emails)
-            jwt_secret_obj = create_password("jwtSecret", jwt_secret)
+            jwt_secret_obj = create_custom_field("jwtSecret", jwt_secret)
             log.debug(f"emails_obj is {emails_obj} and domains_obj is {domains_obj}")
             # create vouch config bitwarden item
             bitwarden.create_login(name='vouch-config',
