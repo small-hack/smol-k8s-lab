@@ -45,7 +45,7 @@ def configure_vouch(k8s_obj: K8s,
                                                               realm,
                                                               zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
-        preferred_domain = "'""'"
+        preferred_domain = "'\"\"'"
 
         # this is handling the vouch-config secret
         emails = vouch_config_dict['init']['values']['emails']
