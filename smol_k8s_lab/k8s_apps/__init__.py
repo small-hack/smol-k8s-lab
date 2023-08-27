@@ -42,8 +42,8 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
             header_msg += ' and [blue]Bitwarden[/] as the Provider'
         header(header_msg)
         configure_external_secrets(k8s_obj,
-                                   eso_dict['argo'],
-                                   bitwarden_eso_provider_dict['argo'],
+                                   eso_dict,
+                                   bitwarden_eso_provider_dict,
                                    k8s_distro,
                                    bitwarden)
 

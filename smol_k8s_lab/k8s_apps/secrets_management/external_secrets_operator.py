@@ -11,26 +11,28 @@ from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
 from smol_k8s_lab.utils.bw_cli import BwCLI
-from smol_k8s_lab.utils.pretty_printing.console_logging import header, sub_header
+from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header
 from smol_k8s_lab.utils.subproc import subproc
 
 
 def configure_external_secrets(k8s_obj: K8s,
-                               eso_argo_dict: dict = {},
+                               eso_dict: dict = {},
                                bweso_dict: dict = {},
                                distro: str = "",
                                bitwarden: BwCLI = None) -> True:
     """
     configure external secrets and provider. (and optionally bweso)
     """
-    install_with_argocd(k8s_obj, 'external-secrets-operator', eso_argo_dict)
+    install_with_argocd(k8s_obj, 'external-secrets-operator', eso_dict['argo'])
 
     if bweso_dict['enabled']:
         setup_bweso(k8s_obj, distro, bweso_dict['argo'], bitwarden)
     return True
 
 
-def setup_bweso(k8s_obj: K8s, distro: str = "", bweso_argo_dict: dict = {},
+def setup_bweso(k8s_obj: K8s,
+                distro: str = "",
+                bweso_argo_dict: dict = {},
                 bitwarden: BwCLI = None):
     """
     Creates an initial secret for use with the bitwarden provider for ESO
