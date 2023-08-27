@@ -107,7 +107,7 @@ def configure_argocd(k8s_obj: K8s,
         chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
         release = helm.chart(release_name='argocd-appset-secret-plugin',
                              chart_name=chart_name,
-                             chart_version='0.3.5',
+                             chart_version='0.4.0',
                              namespace='argocd',
                              set_options=set_opts)
         release.install(True)
