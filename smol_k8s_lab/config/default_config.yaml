@@ -468,6 +468,7 @@ apps:
       project_source_repos:
         - "registry-1.docker.io"
         - "https://github.com/prometheus-community/helm-charts.git"
+        - "https://prometheus-community.github.io/helm-charts"
 
   vouch:
     enabled: true
