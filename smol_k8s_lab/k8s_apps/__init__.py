@@ -33,13 +33,13 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
     sets up k8s secrets management tooling
     """
     # secrets management section
-    header_msg = "Setting up Kubernetes secret management using the [green]"
+    header_msg = "🤫 Setting up K8s secret management with [green]"
 
     # setup external secrets operator and bitwarden external secrets
     if eso_dict['enabled']:
         header_msg += 'External Secrets Operator[/]'
         if bitwarden_eso_provider_dict['enabled']:
-            header_msg += 'with [blue]Bitwarden[/] as the Provider'
+            header_msg += ' and [blue]Bitwarden[/] as the Provider'
         header(header_msg)
         configure_external_secrets(k8s_obj,
                                    eso_dict['argo'],

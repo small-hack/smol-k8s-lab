@@ -31,7 +31,7 @@ def configure_argocd(k8s_obj: K8s,
       plugin_secret_creation:  boolean for creating the plugin secret generator
       secret_dict:             set of secrets to create for secret plugin
     """
-    header("Installing 🦑 Argo CD...")
+    header("Installing 🦑 [green]Argo CD[/green]")
     release_dict = {'release_name': 'argo-cd', 'namespace': 'argocd'}
 
     release = helm.chart(**release_dict)

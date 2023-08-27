@@ -23,7 +23,6 @@ def configure_external_secrets(k8s_obj: K8s,
     """
     configure external secrets and provider. (and optionally bweso)
     """
-    header("🤫 Installing External Secrets Operator...")
     install_with_argocd(k8s_obj, 'external-secrets-operator', eso_argo_dict)
 
     if bweso_dict['enabled']:
