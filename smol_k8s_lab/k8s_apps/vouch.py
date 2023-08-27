@@ -66,7 +66,8 @@ def configure_vouch(k8s_obj: K8s,
             domains = ','.join(domains)
         log.debug(f"Allowing vouch to be used by these domains: {domains}")
 
-        jwt_secret = create_password()
+        # its unclear why vouch wants this to be 44 characters 🤷
+        jwt_secret = create_password(False, 44)
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
