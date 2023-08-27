@@ -218,12 +218,12 @@ def main(config: str = "",
 
     # we're done :D
     print("")
-    final_msg = ("\nSmol K8s Lab completed!\n\nMake sure you run:\n "
-                 "[green]export KUBECONFIG={KUBECONFIG}[/green]\n")
+    final_msg = ("\nSmol K8s Lab completed!\n\nMake sure you run:"
+                 f"\n[green]export KUBECONFIG={KUBECONFIG}[/green]\n")
 
     if argo_enabled:
-        final_msg += ("You can checkout your k8s apps via Argo CD here:\n"
-                      f"[link]https://{argocd_fqdn}[/link]")
+        final_msg += ("\nYou can checkout your k8s apps via Argo CD here:\n"
+                      f"[blue][link]https://{argocd_fqdn}[/]\n")
 
     CONSOLE.print(Panel(final_msg,
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
