@@ -7,7 +7,7 @@ from smol_k8s_lab.utils.passwords import create_password
 
 
 def configure_nextcloud(k8s_obj: K8s,
-                        config_dict: dict = {},
+                        config_dict: dict,
                         bitwarden: BwCLI = None) -> bool:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
@@ -84,21 +84,21 @@ def configure_nextcloud(k8s_obj: K8s,
 
 
 def configure_mastodon(k8s_obj: K8s,
-                       argo_dict: dict = {},
+                       config_dict: dict,
                        bitwarden: BwCLI = None) -> bool:
     """
     creates a mastodon app and initializes it with secrets if you'd like :)
     """
     header("Setting up [green]Mastodon[/green], so you can self host your social media"
            '🐘')
-    if argo_dict['init']['enabled']:
+    if config_dict['init']['enabled']:
         # configure the admin user credentials
-        m = "Please enter the name of the administrator user for mastodon"
+        m = "[green]Please enter the name of the administrator user for mastodon"
         username = Prompt.ask(m)
-        m = f"Please enter the email of {username} user for mastodon"
+        m = f"[green]Please enter the email of {username} user for mastodon"
         email = Prompt.ask(m)
 
-        secrets = argo_dict['argo']['secret_keys']
+        secrets = config_dict['argo']['secret_keys']
         mastodon_hostname = secrets['hostname']
         if bitwarden:
             email_obj = create_custom_field("email", email)
@@ -141,22 +141,22 @@ def configure_mastodon(k8s_obj: K8s,
             k8s_obj.create_secret('mastodon-redis-credentials', 'mastodon',
                                   {"password": mastodon_redis_password})
 
-    install_with_argocd(k8s_obj, 'mastodon', argo_dict['argo'])
+    install_with_argocd(k8s_obj, 'mastodon', config_dict['argo'])
     return True
 
 
 def configure_matrix(k8s_obj: K8s,
-                     argo_dict: dict = {},
+                     config_dict: dict,
                      bitwarden: BwCLI = None) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
     """
     header("Setting up [green]Matrix[/green], so you can self host your own chat"
-           '🐘')
+           '🔢')
 
     # initial secrets to deploy this app from scratch
-    if argo_dict['init']['enabled']:
-        secrets = argo_dict['argo']['secret_keys']
+    if config_dict['init']['enabled']:
+        secrets = config_dict['argo']['secret_keys']
         matrix_hostname = secrets['hostname']
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
@@ -174,5 +174,5 @@ def configure_matrix(k8s_obj: K8s,
             k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',
                                   {"password": matrix_pgsql_password})
 
-    install_with_argocd(k8s_obj, 'matrix', argo_dict['argo'])
+    install_with_argocd(k8s_obj, 'matrix', config_dict['argo'])
     return True

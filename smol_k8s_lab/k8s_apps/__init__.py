@@ -24,7 +24,7 @@ from .social.federated import configure_matrix, configure_mastodon, configure_ne
 
 
 def setup_k8s_secrets_management(k8s_obj: K8s,
-                                 k8s_distro: str = "",
+                                 k8s_distro: str,
                                  eso_dict: dict = {},
                                  bitwarden_eso_provider_dict: dict = {},
                                  infisical_dict: dict = {},
@@ -107,7 +107,7 @@ def setup_oidc_provider(k8s_obj: K8s,
 
 
 def setup_base_apps(k8s_obj: K8s,
-                    k8s_distro: str = "",
+                    k8s_distro: str,
                     metallb_dict: dict = {},
                     cert_manager_dict: dict = {},
                     argo_enabled: bool = False,

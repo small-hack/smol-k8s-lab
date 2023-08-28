@@ -40,7 +40,9 @@ def configure_argocd(k8s_obj: K8s,
     if not already_installed:
         # this is the base python dict for the values.yaml that is created below
         val = {'dex': {'enabled': False},
-               'configs': {'secret': {'argocdServerAdminPassword': ""}},
+               'configs': {
+                   'secret': {'argocdServerAdminPassword': ""}
+                   },
                'server': {
                    'ingress': {
                        'enabled': True,
@@ -88,8 +90,8 @@ def configure_argocd(k8s_obj: K8s,
         release.install(True)
 
     if plugin_secret_creation:
-        sub_header("🔌 Installing the ApplicationSet Secret Plugin Generator "
-                   " for Argo CD...")
+        msg = "🔌 Installing the ApplicationSet Secret Plugin Generator for Argo CD..."
+        sub_header(msg)
 
         # creates the secret vars secret with all the key/values for each appset
         k8s_obj.create_secret('appset-secret-vars', 'argocd', secret_dict,
@@ -113,7 +115,7 @@ def configure_argocd(k8s_obj: K8s,
                              set_options=set_opts)
         release.install(True)
 
-    # setup argo to talk to k8s directly
-    subproc(['kubectl config set-context --current --namespace=argocd',
-             'argocd login --core'])
+    # setup Argo CD to talk directly to k8s
+    cmd = 'kubectl config set-context --current --namespace=argocd argocd login --core'
+    subproc([cmd])
     return True

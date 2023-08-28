@@ -9,12 +9,9 @@ from smol_k8s_lab.k8s_tools.homelabHelm import helm
 from smol_k8s_lab.k8s_tools.kubernetes_util import apply_manifests
 
 
-def configure_ingress_nginx(k8s_distro="k3s"):
+def configure_ingress_nginx(k8s_distro: str):
     """
     install nginx ingress controller from manifests for kind and helm for k3s
-    # OLD: you need these to access webpages from outside the cluster
-    # nginx_chart_opts = {'hostNetwork': 'true','hostPort.enabled': 'true'}
-    # set_options=nginx_chart_opts)
     """
     url = ('https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/'
            'deploy/static/provider/kind/deploy.yaml')
