@@ -425,6 +425,9 @@ apps:
       # Switch to false if you don't want to create inital k8s secrets for your
       # hostnames, admin credentials, SMTP credentials, redis credentials, and postgresql
       enabled: true
+      values:
+        admin_user: ""
+        smtp_user: ""
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:

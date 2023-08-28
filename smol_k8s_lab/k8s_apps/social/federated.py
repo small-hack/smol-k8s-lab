@@ -7,24 +7,25 @@ from smol_k8s_lab.utils.passwords import create_password
 
 
 def configure_nextcloud(k8s_obj: K8s,
-                        argo_dict: dict = {},
+                        config_dict: dict = {},
                         bitwarden: BwCLI = None) -> bool:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
     """
     header("Setting up [green]Nextcloud[/green], so you can self host your files", '🩵')
-    if argo_dict['init']['enabled']:
-        secrets = argo_dict['argo']['secret_keys']
+    if config_dict['init']['enabled']:
+        secrets = config_dict['argo']['secret_keys']
         nextcloud_hostname = secrets['hostname']
 
         # configure the admin user credentials
-        m = "Please enter the name of the administrator user for nextcloud"
-        username = Prompt.ask(m)
+        username = config_dict['init']['values']['admin_user']
+        if not username:
+            m = "[green]Please enter the name of the administrator user for nextcloud"
+            username = Prompt.ask(m)
 
         # configure SMTP
-        m = "Please enter the SMTP user for nextcloud"
-        mail_user = Prompt.ask(m)
-        m = f"Please enter the SMTP password of {mail_user} for nextcloud"
+        mail_user = Prompt.ask("[green]Please enter the SMTP user for nextcloud")
+        m = f"[green]Please enter the SMTP password of {mail_user} for nextcloud"
         mail_pass = Prompt.ask(m, password=True)
 
         if bitwarden:
@@ -78,7 +79,7 @@ def configure_nextcloud(k8s_obj: K8s,
             k8s_obj.create_secret('nextcloud-redis-credentials', 'nextcloud',
                                   {"password": nextcloud_redis_password})
 
-    install_with_argocd(k8s_obj, 'nextcloud', argo_dict['argo'])
+    install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
     return True
 
 
