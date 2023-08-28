@@ -27,7 +27,7 @@ def header(text: str, emoji: str = ""):
     """
     print('\n')
     if emoji:
-        title = f'[b]☁ [/]{emoji} [cyan]{text}[/cyan] {emoji}[b]☁ [/]'
+        title = f'{emoji} [cyan]{text}[/cyan] {emoji}'
     else:
         title = f'[b]☁  [/]ʕ ᵔﻌᵔʔ [cyan]{text}[/cyan] ʕᵔﻌᵔ ʔ [b]☁ [/]'
     CONSOLE.rule(title, style="cornflower_blue")
