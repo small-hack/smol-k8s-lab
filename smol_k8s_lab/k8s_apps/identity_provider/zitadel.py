@@ -129,9 +129,7 @@ def initialize_zitadel(k8s_obj: K8s,
     log.info("Creating an Argo CD application...")
     redirect_uris = [f"https://{argocd_hostname}/auth/callback"]
     logout_uris = [f"https://{argocd_hostname}"]
-    argocd_client = zitadel.create_application("argocd",
-                                               redirect_uris,
-                                               logout_uris)
+    argocd_client = zitadel.create_application("argocd", redirect_uris, logout_uris)
 
     # create roles for both Argo CD Admins and regular users
     zitadel.create_role("argocd_administrators", "Argo CD Administrators",
@@ -161,12 +159,12 @@ def initialize_zitadel(k8s_obj: K8s,
                               labels={'app.kubernetes.io/part-of': 'argocd'})
 
     # create zitadel admin user and grants now that the clients are setup
-    log.info("Creating a Zitadel user...")
+    header("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
     zitadel.create_user_grant(user_id, 'argocd_administrators')
-    # grant admin access to first user
-    zitadel.create_user_project_membership(user_id, 'IAM_OWNER')
 
-    log.debug(f"Zitadel obj before finishing configure_zitadel is {zitadel}")
+    # grant admin access to first user
+    sub_header("creating user IAM membership with IAM_OWNER")
+    zitadel.create_iam_membership(user_id, 'IAM_OWNER')
 
     return zitadel, user_id

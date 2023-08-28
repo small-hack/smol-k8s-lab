@@ -26,6 +26,7 @@ class Zitadel():
         This is mostly for storing the session token and api base url
         """
         log.debug("Initializing zitadel API object")
+        self.hostname = hostname
         self.api_url = f"https://{hostname}/management/v1/"
         log.debug(f"API URL is [blue]{self.api_url}[/]")
 
@@ -217,28 +218,21 @@ class Zitadel():
 
         return True
 
-    def create_user_project_membership(self, user_id: str, role: str) -> True:
+    def create_iam_membership(self, user_id: str, role: str):
         """
-        Grants an ADMIN role to a user.
-
-        Arguments:
-            user_id: ID of the user we're grants a role to
-            role:    name of the role to assign to the user
+        iam membership assignment
         """
-        log.debug(f"Assiging user_id, {user_id} the membership for [green]{role}[/]")
+        url = f"https://{self.hostname}/admin/v1/members"
         payload = dumps({
           "userId": user_id,
           "roles": [role]
         })
-
         response = request("POST",
-                           self.api_url + f"projects/{self.project_id}/members",
+                           url,
                            headers=self.headers,
                            data=payload,
                            verify=self.verify)
         log.info(response.text)
-
-        return True
 
     def create_application(self,
                            app_name: str = "",
@@ -325,10 +319,11 @@ class Zitadel():
           "displayName": display_name,
           "group": group
         })
+        url = f"{self.api_url}projects/{self.project_id}/roles"
+        log.info(f"Creating a role, {role_key} using {url}")
 
-        response = request("POST",
-                           f"{self.api_url}projects/{self.project_id}/roles",
-                           headers=self.headers, data=payload, verify=self.verify)
+        response = request("POST", url, headers=self.headers, data=payload,
+                           verify=self.verify)
 
         log.info(response.text)
         return True
