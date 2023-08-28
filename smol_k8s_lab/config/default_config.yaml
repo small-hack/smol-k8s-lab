@@ -52,6 +52,7 @@ local_password_manager:
   # If set to false, we attempt to create a second item
   overwrite: false
 
+# anything here gets set for all apps if you're using our default repos
 app_global_config:
   # setting this changes all the below domains to use the following cluster_issuer
   # change to letsencrypt-prod when you're ready to go live with your infra
@@ -458,6 +459,8 @@ apps:
         grafana_hostname: ""
         # FQDN to use for Alert Manager web interface
         alert_manager_hostname: ""
+        # FQDN to use for the prometheus push gateway
+        push_gateway_hostname: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important! This
