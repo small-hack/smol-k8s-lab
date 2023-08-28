@@ -37,7 +37,7 @@ k9s:
   # default command to run when k9s launches. defaults to application.argoproj.io
   # so that you can view the status of all of your argo apps immediately. This
   # default results in running: k9s --command applications.argoproj.io
-  command: 'applications.argoproj.io'
+  command: "applications.argoproj.io"
 
 # store your password and tokens directly in your local password manager
 local_password_manager:
@@ -52,8 +52,13 @@ local_password_manager:
   # If set to false, we attempt to create a second item
   overwrite: false
 
+app_global_config:
+  # setting this changes all the below domains to use the following cluster_issuer
+  # change to letsencrypt-prod when you're ready to go live with your infra
+  cluster_issuer: letsencrypt-staging
+
 apps:
-  # --------------------------
+  # ------------------------
   # Required Kubernetes Apps
   # ---------------------------------------------------------------------------
   # These are installed with helm or manifests depending on what is recommended
@@ -136,7 +141,7 @@ apps:
       namespace: "metallb-system"
       # source repos for Argo CD metallb Project (in addition to metallb.argo.repo)
       project_source_repos:
-        - 'https://github.com/metallb/metallb.git'
+        - "https://github.com/metallb/metallb.git"
 
   # ---------------------------------------------------------------------------
   # Argo CD deployed and maintained Applications to run on Kubernetes
@@ -386,7 +391,6 @@ apps:
         - "registry-1.docker.io"
         - "https://jessebot.github.io/mastodon-helm-chart"
 
-
   matrix:
     # enable matrix for a self hosted chat service
     enabled: false
@@ -481,8 +485,9 @@ apps:
         # list of domains allowed to be behind vouch such as example.com
         domains: []
         # - example.com
-        # email addresses allowed to authenticate via vouch such as beep@boop.com
+        # email addresses allowed to authenticate via vouch
         emails: []
+        # - beep@boop.com
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -509,7 +514,7 @@ apps:
     # and two groups for argo (users/admins) along with a groupsClaim action. Updates
     # your values in the argo_cd_appset_secret_plugin secret and refreshes the pod
     init:
-      # Switch to false if you don't want to create intial secrets or use a the 
+      # Switch to false if you don't want to create intial secrets or use a the
       # API via a service acocunt to create the above described resources
       enabled: true
       values:
