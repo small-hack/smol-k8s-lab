@@ -84,7 +84,7 @@ def configure_argocd(k8s_obj: K8s,
 
         release_dict['values_file'] = values_file_name
         release_dict['chart_name'] = 'argo-cd/argo-cd'
-        release_dict['chart_version'] = '5.43.8'
+        release_dict['chart_version'] = '5.45.0'
 
         release = helm.chart(**release_dict)
         release.install(True)
