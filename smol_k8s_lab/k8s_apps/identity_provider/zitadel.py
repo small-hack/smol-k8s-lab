@@ -136,15 +136,12 @@ def initialize_zitadel(k8s_obj: K8s,
                         "argocd_administrators")
     zitadel.create_role("argocd_users", "Argo CD Users", "argocd_users")
 
-    # update the existing appset-secret-vars secret with issuer, client_id,
-    # and logout_url
-    new_fields = {'argo_cd_oidc_client_id': argocd_client['client_id'],
-                  'argo_cd_oidc_issuer': f"https://{zitadel_hostname}",
-                  'argo_cd_logout_url': f"https://{zitadel_hostname}/oidc/v1/end_session"}
-    update_secret_key(k8s_obj,
-                      'appset-secret-vars',
-                      'argocd',
-                      new_fields,
+    # update existing appset-secret-vars secret with issuer, client_id, logout_url
+    logout_url = f"https://{zitadel_hostname}/oidc/v1/end_session"
+    fields = {'argo_cd_oidc_client_id': argocd_client['client_id'],
+              'argo_cd_oidc_issuer': f"https://{zitadel_hostname}",
+              'argo_cd_oidc_logout_url': logout_url}
+    update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
                       'secret_vars.yaml')
     k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
 
