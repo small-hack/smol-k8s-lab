@@ -158,9 +158,10 @@ def create_vouch_app(provider: str,
         keycloak = Keycloak()
         # create a vouch client
         client_secret = keycloak.create_client('vouch')
+        client_id = 'vouch'
         url = f"https://{provider_hostname}/realms/{realm}/protocol/openid-connect"
     else:
-        log.error("niether zitadel nor keycloak was passed into "
-                  "create_vouch_app, got {provider} instead.")
+        log.error("niether zitadel nor keycloak was passed into create_vouch_app,"
+                  f" got {provider} instead.")
 
     return url, client_id, client_secret
