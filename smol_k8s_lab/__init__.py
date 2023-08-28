@@ -16,17 +16,16 @@ from sys import exit
 # custom libs and constants
 from .env_config import check_os_support, process_configs
 from .constants import KUBECONFIG, HOME_DIR, INITIAL_USR_CONFIG, VERSION
+from .k8s_apps import (setup_oidc_provider, setup_base_apps,
+                       setup_k8s_secrets_management, setup_federated_apps)
+from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd
-from .k8s_tools.k9s import run_k9s
 from .k8s_tools.k8s_lib import K8s
-from .k8s_distros.base import create_k8s_distro, delete_cluster
-from .k8s_apps import setup_oidc_provider
-from .k8s_apps import setup_base_apps
-from .k8s_apps import setup_k8s_secrets_management
-from .k8s_apps import setup_federated_apps
+from .k8s_tools.k9s import run_k9s
+from .utils.bw_cli import BwCLI
 from .utils.pretty_printing.console_logging import CONSOLE, sub_header, header
 from .utils.pretty_printing.help_text import RichCommand, options_help
-from .utils.bw_cli import BwCLI
+
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
