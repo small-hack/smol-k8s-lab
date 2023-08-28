@@ -33,9 +33,9 @@ class K8s():
         self.core_v1_api = client.CoreV1Api(self.api_client)
 
     def create_secret(self,
-                      name: str = "",
-                      namespace: str = "",
-                      str_data: str = "",
+                      name: str,
+                      namespace: str,
+                      str_data: str,
                       inline_key: str = "",
                       labels: dict = {}) -> bool:
         """
@@ -69,7 +69,7 @@ class K8s():
             log.error("Exception when calling "
                       f"CoreV1Api->create_namespaced_secret: {e}")
 
-    def get_secret(self, name: str = "", namespace: str = "") -> dict:
+    def get_secret(self, name: str, namespace: str) -> dict:
         """
         get an existing k8s secret
         """
@@ -78,7 +78,7 @@ class K8s():
         res = subproc([f"kubectl get secret -n {namespace} {name} -o json"])
         return loads(res)
 
-    def delete_secret(self, name: str = "", namespace: str = "") -> dict:
+    def delete_secret(self, name: str, namespace: str) -> dict:
         """
         get an existing k8s secret
         """
@@ -87,7 +87,7 @@ class K8s():
         subproc([f"kubectl delete secret -n {namespace} {name}"])
         return True
 
-    def get_namespace(self, name: str = "") -> bool:
+    def get_namespace(self, name: str) -> bool:
         """
         checks for specific namespace and returns True if it exists,
         returns False if namespace does not exist
@@ -99,7 +99,7 @@ class K8s():
         log.debug(f"Namespace, {name}, does not exist yet")
         return False
 
-    def create_namespace(self, name: str = "") -> True:
+    def create_namespace(self, name: str) -> True:
         """
         Create namespace with name
         """
@@ -113,7 +113,7 @@ class K8s():
             log.debug(f"Namespace, {name}, already exists")
         return True
 
-    def reload_deployment(self, name: str = "", namespace: str = "") -> True:
+    def reload_deployment(self, name: str, namespace: str) -> True:
         """
         restart a deployment's pod scaling it up and then down again
         currently only works with one pod

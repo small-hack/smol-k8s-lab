@@ -16,8 +16,10 @@ from ..constants import XDG_CACHE_DIR
 from ..utils.subproc import subproc, simple_loading_bar
 
 
-def apply_manifests(manifest_file_name="", namespace="default", deployment="",
-                    selector="component=controller"):
+def apply_manifests(manifest_file_name: str,
+                    namespace: str = "default",
+                    deployment: str = "",
+                    selector: str = "component=controller"):
     """
     applies a manifest and waits with a nice loading bar if deployment
     """
@@ -36,7 +38,7 @@ def apply_manifests(manifest_file_name="", namespace="default", deployment="",
     return True
 
 
-def apply_custom_resources(custom_resource_dict_list: dict = {}):
+def apply_custom_resources(custom_resource_dict_list: dict):
     """
     Does a kube apply on a custom resource dict, and retries if it fails
     using loading bar for progress
@@ -59,9 +61,9 @@ def apply_custom_resources(custom_resource_dict_list: dict = {}):
 
 
 def update_secret_key(k8s_obj: K8s,
-                      secret_name: str = "",
-                      secret_namespace: str = "",
-                      updated_values_dict: dict = {},
+                      secret_name: str,
+                      secret_namespace: str,
+                      updated_values_dict: dict,
                       in_line_key_name: str = 'secret_vars.yaml') -> True:
     """
     update a key in a k8s secret

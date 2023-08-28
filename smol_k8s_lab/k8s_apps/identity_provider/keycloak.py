@@ -48,7 +48,7 @@ class Keycloak():
 
 
 def configure_keycloak(k8s_obj: K8s,
-                       config_dict: dict = {},
+                       config_dict: dict,
                        bitwarden: BwCLI = None) -> True:
     """
     Installs Keycloak as an Argo CD Application. If config_dict['init']['enabled']
@@ -108,7 +108,7 @@ def configure_keycloak(k8s_obj: K8s,
 
 
 def initialize_keycloak(k8s_obj: K8s,
-                        realm: str = "",
+                        realm: str,
                         initial_user_dict: dict = {"username": "",
                                                    "first_name": "",
                                                    "last_name": ""},

@@ -5,7 +5,6 @@ DESCRIPTION: install k3d :D
      AUTHOR: @Jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-import logging as log
 from ..pretty_printing.console_logging import sub_header
 from ..utils.subproc import subproc
 
@@ -17,5 +16,5 @@ def install_k3d_cluster() -> bool:
     returns true if it worked
     """
     sub_header("Creating k3d cluster...")
-  ..utils.subproc(['k3d create cluster smol-k8s-lab-k3d'])
+    subproc(['k3d create cluster smol-k8s-lab-k3d'])
     return True

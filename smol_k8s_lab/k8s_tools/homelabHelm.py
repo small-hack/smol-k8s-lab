@@ -25,7 +25,7 @@ class helm:
         """
         perform add, update, and removal of helm chart repos
         """
-        def __init__(self, repo_dict):
+        def __init__(self, repo_dict: dict):
             """
             must pass in a repo_dict of {'repo_name': 'repo url'}
             """
@@ -80,7 +80,7 @@ class helm:
             return subproc([cmd], quiet=True)
 
 
-        def install(self, wait=False) -> True:
+        def install(self, wait: bool = False) -> True:
             """
             Installs helm chart to current k8s context, takes optional wait arg
             Defaults to False, if True, will wait till deployments are up
@@ -125,7 +125,7 @@ class helm:
             return True
 
 
-def add_default_repos(k8s_distro: str = "",
+def add_default_repos(k8s_distro: str,
                       metallb: bool = False,
                       argo: bool = False,
                       argo_secrets: bool = False) -> bool:
@@ -161,7 +161,7 @@ def add_default_repos(k8s_distro: str = "",
     return True
 
 
-def prepare_helm(k8s_distro: str = "",
+def prepare_helm(k8s_distro: str,
                  argo: bool = False,
                  metallb: bool = True,
                  argo_app_set: bool = False) -> bool:

@@ -15,7 +15,7 @@ from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.pretty_printing.console_logging import header
 
 
-def configure_infisical(k8s_obj: K8s, infisical_dict: dict = {}):
+def configure_infisical(k8s_obj: K8s, infisical_dict: dict):
     """
     - configures the infisical app by asking for smtp credentials
     - configures backendEnvironmentVariables secrets to sign JWT tokens

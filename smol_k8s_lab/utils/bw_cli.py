@@ -88,7 +88,7 @@ class BwCLI():
         log.info(res)
         return True
 
-    def __get_credential__(self, credential: str = ""):
+    def __get_credential__(self, credential: str):
         """
         prompts a user for a specific credential
         """
@@ -147,7 +147,7 @@ class BwCLI():
             subproc([f"{self.bw_path} lock"], env={"BW_SESSION": self.session})
             log.info('Bitwarden vault locked.')
 
-    def generate(self, special_characters=False):
+    def generate(self, special_characters: bool = False):
         """
         generate a new password. Takes special_characters bool.
         """
@@ -161,7 +161,7 @@ class BwCLI():
         log.info('New password generated.')
         return password
 
-    def get_item(self, item_name: str = ""):
+    def get_item(self, item_name: str):
         """
         Get Item and return False if it does not exist else return the item ID
         Required Args:
@@ -184,7 +184,7 @@ class BwCLI():
         else:
             return [json.loads(response)['id']]
 
-    def delete_item(self, item_id: str = ""):
+    def delete_item(self, item_id: str):
         """
         Delete Item
             - item_name: str of name of item
@@ -196,9 +196,13 @@ class BwCLI():
                      "HOME": self.home})
         return
 
-    def create_login(self, name: str = "", item_url: str = "",
-                     user: str = "", password: str = "",
-                     fields: list = [], org: str = None,
+    def create_login(self,
+                     name: str = "",
+                     item_url: str = "",
+                     user: str = "",
+                     password: str = "",
+                     fields: list = [],
+                     org: str = None,
                      collection: str = None):
         """
         Create login item to store a set of credentials for one site.

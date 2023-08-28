@@ -13,7 +13,7 @@ from ..constants import USER, KUBECONFIG
 from ..utils.subproc import subproc
 
 
-def install_k3s_cluster(disable_servicelb=True, additonal_arguments=[]):
+def install_k3s_cluster(disable_servicelb: bool =True, additonal_arguments: list = []):
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal

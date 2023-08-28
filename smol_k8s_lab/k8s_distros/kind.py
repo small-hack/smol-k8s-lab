@@ -24,14 +24,14 @@ def install_kind_cluster():
                "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
         sub_header(msg)
         log.debug("Installing kind with brew...")
-      ..utils.subproc(['brew install kind'], spinner=True)
+        subproc(['brew install kind'], spinner=True)
 
     log.debug("Creating a kind cluster...")
 
     # use our pre-configured kind file to install a small cluster
     full_path = path.join(PWD, 'config/kind_cluster_config.yaml')
     cmd = f"kind create cluster --name smol-k8s-lab-kind --config={full_path}"
-  ..utils.subproc([cmd])
+    subproc([cmd])
 
     return True
 
@@ -43,8 +43,8 @@ def delete_kind_cluster():
     """
     er = "smol-k8s-lab hasn't installed a [green]kind[/green] cluster here yet"
     if which('kind'):
-        if 'smol-k8s-lab-kind' i..utils.subproc(['kind get clusters']):
-          ..utils.subproc(['kind delete cluster --name smol-k8s-lab-kind'])
+        if 'smol-k8s-lab-kind' in subproc(['kind get clusters']):
+            subproc(['kind delete cluster --name smol-k8s-lab-kind'])
         else:
             sub_header(er, False, False)
     else:

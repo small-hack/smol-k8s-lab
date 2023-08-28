@@ -5,9 +5,7 @@ from .kubernetes_util import apply_custom_resources
 from ..utils.subproc import subproc
 
 
-def install_with_argocd(k8s_obj: K8s,
-                        app: str = "",
-                        argo_dict: dict = {}) -> True:
+def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
     """
     create and Argo CD app directly from the command line using passed in
     app and argo_dict which should have str keys for repo, path, and namespace
@@ -45,7 +43,7 @@ def install_with_argocd(k8s_obj: K8s,
     return True
 
 
-def wait_for_argocd_app(app: str = ""):
+def wait_for_argocd_app(app: str):
     """
     checks the status of an Argo CD app and waits till it is ready
     """

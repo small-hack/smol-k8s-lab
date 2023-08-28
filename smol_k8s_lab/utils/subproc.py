@@ -18,7 +18,7 @@ soft_theme = Theme({"info": "dim cornflower_blue",
 console = Console(theme=soft_theme)
 
 
-def basic_syntax(bash_string=""):
+def basic_syntax(bash_string: str):
     """
     splits up a string and does some basic syntax highlighting
     """
@@ -33,7 +33,7 @@ def basic_syntax(bash_string=""):
         return bash_string
 
 
-def subproc(commands=[], **kwargs):
+def subproc(commands: list, **kwargs):
     """
     Takes a list of command strings to run in subprocess
     Optional vars - default, description:
@@ -87,7 +87,7 @@ def subproc(commands=[], **kwargs):
     return output
 
 
-def run_subprocess(command, **kwargs):
+def run_subprocess(command: str, **kwargs):
     """
     Takes a str commmand to run in BASH in a subprocess.
     Typically run from subproc, which handles output printing.
@@ -137,7 +137,7 @@ def run_subprocess(command, **kwargs):
             return output
 
 
-def simple_loading_bar(tasks={}, time_to_wait=120):
+def simple_loading_bar(tasks: dict, time_to_wait: int = 120):
     """
     Prints a small loading bar using rich.
     Accepts a dict of {"task_name": "task"}

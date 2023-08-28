@@ -11,7 +11,7 @@ from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header, heade
 
 
 def configure_zitadel(k8s_obj: K8s,
-                      config_dict: dict = {},
+                      config_dict: dict,
                       argocd_hostname: str = "",
                       bitwarden: BwCLI = None):
     """

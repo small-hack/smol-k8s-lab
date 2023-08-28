@@ -27,6 +27,6 @@ def do_setup():
             "kubectl krew install deprecations",
             "kubectl krew update",
             "kubectl krew upgrade"]
-  ..utils.subproc(cmds, error_ok=True)
+    subproc(cmds, error_ok=True)
 
     return True

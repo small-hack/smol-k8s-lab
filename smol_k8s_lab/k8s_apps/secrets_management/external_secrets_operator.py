@@ -16,7 +16,7 @@ from smol_k8s_lab.utils.subproc import subproc
 
 
 def configure_external_secrets(k8s_obj: K8s,
-                               eso_dict: dict = {},
+                               eso_dict: dict,
                                bweso_dict: dict = {},
                                distro: str = "",
                                bitwarden: BwCLI = None) -> True:
@@ -31,7 +31,7 @@ def configure_external_secrets(k8s_obj: K8s,
 
 
 def setup_bweso(k8s_obj: K8s,
-                distro: str = "",
+                distro: str,
                 bweso_argo_dict: dict = {},
                 bitwarden: BwCLI = None):
     """
@@ -61,7 +61,7 @@ def setup_bweso(k8s_obj: K8s,
     return True
 
 
-def setup_gitlab_provider(external_secrets_config: dict = {}):
+def setup_gitlab_provider(external_secrets_config: dict):
     """
     setup the gitlab external secrets operator config
     Accepts dict as arg:

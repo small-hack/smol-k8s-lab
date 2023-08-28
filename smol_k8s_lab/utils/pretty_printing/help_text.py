@@ -16,7 +16,7 @@ from smol_k8s_lab.constants import VERSION, XDG_CONFIG_FILE
 RECORD = False
 
 
-def pretty_choices(default_list):
+def pretty_choices(default_list: list):
     """
     Takes a list of default choices and surrounds them with a meta markup tag
     and join them with a comma for a pretty return "Choices" string.
