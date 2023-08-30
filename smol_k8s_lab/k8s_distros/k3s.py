@@ -10,7 +10,7 @@ import json
 from os import chmod, remove
 import requests
 import stat
-from ..constants import USER, KUBECONFIG
+from ..constants import USER, KUBECONFIG, XDG_CACHE_DIR
 from ..utils.subproc import subproc
 
 
@@ -35,9 +35,12 @@ def install_k3s_cluster(disable_servicelb: bool = True,
     kube_config = {'apiVersion': 'kubelet.config.k8s.io/v1beta1',
                    'kind': 'KubeletConfiguration',
                    'maxPods': max_pods}
-    subproc(['sudo mkdir -p /etc/rancher/k3s'])
-    with open('/etc/rancher/k3s/kubelet.confg') as kubelet_cfg:
+    kube_cache = XDG_CACHE_DIR + '/kubelet.config'
+    with open(kube_cache, 'w') as kubelet_cfg:
         json.dump(kube_config, kubelet_cfg)
+
+    subproc(['sudo mkdir -p /etc/rancher/k3s',
+             f'sudo mv {kube_cache} /etc/rancher/k3s/kubelet.config'])
 
     # create the k3s cluster (just one server node)
     cmd = ('./install.sh '
