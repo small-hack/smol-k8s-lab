@@ -41,6 +41,9 @@ def configure_vouch(k8s_obj: K8s,
         secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['hostname']
         log.debug(f"zitadel object is {zitadel}")
+        if zitadel != isinstance(Zitadel):
+            if not realm:
+                log.error("we don't have zitadel or keycloak info to continue :(")
         auth_dict = create_vouch_app(oidc_provider_name,
                                      oidc_provider_hostname,
                                      vouch_hostname,
