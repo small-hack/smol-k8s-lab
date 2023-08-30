@@ -41,9 +41,8 @@ def configure_vouch(k8s_obj: K8s,
         secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['hostname']
         log.debug(f"zitadel object is {zitadel}")
-        if zitadel != isinstance(Zitadel):
-            if not realm:
-                log.error("we don't have zitadel or keycloak info to continue :(")
+        if not isinstance(zitadel, Zitadel) and not realm:
+            log.error("we don't have zitadel or keycloak info to continue :(")
         auth_dict = create_vouch_app(oidc_provider_name,
                                      oidc_provider_hostname,
                                      vouch_hostname,
@@ -153,7 +152,7 @@ def create_vouch_app(provider: str,
     if provider == 'zitadel':
         # create Vouch OIDC Application
         log.info("Creating a Vouch application...")
-        redirect_uris = [f"https://{vouch_hostname}/auth"]
+        redirect_uris = f"https://{vouch_hostname}/auth"
         logout_uris = [f"https://{vouch_hostname}"]
         vouch_client_creds = zitadel.create_application("vouch",
                                                         redirect_uris,

@@ -236,7 +236,7 @@ class Zitadel():
 
     def create_application(self,
                            app_name: str = "",
-                           redirect_uris: list = [],
+                           redirect_uri: str = "",
                            post_logout_redirect_uris: list = []) -> dict:
         """
         Create an OIDC Application in Zitadel via the API.
@@ -249,7 +249,7 @@ class Zitadel():
         """
         payload = dumps({
           "name": app_name,
-          "redirectUris": redirect_uris,
+          "redirectUris": [redirect_uri],
           "responseTypes": [
             "OIDC_RESPONSE_TYPE_CODE"
           ],
@@ -267,15 +267,17 @@ class Zitadel():
           "idTokenUserinfoAssertion": True,
           "clockSkew": "1s",
           "additionalOrigins": [
-            "scheme://localhost:8080",
-            redirect_uris[0]
+            "scheme://localhost:8080"
           ],
           "skipNativeAppSuccessPage": True
         })
+        log.debug(payload)
 
         response = request("POST",
                            f'{self.api_url}projects/{self.project_id}/apps/oidc',
-                           headers=self.headers, data=payload, verify=self.verify)
+                           headers=self.headers,
+                           data=payload,
+                           verify=self.verify)
         log.info(response.text)
         json_res = response.json()
 

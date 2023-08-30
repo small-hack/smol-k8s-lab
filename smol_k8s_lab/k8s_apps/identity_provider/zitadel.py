@@ -127,7 +127,7 @@ def initialize_zitadel(k8s_obj: K8s,
 
     # create Argo CD OIDC Application
     log.info("Creating an Argo CD application...")
-    redirect_uris = [f"https://{argocd_hostname}/auth/callback"]
+    redirect_uris = f"https://{argocd_hostname}/auth/callback"
     logout_uris = [f"https://{argocd_hostname}"]
     argocd_client = zitadel.create_application("argocd", redirect_uris, logout_uris)
 
