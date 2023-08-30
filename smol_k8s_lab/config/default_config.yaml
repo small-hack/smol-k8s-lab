@@ -56,7 +56,7 @@ local_password_manager:
   overwrite: false
 
 # anything here gets set for all apps if you're using our default repos
-app_global_config:
+apps_global_config:
   # setting this changes all the below domains to use the following cluster_issuer
   # change to letsencrypt-prod when you're ready to go live with your infra
   cluster_issuer: letsencrypt-staging

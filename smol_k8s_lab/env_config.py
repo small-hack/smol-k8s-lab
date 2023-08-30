@@ -66,20 +66,25 @@ def process_configs(config: dict = {}, delete: bool = False):
 
     config['log'] = config.get("log", DEFAULT_CONFIG["log"])
 
+    # make sure we have a globally set lets-encrypt cluster issuer
+    default_issuer = DEFAULT_CONFIG['apps_global_config']['cluster_issuer']
+    if not config.get('apps_global_config', None):
+        secrets['global_cluster_issuer'] = default_issuer
+        config['apps_global_config'] = {'cluster_issuer': default_issuer}
+    else:
+        apps_global_cfg = config['apps_global_config']
+        secrets['global_cluster_issuer'] = apps_global_cfg.get('cluster_issuer',
+                                                               default_issuer)
+        config['apps_global_config'] = {
+                'cluster_issuer': secrets['global_cluster_issuer']
+                }
+
     # Write newly updated YAML data to config file
     if initialize or DEFAULT_CONFIG != config:
         sub_header("✏️ Writing out your newly updated config file")
         with open(XDG_CONFIG_FILE, 'w') as conf_file:
             dump(config, conf_file)
 
-    # make sure we have a globally set lets-encrypt cluster issuer
-    default_issuer = DEFAULT_CONFIG['global_cluster_issuer']['cluster_issuer']
-    if not config.get('apps_global_config', None):
-        secrets['global_cluster_issuer'] = default_issuer
-    else:
-        apps_global_config = config['apps_global_config']
-        secrets['global_cluster_issuer'] = apps_global_config.get('cluster_issuer',
-                                                                  default_issuer)
     return config, secrets
 
 
