@@ -13,6 +13,9 @@ k8s_distros:
   k3s:
     # set to true to enable deploying a kubernetes cluster using k3s
     enabled: false
+    # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
+    # it's set high for beefy nodes, but you can set it lower if you'd like
+    max_pods: 200
     # if k8s_distribution set to k3s, you can add an array of extra
     # arguments to pass to the k3s install script
     extra_args: []

@@ -6,14 +6,17 @@ DESCRIPTION: install k3s :D
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 import logging as log
-from os import chmod, remove
+import json
+from os import chmod, remove, mkdir
 import requests
 import stat
 from ..constants import USER, KUBECONFIG
 from ..utils.subproc import subproc
 
 
-def install_k3s_cluster(disable_servicelb: bool =True, additonal_arguments: list = []):
+def install_k3s_cluster(disable_servicelb: bool = True,
+                        additonal_arguments: list = [],
+                        max_pods: int = 250):
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
@@ -27,9 +30,21 @@ def install_k3s_cluster(disable_servicelb: bool =True, additonal_arguments: list
     # make sure we can actually execute the script
     chmod("./install.sh", stat.S_IRWXU)
 
+    # we will edit this file before the install: /etc/rancher/k3s/kubelet.config
+    # so that we can change the max number of pods on this node
+    kube_config = {'apiVersion': 'kubelet.config.k8s.io/v1beta1',
+                   'kind': 'KubeletConfiguration',
+                   'maxPods': max_pods}
+    k3s_dir = '/etc/rancher/k3s'
+    mkdir(k3s_dir)
+    with open(k3s_dir + '/kubelet.confg') as kubelet_cfg:
+        json.dump(kube_config, kubelet_cfg)
+
     # create the k3s cluster (just one server node)
-    cmd = ('./install.sh --disable=traefik --write-kubeconfig-mode=700 '
-           '--secrets-encryption')
+    cmd = ('./install.sh '
+           '--disable=traefik '
+           '--write-kubeconfig-mode=700 '
+           '--secrets-encryption --kubelet-arg=config=/etc/rancher/k3s/kubelet.config')
 
     if disable_servicelb:
         cmd += ' --disable=servicelb'
