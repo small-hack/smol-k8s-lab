@@ -41,14 +41,14 @@ def configure_vouch(k8s_obj: K8s,
         secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['hostname']
         log.debug(f"zitadel object is {zitadel}")
-        base_url, client_id, client_secret = create_vouch_app(oidc_provider_name,
-                                                              oidc_provider_hostname,
-                                                              vouch_hostname,
-                                                              users,
-                                                              realm,
-                                                              zitadel)
+        auth_dict = create_vouch_app(oidc_provider_name,
+                                     oidc_provider_hostname,
+                                     vouch_hostname,
+                                     users,
+                                     realm,
+                                     zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
-        preferred_domain = "'\"\"'"
+        preferred_domain = '\"\"\"\"'
 
         # this is handling the vouch-config secret
         emails = vouch_config_dict['init']['values']['emails']
@@ -74,15 +74,20 @@ def configure_vouch(k8s_obj: K8s,
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
-            auth_url = create_custom_field("authUrl", f'{base_url}auth')
-            token_url = create_custom_field("tokenUrl", f'{base_url}token')
-            user_info_url = create_custom_field("userInfoUrl", f'{base_url}userinfo')
-            callback_urls = create_custom_field("callbackUrls", vouch_callback_url)
-            preferred_domain = create_custom_field("preferredDomain", preferred_domain)
+            auth_url = create_custom_field("authUrl",
+                                           auth_dict['auth_url'])
+            token_url = create_custom_field("tokenUrl",
+                                            auth_dict['token_url'])
+            user_info_url = create_custom_field("userInfoUrl",
+                                                auth_dict['user_info_url'])
+            callback_urls = create_custom_field("callbackUrls",
+                                                vouch_callback_url)
+            preferred_domain = create_custom_field("preferredDomain",
+                                                   preferred_domain)
             # create oauth OIDC bitwarden item
             bitwarden.create_login(name='vouch-oauth-config',
-                                   user=client_id,
-                                   password=client_secret,
+                                   user=auth_dict['client_id'],
+                                   password=auth_dict['client_secret'],
                                    fields=[auth_url,
                                            token_url,
                                            user_info_url,
@@ -102,11 +107,11 @@ def configure_vouch(k8s_obj: K8s,
             # create oauth OIDC k8s secret
             k8s_obj.create_secret('vouch-oauth-config',
                                   'vouch',
-                                  {'user': client_id,
-                                   'password': client_secret,
-                                   'authUrl': f'{base_url}/auth',
-                                   'tokenUrl': f'{base_url}/token',
-                                   'userInfoUrl': f'{base_url}/userinfo',
+                                  {'user': auth_dict['client_id'],
+                                   'password': auth_dict['client_secret'],
+                                   'authUrl': auth_dict['auth_url'],
+                                   'tokenUrl': auth_dict['token_url'],
+                                   'userInfoUrl': auth_dict['user_info_url'],
                                    'callbackUrls': vouch_callback_url,
                                    'preferredDomain': preferred_domain})
 
@@ -141,7 +146,7 @@ def create_vouch_app(provider: str,
     if provider == 'zitadel':
         # create Vouch OIDC Application
         log.info("Creating a Vouch application...")
-        redirect_uris = [f"https://{vouch_hostname}/auth/callback"]
+        redirect_uris = [f"https://{vouch_hostname}/auth"]
         logout_uris = [f"https://{vouch_hostname}"]
         vouch_client_creds = zitadel.create_application("vouch",
                                                         redirect_uris,
@@ -153,6 +158,9 @@ def create_vouch_app(provider: str,
             for user in users:
                 zitadel.create_user_grant(user, "vouch_users")
         url = f"https://{provider_hostname}/"
+        auth_url = f'{url}/oauth/v2/authorize'
+        token_url = f'{url}/oauth/v2/token'
+        user_info_url = f'{url}/oidc/v1/userinfo'
 
     elif provider == 'keycloak':
         keycloak = Keycloak()
@@ -160,8 +168,17 @@ def create_vouch_app(provider: str,
         client_secret = keycloak.create_client('vouch')
         client_id = 'vouch'
         url = f"https://{provider_hostname}/realms/{realm}/protocol/openid-connect"
+        auth_url = f'{url}/auth'
+        token_url = f'{url}/token'
+        user_info_url = f'{url}/userinfo'
     else:
         log.error("niether zitadel nor keycloak was passed into create_vouch_app,"
                   f" got {provider} instead.")
 
-    return url, client_id, client_secret
+    auth_dict = {"base_url": url,
+                 "auth_url": auth_url,
+                 "token_url": token_url,
+                 "user_info_url": user_info_url,
+                 "client_id": client_id,
+                 "client_secret": client_secret}
+    return auth_dict
