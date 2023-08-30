@@ -7,7 +7,7 @@ DESCRIPTION: configures external secrets, currently only with gitlab
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 import logging as log
-from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
 from smol_k8s_lab.utils.bw_cli import BwCLI
@@ -24,6 +24,7 @@ def configure_external_secrets(k8s_obj: K8s,
     configure external secrets and provider. (and optionally bweso)
     """
     install_with_argocd(k8s_obj, 'external-secrets-operator', eso_dict['argo'])
+    wait_for_argocd_app('external-secrets-operator')
 
     if bweso_dict['enabled']:
         setup_bweso(k8s_obj, distro, bweso_dict['argo'], bitwarden)
