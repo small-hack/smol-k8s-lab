@@ -162,10 +162,10 @@ def create_vouch_app(provider: str,
             for user in users:
                 zitadel.create_user_grant(user, "vouch_users")
         url = f"https://{provider_hostname}/"
-        auth_url = f'{url}/oauth/v2/authorize'
-        token_url = f'{url}/oauth/v2/token'
-        user_info_url = f'{url}/oidc/v1/userinfo'
-        end_session_url = f'{url}/oidc/v1/end_session'
+        auth_url = f'https://{provider_hostname}/oauth/v2/authorize'
+        token_url = f'https://{provider_hostname}/oauth/v2/token'
+        user_info_url = f'https://{provider_hostname}/oidc/v1/userinfo'
+        end_session_url = f'https://{provider_hostname}/oidc/v1/end_session'
 
     elif provider == 'keycloak':
         keycloak = Keycloak()
