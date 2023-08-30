@@ -267,7 +267,8 @@ class Zitadel():
           "idTokenUserinfoAssertion": True,
           "clockSkew": "1s",
           "additionalOrigins": [
-            "scheme://localhost:8080"
+            "scheme://localhost:8080",
+            redirect_uris[0]
           ],
           "skipNativeAppSuccessPage": True
         })
