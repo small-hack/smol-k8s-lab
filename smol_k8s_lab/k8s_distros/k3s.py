@@ -7,7 +7,7 @@ DESCRIPTION: install k3s :D
 """
 import logging as log
 import json
-from os import chmod, remove, mkdir
+from os import chmod, remove
 import requests
 import stat
 from ..constants import USER, KUBECONFIG
@@ -35,9 +35,8 @@ def install_k3s_cluster(disable_servicelb: bool = True,
     kube_config = {'apiVersion': 'kubelet.config.k8s.io/v1beta1',
                    'kind': 'KubeletConfiguration',
                    'maxPods': max_pods}
-    k3s_dir = '/etc/rancher/k3s'
-    mkdir(k3s_dir)
-    with open(k3s_dir + '/kubelet.confg') as kubelet_cfg:
+    subproc(['sudo mkdir -p /etc/rancher/k3s'])
+    with open('/etc/rancher/k3s/kubelet.confg') as kubelet_cfg:
         json.dump(kube_config, kubelet_cfg)
 
     # create the k3s cluster (just one server node)
