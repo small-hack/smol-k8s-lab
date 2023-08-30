@@ -82,6 +82,8 @@ def configure_vouch(k8s_obj: K8s,
                                                 auth_dict['user_info_url'])
             callback_urls = create_custom_field("callbackUrls",
                                                 vouch_callback_url)
+            end_session_url = create_custom_field("endSessionEndpoint",
+                                                  auth_dict['end_session_url'])
             preferred_domain = create_custom_field("preferredDomain",
                                                    preferred_domain)
             # create oauth OIDC bitwarden item
@@ -91,7 +93,8 @@ def configure_vouch(k8s_obj: K8s,
                                    fields=[auth_url,
                                            token_url,
                                            user_info_url,
-                                           callback_urls])
+                                           callback_urls,
+                                           end_session_url])
 
             domains_obj = create_custom_field("domains", domains)
             emails_obj = create_custom_field("allowList", emails)
@@ -112,6 +115,7 @@ def configure_vouch(k8s_obj: K8s,
                                    'authUrl': auth_dict['auth_url'],
                                    'tokenUrl': auth_dict['token_url'],
                                    'userInfoUrl': auth_dict['user_info_url'],
+                                   'endSessionEndpoint': auth_dict['end_session_url'],
                                    'callbackUrls': vouch_callback_url,
                                    'preferredDomain': preferred_domain})
 
@@ -161,6 +165,7 @@ def create_vouch_app(provider: str,
         auth_url = f'{url}/oauth/v2/authorize'
         token_url = f'{url}/oauth/v2/token'
         user_info_url = f'{url}/oidc/v1/userinfo'
+        end_session_url = f'{url}/oidc/v1/end_session'
 
     elif provider == 'keycloak':
         keycloak = Keycloak()
@@ -171,6 +176,7 @@ def create_vouch_app(provider: str,
         auth_url = f'{url}/auth'
         token_url = f'{url}/token'
         user_info_url = f'{url}/userinfo'
+        end_session_url = f'{url}/end_session'
     else:
         log.error("niether zitadel nor keycloak was passed into create_vouch_app,"
                   f" got {provider} instead.")
@@ -179,6 +185,7 @@ def create_vouch_app(provider: str,
                  "auth_url": auth_url,
                  "token_url": token_url,
                  "user_info_url": user_info_url,
+                 "end_session_url": end_session_url,
                  "client_id": client_id,
                  "client_secret": client_secret}
     return auth_dict
