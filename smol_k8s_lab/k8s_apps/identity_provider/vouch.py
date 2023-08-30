@@ -80,7 +80,7 @@ def configure_vouch(k8s_obj: K8s,
                                             auth_dict['token_url'])
             user_info_url = create_custom_field("userInfoUrl",
                                                 auth_dict['user_info_url'])
-            callback_url = create_custom_field("callbackUrl",
+            callback_url = create_custom_field("callbackUrls",
                                                vouch_callback_url)
             end_session_url = create_custom_field("endSessionEndpoint",
                                                   auth_dict['end_session_url'])
@@ -116,7 +116,7 @@ def configure_vouch(k8s_obj: K8s,
                                    'tokenUrl': auth_dict['token_url'],
                                    'userInfoUrl': auth_dict['user_info_url'],
                                    'endSessionEndpoint': auth_dict['end_session_url'],
-                                   'callbackUrl': vouch_callback_url,
+                                   'callbackUrls': vouch_callback_url,
                                    'preferredDomain': preferred_domain})
 
             # create vouch config k8s secret
