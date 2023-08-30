@@ -18,7 +18,9 @@ def configure_nextcloud(k8s_obj: K8s,
         nextcloud_hostname = secrets['hostname']
 
         # configure the admin user credentials
-        username = config_dict['init']['values']['admin_user']
+        init_values = config_dict['init'].get('values', None)
+        if init_values:
+            username = init_values.get('username', None)
         if not username:
             m = "[green]Please enter the name of the administrator user for nextcloud"
             username = Prompt.ask(m)
