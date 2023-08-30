@@ -47,7 +47,7 @@ def configure_vouch(k8s_obj: K8s,
                                      users,
                                      realm,
                                      zitadel)
-        vouch_callback_url = f'https://{vouch_hostname}:9090/auth'
+        vouch_callback_url = f'https://{vouch_hostname}/auth'
         preferred_domain = '\"\"\"\"'
 
         # this is handling the vouch-config secret
@@ -80,8 +80,8 @@ def configure_vouch(k8s_obj: K8s,
                                             auth_dict['token_url'])
             user_info_url = create_custom_field("userInfoUrl",
                                                 auth_dict['user_info_url'])
-            callback_urls = create_custom_field("callbackUrls",
-                                                vouch_callback_url)
+            callback_url = create_custom_field("callbackUrl",
+                                               vouch_callback_url)
             end_session_url = create_custom_field("endSessionEndpoint",
                                                   auth_dict['end_session_url'])
             preferred_domain = create_custom_field("preferredDomain",
@@ -93,7 +93,7 @@ def configure_vouch(k8s_obj: K8s,
                                    fields=[auth_url,
                                            token_url,
                                            user_info_url,
-                                           callback_urls,
+                                           callback_url,
                                            end_session_url])
 
             domains_obj = create_custom_field("domains", domains)
@@ -116,7 +116,7 @@ def configure_vouch(k8s_obj: K8s,
                                    'tokenUrl': auth_dict['token_url'],
                                    'userInfoUrl': auth_dict['user_info_url'],
                                    'endSessionEndpoint': auth_dict['end_session_url'],
-                                   'callbackUrls': vouch_callback_url,
+                                   'callbackUrl': vouch_callback_url,
                                    'preferredDomain': preferred_domain})
 
             # create vouch config k8s secret
