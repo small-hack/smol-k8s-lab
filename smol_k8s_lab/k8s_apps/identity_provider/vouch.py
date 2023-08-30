@@ -47,7 +47,7 @@ def configure_vouch(k8s_obj: K8s,
                                      users,
                                      realm,
                                      zitadel)
-        vouch_callback_url = f'https://{vouch_hostname}/auth'
+        vouch_callback_url = f'https://{vouch_hostname}:9090/auth'
         preferred_domain = '\"\"\"\"'
 
         # this is handling the vouch-config secret
@@ -161,7 +161,6 @@ def create_vouch_app(provider: str,
         if users:
             for user in users:
                 zitadel.create_user_grant(user, "vouch_users")
-        url = f"https://{provider_hostname}/"
         auth_url = f'https://{provider_hostname}/oauth/v2/authorize'
         token_url = f'https://{provider_hostname}/oauth/v2/token'
         user_info_url = f'https://{provider_hostname}/oidc/v1/userinfo'
@@ -181,8 +180,7 @@ def create_vouch_app(provider: str,
         log.error("niether zitadel nor keycloak was passed into create_vouch_app,"
                   f" got {provider} instead.")
 
-    auth_dict = {"base_url": url,
-                 "auth_url": auth_url,
+    auth_dict = {"auth_url": auth_url,
                  "token_url": token_url,
                  "user_info_url": user_info_url,
                  "end_session_url": end_session_url,
