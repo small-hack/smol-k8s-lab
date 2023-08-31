@@ -54,7 +54,8 @@ def create_k8s_distro(k8s_distro: str,
     elif k8s_distro == "k3s":
         from .k3s import install_k3s_cluster
         extra_args = distro_metadata.get('extra_args', [])
-        install_k3s_cluster(metallb_enabled, extra_args)
+        max_pods = distro_metadata.get('max_pods', 200)
+        install_k3s_cluster(metallb_enabled, extra_args, max_pods)
     # curently unsupported - in alpha state
     elif k8s_distro == "k3d":
         from .k3d import install_k3d_cluster

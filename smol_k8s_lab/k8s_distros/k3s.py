@@ -14,9 +14,9 @@ from ..constants import USER, KUBECONFIG, XDG_CACHE_DIR
 from ..utils.subproc import subproc
 
 
-def install_k3s_cluster(disable_servicelb: bool = True,
-                        additonal_arguments: list = [],
-                        max_pods: int = 250):
+def install_k3s_cluster(disable_servicelb: bool,
+                        additonal_arguments: list,
+                        max_pods: int):
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
