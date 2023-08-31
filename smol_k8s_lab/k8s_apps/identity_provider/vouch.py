@@ -161,7 +161,7 @@ def create_vouch_app(provider: str,
         client_secret = vouch_client_creds['client_secret']
         zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
         if users:
-            for user_dict in users.items():
+            for user_dict in users:
                 user = user_dict['user']
                 grant = user_dict['grant']
                 log.info(f"Updating user grant, {grant}, for user, {user}")

@@ -235,7 +235,11 @@ class Zitadel():
           ]
         })
 
-        response = request("POST", url, headers=self.headers, data=payload)
+        response = request("POST",
+                           url,
+                           headers=self.headers,
+                           data=payload,
+                           verify=self.verify)
 
         log.info(response.text)
         return True
