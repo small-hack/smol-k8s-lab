@@ -51,7 +51,7 @@ def configure_vouch(k8s_obj: K8s,
                                      zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
         # trying to create a string of ""
-        preferred_domain = '"'""'"'
+        preferred_domain = '\"\"'
 
         # this is handling the vouch-config secret
         emails = vouch_config_dict['init']['values']['emails']
@@ -77,20 +77,14 @@ def configure_vouch(k8s_obj: K8s,
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
-            auth_url = create_custom_field("authUrl",
-                                           auth_dict['auth_url'])
-            token_url = create_custom_field("tokenUrl",
-                                            auth_dict['token_url'])
-            user_info_url = create_custom_field("userInfoUrl",
-                                                auth_dict['user_info_url'])
-            callback_url = create_custom_field("callbackUrls",
-                                               vouch_callback_url)
-            end_session_url = create_custom_field("endSessionEndpoint",
-                                                  auth_dict['end_session_url'])
-            preferred_domain = create_custom_field("preferredDomain",
-                                                   preferred_domain)
-
-            fields=[auth_url, token_url, user_info_url, callback_url, end_session_url]
+            fields = [
+                create_custom_field("authUrl", auth_dict['auth_url']),
+                create_custom_field("tokenUrl", auth_dict['token_url']),
+                create_custom_field("userInfoUrl", auth_dict['user_info_url']),
+                create_custom_field("callbackUrls", vouch_callback_url),
+                create_custom_field("endSessionEndpoint", auth_dict['end_session_url']),
+                create_custom_field("preferredDomain", preferred_domain)
+                ]
             log.info(f"vouch oauth fields are {fields}")
             # create oauth OIDC bitwarden item
             bitwarden.create_login(name='vouch-oauth-config',
