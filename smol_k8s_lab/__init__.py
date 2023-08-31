@@ -176,6 +176,8 @@ def main(config: str = "",
             else:
                 api_tls_verify = True
 
+            zitadel_enabled = apps['zitadel']['enabled']
+
             setup_oidc_provider(k8s_obj,
                                 api_tls_verify,
                                 apps.pop('keycloak'),
@@ -208,6 +210,10 @@ def main(config: str = "",
     print("")
     final_msg = ("\nSmol K8s Lab completed!\n\nMake sure you run:"
                  f"\n[green]export KUBECONFIG={KUBECONFIG}[/green]\n")
+
+    if zitadel_enabled:
+        final_msg += ("\nYou can log into Zitadel, your identity provider here:\n"
+                      f"[blue][link]https://{SECRETS['zitadel_hostname']}[/]\n")
 
     if argo_enabled:
         final_msg += ("\nYou can checkout your k8s apps via Argo CD here:\n"
