@@ -39,7 +39,8 @@ def configure_argocd(k8s_obj: K8s,
     already_installed = release.check_existing()
     if not already_installed:
         # this is the base python dict for the values.yaml that is created below
-        val = {'dex': {'enabled': False},
+        val = {'fullnameOverride': 'argo-cd',
+               'dex': {'enabled': False},
                'configs': {
                    'secret': {'argocdServerAdminPassword': ""}
                    },
