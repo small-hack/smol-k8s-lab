@@ -16,7 +16,7 @@ def configure_vouch(k8s_obj: K8s,
                     bitwarden: BwCLI = None,
                     users: list = [],
                     realm: str = "",
-                    zitadel: Zitadel = None) -> bool:
+                    vouch_client_creds: dict = {}) -> bool:
     """
     Installs vouch-proxy as an Argo CD application on Kubernetes
 
@@ -28,9 +28,9 @@ def configure_vouch(k8s_obj: K8s,
       oidc_provider_name:     OIDC provider name. options: keycloak, zitadel
       oidc_provider_hostname: OIDC provider hostname e.g. zitadel.example.com
       bitwarden:              BwCLI, to store k8s secrets in bitwarden
-      users:                   list of user to give access to vouch app
-      realm:                  keycloak realm to use
-      zitadel:                Zitadel object so we don't have to create an api token
+      users:                  list of user to give access to vouch app
+      realm:                  str keycloak realm to use
+      vouch_config_dict       dict of vouch client_id and client_secret
 
     returns True if successful
     """
@@ -40,15 +40,14 @@ def configure_vouch(k8s_obj: K8s,
         # this handles the vouch-oauth-config secret data
         secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['hostname']
-        log.debug(f"zitadel object is {zitadel}")
-        if not isinstance(zitadel, Zitadel) and not realm:
+        if not isinstance(vouch_client_creds, dict) and not realm:
             log.error("we don't have zitadel or keycloak info to continue :(")
-        auth_dict = create_vouch_app(oidc_provider_name,
-                                     oidc_provider_hostname,
-                                     vouch_hostname,
-                                     users,
-                                     realm,
-                                     zitadel)
+        auth_dict = create_vouch_app(provider=oidc_provider_name,
+                                     provider_hostname=oidc_provider_hostname,
+                                     vouch_hostname=vouch_hostname,
+                                     users=users,
+                                     realm=realm,
+                                     vouch_client_creds=vouch_client_creds)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
         # trying to create a string of ""
         preferred_domain = '\"\"'
@@ -130,36 +129,22 @@ def create_vouch_app(provider: str,
                      vouch_hostname: str = "",
                      users: list = [],
                      realm: str = "default",
-                     zitadel: Zitadel = None) -> list:
+                     vouch_client_creds: dict = {}) -> list:
     """
     Creates an OIDC application, for vouch-proxy, in either Keycloak or Zitadel
 
     Arguments:
-      provider          - either 'keycloak' or 'vouch'
-      provider_hostname - hostname of keycloak or vouch
-      vouch_hostname    - hostname of vouch
-      realm             - realm to use for keycloak if using keycloak
-      zitadel           - Zitadel() API wrapper class obj with token and projectID
+      provider           - either 'keycloak' or 'vouch'
+      provider_hostname  - hostname of keycloak or vouch
+      vouch_hostname     - hostname of vouch
+      realm              - realm to use for keycloak if using keycloak
+      vouch_client_creds - vouch client credentials dictionary
 
     returns [url, client_id, client_secret]
     """
     if provider == 'zitadel':
-        # create Vouch OIDC Application
-        log.info("Creating a Vouch application...")
-        redirect_uris = f"https://{vouch_hostname}/auth"
-        logout_uris = [f"https://{vouch_hostname}"]
-        vouch_client_creds = zitadel.create_application("vouch",
-                                                        redirect_uris,
-                                                        logout_uris)
         client_id = vouch_client_creds['client_id']
         client_secret = vouch_client_creds['client_secret']
-        zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
-        if users:
-            for user_dict in users:
-                user = user_dict['user']
-                grant = user_dict['grant']
-                log.info(f"Updating user grant, {grant}, for user, {user}")
-                zitadel.update_user_grant(user, grant, "vouch_users")
         auth_url = f'https://{provider_hostname}/oauth/v2/authorize'
         token_url = f'https://{provider_hostname}/oauth/v2/token'
         user_info_url = f'https://{provider_hostname}/oidc/v1/userinfo'

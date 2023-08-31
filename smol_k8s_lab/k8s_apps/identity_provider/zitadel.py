@@ -14,6 +14,7 @@ def configure_zitadel(k8s_obj: K8s,
                       config_dict: dict,
                       api_tls_verify: bool = False,
                       argocd_hostname: str = "",
+                      vouch_hostname: str = "",
                       bitwarden: BwCLI = None):
     """
     Installs zitadel as a Argo CD Applications. If config_dict['init']['enabled']
@@ -25,10 +26,11 @@ def configure_zitadel(k8s_obj: K8s,
 
     Optional Arguments:
         argocd_hostname:  str, the hostname of Argo CD
+        vouch_hostname:   str, the hostname of vouch
         bitwarden:        BwCLI obj, [optional] contains bitwarden session
 
     If no init: Returns True if successful.
-    If init: returns [Zitadel(), user_id, user_grant_id]
+    If init AND vouch_hostname, returns vouch credentials
     """
     header("Setting up [green]Zitadel[/green], our identity management solution", "👥")
     zitadel_domain = config_dict['argo']['secret_keys']['hostname']
@@ -87,13 +89,14 @@ def configure_zitadel(k8s_obj: K8s,
         # Before initialization, we need to wait for zitadel's API to be up
         wait_for_argocd_app('zitadel')
         wait_for_argocd_app('zitadel-web-app')
-        zitadel, user_id, grant_id = initialize_zitadel(k8s_obj,
-                                                        zitadel_domain,
-                                                        api_tls_verify,
-                                                        initial_user_dict,
-                                                        argocd_hostname,
-                                                        bitwarden)
-        return zitadel, user_id, grant_id
+        vouch_dict = initialize_zitadel(k8s_obj=k8s_obj,
+                                        zitadel_hostname=zitadel_domain,
+                                        api_tls_verify=api_tls_verify,
+                                        user_dict=initial_user_dict,
+                                        argocd_hostname=argocd_hostname,
+                                        vouch_hostname=vouch_hostname,
+                                        bitwarden=bitwarden)
+        return vouch_dict
 
 
 def initialize_zitadel(k8s_obj: K8s,
@@ -101,15 +104,17 @@ def initialize_zitadel(k8s_obj: K8s,
                        api_tls_verify: bool = False,
                        user_dict: dict = {},
                        argocd_hostname: str = "",
+                       vouch_hostname: str = "",
                        bitwarden: BwCLI = None) -> Zitadel:
     """
     Sets up initial zitadel user, Argo CD client
     Arguments:
+      k8s_obj:           K8s(), kubrenetes client for creating secrets
       zitadel_hostname:  str, the hostname of Zitadel
       api_tls_verify:    bool, whether or not to verify the TLS cert on request to api
       user_dict:         dict of initial username, email, first name, last name, gender
       argocd_hostname:   str, the hostname of Argo CD
-      k8s_obj:           K8s(), kubrenetes client for creating secrets
+      vouch_hostname:    str, the hostname to use for vouch
       bitwarden:         BwCLI obj, [optional] session to use for bitwarden
 
     returns zitadel object
@@ -166,10 +171,24 @@ def initialize_zitadel(k8s_obj: K8s,
     # create zitadel admin user and grants now that the clients are setup
     header("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
-    grant_id = zitadel.create_user_grant(user_id, 'argocd_administrators')
+    roles_for_user_grant = ['argocd_administrators']
+
+    if vouch_hostname:
+        # create Vouch OIDC Application
+        log.info("Creating a Vouch application...")
+        redirect_uris = f"https://{vouch_hostname}/auth"
+        logout_uris = [f"https://{vouch_hostname}"]
+        vouch_dict = zitadel.create_application("vouch", redirect_uris, logout_uris)
+        zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
+        roles_for_user_grant.append('vouch_users')
+
+    zitadel.create_user_grant(user_id, roles_for_user_grant)
 
     # grant admin access to first user
     sub_header("creating user IAM membership with IAM_OWNER")
     zitadel.create_iam_membership(user_id, 'IAM_OWNER')
 
-    return zitadel, user_id, grant_id
+    if vouch_hostname:
+        return vouch_dict
+    else:
+        return True

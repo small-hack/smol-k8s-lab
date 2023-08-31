@@ -1,5 +1,5 @@
 """
-Small Zitadel API wrapper focused on k8s service accounts
+Small Zitadel API wrapper using k8s service accounts
 """
 
 import cryptography
@@ -191,7 +191,7 @@ class Zitadel():
         log.info(response.text)
         return response.json()['userId']
 
-    def create_user_grant(self, user_id: str, role_key: str) -> str:
+    def create_user_grant(self, user_id: str, role_keys: list) -> str:
         """
         Grants a role to non-admin a user.
 
@@ -199,14 +199,14 @@ class Zitadel():
             user_id:    ID of the user we're grants a role to
             role_key:   key of the role to assign to the user
         """
-        log.debug(f"Assiging user_id, {user_id} the role of "
-                  f"[green]{role_key}[/] in {self.project_id}")
+        log.debug(f"Assiging user_id, {user_id} the role(s) of "
+                  f"[green]{role_keys}[/] in {self.project_id}")
 
         # make sure this user has access to the new application role we setup
         # zitadel.com/docs/apis/resources/mgmt/management-service-add-user-grant
         payload = dumps({
           "projectId": self.project_id,
-          "roleKeys": [role_key]
+          "roleKeys": role_keys
         })
 
         response = request("POST",
@@ -218,31 +218,6 @@ class Zitadel():
 
         return response.json()['userGrantId']
 
-    def update_user_grant(self,
-                          user_id: str,
-                          user_grant_id: str,
-                          role_key: str) -> True:
-        """ 
-        updates an existing user's existing grant id
-        """
-        url = f"{self.api_url}users/{user_id}/grants/{user_grant_id}"
-
-        payload = dumps({
-          "projectId": self.project_id,
-          "roleKeys": [
-            "argocd_administrators",
-            role_key
-          ]
-        })
-
-        response = request("POST",
-                           url,
-                           headers=self.headers,
-                           data=payload,
-                           verify=self.verify)
-
-        log.info(response.text)
-        return True
 
     def create_iam_membership(self, user_id: str, role: str):
         """

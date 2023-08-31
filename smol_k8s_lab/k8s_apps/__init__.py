@@ -67,6 +67,9 @@ def setup_oidc_provider(k8s_obj: K8s,
 
     keycloak_enabled = keycloak_dict['enabled']
     zitadel_enabled = zitadel_dict['enabled']
+    vouch_enabled = False
+    if vouch_dict:
+        vouch_enabled = vouch_dict['enabled']
 
     # setup keycloak if we're using that for OIDC
     if keycloak_enabled:
@@ -79,39 +82,39 @@ def setup_oidc_provider(k8s_obj: K8s,
     elif zitadel_enabled:
         log.debug("Setting up zitadel")
         if zitadel_dict['init']['enabled']:
-            zitadel, user, grant = configure_zitadel(k8s_obj,
-                                                     zitadel_dict,
-                                                     api_tls_verify,
-                                                     argocd_fqdn,
-                                                     bw)
+            vouch_hostname = ''
+            if vouch_enabled:
+                vouch_hostname = vouch_dict['secret_keys']['hostname']
+            vouch_credentials = configure_zitadel(k8s_obj=k8s_obj,
+                                                  config_dict=zitadel_dict,
+                                                  api_tls_verify=api_tls_verify,
+                                                  argocd_hostname=argocd_fqdn,
+                                                  vouch_hostname=vouch_hostname,
+                                                  bitwarden=bw)
         else:
             configure_zitadel(k8s_obj, zitadel_dict)
 
-        log.debug(f"zitadel obj fresh out of configure_zitadel is {zitadel}")
-
-    if vouch_dict:
-        if vouch_dict['enabled']:
-            log.debug("Setting up vouch")
-            if keycloak_enabled:
-                configure_vouch(k8s_obj,
-                                vouch_dict,
-                                'keycloak',
-                                keycloak_dict['argo']['secret_keys']['hostname'],
-                                bw,
-                                [{'user': user}],
-                                realm)
-            elif zitadel_enabled:
-                log.debug(f"zitadel obj is {zitadel}")
-                configure_vouch(k8s_obj,
-                                vouch_dict,
-                                'zitadel',
-                                zitadel_dict['argo']['secret_keys']['hostname'],
-                                bw,
-                                [{'user': user, 'grant': grant}],
-                                "",
-                                zitadel)
-            else:
-                configure_vouch(k8s_obj, vouch_dict, '', '', bw)
+    if vouch_enabled:
+        log.debug("Setting up vouch")
+        if keycloak_enabled:
+            configure_vouch(k8s_obj=k8s_obj,
+                            vouch_config_dict=vouch_dict,
+                            oidc_provider_name='keycloak',
+                            oidc_provider_hostname=keycloak_dict['argo']['secret_keys']['hostname'],
+                            bitwarden=bw,
+                            users=[{'user': user}],
+                            realm=realm)
+        elif zitadel_enabled:
+            configure_vouch(k8s_obj=k8s_obj,
+                            vouch_config_dict=vouch_dict,
+                            oidc_provider_name='zitadel',
+                            oidc_provider_hostname=zitadel_dict['argo']['secret_keys']['hostname'],
+                            bitwarden=bw,
+                            users=[],
+                            realm="",
+                            vouch_client_creds=vouch_credentials)
+        else:
+            configure_vouch(k8s_obj, vouch_dict, '', '', bw)
     return True
 
 
