@@ -8,6 +8,7 @@ DESCRIPTION: helm install, and optionally configure, cert manager
 from smol_k8s_lab.k8s_tools.homelabHelm import helm
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
+import logging as log
 
 
 def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
@@ -24,7 +25,8 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
                          set_options={'installCRDs': 'true'})
     release.install(True)
 
-    if not email_addr:
+    if email_addr:
+        log.info("Creating ClusterIssuers for staging and production.")
         # we create a ClusterIssuer for both staging and prod
         acme_staging = "https://acme-staging-v02.api.letsencrypt.org/directory"
         for issuer in ['letsencrypt-staging', 'letsencrypt-prod']:
