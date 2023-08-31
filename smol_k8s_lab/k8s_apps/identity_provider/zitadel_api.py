@@ -291,6 +291,7 @@ class Zitadel():
         create an action for zitadel. Currently only creates one kind of action,
         a group mapper action. Returns True on success.
         """
+        log.info("Creating action...")
 
         payload = dumps({
           "name": "groupsClaim",
@@ -299,9 +300,28 @@ class Zitadel():
           "allowedToFail": True
         })
 
-        response = request("POST", self.api_url + "actions",
-                           headers=self.headers, data=payload, verify=self.verify)
+        response = request("POST",
+                           self.api_url + "actions",
+                           headers=self.headers,
+                           data=payload,
+                           verify=self.verify)
         log.info(response.text)
+
+
+        log.info("Creating action flow triggers...")
+        action_id = response.json()['id']
+        payload = dumps({"actionIds": [action_id]})
+
+        # At the moment you have to send the ID of the Trigger Type:
+        # PreUserinfoCreation=4, PreAccessTokenCreation=5
+        for trigger_type in [4,5]:
+            url = f"{self.api_url}/flows/2/trigger/{trigger_type}"
+
+            response = request("POST",
+                               url,
+                               headers=self.headers,
+                               data=payload,
+                               verify=self.verify)
         return True
 
 
