@@ -50,7 +50,8 @@ def configure_vouch(k8s_obj: K8s,
                                      realm,
                                      zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
-        preferred_domain = '\"\"\"\"'
+        # trying to create a string of ""
+        preferred_domain = '"'""'"'
 
         # this is handling the vouch-config secret
         emails = vouch_config_dict['init']['values']['emails']
@@ -88,15 +89,14 @@ def configure_vouch(k8s_obj: K8s,
                                                   auth_dict['end_session_url'])
             preferred_domain = create_custom_field("preferredDomain",
                                                    preferred_domain)
+
+            fields=[auth_url, token_url, user_info_url, callback_url, end_session_url]
+            log.info(f"vouch oauth fields are {fields}")
             # create oauth OIDC bitwarden item
             bitwarden.create_login(name='vouch-oauth-config',
                                    user=auth_dict['client_id'],
                                    password=auth_dict['client_secret'],
-                                   fields=[auth_url,
-                                           token_url,
-                                           user_info_url,
-                                           callback_url,
-                                           end_session_url])
+                                   fields=fields)
 
             domains_obj = create_custom_field("domains", domains)
             emails_obj = create_custom_field("allowList", emails)
