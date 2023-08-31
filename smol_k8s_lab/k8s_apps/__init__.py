@@ -77,7 +77,11 @@ def setup_oidc_provider(k8s_obj: K8s,
     # setup zitadel if we're using that for OIDC
     elif zitadel_enabled:
         log.debug("Setting up zitadel")
-        zitadel, user = configure_zitadel(k8s_obj, zitadel_dict, argocd_fqdn, bw)
+        if zitadel_dict['init']['enabled']:
+            zitadel, user, grant = configure_zitadel(k8s_obj,
+                                                     zitadel_dict,
+                                                     argocd_fqdn,
+                                                     bw)
         log.debug(f"zitadel obj fresh out of configure_zitadel is {zitadel}")
 
     if vouch_dict:
@@ -89,7 +93,7 @@ def setup_oidc_provider(k8s_obj: K8s,
                                 'keycloak',
                                 keycloak_dict['argo']['secret_keys']['hostname'],
                                 bw,
-                                [user],
+                                [{'user': user}],
                                 realm)
             elif zitadel_enabled:
                 log.debug(f"zitadel obj is {zitadel}")
@@ -98,7 +102,7 @@ def setup_oidc_provider(k8s_obj: K8s,
                                 'zitadel',
                                 zitadel_dict['argo']['secret_keys']['hostname'],
                                 bw,
-                                [user],
+                                [{'user': user, 'grant': grant}],
                                 "",
                                 zitadel)
             else:

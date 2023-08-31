@@ -161,9 +161,11 @@ def create_vouch_app(provider: str,
         client_secret = vouch_client_creds['client_secret']
         zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
         if users:
-            for user in users:
-                log.info(f"creating user grant for {user}")
-                zitadel.create_user_grant(user, "vouch_users")
+            for user_dict in users.items():
+                user = user_dict['user']
+                grant = user_dict['grant']
+                log.info(f"Updating user grant, {grant}, for user, {user}")
+                zitadel.update_user_grant(user, grant, "vouch_users")
         auth_url = f'https://{provider_hostname}/oauth/v2/authorize'
         token_url = f'https://{provider_hostname}/oauth/v2/token'
         user_info_url = f'https://{provider_hostname}/oidc/v1/userinfo'

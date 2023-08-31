@@ -191,7 +191,7 @@ class Zitadel():
         log.info(response.text)
         return response.json()['userId']
 
-    def create_user_grant(self, user_id: str, role_key: str) -> True:
+    def create_user_grant(self, user_id: str, role_key: str) -> str:
         """
         Grants a role to non-admin a user.
 
@@ -216,6 +216,28 @@ class Zitadel():
                            verify=self.verify)
         log.info(response.text)
 
+        return response.json()['userGrantId']
+
+    def update_user_grant(self,
+                          user_id: str,
+                          user_grant_id: str,
+                          role_key: str) -> True:
+        """ 
+        updates an existing user's existing grant id
+        """
+        url = f"{self.api_url}users/{user_id}/grants/{user_grant_id}"
+
+        payload = dumps({
+          "projectId": self.project_id,
+          "roleKeys": [
+            "argocd_administrators",
+            role_key
+          ]
+        })
+
+        response = request("POST", url, headers=self.headers, data=payload)
+
+        log.info(response.text)
         return True
 
     def create_iam_membership(self, user_id: str, role: str):

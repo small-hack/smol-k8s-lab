@@ -26,7 +26,8 @@ def configure_zitadel(k8s_obj: K8s,
         argocd_hostname:  str, the hostname of Argo CD
         bitwarden:        BwCLI obj, [optional] contains bitwarden session
 
-    Returns True if successful.
+    If no init: Returns True if successful.
+    If init: returns [Zitadel(), user_id, user_grant_id]
     """
     header("Setting up [green]Zitadel[/green], our identity management solution", "👥")
     zitadel_domain = config_dict['argo']['secret_keys']['hostname']
@@ -79,18 +80,18 @@ def configure_zitadel(k8s_obj: K8s,
     # only continue through the rest of the function if we're initializes a
     # user and argocd client in zitadel
     if not config_dict['init']['enabled']:
-        return True, False
+        return True
     else:
         initial_user_dict = config_dict['init']['values']
         # Before initialization, we need to wait for zitadel's API to be up
         wait_for_argocd_app('zitadel')
         wait_for_argocd_app('zitadel-web-app')
-        zitadel, user_id = initialize_zitadel(k8s_obj,
-                                              zitadel_domain,
-                                              initial_user_dict,
-                                              argocd_hostname,
-                                              bitwarden)
-        return zitadel, user_id
+        zitadel, user_id, grant_id = initialize_zitadel(k8s_obj,
+                                                        zitadel_domain,
+                                                        initial_user_dict,
+                                                        argocd_hostname,
+                                                        bitwarden)
+        return zitadel, user_id, grant_id
 
 
 def initialize_zitadel(k8s_obj: K8s,
@@ -161,10 +162,10 @@ def initialize_zitadel(k8s_obj: K8s,
     # create zitadel admin user and grants now that the clients are setup
     header("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
-    zitadel.create_user_grant(user_id, 'argocd_administrators')
+    grant_id = zitadel.create_user_grant(user_id, 'argocd_administrators')
 
     # grant admin access to first user
     sub_header("creating user IAM membership with IAM_OWNER")
     zitadel.create_iam_membership(user_id, 'IAM_OWNER')
 
-    return zitadel, user_id
+    return zitadel, user_id, grant_id
