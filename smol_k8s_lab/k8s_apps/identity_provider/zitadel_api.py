@@ -295,7 +295,7 @@ class Zitadel():
 
         payload = dumps({
           "name": "groupsClaim",
-          "script": "function groupsClaim(ctx, api) { if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) { return; } let grants = []; ctx.v1.user.grants.grants.forEach(claim => { claim.roles.forEach(role => { grants.push(role)  }) }) api.v1.claims.setClaim('groups', grants) }",
+          "script": "function groupsClaim(ctx, api) {\n  if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {\n    return;\n  }\n  let grants = [];\n  ctx.v1.user.grants.grants.forEach(claim => {\n    claim.roles.forEach(role => {\n      grants.push(role)\n    })\n  })\n  api.v1.claims.setClaim('groups', grants)\n}",
           "timeout": "10s",
           "allowedToFail": True
         })
@@ -305,9 +305,9 @@ class Zitadel():
                            headers=self.headers,
                            data=payload,
                            verify=self.verify)
-        log.info(response.text)
+        log.debug(response.text)
 
-        log.info("Creating action flow triggers...")
+        log.debug("Creating action flow triggers...")
         action_id = response.json()['id']
         action_payload = dumps({"actionIds": [action_id]})
         log.debug(action_payload)
@@ -316,14 +316,14 @@ class Zitadel():
         # PreUserinfoCreation=4, PreAccessTokenCreation=5
         for trigger_type in ['4', '5']:
             url = f"{self.api_url}flows/2/trigger/{trigger_type}"
-            log.info(f"url is {url}")
+            log.debug(f"url is {url}")
 
             response = request("POST",
                                url,
                                headers=self.headers,
                                data=action_payload,
                                verify=self.verify)
-            log.info(f"flows response is {response.text}")
+            log.debug(f"flows response is {response.text}")
         return True
 
 
