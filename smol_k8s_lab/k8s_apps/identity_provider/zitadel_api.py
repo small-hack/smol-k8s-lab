@@ -307,21 +307,23 @@ class Zitadel():
                            verify=self.verify)
         log.info(response.text)
 
-
         log.info("Creating action flow triggers...")
         action_id = response.json()['id']
-        payload = dumps({"actionIds": [action_id]})
+        action_payload = dumps({"actionIds": [action_id]})
+        log.debug(action_payload)
 
         # At the moment you have to send the ID of the Trigger Type:
         # PreUserinfoCreation=4, PreAccessTokenCreation=5
-        for trigger_type in [4,5]:
-            url = f"{self.api_url}/flows/2/trigger/{trigger_type}"
+        for trigger_type in ['4', '5']:
+            url = f"{self.api_url}flows/2/trigger/{trigger_type}"
+            log.info(f"url is {url}")
 
             response = request("POST",
                                url,
                                headers=self.headers,
-                               data=payload,
+                               data=action_payload,
                                verify=self.verify)
+            log.info(f"flows response is {response.text}")
         return True
 
 
