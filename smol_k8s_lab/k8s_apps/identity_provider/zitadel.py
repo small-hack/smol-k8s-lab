@@ -12,6 +12,7 @@ from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header, heade
 
 def configure_zitadel(k8s_obj: K8s,
                       config_dict: dict,
+                      api_tls_verify: bool = False,
                       argocd_hostname: str = "",
                       bitwarden: BwCLI = None):
     """
@@ -96,6 +97,7 @@ def configure_zitadel(k8s_obj: K8s,
 
 def initialize_zitadel(k8s_obj: K8s,
                        zitadel_hostname: str,
+                       api_tls_verify: bool = False,
                        user_dict: dict = {},
                        argocd_hostname: str = "",
                        bitwarden: BwCLI = None) -> Zitadel:
@@ -103,6 +105,7 @@ def initialize_zitadel(k8s_obj: K8s,
     Sets up initial zitadel user, Argo CD client
     Arguments:
       zitadel_hostname:  str, the hostname of Zitadel
+      api_tls_verify:    bool, whether or not to verify the TLS cert on request to api
       user_dict:         dict of initial username, email, first name, last name, gender
       argocd_hostname:   str, the hostname of Argo CD
       k8s_obj:           K8s(), kubrenetes client for creating secrets
@@ -118,7 +121,7 @@ def initialize_zitadel(k8s_obj: K8s,
     adm_secret_file = adm_secret['data']['zitadel-admin-sa.json']
     private_key_obj = loads(b64dec(str.encode(adm_secret_file)).decode('utf8'))
     # setup the zitadel python api wrapper
-    zitadel =  Zitadel(zitadel_hostname, private_key_obj)
+    zitadel =  Zitadel(zitadel_hostname, private_key_obj, api_tls_verify)
 
     # create our first project
     zitadel.create_project()

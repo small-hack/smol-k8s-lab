@@ -169,7 +169,15 @@ def main(config: str = "",
                                          apps.pop('infisical'),
                                          bw)
 
+            # if the global cluster issuer is set to letsencrypt-staging don't
+            # verify TLS certs in requests to APIs
+            if 'staging' in SECRETS['global_cluster_issuer']:
+                api_tls_verify = False
+            else:
+                api_tls_verify = True
+
             setup_oidc_provider(k8s_obj,
+                                api_tls_verify,
                                 apps.pop('keycloak'),
                                 apps.pop('zitadel'),
                                 apps.pop('vouch'),

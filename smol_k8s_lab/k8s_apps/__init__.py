@@ -57,6 +57,7 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
 
 
 def setup_oidc_provider(k8s_obj: K8s,
+                        api_tls_verify: bool = False,
                         keycloak_dict: dict = {},
                         zitadel_dict: dict = {},
                         vouch_dict: dict = {},
@@ -80,8 +81,12 @@ def setup_oidc_provider(k8s_obj: K8s,
         if zitadel_dict['init']['enabled']:
             zitadel, user, grant = configure_zitadel(k8s_obj,
                                                      zitadel_dict,
+                                                     api_tls_verify,
                                                      argocd_fqdn,
                                                      bw)
+        else:
+            configure_zitadel(k8s_obj, zitadel_dict)
+
         log.debug(f"zitadel obj fresh out of configure_zitadel is {zitadel}")
 
     if vouch_dict:
