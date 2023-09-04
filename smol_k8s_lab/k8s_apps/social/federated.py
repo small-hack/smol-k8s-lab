@@ -36,7 +36,12 @@ def configure_nextcloud(k8s_obj: K8s,
             access_key = '""'
         else:
             access_id = Prompt.ask("[green]Please enter the access ID for s3 backups")
-            access_key = Prompt.ask("[green]Please enter the access key for s3 backups")
+            access_key = Prompt.ask("[green]Please enter the access key for s3 backups",
+                                    password=True)
+
+        if not Prompt.confirm("[green]Do you have an existing restic repo password?"):
+            m = "[green]Please enter the restic repo password"
+            restic_repo_pass = Prompt.ask(m, password=True)
 
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
@@ -72,12 +77,14 @@ def configure_nextcloud(k8s_obj: K8s,
                                    password=nextcloud_redis_password)
 
             # backups s3 credentials creation
+            if not restic_repo_pass:
+                restic_repo_pass = bitwarden.generate()
             bitwarden.create_login(name='nextcloud-backups-credentials',
                                    item_url=nextcloud_hostname,
                                    user=access_id,
                                    password=access_key,
                                    fields=[create_custom_field('resticRepoPassword',
-                                                               bitwarden.generate())])
+                                                               restic_repo_pass)])
         else:
             # these are standard k8s secrets
             token = create_password()
@@ -103,10 +110,12 @@ def configure_nextcloud(k8s_obj: K8s,
                                   {"password": nextcloud_redis_password})
 
             # backups s3 credentials creation
+            if not restic_repo_pass:
+                restic_repo_pass = create_password()
             k8s_obj.create_secret('nextcloud-backups-credentials', 'nextcloud',
                                   {"applicationKeyId": access_id,
                                    "applicationKey": access_key,
-                                   "resticRepoPassword": create_password()})
+                                   "resticRepoPassword": restic_repo_pass})
 
     install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
     return True
