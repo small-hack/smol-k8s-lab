@@ -11,8 +11,14 @@ def configure_nextcloud(k8s_obj: K8s,
                         bitwarden: BwCLI = None) -> bool:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
+    required:
+        k8s_obj     - K8s() object with cluster credentials
+        config_dict - dictionary with at least argocd key and init key
+    optional:
+        bitwarden   - BwCLI() object with session token
     """
-    header("Setting up [green]Nextcloud[/green], so you can self host your files", '🩵')
+    header("Setting up [green]Nextcloud[/], so you can self host your files",
+           '🩵')
     if config_dict['init']['enabled']:
         secrets = config_dict['argo']['secret_keys']
         nextcloud_hostname = secrets['hostname']
@@ -47,7 +53,7 @@ def configure_nextcloud(k8s_obj: K8s,
             sub_header("Creating secrets in Bitwarden")
             token = bitwarden.generate()
             password = bitwarden.generate()
-            serverinfo_token_obj = create_custom_field("serverinfo_token", token)
+            serverinfo_token_obj = create_custom_field("serverInfoToken", token)
             smtpUsername = create_custom_field("smtpUsername", mail_user)
             smtpPassword = create_custom_field("smtpPassword", mail_pass)
             bitwarden.create_login(name='nextcloud-admin-credentials',
@@ -93,7 +99,7 @@ def configure_nextcloud(k8s_obj: K8s,
             k8s_obj.create_secret('nextcloud-admin-credentials', 'nextcloud',
                                   {"username": username,
                                    "password": password,
-                                   "serverinfo_token": token,
+                                   "serverInfoToken": token,
                                    "smtpUsername": mail_user,
                                    "smtpPassword": mail_pass})
 
