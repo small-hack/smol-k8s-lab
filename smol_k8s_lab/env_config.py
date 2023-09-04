@@ -138,21 +138,48 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
                 default_secrets = argo_section.get('secret_keys', '')
                 secrets = argo_section.get('secret_keys', '')
 
+                # if secret keys are not present in existing config or default
+                # config, continue the loop to the next app
                 if not secrets and not default_secrets:
                     continue
-                if default_secrets:
+
+                # if the secret keys don't exist in the existing config but do
+                # exist in the default config, use the default config secrets
+                if default_secrets and not secrets:
                     apps[app_key]['argo']['secret_keys'] = default_secrets
                     secrets = default_secrets
 
                 # iterate through each secret for the app
-                for secret_key, secret in default_secrets.items():
+                for secret_key, secret in sorted(default_secrets.items()):
                     # create app k8s secret key like argocd_hostname
                     k8s_secret_key = "_".join([app_key, secret_key])
+                    # this is so we don't prompt for values we don't need for 
+                    # backup types we don't use
+                    if secret and k8s_secret_key == 'nextcloud_backup_method':
+                        backup_method = secret
 
                     # if the secret is empty, prompt for a new one
                     if not secret:
                         m = f"[green]Please enter a {secret_key} for {app_key}"
-                        res = Prompt.ask(m)
+
+                        # this nextcloud block handles differnet backup types
+                        if app_key == 'nextcloud':
+                            if k8s_secret_key == 'nextcloud_backup_method':
+                                res, backup_method = Prompt.ask(m, choices=['s3',
+                                                                            'local'])
+                            elif 'nextcloud_backup_s3' in k8s_secret_key:
+                                if backup_method == 'local':
+                                    res = '""'
+                                else:
+                                    res = Prompt.ask(m)
+                            elif k8s_secret_key == 'nextcloud_backup_mount_path':
+                                if backup_method == 's3':
+                                    res = '""'
+                                else:
+                                    res = Prompt.ask(m)
+                        else:
+                            res = Prompt.ask(m)
+
                         return_secrets[secret_key] = res
                         apps[app_key]['argo']['secret_keys'][secret_key] = res
                         continue

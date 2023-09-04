@@ -30,6 +30,14 @@ def configure_nextcloud(k8s_obj: K8s,
         m = f"[green]Please enter the SMTP password of {mail_user} for nextcloud"
         mail_pass = Prompt.ask(m, password=True)
 
+        # configure backups
+        if secrets['backup_method'] == 'local':
+            access_id = '""'
+            access_key = '""'
+        else:
+            access_id = Prompt.ask("[green]Please enter the access ID for s3 backups")
+            access_key = Prompt.ask("[green]Please enter the access key for s3 backups")
+
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
             token = bitwarden.generate()
@@ -44,6 +52,7 @@ def configure_nextcloud(k8s_obj: K8s,
                                    fields=[serverinfo_token_obj, smtpUsername,
                                            smtpPassword])
 
+            # postgres db credentials creation
             nextcloud_pgsql_password = create_custom_field('nextcloudPassword',
                                                            bitwarden.generate())
             nextcloud_pgsql_admin_password = create_custom_field('postgresPassword',
@@ -55,15 +64,25 @@ def configure_nextcloud(k8s_obj: K8s,
                                    fields=[nextcloud_pgsql_password,
                                            nextcloud_pgsql_admin_password])
 
+            # redis db credentials creation
             nextcloud_redis_password = bitwarden.generate()
             bitwarden.create_login(name='nextcloud-redis-credentials',
                                    item_url=nextcloud_hostname,
                                    user='nextcloud',
                                    password=nextcloud_redis_password)
+
+            # backups s3 credentials creation
+            bitwarden.create_login(name='nextcloud-backups-credentials',
+                                   item_url=nextcloud_hostname,
+                                   user=access_id,
+                                   password=access_key,
+                                   fields=[create_custom_field('resticRepoPassword',
+                                                               bitwarden.generate())])
         else:
             # these are standard k8s secrets
             token = create_password()
             password = create_password()
+            # nextcloud admin credentials
             k8s_obj.create_secret('nextcloud-admin-credentials', 'nextcloud',
                                   {"username": username,
                                    "password": password,
@@ -71,15 +90,23 @@ def configure_nextcloud(k8s_obj: K8s,
                                    "smtpUsername": mail_user,
                                    "smtpPassword": mail_pass})
 
+            # postgres db credentials creation
             nextcloud_pgsql_password = create_password()
             nextcloud_pgsql_admin_password = create_password()
             k8s_obj.create_secret('nextcloud-pgsql-credentials', 'nextcloud',
                                   {"nextcloudPassword": nextcloud_pgsql_password,
                                    "postgresPassword": nextcloud_pgsql_admin_password})
 
+            # redis db credentials creation
             nextcloud_redis_password = create_password()
             k8s_obj.create_secret('nextcloud-redis-credentials', 'nextcloud',
                                   {"password": nextcloud_redis_password})
+
+            # backups s3 credentials creation
+            k8s_obj.create_secret('nextcloud-backups-credentials', 'nextcloud',
+                                  {"applicationKeyId": access_id,
+                                   "applicationKey": access_key,
+                                   "resticRepoPassword": create_password()})
 
     install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
     return True
