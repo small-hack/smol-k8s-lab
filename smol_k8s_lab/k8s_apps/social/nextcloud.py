@@ -68,16 +68,13 @@ def configure_nextcloud(k8s_obj: K8s,
                                            smtpPassword])
 
             # postgres db credentials creation
-            nextcloud_pgsql_password = create_custom_field('nextcloudPassword',
-                                                           bitwarden.generate())
-            nextcloud_pgsql_admin_password = create_custom_field('postgresPassword',
-                                                                 bitwarden.generate())
+            pgsql_admin_password = create_custom_field('postgresAdminPassword',
+                                                       bitwarden.generate())
             bitwarden.create_login(name='nextcloud-pgsql-credentials',
                                    item_url=nextcloud_hostname,
                                    user='nextcloud',
                                    password='none',
-                                   fields=[nextcloud_pgsql_password,
-                                           nextcloud_pgsql_admin_password])
+                                   fields=[pgsql_admin_password])
 
             # redis credentials creation
             nextcloud_redis_password = bitwarden.generate()
@@ -109,11 +106,12 @@ def configure_nextcloud(k8s_obj: K8s,
                                    "smtpPassword": mail_pass})
 
             # postgres db credentials creation
-            nextcloud_pgsql_password = create_password()
-            nextcloud_pgsql_admin_password = create_password()
+            pgsql_nextcloud_password = create_password()
+            pgsql_admin_password = create_password()
             k8s_obj.create_secret('nextcloud-pgsql-credentials', 'nextcloud',
-                                  {"nextcloudPassword": nextcloud_pgsql_password,
-                                   "postgresPassword": nextcloud_pgsql_admin_password})
+                                  {"nextcloudUsername": 'nextcloud',
+                                   "nextcloudPassword": pgsql_nextcloud_password,
+                                   "postgresPassword": pgsql_admin_password})
 
             # redis credentials creation
             nextcloud_redis_password = create_password()
