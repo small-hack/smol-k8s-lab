@@ -75,7 +75,7 @@ def configure_nextcloud(k8s_obj: K8s,
                                    fields=[nextcloud_pgsql_password,
                                            nextcloud_pgsql_admin_password])
 
-            # redis db credentials creation
+            # redis credentials creation
             nextcloud_redis_password = bitwarden.generate()
             bitwarden.create_login(name='nextcloud-redis-credentials',
                                    item_url=nextcloud_hostname,
@@ -110,7 +110,7 @@ def configure_nextcloud(k8s_obj: K8s,
                                   {"nextcloudPassword": nextcloud_pgsql_password,
                                    "postgresPassword": nextcloud_pgsql_admin_password})
 
-            # redis db credentials creation
+            # redis credentials creation
             nextcloud_redis_password = create_password()
             k8s_obj.create_secret('nextcloud-redis-credentials', 'nextcloud',
                                   {"password": nextcloud_redis_password})
