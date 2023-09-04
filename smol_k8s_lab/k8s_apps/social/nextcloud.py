@@ -32,6 +32,7 @@ def configure_nextcloud(k8s_obj: K8s,
             username = Prompt.ask(m)
 
         # configure SMTP
+        mail_host = Prompt.ask("[green]Please enter the SMTP host for nextcoud")
         mail_user = Prompt.ask("[green]Please enter the SMTP user for nextcloud")
         m = f"[green]Please enter the SMTP password of {mail_user} for nextcloud"
         mail_pass = Prompt.ask(m, password=True)
@@ -56,11 +57,14 @@ def configure_nextcloud(k8s_obj: K8s,
             serverinfo_token_obj = create_custom_field("serverInfoToken", token)
             smtpUsername = create_custom_field("smtpUsername", mail_user)
             smtpPassword = create_custom_field("smtpPassword", mail_pass)
+            smtpHost = create_custom_field("smtpHost", mail_host)
             bitwarden.create_login(name='nextcloud-admin-credentials',
                                    item_url=nextcloud_hostname,
                                    user=username,
                                    password=password,
-                                   fields=[serverinfo_token_obj, smtpUsername,
+                                   fields=[serverinfo_token_obj,
+                                           smtpHost,
+                                           smtpUsername,
                                            smtpPassword])
 
             # postgres db credentials creation
@@ -100,6 +104,7 @@ def configure_nextcloud(k8s_obj: K8s,
                                   {"username": username,
                                    "password": password,
                                    "serverInfoToken": token,
+                                   "smtpHost": mail_host,
                                    "smtpUsername": mail_user,
                                    "smtpPassword": mail_pass})
 
