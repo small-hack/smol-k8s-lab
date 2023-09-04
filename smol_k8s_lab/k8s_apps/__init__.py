@@ -20,7 +20,9 @@ from .identity_provider.vouch import configure_vouch
 from .metallb import configure_metallb
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
-from .social.federated import configure_matrix, configure_mastodon, configure_nextcloud
+from .social.matrix import configure_matrix
+from .social.mastodon import configure_mastodon
+from .social.nextcloud import configure_nextcloud
 
 
 def setup_k8s_secrets_management(k8s_obj: K8s,
