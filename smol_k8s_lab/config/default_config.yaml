@@ -290,6 +290,8 @@ apps:
   k8up:
     enabled: true
     argo:
+      secret_keys:
+        timezone: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
