@@ -17,7 +17,7 @@ def configure_metallb(address_pool: list = []):
     an IPaddressPool and L2Advertisement. If address_pool is not passed in or
     is "", then we don't create IPaddressPool or L2Advertisement
     """
-    url = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.10/config/"
+    url = ("https://raw.githubusercontent.com/metallb/metallb/v0.13.11/config/"
            "manifests/metallb-native.yaml")
 
     # install manifest and wait
