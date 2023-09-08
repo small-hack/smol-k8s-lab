@@ -138,6 +138,12 @@ def setup_base_apps(k8s_obj: K8s,
     prepare_helm(k8s_distro, metallb_enabled, cilium_enabled, argo_enabled,
                  argo_secrets_enabled)
 
+    # needed for network policy editor and hubble
+    if cilium_enabled:
+        header("Installing [green]cilium[/green] so we have networking tools", '🛜')
+        if cilium_dict['init']['enabled']:
+            configure_cilium()
+
     # needed for metal (non-cloud provider) installs
     if metallb_enabled:
         header("Installing [green]metallb[/green] so we have an IP address pool.", '🛜')
@@ -148,12 +154,6 @@ def setup_base_apps(k8s_obj: K8s,
                 cidr = Prompt.ask(m).split(',')
 
             configure_metallb(cidr)
-
-    # needed for network policy editor and hubble
-    if cilium_enabled:
-        header("Installing [green]cilium[/green] so we have networking tools", '🛜')
-        if cilium_dict['init']['enabled']:
-            configure_cilium()
 
     # ingress controller: so we can accept traffic from outside the cluster
     # nginx just because that's most supported, treafik support may be added later
