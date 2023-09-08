@@ -8,7 +8,7 @@ DESCRIPTION: installs helm repos, updates them, and installs charts for metallb,
 """
 import logging as log
 from rich.prompt import Prompt
-from ..k8s_tools.homelabHelm import prepare_helm
+from ..k8s_tools.helm import prepare_helm
 from ..k8s_tools.k8s_lib import K8s
 from ..utils.bw_cli import BwCLI
 from ..utils.pretty_printing.console_logging import header
@@ -18,6 +18,7 @@ from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.vouch import configure_vouch
 from .networking.metallb import configure_metallb
+from .networking.cilium import configure_cilium
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
 from .social.matrix import configure_matrix
@@ -123,6 +124,7 @@ def setup_oidc_provider(k8s_obj: K8s,
 def setup_base_apps(k8s_obj: K8s,
                     k8s_distro: str,
                     metallb_dict: dict = {},
+                    cilium_dict: dict = {},
                     cert_manager_dict: dict = {},
                     argo_enabled: bool = False,
                     argo_secrets_enabled: bool = False) -> bool:
@@ -131,6 +133,7 @@ def setup_base_apps(k8s_obj: K8s,
     All Needed for getting Argo CD up and running.
     """
     metallb_enabled = metallb_dict['enabled']
+    cilium_enabled = cilium_dict['enabled']
     # make sure helm is installed and the repos are up to date
     prepare_helm(k8s_distro, metallb_enabled, argo_enabled, argo_secrets_enabled)
 
@@ -144,6 +147,12 @@ def setup_base_apps(k8s_obj: K8s,
                 cidr = Prompt.ask(m).split(',')
 
             configure_metallb(cidr)
+
+    # needed for network policy editor and hubble
+    if cilium_enabled:
+        header("Installing [green]cilium[/green] so we have networking tools", '🛜')
+        if cilium_dict['init']['enabled']:
+            configure_cilium()
 
     # ingress controller: so we can accept traffic from outside the cluster
     # nginx just because that's most supported, treafik support may be added later

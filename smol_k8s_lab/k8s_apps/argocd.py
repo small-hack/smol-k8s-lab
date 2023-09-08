@@ -9,7 +9,7 @@ import bcrypt
 from os import path
 import yaml
 from ..constants import XDG_CACHE_DIR
-from ..k8s_tools.homelabHelm import helm
+from ..k8s_tools.helm import Helm
 from ..k8s_tools.k8s_lib import K8s
 from ..utils.bw_cli import BwCLI
 from ..utils.subproc import subproc
@@ -35,7 +35,7 @@ def configure_argocd(k8s_obj: K8s,
            "🦑")
     release_dict = {'release_name': 'argo-cd', 'namespace': 'argocd'}
 
-    release = helm.chart(**release_dict)
+    release = Helm.chart(**release_dict)
     already_installed = release.check_existing()
     if not already_installed:
         # this is the base python dict for the values.yaml that is created below

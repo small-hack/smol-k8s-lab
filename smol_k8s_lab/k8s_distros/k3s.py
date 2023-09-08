@@ -15,6 +15,7 @@ from ..utils.subproc import subproc
 
 
 def install_k3s_cluster(disable_servicelb: bool,
+                        cilium_enabled: bool,
                         additonal_arguments: list,
                         max_pods: int):
     """
@@ -46,15 +47,19 @@ def install_k3s_cluster(disable_servicelb: bool,
     cmd = ('./install.sh '
            '--disable=traefik '
            '--write-kubeconfig-mode=700 '
-           '--secrets-encryption --kubelet-arg=config=/etc/rancher/k3s/kubelet.config')
+           '--secrets-encryption '
+           '--kubelet-arg=config=/etc/rancher/k3s/kubelet.config')
 
     if disable_servicelb:
         cmd += ' --disable=servicelb'
 
+    if cilium_enabled:
+        cmd += ' --flannel-backend=none --disable-network-policy'
+
     # add additional arguments to k3s if there are any
     if additonal_arguments:
         for argument in additonal_arguments:
-            cmd += ' ' + argument
+            cmd += f" {argument}"
 
     subproc([cmd], spinner=False)
 

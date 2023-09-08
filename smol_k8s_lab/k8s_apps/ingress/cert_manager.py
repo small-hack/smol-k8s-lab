@@ -5,7 +5,7 @@ DESCRIPTION: helm install, and optionally configure, cert manager
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-from smol_k8s_lab.k8s_tools.homelabHelm import helm
+from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
 import logging as log
@@ -18,7 +18,7 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
     """
 
     # install chart and wait
-    release = helm.chart(release_name='cert-manager',
+    release = Helm.chart(release_name='cert-manager',
                          chart_name='jetstack/cert-manager',
                          chart_version="1.12.3",
                          namespace='ingress',

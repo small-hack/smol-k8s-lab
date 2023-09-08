@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
 AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
-USAGE: import homelabHelm as helm
 """
 from collections import OrderedDict
 import logging as log
@@ -10,7 +9,7 @@ from ..utils.subproc import subproc
 from ..utils.pretty_printing.console_logging import header, sub_header
 
 
-class helm:
+class Helm:
     """
     Local helm management of repos:
     use helm to add/remove/update repos and upgrade/(un)install charts

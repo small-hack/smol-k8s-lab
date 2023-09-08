@@ -32,7 +32,8 @@ def check_contexts(k8s_distro: str):
 
 def create_k8s_distro(k8s_distro: str,
                       distro_metadata: dict = {},
-                      metallb_enabled: bool = True) -> True:
+                      metallb_enabled: bool = True,
+                      cilium_enabled: bool = False) -> True:
     """
     Install a specific distro of k8s
     Arguments:
@@ -55,7 +56,7 @@ def create_k8s_distro(k8s_distro: str,
         from .k3s import install_k3s_cluster
         extra_args = distro_metadata.get('extra_args', [])
         max_pods = distro_metadata.get('max_pods', 200)
-        install_k3s_cluster(metallb_enabled, extra_args, max_pods)
+        install_k3s_cluster(metallb_enabled, cilium_enabled, extra_args, max_pods)
     # curently unsupported - in alpha state
     elif k8s_distro == "k3d":
         from .k3d import install_k3d_cluster

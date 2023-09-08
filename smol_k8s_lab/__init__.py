@@ -137,18 +137,21 @@ def main(config: str = "",
         apps = USR_CFG['apps']
         # check immediately if metallb is enabled
         metallb_enabled = apps['metallb']['enabled']
+        # check immediately if cilium is enabled
+        cilium_enabled = apps['cilium']['enabled']
 
         # install the actual KIND, k0s, k3s, or k3d (experimental) cluster
-        create_k8s_distro(distro, metadata, metallb_enabled)
+        create_k8s_distro(distro, metadata, metallb_enabled, cilium_enabled)
 
         argo_enabled = apps['argo_cd']['enabled']
 
         k8s_obj = K8s()
 
-        # installs all the base apps: metallb, ingess-nginx, and cert-manager
+        # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager
         setup_base_apps(k8s_obj,
                         distro,
                         apps['metallb'],
+                        apps['cilium'],
                         apps['cert_manager'],
                         argo_enabled,
                         apps['argo_cd_appset_secret_plugin']['enabled'])
