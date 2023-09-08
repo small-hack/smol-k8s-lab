@@ -126,11 +126,13 @@ class Helm:
 
 def add_default_repos(k8s_distro: str,
                       metallb: bool = False,
+                      cilium: bool = False,
                       argo: bool = False,
                       argo_secrets: bool = False) -> bool:
     """
     Add all the default helm chart repos:
     - metallb is for loadbalancing and assigning ips, on metal...
+    - cilium is for networking policy management
     - ingress-nginx allows us to do ingress, so access outside the cluster
     - jetstack is for cert-manager for TLS certs
     - argo is argoCD to manage k8s resources in the future through a gui
@@ -140,6 +142,10 @@ def add_default_repos(k8s_distro: str,
     # metallb comes first, but may be skipped
     if metallb:
         repos['metallb'] = 'https://metallb.github.io/metallb'
+
+    # cilium comes first, but may be skipped
+    if cilium:
+        repos['cilium'] = 'https://helm.cilium.io/'
 
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
@@ -156,13 +162,14 @@ def add_default_repos(k8s_distro: str,
         repos.pop('ingress-nginx')
 
     # install and update any repos needed
-    helm.repo(repos).add()
+    Helm.repo(repos).add()
     return True
 
 
 def prepare_helm(k8s_distro: str,
                  argo: bool = False,
                  metallb: bool = True,
+                 cilium: bool = False,
                  argo_app_set: bool = False) -> bool:
     """
     get helm installed if needed, and then install/update all the helm repos
@@ -175,5 +182,5 @@ def prepare_helm(k8s_distro: str,
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, metallb, argo, argo_app_set)
+    add_default_repos(k8s_distro, metallb, cilium, argo, argo_app_set)
     return True

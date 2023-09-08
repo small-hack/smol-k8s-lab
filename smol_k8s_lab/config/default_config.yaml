@@ -122,6 +122,27 @@ apps:
 
   # all apps below this point are optional
   # ---------------------------------------------------------------------------
+  cilium:
+    # enable cilium which gives you a more comprehensive networking map
+    enabled: true
+    # Initialize of the app through smol-k8s-lab
+    init:
+      enabled: true
+    argo:
+      secret_keys:
+        hostname: ""
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "alpha/cilium/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "cilium"
+      # source repos for Argo CD cilium Project
+      project_source_repos:
+        - "https://helm.cilium.io/"
+
   metallb:
     # enable metallb which helps expose IP addresses for loadbalancers on metal
     # if you're on a vm or container where you can't get an IP, disable this

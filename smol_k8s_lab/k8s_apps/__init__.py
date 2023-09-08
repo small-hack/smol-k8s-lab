@@ -135,7 +135,8 @@ def setup_base_apps(k8s_obj: K8s,
     metallb_enabled = metallb_dict['enabled']
     cilium_enabled = cilium_dict['enabled']
     # make sure helm is installed and the repos are up to date
-    prepare_helm(k8s_distro, metallb_enabled, argo_enabled, argo_secrets_enabled)
+    prepare_helm(k8s_distro, metallb_enabled, cilium_enabled, argo_enabled,
+                 argo_secrets_enabled)
 
     # needed for metal (non-cloud provider) installs
     if metallb_enabled:
