@@ -6,7 +6,8 @@ DESCRIPTION: configures metallb
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 import logging as log
-from ..k8s_tools.kubernetes_util import apply_custom_resources, apply_manifests
+from smol_k8s_lab.k8s_tools.kubernetes_util import (apply_custom_resources,
+                                                    apply_manifests)
 
 
 def configure_metallb(address_pool: list = []):

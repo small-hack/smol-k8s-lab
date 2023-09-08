@@ -17,7 +17,7 @@ from .ingress.cert_manager import configure_cert_manager
 from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.vouch import configure_vouch
-from .metallb import configure_metallb
+from .networking.metallb import configure_metallb
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
 from .social.matrix import configure_matrix
