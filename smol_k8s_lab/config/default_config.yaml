@@ -124,7 +124,7 @@ apps:
   # ---------------------------------------------------------------------------
   cilium:
     # enable cilium which gives you a more comprehensive networking map
-    enabled: true
+    enabled: false
     # Initialize of the app through smol-k8s-lab
     init:
       enabled: true
