@@ -142,7 +142,7 @@ def setup_base_apps(k8s_obj: K8s,
     if cilium_enabled:
         header("Installing [green]cilium[/green] so we have networking tools", '🛜')
         if cilium_dict['init']['enabled']:
-            configure_cilium()
+            configure_cilium(cilium_dict)
 
     # needed for metal (non-cloud provider) installs
     if metallb_enabled:
