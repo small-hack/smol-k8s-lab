@@ -11,3 +11,6 @@
 smol_k8s_lab.egg-info/**
 dist/**
 build/**
+
+# ignore any local env testing
+.env

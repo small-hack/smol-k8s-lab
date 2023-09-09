@@ -13,9 +13,9 @@ from shutil import which
 from socket import gethostname
 import stat
 
-from ..subproc import subproc, simple_loading_bar
-from ..env_config import USER, KUBECONFIG
-from ..console_logging import sub_header
+from ..utils.subproc import subproc, simple_loading_bar
+from ..constants import USER, KUBECONFIG
+from ..pretty_printing.console_logging import sub_header
 
 
 HOSTNAME = gethostname()
@@ -74,7 +74,7 @@ def install_k0s_cluster():
     chown_config = f'sudo chown {USER}: {KUBECONFIG}'
     subproc([chmod_config, chown_config], spinner=False)
 
-    return
+    return True
 
 
 def uninstall_k0s():
@@ -82,8 +82,7 @@ def uninstall_k0s():
     Stop the k0s cluster, then remove all associated resources.
     """
     if which('k0s'):
-        subproc(['sudo k0s stop'], error_ok=True)
-        subproc(['sudo k0s reset'], error_ok=True)
+        subproc(['sudo k0s stop', 'sudo k0s reset'], error_ok=True)
     else:
         log.debug("K0s is already uninstalled.")
         sub_header("K0s is already uninstalled.", False, False)
