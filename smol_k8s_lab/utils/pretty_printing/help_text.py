@@ -41,8 +41,8 @@ def options_help():
         'Delete the existing cluster.',
 
         'setup':
-        'Install/update extra tools such as kubectl, krew, k9s, helm, and '
-        'more via brew.',
+        'Install/update extra tools such as argocd, cilium-cli, helm, k9s, krew, '
+        'kubectl, and more via brew.',
 
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
