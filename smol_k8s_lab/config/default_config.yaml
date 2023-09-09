@@ -346,7 +346,7 @@ apps:
         first_name: ""
         last_name: ""
     argo:
-      # secrelast_name ts keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
         hostname: ""
         mail_hostname: ""
@@ -362,6 +362,24 @@ apps:
       # source repos for Argo CD App Project (in addition to argo.repo)
       project_source_repos:
         - "registry-1.docker.io"
+
+  kepler:
+    enabled: false
+    # Initialization of the app through smol-k8s-lab
+    init:
+      enabled: true
+    argo:
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "kepler/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "kepler"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - "https://sustainable-computing-io.github.io/kepler-helm-chart"
 
   kyverno:
     # enable kyverno, for k8s native policy management
@@ -444,6 +462,22 @@ apps:
       project_source_repos:
         - "registry-1.docker.io"
         - "https://jessebot.github.io/matrix-chart"
+  minio:
+    enabled: false
+    # Initialization of the app through smol-k8s-lab
+    init:
+      enabled: true
+    argo:
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "minio/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "minio"
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project_source_repos: []
 
   nextcloud:
     # enable nextcloud to stand up a nice little self hosted file server
