@@ -2,9 +2,8 @@
 layout: default
 title: K8up
 description: "Quick notes on K8up"
-grand_parent: Notes
 parent: Apps on K8s
-permalink: /notes/apps/k8up
+permalink: /apps/k8up
 ---
 
 ## K8up

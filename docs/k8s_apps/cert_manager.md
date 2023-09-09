@@ -2,9 +2,8 @@
 layout: default
 title: cert-manager
 description: "cert-manager notes"
-grand_parent: Notes
 parent: Apps on K8s
-permalink: /notes/apps/cert-manager
+permalink: /apps/cert-manager
 ---
 
 ## Cert Manager

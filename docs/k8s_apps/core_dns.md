@@ -2,9 +2,8 @@
 layout: default
 title: CoreDNS
 description: "Troubleshooting CoreDNS notes"
-grand_parent: Notes
 parent: Apps on K8s
-permalink: /notes/apps/coredns
+permalink: /apps/coredns
 ---
 
 ### Troubleshooting hellish networking issues with coredns

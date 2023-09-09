@@ -2,12 +2,11 @@
 layout: default
 title: MetalLB
 description: "Troubleshooting MetalLB notes"
-grand_parent: Notes
 parent: Apps on K8s
-permalink: /notes/apps/metallb
+permalink: /apps/metallb
 ---
 
-## Assigning IPs 
+## Assigning IPs
 Running into issues with metallb assigning IPs, but them some of them not working with nginx-ingress controller? This person explained it really well, but it required hostnetwork to be set on the nginx-ingress chart values.yml. Check out thier guide [here](https://ericsmasal.com/2021/08/nginx-ingress-load-balancer-and-metallb/).
 
 ## Why am I getting deprecation notices on certain apps?
