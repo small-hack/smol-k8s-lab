@@ -41,6 +41,35 @@ smol-k8s-lab --help
 ### Configuration
 We've got a [Quickstart guide](https://small-hack.github.io/smol-k8s-lab/quickstart) for you to jump right in :)
 
+Sneak peak... You can create any application you already have in Argo CD by following a simple application schema like this:
+
+```yaml
+apps:
+  # name of application to create in Argo CD
+  cert_manager:
+    # if set to false, we ignore this app
+    enabled: true
+    argo:
+      # secret keys to pass to Argo CD Application Set Generator
+      secret_keys:
+        # Used for letsencrypt-staging, to generate certs
+        email: ""
+      # If set to "", we'll instead use the repo, path, ref, namespace, and project_source_repos
+      # else we'll skip installing this app b/c its part of another app of apps with this name.
+      part_of_app_of_apps: ""
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "ingress/cert-manager/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "ingress"
+      # source repos for cert-manager CD App Project (in addition to argo.repo)
+      project_source_repos:
+        - https://charts.jetstack.io
+```
+
 ## Under the hood
 Note: this project is not officially afilliated with any of the below tooling or applications.
 
