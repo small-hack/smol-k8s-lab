@@ -91,7 +91,7 @@ def configure_argocd(k8s_obj: K8s,
         release.install(True)
 
     if plugin_secret_creation:
-        configure_secret_plugin_generator(secret_dict)
+        configure_secret_plugin_generator(k8s_obj, secret_dict)
 
     # setup Argo CD to talk directly to k8s
     subproc(['kubectl config set-context --current --namespace=argocd',
