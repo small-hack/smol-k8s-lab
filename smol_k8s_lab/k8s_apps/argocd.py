@@ -87,7 +87,7 @@ def configure_argocd(k8s_obj: K8s,
         release_dict['chart_name'] = 'argo-cd/argo-cd'
         release_dict['chart_version'] = '5.45.0'
 
-        release = helm.chart(**release_dict)
+        release = Helm.chart(**release_dict)
         release.install(True)
 
     if plugin_secret_creation:
@@ -109,7 +109,7 @@ def configure_argocd(k8s_obj: K8s,
 
         # install the helm chart :)
         chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
-        release = helm.chart(release_name='argocd-appset-secret-plugin',
+        release = Helm.chart(release_name='argocd-appset-secret-plugin',
                              chart_name=chart_name,
                              chart_version='0.4.0',
                              namespace='argocd',
