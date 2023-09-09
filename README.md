@@ -4,7 +4,7 @@
     height="30"
     width="0px"
   />
-smol k8s lab 🧸 <sub>Now with more :squid:</sub>
+smol k8s lab 🧸 <sup><sub>Now with more :squid:</sub></sup>
 </h2>
 
 <p align="center">
