@@ -1,53 +1,51 @@
 #!/usr/bin/env python3.11
 """
            NAME: smol-k8s-lab
-    DESCRIPTION: Works with k3s and KinD
+    DESCRIPTION: Works with k3s and KinD (k0s and k3d are experimental)
          AUTHOR: jessebot(AT)linux(d0t)com
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
 
-from click import option, argument, command, Choice
+from click import option, command
 import logging
 from os import path
-from pathlib import Path
-from rich.panel import Panel
 from rich.logging import RichHandler
+from rich.panel import Panel
 from sys import exit
 
 # custom libs and constants
-from .console_logging import CONSOLE, header, sub_header
-from .env_config import check_os_support, HOME_DIR, USR_CONFIG_FILE, VERSION
-from .env_config import XDG_CACHE_DIR, KUBECONFIG
-from .help_text import RichCommand, options_help
-
+from .env_config import check_os_support, process_configs
+from .constants import KUBECONFIG, HOME_DIR, INITIAL_USR_CONFIG, VERSION
+from .k8s_apps import (setup_oidc_provider, setup_base_apps,
+                       setup_k8s_secrets_management, setup_federated_apps)
+from .k8s_distros import create_k8s_distro, delete_cluster
+from .k8s_tools.argocd_util import install_with_argocd
+from .k8s_tools.k8s_lib import K8s
+from .k8s_tools.k9s import run_k9s
+from .utils.bw_cli import BwCLI
+from .utils.pretty_printing.console_logging import CONSOLE, sub_header, header
+from .utils.pretty_printing.help_text import RichCommand, options_help
 
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
-SUPPORTED_DISTROS = ['k0s', 'k3s', 'kind']
 
 
-def setup_logger(level="", log_file=""):
+def process_log_config(log_dict: dict = {'log':
+                                         {'level': 'warn', 'file': None}}):
     """
-    Sets up rich logger for the entire project.
-    (ᐢ._.ᐢ) <---- who is he? :3
+    Sets up rich logger for the entire project. (ᐢ._.ᐢ) <---- who is he? :3
     Returns logging.getLogger("rich")
     """
     # determine logging level
-    if not level:
-        if USR_CONFIG_FILE and 'log' in USR_CONFIG_FILE:
-            level = USR_CONFIG_FILE['log']['level']
-        else:
-            level = 'info'
-
+    level = log_dict.get('level', 'warn')
     log_level = getattr(logging, level.upper(), None)
 
     # these are params to be passed into logging.basicConfig
     opts = {'level': log_level, 'format': "%(message)s", 'datefmt': "[%X]"}
 
-    # we only log to a file if one was passed into config.yaml or the cli
-    if not log_file:
-        if USR_CONFIG_FILE:
-            log_file = USR_CONFIG_FILE['log'].get('file', None)
+    # we only log to a file if one was passed into config.yaml
+    # determine logging level
+    log_file = log_dict.get('file', None)
 
     # rich typically handles much of this but we don't use rich with files
     if log_file:
@@ -75,84 +73,20 @@ def setup_logger(level="", log_file=""):
         return logging.getLogger("rich")
 
 
-def install_k8s_distro(k8s_distro=""):
-    """
-    Install a specific distro of k8s
-    Takes one variable:
-        k8s_distro - string. options: 'k0s', 'k3s', or 'kind'
-    Returns True
-    """
-    if k8s_distro == "kind":
-        from .k8s_distros.kind import install_kind_cluster
-        install_kind_cluster()
-    elif k8s_distro == "k3s":
-        from .k8s_distros.k3s import install_k3s_cluster
-        extra_args = USR_CONFIG_FILE.get('extra_k3s_args', [])
-        install_k3s_cluster(extra_args)
-    elif k8s_distro == "k0s":
-        from .k8s_distros.k0s import install_k0s_cluster
-        install_k0s_cluster()
-    return True
-
-
-def delete_cluster(k8s_distro="k3s"):
-    """
-    Delete a k0s, k3s, or KinD cluster entirely.
-    It is suggested to perform a reboot after deleting a k0s cluster.
-    """
-    header(f"Bye bye, [b]{k8s_distro}[/b]!")
-
-    if k8s_distro == 'k3s':
-        from .k8s_distros.k3s import uninstall_k3s
-        uninstall_k3s()
-
-    elif k8s_distro == 'kind':
-        from .k8s_distros.kind import delete_kind_cluster
-        delete_kind_cluster()
-
-    elif k8s_distro == 'k0s':
-        from .k8s_distros.k0s import uninstall_k0s
-        uninstall_k0s()
-
-    else:
-        header("┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
-
-    sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
-    exit()
-
-
 # an ugly list of decorators, but these are the opts/args for the whole script
 @command(cls=RichCommand, context_settings=HELP_SETTINGS)
-@argument("k8s", metavar="<k0s, k3s, kind>", default="")
-@option('--argocd', '-a', is_flag=True, help=HELP['argocd'])
 @option('--config', '-c', metavar="CONFIG_FILE", type=str,
         default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
         help=HELP['config'])
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
-@option('--external_secret_operator', '-e', is_flag=True,
-        help=HELP['external_secret_operator'])
 @option('--setup', '-s', is_flag=True, help=HELP['setup'])
-@option('--keycloak', '-y', is_flag=True, help=HELP['keycloak'])
-@option('--kyverno', '-k', is_flag=True, help=HELP['kyverno'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
-@option('--log_level', '-l', metavar='LOGLEVEL', help=HELP['log_level'],
-        type=Choice(['debug', 'info', 'warn', 'error']))
-@option('--log_file', '-o', metavar='LOGFILE', help=HELP['log_file'])
-@option('--password_manager', '-p', is_flag=True,
-        help=HELP['password_manager'])
 @option('--version', '-v', is_flag=True, help=HELP['version'])
-def main(k8s: str = "",
-         argocd: bool = False,
-         config: str = "",
+def main(config: str = "",
          delete: bool = False,
-         external_secret_operator: bool = False,
          setup: bool = False,
-         keycloak: bool = False,
-         kyverno: bool = False,
          k9s: bool = False,
-         log_level: str = "",
          log_file: str = "",
-         password_manager: bool = False,
          version: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
@@ -163,90 +97,139 @@ def main(k8s: str = "",
         print(f'\n🎉 v{VERSION}\n')
         return True
 
-    # setup logging immediately
-    log = setup_logger(log_level, log_file)
-    log.debug("Logging configured.")
+    if setup:
+        # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
+        from .utils.setup_k8s_tools import do_setup
+        do_setup()
 
     # make sure this OS is supported
     check_os_support()
 
-    if setup:
-        # installs extra tooling such as helm, k9s, and krew
-        from .setup_k8s_tools import do_setup
-        do_setup()
-        if not k8s:
-            exit()
+    # process all of the config file, or create a new one and also grab secrets
+    USR_CFG, SECRETS = process_configs(INITIAL_USR_CONFIG, delete)
 
-    # make sure we got a valid k8s distro
-    if k8s not in SUPPORTED_DISTROS:
-        CONSOLE.print(f'\n☹ Sorry, "[b]{k8s}[/]" is not a currently supported '
-                      'k8s distro. Please try again with any of '
-                      f'{SUPPORTED_DISTROS}.\n')
+    # setup logging immediately
+    log = process_log_config(USR_CFG['log'])
+    log.debug("Logging configured.")
+
+    k8s_distros = USR_CFG['k8s_distros']
+    if delete:
+        logging.debug("Cluster deletion was requested")
+        for distro, metadata in k8s_distros.items():
+            if metadata.get('enabled', False):
+                # exits the script after deleting the cluster
+                delete_cluster(distro)
         exit()
 
-    if delete:
-        # exits the script after deleting the cluster
-        delete_cluster(k8s)
+    bw = None
+    # if we're using bitwarden, unlock the vault
+    pw_manager_enabled = USR_CFG['local_password_manager']['enabled']
+    pw_manager = USR_CFG['local_password_manager']['name']
+    if pw_manager_enabled and pw_manager == 'bitwarden':
+        bw = BwCLI(USR_CFG['local_password_manager']['overwrite'])
+        bw.unlock()
 
-    # make sure the cache directory exists (typically ~/.cache/smol-k8s-lab)
-    Path(XDG_CACHE_DIR).mkdir(exist_ok=True)
+    for distro, metadata in k8s_distros.items():
+        # if the cluster isn't enabled, just continue on
+        if not k8s_distros[distro].get('enabled', False):
+            continue
+        # this is a dict of all the apps we can install
+        apps = USR_CFG['apps']
+        # check immediately if metallb is enabled
+        metallb_enabled = apps['metallb']['enabled']
+        # check immediately if cilium is enabled
+        cilium_enabled = apps['cilium']['enabled']
 
-    # install the actual KIND, k0s, or k3s cluster
-    header(f'Installing [green]{k8s}[/] cluster.')
-    sub_header('This could take a min ʕ•́  ̫•̀ʔっ♡ ', False)
-    install_k8s_distro(k8s)
+        # install the actual KIND, k0s, k3s, or k3d (experimental) cluster
+        create_k8s_distro(distro, metadata, metallb_enabled, cilium_enabled)
 
-    # make sure helm is installed and the repos are up to date
-    from .k8s_tools.homelabHelm import prepare_helm
-    prepare_helm(k8s, argocd, external_secret_operator, kyverno)
+        argo_enabled = apps['argo_cd']['enabled']
 
-    # needed for metal (non-cloud provider) installs
-    header("Installing [b]metallb[/b] so we have an ip address pool")
-    from .k8s_apps.metallb import configure_metallb
-    configure_metallb(USR_CONFIG_FILE['metallb_address_pool'])
+        k8s_obj = K8s()
 
-    # ingress controller: so we can accept traffic from outside the cluster
-    header("Installing [b]ingress-nginx-controller[/b]...")
-    from .k8s_apps.nginx_ingress_controller import configure_ingress_nginx
-    configure_ingress_nginx(k8s)
+        # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager
+        setup_base_apps(k8s_obj,
+                        distro,
+                        apps['metallb'],
+                        apps['cilium'],
+                        apps['cert_manager'],
+                        argo_enabled,
+                        apps['argo_cd_appset_secret_plugin']['enabled'])
 
-    # manager SSL/TLS certificates via lets-encrypt
-    header("Installing [b]cert-manager[/b] for TLS certificates...")
-    from .k8s_apps.certmanager import configure_cert_manager
-    configure_cert_manager(USR_CONFIG_FILE['email'])
+        # 🦑 Install Argo CD: continuous deployment app for k8s
+        if argo_enabled:
+            # user can configure a special domain for argocd
+            argocd_fqdn = SECRETS['argo_cd_hostname']
+            from .k8s_apps.argocd import configure_argocd
+            configure_argocd(k8s_obj, argocd_fqdn, bw,
+                             apps['argo_cd_appset_secret_plugin']['enabled'],
+                             SECRETS)
 
-    # kyverno: kubernetes native policy manager
-    if kyverno:
-        from .k8s_apps.kyverno import install_kyverno
-        install_kyverno()
+            setup_k8s_secrets_management(k8s_obj,
+                                         distro,
+                                         apps.pop('external_secrets_operator'),
+                                         apps.pop('bitwarden_eso_provider'),
+                                         apps.pop('infisical'),
+                                         bw)
 
-    # keycloak: self hosted IAM 
-    if keycloak:
-        from .k8s_apps.keycloak import configure_keycloak
-        keycloak_fqdn = USR_CONFIG_FILE['domain']['keycloak']
-        if USR_CONFIG_FILE['domain'].get('base', False):
-            keycloak_fqdn = ".".join([keycloak_fqdn,
-                                      USR_CONFIG_FILE['domain']['base']])
-        configure_keycloak(keycloak_fqdn)
+            # if the global cluster issuer is set to letsencrypt-staging don't
+            # verify TLS certs in requests to APIs
+            if 'staging' in SECRETS['global_cluster_issuer']:
+                api_tls_verify = False
+            else:
+                api_tls_verify = True
 
-    # 🦑 Install Argo CD: continuous deployment app for k8s
-    if argocd:
-        # user can configure a special domain for argocd
-        argocd_fqdn = USR_CONFIG_FILE['domain']['argo_cd']
-        if USR_CONFIG_FILE['domain'].get('base', False):
-            argocd_fqdn = ".".join([argocd_fqdn,
-                                    USR_CONFIG_FILE['domain']['base']])
-        from .k8s_apps.argocd import configure_argocd
-        configure_argocd(argocd_fqdn, password_manager)
+            zitadel_enabled = apps['zitadel']['enabled']
+
+            setup_oidc_provider(k8s_obj,
+                                api_tls_verify,
+                                apps.pop('keycloak'),
+                                apps.pop('zitadel'),
+                                apps.pop('vouch'),
+                                bw,
+                                argocd_fqdn)
+
+            setup_federated_apps(k8s_obj,
+                                 apps.pop('nextcloud'),
+                                 apps.pop('mastodon'),
+                                 apps.pop('matrix'),
+                                 bw)
+
+            # after argocd, keycloak, bweso, and vouch are up, we install all
+            # apps as Argo CD Applications
+            header("Installing the rest of the Argo CD apps")
+            for app_key, app in apps.items():
+                if app.get('enabled', True):
+                    if not app['argo'].get('part_of_app_of_apps', False):
+                        argo_app = app_key.replace('_', '-')
+                        sub_header(f"Installing app: {argo_app}")
+                        install_with_argocd(k8s_obj, argo_app, app['argo'])
+
+            # lock the bitwarden vault on the way out, to be polite :3
+            if bw:
+                bw.lock()
 
     # we're done :D
     print("")
-    CONSOLE.print(Panel("\nSmol K8s Lab completed!\n\nMake sure you run:\n"
-                        f"[b]export KUBECONFIG={KUBECONFIG}\n",
+    final_msg = ("\nSmol K8s Lab completed!\n\nMake sure you run:"
+                 f"\n[green]export KUBECONFIG={KUBECONFIG}[/green]\n")
+
+    if zitadel_enabled:
+        final_msg += ("\nYou can log into Zitadel, your identity provider here:\n"
+                      f"[blue][link]https://{SECRETS['zitadel_hostname']}[/]\n")
+
+    if argo_enabled:
+        final_msg += ("\nYou can checkout your k8s apps via Argo CD here:\n"
+                      f"[blue][link]https://{argocd_fqdn}[/]\n")
+
+    CONSOLE.print(Panel(final_msg,
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
                         subtitle='♥ [cyan]Have a nice day[/] ♥',
                         border_style="cornflower_blue"))
     print("")
+
+    if k9s or USR_CFG['k9s'].get('enabled', False):
+        run_k9s(USR_CFG['k9s'].get('command', 'applications.argoproj.io'))
 
 
 if __name__ == '__main__':

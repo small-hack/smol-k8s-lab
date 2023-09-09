@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "0.11.2"
+version       = "1.0.0"
 description   = "bootstrap simple projects on kubernetes with kind and k3s"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -18,7 +18,9 @@ classifiers   = ["Development Status :: 3 - Alpha",
                  "Intended Audience :: End Users/Desktop",
                  "Topic :: System :: Installation/Setup",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
-include       = ["smol_k8s_lab/config/kind_cluster_config.yaml"]
+include       = ["smol_k8s_lab/config/kind_cluster_config.yaml",
+                 "smol_k8s_lab/config/extras/Brewfile",
+                 "smol_k8s_lab/config/default_config.yaml"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "http://github.com/small-hack/smol-k8s-lab/issues"
@@ -28,15 +30,21 @@ python        = ">=3.11,<4.0"
 rich          = "^13.0"
 click         = "^8.1"
 bcrypt        = "^4.0"
+kubernetes    = "^27.2"
 requests      = "^2.28"
 pyyaml        = "^6.0"
 xdg-base-dirs = "^6.0"
+pyjwt = "^2.8.0"
+cryptography = "^41.0.3"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
 
 [tool.poetry.scripts]
 smol-k8s-lab = "smol_k8s_lab:main"
+
+[tool.poetry.group.dev.dependencies]
+deptry = "^0.12.0"
 
 [build-system]
 requires      = ["poetry-core"]

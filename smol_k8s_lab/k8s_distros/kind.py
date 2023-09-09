@@ -8,9 +8,9 @@ DESCRIPTION: create or delete a kind cluster, part of smol-k8s-lab
 import logging as log
 from os import path
 from shutil import which
-from ..console_logging import sub_header
-from ..env_config import PWD
-from ..subproc import subproc
+from ..pretty_printing.console_logging import sub_header
+from ..constants import PWD
+from ..utils.subproc import subproc
 
 
 def install_kind_cluster():
@@ -30,7 +30,8 @@ def install_kind_cluster():
 
     # use our pre-configured kind file to install a small cluster
     full_path = path.join(PWD, 'config/kind_cluster_config.yaml')
-    subproc([f"kind create cluster --config={full_path}"])
+    cmd = f"kind create cluster --name smol-k8s-lab-kind --config={full_path}"
+    subproc([cmd])
 
     return True
 
@@ -40,8 +41,12 @@ def delete_kind_cluster():
     delete kind cluster, if kind exists
     returns True
     """
+    er = "smol-k8s-lab hasn't installed a [green]kind[/green] cluster here yet"
     if which('kind'):
-        subproc(['kind delete cluster'])
+        if 'smol-k8s-lab-kind' in subproc(['kind get clusters']):
+            subproc(['kind delete cluster --name smol-k8s-lab-kind'])
+        else:
+            sub_header(er, False, False)
     else:
         log.debug("Kind is not installed.")
         sub_header("Kind is not installed.", False, False)
