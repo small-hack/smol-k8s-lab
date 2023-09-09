@@ -91,32 +91,39 @@ def configure_argocd(k8s_obj: K8s,
         release.install(True)
 
     if plugin_secret_creation:
-        msg = "🔌 Installing the ApplicationSet Secret Plugin Generator for Argo CD..."
-        sub_header(msg)
-
-        # creates the secret vars secret with all the key/values for each appset
-        k8s_obj.create_secret('appset-secret-vars', 'argocd', secret_dict,
-                              'secret_vars.yaml')
-
-        token = create_password()
-
-        # creates only the token for authentication
-        k8s_obj.create_secret('appset-secret-token', 'argocd', {'token': token})
-
-        # this creates a values.yaml from this dict
-        set_opts = {'secretVars.existingSecret': 'appset-secret-vars',
-                    'token.existingSecret': 'appset-secret-token'}
-
-        # install the helm chart :)
-        chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
-        release = Helm.chart(release_name='argocd-appset-secret-plugin',
-                             chart_name=chart_name,
-                             chart_version='0.4.0',
-                             namespace='argocd',
-                             set_options=set_opts)
-        release.install(True)
+        configure_secret_plugin_generator(secret_dict)
 
     # setup Argo CD to talk directly to k8s
-    cmd = 'kubectl config set-context --current --namespace=argocd'
-    subproc([cmd])
+    subproc(['kubectl config set-context --current --namespace=argocd'])
+
     return True
+
+
+def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
+    """
+    configures the applicationset secret plugin generator
+    """
+    msg = "🔌 Installing the ApplicationSet Secret Plugin Generator for Argo CD..."
+    sub_header(msg)
+
+    # creates the secret vars secret with all the key/values for each appset
+    k8s_obj.create_secret('appset-secret-vars', 'argocd', secret_dict,
+                          'secret_vars.yaml')
+
+    token = create_password()
+
+    # creates only the token for authentication
+    k8s_obj.create_secret('appset-secret-token', 'argocd', {'token': token})
+
+    # this creates a values.yaml from this dict
+    set_opts = {'secretVars.existingSecret': 'appset-secret-vars',
+                'token.existingSecret': 'appset-secret-token'}
+
+    # install the helm chart :)
+    chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
+    release = Helm.chart(release_name='argocd-appset-secret-plugin',
+                         chart_name=chart_name,
+                         chart_version='0.4.0',
+                         namespace='argocd',
+                         set_options=set_opts)
+    release.install(True)
