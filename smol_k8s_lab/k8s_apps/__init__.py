@@ -87,7 +87,7 @@ def setup_oidc_provider(k8s_obj: K8s,
         if zitadel_dict['init']['enabled']:
             vouch_hostname = ''
             if vouch_enabled:
-                vouch_hostname = vouch_dict['secret_keys']['hostname']
+                vouch_hostname = vouch_dict['argo']['secret_keys']['hostname']
             vouch_credentials = configure_zitadel(k8s_obj=k8s_obj,
                                                   config_dict=zitadel_dict,
                                                   api_tls_verify=api_tls_verify,
