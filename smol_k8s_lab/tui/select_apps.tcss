@@ -17,3 +17,9 @@ Pretty {
     width: 1fr;
     border: solid $accent;
 }
+
+
+Footer {
+    color: cornflowerblue;
+    background: #282727;
+}
