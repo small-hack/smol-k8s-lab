@@ -164,6 +164,7 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 <!-- k8s optional apps link references -->
 [ESO]: https://external-secrets.io/v0.8.1/
 [Argo CD]:https://argo-cd.readthedocs.io/en/latest/
+[Argo CD Appset Secret Plugin]: https://github.com/jessebot/argocd-appset-secret-plugin/
 [cilium]: https://github.com/cilium/cilium/tree/v1.14.1/install/kubernetes/cilium
 [Bitwarden ESO Provider]: https://github.com/jessebot/bitwarden-eso-provider
 [k8tz]: https://github.com/small-hack/argocd-apps/tree/main/alpha/k8tz
