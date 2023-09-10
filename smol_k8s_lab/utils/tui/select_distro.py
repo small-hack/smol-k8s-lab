@@ -28,17 +28,21 @@ class SelectDistro(App[None]):
                 action="quit",
                 description="Quit smol-k8s-lab")
     ]
-    BUTTON_INNER = '❤'
 
     def compose(self) -> ComposeResult:
         header = Header()
         header.tall = True
         yield header
         with RadioSet():
-            yield RadioButton("k3s", value=True)
-            yield RadioButton("k3d [red](alpha)[/]")
-            yield RadioButton("k0s")
-            yield RadioButton("kind", id="focus_me")
+            for distro in ['k3s', 'k3d', 'k0s', 'kind']:
+                enabled = False
+                if distro == 'k3s':
+                    enabled = True
+                if distro == 'k3d':
+                    distro += '[red](alpha)[/]'
+                radio_button = RadioButton(distro, value=enabled)
+                radio_button.BUTTON_INNER = '❤'
+                yield radio_button
         yield Button("Next", id="next")
         yield Footer()
 
