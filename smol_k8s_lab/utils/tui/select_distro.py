@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.widgets import RadioButton, RadioSet, Button, Footer
+from textual.widgets import RadioButton, RadioSet, Button, Footer, Header
 
 
 class SelectDistro(App[None]):
@@ -28,8 +28,12 @@ class SelectDistro(App[None]):
                 action="quit",
                 description="Quit smol-k8s-lab")
     ]
+    BUTTON_INNER = '❤'
 
     def compose(self) -> ComposeResult:
+        header = Header()
+        header.tall = True
+        yield header
         with RadioSet():
             yield RadioButton("k3s", value=True)
             yield RadioButton("k3d [red](alpha)[/]")
