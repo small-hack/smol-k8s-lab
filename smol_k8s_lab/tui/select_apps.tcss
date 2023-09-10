@@ -18,8 +18,16 @@ Pretty {
     border: solid $accent;
 }
 
-
 Footer {
+    background: #282727;
+}
+
+Footer .footer--description {
     color: cornflowerblue;
     background: #282727;
+}
+
+Footer .footer--key {
+    color: #282727;
+    background: cornflowerblue;
 }
