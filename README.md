@@ -150,7 +150,7 @@ Version is the helm chart version, or manifest version.
 
 <sub>All Default Applications can be disabled through your `~/.config/smol-k8s-lab/config.yaml` file, **except**:</sub>
 
-<sub>1. nginx-ingress is the currently the only supported ingress-controller. traefik support is being worked on.</sub>
+<sub>1. ingress-nginx is the currently the only supported ingress-controller. traefik support is being worked on.</sub>
 
 <sub>2. Argo CD is optional, but if not installed, smol-k8s-lab will <i>only</i> install: metallb, nginx-ingress, and cert-manager</sub>
 
