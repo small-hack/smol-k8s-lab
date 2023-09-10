@@ -26,7 +26,7 @@ Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions
 
 
 # Installation
-smol-k8s-lab requires Python 3.11. If you've already got it and [`brew`] installed, you should be able to:
+`smol-k8s-lab` requires Python 3.11. If you've already got it and [`brew`] installed, you should be able to:
 
 ```bash
 # install the CLI
@@ -39,7 +39,7 @@ smol-k8s-lab --help
 ## Usage
 
 ### Initialization
-After you've followed the installation instructions, if you're `new` to smol-k8s-lab,  initialize a new config file. To do that, just run:
+After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file. To do that, just run:
 
 ```bash
 # we'll walk you through any configuration needed before saving the config and deploying it for you
@@ -135,7 +135,7 @@ Version is the helm chart version, or manifest version.
 |           Application           |                      Description                      | Initialization Supported |
 |:-------------------------------:|:------------------------------------------------------|:------------------------:|
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | Loadbalancer and IP Address pool manager for metal | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][nginx-ingress] <br /> [nginx-ingress] | The ingress controller allows access to the cluster remotely, needed for web traffic | No |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][ingress-nginx] <br /> [ingress-nginx] | The ingress controller allows access to the cluster remotely, needed for web traffic | No |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | For SSL/TLS certificates | Yes |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | Gitops - Continuous Deployment | Yes |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD Appset Secret Plugin] <br /> [Argo CD Appset Secret Plugin] | Gitops - Continuous Deployment | Yes |
@@ -200,38 +200,37 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [KinD]: https://kind.sigs.k8s.io/
 [k0s]: https://k0sproject.io/
 
-<!-- k8s apps link references -->
-[metallb]: https://github.io/metallb/metallb "metallb"
-[Local Path Provisioner]: https://github.com/rancher/local-path-provisioner
-[nginx-ingress]: https://github.io/kubernetes/ingress-nginx
-[cert-manager]: https://cert-manager.io/docs/
-
 <!-- k8s optional apps link references -->
 [ESO]: https://external-secrets.io/v0.8.1/
 [alert manager]: https://prometheus.io/docs/alerting/latest/alertmanager/
 [Argo CD]:https://argo-cd.readthedocs.io/en/latest/
 [Argo CD Appset Secret Plugin]: https://github.com/jessebot/argocd-appset-secret-plugin/
+[cert-manager]: https://cert-manager.io/docs/
 [cilium]: https://github.com/cilium/cilium/tree/v1.14.1/install/kubernetes/cilium
 [Bitwarden ESO Provider]: https://github.com/jessebot/bitwarden-eso-provider
 [grafana]: https://grafana.com/
+[ingress-nginx]: https://github.io/kubernetes/ingress-nginx
 [k8tz]: https://github.com/small-hack/argocd-apps/tree/main/alpha/k8tz
 [k8up]: https://k8up.io
 [Kyverno]: https://github.com/kyverno/kyverno/
 [kepler]: https://github.com/sustainable-computing-io/kepler-helm-chart/tree/main/chart/kepler
 [Keycloak]: https://github.com/bitnami/charts/tree/main/bitnami/keycloak/templates
+[Local Path Provisioner]: https://github.com/rancher/local-path-provisioner
 [loki]: https://grafana.com/oss/loki/
 [Mastodon]: https://joinmastodon.org/
 [matrix]: https://matrix.org/
+[metallb]: https://github.io/metallb/metallb "metallb"
 [minio]: https://min.io/
 [Nextcloud]: https://github.com/nextcloud/helm
 [Prometheus Stack]: https://github.com/small-hack/argocd-apps/tree/main/prometheus
 [promtail]: https://grafana.com/docs/loki/latest/send-data/promtail/
-[restic]: https://restic.readthedocs.io/en/stable/
 [Vouch]: https://github.com/jessebot/vouch-helm-chart
 [Zitadel]: https://github.com/zitadel/zitadel-charts/tree/main
 
 <!-- k8s tooling reference -->
+[`brew`]: https://brew.sh
 [k9s]: https://k9scli.io/topics/install/
+[restic]: https://restic.readthedocs.io/en/stable/
 
 <!-- smol-k8s-lab dependency lib link references -->
 [Poetry]: https://python-poetry.org/
