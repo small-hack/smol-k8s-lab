@@ -7,13 +7,15 @@ from textual.events import Mount
 from textual.widgets import Footer, Header, Pretty, SelectionList, Button
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.env_config import DEFAULT_CONFIG
+# from copy import deepcopy
 
 
 DEFAULT_APPS = DEFAULT_CONFIG['apps']
+# FINAL_APPS = deepcopy(DEFAULT_APPS)
 
 
 class InitialApps(App[None]):
-    CSS_PATH = "select_apps.tcss"
+    CSS_PATH = "./css/select_apps.tcss"
     BINDINGS = [
         Binding(key="uparrow",
                 key_display="↑",
@@ -75,10 +77,13 @@ class InitialApps(App[None]):
     @on(Mount)
     @on(SelectionList.SelectedChanged)
     def update_selected_view(self) -> None:
-        self.query_one(Pretty).update(self.query_one(SelectionList).selected)
+        # update the pretty view of the selected options
+        selected_item = self.query_one(SelectionList).selected
+        self.query_one(Pretty).update(selected_item)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        self.exit(self.query_one(SelectionList).selected)
+        all_selected = self.query_one(SelectionList).selected
+        self.exit(all_selected)
 
 
 if __name__ == "__main__":
