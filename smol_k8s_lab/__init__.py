@@ -21,7 +21,6 @@ from .k8s_apps import (setup_oidc_provider, setup_base_apps,
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
-from .k8s_tools.k9s import run_k9s
 from .utils.bw_cli import BwCLI
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
@@ -81,13 +80,11 @@ def process_log_config(log_dict: dict = {'log':
         help=HELP['config'])
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--setup', '-s', is_flag=True, help=HELP['setup'])
-@option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
 @option('--interactive', '-i', is_flag=True, help=HELP['interactive'])
 @option('--version', '-v', is_flag=True, help=HELP['version'])
 def main(config: str = "",
          delete: bool = False,
          setup: bool = False,
-         k9s: bool = False,
          log_file: str = "",
          version: bool = False,
          interactive: bool = False):
@@ -233,9 +230,6 @@ def main(config: str = "",
                         subtitle='♥ [cyan]Have a nice day[/] ♥',
                         border_style="cornflower_blue"))
     print("")
-
-    if k9s or USR_CFG['k9s'].get('enabled', False):
-        run_k9s(USR_CFG['k9s'].get('command', 'applications.argoproj.io'))
 
 
 if __name__ == '__main__':
