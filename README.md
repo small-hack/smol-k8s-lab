@@ -64,7 +64,7 @@ smol-k8s-lab
 #### Creating a new config without running smol-k8s-lab
 This is helpful if you just want to take a look at the default configuration before installing any kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
 
-```yaml
+```bash
 # create the needed directory if you haven't already, NOTE: this can also be in $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml
 mkdir -p ~/.config/smol-k8s-lab
 
