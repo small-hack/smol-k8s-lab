@@ -32,15 +32,19 @@ k8s_distros:
     # set to true to enable deploying a kubernetes cluster using k0s
     enabled: false
 
-# k9s is a terminal UI dashboard and interface for interacting with kubernetes
-k9s:
-  # when set to true, smol-k8s-lab runs k9s immediately after the cluster and 
-  # enabled apps have been installed
-  enabled: false
-  # default command to run when k9s launches. defaults to application.argoproj.io
-  # so that you can view the status of all of your argo apps immediately. This
-  # default results in running: k9s --command applications.argoproj.io
-  command: "applications.argoproj.io"
+# this is useful for learning smol-k8s-lab or verifying your configuration
+interactive:
+  # if this is set to true, we'll always launch smol-k8s-lab in interactive mode :)
+  always_enabled: false
+  # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
+  k9s:
+    # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s
+    # immediately after the cluster is up and enabled apps have been installed
+    enabled: false
+    # default command to run when k9s launches. defaults to application.argoproj.io
+    # so that you can view the status of all of your argo apps immediately. This
+    # default results in running: k9s --command applications.argoproj.io
+    command: "applications.argoproj.io"
 
 # store your password and tokens directly in your local password manager
 local_password_manager:

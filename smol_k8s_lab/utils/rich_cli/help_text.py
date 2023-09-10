@@ -45,10 +45,7 @@ def options_help():
         'kubectl, and more via brew.',
 
         'interactive':
-        'Use a TUI (terminal user interface) to interactively configure smol-k8s-lab',
-
-        'k9s':
-        'Run k9s as soon as this script is complete. Default: False',
+        'New! ⚙️ Interactively configure smol-k8s-lab',
 
         'version':
         f'Print the version of smol-k8s-lab (v{VERSION})'
