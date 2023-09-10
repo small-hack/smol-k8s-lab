@@ -5,7 +5,7 @@ DESCRIPTION: install k3d :D
      AUTHOR: @Jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-from ..pretty_printing.console_logging import sub_header
+from ..rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
 
 

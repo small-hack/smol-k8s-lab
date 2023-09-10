@@ -6,7 +6,7 @@ DESC: everything to do with initial configuration of a new environment
 
 from rich.prompt import Confirm, Prompt
 from .constants import OS, VERSION, XDG_CONFIG_FILE, DEFAULT_CONFIG
-from .utils.pretty_printing.console_logging import print_panel, header, sub_header
+from .utils.rich_cli.console_logging import print_panel, header, sub_header
 from yaml import dump
 
 
@@ -248,7 +248,7 @@ def process_k8s_distros(k8s_distros: dict = {}):
     default_distros = ['kind', 'k3s', 'k3d', 'k0s']
 
     if OS[0] == 'Darwin':
-        default_distros.pop('k3s')
+        default_distros.pop(1)
 
     # keep track if we even have any enabled
     distros_enabled = False

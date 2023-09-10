@@ -6,7 +6,7 @@ from collections import OrderedDict
 import logging as log
 from shutil import which
 from ..utils.subproc import subproc
-from ..utils.pretty_printing.console_logging import header, sub_header
+from ..utils.rich_cli.console_logging import header, sub_header
 
 
 class Helm:

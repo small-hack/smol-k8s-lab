@@ -9,6 +9,10 @@ DEFAULT_APPS = DEFAULT_CONFIG['apps']
 
 
 class ConfigureApps(App):
+    """
+    class helps the user configure specific custom values for applications such
+    as hostnames and timezones
+    """
     CSS_PATH = "./css/configure_apps.tcss"
     BINDINGS = [
         Binding(key="tab",

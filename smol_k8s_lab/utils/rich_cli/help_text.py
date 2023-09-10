@@ -44,6 +44,9 @@ def options_help():
         'Install/update extra tools such as argocd, cilium-cli, helm, k9s, krew, '
         'kubectl, and more via brew.',
 
+        'interactive':
+        'Use a TUI (terminal user interface) to interactively configure smol-k8s-lab',
+
         'k9s':
         'Run k9s as soon as this script is complete. Default: False',
 

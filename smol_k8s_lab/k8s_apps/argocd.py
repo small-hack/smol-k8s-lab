@@ -14,7 +14,7 @@ from ..k8s_tools.k8s_lib import K8s
 from ..utils.bw_cli import BwCLI
 from ..utils.subproc import subproc
 from ..utils.passwords import create_password
-from ..utils.pretty_printing.console_logging import header, sub_header
+from ..utils.rich_cli.console_logging import header, sub_header
 
 
 def configure_argocd(k8s_obj: K8s,

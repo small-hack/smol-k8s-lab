@@ -11,7 +11,7 @@ from rich.prompt import Prompt
 from ..k8s_tools.helm import prepare_helm
 from ..k8s_tools.k8s_lib import K8s
 from ..utils.bw_cli import BwCLI
-from ..utils.pretty_printing.console_logging import header
+from ..utils.rich_cli.console_logging import header
 from .ingress.ingress_nginx_controller import configure_ingress_nginx
 from .ingress.cert_manager import configure_cert_manager
 from .identity_provider.keycloak import configure_keycloak

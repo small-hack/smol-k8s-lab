@@ -14,7 +14,7 @@ DEFAULT_APPS = DEFAULT_CONFIG['apps']
 # FINAL_APPS = deepcopy(DEFAULT_APPS)
 
 
-class InitialApps(App[None]):
+class SelectApps(App[None]):
     CSS_PATH = "./css/select_apps.tcss"
     BINDINGS = [
         Binding(key="uparrow",
@@ -87,5 +87,5 @@ class InitialApps(App[None]):
 
 
 if __name__ == "__main__":
-    reply = InitialApps().run()
+    reply = SelectApps().run()
     print(reply)
