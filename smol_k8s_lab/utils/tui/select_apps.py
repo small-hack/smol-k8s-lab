@@ -7,11 +7,9 @@ from textual.events import Mount
 from textual.widgets import Footer, Header, Pretty, SelectionList, Button
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.env_config import DEFAULT_CONFIG
-# from copy import deepcopy
 
 
 DEFAULT_APPS = DEFAULT_CONFIG['apps']
-# FINAL_APPS = deepcopy(DEFAULT_APPS)
 
 
 class SelectApps(App[None]):
