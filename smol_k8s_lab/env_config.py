@@ -5,7 +5,7 @@ DESC: everything to do with initial configuration of a new environment
 """
 
 from rich.prompt import Confirm, Prompt
-from .constants import OS, VERSION, XDG_CONFIG_FILE, DEFAULT_CONFIG
+from .constants import OS, VERSION, XDG_CONFIG_FILE, DEFAULT_CONFIG, DEFAULT_DISTROS
 from .utils.rich_cli.console_logging import print_panel, header, sub_header
 from yaml import dump
 
@@ -20,7 +20,7 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
                f" We have only tested the following: {offical_supported_list}")
         print_panel(msg, "⚠️  [warn]WARNING")
 
-        quit_y = Confirm.ask("🌊 You're in uncharted waters. Wanna quit?")
+        quit_y = Confirm.ask("🌊 You're in uncharted waters. Do you want to quit?")
         if quit_y:
             print_panel("That's probably safer. Have a safe day, friend.",
                         "Safety Award ☆ ")
@@ -28,8 +28,8 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
         else:
             print_panel("[red]Yeehaw, I guess.", "¯\\_(ツ)_/¯")
     else:
-        print_panel("Operating System and Architechure [green]supported ♥",
-                    "[cornflower_blue]Compatibility Check")
+        # don't print anything if the OS is supported
+        return True
 
 
 def process_configs(config: dict = {}, delete: bool = False):
@@ -245,11 +245,6 @@ def process_k8s_distros(k8s_distros: dict = {}):
     make sure the k8s distro passed into the config is supported and valid for
     the current operating system
     """
-    default_distros = ['kind', 'k3s', 'k3d', 'k0s']
-
-    if OS[0] == 'Darwin':
-        default_distros.pop(1)
-
     # keep track if we even have any enabled
     distros_enabled = False
 
@@ -257,7 +252,7 @@ def process_k8s_distros(k8s_distros: dict = {}):
         # verify the distros are supported
         for distro, metadata in k8s_distros.items():
             # if distro is enabled, but is not supported on user's OS
-            if distro not in default_distros and metadata.get('enabled', False):
+            if distro not in DEFAULT_DISTROS and metadata.get('enabled', False):
                 print(f"{distro} is not supported on {OS[0]} at this time. :(")
                 # disable that distro so we don't run into errors down the line
                 k8s_distros[distro]['enabled'] = False
@@ -268,7 +263,7 @@ def process_k8s_distros(k8s_distros: dict = {}):
 
     if not distros_enabled:
         msg = "[green]Which K8s distro would you like to use for your cluster?"
-        distro = Prompt.ask(msg, choices=default_distros)
+        distro = Prompt.ask(msg, choices=DEFAULT_DISTROS)
         k8s_distros = {distro: {'enabled': True}}
 
     return k8s_distros

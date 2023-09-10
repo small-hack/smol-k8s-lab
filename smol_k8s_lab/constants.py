@@ -18,6 +18,15 @@ SYSINFO = uname()
 # this will be something like ('Darwin', 'x86_64')
 OS = (SYSINFO.sysname, SYSINFO.machine)
 
+DEFAULT_DISTROS = ['k3s', 'k3d', 'k0s', 'kind']
+
+if 'Darwin' in OS[0]:
+    # macOS can't run k3s yet
+    DEFAULT_DISTROS.pop(0)
+    DEFAULT_DISTRO = 'kind'
+else:
+    DEFAULT_DISTRO = 'k3s'
+
 HOME_DIR = environ["HOME"]
 USER = getuser()
 
