@@ -13,18 +13,23 @@ SelectionList {
     width: 1fr;
 }
 
+SelectionList .option-list--option-highlighted {
+    color: #282727;
+    background: cornflowerblue;
+}
+
 Pretty {
     width: 1fr;
     border: solid $accent;
 }
 
 Footer {
-    background: #282727;
+    background: #232336;
 }
 
 Footer .footer--description {
     color: cornflowerblue;
-    background: #282727;
+    background: #232336;
 }
 
 Footer .footer--key {
