@@ -23,8 +23,9 @@ from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
 from .k8s_tools.k9s import run_k9s
 from .utils.bw_cli import BwCLI
-from .utils.pretty_printing.console_logging import CONSOLE, sub_header, header
-from .utils.pretty_printing.help_text import RichCommand, options_help
+from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
+from .utils.rich_cli.help_text import RichCommand, options_help
+from .utils.tui import launch_tui
 
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -81,13 +82,15 @@ def process_log_config(log_dict: dict = {'log':
 @option('--delete', '-D', is_flag=True, help=HELP['delete'])
 @option('--setup', '-s', is_flag=True, help=HELP['setup'])
 @option('--k9s', '-K', is_flag=True, help=HELP['k9s'])
+@option('--interactive', '-i', is_flag=True, help=HELP['interactive'])
 @option('--version', '-v', is_flag=True, help=HELP['version'])
 def main(config: str = "",
          delete: bool = False,
          setup: bool = False,
          k9s: bool = False,
          log_file: str = "",
-         version: bool = False):
+         version: bool = False,
+         interactive: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
@@ -96,6 +99,9 @@ def main(config: str = "",
     if version:
         print(f'\n🎉 v{VERSION}\n')
         return True
+
+    if interactive:
+        launch_tui()
 
     if setup:
         # installs required/extra tooling: kubectl, helm, k9s, argocd, krew

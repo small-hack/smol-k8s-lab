@@ -1,5 +1,5 @@
 import logging as log
-from ..utils.pretty_printing.console_logging import sub_header, header
+from ..utils.rich_cli.console_logging import sub_header, header
 from ..utils.subproc import subproc
 
 

@@ -15,7 +15,7 @@ import stat
 
 from ..utils.subproc import subproc, simple_loading_bar
 from ..constants import USER, KUBECONFIG
-from ..pretty_printing.console_logging import sub_header
+from ..rich_cli.console_logging import sub_header
 
 
 HOSTNAME = gethostname()

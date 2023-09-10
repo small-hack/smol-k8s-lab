@@ -6,7 +6,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.utils.bw_cli import BwCLI
 from smol_k8s_lab.utils.passwords import create_password
-from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header, header
+from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 
 
 class Keycloak():
