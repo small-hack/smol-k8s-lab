@@ -256,10 +256,13 @@ def process_k8s_distros(k8s_distros: dict = {}):
     if k8s_distros:
         # verify the distros are supported
         for distro, metadata in k8s_distros.items():
-            if distro not in default_distros:
+            # if distro is enabled, but is not supported on user's OS
+            if distro not in default_distros and metadata.get('enabled', False):
                 print(f"{distro} is not supported on {OS[0]} at this time. :(")
-                k8s_distros.pop(distro)
+                # disable that distro so we don't run into errors down the line
+                k8s_distros[distro]['enabled'] = False
             else:
+              # if distro is enabled
               if metadata.get('enabled', False):
                   distros_enabled = True
 
