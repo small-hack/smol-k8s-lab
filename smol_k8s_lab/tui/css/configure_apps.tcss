@@ -1,0 +1,21 @@
+Screen {
+    align: center middle;
+}
+
+Label {
+    align: center middle;
+}
+
+Footer {
+    background: #232336;
+}
+
+Footer .footer--description {
+    color: cornflowerblue;
+    background: #232336;
+}
+
+Footer .footer--key {
+    color: #282727;
+    background: cornflowerblue;
+}
