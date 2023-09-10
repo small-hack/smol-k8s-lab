@@ -99,6 +99,7 @@ def main(config: str = "",
 
     if interactive:
         launch_tui()
+        exit()
 
     if setup:
         # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
