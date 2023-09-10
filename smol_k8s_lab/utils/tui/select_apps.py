@@ -4,6 +4,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Horizontal
 from textual.events import Mount
+from textual.widgets._toggle_button import ToggleButton
 from textual.widgets import Footer, Header, Pretty, SelectionList, Button
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.env_config import DEFAULT_CONFIG
@@ -36,6 +37,7 @@ class SelectApps(App[None]):
                 action="quit",
                 description="Quit smol-k8s-lab")
     ]
+    ToggleButton.BUTTON_INNER = '❤'
 
     def compose(self) -> ComposeResult:
         """
