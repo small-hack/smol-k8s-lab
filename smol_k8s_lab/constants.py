@@ -18,15 +18,6 @@ SYSINFO = uname()
 # this will be something like ('Darwin', 'x86_64')
 OS = (SYSINFO.sysname, SYSINFO.machine)
 
-DEFAULT_DISTROS = ['k3s', 'k3d', 'k0s', 'kind']
-
-if 'Darwin' in OS[0]:
-    # macOS can't run k3s yet
-    DEFAULT_DISTROS.pop(0)
-    DEFAULT_DISTRO = 'kind'
-else:
-    DEFAULT_DISTRO = 'k3s'
-
 HOME_DIR = environ["HOME"]
 USER = getuser()
 
@@ -70,3 +61,14 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
 
 DEFAULT_CONFIG = load_yaml(DEFAULT_CONFIG_FILE)
 INITIAL_USR_CONFIG = load_yaml()
+
+DEFAULT_DISTRO_OPTIONS = DEFAULT_CONFIG['k8s_distros']
+
+if 'Darwin' in OS[0]:
+    # macOS can't run k3s yet
+    DEFAULT_DISTRO_OPTIONS.pop('k3s')
+    DEFAULT_DISTRO = 'kind'
+else:
+    DEFAULT_DISTRO = 'k3s'
+
+DEFAULT_APPS = DEFAULT_CONFIG['apps']

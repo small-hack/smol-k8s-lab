@@ -2,10 +2,7 @@
 from textual.app import App, ComposeResult, Binding
 from textual.containers import VerticalScroll
 from textual.widgets import Input, Label, Rule, Footer, Header
-from smol_k8s_lab.env_config import DEFAULT_CONFIG
-
-
-DEFAULT_APPS = DEFAULT_CONFIG['apps']
+from smol_k8s_lab.constants import DEFAULT_APPS
 
 
 class ConfigureApps(App):
