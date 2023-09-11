@@ -3,7 +3,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Horizontal
 from textual.binding import Binding
 from textual.widgets import RadioButton, RadioSet, Button, Footer, Header
-from smol_k8s_lab.constants import DEFAULT_DISTROS, DEFAULT_DISTRO
+from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS, DEFAULT_DISTRO
 
 
 class SelectK8sDistro(App[None]):
@@ -43,18 +43,11 @@ class SelectK8sDistro(App[None]):
         yield header
 
         with RadioSet():
-            # if k3s is allowed on this OS, set it by default
-            if 'k3s' in DEFAULT_DISTROS:
-                default_selected = 'k3s'
-            # else, set the default selected to kind
-            else:
-                default_selected = 'kind'
-
             # create all the radio button choices
-            for distro in DEFAULT_DISTROS:
+            for distro in DEFAULT_DISTRO_OPTIONS:
                 enabled = False
 
-                if distro == default_selected:
+                if distro == DEFAULT_DISTRO:
                     enabled = True
 
                 # note that k3s is in alpha testing
@@ -84,7 +77,7 @@ class SelectK8sDistro(App[None]):
         """
         keep track of which radio button is being pressed
         """
-        self.distro = DEFAULT_DISTROS[event.radio_set.pressed_index]
+        self.distro = DEFAULT_DISTRO_OPTIONS[event.radio_set.pressed_index]
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """

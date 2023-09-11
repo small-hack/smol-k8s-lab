@@ -1,12 +1,17 @@
 #!/usr/bin/env python3.11
 """
 NAME: env_config.py
-DESC: everything to do with initial configuration of a new environment
+DESC: everything to do with initial configuration of a new environment via the cli
 """
 
-from rich.prompt import Confirm, Prompt
-from .constants import OS, VERSION, XDG_CONFIG_FILE, DEFAULT_CONFIG, DEFAULT_DISTROS
+from .constants import (OS,
+                        VERSION,
+                        XDG_CONFIG_FILE,
+                        DEFAULT_CONFIG,
+                        DEFAULT_APPS,
+                        DEFAULT_DISTRO_OPTIONS)
 from .utils.rich_cli.console_logging import print_panel, header, sub_header
+from rich.prompt import Confirm, Prompt
 from yaml import dump
 
 
@@ -47,13 +52,12 @@ def process_configs(config: dict = {}, delete: bool = False):
 
     initialize = False
     # process just the app sections because they're the bulk of the config
-    default_apps =  DEFAULT_CONFIG['apps']
     config_apps = config.get('apps', None)
 
     header("Checking Application Configuration...")
     # if the config doesn't have the apps section, then we initialize a new one
     # and return that to avoid extra computations on comparing the default conf
-    if not config_apps or default_apps == config_apps:
+    if not config_apps or DEFAULT_APPS == config_apps:
         sub_header("No application configurations found. 🌱 We'll initialize"
                    " them for you")
         initialize = True
@@ -61,7 +65,7 @@ def process_configs(config: dict = {}, delete: bool = False):
     else:
         sub_header("🔍 Found existing Application configurations to validate",
                    True, False)
-        apps_config, secrets = process_app_configs(config['apps'], default_apps)
+        apps_config, secrets = process_app_configs(config['apps'])
     config['apps'] = apps_config
 
     config['log'] = config.get("log", DEFAULT_CONFIG["log"])
@@ -88,7 +92,7 @@ def process_configs(config: dict = {}, delete: bool = False):
     return config, secrets
 
 
-def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
+def process_app_configs(apps: dict = {}) -> list:
     """
     process an existing applications config dict and fill in any missing fields
     arguments:
@@ -101,23 +105,21 @@ def process_app_configs(apps: dict = {}, default_apps: dict = {}) -> list:
                                  "source_repos": []}
                         }
              }
-        - default_apps: default applications dict schema, similar to above,
-                        used to validate the first dict
     """
 
     # check if argo cd is enabled and if argo_cd isn't an app in thier config,
     # we create it with defaults
-    argocd_enabled = apps.get('argo_cd', default_apps['argo_cd'])['enabled']
+    argocd_enabled = apps.get('argo_cd', DEFAULT_APPS['argo_cd'])['enabled']
 
     # this is always the same repo, we're not creative
-    default_repo = default_apps['argo_cd']['argo']['repo']
+    default_repo = DEFAULT_APPS['argo_cd']['argo']['repo']
 
     # these are the secrets we also return, so we can create them all at once
     return_secrets = {}
 
     for app_key, app in apps.items():
         # grab the default app config to compare to
-        default_cfg = default_apps[app_key]
+        default_cfg = DEFAULT_APPS[app_key]
         # anything with an "enabled" field is default enabled
         default_enabled = default_cfg.get('enabled', True)
         # if the user config doesn't have this section we write in defaults
@@ -195,7 +197,7 @@ def initialize_apps_config() -> list:
     Initializes a fresh apps configuration for smol-k8s-lab by ensuring each
     field is filled out.
     """
-    config = DEFAULT_CONFIG['apps']
+    config = DEFAULT_APPS
     # these are the secrets we also return, so we can create them all at once
     return_secrets = {}
 
@@ -252,10 +254,11 @@ def process_k8s_distros(k8s_distros: dict = {}):
         # verify the distros are supported
         for distro, metadata in k8s_distros.items():
             # if distro is enabled, but is not supported on user's OS
-            if distro not in DEFAULT_DISTROS and metadata.get('enabled', False):
-                print(f"{distro} is not supported on {OS[0]} at this time. :(")
-                # disable that distro so we don't run into errors down the line
-                k8s_distros[distro]['enabled'] = False
+            if distro not in DEFAULT_DISTRO_OPTIONS:
+                if metadata.get('enabled', False):
+                    print(f"{distro} is not supported on {OS[0]} at this time. :(")
+                    # disable that distro so we don't run into errors down the line
+                    k8s_distros[distro]['enabled'] = False
             else:
               # if distro is enabled
               if metadata.get('enabled', False):
@@ -263,7 +266,7 @@ def process_k8s_distros(k8s_distros: dict = {}):
 
     if not distros_enabled:
         msg = "[green]Which K8s distro would you like to use for your cluster?"
-        distro = Prompt.ask(msg, choices=DEFAULT_DISTROS)
+        distro = Prompt.ask(msg, choices=DEFAULT_DISTRO_OPTIONS)
         k8s_distros = {distro: {'enabled': True}}
 
     return k8s_distros

@@ -37,7 +37,7 @@ class SelectApps(App[None]):
                 action="quit",
                 description="Quit smol-k8s-lab")
     ]
-    ToggleButton.BUTTON_INNER = '❤'
+    ToggleButton.BUTTON_INNER = '♥'
 
     def compose(self) -> ComposeResult:
         """
