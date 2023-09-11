@@ -2,14 +2,14 @@
 from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-# from textual.containers import VerticalScroll, Horizontal
 from textual.events import Mount
 from textual.widgets import (Footer, Header, Input, Label, Pretty,
-                             RadioButton, RadioSet, Rule, SelectionList,
+                             RadioButton, RadioSet, Rule, SelectionList, Static,
                              TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
-from smol_k8s_lab.constants import DEFAULT_APPS, DEFAULT_DISTRO, DEFAULT_DISTRO_OPTIONS
+from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
+                                    DEFAULT_DISTRO_OPTIONS, DEFAULT_CONFIG)
 
 
 class ConfigureAll(App):
@@ -42,11 +42,11 @@ class ConfigureAll(App):
 
         # Add the TabbedContent widget
         with TabbedContent(initial="select-distro"):
-            # tab 1
+            # tab 1 - select a kubernetes distro
             with TabPane("Select k8s distro", id="select-distro"):
                 with RadioSet():
                     # create all the radio button choices
-                    for distro in DEFAULT_DISTRO_OPTIONS:
+                    for distro in sorted(DEFAULT_DISTRO_OPTIONS.keys()):
                         enabled = False
 
                         if distro == DEFAULT_DISTRO:
@@ -62,29 +62,35 @@ class ConfigureAll(App):
 
                         yield radio_button
 
+                yield Label(" ")
+
+                yield Label("[b][green]Description[/][/]")
+                yield Static(DEFAULT_CONFIG['k8s_distros'][DEFAULT_DISTRO]['description'],
+                             id='selected-distro-tooltip')
+                yield Label(" ")
+
             # tab 2 - allows selection of different argo cd apps to run in k8s
-            with TabPane("Select Apps", id="select-apps"):
+            with TabPane("Select k8s apps", id="select-apps"):
                 full_list = []
                 for argocd_app, app_metadata in DEFAULT_APPS.items():
-                    if argocd_app == 'cilium':
-                        full_list.append(Selection("cilium - an app for ebpf stuff",
-                                                   "cilium",
-                                                   False))
-                    elif argocd_app != 'cilium' and app_metadata['enabled']:
-                        full_list.append(Selection(argocd_app.replace("_","-"),
-                                                   argocd_app,
-                                                   True))
-                    else:
-                        full_list.append(Selection(argocd_app.replace("_","-"),
-                                                   argocd_app))
+                    full_list.append(Selection(argocd_app.replace("_","-"),
+                                               argocd_app,
+                                               app_metadata['enabled']))
 
                 yield SelectionList[str](*full_list)
-                yield Pretty([], id='pretty-selected-apps')
+                yield Label(" ")
+
+                yield Label("[b][green]Description[/][/]")
+                yield Static("", id='selected-app-tooltip-description')
+                yield Label(" ")
+
+                yield Label("[b][cornflower_blue]Argo CD App Repository[/][/]")
+                yield Static("", id='selected-app-tooltip-repo')
 
             # tab 3 - allows configuration of any selected apps
             with TabPane("Configure Apps", id="configure-apps"):
+                # this is just for spacing
                 yield Label(" ")
-                # yield Pretty(DEFAULT_APPS, id='default-apps')
 
                 for app, metadata in DEFAULT_APPS.items():
                     secret_keys = metadata['argo'].get('secret_keys', None)
@@ -119,15 +125,17 @@ class ConfigureAll(App):
         # styling for the select-apps tab
         cute_question = "ʕ ᵔᴥᵔʔ Select which apps to install on k8s"
         self.query_one(SelectionList).border_title = cute_question
-        self.get_widget_by_id('pretty-selected-apps').border_title = "Selected Apps"
+
+        # styling for the select-distro tab
+        cute_question2 = "ʕ ᵔᴥᵔʔ Select which Kubernetes distributrion to use"
+        self.query_one(RadioSet).border_title = cute_question2
 
     @on(Mount)
     @on(SelectionList.SelectedChanged)
     @on(TabbedContent.TabActivated)
-    def update_selected_view(self) -> None:
-        # update the pretty view of the selected options
+    def update_configue_apps_view(self) -> None:
+        # get the last item in the list selected items
         selected_items = self.query_one(SelectionList).selected
-        self.get_widget_by_id('pretty-selected-apps').update(selected_items)
 
         # for each application in DEFAULT_APPS
         for application in DEFAULT_APPS.keys():
@@ -145,6 +153,47 @@ class ConfigureAll(App):
             if app_class_objects:
                 for app_obj in app_class_objects:
                     app_obj.display = enabled
+
+    @on(SelectionList.SelectionHighlighted)
+    def update_selected_app_blurb(self) -> None:
+        selection_list = self.query_one(SelectionList)
+
+        # only the highlighted index
+        highlighted_idx = selection_list.highlighted
+
+        # the actual highlighted app
+        highlighted_app = selection_list.get_option_at_index(highlighted_idx).value
+
+        new_repo, new_blurb = generate_tool_tip(highlighted_app)
+
+        # update the static text with the new app description and repo
+        self.get_widget_by_id('selected-app-tooltip-repo').update(new_repo)
+        self.get_widget_by_id('selected-app-tooltip-description').update(new_blurb)
+
+    @on(RadioSet.Changed)
+    def update_k8s_distro_description(self) -> None:
+        pressed_index = self.query_one(RadioSet).pressed_index
+        pressed_distro = sorted(DEFAULT_DISTRO_OPTIONS.keys())[pressed_index]
+        description = DEFAULT_CONFIG['k8s_distros'][pressed_distro]['description']
+        self.get_widget_by_id('selected-distro-tooltip').update(description)
+
+
+def generate_tool_tip(app_name: str):
+    """
+    generate tooltip like:
+    """
+    app_description = DEFAULT_APPS[app_name]['description']
+
+    repo_link = "/".join([DEFAULT_APPS[app_name]['argo']['repo'],
+                          'tree',
+                          DEFAULT_APPS[app_name]['argo']['ref'],
+                          DEFAULT_APPS[app_name]['argo']['path']])
+
+    repo = f"[steel_blue][link={repo_link}]{repo_link}[/link]"
+
+    desc = f"[dim]{app_description}[/dim]"
+
+    return repo, desc
 
 
 if __name__ == "__main__":
