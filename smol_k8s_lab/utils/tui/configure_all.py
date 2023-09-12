@@ -112,6 +112,7 @@ class ConfigureAll(App):
                                                 classes=f"{app} app-init-switch-label")
                                     yield Switch(value=True,
                                                  classes=f"app-init-switch {app}")
+                                yield Label(" ", classes=app)
 
                                 # iterate through the app's secret keys
                                 for secret_key, value in secret_keys.items():
@@ -127,7 +128,8 @@ class ConfigureAll(App):
                                     input_container_class = f"app-label-and-input {app}"
 
                                     with Horizontal(classes=input_container_class):
-                                        yield Label(secret_key, classes=app)
+                                        yield Label(f"{secret_key}: ",
+                                                    classes=f"app-input-label {app}")
                                         if not app_enabled or not init_enabled:
                                             app_input.display = False
                                         yield app_input
