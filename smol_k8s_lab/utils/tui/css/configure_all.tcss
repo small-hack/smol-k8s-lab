@@ -20,10 +20,7 @@ RadioSet {
 
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
-    padding-left: 1;
-    padding-right: 1;
-    padding-top: 1;
-    padding-bottom: 5;
+    padding: 1;
     border: solid cornflowerblue;
     column-span: 1;
     scrollbar-background: #3a3a3a;
