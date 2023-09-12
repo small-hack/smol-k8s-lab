@@ -21,6 +21,8 @@ def configure_cilium(cilium_dict: dict):
     cilium_hostname = cilium_dict['argo']['secret_keys']['hostname']
 
     values = {"operator": {"replicas": 1},
+              "encryption": {"enabled": True,
+                             "type": "wireguard"},
               "hubble": {"relay": {"enabled": True},
                          "ui": {"enabled": True,
                                 "ingress": {"enabled": True,
