@@ -26,9 +26,9 @@ SelectionList {
     padding-bottom: 5;
     border: solid cornflowerblue;
     column-span: 1;
-    row-span: 2;
     scrollbar-background: #3a3a3a;
     scrollbar-color: #5f5fd7;
+    height: 3.5fr;
 }
 
 /* Matches the "Select apps to install on k8s" Selection List highlighted option */
@@ -46,42 +46,62 @@ SelectionList .option-list--option-highlighted {
     scrollbar-background: #3a3a3a;
     scrollbar-color: #5f5fd7;
     column-span: 1;
-    row-span: 2;
+    height: 3.5fr;
 }
 
 /* app label, app switch label, and switch each app name with initialization */
 .app-init-switch-and-label {
-    background: #4e4e4e;
+    background: #262626;
     layout: grid;
     grid-size: 4;
+    content-align: center middle;
+    align: center middle;
+    height: 3;
 }
 
 /* label for each app in the conigure selected apps pane */
 .app-label {
     column-span: 2;
-    row-span: 1;
+    height: 3;
+    width: auto;
+    content-align: center middle;
 }
 
 /* switch label for each app */
 .app-init-switch-label {
     column-span: 1;
-    row-span: 1;
+    height: 3;
+    content-align: center middle;
+    width: auto;
+}
+
+Switch {
+    height: auto;
+    width: auto;
 }
 
 /* initialization switch for each app */
 .app-init-switch {
     column-span: 1;
-    row-span: 1;
 }
 
-/* each app input label and and input field  line */
+/* each app input label and input field line */
 .app-label-and-input {
-    height: auto;
+    height: 3;
+    content-align: center middle;
     width: auto;
     column-span: 2;
 }
 
-/* each app input label and and input field  line */
+/* each app input label */
+.app-input-label {
+    column-span: 1;
+    height: 3;
+    content-align: center middle;
+    width: auto;
+}
+
+/* each app input field */
 .app-input {
     height: auto;
     width: auto;
@@ -91,9 +111,10 @@ SelectionList .option-list--option-highlighted {
 /* Matches Description AND Argo CD App Repository container in Select k8s apps tab */
 #app-tooltip-container {
     column-span: 2;
-    row-span: 1;
     content-align: center middle;
     align: left middle;
+    height: 0.5fr;
+    border: solid cornflowerblue;
 }
 
 /* manages just description for select k8s apps tab */
