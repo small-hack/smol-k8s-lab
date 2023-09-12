@@ -46,6 +46,7 @@ smol-k8s-lab = "smol_k8s_lab:main"
 
 [tool.poetry.group.dev.dependencies]
 deptry = "^0.12.0"
+textual-dev = "^1.1.0"
 
 [build-system]
 requires      = ["poetry-core"]
