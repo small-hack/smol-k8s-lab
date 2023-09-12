@@ -15,6 +15,8 @@ RadioSet {
 #select-apps-container {
     layout: grid;
     grid-size: 2;
+    grid-columns: 0.5fr 1.2fr;
+    grid-rows: 1.3fr 0.7fr;
 }
 
 
@@ -22,10 +24,9 @@ RadioSet {
 SelectionList {
     padding: 1;
     border: solid cornflowerblue;
-    column-span: 1;
     scrollbar-background: #3a3a3a;
     scrollbar-color: #5f5fd7;
-    height: 3.5fr;
+    height: 100%;
 }
 
 /* Matches the "Select apps to install on k8s" Selection List highlighted option */
@@ -36,14 +37,10 @@ SelectionList .option-list--option-highlighted {
 
 /* Matches the "Configure Selected apps" input list */
 #app-inputs {
-    padding-left: 1;
-    padding-right: 1;
-    padding-top: 1;
+    padding: 1;
     border: solid cornflowerblue;
     scrollbar-background: #3a3a3a;
     scrollbar-color: #5f5fd7;
-    column-span: 1;
-    height: 3.5fr;
 }
 
 /* app label, app switch label, and switch each app name with initialization */
@@ -51,67 +48,63 @@ SelectionList .option-list--option-highlighted {
     background: #262626;
     layout: grid;
     grid-size: 4;
-    content-align: center middle;
-    align: center middle;
     height: 3;
+    grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
 }
 
 /* label for each app in the conigure selected apps pane */
 .app-label {
-    column-span: 2;
     height: 3;
-    width: auto;
-    content-align: center middle;
+    width: 100%;
+    content-align: left middle;
+    padding-left: 1;
 }
 
 /* switch label for each app */
 .app-init-switch-label {
-    column-span: 1;
     height: 3;
-    content-align: center middle;
-    width: auto;
+    width: 100%;
+    content-align: right middle;
 }
 
 Switch {
+    content-align: right middle;
     height: auto;
     width: auto;
 }
 
 /* initialization switch for each app */
 .app-init-switch {
-    column-span: 1;
+
 }
 
 /* each app input label and input field line */
 .app-label-and-input {
     height: 3;
-    content-align: center middle;
-    width: auto;
-    column-span: 2;
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.8fr 1.2fr;
 }
 
 /* each app input label */
 .app-input-label {
-    column-span: 1;
     height: 3;
-    content-align: center middle;
-    width: auto;
+    width: 100%;
+    content-align: left middle;
+    padding-left: 1;
 }
 
 /* each app input field */
 .app-input {
     height: auto;
-    width: auto;
-    column-span: 1;
+    width: 100;
 }
 
 /* Matches Description AND Argo CD App Repository container in Select k8s apps tab */
 #app-tooltip-container {
     column-span: 2;
-    content-align: center middle;
-    align: left middle;
-    height: 0.5fr;
     border: solid cornflowerblue;
+    content-align: center middle;
 }
 
 /* manages just description for select k8s apps tab */
