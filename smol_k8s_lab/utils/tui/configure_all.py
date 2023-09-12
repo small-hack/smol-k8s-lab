@@ -108,7 +108,7 @@ class ConfigureAll(App):
                                     app_title = app.replace('_', ' ').title()
                                     yield Label(f"[green]{app_title}[/]",
                                                 classes=f"{app} app-label")
-                                    yield Label("Init: ",
+                                    yield Label("Initialize: ",
                                                 classes=f"{app} app-init-switch-label")
                                     yield Switch(value=True,
                                                  classes=f"app-init-switch {app}")
@@ -116,7 +116,8 @@ class ConfigureAll(App):
 
                                 # iterate through the app's secret keys
                                 for secret_key, value in secret_keys.items():
-                                    placeholder = "enter a " + secret_key
+                                    secret_label = secret_key.replace("_", " ")
+                                    placeholder = "enter a " + secret_label
                                     input_classes = f"app-input {app}"
                                     if value:
                                         app_input = Input(placeholder=placeholder,
@@ -128,7 +129,7 @@ class ConfigureAll(App):
                                     input_container_class = f"app-label-and-input {app}"
 
                                     with Horizontal(classes=input_container_class):
-                                        yield Label(f"{secret_key}: ",
+                                        yield Label(f"{secret_label}: ",
                                                     classes=f"app-input-label {app}")
                                         if not app_enabled or not init_enabled:
                                             app_input.display = False
