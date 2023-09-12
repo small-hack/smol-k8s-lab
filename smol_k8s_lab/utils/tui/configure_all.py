@@ -1,11 +1,12 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import App, ComposeResult
+from textual.containers import VerticalScroll, Container, Horizontal
 from textual.binding import Binding
 from textual.events import Mount
-from textual.widgets import (Footer, Header, Input, Label, Pretty,
+from textual.widgets import (Footer, Header, Input, Label,
                              RadioButton, RadioSet, Rule, SelectionList, Static,
-                             TabbedContent, TabPane)
+                             Switch, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
@@ -65,7 +66,7 @@ class ConfigureAll(App):
                 yield Label(" ")
 
                 yield Label("[b][green]Description[/][/]")
-                yield Static(DEFAULT_CONFIG['k8s_distros'][DEFAULT_DISTRO]['description'],
+                yield Static(DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description'],
                              id='selected-distro-tooltip')
                 yield Label(" ")
 
@@ -77,40 +78,71 @@ class ConfigureAll(App):
                                                argocd_app,
                                                app_metadata['enabled']))
 
-                yield SelectionList[str](*full_list)
-                yield Label(" ")
+                with Container(id="select-apps-container"):
+                    # top left is the SelectionList of k8s applications
+                    yield SelectionList[str](*full_list,
+                                             id='selection-list-of-apps')
 
-                yield Label("[b][green]Description[/][/]")
-                yield Static("", id='selected-app-tooltip-description')
-                yield Label(" ")
+                    # top right are any input values we need
+                    # this is a vertically scrolling container for all the inputs
+                    with VerticalScroll(id='app-inputs'):
+                        for app, metadata in DEFAULT_APPS.items():
+                            secret_keys = metadata['argo'].get('secret_keys', None)
+                            app_enabled = metadata['enabled']
 
-                yield Label("[b][cornflower_blue]Argo CD App Repository[/][/]")
-                yield Static("", id='selected-app-tooltip-repo')
-
-            # tab 3 - allows configuration of any selected apps
-            with TabPane("Configure Apps", id="configure-apps"):
-                # this is just for spacing
-                yield Label(" ")
-
-                for app, metadata in DEFAULT_APPS.items():
-                    secret_keys = metadata['argo'].get('secret_keys', None)
-                    init = metadata.get('init', None)
-                    if init:
-                        init_enabled = metadata['init'].get('enabled', False)
-                    else:
-                        init_enabled = False
-
-                    if metadata['enabled'] and secret_keys and init_enabled:
-                        # make a pretty title for the app to configure
-                        app_title = app.replace('_', ' ').title()
-                        yield Label(f"[green]{app_title}[/]", classes=app)
-
-                        for secret_key, value in secret_keys.items():
-                            if not value:
-                                yield Input(placeholder=secret_key, classes=app)
+                            # if app doesn't have secret keys, continue to next app
+                            if not secret_keys:
+                                continue
+                            # if the app has secret keys
                             else:
-                                yield Input(placeholder=value, classes=app)
-                        yield Rule(classes=app)
+                                init = metadata.get('init', False)
+                                # if there's no init possible, skip this app
+                                if not init:
+                                    continue
+                                else:
+                                    init_enabled = init.get('enabled', False)
+
+                                # make a pretty title for the app to configure
+                                s_class = f"app-init-switch-and-label {app}"
+                                with Container(classes=s_class):
+                                    app_title = app.replace('_', ' ').title()
+                                    yield Label(f"[green]{app_title}[/]",
+                                                classes=f"{app} app-label")
+                                    yield Label("Init: ",
+                                                classes=f"{app} app-init-switch-label")
+                                    yield Switch(value=True,
+                                                 classes=f"app-init-switch {app}")
+
+                                # iterate through the app's secret keys
+                                for secret_key, value in secret_keys.items():
+                                    placeholder = "enter a " + secret_key
+                                    input_classes = f"app-input {app}"
+                                    if value:
+                                        app_input = Input(placeholder=placeholder,
+                                                          value=value,
+                                                          classes=input_classes)
+                                    else:
+                                        app_input = Input(placeholder=placeholder,
+                                                          classes=input_classes)
+                                    input_container_class = f"app-label-and-input {app}"
+
+                                    with Horizontal(classes=input_container_class):
+                                        yield Label(secret_key, classes=app)
+                                        if not app_enabled or not init_enabled:
+                                            app_input.display = False
+                                        yield app_input
+
+                                yield Label(" ", classes=app)
+
+
+                    with VerticalScroll(id='app-tooltip-container'):
+                        # Bottom half of the screen for select-apps TabPane()
+                        yield Label("[b][green]Description[/][/]")
+                        yield Label("", id='selected-app-tooltip-description')
+                        yield Label(" ")
+
+                        yield Label("[b][cornflower_blue]Argo CD App Repository[/][/]")
+                        yield Label("", id='selected-app-tooltip-repo')
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
@@ -123,12 +155,16 @@ class ConfigureAll(App):
         self.sub_title = "now with more 🦑"
 
         # styling for the select-apps tab
-        cute_question = "ʕ ᵔᴥᵔʔ Select which apps to install on k8s"
+        cute_question = "ʕ ᵔᴥᵔʔ Select apps to install on k8s"
         self.query_one(SelectionList).border_title = cute_question
 
         # styling for the select-distro tab
         cute_question2 = "ʕ ᵔᴥᵔʔ Select which Kubernetes distributrion to use"
         self.query_one(RadioSet).border_title = cute_question2
+
+        # styling for the select-distro tab
+        cute_question3 = "Configure selected apps ʕᵔᴥᵔ ʔ"
+        self.get_widget_by_id('app-inputs').border_title = cute_question3
 
     @on(Mount)
     @on(SelectionList.SelectedChanged)
@@ -194,6 +230,7 @@ def generate_tool_tip(app_name: str):
     desc = f"[dim]{app_description}[/dim]"
 
     return repo, desc
+
 
 
 if __name__ == "__main__":

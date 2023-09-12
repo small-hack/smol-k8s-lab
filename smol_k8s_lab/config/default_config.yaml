@@ -359,25 +359,12 @@ apps:
   k8up:
     enabled: true
     description: |
-      K8up (pronounced /keɪtæpp/ or simply "ketchup?") is a Kubernetes Operator distributed via a Helm chart, compatible with OpenShift and plain Kubernetes. It allows cluster operators to:
+      K8up ([i]pronounced "ketchup?"[/]) is a Kubernetes Operator based on Restic for backups of Persistent Volumes in k8s into S3 compatible storage like MinIO. Backs up all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label. Can also perform "Application Aware" backups, containing the output of any tool capable of writing to stdout.
 
-      Backup all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label.
+      You can also perform individual, on-demand backups, and restores from the k8up CLI tool.
 
-      Perform individual, on-demand backups.
+      Learn more: [steel_blue][link=https://k8up.io]https://k8up.io[/link][/]
 
-      Schedule backups to be executed on a regular basis.
-
-      Schedule archivals (for example to AWS Glacier), usually executed in longer intervals.
-
-      Perform "Application Aware" backups, containing the output of any tool capable of writing to stdout.
-
-      Check the backup repository for its integrity.
-
-      Prune old backups from a repository.
-
-      Restore backups with the help of the k8up CLI tool.
-
-      Based on top of Restic, it can store backups in any S3-compatible storage, such as Amazon S3 or Minio.
     init:
       enabled: true
     argo:

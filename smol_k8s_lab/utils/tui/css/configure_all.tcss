@@ -1,36 +1,107 @@
+/* Matches the entire screen for each page */
 Screen {
-    align: center top;
     scrollbar-background: #3a3a3a;
     scrollbar-color: #5f5fd7;
 }
 
-Horizontal {
-    width: 80%;
-    height: 80%;
-}
-
+/* Matches the k8s distro picker radio set */
 RadioSet {
     padding: 1;
     border: solid cornflowerblue;
     width: 1fr;
 }
 
-SelectionList {
-    padding: 1;
-    border: solid cornflowerblue;
-    width: 1fr;
+/* Matches the "Select k8s apps" screen tab content container */
+#select-apps-container {
+    layout: grid;
+    grid-size: 2;
 }
 
+
+/* Matches the "Select apps to install on k8s" Selection List */
+SelectionList {
+    padding-left: 1;
+    padding-right: 1;
+    padding-top: 1;
+    padding-bottom: 5;
+    border: solid cornflowerblue;
+    column-span: 1;
+    row-span: 2;
+    scrollbar-background: #3a3a3a;
+    scrollbar-color: #5f5fd7;
+}
+
+/* Matches the "Select apps to install on k8s" Selection List highlighted option */
 SelectionList .option-list--option-highlighted {
     color: #282727;
     background: cornflowerblue;
 }
 
-Pretty {
-    width: 1fr;
-    border: solid $accent;
+/* Matches the "Configure Selected apps" input list */
+#app-inputs {
+    padding-left: 1;
+    padding-right: 1;
+    padding-top: 1;
+    border: solid cornflowerblue;
+    scrollbar-background: #3a3a3a;
+    scrollbar-color: #5f5fd7;
+    column-span: 1;
+    row-span: 2;
 }
 
+/* app label, app switch label, and switch each app name with initialization */
+.app-init-switch-and-label {
+    background: #4e4e4e;
+    layout: grid;
+    grid-size: 4;
+}
+
+/* label for each app in the conigure selected apps pane */
+.app-label {
+    column-span: 2;
+    row-span: 1;
+}
+
+/* switch label for each app */
+.app-init-switch-label {
+    column-span: 1;
+    row-span: 1;
+}
+
+/* initialization switch for each app */
+.app-init-switch {
+    column-span: 1;
+    row-span: 1;
+}
+
+/* each app input label and and input field  line */
+.app-label-and-input {
+    height: auto;
+    width: auto;
+    column-span: 2;
+}
+
+/* each app input label and and input field  line */
+.app-input {
+    height: auto;
+    width: auto;
+    column-span: 1;
+}
+
+/* Matches Description AND Argo CD App Repository container in Select k8s apps tab */
+#app-tooltip-container {
+    column-span: 2;
+    row-span: 1;
+    content-align: center middle;
+    align: left middle;
+}
+
+/* manages just description for select k8s apps tab */
+#selected-app-tooltip-description {
+    width: 100;
+}
+
+/* Matches the bottom footer help text on every page */
 Footer {
     background: #232336;
 }
