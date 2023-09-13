@@ -45,6 +45,7 @@ class ConfigureAll(App):
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
             with TabPane("Select k8s distro", id="select-distro"):
+                # this is the distro picker
                 with RadioSet():
                     # create all the radio button choices
                     for distro in sorted(DEFAULT_DISTRO_OPTIONS.keys()):
@@ -65,6 +66,7 @@ class ConfigureAll(App):
 
                 yield Label(" ")
 
+                # these are distro configurations
                 with Container(id="k8s-distro-config"):
                     with VerticalScroll(id='distro-inputs'):
                         for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
