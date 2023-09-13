@@ -17,9 +17,11 @@ k8s_distros:
       K3s is packaged as a single <70MB binary that reduces the dependencies and steps needed to install, run and auto-update a production Kubernetes cluster. It's also optomized for ARM.
 
       Learn more: [steel_blue][link="https://k3s.io/"]https://k3s.io[/link][/]
-    # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
-    # it's set high for beefy nodes, but you can set it lower if you'd like
-    max_pods: 200
+    # change the kubelet config for this node in k3s, feel free to add more values
+    kubelet:
+      # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
+      # it's set high for beefy nodes, but you can set it lower if you'd like
+      max_pods: 200
     # if k8s_distribution set to k3s, you can add an array of extra
     # arguments to pass to the k3s install script
     extra_args: []

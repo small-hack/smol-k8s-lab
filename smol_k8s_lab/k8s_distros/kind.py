@@ -8,12 +8,12 @@ DESCRIPTION: create or delete a kind cluster, part of smol-k8s-lab
 import logging as log
 from os import path
 from shutil import which
+from ..constants import XDG_CACHE_DIR
 from ..rich_cli.console_logging import sub_header
-from ..constants import PWD
 from ..utils.subproc import subproc
 
 
-def install_kind_cluster():
+def install_kind_cluster(kubelet_args: dict = {}, disable_cni: bool = False):
     """
     Run installation process for kind and create cluster
     returns True
@@ -28,8 +28,8 @@ def install_kind_cluster():
 
     log.debug("Creating a kind cluster...")
 
-    # use our pre-configured kind file to install a small cluster
-    full_path = path.join(PWD, 'config/kind/kind_cluster_config.yaml')
+    build_kind_config()
+
     cmd = f"kind create cluster --name smol-k8s-lab-kind --config={full_path}"
     subproc([cmd])
 
@@ -52,3 +52,44 @@ def delete_kind_cluster():
         sub_header("Kind is not installed.", False, False)
 
     return True
+
+
+def build_kind_config():
+    """
+    builds a kind config
+    """
+    if kubelet_args:
+        cluster_config = {"kind": "ClusterConfiguration",
+                          "apiServer": {"extraArgs": kubelet_args}}
+        node_config = {"kubeadmConfigPatches": cluster_config}
+
+    if disable_cni:
+        disabled_default_cni = {"networking": {"disableDefaultCNI": True}}
+
+    extra_args = {"node-labels": "ingress-ready=true"}
+    kube_adm_config = {'kind': 'InitConfiguration',
+                       'nodeRegistration': {'kubeletExtraArgs': extra_args}}
+    kind_cfg = {'kind': 'Cluster',
+                'apiVersion': 'kind.x-k8s.io/v1alpha4',
+                'name': 'smol-k8s-lab-kind',
+                'nodes': [
+                    {'role': 'control-plane',
+                     'kubeadmConfigPatches': [kube_adm_config],
+                     'extraPortMappings': [
+                         {'containerPort': 80,
+                           'hostPort': 80,
+                           'protocol': 'TCP'},
+                         {'containerPort': 443,
+                          'hostPort': 443,
+                          'protocol': 'TCP'}
+                         ]
+                     }
+                    ]
+                }
+
+    # this creates a values.yaml from the val dict above
+    kind_config_file = path.join(XDG_CACHE_DIR, 'kind_config.yaml')
+    with open(kind_config_file, 'w') as values_file:
+        yaml.dump(val, values_file)
+
+    return kind_config_file
