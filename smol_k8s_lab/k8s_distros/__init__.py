@@ -1,6 +1,6 @@
 import logging as log
 from .kind import install_kind_cluster, delete_kind_cluster
-from .k3d import install_k3d_cluster, uninstall_k3d
+from .k3d import install_k3d_cluster, uninstall_k3d_cluster
 from .k3s import install_k3s_cluster, uninstall_k3s
 from ..utils.rich_cli.console_logging import sub_header, header
 from ..utils.subproc import subproc
@@ -107,7 +107,7 @@ def delete_cluster(k8s_distro: str) -> True:
         uninstall_k3s(contexts)
 
     if k8s_distro == 'k3d':
-        uninstall_k3d()
+        uninstall_k3d_cluster()
 
     elif k8s_distro == 'kind':
         delete_kind_cluster()

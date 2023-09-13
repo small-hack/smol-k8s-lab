@@ -5,7 +5,7 @@ DESCRIPTION: install k3d :D Not affiliated with k3s, rancher, or suse. just a fa
      AUTHOR: @Jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-from ..rich_cli.console_logging import sub_header
+from ..utils.rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
 
 
