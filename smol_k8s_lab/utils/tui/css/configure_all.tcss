@@ -42,7 +42,6 @@ RadioSet {
     layout: grid;
     grid-size: 4;
     height: 3;
-    grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
 }
 
 /* "number of nodes:" label before the minus button */
@@ -56,7 +55,6 @@ RadioSet {
 
 /* input field to manually increase/decrease number of nodes*/
 .nodes-input {
-    width: 1;
 }
 
 /* button to increase the number of nodes */
