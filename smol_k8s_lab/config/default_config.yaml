@@ -6,6 +6,14 @@ log:
   # logging level, Options: debug, info, warn, error
   level: "debug"
 
+tui:
+  # always use the interactive TUI experience
+  always_enabled: False
+  # show new user tips: set to one of the fallowing: "always", "on update", "never"
+  new_user_tips: always
+  # hide bottom help bar
+  hide_footer: False
+
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind is available on macOS at this time
 k8s_distros:
