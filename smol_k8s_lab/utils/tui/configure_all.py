@@ -65,6 +65,60 @@ class ConfigureAll(App):
 
                 yield Label(" ")
 
+                with Container(id="k8s-distro-config"):
+                    with VerticalScroll(id='distro-inputs'):
+                        for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
+
+                            # take number of nodes
+                            nodes = distro_metadata.get('nodes', 1)
+                            if distro != 'k3s':
+                                with Horizontal():
+                                    yield Label("number of nodes: ",
+                                                classes=f"distro-input-label {distro}")
+                                    yield Input(value=nodes,
+                                                placeholder='enter number of nodes',
+                                                classes=f"distro-input {distro}")
+
+                                    yield Rule(classes=distro)
+
+                            # take extra k3s args
+                            if distro == 'k3s' or 'k3d':
+                                yield Label("[green]Extra Args for k3s install script",
+                                            classes=distro)
+                                if distro == 'k3s':
+                                    k3s_args = distro_metadata['extra_cli_args']
+                                else:
+                                    k3s_args = distro_metadata['extra_k3s_cli_args']
+
+                                if k3s_args:
+                                    for arg in k3s_args:
+                                        yield Input(value=arg,
+                                                    placeholder="enter k3s extra arg",
+                                                    classes=f"distro-input {distro}")
+
+                                    yield Rule(classes=distro)
+
+
+                            # take extra kubelet config args
+                            yield Label("[green]Extra Args for Kubelet Config",
+                                        classes=distro)
+                            kubelet_args = distro_metadata['kubelet_extra_args']
+                            if kubelet_args:
+                                for key, value in kubelet_args.items():
+                                    with Horizontal():
+                                        yield Label(f"{key}: ",
+                                                    classes=f"distro-input-label {distro}")
+                                        yield Input(value=value,
+                                                    placeholder=key,
+                                                    classes=f"distro-input {distro}")
+
+                                yield Rule(classes=distro)
+
+
+
+
+                yield Label(" ")
+
                 yield Label("[b][green]Description[/][/]")
                 yield Static(DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description'],
                              id='selected-distro-tooltip')
@@ -119,6 +173,7 @@ class ConfigureAll(App):
                                     secret_label = secret_key.replace("_", " ")
                                     placeholder = "enter a " + secret_label
                                     input_classes = f"app-input {app}"
+
                                     if value:
                                         app_input = Input(placeholder=placeholder,
                                                           value=value,
@@ -126,6 +181,7 @@ class ConfigureAll(App):
                                     else:
                                         app_input = Input(placeholder=placeholder,
                                                           classes=input_classes)
+
                                     input_container_class = f"app-label-and-input {app}"
 
                                     with Horizontal(classes=input_container_class):
