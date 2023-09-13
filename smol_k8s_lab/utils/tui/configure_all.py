@@ -74,7 +74,7 @@ class ConfigureAll(App):
                         node_class = f"{distro} nodes-input"
                         with Horizontal(classes=f"{node_class}-row"):
                             yield Label("number of nodes: ",
-                                        classes=f"{node_class}-input-label")
+                                        classes=f"{node_class}-label")
 
                             disabled = False
                             if distro == 'k3s':
