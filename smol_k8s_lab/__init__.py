@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 """
            NAME: smol-k8s-lab
-    DESCRIPTION: Works with k3s and KinD (k0s and k3d are experimental)
+    DESCRIPTION: Works with k3s and KinD (k3d is experimental)
          AUTHOR: jessebot(AT)linux(d0t)com
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
@@ -144,7 +144,7 @@ def main(config: str = "",
         # check immediately if cilium is enabled
         cilium_enabled = apps['cilium']['enabled']
 
-        # install the actual KIND, k0s, k3s, or k3d (experimental) cluster
+        # install the actual KIND, k3s, or k3d (experimental) cluster
         create_k8s_distro(distro, metadata, metallb_enabled, cilium_enabled)
 
         argo_enabled = apps['argo_cd']['enabled']

@@ -5,12 +5,13 @@ DESCRIPTION: create or delete a kind cluster, part of smol-k8s-lab
      AUTHOR: <https://github.com/jessebot>
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-import logging as log
-from os import path
-from shutil import which
 from ..constants import XDG_CACHE_DIR
 from ..rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
+import logging as log
+from os import path
+from shutil import which
+from yaml import dump
 
 
 def install_kind_cluster(kubelet_args: dict = {}, disable_cni: bool = False):
@@ -28,9 +29,10 @@ def install_kind_cluster(kubelet_args: dict = {}, disable_cni: bool = False):
 
     log.debug("Creating a kind cluster...")
 
-    build_kind_config()
+    kind_cfg = path.join(XDG_CACHE_DIR, 'kind_cfg.yaml')
+    build_kind_config(kind_cfg)
 
-    cmd = f"kind create cluster --name smol-k8s-lab-kind --config={full_path}"
+    cmd = f"kind create cluster --name smol-k8s-lab-kind --config={kind_cfg}"
     subproc([cmd])
 
     return True
@@ -54,42 +56,45 @@ def delete_kind_cluster():
     return True
 
 
-def build_kind_config():
+def build_kind_config(kind_cfg: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
+                      kubelet_extra_args: dict = {},
+                      networking_args: dict = {}):
     """
-    builds a kind config
+    builds a kind config including any extra networking 
     """
-    if kubelet_args:
-        cluster_config = {"kind": "ClusterConfiguration",
-                          "apiServer": {"extraArgs": kubelet_args}}
-        node_config = {"kubeadmConfigPatches": cluster_config}
 
-    if disable_cni:
-        disabled_default_cni = {"networking": {"disableDefaultCNI": True}}
-
-    extra_args = {"node-labels": "ingress-ready=true"}
-    kube_adm_config = {'kind': 'InitConfiguration',
-                       'nodeRegistration': {'kubeletExtraArgs': extra_args}}
-    kind_cfg = {'kind': 'Cluster',
-                'apiVersion': 'kind.x-k8s.io/v1alpha4',
-                'name': 'smol-k8s-lab-kind',
-                'nodes': [
-                    {'role': 'control-plane',
-                     'kubeadmConfigPatches': [kube_adm_config],
-                     'extraPortMappings': [
-                         {'containerPort': 80,
-                           'hostPort': 80,
-                           'protocol': 'TCP'},
-                         {'containerPort': 443,
-                          'hostPort': 443,
-                          'protocol': 'TCP'}
-                         ]
-                     }
-                    ]
+    # adding any extra kubelet args you'd like to the kind node
+    kube_adm_config = {
+            'kind': 'InitConfiguration',
+            'nodeRegistration': {
+                'kubeletExtraArgs': kubelet_extra_args
                 }
+            }
 
-    # this creates a values.yaml from the val dict above
-    kind_config_file = path.join(XDG_CACHE_DIR, 'kind_config.yaml')
-    with open(kind_config_file, 'w') as values_file:
-        yaml.dump(val, values_file)
+    kind_cfg = {
+            'kind': 'Cluster',
+            'apiVersion': 'kind.x-k8s.io/v1alpha4',
+            'name': 'smol-k8s-lab-kind',
+            'nodes': [{
+                'role': 'control-plane',
+                'kubeadmConfigPatches': [kube_adm_config],
+                'extraPortMappings': [
+                    {'containerPort': 80,
+                      'hostPort': 80,
+                      'protocol': 'TCP'},
+                    {'containerPort': 443,
+                     'hostPort': 443,
+                     'protocol': 'TCP'}
+                    ]
+                }]
+            }
+
+    if networking_args:
+        kind_cfg["networking"] = networking_args
+
+
+    # this creates a kind_cfg.yaml from the kind_cfg dict above
+    with open(kind_cfg, 'w') as kind_config_file:
+        dump(kind_cfg, kind_config_file)
 
     return kind_config_file

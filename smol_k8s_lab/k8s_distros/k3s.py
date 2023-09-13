@@ -14,9 +14,8 @@ from ..constants import USER, KUBECONFIG, XDG_CACHE_DIR
 from ..utils.subproc import subproc
 
 
-def install_k3s_cluster(disable_servicelb: bool,
-                        cilium_enabled: bool,
-                        additonal_arguments: list,
+def install_k3s_cluster(extra_k3s_cli_args: list,
+                        kubelet_extra: list,
                         max_pods: int):
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
@@ -45,16 +44,8 @@ def install_k3s_cluster(disable_servicelb: bool,
 
     # create the k3s cluster (just one server node)
     cmd = ('./install.sh '
-           '--disable=traefik '
            '--write-kubeconfig-mode=700 '
-           '--secrets-encryption '
            '--kubelet-arg=config=/etc/rancher/k3s/kubelet.config')
-
-    if disable_servicelb:
-        cmd += ' --disable=servicelb'
-
-    if cilium_enabled:
-        cmd += ' --flannel-backend=none --disable-network-policy'
 
     # add additional arguments to k3s if there are any
     if additonal_arguments:

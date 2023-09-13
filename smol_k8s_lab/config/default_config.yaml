@@ -6,7 +6,7 @@ log:
   # logging level, Options: debug, info, warn, error
   level: "debug"
 
-# which distros of Kubernetes to deploy. Options: kind, k3s, k0s
+# which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind is available on macOS at this time
 k8s_distros:
   k3s:
@@ -18,23 +18,47 @@ k8s_distros:
 
       Learn more: [steel_blue][link="https://k3s.io/"]https://k3s.io[/link][/]
     # change the kubelet config for this node in k3s, feel free to add more values
-    kubelet:
+    kubelet_extra_args:
       # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
       # it's set high for beefy nodes, but you can set it lower if you'd like
       max_pods: 200
-    # if k8s_distribution set to k3s, you can add an array of extra
-    # arguments to pass to the k3s install script
-    extra_args: []
+    # if k8s_distro set to k3s, you can add an array of extra arguments to pass
+    # to the k3s install script. we automatically append --disable=servicelb if
+    # you enabled metallb and we automatically append --flannel-backend=none and
+    # --disable-network-policy if you enable cilium
+    extra_k3s_cli_args:
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      - "--disable=traefik"
+      # enables encryption at rest for kubernetes secrets
+      - "--secrets-encryption"
+    # nodes to SSH to and join to the k3s cluster. Use hostnames or IPs
+    external_nodes: []
 
   k3d:
+    # set to true to enable deploying a kubernetes cluster using k3d
+    enabled: false
     description: |
       ⚠️ [magenta]NOT tested yet![/magenta]
 
       k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal Kubernetes distribution) in docker.
 
       Learn more: [steel_blue][link="https://k3d.io/v5.6.0/"]https://k3d.io/v5.6.0/[/link][/]
-    # set to true to enable deploying a kubernetes cluster using k3d
-    enabled: false
+    # change the kubelet config for all k3d nodes, feel free to add more values
+    kubelet_extra_args:
+      # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
+      # it's set high for beefy nodes, but you can set it lower if you'd like
+      max_pods: 200
+    # if k8s_distos set to k3s, you can add an array of extra arguments to pass
+    # to the k3s install script. we automatically append --disable=servicelb if
+    # you enabled metallb and we automatically append --flannel-backend=none and
+    # --disable-network-policy if you enable cilium
+    extra_k3s_cli_args:
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      - "--disable=traefik"
+      # enables encryption at rest for kubernetes secrets
+      - "--secrets-encryption"
+    # how many dockerized k3s nodes to deploy
+    nodes: 1
 
   kind:
     # set to true to enable deploying a kubernetes cluster using kind
@@ -43,15 +67,16 @@ k8s_distros:
       kind is a tool for running local k8s clusters using Docker containers as “nodes”. It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.
 
       Learn more: [steel_blue][link="https://kind.sigs.k8s.io/"]https://kind.sigs.k8s.io/[/link][/]
-
-  k0s:
-    # set to true to enable deploying a kubernetes cluster using k0s
-    enabled: false
-    description: |
-      k0s is the simple, solid & certified Kubernetes distribution that works on any infrastructure: bare-metal, on-premises, edge, IoT, public & private clouds.
-      k0s is open source and developed by mirantis, the same company that develops docker.
-
-      Learn more: [steel_blue][link="https://k0sproject.io/"]https://k0sproject.io/[/link][/]
+    # change the kubelet config for this node in k3s, feel free to add more values
+    kubelet_extra_args:
+      # set the maximum pods per node via 
+      # it's set high for beefy nodes, but you can set it lower if you'd like
+      node-labels: "ingress-ready=true"
+    # See: https://kind.sigs.k8s.io/docs/user/configuration/#networking
+    # if you enable cilium, we automatically add {disableDefaultCNI: true}
+    networking_args: {}
+    # how many dockerized kind nodes to deploy
+    nodes: 1
 
 
 # this is useful for learning smol-k8s-lab or verifying your configuration

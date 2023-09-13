@@ -1,4 +1,7 @@
 import logging as log
+from .kind import install_kind_cluster
+from .k3d import install_k3d_cluster
+from .k3s import install_k3s_cluster
 from ..utils.rich_cli.console_logging import sub_header, header
 from ..utils.subproc import subproc
 
@@ -37,7 +40,7 @@ def create_k8s_distro(k8s_distro: str,
     """
     Install a specific distro of k8s
     Arguments:
-        k8s_distro:       options: 'k0s', 'k3s', 'k3d', 'kind'
+        k8s_distro:       options: 'k3s', 'k3d', 'kind'
         distro_metadata:  any extra data objects to be passed to the install funcs
         metallb_enabled:  if we're enabling metallb which requires we disable servicelb
     Returns True
@@ -47,30 +50,37 @@ def create_k8s_distro(k8s_distro: str,
     if contexts:
         sub_header(f'We already have a [green]{k8s_distro}[/] cluster ♡')
 
-    sub_header('This could take a min ʕ•́  ̫•̀ʔっ♡ ', False)
+    sub_header('This could take a min ʕ•́ _ •̀ʔっ♡ ', False)
+    kubelet_args = distro_metadata.get('kubelet_extra_args', None)
 
     if k8s_distro == "kind":
-        from .kind import install_kind_cluster
-        install_kind_cluster()
-    elif k8s_distro == "k3s":
-        from .k3s import install_k3s_cluster
-        extra_args = distro_metadata.get('extra_args', [])
-        max_pods = distro_metadata.get('max_pods', 200)
-        install_k3s_cluster(metallb_enabled, cilium_enabled, extra_args, max_pods)
-    # curently unsupported - in alpha state
-    elif k8s_distro == "k3d":
-        from .k3d import install_k3d_cluster
-        install_k3d_cluster()
-    elif k8s_distro == "k0s":
-        from .k0s import install_k0s_cluster
-        install_k0s_cluster()
+        install_kind_cluster(kubelet_args, distro_metadata['nodes'])
+    elif k8s_distro == "k3s" or k8s_distro == "k3d":
+        # get any extra args the user has passed in
+        k3s_args = distro_metadata['extra_k3s_cli_args']
+
+        # if metallb is enabled, we need to disable servicelb
+        if metallb_enabled:
+            k3s_args.append('--disable=servicelb')
+
+        # if cilium is enabled, we need to disable flannel and network-policy
+        if cilium_enabled:
+            k3s_args.extend(['--flannel-backend=none',
+                             '--disable-network-policy'])
+
+        if k8s_distro == "k3s":
+            install_k3s_cluster(k3s_args, kubelet_args)
+
+        # curently unsupported - in alpha state
+        if k8s_distro == "k3d":
+            install_k3d_cluster(k3s_args, kubelet_args, distro_metadata['nodes'])
+
     return True
 
 
 def delete_cluster(k8s_distro: str) -> True:
     """
-    Delete a k0s, k3s, or KinD cluster entirely.
-    It is suggested to perform a reboot after deleting a k0s cluster.
+    Delete a k3s, or KinD cluster entirely.
     """
     contexts = check_contexts(k8s_distro)
     log.info(contexts)
@@ -85,10 +95,6 @@ def delete_cluster(k8s_distro: str) -> True:
     elif k8s_distro == 'kind':
         from .kind import delete_kind_cluster
         delete_kind_cluster()
-
-    elif k8s_distro == 'k0s':
-        from .k0s import uninstall_k0s
-        uninstall_k0s()
 
     else:
         # how did you even make it this far?

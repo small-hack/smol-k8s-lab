@@ -122,7 +122,6 @@ We always install the latest version of kubernetes that is available from the di
 
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s] <br /> [k0s] | Simple, Solid & Certified Kubernetes Distribution |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k3d.png" width="26">][k3d] <br /> [k3d] | **ALPHA - TESTING PHASE** k3s in docker 🐳 |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
@@ -198,7 +197,6 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [k3s]: https://k3s.io/
 [k3d]: https://k3d.io/
 [KinD]: https://kind.sigs.k8s.io/
-[k0s]: https://k0sproject.io/
 
 <!-- k8s optional apps link references -->
 [ESO]: https://external-secrets.io/v0.8.1/
