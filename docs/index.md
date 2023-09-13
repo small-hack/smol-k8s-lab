@@ -17,7 +17,6 @@ We always install the latest version of kubernetes that is available from the di
 
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s] <br /> [k0s] | Simple, Solid & Certified Kubernetes Distribution |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
 | [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
@@ -70,7 +69,6 @@ If you're stuck, checkout the [Notes section](https://jessebot.github.io/smol-k8
 <!-- k8s distro link references -->
 [k3s]: https://k3s.io/
 [KinD]: https://kind.sigs.k8s.io/
-[k0s]: https://k0sproject.io/
 
 <!-- k8s apps link references -->
 [metallb]: https://github.io/metallb/metallb "metallb"

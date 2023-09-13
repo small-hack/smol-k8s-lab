@@ -52,7 +52,6 @@ smol-k8s-lab
 ### UnInstall a distro of k8s
 
 ```bash
-# you can replace kind with k0s or k3s
 # --delete can be replaced with -D
 smol-k8s-lab --delete
 ```
@@ -89,7 +88,7 @@ Each supported kubernetes distro is listed under `k8s_distros` in config.yaml. Y
 Currently you can only deploy one distro at a time. Here's an example of enabling k3s:
 
 ```yaml
-# which distros of Kubernetes to deploy. Options: kind, k3s, k0s
+# which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind is available on macOS at this time
 k8s_distros:
   # k3s is a small Kubernetes distro maintained by Rancher, which is owned by Suse Linux
@@ -111,10 +110,6 @@ k8s_distros:
   # KinD stands for Kubernetes in Docker, and is developed by the Kubernetes Project
   kind:
     # set to true to enable deploying a kubernetes cluster using kind
-    enabled: false
-  # k0s is a minimal distro of kubernetes
-  k0s:
-    # set to true to enable deploying a kubernetes cluster using k0s
     enabled: false
 ```
 
