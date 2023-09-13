@@ -4,7 +4,7 @@ from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll, Container, Horizontal
 from textual.binding import Binding
 from textual.events import Mount
-from textual.widgets import (Footer, Header, Input, Label,
+from textual.widgets import (Button, Footer, Header, Input, Label,
                              RadioButton, RadioSet, Rule, SelectionList, Static,
                              Switch, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
@@ -68,9 +68,10 @@ class ConfigureAll(App):
                 with Container(id="k8s-distro-config"):
                     with VerticalScroll(id='distro-inputs'):
                         for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
+                            yield Label(f"[yellow]Configuration for {distro}[/]")
 
                             # take number of nodes
-                            nodes = distro_metadata.get('nodes', 1)
+                            nodes = str(distro_metadata.get('nodes', 1))
                             if distro != 'k3s':
                                 with Horizontal():
                                     yield Label("number of nodes: ",
@@ -79,12 +80,11 @@ class ConfigureAll(App):
                                                 placeholder='enter number of nodes',
                                                 classes=f"distro-input {distro}")
 
-                                    yield Rule(classes=distro)
-
                             # take extra k3s args
-                            if distro == 'k3s' or 'k3d':
-                                yield Label("[green]Extra Args for k3s install script",
+                            if distro == 'k3s' or distro == 'k3d':
+                                yield Label("[green]Extra Args for k3s installer",
                                             classes=distro)
+
                                 if distro == 'k3s':
                                     k3s_args = distro_metadata['extra_cli_args']
                                 else:
@@ -96,9 +96,6 @@ class ConfigureAll(App):
                                                     placeholder="enter k3s extra arg",
                                                     classes=f"distro-input {distro}")
 
-                                    yield Rule(classes=distro)
-
-
                             # take extra kubelet config args
                             yield Label("[green]Extra Args for Kubelet Config",
                                         classes=distro)
@@ -106,16 +103,15 @@ class ConfigureAll(App):
                             if kubelet_args:
                                 for key, value in kubelet_args.items():
                                     with Horizontal():
-                                        yield Label(f"{key}: ",
-                                                    classes=f"distro-input-label {distro}")
-                                        yield Input(value=value,
+                                        yield Input(value=key,
+                                                    placeholder="optional kubelet config arg",
+                                                    classes=f"distro-input-arg {distro}")
+                                        yield Input(value=str(value),
                                                     placeholder=key,
-                                                    classes=f"distro-input {distro}")
+                                                    classes=f"distro-input-value {distro}")
+                                        yield Button("🗑️")
 
-                                yield Rule(classes=distro)
-
-
-
+                            yield Rule(classes=distro)
 
                 yield Label(" ")
 
