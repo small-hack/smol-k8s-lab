@@ -68,17 +68,33 @@ class ConfigureAll(App):
                 with Container(id="k8s-distro-config"):
                     with VerticalScroll(id='distro-inputs'):
                         for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
-                            yield Label(f"[yellow]Configuration for {distro}[/]")
+                            yield Label(f"[yellow]Configuration for {distro}[/]",
+                                        classes=distro)
 
                             # take number of nodes
                             nodes = str(distro_metadata.get('nodes', 1))
-                            if distro != 'k3s':
-                                with Horizontal():
-                                    yield Label("number of nodes: ",
-                                                classes=f"distro-input-label {distro}")
-                                    yield Input(value=nodes,
-                                                placeholder='enter number of nodes',
-                                                classes=f"distro-input {distro}")
+                            with Horizontal(classes=f"{distro} distro-nodes-row"):
+                                yield Label("number of nodes: ",
+                                            classes=f"distro-input-label {distro}")
+
+                                disabled = False
+                                if distro == 'k3s':
+                                    disabled = True
+
+                                button_c = f"node-minus-button {distro}"
+                                yield Button("➖",
+                                             classes=button_c,
+                                             disabled=disabled)
+
+                                yield Input(value=nodes,
+                                            placeholder='enter number of nodes',
+                                            classes=f"distro-input {distro}",
+                                            disabled=disabled)
+
+                                button_c = f"node-add-button {distro}"
+                                yield Button("➕",
+                                             classes=button_c,
+                                             disabled=disabled)
 
                             # take extra k3s args
                             if distro == 'k3s' or distro == 'k3d':
@@ -92,9 +108,15 @@ class ConfigureAll(App):
 
                                 if k3s_args:
                                     for arg in k3s_args:
-                                        yield Input(value=arg,
-                                                    placeholder="enter k3s extra arg",
-                                                    classes=f"distro-input {distro}")
+                                        with Container(classes=f'{distro} k3s-arg-row'):
+                                            yield Input(value=arg,
+                                                        placeholder="enter k3s extra arg",
+                                                        classes=f"distro-input {distro}")
+                                            button_c = f"k3s-arg-delete-button {distro}"
+                                            yield Button("🗑️", classes=button_c)
+
+                                button_c = f"k3s-arg-add-button {distro}"
+                                yield Button("➕ Add New Arg", classes=button_c)
 
                             # take extra kubelet config args
                             yield Label("[green]Extra Args for Kubelet Config",
@@ -102,14 +124,19 @@ class ConfigureAll(App):
                             kubelet_args = distro_metadata['kubelet_extra_args']
                             if kubelet_args:
                                 for key, value in kubelet_args.items():
-                                    with Horizontal():
+                                    with Container(classes=f'kubelet-args-row {distro}'):
                                         yield Input(value=key,
                                                     placeholder="optional kubelet config arg",
-                                                    classes=f"distro-input-arg {distro}")
+                                                    classes=f"kubelet-arg-input-key {distro}")
+
                                         yield Input(value=str(value),
                                                     placeholder=key,
-                                                    classes=f"distro-input-value {distro}")
-                                        yield Button("🗑️")
+                                                    classes=f"kubelet-arg-input-value {distro}")
+
+                                        button_c = f"kubelet-arg-delete-button {distro}"
+                                        yield Button("🗑️", classes=button_c)
+                                button_c = f"kubelet-arg-add-button {distro}"
+                                yield Button("➕ Add New Arg", classes=button_c)
 
                             yield Rule(classes=distro)
 
@@ -224,7 +251,7 @@ class ConfigureAll(App):
     @on(Mount)
     @on(SelectionList.SelectedChanged)
     @on(TabbedContent.TabActivated)
-    def update_configue_apps_view(self) -> None:
+    def update_configure_apps_view(self) -> None:
         # get the last item in the list selected items
         selected_items = self.query_one(SelectionList).selected
 
@@ -268,6 +295,19 @@ class ConfigureAll(App):
         description = DEFAULT_CONFIG['k8s_distros'][pressed_distro]['description']
         self.get_widget_by_id('selected-distro-tooltip').update(description)
 
+        for distro in DEFAULT_DISTRO_OPTIONS.keys():
+            # get any objects using this distro's name as their class
+            distro_class_objects = self.query(f".{distro}")
+
+            if distro == pressed_distro:
+                enabled = True
+            else:
+                enabled = False
+
+            # change display to True if the radio is pressed, else False
+            if distro_class_objects:
+                for distro_obj in distro_class_objects:
+                    distro_obj.display = enabled
 
 def generate_tool_tip(app_name: str):
     """
