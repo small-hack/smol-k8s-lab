@@ -9,23 +9,31 @@ from ..rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
 
 
-def install_k3d_cluster(kubelet_args: list, k3s_cli_args: list) -> bool:
+def install_k3d_cluster(kubelet_args: dict, k3s_cli_args: list, nodes: int) -> bool:
     """
     python installation for k3d
     returns true if it worked
     """
-    cluster_name = 'smol-k8s-lab-k3d'
-    install_cmd = f'k3d create cluster {cluster_name}'
+    sub_header("Creating k3d cluster...")
 
+    cluster_name = 'smol-k8s-lab-k3d'
+    install_cmd = f'k3d cluster create {cluster_name}'
+
+    # one server node always, but if the user wants more than one node, we
+    # create the rest as agents for now
+    if nodes > 1:
+        agents = nodes - 1
+        install_cmd += f' --servers 1 --agents {agents}'
+
+    # we attempt to append each kubelet-arg as an option
     if kubelet_args:
-        for arg in kubelet_args:
-            install_cmd += f" --k3s-arg '--kubelet-arg={arg}'"
+        for key, value in kubelet_args.items():
+            install_cmd += f" --k3s-arg '--kubelet-arg={key}={value}'"
 
     if k3s_cli_args:
         for cli_arg in k3s_cli_args:
             install_cmd += f" --k3s-arg '{cli_arg}'"
 
-    sub_header("Creating k3d cluster...")
     subproc([install_cmd])
     return True
 
@@ -34,5 +42,5 @@ def uninstall_k3d_cluster():
     """
     remove k3d
     """
-    subproc(['k3d delete cluster'])
+    subproc(['k3d cluster delete'])
     return True

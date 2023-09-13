@@ -58,40 +58,51 @@ def delete_kind_cluster():
 
 def build_kind_config(kind_cfg: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
                       kubelet_extra_args: dict = {},
-                      networking_args: dict = {}):
+                      networking_args: dict = {},
+                      nodes: int = 1):
     """
     builds a kind config including any extra networking 
     """
+    node_config = {'role': 'control-plane',
+                   'extraPortMappings': [
+                       {'containerPort': 80,
+                         'hostPort': 80,
+                         'protocol': 'TCP'},
+                       {'containerPort': 443,
+                        'hostPort': 443,
+                        'protocol': 'TCP'}
+                       ]
+                   }
 
-    # adding any extra kubelet args you'd like to the kind node
-    kube_adm_config = {
-            'kind': 'InitConfiguration',
-            'nodeRegistration': {
-                'kubeletExtraArgs': kubelet_extra_args
+    if kubelet_extra_args:
+        # adding any extra kubelet args you'd like to the kind node
+        kube_adm_config = {
+                'kind': 'InitConfiguration',
+                'nodeRegistration': {
+                    'kubeletExtraArgs': kubelet_extra_args
+                    }
                 }
-            }
+
+        # only add extra kubelet args if any were passed in
+        node_config['kubeadmConfigPatches'] = [dump(kube_adm_config)]
 
     kind_cfg = {
             'kind': 'Cluster',
             'apiVersion': 'kind.x-k8s.io/v1alpha4',
             'name': 'smol-k8s-lab-kind',
-            'nodes': [{
-                'role': 'control-plane',
-                'kubeadmConfigPatches': [kube_adm_config],
-                'extraPortMappings': [
-                    {'containerPort': 80,
-                      'hostPort': 80,
-                      'protocol': 'TCP'},
-                    {'containerPort': 443,
-                     'hostPort': 443,
-                     'protocol': 'TCP'}
-                    ]
-                }]
+            'nodes': [node_config]
             }
 
+    # if networking args were passed in
     if networking_args:
         kind_cfg["networking"] = networking_args
 
+    # if we're testing more than one node
+    if nodes > 1:
+        worker_config = node_config
+        worker_config['role'] = 'worker'
+        for node in range(nodes):
+            kind_cfg['nodes'].append(worker_config)
 
     # this creates a kind_cfg.yaml from the kind_cfg dict above
     with open(kind_cfg, 'w') as kind_config_file:
