@@ -1,6 +1,9 @@
 # kubernetes in docker
 brew "kind"
 
+# k3d is k3s in docker
+brew "k3d"
+
 # kubernetes cli
 brew "kubernetes-cli"
 

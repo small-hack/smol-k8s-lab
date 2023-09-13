@@ -1,7 +1,7 @@
 import logging as log
-from .kind import install_kind_cluster
-from .k3d import install_k3d_cluster
-from .k3s import install_k3s_cluster
+from .kind import install_kind_cluster, delete_kind_cluster
+from .k3d import install_k3d_cluster, uninstall_k3d
+from .k3s import install_k3s_cluster, uninstall_k3s
 from ..utils.rich_cli.console_logging import sub_header, header
 from ..utils.subproc import subproc
 
@@ -42,7 +42,10 @@ def create_k8s_distro(k8s_distro: str,
     Arguments:
         k8s_distro:       options: 'k3s', 'k3d', 'kind'
         distro_metadata:  any extra data objects to be passed to the install funcs
-        metallb_enabled:  if we're enabling metallb which requires we disable servicelb
+        metallb_enabled:  if we're enabling metallb it requires we disable
+                          servicelb for k3s
+        cilium_enabled:   if we're enabling cilium it requires we disable flannel
+                          for k3s and disable network-policy for all distros
     Returns True
     """
     header(f"Initializing your [green]{k8s_distro}[/] cluster", "💙")
@@ -54,7 +57,16 @@ def create_k8s_distro(k8s_distro: str,
     kubelet_args = distro_metadata.get('kubelet_extra_args', None)
 
     if k8s_distro == "kind":
-        install_kind_cluster(kubelet_args, distro_metadata['nodes'])
+        networking_args = distro_metadata['networking_args']
+
+        # if cilium is enabled, we need to disable the default CNI
+        if cilium_enabled:
+            networking_args["disableDefaultCNI"] = True
+
+        install_kind_cluster(kubelet_args,
+                             networking_args,
+                             distro_metadata['nodes'])
+
     elif k8s_distro == "k3s" or k8s_distro == "k3d":
         # get any extra args the user has passed in
         k3s_args = distro_metadata['extra_k3s_cli_args']
@@ -69,12 +81,15 @@ def create_k8s_distro(k8s_distro: str,
                              '--disable-network-policy'])
 
         if k8s_distro == "k3s":
-            install_k3s_cluster(k3s_args, kubelet_args)
+            install_k3s_cluster(k3s_args,
+                                kubelet_args,
+                                distro_metadata['external_nodes'])
 
         # curently unsupported - in alpha state
         if k8s_distro == "k3d":
-            install_k3d_cluster(k3s_args, kubelet_args, distro_metadata['nodes'])
-
+            install_k3d_cluster(k3s_args,
+                                kubelet_args,
+                                distro_metadata['nodes'])
     return True
 
 
@@ -89,11 +104,12 @@ def delete_cluster(k8s_distro: str) -> True:
         return True
 
     if k8s_distro == 'k3s':
-        from .k3s import uninstall_k3s
         uninstall_k3s(contexts)
 
+    if k8s_distro == 'k3d':
+        uninstall_k3d()
+
     elif k8s_distro == 'kind':
-        from .kind import delete_kind_cluster
         delete_kind_cluster()
 
     else:

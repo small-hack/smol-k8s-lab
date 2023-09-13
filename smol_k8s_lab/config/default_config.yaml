@@ -31,8 +31,6 @@ k8s_distros:
       - "--disable=traefik"
       # enables encryption at rest for kubernetes secrets
       - "--secrets-encryption"
-    # nodes to SSH to and join to the k3s cluster. Use hostnames or IPs
-    external_nodes: []
 
   k3d:
     # set to true to enable deploying a kubernetes cluster using k3d
@@ -48,7 +46,7 @@ k8s_distros:
       # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
       # it's set high for beefy nodes, but you can set it lower if you'd like
       max_pods: 200
-    # if k8s_distos set to k3s, you can add an array of extra arguments to pass
+    # if k8s_distos set to k3d, you can add an array of extra arguments to pass
     # to the k3s install script. we automatically append --disable=servicelb if
     # you enabled metallb and we automatically append --flannel-backend=none and
     # --disable-network-policy if you enable cilium
