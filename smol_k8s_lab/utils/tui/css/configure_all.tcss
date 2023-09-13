@@ -31,13 +31,13 @@ RadioSet {
     width: 1fr;
 }
 
-
-/* kubelet config section label */
-.kubelet-config-label {
+/* the whole middle k8s distro config area */
+#k8s-distro-config {
+    border: solid orange;
 }
 
-/* kubelet config arg input row */
-.kublet-arg-input-row {
+/* number of nodes input row */
+.nodes-input-row {
     background: #262626;
     layout: grid;
     grid-size: 4;
@@ -45,26 +45,86 @@ RadioSet {
     grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
 }
 
-/* kublet config arg key input field */
-.kublet-arg-input-key{
+/* "number of nodes:" label before the minus button */
+.nodes-input-label {
+}
+
+/* button to decrease the number of nodes */
+.nodes-input-minus-button {
+    width: 1;
+}
+
+/* input field to manually increase/decrease number of nodes*/
+.nodes-input {
+    width: 1;
+}
+
+/* button to increase the number of nodes */
+.nodes-input-plus-button {
+    width: 1;
+}
+
+/* kubelet config section label */
+.kubelet-config-label {
+}
+
+/* kubelet config arg input row */
+.kubelet-arg-input-row {
+    background: #262626;
+    layout: grid;
+    grid-size: 4;
+    height: 3;
+    grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
+}
+
+/* kubelet config arg key input field */
+.kubelet-arg-input-key{
     height: 3;
     width: 100%;
     content-align: left middle;
     padding-left: 1;
 }
 
-/* kublet config arg value input field */
-.kublet-arg-input-value {
+/* kubelet config arg value input field */
+.kubelet-arg-input-value {
     height: 3;
     width: 100%;
     content-align: right middle;
 }
 
-/* kublet config arg row delete button */
-.kublet-arg-delete-button {
+/* kubelet config arg row delete button */
+.kubelet-arg-delete-button {
     content-align: right middle;
     height: auto;
     width: auto;
+}
+
+/* kubelet config arg row delete button */
+.kubelet-arg-add-button {
+    height: auto;
+    width: auto;
+}
+
+/* k3s/k3d extra args container */
+.k3s-config-container {
+    border: solid orange;
+}
+
+/* k3s arg row */
+.k3s-arg-row {
+}
+
+.k3s-arg-input {
+}
+
+.k3s-arg-delete-button {
+}
+
+.k3s-arg-add-button {
+}
+
+/* k8s distro description container */
+#description-container {
 }
 
 /* BEGIN SECOND TAB */

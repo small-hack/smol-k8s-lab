@@ -71,54 +71,31 @@ class ConfigureAll(App):
                     for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
                         # take number of nodes
                         nodes = str(distro_metadata.get('nodes', 1))
-                        with Horizontal(classes=f"{distro} distro-nodes-row"):
+                        node_class = f"{distro} nodes-input"
+                        with Horizontal(classes=f"{node_class}-row"):
                             yield Label("number of nodes: ",
-                                        classes=f"distro-input-label {distro}")
+                                        classes=f"{node_class}-input-label")
 
                             disabled = False
                             if distro == 'k3s':
                                 disabled = True
 
-                            button_c = f"node-minus-button {distro}"
                             yield Button("➖",
-                                         classes=button_c,
+                                         classes=f"{node_class}-minus-button",
                                          disabled=disabled)
 
                             yield Input(value=nodes,
                                         placeholder='enter number of nodes',
-                                        classes=f"distro-input {distro}",
+                                         classes=f"{node_class}",
                                         disabled=disabled)
 
-                            button_c = f"node-add-button {distro}"
                             yield Button("➕",
-                                         classes=button_c,
+                                         classes=f"{node_class}-plus-button",
                                          disabled=disabled)
-
-                        # take extra k3s args
-                        if distro == 'k3s' or distro == 'k3d':
-                            yield Label("[green]Extra Args for k3s installer",
-                                        classes=distro)
-
-                            if distro == 'k3s':
-                                k3s_args = distro_metadata['extra_cli_args']
-                            else:
-                                k3s_args = distro_metadata['extra_k3s_cli_args']
-
-                            if k3s_args:
-                                for arg in k3s_args:
-                                    with Container(classes=f'{distro} k3s-arg-row'):
-                                        yield Input(value=arg,
-                                                    placeholder="enter k3s extra arg",
-                                                    classes=f"distro-input {distro}")
-                                        button_c = f"k3s-arg-delete-button {distro}"
-                                        yield Button("🗑️", classes=button_c)
-
-                            button_c = f"k3s-arg-add-button {distro}"
-                            yield Button("➕ Add New Arg", classes=button_c)
 
                         # take extra kubelet config args
                         yield Label("[green]Extra Args for Kubelet Config",
-                                    classes=f"{distro} kublet-config-label")
+                                    classes=f"{distro} kubelet-config-label")
                         kubelet_args = distro_metadata['kubelet_extra_args']
                         if kubelet_args:
                             row_class = f"{distro} kubelet-arg"
@@ -135,17 +112,39 @@ class ConfigureAll(App):
 
                                     yield Button("🗑️",
                                                  classes=f"{row_class}-del-button")
-                            button_c = f"kubelet-arg-add-button {distro}"
-                            yield Button("➕ Add New Arg", classes=button_c)
+                            yield Button("➕ Add New Arg",
+                                         classes=f"{row_class}-add-button")
 
+                        # take extra k3s args
+                        if distro == 'k3s' or distro == 'k3d':
                             yield Rule(classes=distro)
+                            with Container(id='k3s-config-container'):
+                                yield Label("[green]Extra Args for k3s install script",
+                                            classes=distro)
 
-                yield Label(" ")
+                                if distro == 'k3s':
+                                    k3s_args = distro_metadata['extra_cli_args']
+                                else:
+                                    k3s_args = distro_metadata['extra_k3s_cli_args']
 
-                yield Label("[b][green]Description[/][/]")
-                yield Static(DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description'],
-                             id='selected-distro-tooltip')
-                yield Label(" ")
+                                if k3s_args:
+                                    k3s_class = f'{distro} k3s-arg'
+                                    for arg in k3s_args:
+                                        placeholder = "enter an extra arg for k3s"
+                                        with Container(classes=f'{k3s_class}-row'):
+                                            yield Input(value=arg,
+                                                        placeholder=placeholder,
+                                                        classes=f"{k3s_class}-input")
+                                            yield Button("🗑️",
+                                                         classes=f"{k3s_class}-delete-button")
+
+                                yield Button("➕ Add New Arg",
+                                             classes=f"{k3s_class}-add-button")
+
+                with Container(id="description-container"):
+                    yield Label("[b][green]Description[/][/]")
+                    yield Static(DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description'],
+                                 id='selected-distro-tooltip')
 
             # tab 2 - allows selection of different argo cd apps to run in k8s
             with TabPane("Select k8s apps", id="select-apps"):
