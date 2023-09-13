@@ -68,77 +68,75 @@ class ConfigureAll(App):
 
                 # these are distro configurations
                 with Container(id="k8s-distro-config"):
-                    with VerticalScroll(id='distro-inputs'):
-                        for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
-                            yield Label(f"[yellow]Configuration for {distro}[/]",
+                    for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
+                        # take number of nodes
+                        nodes = str(distro_metadata.get('nodes', 1))
+                        with Horizontal(classes=f"{distro} distro-nodes-row"):
+                            yield Label("number of nodes: ",
+                                        classes=f"distro-input-label {distro}")
+
+                            disabled = False
+                            if distro == 'k3s':
+                                disabled = True
+
+                            button_c = f"node-minus-button {distro}"
+                            yield Button("➖",
+                                         classes=button_c,
+                                         disabled=disabled)
+
+                            yield Input(value=nodes,
+                                        placeholder='enter number of nodes',
+                                        classes=f"distro-input {distro}",
+                                        disabled=disabled)
+
+                            button_c = f"node-add-button {distro}"
+                            yield Button("➕",
+                                         classes=button_c,
+                                         disabled=disabled)
+
+                        # take extra k3s args
+                        if distro == 'k3s' or distro == 'k3d':
+                            yield Label("[green]Extra Args for k3s installer",
                                         classes=distro)
 
-                            # take number of nodes
-                            nodes = str(distro_metadata.get('nodes', 1))
-                            with Horizontal(classes=f"{distro} distro-nodes-row"):
-                                yield Label("number of nodes: ",
-                                            classes=f"distro-input-label {distro}")
+                            if distro == 'k3s':
+                                k3s_args = distro_metadata['extra_cli_args']
+                            else:
+                                k3s_args = distro_metadata['extra_k3s_cli_args']
 
-                                disabled = False
-                                if distro == 'k3s':
-                                    disabled = True
-
-                                button_c = f"node-minus-button {distro}"
-                                yield Button("➖",
-                                             classes=button_c,
-                                             disabled=disabled)
-
-                                yield Input(value=nodes,
-                                            placeholder='enter number of nodes',
-                                            classes=f"distro-input {distro}",
-                                            disabled=disabled)
-
-                                button_c = f"node-add-button {distro}"
-                                yield Button("➕",
-                                             classes=button_c,
-                                             disabled=disabled)
-
-                            # take extra k3s args
-                            if distro == 'k3s' or distro == 'k3d':
-                                yield Label("[green]Extra Args for k3s installer",
-                                            classes=distro)
-
-                                if distro == 'k3s':
-                                    k3s_args = distro_metadata['extra_cli_args']
-                                else:
-                                    k3s_args = distro_metadata['extra_k3s_cli_args']
-
-                                if k3s_args:
-                                    for arg in k3s_args:
-                                        with Container(classes=f'{distro} k3s-arg-row'):
-                                            yield Input(value=arg,
-                                                        placeholder="enter k3s extra arg",
-                                                        classes=f"distro-input {distro}")
-                                            button_c = f"k3s-arg-delete-button {distro}"
-                                            yield Button("🗑️", classes=button_c)
-
-                                button_c = f"k3s-arg-add-button {distro}"
-                                yield Button("➕ Add New Arg", classes=button_c)
-
-                            # take extra kubelet config args
-                            yield Label("[green]Extra Args for Kubelet Config",
-                                        classes=distro)
-                            kubelet_args = distro_metadata['kubelet_extra_args']
-                            if kubelet_args:
-                                for key, value in kubelet_args.items():
-                                    with Container(classes=f'kubelet-args-row {distro}'):
-                                        yield Input(value=key,
-                                                    placeholder="optional kubelet config arg",
-                                                    classes=f"kubelet-arg-input-key {distro}")
-
-                                        yield Input(value=str(value),
-                                                    placeholder=key,
-                                                    classes=f"kubelet-arg-input-value {distro}")
-
-                                        button_c = f"kubelet-arg-delete-button {distro}"
+                            if k3s_args:
+                                for arg in k3s_args:
+                                    with Container(classes=f'{distro} k3s-arg-row'):
+                                        yield Input(value=arg,
+                                                    placeholder="enter k3s extra arg",
+                                                    classes=f"distro-input {distro}")
+                                        button_c = f"k3s-arg-delete-button {distro}"
                                         yield Button("🗑️", classes=button_c)
-                                button_c = f"kubelet-arg-add-button {distro}"
-                                yield Button("➕ Add New Arg", classes=button_c)
+
+                            button_c = f"k3s-arg-add-button {distro}"
+                            yield Button("➕ Add New Arg", classes=button_c)
+
+                        # take extra kubelet config args
+                        yield Label("[green]Extra Args for Kubelet Config",
+                                    classes=f"{distro} kublet-config-label")
+                        kubelet_args = distro_metadata['kubelet_extra_args']
+                        if kubelet_args:
+                            row_class = f"{distro} kubelet-arg"
+                            for key, value in kubelet_args.items():
+                                with Container(classes=f'{row_class}-row'):
+                                    pholder = "optional kubelet config key arg"
+                                    yield Input(value=key,
+                                                placeholder=pholder,
+                                                classes=f"{row_class}-input-key")
+
+                                    yield Input(value=str(value),
+                                                placeholder=key,
+                                                classes=f"{row_class}-input-value")
+
+                                    yield Button("🗑️",
+                                                 classes=f"{row_class}-del-button")
+                            button_c = f"kubelet-arg-add-button {distro}"
+                            yield Button("➕ Add New Arg", classes=button_c)
 
                             yield Rule(classes=distro)
 

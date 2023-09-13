@@ -31,7 +31,13 @@ RadioSet {
     width: 1fr;
 }
 
-.kublet-args-row {
+
+/* kubelet config section label */
+.kubelet-config-label {
+}
+
+/* kubelet config arg input row */
+.kublet-arg-input-row {
     background: #262626;
     layout: grid;
     grid-size: 4;
@@ -39,6 +45,7 @@ RadioSet {
     grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
 }
 
+/* kublet config arg key input field */
 .kublet-arg-input-key{
     height: 3;
     width: 100%;
@@ -46,12 +53,14 @@ RadioSet {
     padding-left: 1;
 }
 
+/* kublet config arg value input field */
 .kublet-arg-input-value {
     height: 3;
     width: 100%;
     content-align: right middle;
 }
 
+/* kublet config arg row delete button */
 .kublet-arg-delete-button {
     content-align: right middle;
     height: auto;
