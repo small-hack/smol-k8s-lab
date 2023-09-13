@@ -6,7 +6,7 @@ DESCRIPTION: create or delete a kind cluster, part of smol-k8s-lab
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 from ..constants import XDG_CACHE_DIR
-from ..rich_cli.console_logging import sub_header
+from ..utils.rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
 import logging as log
 from os import path
