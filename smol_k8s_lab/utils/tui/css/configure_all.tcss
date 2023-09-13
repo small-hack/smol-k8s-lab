@@ -62,13 +62,17 @@ RadioSet {
     width: 1;
 }
 
+/* the entire kubelet config container */
+.kubelet-config-container {
+    border: solid blue;
+}
+
 /* kubelet config section label */
 .kubelet-config-label {
 }
 
 /* kubelet config arg input row */
 .kubelet-arg-input-row {
-    background: #262626;
     layout: grid;
     grid-size: 4;
     height: 3;

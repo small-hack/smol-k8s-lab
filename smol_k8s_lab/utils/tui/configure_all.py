@@ -94,31 +94,32 @@ class ConfigureAll(App):
                                          disabled=disabled)
 
                         # take extra kubelet config args
-                        yield Label("[green]Extra Args for Kubelet Config",
-                                    classes=f"{distro} kubelet-config-label")
-                        kubelet_args = distro_metadata['kubelet_extra_args']
-                        if kubelet_args:
-                            row_class = f"{distro} kubelet-arg"
-                            for key, value in kubelet_args.items():
-                                with Container(classes=f'{row_class}-row'):
-                                    pholder = "optional kubelet config key arg"
-                                    yield Input(value=key,
-                                                placeholder=pholder,
-                                                classes=f"{row_class}-input-key")
+                        with Container(id=f"{distro} kubelet-config-container"):
+                            yield Label("[green]Extra Args for Kubelet Config",
+                                        classes=f"{distro} kubelet-config-label")
+                            kubelet_args = distro_metadata['kubelet_extra_args']
+                            if kubelet_args:
+                                row_class = f"{distro} kubelet-arg"
+                                for key, value in kubelet_args.items():
+                                    with Container(classes=f'{row_class}-row'):
+                                        pholder = "optional kubelet config key arg"
+                                        yield Input(value=key,
+                                                    placeholder=pholder,
+                                                    classes=f"{row_class}-input-key")
 
-                                    yield Input(value=str(value),
-                                                placeholder=key,
-                                                classes=f"{row_class}-input-value")
+                                        yield Input(value=str(value),
+                                                    placeholder=key,
+                                                    classes=f"{row_class}-input-value")
 
-                                    yield Button("🗑️",
-                                                 classes=f"{row_class}-del-button")
-                            yield Button("➕ Add New Arg",
-                                         classes=f"{row_class}-add-button")
+                                        yield Button("🗑️",
+                                                     classes=f"{row_class}-del-button")
+                                yield Button("➕ Add New Arg",
+                                             classes=f"{row_class}-add-button")
 
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
                             yield Rule(classes=distro)
-                            with Container(id='k3s-config-container'):
+                            with Container(id='k3s-config-container', classes=distro):
                                 yield Label("[green]Extra Args for k3s install script",
                                             classes=distro)
 
