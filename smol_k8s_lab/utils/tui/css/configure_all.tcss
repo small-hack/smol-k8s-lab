@@ -1,8 +1,28 @@
+/* ALL TABS */
+
 /* Matches the entire screen for each page */
 Screen {
     scrollbar-background: #3a3a3a;
     scrollbar-color: #5f5fd7;
 }
+
+/* Matches the bottom footer help text on every page */
+Footer {
+    background: #232336;
+}
+
+Footer .footer--description {
+    color: cornflowerblue;
+    background: #232336;
+}
+
+Footer .footer--key {
+    color: #282727;
+    background: cornflowerblue;
+}
+
+
+/* BEGIN FIRST TAB */
 
 /* Matches the k8s distro picker radio set */
 RadioSet {
@@ -10,6 +30,35 @@ RadioSet {
     border: solid cornflowerblue;
     width: 1fr;
 }
+
+.kublet-args-row {
+    background: #262626;
+    layout: grid;
+    grid-size: 4;
+    height: 3;
+    grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
+}
+
+.kublet-arg-input-key{
+    height: 3;
+    width: 100%;
+    content-align: left middle;
+    padding-left: 1;
+}
+
+.kublet-arg-input-value {
+    height: 3;
+    width: 100%;
+    content-align: right middle;
+}
+
+.kublet-arg-delete-button {
+    content-align: right middle;
+    height: auto;
+    width: auto;
+}
+
+/* BEGIN SECOND TAB */
 
 /* Matches the "Select k8s apps" screen tab content container */
 #select-apps-container {
@@ -43,7 +92,7 @@ SelectionList .option-list--option-highlighted {
     scrollbar-color: #5f5fd7;
 }
 
-/* app label, app switch label, and switch each app name with initialization */
+/* entire line for app label, app switch label, and switch for each app name with initialization */
 .app-init-switch-and-label {
     background: #262626;
     layout: grid;
@@ -71,11 +120,6 @@ Switch {
     content-align: right middle;
     height: auto;
     width: auto;
-}
-
-/* initialization switch for each app */
-.app-init-switch {
-
 }
 
 /* each app input label and input field line */
@@ -110,19 +154,4 @@ Switch {
 /* manages just description for select k8s apps tab */
 #selected-app-tooltip-description {
     width: 100;
-}
-
-/* Matches the bottom footer help text on every page */
-Footer {
-    background: #232336;
-}
-
-Footer .footer--description {
-    color: cornflowerblue;
-    background: #232336;
-}
-
-Footer .footer--key {
-    color: #282727;
-    background: cornflowerblue;
 }
