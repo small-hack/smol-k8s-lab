@@ -24,6 +24,11 @@ Footer .footer--key {
 
 /* BEGIN FIRST TAB */
 
+/* beep boop it's the user tips! */
+#user-tips {
+    border: solid orange;
+}
+
 /* Matches the k8s distro picker radio set */
 RadioSet {
     padding: 1;
@@ -33,8 +38,8 @@ RadioSet {
 
 /* the whole middle k8s distro config area */
 #k8s-distro-config {
-    border: solid orange;
-    height: 50%; 
+    border: solid steelblue;
+    height: 50%;
 }
 
 /* number of nodes input row */
