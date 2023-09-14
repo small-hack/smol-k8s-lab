@@ -15,7 +15,7 @@ tui:
   hide_footer: False
 
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
-# NOTE: only kind is available on macOS at this time
+# NOTE: only kind and k3d are available on macOS at this time
 k8s_distros:
   k3s:
     # set to true to enable deploying a kubernetes cluster using k3s
@@ -127,7 +127,10 @@ apps:
   # ---------------------------------------------------------------------------
   #
   cert_manager:
-    description: "Use LetsEncrypt to generate TLS certs for all your apps with ingress"
+    description: |
+      Use LetsEncrypt to generate TLS certs for all your apps with ingress.
+
+      Learn more: [steel_blue][link=https://cert-manager.io/]https://cert-manager.io/[/link][/]
     # ! NOTE: you currently can't set this to false. It is necessary to deploy
     # most of our supported Argo CD apps since they often have TLS enabled either
     # for pod connectivity or ingress
