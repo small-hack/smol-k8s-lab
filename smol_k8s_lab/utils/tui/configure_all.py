@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import VerticalScroll, Container, Horizontal
+from textual.containers import VerticalScroll, Container, Horizontal, HorizontalScroll
 from textual.binding import Binding
 from textual.events import Mount
 from textual.widgets import (Button, Footer, Header, Input, Label,
@@ -66,7 +66,7 @@ class ConfigureAll(App):
 
                 yield Label(" ")
 
-                # these are distro configurations
+                # these are distro configurations 
                 with Container(id="k8s-distro-config"):
                     for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
                         # take number of nodes
@@ -94,14 +94,13 @@ class ConfigureAll(App):
                                          disabled=disabled)
 
                         # take extra kubelet config args
-                        with Container(id=f"{distro} kubelet-config-container"):
-                            yield Label("[green]Extra Args for Kubelet Config",
-                                        classes=f"{distro} kubelet-config-label")
-                            kubelet_args = distro_metadata['kubelet_extra_args']
+                        yield Label("[green]Extra Args for Kubelet Config",
+                                    classes=f"{distro} kubelet-config-label")
+                        kubelet_args = distro_metadata['kubelet_extra_args']
+                        with Horizontal(classes=f"{node_class}-row"):
                             if kubelet_args:
                                 row_class = f"{distro} kubelet-arg"
                                 for key, value in kubelet_args.items():
-                                    with Container(classes=f'{row_class}-row'):
                                         pholder = "optional kubelet config key arg"
                                         yield Input(value=key,
                                                     placeholder=pholder,
@@ -113,8 +112,8 @@ class ConfigureAll(App):
 
                                         yield Button("🗑️",
                                                      classes=f"{row_class}-del-button")
-                                yield Button("➕ Add New Arg",
-                                             classes=f"{row_class}-add-button")
+                        yield Button("➕ Add New Arg",
+                                     classes=f"{row_class}-add-button")
 
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
