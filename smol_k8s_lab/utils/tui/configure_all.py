@@ -22,12 +22,20 @@ class ConfigureAll(App):
     BINDINGS = [
         Binding(key="tab",
                 action="focus_next",
-                description="Focus next",
-                show=True),
+                description="Focus Next",
+                show=True,
+                priority=True),
+        Binding(key="shift+tab",
+                action="focus_previous",
+                description="Focus Previous",
+                show=True,
+                priority=True),
         Binding(key="q",
                 key_display="q",
                 action="quit",
-                description="Quit smol-k8s-lab")
+                description="Quit smol-k8s-lab"),
+        Binding("left", "previous_tab", "Previous tab", show=True, priority=True),
+        Binding("right", "next_tab", "Next tab", show=True, priority=True)
     ]
     ToggleButton.BUTTON_INNER = '♥'
 
@@ -41,10 +49,19 @@ class ConfigureAll(App):
         # Footer to show keys
         yield Footer()
 
+        # new tips for new users
+        new_tip = ("[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]! You "
+                   "can use the left and right arrow ")
+
         # Add the TabbedContent widget
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
             with TabPane("Select k8s distro", id="select-distro"):
+                # optional user_tips
+                user_tips = DEFAULT_CONFIG['tui']['new_user_tips']
+                if user_tips == "always":
+                    yield Label(new_tip, id="user-tips")
+
                 # this is the distro picker
                 with RadioSet():
                     # create all the radio button choices
