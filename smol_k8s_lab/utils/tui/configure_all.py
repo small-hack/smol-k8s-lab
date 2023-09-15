@@ -202,9 +202,10 @@ class ConfigureAll(App):
                                 yield Button("➕ Add New Arg",
                                              classes=f"{k3s_class}-add-button")
 
-                with Container(id="description-container"):
+                with Container(id="k8s-distro-description-container"):
                     yield Label("[b][green]Description[/][/]")
-                    yield Static(DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description'],
+                    description = DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description']
+                    yield Static(f"[dim]{description}[/]",
                                  id='selected-distro-tooltip')
 
             # tab 2 - allows selection of different argo cd apps to run in k8s
@@ -254,9 +255,16 @@ class ConfigureAll(App):
                                 # iterate through the app's secret keys
                                 for secret_key, value in secret_keys.items():
                                     secret_label = secret_key.replace("_", " ")
-                                    placeholder = "enter a " + secret_label
-                                    input_classes = f"app-input {app}"
 
+                                    # create a gramatically corrrect placeholder
+                                    if secret_key.startswith(('o','a','e')):
+                                        article = "an"
+                                    else:
+                                        article = "a"
+                                    placeholder = f"enter {article} {secret_label}"
+
+                                    # create input variable
+                                    input_classes = f"app-input {app}"
                                     if value:
                                         app_input = Input(placeholder=placeholder,
                                                           value=value,
@@ -265,8 +273,8 @@ class ConfigureAll(App):
                                         app_input = Input(placeholder=placeholder,
                                                           classes=input_classes)
 
+                                    # create the input row
                                     input_container_class = f"app-label-and-input {app}"
-
                                     with Horizontal(classes=input_container_class):
                                         yield Label(f"{secret_label}: ",
                                                     classes=f"app-input-label {app}")
@@ -279,7 +287,7 @@ class ConfigureAll(App):
                     with VerticalScroll(id='app-tooltip-container'):
                         # Bottom half of the screen for select-apps TabPane()
                         yield Label("[b][green]Description[/][/]")
-                        yield Label("", id='selected-app-tooltip-description')
+                        yield Label("", id='selected-app-description')
                         yield Label(" ")
 
                         yield Label("[b][cornflower_blue]Argo CD App Repository[/][/]")
@@ -349,7 +357,7 @@ class ConfigureAll(App):
 
         # update the static text with the new app description and repo
         self.get_widget_by_id('selected-app-tooltip-repo').update(new_repo)
-        self.get_widget_by_id('selected-app-tooltip-description').update(new_blurb)
+        self.get_widget_by_id('selected-app-description').update(new_blurb)
 
     @on(RadioSet.Changed)
     def update_k8s_distro_description(self) -> None:

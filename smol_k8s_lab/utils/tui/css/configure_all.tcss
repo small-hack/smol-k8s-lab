@@ -179,7 +179,7 @@ RadioSet {
 }
 
 /* k8s distro description container */
-#description-container {
+#k8s-distro-description-container {
     height: 25%;
     padding: 1;
     border: solid gray;
@@ -281,6 +281,6 @@ Switch {
 }
 
 /* manages just description for select k8s apps tab */
-#selected-app-tooltip-description {
+#selected-app-description {
     width: 100;
 }
