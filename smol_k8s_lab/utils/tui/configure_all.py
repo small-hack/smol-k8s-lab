@@ -15,6 +15,9 @@ from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
 
 
 class TutorialScreen(Screen):
+    """
+    dialog screen to show help text
+    """
     def compose(self) -> ComposeResult:
         # new tips for new users
         new_tip = ("[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]!\n"
@@ -39,7 +42,7 @@ class ConfigureAll(App):
     as hostnames and timezones
     """
     CSS_PATH = "./css/configure_all.tcss"
-    BINDINGS = [Binding(key="F1",
+    BINDINGS = [Binding(key="h",
                         action="request_help",
                         description="Show Help",
                         show=True),
@@ -137,7 +140,8 @@ class ConfigureAll(App):
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
                             yield Rule(classes=distro)
-                            with Container(id='k3s-config-container', classes=distro):
+                            with Container(id=f"{distro}-config-container",
+                                           classes=distro):
                                 yield Label("[green]Extra Args for k3s install script",
                                             classes=distro)
 
