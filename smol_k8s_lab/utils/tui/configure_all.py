@@ -33,18 +33,24 @@ class HelpScreen(ModalScreen):
                      "enter": "press button",
                      "h,?": "toggle help screen"}
 
-        new_tip = "[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]![/]\n"
+        welcome = ("[green]Use your 🐁 to click anything in this UI ✨ Or use "
+                   "these key bindings:")
 
         with Container(id="help-container"):
-            yield Label(new_tip)
-            for help_option, help_text in help_dict.items():
-                with Grid(classes="help-option-row"):
-                    key = f"[gold3]{help_option}[/gold3]"
-                    key = key.replace(",", "[bright_white],[/]")
-                    key = key.replace("+", "[bright_white]+[/]")
-                    yield Label(key)
-                    yield Label(" ")
-                    yield Label(help_text)
+            yield Label(welcome)
+            with Container(id="help-options"):
+                for help_option, help_text in help_dict.items():
+                    with Grid(classes="help-option-row"):
+                        key = f"[gold3]{help_option}[/gold3]"
+                        key = key.replace(",", "[bright_white],[/]")
+                        key = key.replace("+", "[bright_white]+[/]")
+                        yield Label(key)
+                        yield Label(help_text)
+
+            yield Label("ℹ️ [dim]Clicking links varies based on your terminal, but"
+                        " is usually one of:\n[gold3]option[/]+[gold3]click[/] or"
+                        " [gold3]command[/]+[gold3]click[/] or [gold3]shift[/]+"
+                        "[gold3]click", id="mouse-help")
 
 
     def action_disable_help(self) -> None:
