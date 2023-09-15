@@ -101,7 +101,13 @@ RadioSet {
     height: 3;
 }
 
-/* kubelet config section label */
+/* kubelet config container */
+.kubelet-config-container {
+    padding-top: 1;
+    height: auto;
+}
+
+/* kubelet config header label */
 .kubelet-config-label {
     height: auto;
     width: 100%;
@@ -149,7 +155,7 @@ RadioSet {
 .k3s-config-container {
     content-align: center middle;
     border: solid cornflowerblue;
-    height: 100%;
+    height: auto;
 }
 
 .k3s-config-label {
@@ -188,6 +194,7 @@ RadioSet {
 }
 
 #k8s-distro-description-label {
+    padding-bottom: 1;
 }
 
 /* BEGIN SECOND TAB */
@@ -225,8 +232,8 @@ SelectionList .option-list--option-highlighted {
     content-align: center middle;
 }
 
-/* entire line for app label, app switch label, and switch for each app name with initialization */
-.app-init-switch-and-label {
+/* entire row for app label, app switch label, and switch for each app with initialization */
+.app-init-switch-and-labels-row {
     background: #262626;
     layout: grid;
     grid-size: 4;
@@ -255,6 +262,13 @@ Switch {
     width: auto;
 }
 
+/* container for all of an apps input fields */
+.app-all-inputs-container {
+    padding: 1;
+    height: auto;
+    width: auto;
+}
+
 /* each app input label and input field line */
 .app-label-and-input {
     height: 3;
@@ -278,7 +292,7 @@ Switch {
 }
 
 /* Matches Description AND Argo CD App Repository container in Select k8s apps tab */
-#app-tooltip-container {
+#app-description-container{
     column-span: 2;
     padding: 1;
     border: solid gray;
@@ -287,7 +301,18 @@ Switch {
     scrollbar-color: #5f5fd7;
 }
 
-/* manages just description for select k8s apps tab */
-#selected-app-description {
+/* manages just Description heading for select k8s apps tab */
+#app-description-label {
+    padding-bottom: 1;
+}
+
+/* manages just "Description" heading for select k8s apps tab */
+#app-description {
+    padding-bottom: 1;
     width: 100%;
+}
+
+/* manages just "Argo CD App Repository" Label for select k8s apps tab */
+#app-repo-label{
+    padding-bottom: 1;
 }
