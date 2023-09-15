@@ -28,21 +28,31 @@ HelpScreen {
 }
 
 #help-container {
-    align: center middle;
-    grid-size: 2;
-    grid-gutter: 1 2;
-    grid-rows: 1fr 3;
+    content-align: center middle;
     padding: 1;
-    width: 60;
-    height: 11;
+    width: 80;
+    height: 20;
     border: heavy cornflowerblue 80%;
     background: $surface;
+
+}
+
+#help-options {
+    layout: grid;
+    border: $surface 80%;
+    align: center middle;
 }
 
 .help-option-row {
+    height: 1;
     align: left middle;
-    grid-size: 3;
-    grid-columns: 0.2fr 0.1fr 0.9fr;
+    grid-size: 2;
+    grid-columns: 0.2fr 0.9fr;
+}
+
+.mouse-help {
+    column-span: 2;
+    width: auto;
 }
 
 /* BEGIN FIRST TAB */
