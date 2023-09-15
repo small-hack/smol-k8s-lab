@@ -1,9 +1,10 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import VerticalScroll, Container, Horizontal, HorizontalScroll
+from textual.containers import VerticalScroll, Container, Horizontal
 from textual.binding import Binding
 from textual.events import Mount
+from textual.screen import ModalScreen, Screen
 from textual.widgets import (Button, Footer, Header, Input, Label,
                              RadioButton, RadioSet, Rule, SelectionList, Static,
                              Switch, TabbedContent, TabPane)
@@ -11,6 +12,29 @@ from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
                                     DEFAULT_DISTRO_OPTIONS, DEFAULT_CONFIG)
+
+
+class TutorialScreen(Screen):
+    def compose(self) -> ComposeResult:
+        # optional user_tips
+        user_tips = DEFAULT_CONFIG['tui']['new_user_tips']
+        if user_tips == "always" or user_tips == "on update":
+            with Container(id="user-tips"):
+                yield Label(new_tip)
+                with Horizontal(id="user-tips-button-row"):
+                    yield Button("Dismiss",
+                                 id="dismiss-button",
+                                 variant="warning")
+                    yield Button("Never Show",
+                                 id="never-button",
+                                 variant="error")
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "quit":
+            self.app.exit()
+        else:
+            self.app.pop_screen()
+
 
 
 class ConfigureAll(App):
@@ -50,17 +74,15 @@ class ConfigureAll(App):
         yield Footer()
 
         # new tips for new users
-        new_tip = ("[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]! You "
-                   "can use the left and right arrow ")
+        new_tip = ("[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]!\n"
+                   "\n[gold3]⬅ [/]/ [gold3]➡ [/]         to navigate tabs"
+                   "\n[gold3]tab[/]/[gold3]shift[/]+[gold3]tab[/]  to switch "
+                   "different panes, inputs, buttons\n")
 
         # Add the TabbedContent widget
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
             with TabPane("Select k8s distro", id="select-distro"):
-                # optional user_tips
-                user_tips = DEFAULT_CONFIG['tui']['new_user_tips']
-                if user_tips == "always":
-                    yield Label(new_tip, id="user-tips")
 
                 # this is the distro picker
                 with RadioSet():
@@ -232,7 +254,6 @@ class ConfigureAll(App):
 
                                 yield Label(" ", classes=app)
 
-
                     with VerticalScroll(id='app-tooltip-container'):
                         # Bottom half of the screen for select-apps TabPane()
                         yield Label("[b][green]Description[/][/]")
@@ -324,6 +345,11 @@ class ConfigureAll(App):
             if distro_class_objects:
                 for distro_obj in distro_class_objects:
                     distro_obj.display = enabled
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        if event.button.id == "never-button" or event.button.id == "dismiss-button":
+            self.app.pop_screen()
+
 
 def generate_tool_tip(app_name: str):
     """

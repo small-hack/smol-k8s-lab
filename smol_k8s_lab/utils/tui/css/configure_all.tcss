@@ -26,7 +26,20 @@ Footer .footer--key {
 
 /* beep boop it's the user tips! */
 #user-tips {
+    padding: 1;
     border: solid orange;
+    width: 1fr;
+}
+
+#user-tips-button-row {
+    content-align: center middle;
+    height: 3;
+}
+
+#dismiss-button {
+}
+
+#never-button {
 }
 
 /* Matches the k8s distro picker radio set */
@@ -49,7 +62,6 @@ RadioSet {
     grid-size: 4;
     width: 100%;
     grid-columns: 2fr 0.5fr 0.5fr 0.5fr;
-    height:
 }
 
 /* "number of nodes:" label before the minus button */
