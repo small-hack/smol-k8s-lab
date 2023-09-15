@@ -67,30 +67,35 @@ RadioSet {
     grid-size: 4;
     width: 100%;
     grid-columns: 2fr 0.5fr 0.5fr 0.5fr;
+    height: 3;
 }
 
 /* "number of nodes:" label before the minus button */
 .nodes-input-label {
     content-align: left middle;
     width: 100%;
+    height: 3;
 }
 
 /* button to decrease the number of nodes */
 .nodes-input-minus-button {
     width: 100%;
     content-align: center middle;
+    height: 3;
 }
 
 /* input field to manually increase/decrease number of nodes*/
 .nodes-input {
     width: 100%;
     content-align: center middle;
+    height: 3;
 }
 
 /* button to increase the number of nodes */
 .nodes-input-plus-button {
     width: 100%;
     content-align: center middle;
+    height: 3;
 }
 
 /* the entire kubelet config container */
@@ -129,7 +134,7 @@ RadioSet {
 }
 
 /* kubelet config arg row delete button */
-.kubelet-arg-delete-button {
+.kubelet-arg-del-button {
     content-align: right middle;
     height: auto;
     width: 100%;
