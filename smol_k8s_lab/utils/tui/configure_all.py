@@ -16,25 +16,21 @@ from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
 
 class TutorialScreen(Screen):
     def compose(self) -> ComposeResult:
-        # optional user_tips
-        user_tips = DEFAULT_CONFIG['tui']['new_user_tips']
-        if user_tips == "always" or user_tips == "on update":
-            with Container(id="user-tips"):
-                yield Label(new_tip)
-                with Horizontal(id="user-tips-button-row"):
-                    yield Button("Dismiss",
-                                 id="dismiss-button",
-                                 variant="warning")
-                    yield Button("Never Show",
-                                 id="never-button",
-                                 variant="error")
+        # new tips for new users
+        new_tip = ("[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]!\n"
+                   "\n[gold3]⬅ [/]/ [gold3]➡ [/]         to navigate tabs"
+                   "\n[gold3]tab[/]/[gold3]shift[/]+[gold3]tab[/]  to switch "
+                   "different panes, inputs, buttons\n")
+
+        with Container(id="user-tips"):
+            yield Label(new_tip)
+            yield Button("Dismiss",
+                         id="dismiss-button",
+                         variant="warning")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "quit":
-            self.app.exit()
-        else:
+        if event.button.id == "dismiss-button":
             self.app.pop_screen()
-
 
 
 class ConfigureAll(App):
@@ -43,24 +39,14 @@ class ConfigureAll(App):
     as hostnames and timezones
     """
     CSS_PATH = "./css/configure_all.tcss"
-    BINDINGS = [
-        Binding(key="tab",
-                action="focus_next",
-                description="Focus Next",
-                show=True,
-                priority=True),
-        Binding(key="shift+tab",
-                action="focus_previous",
-                description="Focus Previous",
-                show=True,
-                priority=True),
-        Binding(key="q",
-                key_display="q",
-                action="quit",
-                description="Quit smol-k8s-lab"),
-        Binding("left", "previous_tab", "Previous tab", show=True, priority=True),
-        Binding("right", "next_tab", "Next tab", show=True, priority=True)
-    ]
+    BINDINGS = [Binding(key="F1",
+                        action="request_help",
+                        description="Show Help",
+                        show=True),
+                Binding(key="q",
+                        key_display="q",
+                        action="quit",
+                        description="Quit smol-k8s-lab")]
     ToggleButton.BUTTON_INNER = '♥'
 
     def compose(self) -> ComposeResult:
@@ -72,12 +58,6 @@ class ConfigureAll(App):
         yield header
         # Footer to show keys
         yield Footer()
-
-        # new tips for new users
-        new_tip = ("[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]!\n"
-                   "\n[gold3]⬅ [/]/ [gold3]➡ [/]         to navigate tabs"
-                   "\n[gold3]tab[/]/[gold3]shift[/]+[gold3]tab[/]  to switch "
-                   "different panes, inputs, buttons\n")
 
         # Add the TabbedContent widget
         with TabbedContent(initial="select-distro"):
@@ -346,9 +326,9 @@ class ConfigureAll(App):
                 for distro_obj in distro_class_objects:
                     distro_obj.display = enabled
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "never-button" or event.button.id == "dismiss-button":
-            self.app.pop_screen()
+    
+    def action_request_help(self) -> None:
+        self.push_screen(TutorialScreen())
 
 
 def generate_tool_tip(app_name: str):
