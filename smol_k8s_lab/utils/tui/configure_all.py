@@ -4,7 +4,7 @@ from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll, Container, Horizontal, Grid
 from textual.binding import Binding
 from textual.events import Mount
-from textual.screen import ModalScreen, Screen
+from textual.screen import ModalScreen
 from textual.widgets import (Button, Footer, Header, Input, Label,
                              RadioButton, RadioSet, Rule, SelectionList, Static,
                              Switch, TabbedContent, TabPane)
@@ -108,7 +108,7 @@ class ConfigureAll(App):
                 yield Label(" ")
 
                 # these are distro configurations 
-                with Container(id="k8s-distro-config"):
+                with VerticalScroll(id="k8s-distro-config"):
                     for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
                         if distro == DEFAULT_DISTRO:
                             display = True
@@ -141,6 +141,8 @@ class ConfigureAll(App):
                                          classes=f"{node_class}-plus-button",
                                          disabled=disabled)
 
+                        yield Label(" ", classes=distro)
+
                         # take extra kubelet config args
                         args_label = Label("[green]Extra Args for Kubelet Config",
                                            classes=f"{distro} kubelet-config-label")
@@ -172,17 +174,14 @@ class ConfigureAll(App):
 
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
-                            k3_rule = Rule(classes=distro)
-                            k3_container = Container(id=f"{distro}-config-container",
+                            k3_container = Container(id="k3s-config-container",
                                                      classes=distro)
-
                             k3_container.display = display
-                            k3_rule.display = display
 
-                            yield k3_rule
                             with k3_container:
+                                yield Label(" ", classes=distro)
                                 yield Label("[green]Extra Args for k3s install script",
-                                            classes=distro)
+                                            classes=f"{distro} k3s-config-label")
 
                                 if distro == 'k3s':
                                     k3s_args = distro_metadata['extra_cli_args']
@@ -296,17 +295,21 @@ class ConfigureAll(App):
         self.title = "🧸smol k8s lab"
         self.sub_title = "now with more 🦑"
 
-        # styling for the select-apps tab
-        cute_question = "ʕ ᵔᴥᵔʔ Select apps to install on k8s"
-        self.query_one(SelectionList).border_title = cute_question
+        # styling for the select-apps tab - select apps container - left
+        select_apps_title = "ʕ ᵔᴥᵔʔ Select apps to install on k8s"
+        self.query_one(SelectionList).border_title = select_apps_title
 
-        # styling for the select-distro tab
-        cute_question2 = "ʕ ᵔᴥᵔʔ Select which Kubernetes distributrion to use"
-        self.query_one(RadioSet).border_title = cute_question2
+        # styling for the select-apps tab - configure apps container - right
+        app_config_title = "Configure selected apps ʕᵔᴥᵔ ʔ"
+        self.get_widget_by_id('app-inputs').border_title = app_config_title
 
-        # styling for the select-distro tab
-        cute_question3 = "Configure selected apps ʕᵔᴥᵔ ʔ"
-        self.get_widget_by_id('app-inputs').border_title = cute_question3
+        # styling for the select-distro tab - top
+        select_k8s_title = "ʕ ᵔᴥᵔʔ Select which Kubernetes distributrion to use"
+        self.query_one(RadioSet).border_title = select_k8s_title
+
+        # styling for the select-distro tab - middle
+        configure_distro_title = "ʕ ᵔᴥᵔʔ configure selected k8s distro"
+        self.get_widget_by_id('k8s-distro-config').border_title = configure_distro_title
 
     @on(Mount)
     @on(SelectionList.SelectedChanged)
