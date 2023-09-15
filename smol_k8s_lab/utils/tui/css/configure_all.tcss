@@ -59,6 +59,8 @@ RadioSet {
     border: solid cornflowerblue;
     padding: 1;
     content-align: center middle;
+    scrollbar-background: #3a3a3a;
+    scrollbar-color: #5f5fd7;
 }
 
 /* number of nodes input row */
@@ -185,6 +187,9 @@ RadioSet {
     border: solid gray;
 }
 
+#k8s-distro-description-label {
+}
+
 /* BEGIN SECOND TAB */
 
 /* Matches the "Select k8s apps" screen tab content container */
@@ -278,9 +283,11 @@ Switch {
     padding: 1;
     border: solid gray;
     content-align: center middle;
+    scrollbar-background: #3a3a3a;
+    scrollbar-color: #5f5fd7;
 }
 
 /* manages just description for select k8s apps tab */
 #selected-app-description {
-    width: 100;
+    width: 100%;
 }

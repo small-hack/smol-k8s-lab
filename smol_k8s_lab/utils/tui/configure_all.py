@@ -203,10 +203,11 @@ class ConfigureAll(App):
                                              classes=f"{k3s_class}-add-button")
 
                 with Container(id="k8s-distro-description-container"):
-                    yield Label("[b][green]Description[/][/]")
+                    yield Label("[b][green][underline2]Description[/][/][/]",
+                                id='k8s-distro-description-label')
                     description = DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description']
                     yield Static(f"[dim]{description}[/]",
-                                 id='selected-distro-tooltip')
+                                 id='k8s-distro-description')
 
             # tab 2 - allows selection of different argo cd apps to run in k8s
             with TabPane("Select k8s apps", id="select-apps"):
@@ -364,7 +365,7 @@ class ConfigureAll(App):
         pressed_index = self.query_one(RadioSet).pressed_index
         pressed_distro = sorted(DEFAULT_DISTRO_OPTIONS.keys())[pressed_index]
         description = DEFAULT_CONFIG['k8s_distros'][pressed_distro]['description']
-        self.get_widget_by_id('selected-distro-tooltip').update(description)
+        self.get_widget_by_id('k8s-distro-description').update(description)
 
         for distro in DEFAULT_DISTRO_OPTIONS.keys():
             # get any objects using this distro's name as their class
