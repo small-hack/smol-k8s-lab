@@ -110,10 +110,15 @@ class ConfigureAll(App):
                 # these are distro configurations 
                 with Container(id="k8s-distro-config"):
                     for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
-                        # take number of nodes
-                        nodes = str(distro_metadata.get('nodes', 1))
+                        if distro == DEFAULT_DISTRO:
+                            display = True
+                        else:
+                            display = False
+
                         node_class = f"{distro} nodes-input"
-                        with Horizontal(classes=f"{node_class}-row"):
+                        node_row = Horizontal(classes=f"{node_class}-row")
+                        node_row.display = display
+                        with node_row:
                             yield Label("number of nodes: ",
                                         classes=f"{node_class}-label")
 
@@ -125,6 +130,8 @@ class ConfigureAll(App):
                                          classes=f"{node_class}-minus-button",
                                          disabled=disabled)
 
+                            # take number of nodes from config and make string
+                            nodes = str(distro_metadata.get('nodes', 1))
                             yield Input(value=nodes,
                                         placeholder='enter number of nodes',
                                          classes=f"{node_class}",
@@ -135,12 +142,17 @@ class ConfigureAll(App):
                                          disabled=disabled)
 
                         # take extra kubelet config args
-                        yield Label("[green]Extra Args for Kubelet Config",
-                                    classes=f"{distro} kubelet-config-label")
-                        kubelet_args = distro_metadata['kubelet_extra_args']
-                        with Horizontal(classes=f"{node_class}-row"):
+                        args_label = Label("[green]Extra Args for Kubelet Config",
+                                           classes=f"{distro} kubelet-config-label")
+                        args_label.display = display
+                        yield args_label
+
+                        row_class = f"{distro} kubelet-arg"
+                        row_container = Horizontal(classes=f"{row_class}-input-row")
+                        row_container.display = display
+                        with row_container:
+                            kubelet_args = distro_metadata['kubelet_extra_args']
                             if kubelet_args:
-                                row_class = f"{distro} kubelet-arg"
                                 for key, value in kubelet_args.items():
                                         pholder = "optional kubelet config key arg"
                                         yield Input(value=key,
@@ -153,14 +165,22 @@ class ConfigureAll(App):
 
                                         yield Button("🗑️",
                                                      classes=f"{row_class}-del-button")
-                        yield Button("➕ Add New Arg",
-                                     classes=f"{row_class}-add-button")
+                        new_button = Button("➕ Add New Arg",
+                                            classes=f"{row_class}-add-button")
+                        new_button.display = display
+                        yield new_button
 
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
-                            yield Rule(classes=distro)
-                            with Container(id=f"{distro}-config-container",
-                                           classes=distro):
+                            k3_rule = Rule(classes=distro)
+                            k3_container = Container(id=f"{distro}-config-container",
+                                                     classes=distro)
+
+                            k3_container.display = display
+                            k3_rule.display = display
+
+                            yield k3_rule
+                            with k3_container:
                                 yield Label("[green]Extra Args for k3s install script",
                                             classes=distro)
 
@@ -348,7 +368,7 @@ class ConfigureAll(App):
             if distro_class_objects:
                 for distro_obj in distro_class_objects:
                     distro_obj.display = enabled
-    
+
     def action_request_help(self) -> None:
         self.push_screen(HelpScreen())
 
