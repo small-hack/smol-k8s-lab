@@ -9,8 +9,6 @@ log:
 tui:
   # always use the interactive TUI experience
   always_enabled: False
-  # show new user tips: set to one of the fallowing: "always", "on update", "never"
-  new_user_tips: always
   # hide bottom help bar
   hide_footer: False
 

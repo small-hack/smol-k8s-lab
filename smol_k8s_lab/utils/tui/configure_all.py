@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import VerticalScroll, Container, Horizontal
+from textual.containers import VerticalScroll, Container, Horizontal, Grid
 from textual.binding import Binding
 from textual.events import Mount
 from textual.screen import ModalScreen, Screen
@@ -14,26 +14,44 @@ from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
                                     DEFAULT_DISTRO_OPTIONS, DEFAULT_CONFIG)
 
 
-class TutorialScreen(Screen):
+class HelpScreen(ModalScreen):
     """
     dialog screen to show help text
     """
+    BINDINGS = [Binding(key="h,?,q",
+                        key_display="h",
+                        action="disable_help",
+                        description="Exit Help Screen",
+                        show=True)
+                ]
+
     def compose(self) -> ComposeResult:
-        # new tips for new users
-        new_tip = ("[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]!\n"
-                   "\n[gold3]⬅ [/]/ [gold3]➡ [/]         to navigate tabs"
-                   "\n[gold3]tab[/]/[gold3]shift[/]+[gold3]tab[/]  to switch "
-                   "different panes, inputs, buttons\n")
+        # tips for new/forgetful users (the maintainers are also forgetful <3)
+        help_dict = {"⬅️,➡️": "navigate tabs",
+                     "tab": "switch to next pane, field, or button",
+                     "shift+tab": "switch to previous pane, field, or button",
+                     "enter": "press button",
+                     "h,?": "toggle help screen"}
 
-        with Container(id="user-tips"):
+        new_tip = "[green]:wave: Welcome to [steel_blue1]smol-k8s-lab[/]![/]\n"
+
+        with Container(id="help-container"):
             yield Label(new_tip)
-            yield Button("Dismiss",
-                         id="dismiss-button",
-                         variant="warning")
+            for help_option, help_text in help_dict.items():
+                with Grid(classes="help-option-row"):
+                    key = f"[gold3]{help_option}[/gold3]"
+                    key = key.replace(",", "[bright_white],[/]")
+                    key = key.replace("+", "[bright_white]+[/]")
+                    yield Label(key)
+                    yield Label(" ")
+                    yield Label(help_text)
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "dismiss-button":
-            self.app.pop_screen()
+
+    def action_disable_help(self) -> None:
+        """
+        if user presses '?', 'h', or 'q', we exit the help screen
+        """
+        self.app.pop_screen()
 
 
 class ConfigureAll(App):
@@ -42,7 +60,8 @@ class ConfigureAll(App):
     as hostnames and timezones
     """
     CSS_PATH = "./css/configure_all.tcss"
-    BINDINGS = [Binding(key="h",
+    BINDINGS = [Binding(key="h,?",
+                        key_display="h",
                         action="request_help",
                         description="Show Help",
                         show=True),
@@ -329,10 +348,9 @@ class ConfigureAll(App):
             if distro_class_objects:
                 for distro_obj in distro_class_objects:
                     distro_obj.display = enabled
-
     
     def action_request_help(self) -> None:
-        self.push_screen(TutorialScreen())
+        self.push_screen(HelpScreen())
 
 
 def generate_tool_tip(app_name: str):
