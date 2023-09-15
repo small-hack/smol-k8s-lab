@@ -154,8 +154,9 @@ def main(config: str = "",
         # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager
         setup_base_apps(k8s_obj,
                         distro,
-                        apps['metallb'],
                         apps['cilium'],
+                        apps['metallb'],
+                        apps['ingress_nginx'],
                         apps['cert_manager'],
                         argo_enabled,
                         apps['argo_cd_appset_secret_plugin']['enabled'])

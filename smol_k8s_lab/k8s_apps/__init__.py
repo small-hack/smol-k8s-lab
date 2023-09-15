@@ -123,22 +123,24 @@ def setup_oidc_provider(k8s_obj: K8s,
 
 def setup_base_apps(k8s_obj: K8s,
                     k8s_distro: str,
-                    metallb_dict: dict = {},
                     cilium_dict: dict = {},
+                    metallb_dict: dict = {},
+                    ingress_dict: dict = {},
                     cert_manager_dict: dict = {},
                     argo_enabled: bool = False,
-                    argo_secrets_enabled: bool = False) -> bool:
+                    argo_secrets_plugin_enabled: bool = False) -> bool:
     """ 
-    Uses Helm to install all base apps: metallb, ingess-nginx, and cert-manager
+    Uses Helm to install all base apps that need to be running being argo cd:
+        cilium, metallb, ingess-nginx, cert-manager, argo cd, argocd secrets plugin
     All Needed for getting Argo CD up and running.
     """
     metallb_enabled = metallb_dict['enabled']
     cilium_enabled = cilium_dict['enabled']
     # make sure helm is installed and the repos are up to date
     prepare_helm(k8s_distro, metallb_enabled, cilium_enabled, argo_enabled,
-                 argo_secrets_enabled)
+                 argo_secrets_plugin_enabled)
 
-    # needed for network policy editor and hubble
+    # needed for network policy editor and hubble UI
     if cilium_enabled:
         header("Installing [green]cilium[/green] so we have networking tools", '🛜')
         if cilium_dict['init']['enabled']:
@@ -156,19 +158,21 @@ def setup_base_apps(k8s_obj: K8s,
             configure_metallb(cidr)
 
     # ingress controller: so we can accept traffic from outside the cluster
-    # nginx just because that's most supported, treafik support may be added later
-    header("Installing [green]ingress-nginx-controller[/green] to access web apps "
-           "outside the cluster", "🌐")
-    configure_ingress_nginx(k8s_distro)
+    if ingress_dict["enabled"]:
+        # nginx just because that's most supported, treafik support may be added later
+        header("Installing [green]ingress-nginx-controller[/green] to access web"
+               " apps outside the cluster", "🌐")
+        configure_ingress_nginx(k8s_distro)
 
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [green]cert-manager[/green] for TLS certificates...", '📜')
-    cert_manager_init = cert_manager_dict['init']['enabled']
-    if cert_manager_init:
-        email = cert_manager_dict['argo']['secret_keys']['email']
-    else:
-        email = ""
-    configure_cert_manager(k8s_obj, email)
+    if cert_manager_dict["enabled"]:
+        cert_manager_init = cert_manager_dict['init']['enabled']
+        if cert_manager_init:
+            email = cert_manager_dict['argo']['secret_keys']['email']
+        else:
+            email = ""
+        configure_cert_manager(k8s_obj, email)
 
     # success!
     return True
