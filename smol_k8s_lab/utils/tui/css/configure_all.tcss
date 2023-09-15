@@ -22,8 +22,6 @@ Footer .footer--key {
 }
 
 
-/* BEGIN FIRST TAB */
-
 /* help screen section */
 HelpScreen {
     align: center middle;
@@ -47,6 +45,8 @@ HelpScreen {
     grid-columns: 0.2fr 0.1fr 0.9fr;
 }
 
+/* BEGIN FIRST TAB */
+
 /* Matches the k8s distro picker radio set */
 RadioSet {
     padding: 1;
@@ -56,17 +56,17 @@ RadioSet {
 
 /* the whole middle k8s distro config area */
 #k8s-distro-config {
-    border: solid steelblue;
-    height: 50%;
+    border: solid cornflowerblue;
+    padding: 1;
+    content-align: center middle;
 }
 
 /* number of nodes input row */
 .nodes-input-row {
-    background: #262626;
     layout: grid;
     grid-size: 4;
     width: 100%;
-    grid-columns: 2fr 0.5fr 0.5fr 0.5fr;
+    grid-columns: 1fr 0.2fr 0.21fr 0.19fr;
     height: 3;
 }
 
@@ -87,6 +87,7 @@ RadioSet {
 /* input field to manually increase/decrease number of nodes*/
 .nodes-input {
     width: 100%;
+    align: center middle;
     content-align: center middle;
     height: 3;
 }
@@ -98,44 +99,40 @@ RadioSet {
     height: 3;
 }
 
-/* the entire kubelet config container */
-.kubelet-config-container{
-    border: solid red;
-}
-
 /* kubelet config section label */
 .kubelet-config-label {
     height: auto;
     width: 100%;
     padding: 1;
-    content-align: center middle;
+    background: #262626;
 }
 
 /* kubelet config arg input row */
 .kubelet-arg-input-row {
-    border: solid cornflowerblue;
-    height: auto;
+    layout: grid;
+    grid-size: 3;
     width: 100%;
+    height: 3;
+    grid-columns: 0.75fr 0.75fr 0.2fr;
 }
 
 /* kubelet config arg key input field */
 .kubelet-arg-input-key{
-    border: solid cornflowerblue;
+    border: solid gray;
     height: auto;
     width: 100%;
 }
 
 /* kubelet config arg value input field */
 .kubelet-arg-input-value {
-    border: solid cornflowerblue;
+    border: solid gray;
     height: auto;
     width: 100%;
-    content-align: right middle;
 }
 
 /* kubelet config arg row delete button */
 .kubelet-arg-del-button {
-    content-align: right middle;
+    content-align: center middle;
     height: auto;
     width: 100%;
 }
@@ -143,16 +140,30 @@ RadioSet {
 /* kubelet config arg row delete button */
 .kubelet-arg-add-button {
     height: auto;
-    width: 100%;
+    width: 30%;
 }
 
 /* k3s/k3d extra args container */
 .k3s-config-container {
-    border: solid orange;
+    content-align: center middle;
+    border: solid cornflowerblue;
+    height: 100%;
+}
+
+.k3s-config-label {
+    content-align: left middle;
+    background: #262626;
+    width: 100%;
+    height: 3;
 }
 
 /* k3s arg row */
 .k3s-arg-row {
+    height: auto;
+    layout: grid;
+    grid-size: 2;
+    width: 100%;
+    grid-columns: 1fr 0.2fr;
 }
 
 .k3s-arg-input {
@@ -162,10 +173,14 @@ RadioSet {
 }
 
 .k3s-arg-add-button {
+    height: auto;
+    width: 100%;
 }
 
 /* k8s distro description container */
 #description-container {
+    padding: 1;
+    border: solid gray;
 }
 
 /* BEGIN SECOND TAB */
@@ -257,7 +272,8 @@ Switch {
 /* Matches Description AND Argo CD App Repository container in Select k8s apps tab */
 #app-tooltip-container {
     column-span: 2;
-    border: solid cornflowerblue;
+    padding: 1;
+    border: solid gray;
     content-align: center middle;
 }
 
