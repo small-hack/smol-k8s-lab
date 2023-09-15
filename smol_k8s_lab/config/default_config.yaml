@@ -16,7 +16,7 @@ k8s_distros:
     description: |
       K3s is packaged as a single <70MB binary that reduces the dependencies and steps needed to install, run and auto-update a production Kubernetes cluster. It's also optomized for ARM.
 
-      Learn more: [steel_blue][link="https://k3s.io/"]https://k3s.io[/link][/]
+      Learn more: [link="https://k3s.io/"]https://k3s.io[/link]
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
       # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
@@ -40,7 +40,7 @@ k8s_distros:
 
       k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal Kubernetes distribution) in docker.
 
-      Learn more: [steel_blue][link="https://k3d.io/v5.6.0/"]https://k3d.io/v5.6.0/[/link][/]
+      Learn more: [link="https://k3d.io/v5.6.0/"]https://k3d.io/v5.6.0/[/link]
     # change the kubelet config for all k3d nodes, feel free to add more values
     kubelet_extra_args:
       # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
@@ -64,7 +64,7 @@ k8s_distros:
     description: |
       kind is a tool for running local k8s clusters using Docker containers as “nodes”. It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.
 
-      Learn more: [steel_blue][link="https://kind.sigs.k8s.io/"]https://kind.sigs.k8s.io/[/link][/]
+      Learn more: [link="https://kind.sigs.k8s.io/"]https://kind.sigs.k8s.io/[/link]
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
       # set the maximum pods per node via 
@@ -80,7 +80,7 @@ k8s_distros:
 # this is useful for learning smol-k8s-lab or verifying your configuration
 interactive:
   # hide bottom help bar
-  hide_footer: False
+  hide_footer: false
   # if this is set to true, we'll always launch smol-k8s-lab in interactive mode :)
   always_enabled: false
   # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
@@ -115,17 +115,16 @@ apps_global_config:
 # ---------------------------------------------------------------------------
 # Argo CD deployed and maintained Applications to run on Kubernetes
 # ---------------------------------------------------------------------------
-# Each of these apps is can only be deployed and maintained by Argo CD
-# ---------------------------------------------------------------------------
 apps:
-  # This app is installed with helm or manifests depending on what is recommended
-  # for your k8s distro. Becomes managed by ArgoCD if you enable it below
   argo_cd:
     # Set to false if you you just want a bare cluster with only the above apps"
     enabled: true
     description: |
       Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes.
+
       Learn more: [link=https://argo-cd.readthedocs.io/en/stable/]https://argo-cd.readthedocs.io/en/stable/[/link]
+
+      smol-k8s-lab installs Argo CD with helm initially to support initial configuration of your admin user and disabling of dex. After your OIDC provider is configured, Argo CD begins managing itself using the below configured Argo CD repo.
     # Initialization of the app through smol-k8s-lab
     init:
       # Switch to false if you don't want to use the argo_cd_appset_secret_plugin
@@ -155,7 +154,9 @@ apps:
   argo_cd_appset_secret_plugin:
     enabled: true
     description: |
-      Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [orange]argo.repo[/orange] and default enabled if ArgoCD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster"
+      Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [orange]argo.repo[/orange] and default enabled if ArgoCD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
+
+      Learn more: [link=https://github.com/jessebot/argocd-appset-secret-plugin]https://github.com/jessebot/argocd-appset-secret-plugin[/link]
     # Initialization of the app through smol-k8s-lab
     init:
       # Switch to false if you don't want to deploy a default secret with all
@@ -179,7 +180,13 @@ apps:
   bitwarden_eso_provider:
     enabled: true
     description: |
-      bitwarden ESO provider to store k8s secrets in bitwarden. This deployment has no ingress and can't be connected to from outside the cluster there is a networkPolicy that only allows the pod to communicate with ESO in the same namespace"
+      bitwarden external secrets provider is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
+
+      smol-k8s-lab support initialization by creating a kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
+
+      BITWARDEN_PASSWORD, BITWARDEN_CLIENTSECRET, BITWARDEN_CLIENTID
+
+      Learn more: [link="https://github.com/jessebot/bitwarden-eso-provider/"]https://github.com/jessebot/bitwarden-eso-provider/[/link]
     # Initialization of the app through smol-k8s-lab
     init:
       # Switch to false if you don't want to be prompted for your Bitwarden
@@ -212,7 +219,9 @@ apps:
     description: |
       Use LetsEncrypt to generate TLS certs for all your apps with ingress.
 
-      Learn more: [steel_blue][link=https://cert-manager.io/]https://cert-manager.io/[/link][/]
+      smol-k8s-lab supports initialization by creating two ClusterIssuers for both staging and production using a provided email address as the account ID for acme.
+
+      Learn more: [link=https://cert-manager.io/]https://cert-manager.io/[/link]
     # Initialize of the app through smol-k8s-lab
     init:
       # Deploys staging and prod ClusterIssuers and prompts you for
@@ -244,6 +253,8 @@ apps:
     enabled: false
     description: |
       Cilium is an open source, cloud native solution for providing, securing, and observing network connectivity between workloads, fueled by the revolutionary Kernel technology eBPF.
+
+      Learn more: [link=https://cilium.io/]https://cilium.io/[/link]
     # Initialize of the app through smol-k8s-lab
     init:
       enabled: true
@@ -266,7 +277,8 @@ apps:
     enabled: true
     description: |
       External Secrets Operator is a Kubernetes operator that integrates external secret management systems like HashiCorp Vault, CyberArk Conjur, Bitwarden, Gitlab, and many more. The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
-      Learn more: https://external-secrets.io/latest/
+
+      Learn more: [link=https://external-secrets.io/latest/]https://external-secrets.io/latest/[/link]
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -289,9 +301,11 @@ apps:
   infisical:
     enabled: false
     description: |
-      Status: [magenta]Alpha[/magenta]
+      ⚠️ [magenta]Alpha Status[/magenta]
 
       Infisical is an open-source, end-to-end encrypted secret management platform that enables teams to easily manage and sync their env vars.
+
+      Learn more: [link=https://infisical.com/]https://infisical.com/[/link]
     # Initialization of the app through smol-k8s-lab
     init:
       # Switch to false if you don't want to 
@@ -314,7 +328,7 @@ apps:
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by ArgoCD if you enable it below
-  ingress:
+  ingress_nginx:
     # this cannot be disabled unless you provide your own ingress controller app
     enabled: true
     description: |
@@ -342,6 +356,8 @@ apps:
       k8tz is a kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs1.
 
       Containers do not inherit timezones from host machines and have only accessed to the clock from the kernel. The default timezone for most images is UTC, yet it is not guaranteed and may be different from container to container. With k8tz it is easy to standardize selected timezone across pods and namespaces automatically with minimal effort.
+
+      Learn more: [link=https://github.com/k8tz/k8tz]https://github.com/k8tz/k8tz[/link]
     init:
       enabled: true
     argo:
@@ -366,7 +382,7 @@ apps:
 
       You can also perform individual, on-demand backups, and restores from the k8up CLI tool.
 
-      Learn more: [steel_blue][link=https://k8up.io]https://k8up.io[/link][/]
+      Learn more: [link=https://k8up.io]https://k8up.io[/link]
 
     init:
       enabled: true
@@ -390,7 +406,7 @@ apps:
     description: |
       Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics.
 
-      learn more: https://github.com/sustainable-computing-io/kepler
+      Learn more: [link=https://github.com/sustainable-computing-io/kepler]https://github.com/sustainable-computing-io/kepler[/link]
     enabled: false
     # Initialization of the app through smol-k8s-lab
     init:
@@ -444,9 +460,11 @@ apps:
 
   kubevirt:
     description: |
-      status: [magenta]ALPHA[/magenta]
+      ⚠️ [magenta]Alpha Status[/magenta]
 
       kubevirt lets you manage virtual machines via k8s
+
+      Learn more: [link=https://kubevirt.io/]https://kubevirt.io/[/link]
     # default disabled while a helm chart is being actively developed
     enabled: false
     argo:
@@ -463,7 +481,9 @@ apps:
 
   kyverno:
     description: |
-      kyverno is a native policy manager for kubernetes"
+      Kyverno is a native policy manager for Kubernetes
+
+      learn more: [link=https://kyverno.io/]https://kyverno.io/[/link]
     # enable kyverno, for k8s native policy management
     enabled: false
     argo:
@@ -482,7 +502,7 @@ apps:
     description: |
        mastodon is an open source self hosted social media network.
 
-       learn more: https://joinmastodon.org/
+       learn more: [link=https://joinmastodon.org/]https://joinmastodon.org/[/link]
 
        smol-k8s-lab supports initializing mastodon, by setting up your hostname
        and SMTP credentials
@@ -514,6 +534,8 @@ apps:
     description: |
       Matrix is an open protocol for decentralised, secure communications.
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
+
+      Learn more: [link=https://matrix.org/]https://matrix.org/[/link]
     # enable matrix for a self hosted chat service
     enabled: false
     # initialize the app by setting up new k8s secrets and/or bitwarden items
@@ -543,7 +565,9 @@ apps:
   metallb:
     enabled: true
     description: |
-      Helps expose IP addresses for loadbalancers on metal if you're on a vm or container where you can't get an IP. Cloud Compatibility: https://metallb.org/installation/clouds/
+      Helps expose IP addresses for loadbalancers on metal if you're on a vm or container where you can't get an IP.
+
+      Cloud Compatibility: [link=https://metallb.org/installation/clouds/]https://metallb.org/installation/clouds/[/link]
 
       Learn more: [link=https://metallb.org/]https://metallb.org/[/link]
     # Initialize of the app through smol-k8s-lab
@@ -574,7 +598,7 @@ apps:
 
       MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
 
-      learn more: https://min.io/
+      learn more: [link=https://min.io/]https://min.io/[/link]
     # Initialization of the app through smol-k8s-lab
     init:
       enabled: true
@@ -598,7 +622,7 @@ apps:
     description: |
       Nextcloud Hub is the industry-leading, fully open-source, on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces
 
-      Learn more: https://nextcloud.com/
+      Learn more: [link=https://nextcloud.com/]https://nextcloud.com/[/link]
 
       smol-k8s-lab supports initialization by setting up your administration username,
       password, and SMTP username and password.
@@ -637,7 +661,7 @@ apps:
     description: |
       Full monitoring stack with prometheus, grafana, loki, and alert manager.
 
-      Learn more: https://prometheus.io/docs/introduction/overview/
+      Learn more: [link=https://prometheus.io/docs/introduction/overview/]https://prometheus.io/docs/introduction/overview/[/link]
 
       smol-k8s-lab supports initialization by setting up your ingress hostnames.
 
@@ -677,7 +701,9 @@ apps:
     description: |
       vouch-proxy can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
 
-      Learn more: https://github.com/vouch/vouch-proxy
+      smol-k8s-lab supports the initialization of vouch if you also enable zitadel or keycloak by creating OIDC applications and credentials and your vouch-proxy kubernetes secret.
+
+      Learn more: [link=https://github.com/vouch/vouch-proxy]https://github.com/vouch/vouch-proxy[/link]
     enabled: true
     # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
     init:
@@ -714,11 +740,11 @@ apps:
     description: |
       ZITADEL is an open source self hosted IAM platform for the cloud era
 
-      Learn more: https://zitadel.com/opensource
+      Learn more: [link=https://zitadel.com/opensource]https://zitadel.com/opensource[/link]
 
       smol-k8s-lab supports initialization of:
       - an admin service account
-      - a human admin user
+      - a human admin user (including an autogenerated password)
       - 2 OIDC applications for Argo CD and Vouch
     # Initialization of the app through smol-k8s-lab. Creates bitwarden and/or k8s secrets
     # and also creates an initial OIDC application for Argo CD, a human admin user,
