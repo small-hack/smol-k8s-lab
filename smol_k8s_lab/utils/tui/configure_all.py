@@ -5,9 +5,9 @@ from textual.containers import VerticalScroll, Container, Horizontal, Grid
 from textual.binding import Binding
 from textual.events import Mount
 from textual.screen import ModalScreen
-from textual.widgets import (Button, Footer, Header, Input, Label,
-                             RadioButton, RadioSet, Rule, SelectionList, Static,
-                             Switch, TabbedContent, TabPane)
+from textual.widgets import (Button, Footer, Header, Input, Label, RadioButton,
+                             RadioSet, SelectionList, Static, Switch, TabbedContent,
+                             TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
@@ -84,7 +84,7 @@ class ConfigureAll(App):
         # Add the TabbedContent widget
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
-            with TabPane("Select k8s distro", id="select-distro"):
+            with TabPane("Select Kubernetes distro", id="select-distro"):
 
                 # this is the distro picker
                 with RadioSet():
@@ -104,8 +104,6 @@ class ConfigureAll(App):
                         radio_button.BUTTON_INNER = '♥'
 
                         yield radio_button
-
-                yield Label(" ")
 
                 # these are distro configurations 
                 with VerticalScroll(id="k8s-distro-config"):
@@ -141,36 +139,36 @@ class ConfigureAll(App):
                                          classes=f"{node_class}-plus-button",
                                          disabled=disabled)
 
-                        yield Label(" ", classes=distro)
 
-                        # take extra kubelet config args
-                        args_label = Label("[green]Extra Args for Kubelet Config",
-                                           classes=f"{distro} kubelet-config-label")
-                        args_label.display = display
-                        yield args_label
+                        with Container(classes="kubelet-config-container"):
+                            # take extra kubelet config args
+                            args_label = Label("[green]Extra Args for Kubelet Config",
+                                               classes=f"{distro} kubelet-config-label")
+                            args_label.display = display
+                            yield args_label
 
-                        row_class = f"{distro} kubelet-arg"
-                        row_container = Horizontal(classes=f"{row_class}-input-row")
-                        row_container.display = display
-                        with row_container:
-                            kubelet_args = distro_metadata['kubelet_extra_args']
-                            if kubelet_args:
-                                for key, value in kubelet_args.items():
-                                        pholder = "optional kubelet config key arg"
-                                        yield Input(value=key,
-                                                    placeholder=pholder,
-                                                    classes=f"{row_class}-input-key")
+                            row_class = f"{distro} kubelet-arg"
+                            row_container = Horizontal(classes=f"{row_class}-input-row")
+                            row_container.display = display
+                            with row_container:
+                                kubelet_args = distro_metadata['kubelet_extra_args']
+                                if kubelet_args:
+                                    for key, value in kubelet_args.items():
+                                            pholder = "optional kubelet config key arg"
+                                            yield Input(value=key,
+                                                        placeholder=pholder,
+                                                        classes=f"{row_class}-input-key")
 
-                                        yield Input(value=str(value),
-                                                    placeholder=key,
-                                                    classes=f"{row_class}-input-value")
+                                            yield Input(value=str(value),
+                                                        placeholder=key,
+                                                        classes=f"{row_class}-input-value")
 
-                                        yield Button("🗑️",
-                                                     classes=f"{row_class}-del-button")
-                        new_button = Button("➕ Add New Arg",
-                                            classes=f"{row_class}-add-button")
-                        new_button.display = display
-                        yield new_button
+                                            yield Button("🗑️",
+                                                         classes=f"{row_class}-del-button")
+                            new_button = Button("➕ Add New Arg",
+                                                classes=f"{row_class}-add-button")
+                            new_button.display = display
+                            yield new_button
 
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
@@ -203,14 +201,15 @@ class ConfigureAll(App):
                                              classes=f"{k3s_class}-add-button")
 
                 with Container(id="k8s-distro-description-container"):
-                    yield Label("[b][green][underline2]Description[/][/][/]",
+                    yield Label("[b][green]Description[/][/]",
                                 id='k8s-distro-description-label')
                     description = DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description']
-                    yield Static(f"[dim]{description}[/]",
+                    formatted_description = format_description(description)
+                    yield Static(f"{formatted_description}",
                                  id='k8s-distro-description')
 
             # tab 2 - allows selection of different argo cd apps to run in k8s
-            with TabPane("Select k8s apps", id="select-apps"):
+            with TabPane("Select Applications", id="select-apps"):
                 full_list = []
                 for argocd_app, app_metadata in DEFAULT_APPS.items():
                     full_list.append(Selection(argocd_app.replace("_","-"),
@@ -242,57 +241,59 @@ class ConfigureAll(App):
                                     init_enabled = init.get('enabled', False)
 
                                 # make a pretty title for the app to configure
-                                s_class = f"app-init-switch-and-label {app}"
+                                s_class = f"app-init-switch-and-labels-row {app}"
                                 with Container(classes=s_class):
                                     app_title = app.replace('_', ' ').title()
                                     yield Label(f"[green]{app_title}[/]",
-                                                classes=f"{app} app-label")
+                                                classes="app-label")
                                     yield Label("Initialize: ",
-                                                classes=f"{app} app-init-switch-label")
+                                                classes="app-init-switch-label")
                                     yield Switch(value=True,
-                                                 classes=f"app-init-switch {app}")
-                                yield Label(" ", classes=app)
+                                                 classes="app-init-switch")
 
-                                # iterate through the app's secret keys
-                                for secret_key, value in secret_keys.items():
-                                    secret_label = secret_key.replace("_", " ")
+                                # container for all inputs associated with one app
+                                app_inputs_class = f"{app} app-all-inputs-container"
+                                with Container(classes=app_inputs_class):
+                                    # iterate through the app's secret keys
+                                    for secret_key, value in secret_keys.items():
+                                        secret_label = secret_key.replace("_", " ")
 
-                                    # create a gramatically corrrect placeholder
-                                    if secret_key.startswith(('o','a','e')):
-                                        article = "an"
-                                    else:
-                                        article = "a"
-                                    placeholder = f"enter {article} {secret_label}"
+                                        # create a gramatically corrrect placeholder
+                                        if secret_key.startswith(('o','a','e')):
+                                            article = "an"
+                                        else:
+                                            article = "a"
+                                        placeholder = f"enter {article} {secret_label}"
 
-                                    # create input variable
-                                    input_classes = f"app-input {app}"
-                                    if value:
-                                        app_input = Input(placeholder=placeholder,
-                                                          value=value,
-                                                          classes=input_classes)
-                                    else:
-                                        app_input = Input(placeholder=placeholder,
-                                                          classes=input_classes)
+                                        # create input variable
+                                        input_classes = f"app-input {app}"
+                                        if value:
+                                            app_input = Input(placeholder=placeholder,
+                                                              value=value,
+                                                              classes=input_classes)
+                                        else:
+                                            app_input = Input(placeholder=placeholder,
+                                                              classes=input_classes)
 
-                                    # create the input row
-                                    input_container_class = f"app-label-and-input {app}"
-                                    with Horizontal(classes=input_container_class):
-                                        yield Label(f"{secret_label}: ",
-                                                    classes=f"app-input-label {app}")
-                                        if not app_enabled or not init_enabled:
-                                            app_input.display = False
-                                        yield app_input
+                                        # create the input row
+                                        container_class = f"app-label-and-input {app}"
+                                        with Horizontal(classes=container_class):
+                                            label_class = f"app-input-label {app}"
+                                            yield Label(f"{secret_label}: ",
+                                                        classes=label_class)
+                                            if not app_enabled or not init_enabled:
+                                                app_input.display = False
+                                            yield app_input
 
-                                yield Label(" ", classes=app)
-
-                    with VerticalScroll(id='app-tooltip-container'):
+                    with VerticalScroll(id="app-description-container"):
                         # Bottom half of the screen for select-apps TabPane()
-                        yield Label("[b][green]Description[/][/]")
-                        yield Label("", id='selected-app-description')
-                        yield Label(" ")
+                        yield Label("[b][green]Description[/][/]",
+                                    id="app-description-label")
+                        yield Label("", id="app-description")
 
-                        yield Label("[b][cornflower_blue]Argo CD App Repository[/][/]")
-                        yield Label("", id='selected-app-tooltip-repo')
+                        yield Label("[b][cornflower_blue]Argo CD App Repository[/][/]",
+                                    id="app-repo-label")
+                        yield Label("", id="app-repo")
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
@@ -305,19 +306,19 @@ class ConfigureAll(App):
         self.sub_title = "now with more 🦑"
 
         # styling for the select-apps tab - select apps container - left
-        select_apps_title = "ʕ ᵔᴥᵔʔ Select apps to install on k8s"
+        select_apps_title = "Select apps"
         self.query_one(SelectionList).border_title = select_apps_title
 
         # styling for the select-apps tab - configure apps container - right
-        app_config_title = "Configure selected apps ʕᵔᴥᵔ ʔ"
-        self.get_widget_by_id('app-inputs').border_title = app_config_title
+        app_config_title = "ʕ ᵔᴥᵔʔ Configure initalization for each selected app"
+        self.get_widget_by_id("app-inputs").border_title = app_config_title
 
         # styling for the select-distro tab - top
-        select_k8s_title = "ʕ ᵔᴥᵔʔ Select which Kubernetes distributrion to use"
+        select_k8s_title = "ʕ ᵔᴥᵔʔ Select Kubernetes Distribution"
         self.query_one(RadioSet).border_title = select_k8s_title
 
         # styling for the select-distro tab - middle
-        configure_distro_title = "ʕ ᵔᴥᵔʔ configure selected k8s distro"
+        configure_distro_title = "ʕ ᵔᴥᵔʔ Configure selected Kubernetes Distribution"
         self.get_widget_by_id('k8s-distro-config').border_title = configure_distro_title
 
     @on(Mount)
@@ -357,21 +358,21 @@ class ConfigureAll(App):
         new_repo, new_blurb = generate_tool_tip(highlighted_app)
 
         # update the static text with the new app description and repo
-        self.get_widget_by_id('selected-app-tooltip-repo').update(new_repo)
-        self.get_widget_by_id('selected-app-description').update(new_blurb)
+        self.get_widget_by_id('app-repo').update(new_repo)
+        self.get_widget_by_id('app-description').update(new_blurb)
 
     @on(RadioSet.Changed)
     def update_k8s_distro_description(self) -> None:
         pressed_index = self.query_one(RadioSet).pressed_index
-        pressed_distro = sorted(DEFAULT_DISTRO_OPTIONS.keys())[pressed_index]
-        description = DEFAULT_CONFIG['k8s_distros'][pressed_distro]['description']
-        self.get_widget_by_id('k8s-distro-description').update(description)
+        distro = sorted(DEFAULT_DISTRO_OPTIONS.keys())[pressed_index]
+        desc = format_description(DEFAULT_CONFIG['k8s_distros'][distro]['description'])
+        self.get_widget_by_id('k8s-distro-description').update(desc)
 
-        for distro in DEFAULT_DISTRO_OPTIONS.keys():
+        for default_distro_option in DEFAULT_DISTRO_OPTIONS.keys():
             # get any objects using this distro's name as their class
-            distro_class_objects = self.query(f".{distro}")
+            distro_class_objects = self.query(f".{default_distro_option}")
 
-            if distro == pressed_distro:
+            if default_distro_option == distro:
                 enabled = True
             else:
                 enabled = False
@@ -382,6 +383,9 @@ class ConfigureAll(App):
                     distro_obj.display = enabled
 
     def action_request_help(self) -> None:
+        """ 
+        if the user presses 'h' or '?', show the help modal screen
+        """
         self.push_screen(HelpScreen())
 
 
@@ -389,7 +393,7 @@ def generate_tool_tip(app_name: str):
     """
     generate tooltip like:
     """
-    app_description = DEFAULT_APPS[app_name]['description']
+    description = format_description(DEFAULT_APPS[app_name]['description'])
 
     repo_link = "/".join([DEFAULT_APPS[app_name]['argo']['repo'],
                           'tree',
@@ -398,9 +402,18 @@ def generate_tool_tip(app_name: str):
 
     repo = f"[steel_blue][link={repo_link}]{repo_link}[/link]"
 
-    desc = f"[dim]{app_description}[/dim]"
+    return repo, description
 
-    return repo, desc
+
+def format_description(description: str):
+    """
+    change description to dimmed colors
+    links are changed to steel_blue and not dimmed
+    """
+    description = description.replace("[link", "[/dim][steel_blue][link")
+    description = description.replace("[/link]", "[/link][/steel_blue][dim]")
+
+    return f"""[dim]{description}[/dim]"""
 
 
 
