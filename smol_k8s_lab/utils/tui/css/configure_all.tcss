@@ -3,6 +3,8 @@
 /* Matches the entire screen for each page */
 Screen {
     scrollbar-background: #3a3a3a;
+    scrollbar-background-active: #3a3a3a;
+    scrollbar-background-hover: #3a3a3a;
     scrollbar-color: #5f5fd7;
 }
 
@@ -70,6 +72,8 @@ RadioSet {
     padding: 1;
     content-align: center middle;
     scrollbar-background: #3a3a3a;
+    scrollbar-background-active: #3a3a3a;
+    scrollbar-background-hover: #3a3a3a;
     scrollbar-color: #5f5fd7;
 }
 
@@ -223,6 +227,8 @@ SelectionList {
     padding: 1;
     border: solid cornflowerblue;
     scrollbar-background: #3a3a3a;
+    scrollbar-background-active: #3a3a3a;
+    scrollbar-background-hover: #3a3a3a;
     scrollbar-color: #5f5fd7;
     height: 100%;
 }
@@ -238,6 +244,8 @@ SelectionList .option-list--option-highlighted {
     padding: 1;
     border: solid cornflowerblue;
     scrollbar-background: #3a3a3a;
+    scrollbar-background-active: #3a3a3a;
+    scrollbar-background-hover: #3a3a3a;
     scrollbar-color: #5f5fd7;
     content-align: center middle;
 }
@@ -308,6 +316,8 @@ Switch {
     border: solid gray;
     content-align: center middle;
     scrollbar-background: #3a3a3a;
+    scrollbar-background-active: #3a3a3a;
+    scrollbar-background-hover: #3a3a3a;
     scrollbar-color: #5f5fd7;
 }
 
@@ -318,7 +328,7 @@ Switch {
 
 /* manages just "Description" heading for select k8s apps tab */
 #app-description {
-    padding-bottom: 1;
+    padding-right: 1;
     width: 100%;
 }
 

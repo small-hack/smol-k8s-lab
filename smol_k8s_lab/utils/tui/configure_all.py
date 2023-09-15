@@ -255,11 +255,13 @@ class ConfigureAll(App):
                                     yield Label("Initialize: ",
                                                 classes="app-init-switch-label")
                                     yield Switch(value=True,
+                                                 id=f"{app}-init-switch",
                                                  classes="app-init-switch")
 
                                 # container for all inputs associated with one app
                                 app_inputs_class = f"{app} app-all-inputs-container"
-                                with Container(classes=app_inputs_class):
+                                with Container(id=f"{app}-inputs",
+                                               classes=app_inputs_class):
                                     # iterate through the app's secret keys
                                     for secret_key, value in secret_keys.items():
                                         secret_label = secret_key.replace("_", " ")
@@ -366,6 +368,13 @@ class ConfigureAll(App):
         # update the static text with the new app description and repo
         self.get_widget_by_id('app-repo').update(new_repo)
         self.get_widget_by_id('app-description').update(new_blurb)
+
+    @on(Switch.Changed)
+    def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
+        truthy_value = event.value
+        app = event.switch.id.split("-init-switch")[0]
+        app_inputs = self.get_widget_by_id(f"{app}-inputs")
+        app_inputs.display = truthy_value
 
     @on(RadioSet.Changed)
     def update_k8s_distro_description(self) -> None:
