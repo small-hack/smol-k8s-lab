@@ -167,18 +167,20 @@ RadioSet {
 }
 
 .k3s-arg-input {
+    height: 3;
 }
 
 .k3s-arg-delete-button {
+    height: 3;
 }
 
 .k3s-arg-add-button {
-    height: auto;
     width: 100%;
 }
 
 /* k8s distro description container */
 #description-container {
+    height: 25%;
     padding: 1;
     border: solid gray;
 }
@@ -215,6 +217,7 @@ SelectionList .option-list--option-highlighted {
     border: solid cornflowerblue;
     scrollbar-background: #3a3a3a;
     scrollbar-color: #5f5fd7;
+    content-align: center middle;
 }
 
 /* entire line for app label, app switch label, and switch for each app name with initialization */
