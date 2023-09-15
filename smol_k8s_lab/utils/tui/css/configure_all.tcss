@@ -5,6 +5,7 @@ Screen {
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
+    scrollbar-color-hover: orange;
     scrollbar-color: #5f5fd7;
 }
 
@@ -21,6 +22,16 @@ Footer .footer--description {
 Footer .footer--key {
     color: #282727;
     background: cornflowerblue;
+}
+
+Footer .footer--highlight {
+    color: orange;
+    background: #282727;
+}
+
+Footer .footer--highlight-key {
+    color: #282727;
+    background: orange;
 }
 
 
@@ -74,6 +85,7 @@ RadioSet {
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
+    scrollbar-color-hover: orange;
     scrollbar-color: #5f5fd7;
 }
 
@@ -229,6 +241,7 @@ SelectionList {
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
+    scrollbar-color-hover: orange;
     scrollbar-color: #5f5fd7;
     height: 100%;
 }
@@ -246,6 +259,7 @@ SelectionList .option-list--option-highlighted {
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
+    scrollbar-color-hover: orange;
     scrollbar-color: #5f5fd7;
     content-align: center middle;
 }
@@ -318,6 +332,7 @@ Switch {
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
+    scrollbar-color-hover: orange;
     scrollbar-color: #5f5fd7;
 }
 

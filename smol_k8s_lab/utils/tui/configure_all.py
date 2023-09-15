@@ -232,7 +232,6 @@ class ConfigureAll(App):
                     with VerticalScroll(id='app-inputs'):
                         for app, metadata in DEFAULT_APPS.items():
                             secret_keys = metadata['argo'].get('secret_keys', None)
-                            app_enabled = metadata['enabled']
 
                             # if app doesn't have secret keys, continue to next app
                             if not secret_keys:
@@ -254,14 +253,19 @@ class ConfigureAll(App):
                                                 classes="app-label")
                                     yield Label("Initialize: ",
                                                 classes="app-init-switch-label")
-                                    yield Switch(value=True,
+                                    yield Switch(value=init_enabled,
                                                  id=f"{app}-init-switch",
                                                  classes="app-init-switch")
 
                                 # container for all inputs associated with one app
                                 app_inputs_class = f"{app} app-all-inputs-container"
-                                with Container(id=f"{app}-inputs",
-                                               classes=app_inputs_class):
+                                inputs_container = Container(id=f"{app}-inputs",
+                                                       classes=app_inputs_class)
+
+                                if not init_enabled:
+                                    inputs_container.display = False
+
+                                with inputs_container:
                                     # iterate through the app's secret keys
                                     for secret_key, value in secret_keys.items():
                                         secret_label = secret_key.replace("_", " ")
@@ -289,8 +293,6 @@ class ConfigureAll(App):
                                             label_class = f"app-input-label {app}"
                                             yield Label(f"{secret_label}: ",
                                                         classes=label_class)
-                                            if not app_enabled or not init_enabled:
-                                                app_input.display = False
                                             yield app_input
 
                     with VerticalScroll(id="app-description-container"):
@@ -375,6 +377,15 @@ class ConfigureAll(App):
         app = event.switch.id.split("-init-switch")[0]
         app_inputs = self.get_widget_by_id(f"{app}-inputs")
         app_inputs.display = truthy_value
+        DEFAULT_APPS[app]['init']['enabled'] = truthy_value
+
+    @on(TabbedContent.TabActivated)
+    def show_or_hide_init_inputs_on_new_tab(self,) -> None:
+        switches = self.query(".app-init-switch")
+        for switch in switches:
+            app = switch.id.split("-init-switch")[0]
+            app_inputs = self.get_widget_by_id(f"{app}-inputs")
+            app_inputs.display = switch.value
 
     @on(RadioSet.Changed)
     def update_k8s_distro_description(self) -> None:
@@ -429,7 +440,6 @@ def format_description(description: str):
     description = description.replace("[/link]", "[/link][/steel_blue][dim]")
 
     return f"""[dim]{description}[/dim]"""
-
 
 
 if __name__ == "__main__":
