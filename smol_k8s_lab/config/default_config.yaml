@@ -56,7 +56,9 @@ k8s_distros:
       # enables encryption at rest for kubernetes secrets
       - "--secrets-encryption"
     # how many dockerized k3s nodes to deploy
-    nodes: 1
+    nodes:
+      control_plane: 1
+      workers: 0
 
   kind:
     # set to true to enable deploying a kubernetes cluster using kind
@@ -74,7 +76,9 @@ k8s_distros:
     # if you enable cilium, we automatically add {disableDefaultCNI: true}
     networking_args: {}
     # how many dockerized kind nodes to deploy
-    nodes: 1
+    nodes:
+      control_plane: 1
+      workers: 0
 
 
 # this is useful for learning smol-k8s-lab or verifying your configuration
