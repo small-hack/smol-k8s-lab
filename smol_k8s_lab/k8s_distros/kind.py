@@ -59,7 +59,8 @@ def delete_kind_cluster():
 def build_kind_config(kind_cfg: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
                       kubelet_extra_args: dict = {},
                       networking_args: dict = {},
-                      nodes: int = 1):
+                      control_plane_nodes: int = 1,
+                      worker_nodes: int = 0):
     """
     builds a kind config including any extra networking 
     """
@@ -97,11 +98,16 @@ def build_kind_config(kind_cfg: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
     if networking_args:
         kind_cfg["networking"] = networking_args
 
-    # if we're testing more than one node
-    if nodes > 1:
+    # if we're testing more than one control plane node
+    if control_plane_nodes > 1:
+        for node in range(control_plane_nodes):
+            kind_cfg['nodes'].append(node_config)
+
+    # if we're testing more than one worker node
+    if worker_nodes > 0:
         worker_config = node_config
         worker_config['role'] = 'worker'
-        for node in range(nodes):
+        for node in range(worker_nodes):
             kind_cfg['nodes'].append(worker_config)
 
     # this creates a kind_cfg.yaml from the kind_cfg dict above

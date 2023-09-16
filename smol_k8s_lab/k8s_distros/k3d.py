@@ -9,7 +9,10 @@ from ..utils.rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
 
 
-def install_k3d_cluster(kubelet_args: dict, k3s_cli_args: list, nodes: int) -> bool:
+def install_k3d_cluster(kubelet_args: dict,
+                        k3s_cli_args: list,
+                        control_plane_nodes: int = 1,
+                        worker_nodes: int = 0) -> bool:
     """
     python installation for k3d
     returns true if it worked
@@ -21,9 +24,7 @@ def install_k3d_cluster(kubelet_args: dict, k3s_cli_args: list, nodes: int) -> b
 
     # one server node always, but if the user wants more than one node, we
     # create the rest as agents for now
-    if nodes > 1:
-        agents = nodes - 1
-        install_cmd += f' --servers 1 --agents {agents}'
+    install_cmd += f' --servers {control_plane_nodes} --agents {worker_nodes}'
 
     # we attempt to append each kubelet-arg as an option
     if kubelet_args:
