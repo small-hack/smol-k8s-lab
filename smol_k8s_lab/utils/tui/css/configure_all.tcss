@@ -11,12 +11,12 @@ Screen {
 
 /* Matches the bottom footer help text on every page */
 Footer {
-    background: #232336;
+    background: rgb(35,35,54) 50%;
 }
 
 Footer .footer--description {
     color: cornflowerblue;
-    background: #232336;
+    background: rgb(35,35,54) 50%;
 }
 
 Footer .footer--key {
@@ -26,7 +26,7 @@ Footer .footer--key {
 
 Footer .footer--highlight {
     color: orange;
-    background: #282727;
+    background: rgb(35,35,54) 50%;
 }
 
 Footer .footer--highlight-key {
@@ -81,15 +81,16 @@ RadioSet {
     background: rgb(35,35,54) 50%;
 }
 
+/* changes color of filled in radio button */
 .toggle--button {
-    color: rgb(255,175,249);
+    color: rgb(242,137,249);
 }
 
 /* the whole middle k8s distro config area */
 #k8s-distro-config {
     background: rgb(35,35,54) 50%;
     border: solid cornflowerblue;
-    padding: 1;
+    padding-top: 1;
     content-align: center middle;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
@@ -98,57 +99,63 @@ RadioSet {
     scrollbar-color: #5f5fd7;
 }
 
+/* "number of nodes:" label before the minus button */
+.nodes-input-header-label {
+    background: rgb(65,72,104) 30%;
+    color: rgb(168,253,87);
+    content-align: left middle;
+    padding-left: 1;
+    width: 100%;
+    height: 3;
+}
+
 /* number of nodes input row */
 .nodes-input-row {
     layout: grid;
     grid-size: 4;
     width: 100%;
-    grid-columns: 1fr 0.2fr 0.21fr 0.19fr;
-    height: 3;
+    grid-columns: 1fr 1fr 1fr 1fr;
+    content-align: center middle;
+    height: auto;
+    padding-left: 1;
+    padding-bottom: 1;
+    padding-top: 1;
 }
 
-/* "number of nodes:" label before the minus button */
 .nodes-input-label {
-    content-align: left middle;
-    width: 100%;
-    height: 3;
-}
-
-/* button to decrease the number of nodes */
-.nodes-input-minus-button {
-    width: 100%;
     content-align: center middle;
     height: 3;
+    width: 90%;
 }
 
-/* input field to manually increase/decrease number of nodes*/
-.nodes-input {
-    width: 100%;
+/* input field to manually increase/decrease number of control plane nodes*/
+.nodes-input-control-input {
     align: center middle;
     content-align: center middle;
     height: 3;
+    width: 10%;
 }
 
-/* button to increase the number of nodes */
-.nodes-input-plus-button {
-    width: 100%;
+/* input field to manually increase/decrease number of worker nodes*/
+.nodes-input-worker-input {
+    align: center middle;
     content-align: center middle;
     height: 3;
+    width: 10%;
 }
 
 /* kubelet config container */
 .kubelet-config-container {
-    padding-top: 1;
     height: auto;
 }
 
 /* kubelet config header label */
 .kubelet-config-label {
+    background: rgb(65,72,104) 30%;
     color: rgb(168,253,87);
     height: auto;
     width: 100%;
     padding: 1;
-    background: rgb(65,72,104) 30%;
 }
 
 /* kubelet config arg input row */
@@ -157,10 +164,11 @@ RadioSet {
     grid-size: 3;
     width: 100%;
     height: auto;
-    grid-columns: 0.75fr 0.75fr 0.2fr;
+    grid-columns: 0.75fr 0.75fr 0.16fr;
     padding-bottom: 1;
     padding-top: 1;
     padding-right: 1;
+    content-align: center middle;
 }
 
 /* kubelet config arg key input field */
@@ -185,7 +193,7 @@ RadioSet {
 .kubelet-arg-add-button {
     content-align: center middle;
     height: auto;
-    width: 30%;
+    width: 100%;
 }
 
 /* k3s/k3d extra args container */
@@ -202,17 +210,18 @@ RadioSet {
     height: 3;
     color: rgb(168,253,87);
     padding-left: 1;
+    margin-bottom: 1;
 }
 
 /* k3s arg row */
 .k3s-arg-row {
-    padding-top: 1;
+    padding-bottom: 1;
     padding-right: 1;
     height: auto;
     layout: grid;
     grid-size: 2;
     width: 100%;
-    grid-columns: 1fr 0.2fr;
+    grid-columns: 1fr 0.12fr;
 }
 
 .k3s-arg-input {
@@ -266,13 +275,36 @@ SelectionList {
 
 /* Matches the "Select apps to install on k8s" Selection List highlighted option */
 SelectionList .option-list--option-highlighted {
-    color: #282727;
-    background: cornflowerblue;
+    background: rgb(65,72,104) 50%;
 }
+
+SelectionList .option-list--option-hover-highlighted {
+    background: rgb(65,72,104) 90%;
+}
+
+SelectionList .option-list--option-hover {
+    background: rgb(65,72,104) 70%;
+}
+
+/* changes color of filled in app selection button */
+.selection-list--button-selected {
+    color: rgb(242,137,249);
+}
+
+/* changes color of filled in app selection button */
+.selection-list--button-highlighted {
+    color: rgb(242,137,249);
+}
+
+/* changes color of filled in app selection button when highlighted */
+.selection-list--button-selected-highlighted {
+    color: rgb(242,137,249);
+}
+
 
 /* Matches the "Configure Selected apps" input list */
 #app-inputs {
-    padding: 1;
+    padding-top: 1;
     border: solid cornflowerblue;
     background: rgb(35,35,54) 50%;
     scrollbar-background: #3a3a3a;
@@ -290,6 +322,7 @@ SelectionList .option-list--option-highlighted {
     grid-size: 4;
     height: 3;
     grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
+    margin-bottom: 1;
 }
 
 /* label for each app in the conigure selected apps pane */
@@ -314,12 +347,21 @@ Switch {
     width: auto;
 }
 
+.switch--slider {
+    color: rgb(168,253,87) 80%;
+    background: black 60%;
+}
+
+.switch--slider-selected {
+    color: red;
+    border: solid red;
+    background: red;
+}
+
 /* container for all of an apps input fields */
 .app-all-inputs-container {
     height: auto;
     width: auto;
-    content-align: center middle;
-    padding-bottom: 1;
 }
 
 /* each app input label and input field row */
@@ -328,8 +370,8 @@ Switch {
     height: auto;
     grid-size: 2;
     grid-columns: 0.8fr 1.2fr;
-    content-align: left middle;
-    padding-top: 1;
+    padding-bottom: 1;
+    padding-left: 1;
 }
 
 /* each app input label */

@@ -123,37 +123,45 @@ class ConfigureAll(App):
                         node_class = f"{distro} nodes-input"
                         node_row = Horizontal(classes=f"{node_class}-row")
                         node_row.display = display
+                        node_header = Label("Number of nodes to deploy",
+                                            classes=f"{node_class}-header-label")
+                        node_header.display = display
+                        yield node_header
                         with node_row:
-                            yield Label("number of nodes: ",
-                                        classes=f"{node_class}-label")
-
                             disabled = False
                             if distro == 'k3s':
                                 disabled = True
 
-                            yield Button("➖",
-                                         classes=f"{node_class}-minus-button",
-                                         disabled=disabled)
-
                             # take number of nodes from config and make string
-                            nodes = str(distro_metadata.get('nodes', 1))
-                            yield Input(value=nodes,
-                                        placeholder='enter number of nodes',
-                                         classes=f"{node_class}",
+                            nodes = distro_metadata.get('nodes', False)
+                            if nodes:
+                                control_nodes = str(nodes.get('control_plane', 1))
+                                worker_nodes = str(nodes.get('workers', 0))
+                            else:
+                                control_nodes = "1"
+                                worker_nodes = "0"
+
+                            yield Label("control plane nodes:",
+                                        classes=f"{node_class}-label")
+                            yield Input(value=control_nodes,
+                                        placeholder='1',
+                                        classes=f"{node_class}-control-input",
                                         disabled=disabled)
 
-                            yield Button("➕",
-                                         classes=f"{node_class}-plus-button",
-                                         disabled=disabled)
+                            yield Label("worker nodes:",
+                                        classes=f"{node_class}-label")
+                            yield Input(value=worker_nodes,
+                                        placeholder='0',
+                                        classes=f"{node_class}-worker-input",
+                                        disabled=disabled)
 
+                        args_label = Label("Extra Args for Kubelet Config",
+                                           classes=f"{distro} kubelet-config-label")
+                        args_label.display = display
+                        yield args_label
                         # kubelet config section
                         with Container(classes="kubelet-config-container"):
                             # take extra kubelet config args
-                            args_label = Label("Extra Args for Kubelet Config",
-                                               classes=f"{distro} kubelet-config-label")
-                            args_label.display = display
-                            yield args_label
-
                             row_class = f"{distro} kubelet-arg"
                             row_container = Horizontal(classes=f"{row_class}-input-row")
                             row_container.display = display
