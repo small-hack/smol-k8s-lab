@@ -33,11 +33,11 @@ class HelpScreen(ModalScreen):
                      "enter": "press button",
                      "h,?": "toggle help screen"}
 
-        welcome = ("[spring_green]Use your 🐁 to click anything in this UI ✨ Or use "
+        welcome = ("Use your 🐁 to click anything in this UI ✨ Or use "
                    "these key bindings:")
 
         with Container(id="help-container"):
-            yield Label(welcome)
+            yield Label(welcome, id="help-label")
             with Container(id="help-options"):
                 for help_option, help_text in help_dict.items():
                     with Grid(classes="help-option-row"):
@@ -119,6 +119,7 @@ class ConfigureAll(App):
                         else:
                             display = False
 
+                        # node input row
                         node_class = f"{distro} nodes-input"
                         node_row = Horizontal(classes=f"{node_class}-row")
                         node_row.display = display
@@ -145,10 +146,10 @@ class ConfigureAll(App):
                                          classes=f"{node_class}-plus-button",
                                          disabled=disabled)
 
-
+                        # kubelet config section
                         with Container(classes="kubelet-config-container"):
                             # take extra kubelet config args
-                            args_label = Label("[spring_green]Extra Args for Kubelet Config",
+                            args_label = Label("Extra Args for Kubelet Config",
                                                classes=f"{distro} kubelet-config-label")
                             args_label.display = display
                             yield args_label
@@ -178,13 +179,12 @@ class ConfigureAll(App):
 
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
-                            k3_container = Container(id="k3s-config-container",
-                                                     classes=distro)
+                            k3_class = f"{distro} k3s-config-container"
+                            k3_container = Container(classes=k3_class)
                             k3_container.display = display
 
                             with k3_container:
-                                yield Label(" ", classes=distro)
-                                yield Label("[spring_green]Extra Args for k3s install script",
+                                yield Label("Extra Args for k3s install script",
                                             classes=f"{distro} k3s-config-label")
 
                                 if distro == 'k3s':
@@ -201,7 +201,7 @@ class ConfigureAll(App):
                                                         placeholder=placeholder,
                                                         classes=f"{k3s_class}-input")
                                             yield Button("🗑️",
-                                                         classes=f"{k3s_class}-delete-button")
+                                                         classes=f"{k3s_class}-del-button")
 
                                 yield Button("➕ Add New Arg",
                                              classes=f"{k3s_class}-add-button")
@@ -249,8 +249,7 @@ class ConfigureAll(App):
                                 s_class = f"app-init-switch-and-labels-row {app}"
                                 with Container(classes=s_class):
                                     app_title = app.replace('_', ' ').title()
-                                    yield Label(f"[spring_green]{app_title}[/]",
-                                                classes="app-label")
+                                    yield Label(app_title, classes="app-label")
                                     yield Label("Initialize: ",
                                                 classes="app-init-switch-label")
                                     yield Switch(value=init_enabled,
@@ -288,7 +287,7 @@ class ConfigureAll(App):
                                                               classes=input_classes)
 
                                         # create the input row
-                                        container_class = f"app-label-and-input {app}"
+                                        container_class = f"app-input-row {app}"
                                         with Horizontal(classes=container_class):
                                             label_class = f"app-input-label {app}"
                                             yield Label(f"{secret_label}: ",
@@ -297,7 +296,7 @@ class ConfigureAll(App):
 
                     with VerticalScroll(id="app-description-container"):
                         # Bottom half of the screen for select-apps TabPane()
-                        yield Label("[b][spring_green]Description[/][/]",
+                        yield Label("[b]Description[/]",
                                     id="app-description-label")
                         yield Label("", id="app-description")
 

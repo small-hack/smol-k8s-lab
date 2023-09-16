@@ -47,7 +47,10 @@ HelpScreen {
     height: 20;
     border: heavy cornflowerblue 80%;
     background: $surface;
+}
 
+#help-label {
+    color: rgb(168,253,87);
 }
 
 #help-options {
@@ -75,10 +78,16 @@ RadioSet {
     padding: 1;
     border: solid cornflowerblue;
     width: 1fr;
+    background: rgb(35,35,54) 50%;
+}
+
+.toggle--button {
+    color: rgb(255,175,249);
 }
 
 /* the whole middle k8s distro config area */
 #k8s-distro-config {
+    background: rgb(35,35,54) 50%;
     border: solid cornflowerblue;
     padding: 1;
     content-align: center middle;
@@ -135,10 +144,11 @@ RadioSet {
 
 /* kubelet config header label */
 .kubelet-config-label {
+    color: rgb(168,253,87);
     height: auto;
     width: 100%;
     padding: 1;
-    background: #262626;
+    background: rgb(65,72,104) 30%;
 }
 
 /* kubelet config arg input row */
@@ -146,20 +156,21 @@ RadioSet {
     layout: grid;
     grid-size: 3;
     width: 100%;
-    height: 3;
+    height: auto;
     grid-columns: 0.75fr 0.75fr 0.2fr;
+    padding-bottom: 1;
+    padding-top: 1;
+    padding-right: 1;
 }
 
 /* kubelet config arg key input field */
 .kubelet-arg-input-key{
-    border: solid gray;
     height: auto;
     width: 100%;
 }
 
 /* kubelet config arg value input field */
 .kubelet-arg-input-value {
-    border: solid gray;
     height: auto;
     width: 100%;
 }
@@ -168,11 +179,11 @@ RadioSet {
 .kubelet-arg-del-button {
     content-align: center middle;
     height: auto;
-    width: 100%;
 }
 
 /* kubelet config arg row delete button */
 .kubelet-arg-add-button {
+    content-align: center middle;
     height: auto;
     width: 30%;
 }
@@ -180,19 +191,23 @@ RadioSet {
 /* k3s/k3d extra args container */
 .k3s-config-container {
     content-align: center middle;
-    border: solid cornflowerblue;
     height: auto;
+    padding-top: 1;
 }
 
 .k3s-config-label {
     content-align: left middle;
-    background: #262626;
+    background: rgb(65,72,104) 30%;
     width: 100%;
     height: 3;
+    color: rgb(168,253,87);
+    padding-left: 1;
 }
 
 /* k3s arg row */
 .k3s-arg-row {
+    padding-top: 1;
+    padding-right: 1;
     height: auto;
     layout: grid;
     grid-size: 2;
@@ -204,7 +219,7 @@ RadioSet {
     height: 3;
 }
 
-.k3s-arg-delete-button {
+.k3s-arg-del-button {
     height: 3;
 }
 
@@ -214,6 +229,7 @@ RadioSet {
 
 /* k8s distro description container */
 #k8s-distro-description-container {
+    background: rgb(35,35,54) 50%;
     height: 25%;
     padding: 1;
     border: solid gray;
@@ -239,6 +255,7 @@ RadioSet {
 SelectionList {
     padding: 1;
     border: solid cornflowerblue;
+    background: rgb(35,35,54) 50%;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
@@ -257,6 +274,7 @@ SelectionList .option-list--option-highlighted {
 #app-inputs {
     padding: 1;
     border: solid cornflowerblue;
+    background: rgb(35,35,54) 50%;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
@@ -267,7 +285,7 @@ SelectionList .option-list--option-highlighted {
 
 /* entire row for app label, app switch label, and switch for each app with initialization */
 .app-init-switch-and-labels-row {
-    background: #262626;
+    background: rgb(65,72,104) 30%;
     layout: grid;
     grid-size: 4;
     height: 3;
@@ -298,17 +316,20 @@ Switch {
 
 /* container for all of an apps input fields */
 .app-all-inputs-container {
-    padding: 1;
     height: auto;
     width: auto;
+    content-align: center middle;
+    padding-bottom: 1;
 }
 
-/* each app input label and input field line */
-.app-label-and-input {
-    height: 3;
+/* each app input label and input field row */
+.app-input-row {
     layout: grid;
+    height: auto;
     grid-size: 2;
     grid-columns: 0.8fr 1.2fr;
+    content-align: left middle;
+    padding-top: 1;
 }
 
 /* each app input label */
@@ -316,7 +337,6 @@ Switch {
     height: 3;
     width: 100%;
     content-align: left middle;
-    padding-left: 1;
 }
 
 /* each app input field */
@@ -329,6 +349,7 @@ Switch {
 #app-description-container{
     column-span: 2;
     padding: 1;
+    background: rgb(35,35,54) 50%;
     border: solid gray;
     content-align: center middle;
     scrollbar-background: #3a3a3a;
