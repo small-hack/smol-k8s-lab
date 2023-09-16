@@ -65,7 +65,8 @@ def create_k8s_distro(k8s_distro: str,
 
         install_kind_cluster(kubelet_args,
                              networking_args,
-                             distro_metadata['nodes'])
+                             distro_metadata['nodes']['control_plane'],
+                             distro_metadata['nodes']['workers'])
 
     elif k8s_distro == "k3s" or k8s_distro == "k3d":
         # get any extra args the user has passed in
@@ -89,7 +90,8 @@ def create_k8s_distro(k8s_distro: str,
         if k8s_distro == "k3d":
             install_k3d_cluster(k3s_args,
                                 kubelet_args,
-                                distro_metadata['nodes'])
+                                distro_metadata['nodes']['control_plane'],
+                                distro_metadata['nodes']['workers'])
     return True
 
 
