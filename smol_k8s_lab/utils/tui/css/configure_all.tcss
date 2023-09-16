@@ -221,6 +221,7 @@ RadioSet {
 
 #k8s-distro-description-label {
     padding-bottom: 1;
+    color: rgb(168,253,87);
 }
 
 /* BEGIN SECOND TAB */
@@ -279,6 +280,7 @@ SelectionList .option-list--option-highlighted {
     width: 100%;
     content-align: left middle;
     padding-left: 1;
+    color: rgb(168,253,87);
 }
 
 /* switch label for each app */
@@ -339,6 +341,7 @@ Switch {
 /* manages just Description heading for select k8s apps tab */
 #app-description-label {
     padding-bottom: 1;
+    color: rgb(168,253,87);
 }
 
 /* manages just "Description" heading for select k8s apps tab */
