@@ -34,8 +34,6 @@ Footer .footer--highlight-key {
     background: orange;
 }
 
-
-/* help screen section */
 HelpScreen {
     align: center middle;
 }
@@ -71,15 +69,29 @@ HelpScreen {
     width: auto;
 }
 
+
+
 /* BEGIN FIRST TAB */
 
 #distro-drop-down {
-    height: 8%;
+    padding: 0;
+    border: none;
+    height: 3;
     margin-bottom: 1;
+    content-align: center middle;
+}
+
+#distro-drop-down .option-list--option {
+    background: rgb(65,72,104) 90%;
+    color: red;
 }
 
 #distro-drop-down .option-list--option-highlighted {
     background: rgb(65,72,104) 90%;
+}
+
+#distro-drop-down .option-list--option-disabled {
+    background: red;
 }
 
 /* the whole middle k8s distro config area */
@@ -158,7 +170,7 @@ HelpScreen {
     grid-size: 3;
     width: 100%;
     height: auto;
-    grid-columns: 0.75fr 0.75fr 0.16fr;
+    grid-columns: 0.75fr 0.75fr 0.15fr;
     padding-bottom: 1;
     padding-top: 1;
     padding-right: 1;
@@ -181,6 +193,7 @@ HelpScreen {
 .kubelet-arg-del-button {
     content-align: center middle;
     height: auto;
+    padding: 0;
 }
 
 /* kubelet config arg row delete button */
@@ -188,6 +201,8 @@ HelpScreen {
     content-align: center middle;
     height: auto;
     width: 100%;
+    margin-left: 1;
+    margin-right: 1;
 }
 
 /* k3s/k3d extra args container */
@@ -215,7 +230,7 @@ HelpScreen {
     layout: grid;
     grid-size: 2;
     width: 100%;
-    grid-columns: 1fr 0.12fr;
+    grid-columns: 1fr 0.11fr;
 }
 
 .k3s-arg-input {
@@ -228,12 +243,14 @@ HelpScreen {
 
 .k3s-arg-add-button {
     width: 100%;
+    margin-left: 1;
+    margin-right: 1;
 }
 
 /* k8s distro description container */
 #k8s-distro-description-container {
     background: rgb(35,35,54) 50%;
-    height: 20%;
+    height: 15%;
     padding: 1;
     border: round gray;
 }
@@ -250,7 +267,7 @@ HelpScreen {
     layout: grid;
     grid-size: 2;
     grid-columns: 0.5fr 1.2fr;
-    grid-rows: 1.3fr 0.7fr;
+    grid-rows: 1.4fr 0.6fr;
 }
 
 
@@ -378,7 +395,6 @@ Switch {
 /* Matches Description AND Argo CD App Repository container in Select k8s apps tab */
 #app-description-container{
     column-span: 2;
-    padding: 1;
     background: rgb(35,35,54) 50%;
     border: round gray;
     content-align: center middle;
@@ -389,19 +405,26 @@ Switch {
     scrollbar-color: #5f5fd7;
 }
 
-/* manages just Description heading for select k8s apps tab */
-#app-description-label {
-    padding-bottom: 1;
-    color: rgb(168,253,87);
+#app-description {
+    width: 100%;
+    padding-left: 1;
+    padding-top: 1;
 }
 
-/* manages just "Description" heading for select k8s apps tab */
-#app-description {
-    padding-right: 1;
+/* manages just Description heading for select k8s apps tab */
+#app-description-label {
+    margin-bottom: 1;
+    color: rgb(168,253,87);
+    background: gray;
     width: 100%;
 }
 
 /* manages just "Argo CD App Repository" Label for select k8s apps tab */
-#app-repo-label{
+#app-repo-label {
     padding-bottom: 1;
+    padding-left: 1;
+}
+
+#app-repo {
+    padding-left: 1;
 }

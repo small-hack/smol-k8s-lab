@@ -1,10 +1,9 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import VerticalScroll, Container, Horizontal, Grid
+from textual.containers import VerticalScroll, Container, Horizontal
 from textual.binding import Binding
 from textual.events import Mount
-from textual.screen import ModalScreen
 from textual.widgets import (Button, Footer, Header, Input, Label,
                              Select, SelectionList, Static, Switch, TabbedContent,
                              TabPane)
@@ -12,52 +11,7 @@ from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
                                     DEFAULT_DISTRO_OPTIONS, DEFAULT_CONFIG)
-
-
-class HelpScreen(ModalScreen):
-    """
-    dialog screen to show help text
-    """
-    BINDINGS = [Binding(key="h,?,q",
-                        key_display="h",
-                        action="disable_help",
-                        description="Exit Help Screen",
-                        show=True)
-                ]
-
-    def compose(self) -> ComposeResult:
-        # tips for new/forgetful users (the maintainers are also forgetful <3)
-        help_dict = {"⬅️,➡️": "navigate tabs",
-                     "tab": "switch to next pane, field, or button",
-                     "shift+tab": "switch to previous pane, field, or button",
-                     "enter": "press button",
-                     "h,?": "toggle help screen"}
-
-        welcome = ("Use your 🐁 to click anything in this UI ✨ Or use "
-                   "these key bindings:")
-
-        with Container(id="help-container"):
-            yield Label(welcome, id="help-label")
-            with Container(id="help-options"):
-                for help_option, help_text in help_dict.items():
-                    with Grid(classes="help-option-row"):
-                        key = f"[gold3]{help_option}[/gold3]"
-                        key = key.replace(",", "[bright_white],[/]")
-                        key = key.replace("+", "[bright_white]+[/]")
-                        yield Label(key)
-                        yield Label(help_text)
-
-            yield Label("ℹ️ [dim]Clicking links varies based on your terminal, but"
-                        " is usually one of:\n[gold3]option[/]+[gold3]click[/] or"
-                        " [gold3]command[/]+[gold3]click[/] or [gold3]shift[/]+"
-                        "[gold3]click", id="mouse-help")
-
-
-    def action_disable_help(self) -> None:
-        """
-        if user presses '?', 'h', or 'q', we exit the help screen
-        """
-        self.app.pop_screen()
+from smol_k8s_lab.utils.tui.help_screen import HelpScreen
 
 
 class ConfigureAll(App):
@@ -91,11 +45,13 @@ class ConfigureAll(App):
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
             with TabPane("Select Kubernetes distro", id="select-distro"):
+                select_prompt = ("[magenta]Select Kubernetes distro from this "
+                                 f"dropdown (default: {DEFAULT_DISTRO})")
                 # create all the select choices
                 my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
                 yield Select(((line, line) for line in my_options),
-                             prompt="Select Kubernetes Distro",
-                             id="distro-drop-down")
+                             prompt=select_prompt,
+                             id="distro-drop-down", allow_blank=False)
 
                 # these are distro configurations 
                 with VerticalScroll(id="k8s-distro-config"):
@@ -163,8 +119,7 @@ class ConfigureAll(App):
                                         yield Input(value=str(value),
                                                     placeholder=key,
                                                     classes=f"{row_class}-input-value")
-
-                                        yield Button("🗑️",
+                                        yield Button("🚮",
                                                      classes=f"{row_class}-del-button")
                             new_button = Button("➕ Add New Arg",
                                                 classes=f"{row_class}-add-button")
@@ -194,15 +149,13 @@ class ConfigureAll(App):
                                             yield Input(value=arg,
                                                         placeholder=placeholder,
                                                         classes=f"{k3s_class}-input")
-                                            yield Button("🗑️",
+                                            yield Button("🚮",
                                                          classes=f"{k3s_class}-del-button")
 
                                 yield Button("➕ Add New Arg",
                                              classes=f"{k3s_class}-add-button")
 
                 with Container(id="k8s-distro-description-container"):
-                    yield Label("[b]Description[/]",
-                                id='k8s-distro-description-label')
                     description = DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description']
                     formatted_description = format_description(description)
                     yield Static(f"{formatted_description}",
@@ -290,11 +243,9 @@ class ConfigureAll(App):
 
                     with VerticalScroll(id="app-description-container"):
                         # Bottom half of the screen for select-apps TabPane()
-                        yield Label("[b]Description[/]",
-                                    id="app-description-label")
                         yield Label("", id="app-description")
 
-                        yield Label("[b][cornflower_blue]Argo CD App Repository[/][/]",
+                        yield Label("[white]Argo CD App Repo[/]",
                                     id="app-repo-label")
                         yield Label("", id="app-repo")
 
@@ -304,21 +255,25 @@ class ConfigureAll(App):
 
     def on_mount(self) -> None:
         # screen and header styling
-        self.screen.styles.border = ("heavy", "cornflowerblue")
-        self.title = "🧸smol k8s lab"
+        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "now with more 🦑"
 
         # styling for the select-apps tab - select apps container - left
-        select_apps_title = "Select apps"
+        select_apps_title = "[green]Select apps"
         self.query_one(SelectionList).border_title = select_apps_title
 
         # styling for the select-apps tab - configure apps container - right
-        app_config_title = "ʕ ᵔᴥᵔʔ Configure initalization for each selected app"
+        app_config_title = "⚙️ [green]Configure inital parameters for each selected app"
         self.get_widget_by_id("app-inputs").border_title = app_config_title
 
         # styling for the select-distro tab - middle
-        configure_distro_title = "ʕ ᵔᴥᵔʔ Configure selected Kubernetes Distribution"
-        self.get_widget_by_id('k8s-distro-config').border_title = configure_distro_title
+        distro_title = "⚙️ [green]Configure selected Kubernetes Distribution[/]"
+        self.get_widget_by_id("k8s-distro-config").border_title = distro_title
+        distro_desc = self.get_widget_by_id("k8s-distro-description-container")
+        distro_desc.border_title = "[white]Distro Description[/]"
+
+        app_desc = self.get_widget_by_id("app-description-container")
+        app_desc.border_title = "[white]App Description[/]"
 
     @on(Mount)
     @on(SelectionList.SelectedChanged)
@@ -378,6 +333,9 @@ class ConfigureAll(App):
 
     @on(Select.Changed)
     def update_k8s_distro_description(self, event: Select.Changed) -> None:
+        """
+        change the description text in the bottom box for k8s distros
+        """
         distro = str(event.value)
         desc = format_description(DEFAULT_CONFIG['k8s_distros'][distro]['description'])
         self.get_widget_by_id('k8s-distro-description').update(desc)
@@ -400,15 +358,41 @@ class ConfigureAll(App):
         """
         get pressed button and act on it
         """
+        button_classes = event.button.classes
+
         # lets you delete a kubelet-arg row
-        if "kubelet-arg-del-button" in event.button.classes:
+        if "kubelet-arg-del-button" in button_classes:
             parent_row = event.button.parent
             parent_row.remove()
 
+        if "kubelet-arg-add-button" in button_classes:
+            parent_container = event.button.parent
+            row_class = "kind kubelet-arg"
+
+            # add a new row of kubelet arg inputs before the add button
+            parent_container.mount(Horizontal(
+                             Input(placeholder="optional kubelet config key arg",
+                                   classes=f"{row_class}-input-key"),
+                             Input(placeholder="optional kubelet config key arg",
+                                   classes=f"{row_class}-input-value"),
+                             Button("🚮", classes=f"{row_class}-del-button"),
+                             classes=f"{row_class}-input-row"
+                             ), before=event.button)
+
         # lets you delete a k3s-arg row
-        if "k3s-arg-del-button" in event.button.classes:
+        if "k3s-arg-del-button" in button_classes:
             parent_row = event.button.parent
             parent_row.remove()
+
+        # lets you add a new k3s config row
+        if "k3s-arg-add-button" in button_classes:
+            parent_container = event.button.parent
+            placeholder = "enter an extra arg for k3s"
+            parent_container.mount(Horizontal(
+                Input(placeholder=placeholder, classes="k3s-arg-input"),
+                Button("🚮", classes="k3s-arg-del-button"),
+                classes="k3s-arg-row"
+                ), before=event.button)
 
     def action_request_help(self) -> None:
         """
