@@ -5,8 +5,8 @@ from textual.containers import VerticalScroll, Container, Horizontal, Grid
 from textual.binding import Binding
 from textual.events import Mount
 from textual.screen import ModalScreen
-from textual.widgets import (Button, Footer, Header, Input, Label, RadioButton,
-                             RadioSet, SelectionList, Static, Switch, TabbedContent,
+from textual.widgets import (Button, Footer, Header, Input, Label,
+                             Select, SelectionList, Static, Switch, TabbedContent,
                              TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
@@ -91,25 +91,11 @@ class ConfigureAll(App):
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
             with TabPane("Select Kubernetes distro", id="select-distro"):
-
-                # this is the distro picker
-                with RadioSet():
-                    # create all the radio button choices
-                    for distro in sorted(DEFAULT_DISTRO_OPTIONS.keys()):
-                        enabled = False
-
-                        if distro == DEFAULT_DISTRO:
-                            enabled = True
-
-                        # note that k3s is in alpha testing
-                        elif distro == 'k3d':
-                            distro += ' [magenta](alpha)[/]'
-
-                        radio_button = RadioButton(distro, value=enabled)
-                        # make the radio button cute
-                        radio_button.BUTTON_INNER = '♥'
-
-                        yield radio_button
+                with Horizontal(id="distro-drop-down"):
+                    # create all the select choices
+                    my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
+                    yield Select(((line, line) for line in my_options),
+                                 prompt="Select Kubernetes Distro")
 
                 # these are distro configurations 
                 with VerticalScroll(id="k8s-distro-config"):
@@ -332,7 +318,7 @@ class ConfigureAll(App):
 
         # styling for the select-distro tab - top
         select_k8s_title = "ʕ ᵔᴥᵔʔ Select Kubernetes Distribution"
-        self.query_one(RadioSet).border_title = select_k8s_title
+        self.get_widget_by_id("distro-drop-down").border_title = select_k8s_title
 
         # styling for the select-distro tab - middle
         configure_distro_title = "ʕ ᵔᴥᵔʔ Configure selected Kubernetes Distribution"
@@ -394,10 +380,9 @@ class ConfigureAll(App):
             app_inputs = self.get_widget_by_id(f"{app}-inputs")
             app_inputs.display = switch.value
 
-    @on(RadioSet.Changed)
-    def update_k8s_distro_description(self) -> None:
-        pressed_index = self.query_one(RadioSet).pressed_index
-        distro = sorted(DEFAULT_DISTRO_OPTIONS.keys())[pressed_index]
+    @on(Select.Changed)
+    def update_k8s_distro_description(self, event: Select.Changed) -> None:
+        distro = str(event.value)
         desc = format_description(DEFAULT_CONFIG['k8s_distros'][distro]['description'])
         self.get_widget_by_id('k8s-distro-description').update(desc)
 
