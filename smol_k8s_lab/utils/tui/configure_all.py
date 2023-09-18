@@ -91,11 +91,11 @@ class ConfigureAll(App):
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
             with TabPane("Select Kubernetes distro", id="select-distro"):
-                with Horizontal(id="distro-drop-down"):
-                    # create all the select choices
-                    my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
-                    yield Select(((line, line) for line in my_options),
-                                 prompt="Select Kubernetes Distro")
+                # create all the select choices
+                my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
+                yield Select(((line, line) for line in my_options),
+                             prompt="Select Kubernetes Distro",
+                             id="distro-drop-down")
 
                 # these are distro configurations 
                 with VerticalScroll(id="k8s-distro-config"):
@@ -151,21 +151,21 @@ class ConfigureAll(App):
                             row_class = f"{distro} kubelet-arg"
                             row_container = Horizontal(classes=f"{row_class}-input-row")
                             row_container.display = display
-                            with row_container:
-                                kubelet_args = distro_metadata['kubelet_extra_args']
-                                if kubelet_args:
-                                    for key, value in kubelet_args.items():
-                                            pholder = "optional kubelet config key arg"
-                                            yield Input(value=key,
-                                                        placeholder=pholder,
-                                                        classes=f"{row_class}-input-key")
+                            kubelet_args = distro_metadata['kubelet_extra_args']
+                            if kubelet_args:
+                                for key, value in kubelet_args.items():
+                                    with row_container:
+                                        pholder = "optional kubelet config key arg"
+                                        yield Input(value=key,
+                                                    placeholder=pholder,
+                                                    classes=f"{row_class}-input-key")
 
-                                            yield Input(value=str(value),
-                                                        placeholder=key,
-                                                        classes=f"{row_class}-input-value")
+                                        yield Input(value=str(value),
+                                                    placeholder=key,
+                                                    classes=f"{row_class}-input-value")
 
-                                            yield Button("🗑️",
-                                                         classes=f"{row_class}-del-button")
+                                        yield Button("🗑️",
+                                                     classes=f"{row_class}-del-button")
                             new_button = Button("➕ Add New Arg",
                                                 classes=f"{row_class}-add-button")
                             new_button.display = display
@@ -316,10 +316,6 @@ class ConfigureAll(App):
         app_config_title = "ʕ ᵔᴥᵔʔ Configure initalization for each selected app"
         self.get_widget_by_id("app-inputs").border_title = app_config_title
 
-        # styling for the select-distro tab - top
-        select_k8s_title = "ʕ ᵔᴥᵔʔ Select Kubernetes Distribution"
-        self.get_widget_by_id("distro-drop-down").border_title = select_k8s_title
-
         # styling for the select-distro tab - middle
         configure_distro_title = "ʕ ᵔᴥᵔʔ Configure selected Kubernetes Distribution"
         self.get_widget_by_id('k8s-distro-config').border_title = configure_distro_title
@@ -400,8 +396,22 @@ class ConfigureAll(App):
                 for distro_obj in distro_class_objects:
                     distro_obj.display = enabled
 
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        get pressed button and act on it
+        """
+        # lets you delete a kubelet-arg row
+        if "kubelet-arg-del-button" in event.button.classes:
+            parent_row = event.button.parent
+            parent_row.remove()
+
+        # lets you delete a k3s-arg row
+        if "k3s-arg-del-button" in event.button.classes:
+            parent_row = event.button.parent
+            parent_row.remove()
+
     def action_request_help(self) -> None:
-        """ 
+        """
         if the user presses 'h' or '?', show the help modal screen
         """
         self.push_screen(HelpScreen())
