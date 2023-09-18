@@ -73,25 +73,17 @@ HelpScreen {
 
 /* BEGIN FIRST TAB */
 
-/* Matches the k8s distro picker radio set */
-RadioSet {
-    padding: 1;
-    border: solid cornflowerblue;
-    width: 1fr;
+#distro-drop-down {
     background: rgb(35,35,54) 50%;
-}
-
-/* changes color of filled in radio button */
-.toggle--button {
-    color: rgb(242,137,249);
-}
+    height: 10%;
+    content-align: center middle;
 
 /* the whole middle k8s distro config area */
 #k8s-distro-config {
     background: rgb(35,35,54) 50%;
     border: solid cornflowerblue;
     padding-top: 1;
-    content-align: center middle;
+    align: center middle;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
@@ -239,7 +231,7 @@ RadioSet {
 /* k8s distro description container */
 #k8s-distro-description-container {
     background: rgb(35,35,54) 50%;
-    height: 25%;
+    height: 20%;
     padding: 1;
     border: solid gray;
 }
