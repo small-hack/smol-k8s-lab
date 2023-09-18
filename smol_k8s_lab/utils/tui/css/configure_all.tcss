@@ -45,7 +45,7 @@ HelpScreen {
     padding: 1;
     width: 80;
     height: 20;
-    border: heavy cornflowerblue 80%;
+    border: round cornflowerblue 80%;
     background: $surface;
 }
 
@@ -74,14 +74,18 @@ HelpScreen {
 /* BEGIN FIRST TAB */
 
 #distro-drop-down {
-    background: rgb(35,35,54) 50%;
-    height: 10%;
-    content-align: center middle;
+    height: 8%;
+    margin-bottom: 1;
+}
+
+#distro-drop-down .option-list--option-highlighted {
+    background: rgb(65,72,104) 90%;
+}
 
 /* the whole middle k8s distro config area */
 #k8s-distro-config {
     background: rgb(35,35,54) 50%;
-    border: solid cornflowerblue;
+    border: round cornflowerblue;
     padding-top: 1;
     align: center middle;
     scrollbar-background: #3a3a3a;
@@ -91,7 +95,7 @@ HelpScreen {
     scrollbar-color: #5f5fd7;
 }
 
-/* "number of nodes:" label before the minus button */
+/* "number of nodes to deploy" header */
 .nodes-input-header-label {
     background: rgb(65,72,104) 30%;
     color: rgb(168,253,87);
@@ -117,15 +121,13 @@ HelpScreen {
 .nodes-input-label {
     content-align: center middle;
     height: 3;
-    width: 90%;
+    width: 100%;
 }
 
 /* input field to manually increase/decrease number of control plane nodes*/
 .nodes-input-control-input {
-    align: center middle;
-    content-align: center middle;
     height: 3;
-    width: 10%;
+    width: 15%;
 }
 
 /* input field to manually increase/decrease number of worker nodes*/
@@ -133,7 +135,7 @@ HelpScreen {
     align: center middle;
     content-align: center middle;
     height: 3;
-    width: 10%;
+    width: 15%;
 }
 
 /* kubelet config container */
@@ -233,7 +235,7 @@ HelpScreen {
     background: rgb(35,35,54) 50%;
     height: 20%;
     padding: 1;
-    border: solid gray;
+    border: round gray;
 }
 
 #k8s-distro-description-label {
@@ -255,7 +257,7 @@ HelpScreen {
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
     padding: 1;
-    border: solid cornflowerblue;
+    border: round cornflowerblue;
     background: rgb(35,35,54) 50%;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
@@ -297,7 +299,7 @@ SelectionList .option-list--option-hover {
 /* Matches the "Configure Selected apps" input list */
 #app-inputs {
     padding-top: 1;
-    border: solid cornflowerblue;
+    border: round cornflowerblue;
     background: rgb(35,35,54) 50%;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
@@ -344,12 +346,6 @@ Switch {
     background: black 60%;
 }
 
-.switch--slider-selected {
-    color: red;
-    border: solid red;
-    background: red;
-}
-
 /* container for all of an apps input fields */
 .app-all-inputs-container {
     height: auto;
@@ -384,7 +380,7 @@ Switch {
     column-span: 2;
     padding: 1;
     background: rgb(35,35,54) 50%;
-    border: solid gray;
+    border: round gray;
     content-align: center middle;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
