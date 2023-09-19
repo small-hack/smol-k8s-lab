@@ -5,13 +5,14 @@ from textual.containers import VerticalScroll, Container, Horizontal
 from textual.binding import Binding
 from textual.events import Mount
 from textual.widgets import (Button, Footer, Header, Input, Label,
-                             Select, SelectionList, Static, Switch, TabbedContent,
+                             Select, SelectionList, Static, TabbedContent,
                              TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
                                     DEFAULT_DISTRO_OPTIONS, DEFAULT_CONFIG)
 from smol_k8s_lab.utils.tui.help_screen import HelpScreen
+from smol_k8s_lab.utils.tui.app_config_pane import ArgoCDAppInputs
 
 
 class ConfigureAll(App):
@@ -53,107 +54,96 @@ class ConfigureAll(App):
                              prompt=select_prompt,
                              id="distro-drop-down", allow_blank=False)
 
-                # these are distro configurations 
-                with VerticalScroll(id="k8s-distro-config"):
-                    for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
-                        if distro == DEFAULT_DISTRO:
-                            display = True
+                for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
+                    if distro == DEFAULT_DISTRO:
+                        display = True
+                    else:
+                        display = False
+
+                    # node input row
+                    node_class = f"{distro} nodes-input"
+                    node_row = Horizontal(classes=f"{node_class}-row")
+                    node_row.display = display
+                    with node_row:
+                        disabled = False
+                        if distro == 'k3s':
+                            disabled = True
+
+                        # take number of nodes from config and make string
+                        nodes = distro_metadata.get('nodes', False)
+                        if nodes:
+                            control_nodes = str(nodes.get('control_plane', 1))
+                            worker_nodes = str(nodes.get('workers', 0))
                         else:
-                            display = False
+                            control_nodes = "1"
+                            worker_nodes = "0"
 
-                        # node input row
-                        node_class = f"{distro} nodes-input"
-                        node_row = Horizontal(classes=f"{node_class}-row")
-                        node_row.display = display
-                        node_header = Label("Number of nodes to deploy",
-                                            classes=f"{node_class}-header-label")
-                        node_header.display = display
-                        yield node_header
-                        with node_row:
-                            disabled = False
+                        yield Label("control plane nodes:",
+                                    classes=f"{node_class}-label")
+                        yield Input(value=control_nodes,
+                                    placeholder='1',
+                                    classes=f"{node_class}-control-input",
+                                    disabled=disabled)
+
+                        yield Label("worker nodes:",
+                                    classes=f"{node_class}-label")
+                        yield Input(value=worker_nodes,
+                                    placeholder='0',
+                                    classes=f"{node_class}-worker-input",
+                                    disabled=disabled)
+
+                    # kubelet config section
+                    kubelet_container = Container(classes="kubelet-config-container")
+                    kubelet_container.display = display
+                    with kubelet_container:
+                        # take extra kubelet config args
+                        row_class = f"{distro} kubelet-arg"
+                        row_container = Horizontal(classes=f"{row_class}-input-row")
+                        row_container.display = display
+                        kubelet_args = distro_metadata['kubelet_extra_args']
+                        if kubelet_args:
+                            for key, value in kubelet_args.items():
+                                with row_container:
+                                    pholder = "optional kubelet config key arg"
+                                    yield Input(value=key,
+                                                placeholder=pholder,
+                                                classes=f"{row_class}-input-key")
+
+                                    yield Input(value=str(value),
+                                                placeholder=key,
+                                                classes=f"{row_class}-input-value")
+                                    yield Button("🚮",
+                                                 classes=f"{row_class}-del-button")
+                        new_button = Button("➕ Add New Arg",
+                                            classes=f"{row_class}-add-button")
+                        new_button.display = display
+                        yield new_button
+
+                    # take extra k3s args
+                    if distro == 'k3s' or distro == 'k3d':
+                        k3_class = f"{distro} k3s-config-container"
+                        k3_container = Container(classes=k3_class)
+                        k3_container.display = display
+
+                        with k3_container:
                             if distro == 'k3s':
-                                disabled = True
-
-                            # take number of nodes from config and make string
-                            nodes = distro_metadata.get('nodes', False)
-                            if nodes:
-                                control_nodes = str(nodes.get('control_plane', 1))
-                                worker_nodes = str(nodes.get('workers', 0))
+                                k3s_args = distro_metadata['extra_cli_args']
                             else:
-                                control_nodes = "1"
-                                worker_nodes = "0"
+                                k3s_args = distro_metadata['extra_k3s_cli_args']
 
-                            yield Label("control plane nodes:",
-                                        classes=f"{node_class}-label")
-                            yield Input(value=control_nodes,
-                                        placeholder='1',
-                                        classes=f"{node_class}-control-input",
-                                        disabled=disabled)
-
-                            yield Label("worker nodes:",
-                                        classes=f"{node_class}-label")
-                            yield Input(value=worker_nodes,
-                                        placeholder='0',
-                                        classes=f"{node_class}-worker-input",
-                                        disabled=disabled)
-
-                        args_label = Label("Extra Args for Kubelet Config",
-                                           classes=f"{distro} kubelet-config-label")
-                        args_label.display = display
-                        yield args_label
-                        # kubelet config section
-                        with Container(classes="kubelet-config-container"):
-                            # take extra kubelet config args
-                            row_class = f"{distro} kubelet-arg"
-                            row_container = Horizontal(classes=f"{row_class}-input-row")
-                            row_container.display = display
-                            kubelet_args = distro_metadata['kubelet_extra_args']
-                            if kubelet_args:
-                                for key, value in kubelet_args.items():
-                                    with row_container:
-                                        pholder = "optional kubelet config key arg"
-                                        yield Input(value=key,
-                                                    placeholder=pholder,
-                                                    classes=f"{row_class}-input-key")
-
-                                        yield Input(value=str(value),
-                                                    placeholder=key,
-                                                    classes=f"{row_class}-input-value")
+                            if k3s_args:
+                                k3s_class = f'{distro} k3s-arg'
+                                for arg in k3s_args:
+                                    placeholder = "enter an extra arg for k3s"
+                                    with Container(classes=f'{k3s_class}-row'):
+                                        yield Input(value=arg,
+                                                    placeholder=placeholder,
+                                                    classes=f"{k3s_class}-input")
                                         yield Button("🚮",
-                                                     classes=f"{row_class}-del-button")
-                            new_button = Button("➕ Add New Arg",
-                                                classes=f"{row_class}-add-button")
-                            new_button.display = display
-                            yield new_button
+                                                     classes=f"{k3s_class}-del-button")
 
-                        # take extra k3s args
-                        if distro == 'k3s' or distro == 'k3d':
-                            k3_class = f"{distro} k3s-config-container"
-                            k3_container = Container(classes=k3_class)
-                            k3_container.display = display
-
-                            with k3_container:
-                                yield Label("Extra Args for k3s install script",
-                                            classes=f"{distro} k3s-config-label")
-
-                                if distro == 'k3s':
-                                    k3s_args = distro_metadata['extra_cli_args']
-                                else:
-                                    k3s_args = distro_metadata['extra_k3s_cli_args']
-
-                                if k3s_args:
-                                    k3s_class = f'{distro} k3s-arg'
-                                    for arg in k3s_args:
-                                        placeholder = "enter an extra arg for k3s"
-                                        with Container(classes=f'{k3s_class}-row'):
-                                            yield Input(value=arg,
-                                                        placeholder=placeholder,
-                                                        classes=f"{k3s_class}-input")
-                                            yield Button("🚮",
-                                                         classes=f"{k3s_class}-del-button")
-
-                                yield Button("➕ Add New Arg",
-                                             classes=f"{k3s_class}-add-button")
+                            yield Button("➕ Add New Arg",
+                                         classes=f"{k3s_class}-add-button")
 
                 with Container(id="k8s-distro-description-container"):
                     description = DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description']
@@ -175,78 +165,13 @@ class ConfigureAll(App):
                                              id='selection-list-of-apps')
 
                     # top right are any input values we need
-                    # this is a vertically scrolling container for all the inputs
-                    with VerticalScroll(id='app-inputs'):
-                        for app, metadata in DEFAULT_APPS.items():
-                            secret_keys = metadata['argo'].get('secret_keys', None)
-
-                            # if app doesn't have secret keys, continue to next app
-                            if not secret_keys:
-                                continue
-                            # if the app has secret keys
-                            else:
-                                init = metadata.get('init', False)
-                                # if there's no init possible, skip this app
-                                if not init:
-                                    continue
-                                else:
-                                    init_enabled = init.get('enabled', False)
-
-                                # make a pretty title for the app to configure
-                                s_class = f"app-init-switch-and-labels-row {app}"
-                                with Container(classes=s_class):
-                                    app_title = app.replace('_', ' ').title()
-                                    yield Label(app_title, classes="app-label")
-                                    yield Label("Initialize: ",
-                                                classes="app-init-switch-label")
-                                    yield Switch(value=init_enabled,
-                                                 id=f"{app}-init-switch",
-                                                 classes="app-init-switch")
-
-                                # container for all inputs associated with one app
-                                app_inputs_class = f"{app} app-all-inputs-container"
-                                inputs_container = Container(id=f"{app}-inputs",
-                                                       classes=app_inputs_class)
-
-                                if not init_enabled:
-                                    inputs_container.display = False
-
-                                with inputs_container:
-                                    # iterate through the app's secret keys
-                                    for secret_key, value in secret_keys.items():
-                                        secret_label = secret_key.replace("_", " ")
-
-                                        # create a gramatically corrrect placeholder
-                                        if secret_key.startswith(('o','a','e')):
-                                            article = "an"
-                                        else:
-                                            article = "a"
-                                        placeholder = f"enter {article} {secret_label}"
-
-                                        # create input variable
-                                        input_classes = f"app-input {app}"
-                                        if value:
-                                            app_input = Input(placeholder=placeholder,
-                                                              value=value,
-                                                              classes=input_classes)
-                                        else:
-                                            app_input = Input(placeholder=placeholder,
-                                                              classes=input_classes)
-
-                                        # create the input row
-                                        container_class = f"app-input-row {app}"
-                                        with Horizontal(classes=container_class):
-                                            label_class = f"app-input-label {app}"
-                                            yield Label(f"{secret_label}: ",
-                                                        classes=label_class)
-                                            yield app_input
+                    yield ArgoCDAppInputs()
 
                     with VerticalScroll(id="app-description-container"):
                         # Bottom half of the screen for select-apps TabPane()
                         yield Label("", id="app-description")
 
-                        yield Label("[white]Argo CD App Repo[/]",
-                                    id="app-repo-label")
+                        yield Label("[white]Argo CD App Repo[/]", id="app-repo-label")
                         yield Label("", id="app-repo")
 
     def action_show_tab(self, tab: str) -> None:
@@ -258,47 +183,53 @@ class ConfigureAll(App):
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "now with more 🦑"
 
+        kubelet_title = "➕ [green]Extra Args for Kubelet Config"
+        kubelet_containers = self.query(".kubelet-config-container")
+        for container in kubelet_containers:
+            container.border_title = kubelet_title
+
+        node_rows = self.query("nodes-input-row")
+        for row in node_rows:
+            row.border_title = "Adjust how many of each node type to deploy"
+
         # styling for the select-apps tab - select apps container - left
         select_apps_title = "[green]Select apps"
         self.query_one(SelectionList).border_title = select_apps_title
 
-        # styling for the select-apps tab - configure apps container - right
-        app_config_title = "⚙️ [green]Configure inital parameters for each selected app"
-        self.get_widget_by_id("app-inputs").border_title = app_config_title
-
         # styling for the select-distro tab - middle
-        distro_title = "⚙️ [green]Configure selected Kubernetes Distribution[/]"
-        self.get_widget_by_id("k8s-distro-config").border_title = distro_title
         distro_desc = self.get_widget_by_id("k8s-distro-description-container")
         distro_desc.border_title = "[white]Distro Description[/]"
 
         app_desc = self.get_widget_by_id("app-description-container")
         app_desc.border_title = "[white]App Description[/]"
 
+    # @on(Mount)
+    # @on(SelectionList.SelectedChanged)
+    # @on(TabbedContent.TabActivated)
+    # def update_configure_apps_view(self) -> None:
+    #     # get the last item in the list selected items
+    #     selected_items = self.query_one(SelectionList).selected
+
+    #     # for each application in DEFAULT_APPS
+    #     for application in DEFAULT_APPS.keys():
+    #         # get any objects using this application's name as their class
+    #         app_class_objects = self.query(f".{application}")
+
+    #         # if the application is in the selected items, set enabled to True
+    #         if application in selected_items:
+    #             enabled = True
+    #         else:
+    #             enabled = False
+
+    #         # set the DEFAULT_APPS
+    #         DEFAULT_APPS[application]['enabled'] = enabled
+    #         if app_class_objects:
+    #             for app_obj in app_class_objects:
+    #                 app_obj.display = enabled
+
     @on(Mount)
     @on(SelectionList.SelectedChanged)
     @on(TabbedContent.TabActivated)
-    def update_configure_apps_view(self) -> None:
-        # get the last item in the list selected items
-        selected_items = self.query_one(SelectionList).selected
-
-        # for each application in DEFAULT_APPS
-        for application in DEFAULT_APPS.keys():
-            # get any objects using this application's name as their class
-            app_class_objects = self.query(f".{application}")
-
-            # if the application is in the selected items, set enabled to True
-            if application in selected_items:
-                enabled = True
-            else:
-                enabled = False
-
-            # set the DEFAULT_APPS
-            DEFAULT_APPS[application]['enabled'] = enabled
-            if app_class_objects:
-                for app_obj in app_class_objects:
-                    app_obj.display = enabled
-
     @on(SelectionList.SelectionHighlighted)
     def update_selected_app_blurb(self) -> None:
         selection_list = self.query_one(SelectionList)
@@ -309,27 +240,32 @@ class ConfigureAll(App):
         # the actual highlighted app
         highlighted_app = selection_list.get_option_at_index(highlighted_idx).value
 
-        new_repo, new_blurb = generate_tool_tip(highlighted_app)
+        new_repo, new_blurb = generate_description(highlighted_app)
 
         # update the static text with the new app description and repo
         self.get_widget_by_id('app-repo').update(new_repo)
         self.get_widget_by_id('app-description').update(new_blurb)
 
-    @on(Switch.Changed)
-    def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
-        truthy_value = event.value
-        app = event.switch.id.split("-init-switch")[0]
-        app_inputs = self.get_widget_by_id(f"{app}-inputs")
-        app_inputs.display = truthy_value
-        DEFAULT_APPS[app]['init']['enabled'] = truthy_value
+        # for each application in DEFAULT_APPS
+        for application in DEFAULT_APPS.keys():
+            if application == highlighted_app:
+                display = True
+            else:
+                display = False
+            app_class_objects = self.query(f".{application}")
+            if app_class_objects:
+                for app_obj in app_class_objects:
+                    app_obj.display = display
 
     @on(TabbedContent.TabActivated)
     def show_or_hide_init_inputs_on_new_tab(self,) -> None:
         switches = self.query(".app-init-switch")
         for switch in switches:
             app = switch.id.split("-init-switch")[0]
-            app_inputs = self.get_widget_by_id(f"{app}-inputs")
-            app_inputs.display = switch.value
+            if DEFAULT_APPS[app].get('init', None):
+                if DEFAULT_APPS[app]['argo'].get('secret_keys', None):
+                    app_inputs = self.get_widget_by_id(f"{app}-inputs")
+                    app_inputs.display = switch.value
 
     @on(Select.Changed)
     def update_k8s_distro_description(self, event: Select.Changed) -> None:
@@ -401,9 +337,9 @@ class ConfigureAll(App):
         self.push_screen(HelpScreen())
 
 
-def generate_tool_tip(app_name: str):
+def generate_description(app_name: str):
     """
-    generate tooltip like:
+    generate description like:
     """
     description = format_description(DEFAULT_APPS[app_name]['description'])
 
