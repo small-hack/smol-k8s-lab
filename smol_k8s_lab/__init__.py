@@ -15,7 +15,7 @@ from sys import exit
 
 # custom libs and constants
 from .env_config import check_os_support, process_configs
-from .constants import KUBECONFIG, HOME_DIR, INITIAL_USR_CONFIG, VERSION
+from .constants import KUBECONFIG, HOME_DIR, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_distros import create_k8s_distro, delete_cluster
@@ -24,7 +24,7 @@ from .k8s_tools.k8s_lib import K8s
 from .utils.bw_cli import BwCLI
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
-from .utils.tui import launch_tui
+from .utils.tui import launch_config_tui
 
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -97,20 +97,19 @@ def main(config: str = "",
         print(f'\n🎉 v{VERSION}\n')
         return True
 
-    if interactive:
-        launch_tui()
-        exit()
-
-    if setup:
-        # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
-        from .utils.setup_k8s_tools import do_setup
-        do_setup()
-
     # make sure this OS is supported
     check_os_support()
 
-    # process all of the config file, or create a new one and also grab secrets
-    USR_CFG, SECRETS = process_configs(INITIAL_USR_CONFIG, delete)
+    if interactive:
+        USR_CFG, SECRETS = launch_config_tui()
+    else:
+        if setup:
+            # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
+            from .utils.setup_k8s_tools import do_setup
+            do_setup()
+
+        # process all of the config file, or create a new one and also grab secrets
+        USR_CFG, SECRETS = process_configs(delete)
 
     # setup logging immediately
     log = process_log_config(USR_CFG['log'])
