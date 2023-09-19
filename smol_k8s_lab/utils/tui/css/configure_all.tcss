@@ -99,6 +99,7 @@ HelpScreen {
 
 /* the whole middle k8s distro config area */
 #k8s-distro-config {
+    layout: grid;
     background: rgb(35,35,54) 50%;
     border: round cornflowerblue;
     padding-top: 1;
@@ -148,7 +149,6 @@ HelpScreen {
 .kubelet-config-container {
     height: auto;
     border: round cornflowerblue;
-
 }
 
 /* kubelet config header label */
@@ -263,7 +263,7 @@ HelpScreen {
     layout: grid;
     grid-size: 2;
     grid-columns: 0.5fr 1.2fr;
-    grid-rows: 1.4fr 0.6fr;
+    grid-rows: 1.5fr 0.5fr;
 }
 
 
@@ -309,7 +309,7 @@ SelectionList .option-list--option-hover {
 }
 
 /* Matches the "Configure Selected apps" input list */
-#app-inputs {
+#app-inputs-pane {
     padding-top: 1;
     border: round cornflowerblue;
     background: rgb(35,35,54) 50%;
@@ -328,6 +328,7 @@ SelectionList .option-list--option-hover {
     grid-size: 4;
     height: 3;
     grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
+    margin-bottom: 1;
 }
 
 /* label for each app in the conigure selected apps pane */
@@ -352,27 +353,6 @@ Switch {
     width: auto;
 }
 
-/* argo cd config param section */
-.argo-config-row {
-    layout: grid;
-    height: auto;
-    grid-size: 2;
-    grid-columns: 0.5fr 1.5fr;
-    padding-bottom: 1;
-}
-
-.argo-config-label {
-    height: 3;
-    width: auto;
-    content-align: left middle;
-}
-
-.argo-config-input {
-    height: auto;
-    width: auto;
-    content-align: left middle;
-}
-
 /* container for all of an apps input fields */
 .app-all-inputs-container {
     height: auto;
@@ -384,7 +364,7 @@ Switch {
     layout: grid;
     height: auto;
     grid-size: 2;
-    grid-columns: 0.8fr 1.2fr;
+    grid-columns: 0.5fr 1.5fr;
     padding-bottom: 1;
     padding-left: 1;
 }
@@ -402,7 +382,44 @@ Switch {
     width: 100;
 }
 
-/* Matches Description AND Argo CD App Repository container in Select k8s apps tab */
+/* argo cd config param section */
+.argo-config-container {
+    height: auto;
+}
+
+.argo-config-header {
+    width: 100%;
+    content-align: left middle;
+    padding-left: 1;
+    background: rgb(65,72,104) 20%;
+    color: rgb(168,253,87) 90%;
+    margin-bottom: 1;
+    height: 3;
+}
+
+.argo-config-row {
+    layout: grid;
+    height: auto;
+    grid-size: 2;
+    grid-columns: 0.5fr 1.5fr;
+    padding-bottom: 1;
+    padding-left: 1;
+}
+
+.argo-config-label {
+    height: 3;
+    width: auto;
+    content-align: left middle;
+}
+
+.argo-config-input {
+    height: auto;
+    width: 100%;
+    content-align: left middle;
+}
+
+
+/* Matches App Description in Select k8s apps tab */
 #app-description-container{
     column-span: 2;
     background: rgb(35,35,54) 50%;
@@ -427,14 +444,4 @@ Switch {
     color: rgb(168,253,87);
     background: gray;
     width: 100%;
-}
-
-/* manages just "Argo CD App Repository" Label for select k8s apps tab */
-#app-repo-label {
-    padding-bottom: 1;
-    padding-left: 1;
-}
-
-#app-repo {
-    padding-left: 1;
 }
