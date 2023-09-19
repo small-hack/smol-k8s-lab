@@ -154,7 +154,7 @@ def main(config: str = "",
                         apps['cilium'],
                         apps['cert_manager'],
                         argo_enabled,
-                        apps['argo_cd_appset_secret_plugin']['enabled'])
+                        apps['appset_secret_plugin']['enabled'])
 
         # 🦑 Install Argo CD: continuous deployment app for k8s
         if argo_enabled:
@@ -162,7 +162,7 @@ def main(config: str = "",
             argocd_fqdn = SECRETS['argo_cd_hostname']
             from .k8s_apps.argocd import configure_argocd
             configure_argocd(k8s_obj, argocd_fqdn, bw,
-                             apps['argo_cd_appset_secret_plugin']['enabled'],
+                             apps['appset_secret_plugin']['enabled'],
                              SECRETS)
 
             setup_k8s_secrets_management(k8s_obj,

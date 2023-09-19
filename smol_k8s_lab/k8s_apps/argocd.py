@@ -121,10 +121,10 @@ def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
                 'token.existingSecret': 'appset-secret-token'}
 
     # install the helm chart :)
-    chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
-    release = Helm.chart(release_name='argocd-appset-secret-plugin',
+    chart_name = 'appset-secret-plugin/appset-secret-plugin'
+    release = Helm.chart(release_name='appset-secret-plugin',
                          chart_name=chart_name,
-                         chart_version='0.4.0',
+                         chart_version='0.5.0',
                          namespace='argocd',
                          set_options=set_opts)
     release.install(True)
