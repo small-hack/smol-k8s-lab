@@ -151,14 +151,14 @@ apps:
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project_source_repos:
         - https://argoproj.github.io/argo-helm
-        - https://jessebot.github.io/argocd-appset-secret-plugin
+        - https://small-hack.github.io/appset-secret-plugin
 
-  argo_cd_appset_secret_plugin:
+  appset_secret_plugin:
     enabled: true
     description: |
       Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [orange]argo.repo[/orange] and default enabled if ArgoCD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
 
-      Learn more: [link=https://github.com/jessebot/argocd-appset-secret-plugin]https://github.com/jessebot/argocd-appset-secret-plugin[/link]
+      Learn more: [link=https://github.com/small-hack/appset-secret-plugin]https://github.com/small-hack/appset-secret-plugin[/link]
     # Initialization of the app through smol-k8s-lab
     init:
       # Switch to false if you don't want to deploy a default secret with all
@@ -177,7 +177,7 @@ apps:
       # namespace to install the k8s app in
       namespace: "argocd"
       project_source_repos:
-        - https://jessebot.github.io/argocd-appset-secret-plugin
+        - https://small-hack.github.io/appset-secret-plugin
 
   bitwarden_eso_provider:
     enabled: true
