@@ -201,9 +201,9 @@ apps:
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project_source_repos:
         - https://argoproj.github.io/argo-helm
-        - https://jessebot.github.io/argocd-appset-secret-plugin
+        - https://small-hack.github.io/appset-secret-plugin
 
-  argo_cd_appset_secret_plugin:
+  appset_secret_plugin:
     # Required if you want to use the default small-hack/argocd-apps argo.repo and
     # default enabled if ArgoCD is enabled, so we can create a k8s Secret with
     # your more private info such as hostnames, IP addresses, and emails in a
@@ -222,13 +222,13 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "argocd/argocd_appset/"
+      path: "argocd/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
       namespace: "argocd"
       project_source_repos:
-        - https://jessebot.github.io/argocd-appset-secret-plugin
+        - https://small-hack.github.io/appset-secret-plugin
 
   external_secrets_operator:
     # enable the external secrets operator to pull remote secrets
