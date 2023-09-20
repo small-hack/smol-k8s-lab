@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.11
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal
+from textual.containers import VerticalScroll, Horizontal
 from textual.widgets import Input, Button, Static
 
 
@@ -16,8 +16,8 @@ class KubeletConfig(Static):
 
     def compose(self) -> ComposeResult:
         # kubelet config section
-        with Container(classes=f"kubelet-config-container {self.distro}",
-                       id=f"{self.distro}-kubelet-config-container"):
+        with VerticalScroll(classes=f"kubelet-config-scroll {self.distro}",
+                            id=f"{self.distro}-kubelet-config-container"):
             # take extra kubelet config args
             row_class = f"{self.distro} kubelet-arg"
             row_container = Horizontal(classes=f"{row_class}-input-row")
@@ -62,9 +62,3 @@ class KubeletConfig(Static):
                 Button("🚮", classes=f"{row_class}-del-button"),
                        classes=f"{row_class}-input-row"),
                 before=event.button)
-
-    def on_mount(self) -> None:
-        # screen and header styling
-        kubelet_title = "➕ [green]Extra Args for Kubelet Config"
-        kubelet_cfg = f"{self.distro}-kubelet-config-container"
-        self.get_widget_by_id(kubelet_cfg).border_title = kubelet_title
