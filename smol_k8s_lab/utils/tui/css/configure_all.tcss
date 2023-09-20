@@ -98,11 +98,10 @@ HelpScreen {
 }
 
 /* the whole middle k8s distro config area */
-#k8s-distro-config {
+.k8s-distro-config {
     layout: grid;
-    background: rgb(35,35,54) 50%;
-    border: round cornflowerblue;
-    padding-top: 1;
+    grid-size: 1;
+    grid-rows: 0.8fr 1.3fr 1.3fr 0.6fr;
     align: center middle;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
@@ -122,6 +121,7 @@ HelpScreen {
     padding-left: 1;
     padding-bottom: 1;
     padding-top: 1;
+    background: rgb(35,35,54) 50%;
     border: round cornflowerblue;
 }
 
@@ -131,13 +131,13 @@ HelpScreen {
     width: 100%;
 }
 
-/* input field to manually increase/decrease number of control plane nodes*/
+/* input field to manually increase/decrease number of control plane nodes */
 .nodes-input-control-input {
     height: 3;
     width: 15%;
 }
 
-/* input field to manually increase/decrease number of worker nodes*/
+/* input field to manually increase/decrease number of worker nodes */
 .nodes-input-worker-input {
     align: center middle;
     content-align: center middle;
@@ -149,6 +149,7 @@ HelpScreen {
 .kubelet-config-container {
     height: auto;
     border: round cornflowerblue;
+    background: rgb(35,35,54) 50%;
 }
 
 /* kubelet config header label */
@@ -204,9 +205,10 @@ HelpScreen {
 /* k3s/k3d extra args container */
 .k3s-config-container {
     content-align: center middle;
-    height: auto;
+    height: 100%;
     padding-top: 1;
     border: round cornflowerblue;
+    background: rgb(35,35,54) 50%;
 }
 
 .k3s-config-label {
@@ -245,15 +247,10 @@ HelpScreen {
 }
 
 /* k8s distro description container */
-#k8s-distro-description-container {
+.k8s-distro-description-container {
     background: rgb(35,35,54) 50%;
     padding: 1;
     border: round gray;
-}
-
-#k8s-distro-description-label {
-    padding-bottom: 1;
-    color: rgb(168,253,87);
 }
 
 /* BEGIN SECOND TAB */

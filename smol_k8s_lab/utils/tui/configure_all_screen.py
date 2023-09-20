@@ -4,9 +4,8 @@ from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll, Container, Horizontal
 from textual.binding import Binding
 from textual.events import Mount
-from textual.widgets import (Button, Footer, Header, Input, Label,
-                             Select, SelectionList, Static, TabbedContent,
-                             TabPane)
+from textual.widgets import (Footer, Header, Input, Label, Select, SelectionList,
+                             Static, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
@@ -14,6 +13,7 @@ from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
 from smol_k8s_lab.utils.tui.help_screen import HelpScreen
 from smol_k8s_lab.utils.tui.app_config_pane import ArgoCDAppInputs
 from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
+from smol_k8s_lab.utils.tui.k3s_config import K3sConfig
 
 
 class SmolK8sLabConfig(App):
@@ -35,6 +35,7 @@ class SmolK8sLabConfig(App):
     def __init__(self, user_config: dict) -> None:
         self.usr_cfg = user_config
         self.previous_app = ''
+        self.previous_distro = DEFAULT_DISTRO
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -58,7 +59,9 @@ class SmolK8sLabConfig(App):
                 my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
                 yield Select(((line, line) for line in my_options),
                              prompt=select_prompt,
-                             id="distro-drop-down", allow_blank=False)
+                             id="distro-drop-down",
+                             allow_blank=False,
+                             value=DEFAULT_DISTRO)
 
                 for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
                     with VerticalScroll(classes=f"k8s-distro-config {distro}"):
@@ -101,43 +104,34 @@ class SmolK8sLabConfig(App):
 
                         # kubelet config section
                         extra_args = distro_metadata['kubelet_extra_args']
-                        kubelet_cf = KubeletConfig(distro, extra_args)
-                        kubelet_cf.display = display
-                        yield kubelet_cf
+                        kubelet_box = Container(KubeletConfig(distro, extra_args),
+                                                classes=distro)
+                        kubelet_box.display = display
+                        yield kubelet_box
 
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
-                            k3_class = f"{distro} k3s-config-container"
-                            k3_container = Container(classes=k3_class)
-                            k3_container.display = display
+                            if distro == 'k3s':
+                                k3s_args = distro_metadata['extra_cli_args']
+                            else:
+                                k3s_args = distro_metadata['extra_k3s_cli_args']
 
-                            with k3_container:
-                                if distro == 'k3s':
-                                    k3s_args = distro_metadata['extra_cli_args']
-                                else:
-                                    k3s_args = distro_metadata['extra_k3s_cli_args']
+                            k3s_box_classes = f"{distro} k3s-config-container"
+                            k3s_box = Container(K3sConfig(distro, k3s_args),
+                                                classes=k3s_box_classes)
+                            k3s_box.display = display
 
-                                if k3s_args:
-                                    k3s_class = f'{distro} k3s-arg'
+                            yield k3s_box
 
-                                    for arg in k3s_args:
-                                        placeholder = "enter an extra arg for k3s"
-
-                                        with Container(classes=f'{k3s_class}-row'):
-                                            yield Input(value=arg,
-                                                        placeholder=placeholder,
-                                                        classes=f"{k3s_class}-input")
-                                            yield Button("🚮",
-                                                         classes=f"{k3s_class}-del-button")
-
-                                yield Button("➕ Add New Arg",
-                                             classes=f"{k3s_class}-add-button")
-
-                with Container(id="k8s-distro-description-container"):
-                    description = DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description']
-                    formatted_description = format_description(description)
-                    yield Static(f"{formatted_description}",
-                                 id='k8s-distro-description')
+                        # description box
+                        desc = DEFAULT_DISTRO_OPTIONS[distro]['description']
+                        desc_class = f"{distro} k8s-distro-description-container"
+                        desc_box = Container(classes=desc_class)
+                        desc_box.display = display
+                        with desc_box:
+                            formatted_description = format_description(desc)
+                            yield Static(f"{formatted_description}",
+                                         classes=f'{distro} k8s-distro-description')
 
             # tab 2 - allows selection of different argo cd apps to run in k8s
             with TabPane("Select Applications", id="select-apps"):
@@ -185,11 +179,16 @@ class SmolK8sLabConfig(App):
         self.query_one(SelectionList).border_title = select_apps_title
 
         # styling for the select-distro tab - middle
-        distro_desc = self.get_widget_by_id("k8s-distro-description-container")
-        distro_desc.border_title = "[white]Distro Description[/]"
+        distro_desc_boxes = self.query(".k8s-distro-description-container")
+        for distro_desc_box in distro_desc_boxes:
+            distro_desc_box.border_title = "[white]Distro Description[/]"
 
         app_desc = self.get_widget_by_id("app-description-container")
         app_desc.border_title = "[white]App Description[/]"
+
+        k3s_title = "➕ [green]Extra Args for k3s install script"
+        k3s_box = self.query_one(".k3s-config-container")
+        k3s_box.border_title = k3s_title
 
     @on(Mount)
     @on(SelectionList.SelectedChanged)
@@ -225,48 +224,22 @@ class SmolK8sLabConfig(App):
         self.previous_app = highlighted_app
 
     @on(Select.Changed)
-    def update_k8s_distro_description(self, event: Select.Changed) -> None:
-        """
-        change the description text in the bottom box for k8s distros
-        """
+    def update_k8s_distro_tab_view(self, event: Select.Changed) -> None:
         distro = str(event.value)
-        desc = format_description(DEFAULT_CONFIG['k8s_distros'][distro]['description'])
-        self.get_widget_by_id('k8s-distro-description').update(desc)
 
-        for default_distro_option in DEFAULT_DISTRO_OPTIONS.keys():
-            # get any objects using this distro's name as their class
-            distro_class_objects = self.query(f".{default_distro_option}")
+        if self.previous_distro:
+            distro_class_objects = self.query(f".{self.previous_distro}")
+            for distro_obj in distro_class_objects:
+                distro_obj.display = False
 
-            if default_distro_option == distro:
-                enabled = True
-            else:
-                enabled = False
+        distro_class_objects = self.query(f".{distro}")
 
-            # change display to True if the distro is selected, else False
-            if distro_class_objects:
-                for distro_obj in distro_class_objects:
-                    distro_obj.display = enabled
+        # change display to True if the distro is selected
+        if distro_class_objects:
+            for distro_obj in distro_class_objects:
+                distro_obj.display = True
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """
-        get pressed button and act on it
-        """
-        button_classes = event.button.classes
-
-        # lets you delete a k3s-arg row
-        if "k3s-arg-del-button" in button_classes:
-            parent_row = event.button.parent
-            parent_row.remove()
-
-        # lets you add a new k3s config row
-        if "k3s-arg-add-button" in button_classes:
-            parent_container = event.button.parent
-            placeholder = "enter an extra arg for k3s"
-            parent_container.mount(Horizontal(
-                Input(placeholder=placeholder, classes="k3s-arg-input"),
-                Button("🚮", classes="k3s-arg-del-button"),
-                classes="k3s-arg-row"
-                ), before=event.button)
+        self.previous_distro = distro
 
     def action_request_help(self) -> None:
         """

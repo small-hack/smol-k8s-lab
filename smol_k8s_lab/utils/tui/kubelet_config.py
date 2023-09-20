@@ -36,7 +36,7 @@ class KubeletConfig(Static):
                         yield Button("🚮",
                                      classes=f"{row_class}-del-button")
 
-            Button("➕ Add New Arg", classes=f"{row_class}-add-button")
+            yield Button("➕ Add New Arg", classes=f"{row_class}-add-button")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
