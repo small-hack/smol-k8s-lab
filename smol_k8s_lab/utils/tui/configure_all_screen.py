@@ -65,12 +65,16 @@ class SmolK8sLabConfig(App):
                              value=DEFAULT_DISTRO)
 
                 for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
-                    with VerticalScroll(classes=f"k8s-distro-config {distro}"):
-                        if distro == DEFAULT_DISTRO:
-                            display = True
-                        else:
-                            display = False
+                    # only display the default distro for this OS
+                    if distro == DEFAULT_DISTRO:
+                        display = True
+                    else:
+                        display = False
 
+                    distro_box = VerticalScroll(classes=f"k8s-distro-config {distro}")
+                    distro_box.display = display
+
+                    with distro_box:
                         # take number of nodes from config and make string
                         nodes = distro_metadata.get('nodes', False)
                         if nodes:
@@ -82,17 +86,13 @@ class SmolK8sLabConfig(App):
 
                         # node input row
                         adjust = NodeAdjustmentBox(distro, control_nodes, worker_nodes)
-                        node_input_box = Container(adjust, classes=distro)
-                        node_input_box.display = display
-                        yield node_input_box
+                        yield Container(adjust, classes=f"{distro} nodes-box")
 
                         # kubelet config section
                         extra_args = distro_metadata['kubelet_extra_args']
                         kubelet_class = f"{distro} kubelet-config-container"
-                        kubelet_box = Container(KubeletConfig(distro, extra_args),
-                                                classes=kubelet_class)
-                        kubelet_box.display = display
-                        yield kubelet_box
+                        yield Container(KubeletConfig(distro, extra_args),
+                                        classes=kubelet_class)
 
                         # take extra k3s args
                         if distro == 'k3s' or distro == 'k3d':
@@ -102,18 +102,13 @@ class SmolK8sLabConfig(App):
                                 k3s_args = distro_metadata['extra_k3s_cli_args']
 
                             k3s_box_classes = f"{distro} k3s-config-container"
-                            k3s_box = Container(K3sConfig(distro, k3s_args),
-                                                classes=k3s_box_classes)
-                            k3s_box.display = display
-
-                            yield k3s_box
+                            yield Container(K3sConfig(distro, k3s_args),
+                                            classes=k3s_box_classes)
 
                         # description box
                         desc = DEFAULT_DISTRO_OPTIONS[distro]['description']
                         desc_class = f"{distro} k8s-distro-description-container"
-                        desc_box = Container(classes=desc_class)
-                        desc_box.display = display
-                        with desc_box:
+                        with Container(classes=desc_class):
                             formatted_description = format_description(desc)
                             yield Static(f"{formatted_description}",
                                          classes=f'{distro} k8s-distro-description')

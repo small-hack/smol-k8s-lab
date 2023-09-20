@@ -30,16 +30,16 @@ class NodeAdjustmentBox(Widget):
 
     def compose(self) -> ComposeResult:
         node_class = f"{self.distro} nodes-input"
-        node_row = Horizontal(classes=f"{node_class}-row")
+
+        node_input_row = Horizontal(classes=f"{node_class}-row")
 
         if self.distro == "k3s":
-            node_row.tooltip = NO_NODE_TXT
-
-        with node_row:
+            node_input_row.tooltip = NO_NODE_TXT
+            disabled = True
+        else:
             disabled = False
-            if self.distro == 'k3s':
-                disabled = True
 
+        with node_input_row:
             yield Label("control plane nodes:",
                         classes=f"{node_class}-label")
             yield Input(value=self.control_plane_nodes,

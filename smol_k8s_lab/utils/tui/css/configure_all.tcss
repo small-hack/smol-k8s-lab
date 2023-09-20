@@ -101,7 +101,7 @@ HelpScreen {
 .k8s-distro-config {
     layout: grid;
     grid-size: 1;
-    grid-rows: 0.8fr 1fr 1.4fr;
+    grid-rows: 0.7fr 1fr 1.4fr;
     align: center middle;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
@@ -110,14 +110,18 @@ HelpScreen {
     scrollbar-color: #5f5fd7;
 }
 
+/* container with the node adjustment row */
+.nodes-box {
+}
+
 /* number of nodes input row */
 .nodes-input-row {
     layout: grid;
     grid-size: 4;
     width: 100%;
     grid-columns: 1.5fr 0.5fr 1fr 0.5fr;
-    content-align: center middle;
-    height: auto;
+    align: center middle;
+    height: 100%;
     padding-left: 1;
     padding-bottom: 1;
     padding-top: 1;
@@ -140,16 +144,20 @@ HelpScreen {
 /* input field to manually increase/decrease number of worker nodes */
 .nodes-input-worker-input {
     align: center middle;
-    content-align: center middle;
     height: 3;
     width: auto;
 }
 
 /* kubelet config container */
 .kubelet-config-container {
+    align: center middle;
     height: auto;
     border: round cornflowerblue;
     background: rgb(35,35,54) 50%;
+}
+
+.kubelet-config-scroll {
+    align: center middle;
 }
 
 /* kubelet config header label */
@@ -248,9 +256,9 @@ HelpScreen {
 
 /* k8s distro description container */
 .k8s-distro-description-container {
-    background: rgb(35,35,54) 50%;
     padding: 1;
     border: round gray;
+    align: center middle;
 }
 
 /* BEGIN SECOND TAB */
@@ -419,7 +427,6 @@ Switch {
 /* Matches App Description in Select k8s apps tab */
 #app-description-container{
     column-span: 2;
-    background: rgb(35,35,54) 50%;
     border: round gray;
     content-align: center middle;
     scrollbar-background: #3a3a3a;
