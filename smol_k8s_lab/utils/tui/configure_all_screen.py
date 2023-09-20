@@ -4,8 +4,8 @@ from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll, Container
 from textual.binding import Binding
 from textual.events import Mount
-from textual.widgets import (Footer, Header, Label, Select, SelectionList,
-                             Static, TabbedContent, TabPane)
+from textual.widgets import (Button, Footer, Header, Label, Pretty, Select,
+                             SelectionList, Static, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
@@ -132,14 +132,21 @@ class SmolK8sLabConfig(App):
                     with VerticalScroll(id='app-inputs-pane'):
                         for app, metadata in DEFAULT_APPS.items():
                             id_name = app.replace("_", "-") + "-inputs"
-                            single_app_inputs_container = Container(id=id_name)
-                            single_app_inputs_container.display = False
-                            with single_app_inputs_container:
+                            single_app_inputs = VerticalScroll(id=id_name,
+                                                               classes="single-app-inputs")
+                            single_app_inputs.display = False
+                            with single_app_inputs:
                                 yield ArgoCDAppInputs(app, metadata)
 
                     # Bottom half of the screen for select-apps TabPane()
                     with VerticalScroll(id="app-description-container"):
                         yield Label("", id="app-description")
+
+            # tab 3 - confirmation
+            with TabPane("Confirm Selections", id="confirm-selection"):
+                with VerticalScroll(id="pretty-confirm"):
+                    yield Pretty(self.usr_cfg)
+                    yield Button("🚊 Let's roll!")
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""

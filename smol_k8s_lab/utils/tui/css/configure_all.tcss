@@ -326,6 +326,15 @@ SelectionList .option-list--option-hover {
     content-align: center middle;
 }
 
+/* single app's inputs */
+.single-app-inputs {
+    scrollbar-background: #3a3a3a;
+    scrollbar-background-active: #3a3a3a;
+    scrollbar-background-hover: #3a3a3a;
+    scrollbar-color-hover: orange;
+    scrollbar-color: #5f5fd7;
+}
+
 /* entire row for app label, app switch label, and switch for each app with initialization */
 .app-init-switch-and-labels-row {
     background: rgb(65,72,104) 30%;
@@ -356,6 +365,9 @@ Switch {
     content-align: right middle;
     height: auto;
     width: auto;
+}
+
+.switch--slider {
 }
 
 /* container for all of an apps input fields */
@@ -448,4 +460,17 @@ Switch {
     color: rgb(168,253,87);
     background: gray;
     width: 100%;
+}
+
+#pretty-confirm {
+    border: round gray;
+    scrollbar-background: #3a3a3a;
+    scrollbar-background-active: #3a3a3a;
+    scrollbar-background-hover: #3a3a3a;
+    scrollbar-color-hover: orange;
+    scrollbar-color: #5f5fd7;
+    layout: grid;
+    grid-size: 1;
+    grid-rows: 1.5fr 1fr;
+    align: center middle;
 }
