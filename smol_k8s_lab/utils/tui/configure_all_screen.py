@@ -1,19 +1,20 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import VerticalScroll, Container, Horizontal
+from textual.containers import VerticalScroll, Container
 from textual.binding import Binding
 from textual.events import Mount
-from textual.widgets import (Footer, Header, Input, Label, Select, SelectionList,
+from textual.widgets import (Footer, Header, Label, Select, SelectionList,
                              Static, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
-                                    DEFAULT_DISTRO_OPTIONS, DEFAULT_CONFIG)
+                                    DEFAULT_DISTRO_OPTIONS)
 from smol_k8s_lab.utils.tui.help_screen import HelpScreen
 from smol_k8s_lab.utils.tui.app_config_pane import ArgoCDAppInputs
 from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
 from smol_k8s_lab.utils.tui.k3s_config import K3sConfig
+from smol_k8s_lab.utils.tui.node_adjustment import NodeAdjustmentBox
 
 
 class SmolK8sLabConfig(App):
@@ -70,42 +71,26 @@ class SmolK8sLabConfig(App):
                         else:
                             display = False
 
+                        # take number of nodes from config and make string
+                        nodes = distro_metadata.get('nodes', False)
+                        if nodes:
+                            control_nodes = str(nodes.get('control_plane', 1))
+                            worker_nodes = str(nodes.get('workers', 0))
+                        else:
+                            control_nodes = "1"
+                            worker_nodes = "0"
+
                         # node input row
-                        node_class = f"{distro} nodes-input"
-                        node_row = Horizontal(classes=f"{node_class}-row")
-                        node_row.display = display
-                        with node_row:
-                            disabled = False
-                            if distro == 'k3s':
-                                disabled = True
-
-                            # take number of nodes from config and make string
-                            nodes = distro_metadata.get('nodes', False)
-                            if nodes:
-                                control_nodes = str(nodes.get('control_plane', 1))
-                                worker_nodes = str(nodes.get('workers', 0))
-                            else:
-                                control_nodes = "1"
-                                worker_nodes = "0"
-
-                            yield Label("control plane nodes:",
-                                        classes=f"{node_class}-label")
-                            yield Input(value=control_nodes,
-                                        placeholder='1',
-                                        classes=f"{node_class}-control-input",
-                                        disabled=disabled)
-
-                            yield Label("worker nodes:",
-                                        classes=f"{node_class}-label")
-                            yield Input(value=worker_nodes,
-                                        placeholder='0',
-                                        classes=f"{node_class}-worker-input",
-                                        disabled=disabled)
+                        adjust = NodeAdjustmentBox(distro, control_nodes, worker_nodes)
+                        node_input_box = Container(adjust, classes=distro)
+                        node_input_box.display = display
+                        yield node_input_box
 
                         # kubelet config section
                         extra_args = distro_metadata['kubelet_extra_args']
+                        kubelet_class = f"{distro} kubelet-config-container"
                         kubelet_box = Container(KubeletConfig(distro, extra_args),
-                                                classes=distro)
+                                                classes=kubelet_class)
                         kubelet_box.display = display
                         yield kubelet_box
 
@@ -166,26 +151,32 @@ class SmolK8sLabConfig(App):
         self.get_child_by_type(TabbedContent).active = tab
 
     def on_mount(self) -> None:
-        # screen and header styling
+        """
+        screen and box border styling
+        """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "now with more 🦑"
 
-        node_rows = self.query("nodes-input-row")
-        for row in node_rows:
-            row.border_title = "Adjust how many of each node type to deploy"
-
-        # styling for the select-apps tab - select apps container - left
+        # select-apps tab styling - select apps container - top left
         select_apps_title = "[green]Select apps"
         self.query_one(SelectionList).border_title = select_apps_title
 
-        # styling for the select-distro tab - middle
+        # select-apps tab styling - bottom
+        app_desc = self.get_widget_by_id("app-description-container")
+        app_desc.border_title = "[white]App Description[/]"
+
+        # styling for the select-distro tab - bottom
         distro_desc_boxes = self.query(".k8s-distro-description-container")
         for distro_desc_box in distro_desc_boxes:
             distro_desc_box.border_title = "[white]Distro Description[/]"
 
-        app_desc = self.get_widget_by_id("app-description-container")
-        app_desc.border_title = "[white]App Description[/]"
+        # kuebelet config styling - middle
+        kubelet_title = "➕ [green]Extra Args for Kubelet Config"
+        kubelet_cfgs = self.query(".kubelet-config-container")
+        for box in kubelet_cfgs:
+            box.border_title = kubelet_title
 
+        # k3s arg config sytling - middle
         k3s_title = "➕ [green]Extra Args for k3s install script"
         k3s_box = self.query_one(".k3s-config-container")
         k3s_box.border_title = k3s_title

@@ -101,7 +101,7 @@ HelpScreen {
 .k8s-distro-config {
     layout: grid;
     grid-size: 1;
-    grid-rows: 0.8fr 1.3fr 1.3fr 0.6fr;
+    grid-rows: 0.8fr 1fr 1.4fr;
     align: center middle;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
@@ -115,7 +115,7 @@ HelpScreen {
     layout: grid;
     grid-size: 4;
     width: 100%;
-    grid-columns: 1fr 1fr 1fr 1fr;
+    grid-columns: 1.5fr 0.5fr 1fr 0.5fr;
     content-align: center middle;
     height: auto;
     padding-left: 1;
@@ -134,7 +134,7 @@ HelpScreen {
 /* input field to manually increase/decrease number of control plane nodes */
 .nodes-input-control-input {
     height: 3;
-    width: 15%;
+    width: auto;
 }
 
 /* input field to manually increase/decrease number of worker nodes */
@@ -142,7 +142,7 @@ HelpScreen {
     align: center middle;
     content-align: center middle;
     height: 3;
-    width: 15%;
+    width: auto;
 }
 
 /* kubelet config container */
@@ -167,7 +167,7 @@ HelpScreen {
     grid-size: 3;
     width: 100%;
     height: auto;
-    grid-columns: 0.75fr 0.75fr 0.15fr;
+    grid-columns: 0.75fr 0.75fr 0.14fr;
     padding-bottom: 1;
     padding-top: 1;
     padding-right: 1;
@@ -229,7 +229,7 @@ HelpScreen {
     layout: grid;
     grid-size: 2;
     width: 100%;
-    grid-columns: 1fr 0.11fr;
+    grid-columns: 1fr 0.10fr;
 }
 
 .k3s-arg-input {
