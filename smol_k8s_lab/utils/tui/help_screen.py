@@ -18,12 +18,18 @@ class HelpScreen(ModalScreen):
                 ]
 
     def compose(self) -> ComposeResult:
+        link_help = ("open link; terminal dependent, so [gold3]meta"
+                     "[/gold3] can be shift, option, windowsKey, command, or "
+                     "control )")
+
         # tips for new/forgetful users (the maintainers are also forgetful <3)
-        help_dict = {"⬅️,➡️": "navigate tabs",
-                     "tab": "switch to next pane, field, or button",
-                     "shift+tab": "switch to previous pane, field, or button",
+        help_dict = {"left arrow key,right arrow key": "Switch tabs if tabs are selected",
+                     "right arrow key": "complete suggestion in input field",
+                     "tab": "switch to next box, field, or button",
+                     "shift +tab": "switch to previous pane, field, or button",
                      "enter": "press button",
-                     "h,?": "toggle help screen"}
+                     "h,?": "toggle help screen",
+                     "meta+click": link_help}
 
         welcome = ("Use your 🐁 to click anything in this UI ✨ Or use "
                    "these key bindings:")
@@ -38,13 +44,7 @@ class HelpScreen(ModalScreen):
                         key = key.replace(",", "[bright_white],[/]")
                         key = key.replace("+", "[bright_white]+[/]")
                         yield Label(key)
-                        yield Label(help_text)
-
-            yield Label("ℹ️ [dim]Clicking links varies based on your terminal, but"
-                        " is usually one of:\n[gold3]option[/]+[gold3]click[/] or"
-                        " [gold3]command[/]+[gold3]click[/] or [gold3]shift[/]+"
-                        "[gold3]click[/]",
-                        id="mouse-help")
+                        yield Label(help_text, classes="help-text")
 
     def on_mount(self) -> None:
         # styling for the select-apps tab - select apps container - left

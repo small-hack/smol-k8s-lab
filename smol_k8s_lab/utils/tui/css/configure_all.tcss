@@ -46,8 +46,9 @@ HelpScreen {
 }
 
 #help-container {
-    content-align: center middle;
-    padding: 1;
+    align: center middle;
+    padding-left: 1;
+    padding-top: 1;
     width: 80;
     height: 20;
     border: round cornflowerblue 80%;
@@ -56,23 +57,24 @@ HelpScreen {
 
 #help-label {
     color: rgb(168,253,87);
+    align: center middle;
 }
 
 #help-options {
     layout: grid;
     border: $surface 80%;
     align: center middle;
+    width: 100%;
 }
 
 .help-option-row {
-    height: 1;
     align: left middle;
     grid-size: 2;
     grid-columns: 0.2fr 0.9fr;
+    width: 100%;
 }
 
-.mouse-help {
-    column-span: 2;
+.help-text {
     width: auto;
 }
 
@@ -160,24 +162,14 @@ HelpScreen {
     align: center middle;
 }
 
-/* kubelet config header label */
-.kubelet-config-label {
-    background: rgb(65,72,104) 30%;
-    color: rgb(168,253,87);
-    height: auto;
-    width: 100%;
-    padding: 1;
-}
-
 /* kubelet config arg input row */
 .kubelet-arg-input-row {
     layout: grid;
     grid-size: 3;
     width: 100%;
     height: auto;
-    grid-columns: 0.75fr 0.75fr 0.14fr;
+    grid-columns: 0.75fr 0.75fr 0.12fr;
     padding-bottom: 1;
-    padding-top: 1;
     padding-right: 1;
     content-align: center middle;
 }
@@ -195,7 +187,7 @@ HelpScreen {
 }
 
 /* kubelet config arg row delete button */
-.kubelet-arg-del-button {
+.kubelet-arg-input-del-button {
     content-align: center middle;
     height: auto;
     padding: 0;
@@ -206,27 +198,23 @@ HelpScreen {
     content-align: center middle;
     height: auto;
     width: 100%;
+    margin-top: 1;
     margin-left: 1;
     margin-right: 1;
 }
 
-/* k3s/k3d extra args container */
+/* k3s/k3d extra args container that contains the k3s widget */
 .k3s-config-container {
-    content-align: center middle;
+    align: center middle;
     height: 100%;
-    padding-top: 1;
     border: round cornflowerblue;
     background: rgb(35,35,54) 50%;
 }
 
-.k3s-config-label {
-    content-align: left middle;
-    background: rgb(65,72,104) 30%;
-    width: 100%;
-    height: 3;
-    color: rgb(168,253,87);
-    padding-left: 1;
-    margin-bottom: 1;
+/* k3s container itself */
+.k3s-arg-scroll {
+    align: center middle;
+    padding-top: 1;
 }
 
 /* k3s arg row */
@@ -237,17 +225,21 @@ HelpScreen {
     layout: grid;
     grid-size: 2;
     width: 100%;
-    grid-columns: 1fr 0.10fr;
+    grid-columns: 2.4fr 0.2fr;
+    align: center middle;
 }
 
 .k3s-arg-input {
     height: 3;
+    width: 100%;
 }
 
 .k3s-arg-del-button {
     height: 3;
+    width: 100%;
 }
 
+/* button to add another optional k3s extra arg */
 .k3s-arg-add-button {
     width: 100%;
     margin-left: 1;
