@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import ComposeResult, Widget
-from textual.containers import Container, VerticalScroll
-from textual.widgets import Input, Button
+from textual.containers import Container, VerticalScroll, Grid
+from textual.widgets import Input, Button, Label
 from textual.suggester import SuggestFromList
 
 SUGGESTIONS = SuggestFromList((
@@ -28,12 +28,18 @@ class K3sConfig(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
+        yield Label("After adding a new argument, hit enter to save it",
+                    classes="k3s-help-label")
         with VerticalScroll(classes=f"{self.distro} k3s-arg-scroll"):
-            if self.k3s_args:
-                for arg in self.k3s_args:
-                    yield self.generate_row(arg)
+            with Grid(classes="k3s-grid"):
+                if self.k3s_args:
+                    for arg in self.k3s_args:
+                        yield self.generate_half_row(arg)
+                    # just to make the row even if there's only one arg
+                    if len(self.k3s_args) < 2:
+                        yield self.generate_half_row()
 
-            yield Button("➕ Add New Arg",
+            yield Button("➕ [blue]New Argument[/blue]",
                          classes=f"{self.distro} k3s-arg-add-button")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -62,8 +68,8 @@ class K3sConfig(Widget):
 
         # lets you add a new k3s config row
         if "k3s-arg-add-button" in button_classes:
-            event.button.parent.mount(self.generate_row(),
-                                      before=event.button)
+            input_container = self.query_one(".k3s-grid")
+            input_container.mount(self.generate_half_row())
 
     @on(Input.Submitted)
     def update_base_yaml(self, event: Input.Changed) -> None:
@@ -72,16 +78,15 @@ class K3sConfig(Widget):
         if input.value not in yaml:
             yaml.append(input.value)
 
-    def generate_row(self, value: str = "") -> Container:
+    def generate_half_row(self, value: str = "") -> Container:
         """
         create a new input row
         """
-        row_args = {"placeholder": "enter an extra arg for k3s",
+        row_args = {"placeholder": "enter an arg for k3s & press Enter",
                     "classes": f"{self.distro} k3s-arg-input",
                     "suggester": SUGGESTIONS}
         if value:
             row_args["value"] = value
-
-        return Container(Input(**row_args),
-                         Button("🚮", classes="k3s-arg-del-button"),
-                         classes="k3s-arg-row")
+        button = Button("🚮", classes="k3s-arg-del-button")
+        button.tooltip = "Delete the arg to the left of this button"
+        return Container(Input(**row_args), button, classes="k3s-arg-row")
