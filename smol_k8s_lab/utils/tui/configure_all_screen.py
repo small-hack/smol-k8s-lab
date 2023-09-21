@@ -1,23 +1,22 @@
 #!/usr/bin/env python3.11
+from rich.syntax import Syntax
+from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
+                                    DEFAULT_DISTRO_OPTIONS)
+from smol_k8s_lab.utils.tui.help_screen import HelpScreen
+from smol_k8s_lab.utils.tui.app_config import ArgoCDAppInputs
+from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
+from smol_k8s_lab.utils.tui.k3s_config import K3sConfig
+from smol_k8s_lab.utils.tui.node_adjustment import NodeAdjustmentBox
 from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import VerticalScroll, Container
 from textual.binding import Binding
 from textual.events import Mount
-from textual.widgets import (Button, Footer, Header, Label, Pretty, Select,
+from textual.widgets import (Button, Footer, Header, Label, Select,
                              SelectionList, Static, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
-from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
-                                    DEFAULT_DISTRO_OPTIONS)
-from smol_k8s_lab.utils.tui.help_screen import HelpScreen
-from smol_k8s_lab.utils.tui.app_config_pane import ArgoCDAppInputs
-from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
-from smol_k8s_lab.utils.tui.k3s_config import K3sConfig
-from smol_k8s_lab.utils.tui.node_adjustment import NodeAdjustmentBox
-
-from rich.syntax import Syntax
-from yaml import dump, safe_dump
+from yaml import safe_dump
 
 
 class SmolK8sLabConfig(App):
@@ -134,10 +133,10 @@ class SmolK8sLabConfig(App):
                     # top right: vertically scrolling container for all inputs
                     with VerticalScroll(id='app-inputs-pane'):
                         for app, metadata in DEFAULT_APPS.items():
-                            single_app_inputs = VerticalScroll(id=f"{app}-inputs",
-                                                               classes="single-app-inputs")
-                            single_app_inputs.display = False
-                            with single_app_inputs:
+                            app_inputs = VerticalScroll(id=f"{app}-inputs",
+                                                        classes="single-app-inputs")
+                            app_inputs.display = False
+                            with app_inputs:
                                 yield ArgoCDAppInputs(app, metadata)
 
                     # Bottom half of the screen for select-apps TabPane()
@@ -146,10 +145,10 @@ class SmolK8sLabConfig(App):
 
             # tab 3 - confirmation
             with TabPane("Confirm Selections", id="confirm-selection"):
-                with VerticalScroll(id="pretty-confirm"):
-                    rich_highlighted = Syntax(safe_dump(self.usr_cfg), "yaml")
-                    yield Label(rich_highlighted, id="pretty-json")
-                yield Button("🚊 Let's roll!")
+                with Container(id="confirm-tab-container"):
+                    with VerticalScroll(id="pretty-yaml-scroll-container"):
+                        yield Label("", id="pretty-yaml")
+                    yield Button("🚊 Let's roll!", id="confirm-button")
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
@@ -251,8 +250,9 @@ class SmolK8sLabConfig(App):
     @on(TabbedContent.TabActivated)
     def update_yaml_print(self, event: TabbedContent.TabActivated) -> None:
         if event.tab.id == "confirm-selection":
-            rich_highlighted = Syntax(safe_dump(self.usr_cfg), "yaml")
-            self.get_widget_by_id("pretty-json").update(rich_highlighted)
+            rich_highlighted = Syntax(safe_dump(self.usr_cfg), "yaml",
+                                      theme="github-dark")
+            self.get_widget_by_id("pretty-yaml").update(rich_highlighted)
 
 
 def format_description(description: str):
