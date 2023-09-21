@@ -393,7 +393,12 @@ Switch {
 }
 
 /* each app input field */
-.app-input {
+.app-init-input {
+    height: auto;
+    width: 100;
+}
+
+.app-secret-key-input {
     height: auto;
     width: 100;
 }
@@ -461,17 +466,24 @@ Switch {
     width: 100%;
 }
 
-#pretty-confirm {
-    border: round gray;
+#confirm-tab-container {
+    layout: grid;
+    grid-rows: 1.3fr 0.1fr;
+    align: center middle;
+}
+
+#pretty-yaml-scroll-container {
+    border: solid cornflowerblue;
     scrollbar-background: #3a3a3a;
     scrollbar-background-active: #3a3a3a;
     scrollbar-background-hover: #3a3a3a;
     scrollbar-color-hover: orange;
     scrollbar-color: #5f5fd7;
-    layout: grid;
-    align: center middle;
-    height: auto;
+    height: 100%;
 }
 
-#pretty-json {
+#pretty-yaml {
+}
+
+#confirm-button {
 }

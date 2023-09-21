@@ -2,7 +2,7 @@
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal
-from textual.widgets import Label, Static, Switch, Input, TabbedContent
+from textual.widgets import Label, Static, Switch, Input
 
 
 class ArgoCDAppInputs(Static):
@@ -53,7 +53,8 @@ class ArgoCDAppInputs(Static):
 
                     # create input
                     input_keys = {"placeholder": placeholder_grammar(key_label),
-                                  "classes": f"app-input {self.app_name}"}
+                                  "classes": f"app-secret-key-input {self.app_name}",
+                                  "name": secret_key}
                     if value:
                         input_keys['value'] = value
 
@@ -71,7 +72,7 @@ class ArgoCDAppInputs(Static):
                     for init_key, init_value in init_values.items():
                         # create input
                         input_keys = {"placeholder": placeholder_grammar(init_key),
-                                      "classes": f"app-input {self.app_name}"}
+                                      "classes": f"app-init-input {self.app_name}"}
                         if value:
                             input_keys['value'] = init_value
 
@@ -92,17 +93,33 @@ class ArgoCDAppInputs(Static):
                                        classes=f"{self.app_name} argo-config-label"),
                                  Input(placeholder=f"Please enter a {key}",
                                        value=argo_params[key],
+                                       name=key,
                                        classes=f"{self.app_name} argo-config-input"),
                                  classes=f"{self.app_name} argo-config-row")
 
     @on(Switch.Changed)
-    @on(TabbedContent.TabActivated)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
         truthy_value = event.value
-        app = event.switch.id.split("-init-switch")[0]
-        app_inputs = self.get_widget_by_id(f"{app}-init-inputs")
-        app_inputs.display = truthy_value
+        # wrapped in a try except as some init apps don't need inputs
+        try:
+            app_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
+            app_inputs.display = truthy_value
+        except Exception as e:
+            if "NoMatches" in str(e):
+                pass
+        parent_app_yaml = event.switch.ancestors[-1].usr_cfg['apps'][self.app_name]
+        parent_app_yaml['init']['enabled'] = truthy_value
 
+    @on(Input.Changed)
+    def update_base_yaml(self, event: Input.Changed) -> None:
+        input = event.input
+        parent_app_yaml = input.ancestors[-1].usr_cfg['apps'][self.app_name]
+        if "argo-config-input" in input.classes:
+            parent_app_yaml['argo'][input.name] = input.value
+        elif "app-secret-key-input" in input.classes:
+            parent_app_yaml['argo']['secret_keys'][input.name] = input.value
+        elif "app-init-input" in input.classes:
+            parent_app_yaml['init']['values'][input.name] = input.value
 
 def placeholder_grammar(key: str):
     article = ""

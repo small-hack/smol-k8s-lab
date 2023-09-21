@@ -129,7 +129,7 @@ apps:
       smol-k8s-lab installs Argo CD with helm initially to support initial configuration of your admin user and disabling of dex. After your OIDC provider is configured, Argo CD begins managing itself using the below configured Argo CD repo.
     # Initialization of the app through smol-k8s-lab
     init:
-      # Switch to false if you don't want to use the argo_cd_appset_secret_plugin
+      # Switch to false if you don't want to use the appset_secret_plugin
       # but then you can't use the default repo
       enabled: true
     argo:
@@ -156,7 +156,7 @@ apps:
   appset_secret_plugin:
     enabled: true
     description: |
-      Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [orange]argo.repo[/orange] and default enabled if ArgoCD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
+      Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [gold3]argo.repo[/gold3] and default enabled if ArgoCD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
 
       Learn more: [link=https://github.com/small-hack/appset-secret-plugin]https://github.com/small-hack/appset-secret-plugin[/link]
     # Initialization of the app through smol-k8s-lab

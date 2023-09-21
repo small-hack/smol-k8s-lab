@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.11
+from textual import on
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll, Horizontal
 from textual.widgets import Input, Button, Static
@@ -45,6 +46,10 @@ class KubeletConfig(Static):
         # lets you delete a kubelet-arg row
         if "kubelet-arg-input-del-button" in button_classes:
             parent_row = event.button.parent
+            input_key = parent_row.children[0].value
+            if input_key:
+                yaml = event.button.ancestors[-1].usr_cfg['k8s_distros']
+                yaml[self.distro]['kubelet_extra_args'].pop(input_key)
             parent_row.remove()
 
         # add a new row of kubelet arg inputs before the add button
@@ -52,8 +57,30 @@ class KubeletConfig(Static):
             parent_container = event.button.parent
             parent_container.mount(self.generate_row(), before=event.button)
 
-    def generate_row(self, param: str = "", value: str = "") -> None:
-        """ 
+    @on(Input.Submitted)
+    def update_base_yaml(self, event: Input.Changed) -> None:
+        # get the parent row and two input fields
+        parent_row = event.input.parent
+        input_key = parent_row.children[0].value
+        input_value = parent_row.children[1].value
+        try:
+            input_value = int(input_value)
+        except ValueError:
+            pass
+
+        # grab the user's yaml file from the parent app
+        root_yaml = event.input.ancestors[-1].usr_cfg['k8s_distros'][self.distro]
+        extra_args = root_yaml['kubelet_extra_args']
+
+        if "kubelet-arg-input-key" in event.input.classes:
+            if event.input.value not in extra_args.keys():
+                extra_args[event.input.value] = input_value
+
+        elif "kubelet-arg-input-value" in event.input.classes:
+            extra_args[input_key] = event.input.value
+
+    def generate_row(self, param: str = "", value: str = "") -> Horizontal:
+        """
         generate a new input field set
         """
         # base class for all the below object
