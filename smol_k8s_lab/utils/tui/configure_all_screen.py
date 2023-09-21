@@ -13,10 +13,21 @@ from textual.containers import VerticalScroll, Container
 from textual.binding import Binding
 from textual.events import Mount
 from textual.widgets import (Button, Footer, Header, Label, Select,
-                             SelectionList, Static, TabbedContent, TabPane)
+                             SelectionList, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from yaml import safe_dump
+
+new_app = {"enabled": True,
+           "description": "",
+           "argo": {
+               "secret_keys": {},
+               "repo": "",
+               "ref": "",
+               "namespace": "",
+               "project_source_repos": []
+               }
+           }
 
 
 class SmolK8sLabConfig(App):
@@ -54,16 +65,15 @@ class SmolK8sLabConfig(App):
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
             with TabPane("Select Kubernetes distro", id="select-distro"):
-                select_prompt = ("[magenta]Select Kubernetes distro from this "
-                                 f"dropdown (default: {DEFAULT_DISTRO})")
-
                 # create all distro selection choices for the top of tabbed content
                 my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
-                yield Select(((line, line) for line in my_options),
-                             prompt=select_prompt,
-                             id="distro-drop-down",
-                             allow_blank=False,
-                             value=DEFAULT_DISTRO)
+                d_select =  Select(((line, line) for line in my_options),
+                                        id="distro-drop-down",
+                                        allow_blank=False,
+                                        value=DEFAULT_DISTRO)
+
+                d_select.tooltip = DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description']
+                yield d_select
 
                 for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
                     # only display the default distro for this OS
@@ -107,14 +117,6 @@ class SmolK8sLabConfig(App):
                             yield Container(K3sConfig(distro, k3s_args),
                                             classes=k3s_box_classes)
 
-                        # description box
-                        desc = DEFAULT_DISTRO_OPTIONS[distro]['description']
-                        desc_class = f"{distro} k8s-distro-description-container"
-                        with Container(classes=desc_class):
-                            formatted_description = format_description(desc)
-                            yield Static(f"{formatted_description}",
-                                         classes=f'{distro} k8s-distro-description')
-
             # tab 2 - allows selection of different argo cd apps to run in k8s
             with TabPane("Select Applications", id="select-apps"):
                 full_list = []
@@ -128,7 +130,14 @@ class SmolK8sLabConfig(App):
                 # top of the screen in second tab
                 with Container(id="select-apps-container"):
                     # top left: the SelectionList of k8s applications
-                    yield selection_list
+                    with VerticalScroll(id="select-add-apps"):
+                        yield selection_list
+
+                        # this button let's you create a new app
+                        new_button = Button("[blue]♡ New App[/]", id="new-app-button")
+                        new_button.tooltip = "Click me to add your own Argo CD app from an existing repo"
+                        with Container(id="new-app-button-box"):
+                            yield new_button
 
                     # top right: vertically scrolling container for all inputs
                     with VerticalScroll(id='app-inputs-pane'):
@@ -239,6 +248,8 @@ class SmolK8sLabConfig(App):
         distro_obj.display = True
         self.usr_cfg['k8s_distros'][distro]['enabled'] = True
 
+        event.select.tooltip = self.usr_cfg['k8s_distros'][distro]["description"]
+
         self.previous_distro = distro
 
     def action_request_help(self) -> None:
@@ -254,6 +265,13 @@ class SmolK8sLabConfig(App):
                                       theme="github-dark")
             self.get_widget_by_id("pretty-yaml").update(rich_highlighted)
 
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        get pressed "new app" button
+        """
+        if event.button.id == "new-app-button":
+            # TODO: FILL THIS OUT
+            return
 
 def format_description(description: str):
     """

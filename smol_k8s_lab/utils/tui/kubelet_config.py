@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import VerticalScroll, Horizontal
-from textual.widgets import Input, Button, Static
+from textual.containers import VerticalScroll, Container
+from textual.widgets import Input, Button, Static, Label
 from textual.suggester import SuggestFromList
 
 SUGGESTIONS = SuggestFromList((
@@ -27,6 +27,9 @@ class KubeletConfig(Static):
 
     def compose(self) -> ComposeResult:
         # kubelet config section
+        help = ("Add key value pairs to pass to your kubelet config."
+                " Press [b]Enter[/b] to save [i]each[/i] input field.")
+        yield Label(help, classes="k3s-help-label")
         with VerticalScroll(classes=f"kubelet-config-scroll {self.distro}",
                             id=f"{self.distro}-kubelet-config-container"):
 
@@ -34,7 +37,7 @@ class KubeletConfig(Static):
                 for key, value in self.kubelet_extra_args.items():
                     yield self.generate_row(key, str(value))
 
-            yield Button("➕ Add New Arg",
+            yield Button("➕ [blue]Parameter[/blue]",
                          classes=f"{self.distro} kubelet-arg-add-button")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -79,7 +82,7 @@ class KubeletConfig(Static):
         elif "kubelet-arg-input-value" in event.input.classes:
             extra_args[input_key] = event.input.value
 
-    def generate_row(self, param: str = "", value: str = "") -> Horizontal:
+    def generate_row(self, param: str = "", value: str = "") -> Container:
         """
         generate a new input field set
         """
@@ -106,5 +109,5 @@ class KubeletConfig(Static):
         del_button = Button("🚮", classes=f"{row_class}-del-button")
         del_button.tooltip = "Delete this kubelet parameter"
 
-        return Horizontal(param_input, param_value_input, del_button,
-                          classes=f"{row_class}-row")
+        return Container(param_input, param_value_input, del_button,
+                         classes=f"{row_class}-row")
