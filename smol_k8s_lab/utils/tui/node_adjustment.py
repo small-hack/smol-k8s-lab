@@ -1,7 +1,9 @@
 #!/usr/bin/env python3.11
+from textual import on
 from textual.app import ComposeResult, Widget
 from textual.containers import Horizontal
-from textual.widgets import Label, Input
+from textual.widgets import Label, Input, Pretty
+from textual.validation import Function, Number, ValidationResult, Validator
 
 
 NO_NODE_TXT = (
@@ -40,18 +42,21 @@ class NodeAdjustmentBox(Widget):
             disabled = False
 
         with node_input_row:
-            yield Label("control plane nodes:",
-                        classes=f"{node_class}-label")
+            yield Label("control plane:", classes=f"{node_class}-label")
             yield Input(value=self.control_plane_nodes,
                         placeholder='1',
                         classes=f"{node_class}-control-input",
+                        validators=[Number(minimum=1, maximum=50)],
                         disabled=disabled)
 
-            yield Label("worker nodes:",
-                        classes=f"{node_class}-label")
+            worker_label = Label("workers:", classes=f"{node_class}-label")
+            worker_label.tooltip = ("If workers is 0, the control plane acts "
+                                    "as the worker.")
+            yield worker_label
             yield Input(value=self.worker_nodes,
                         placeholder='0',
                         classes=f"{node_class}-worker-input",
+                        validators=[Number(minimum=0, maximum=100)],
                         disabled=disabled)
 
     def on_mount(self) -> None:

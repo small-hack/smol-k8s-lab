@@ -16,6 +16,9 @@ from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
 from smol_k8s_lab.utils.tui.k3s_config import K3sConfig
 from smol_k8s_lab.utils.tui.node_adjustment import NodeAdjustmentBox
 
+from rich.syntax import Syntax
+from yaml import dump, safe_dump
+
 
 class SmolK8sLabConfig(App):
     """
@@ -43,9 +46,8 @@ class SmolK8sLabConfig(App):
         """
         Compose app with tabbed content.
         """
-        header = Header()
-        header.tall = True
-        yield header
+        # header to be cute
+        yield Header()
         # Footer to show keys
         yield Footer()
 
@@ -71,7 +73,8 @@ class SmolK8sLabConfig(App):
                     else:
                         display = False
 
-                    distro_box = VerticalScroll(classes=f"k8s-distro-config {distro}")
+                    distro_box = VerticalScroll(classes=f"k8s-distro-config {distro}",
+                                                id=f"{distro}-box")
                     distro_box.display = display
 
                     with distro_box:
@@ -131,8 +134,7 @@ class SmolK8sLabConfig(App):
                     # top right: vertically scrolling container for all inputs
                     with VerticalScroll(id='app-inputs-pane'):
                         for app, metadata in DEFAULT_APPS.items():
-                            id_name = app.replace("_", "-") + "-inputs"
-                            single_app_inputs = VerticalScroll(id=id_name,
+                            single_app_inputs = VerticalScroll(id=f"{app}-inputs",
                                                                classes="single-app-inputs")
                             single_app_inputs.display = False
                             with single_app_inputs:
@@ -145,8 +147,9 @@ class SmolK8sLabConfig(App):
             # tab 3 - confirmation
             with TabPane("Confirm Selections", id="confirm-selection"):
                 with VerticalScroll(id="pretty-confirm"):
-                    yield Pretty(self.usr_cfg)
-                    yield Button("🚊 Let's roll!")
+                    rich_highlighted = Syntax(safe_dump(self.usr_cfg), "yaml")
+                    yield Label(rich_highlighted, id="pretty-json")
+                yield Button("🚊 Let's roll!")
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
@@ -173,7 +176,7 @@ class SmolK8sLabConfig(App):
             distro_desc_box.border_title = "[white]Distro Description[/]"
 
         # kuebelet config styling - middle
-        kubelet_title = "➕ [green]Extra Args for Kubelet Config"
+        kubelet_title = "➕ [green]Extra Parameters for Kubelet"
         kubelet_cfgs = self.query(".kubelet-config-container")
         for box in kubelet_cfgs:
             box.border_title = kubelet_title
@@ -184,10 +187,9 @@ class SmolK8sLabConfig(App):
         k3s_box.border_title = k3s_title
 
     @on(Mount)
-    @on(SelectionList.SelectedChanged)
     @on(SelectionList.SelectionHighlighted)
     @on(TabbedContent.TabActivated)
-    def update_selected_app_blurb(self) -> None:
+    def update_highlighted_app_view(self) -> None:
         selection_list = self.query_one(SelectionList)
 
         # only the highlighted index
@@ -206,31 +208,37 @@ class SmolK8sLabConfig(App):
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
         if self.previous_app:
-            dashed_app = self.previous_app.replace("_","-")
-            app_input = self.get_widget_by_id(f"{dashed_app}-inputs")
+            app_input = self.get_widget_by_id(f"{self.previous_app}-inputs")
             app_input.display = False
 
-        dashed_app = highlighted_app.replace("_","-")
-        app_input = self.get_widget_by_id(f"{dashed_app}-inputs")
+        app_input = self.get_widget_by_id(f"{highlighted_app}-inputs")
         app_input.display = True
 
         self.previous_app = highlighted_app
 
+    @on(SelectionList.SelectionToggled)
+    def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:
+        selection_list = self.query_one(SelectionList)
+        app = selection_list.get_option_at_index(event.selection_index).value
+        if app in selection_list.selected:
+            self.usr_cfg['apps'][app]['enabled'] = True
+        else:
+            self.usr_cfg['apps'][app]['enabled'] = False
+
     @on(Select.Changed)
-    def update_k8s_distro_tab_view(self, event: Select.Changed) -> None:
+    def update_k8s_distro(self, event: Select.Changed) -> None:
         distro = str(event.value)
 
+        # disable display on previous distro
         if self.previous_distro:
-            distro_class_objects = self.query(f".{self.previous_distro}")
-            for distro_obj in distro_class_objects:
-                distro_obj.display = False
-
-        distro_class_objects = self.query(f".{distro}")
+            distro_obj = self.get_widget_by_id(f"{self.previous_distro}-box")
+            distro_obj.display = False
+            self.usr_cfg['k8s_distros'][self.previous_distro]['enabled'] = False
 
         # change display to True if the distro is selected
-        if distro_class_objects:
-            for distro_obj in distro_class_objects:
-                distro_obj.display = True
+        distro_obj = self.get_widget_by_id(f"{distro}-box")
+        distro_obj.display = True
+        self.usr_cfg['k8s_distros'][distro]['enabled'] = True
 
         self.previous_distro = distro
 
@@ -239,6 +247,12 @@ class SmolK8sLabConfig(App):
         if the user presses 'h' or '?', show the help modal screen
         """
         self.push_screen(HelpScreen())
+
+    @on(TabbedContent.TabActivated)
+    def update_yaml_print(self, event: TabbedContent.TabActivated) -> None:
+        if event.tab.id == "confirm-selection":
+            rich_highlighted = Syntax(safe_dump(self.usr_cfg), "yaml")
+            self.get_widget_by_id("pretty-json").update(rich_highlighted)
 
 
 def format_description(description: str):
