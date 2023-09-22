@@ -489,6 +489,7 @@ Switch.-on > .switch--slider {
 #app-description {
    width: 100%;
    padding-left: 1;
+   padding-right: 1;
    padding-top: 1;
 }
 
