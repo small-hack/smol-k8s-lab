@@ -104,7 +104,7 @@ class ArgoCDAppInputs(Static):
                 switch.tooltip = f"Initialization not supported for {self.app_name}"
             yield switch
 
-        if init and secret_keys:
+        if init or secret_keys:
             # container for all inputs associated with one app
             app_inputs_class = f"{self.app_name} app-all-inputs-container"
             inputs_container = Container(id=f"{self.app_name}-init-inputs",
@@ -113,23 +113,25 @@ class ArgoCDAppInputs(Static):
                 inputs_container.display = False
 
             with inputs_container:
-                # iterate through the app's secret keys
-                for secret_key, value in secret_keys.items():
-                    key_label = secret_key.replace("_", " ")
+                if secret_keys:
+                    # iterate through the app's secret keys
+                    for secret_key, value in secret_keys.items():
+                        key_label = secret_key.replace("_", " ")
 
-                    # create input
-                    input_keys = {"placeholder": placeholder_grammar(key_label),
-                                  "classes": f"app-secret-key-input {self.app_name}",
-                                  "name": secret_key}
-                    if value:
-                        input_keys['value'] = value
+                        # create input
+                        input_class = f"app-secret-key-input {self.app_name}"
+                        input_keys = {"placeholder": placeholder_grammar(key_label),
+                                      "classes": input_class,
+                                      "name": secret_key}
+                        if value:
+                            input_keys['value'] = value
 
-                    # create the input row
-                    secret_label = Label(f"{key_label}:",
-                                         classes=f"app-input-label {self.app_name}")
-                    secret_label.tooltip = "added to k8s AppSet Plugin secret"
-                    yield Horizontal(secret_label, Input(**input_keys),
-                                     classes=f"app-input-row {self.app_name}")
+                        # create the input row
+                        secret_label = Label(f"{key_label}:",
+                                             classes=f"app-input-label {self.app_name}")
+                        secret_label.tooltip = "added to k8s AppSet Plugin secret"
+                        yield Horizontal(secret_label, Input(**input_keys),
+                                         classes=f"app-input-row {self.app_name}")
 
                 # these are special values that are only set up via
                 # smol-k8s-lab and do not live in a secret on the k8s cluster
@@ -139,7 +141,7 @@ class ArgoCDAppInputs(Static):
                         # create input
                         input_keys = {"placeholder": placeholder_grammar(init_key),
                                       "classes": f"app-init-input {self.app_name}"}
-                        if value:
+                        if init_value:
                             input_keys['value'] = init_value
 
                         # create the input row
@@ -228,6 +230,9 @@ def placeholder_grammar(key: str):
 
     # make sure this isn't a plural key
     plural = key.endswith('s')
+
+    if key == "address_pool":
+        plural = True
 
     # create a gramatically corrrect placeholder
     if key.startswith(('o','a','e')) and not plural:
