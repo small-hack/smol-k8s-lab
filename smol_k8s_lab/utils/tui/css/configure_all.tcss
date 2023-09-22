@@ -279,12 +279,12 @@ HelpScreen {
 
 /* BEGIN SECOND TAB */
 
-/* Matches the whole top part of screen in 2nd tab content container */
+/* Matches the WHOLE TOP part of screen in 2nd tab content container */
 #select-apps-container {
    layout: grid;
    grid-size: 2;
    grid-columns: 0.5fr 1.2fr;
-   grid-rows: 1.5fr 0.5fr;
+   grid-rows: 1.5fr 0.4fr;
 }
 
 /* matches only the left hand side of top half of screen */
@@ -295,6 +295,7 @@ HelpScreen {
    scrollbar-color-hover: orange;
    scrollbar-color: #5f5fd7;
    border: round cornflowerblue;
+   background: rgb(35,35,54) 60%;
 }
 
 #left-apps-container {
@@ -314,7 +315,7 @@ HelpScreen {
 
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
-   background: rgb(35,35,54) 50%;
+   background: rgb(35,35,54) 40%;
    width: 100%;
 }
 
