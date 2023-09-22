@@ -503,8 +503,7 @@ Switch.-on > .switch--slider {
 
 #confirm-tab-container {
    layout: grid;
-   grid-rows: 0.1fr 1fr 0.1fr;
-   align: center middle;
+   grid-rows: 1.2fr 0.1fr;
 }
 
 #pretty-yaml-scroll-container {
@@ -517,8 +516,10 @@ Switch.-on > .switch--slider {
    height: 100%;
 }
 
-#pretty-yaml {
-}
-
 #confirm-button {
+   width: 100%;
+   margin-top: 1;
+   background: rgb(123,120,191) 10%;
+   border-top: tall rgb(65,72,104) 60%;
+   border-bottom: tall rgb(0,0,0) 30%;
 }
