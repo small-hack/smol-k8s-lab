@@ -294,10 +294,17 @@ HelpScreen {
    scrollbar-background-hover: #3a3a3a;
    scrollbar-color-hover: orange;
    scrollbar-color: #5f5fd7;
+   border: round cornflowerblue;
+}
+
+#left-apps-container {
+   layout: grid;
+   grid-rows: 0.3fr 0.1fr 0.1fr;
 }
 
 #new-app-button-box {
    align: center middle;
+   margin-top: 1;
 }
 
 #new-app-input-box {
@@ -308,14 +315,6 @@ HelpScreen {
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
    background: rgb(35,35,54) 50%;
-   border: round cornflowerblue;
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
-   padding-top: 1;
-   padding-bottom: 1;
    width: 100%;
 }
 
