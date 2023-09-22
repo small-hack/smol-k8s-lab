@@ -143,7 +143,6 @@ class SmolK8sLabConfig(App):
             # tab 3 - confirmation
             with TabPane("Confirm Selections", id="confirm-selection"):
                 with Container(id="confirm-tab-container"):
-                    yield Label("Below are all the values you configured:")
                     with VerticalScroll(id="pretty-yaml-scroll-container"):
                         yield Label("", id="pretty-yaml")
                     yield Button("🚊 Let's roll!", id="confirm-button")
@@ -160,8 +159,7 @@ class SmolK8sLabConfig(App):
         self.sub_title = "now with more 🦑"
 
         # select-apps tab styling - select apps container - top left
-        select_apps_title = "[green]Select apps"
-        self.query_one(SelectionList).border_title = select_apps_title
+        self.query_one(SelectionList).border_title = "[green]Select apps"
 
         # select-apps tab styling - bottom
         app_desc = self.get_widget_by_id("app-description-container")
@@ -180,8 +178,12 @@ class SmolK8sLabConfig(App):
 
         # k3s arg config sytling - middle
         k3s_title = "➕ [green]Extra Args for k3s install script"
-        k3s_box = self.query_one(".k3s-config-container")
-        k3s_box.border_title = k3s_title
+        self.query_one(".k3s-config-container").border_title = k3s_title
+
+        # confirm box - last tab
+        confirm_box = self.get_widget_by_id("pretty-yaml-scroll-container")
+        confirm_box.border_title = "All the configured values"
+
 
     @on(Mount)
     @on(SelectionList.SelectionHighlighted)
