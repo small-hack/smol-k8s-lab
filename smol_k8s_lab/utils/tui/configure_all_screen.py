@@ -120,8 +120,9 @@ class SmolK8sLabConfig(App):
                 # top of the screen in second tab
                 with Container(id="select-apps-container"):
                     # top left: the SelectionList of k8s applications
-                    with VerticalScroll(id="select-add-apps"):
-                        yield selection_list
+                    with Container(id="left-apps-container"):
+                        with VerticalScroll(id="select-add-apps"):
+                            yield selection_list
 
                         # this button let's you create a new app
                         with Container(id="new-app-input-box"):
@@ -159,7 +160,7 @@ class SmolK8sLabConfig(App):
         self.sub_title = "now with more 🦑"
 
         # select-apps tab styling - select apps container - top left
-        self.query_one(SelectionList).border_title = "[green]Select apps"
+        self.get_widget_by_id("select-add-apps").border_title = "[green]Select apps"
 
         # select-apps tab styling - bottom
         app_desc = self.get_widget_by_id("app-description-container")

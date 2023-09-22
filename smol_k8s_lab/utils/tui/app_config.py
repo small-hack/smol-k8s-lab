@@ -36,8 +36,9 @@ class ArgoCDNewInput(Static):
         parent_app.usr_cfg['apps'][underscore_app_name] = {
             "enabled": True,
             "description": "",
+            "init": {"enabled": True},
             "argo": {
-                "secret_keys": {},
+                "secret_keys": {"hostname": ""},
                 "repo": "",
                 "path": "",
                 "ref": "",
@@ -129,7 +130,7 @@ class ArgoCDAppInputs(Static):
                         # create the input row
                         secret_label = Label(f"{key_label}:",
                                              classes=f"app-input-label {self.app_name}")
-                        secret_label.tooltip = "added to k8s AppSet Plugin secret"
+                        secret_label.tooltip = "added to AppSet Plugin k8s secret"
                         yield Horizontal(secret_label, Input(**input_keys),
                                          classes=f"app-input-row {self.app_name}")
 
@@ -194,6 +195,11 @@ class ArgoCDAppInputs(Static):
                             value=", ".join(repos),
                             name="source_repos",
                             classes=f"{self.app_name} argo-config-input argo-proj-repo")
+
+    def add_new_input_row(self, delete_button: bool = False):
+        """
+        add a new input row for secret stuff
+        """
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
