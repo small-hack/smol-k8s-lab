@@ -4,14 +4,17 @@ NAME: constants.py
 DESC: everything to do with initial configuration of a new environment
 """
 
-from importlib.metadata import version as get_version
 from getpass import getuser
+from importlib.metadata import version as get_version
 from os import environ, path, uname
-from shutil import copyfile
 from pathlib import Path
-
+# import ruamel.yaml
+from shutil import copyfile
 import yaml
-from xdg_base_dirs import xdg_cache_home, xdg_config_home
+from xdg_base_dirs import xdg_cache_home, xdg_config_home 
+
+# if using ruamel.yaml
+# yaml = ruamel.yaml.YAML()
 
 # env
 SYSINFO = uname()

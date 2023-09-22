@@ -75,7 +75,6 @@ k8s_distros:
       control_plane: 1
       workers: 0
 
-
 # this is useful for learning smol-k8s-lab or verifying your configuration
 interactive:
   # hide bottom help bar
@@ -305,6 +304,10 @@ apps:
       External Secrets Operator is a Kubernetes operator that integrates external secret management systems like HashiCorp Vault, CyberArk Conjur, Bitwarden, Gitlab, and many more. The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
 
       Learn more: [link=https://external-secrets.io/latest/]https://external-secrets.io/latest/[/link]
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to true to provide your own secret keys for a custom arogo.repo
+      enabled: false
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -318,6 +321,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
         source_repos:
@@ -367,6 +372,10 @@ apps:
     enabled: true
     description: |
       deploy ingress-nginx and cert-manager as one argocd app of apps and project in the same namespace
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to true to provide your own secret keys for a custom arogo.repo
+      enabled: false
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -377,6 +386,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "ingress"
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -458,6 +469,8 @@ apps:
     init:
       enabled: true
     argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -521,7 +534,13 @@ apps:
       Learn more: [link=https://kubevirt.io/]https://kubevirt.io/[/link]
     # default disabled while a helm chart is being actively developed
     enabled: false
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to true to provide your own secret keys for a custom arogo.repo
+      enabled: false
     argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -544,7 +563,13 @@ apps:
       learn more: [link=https://kyverno.io/]https://kyverno.io/[/link]
     # enable kyverno, for k8s native policy management
     enabled: false
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # Switch to true to provide your own secret keys for a custom arogo.repo
+      enabled: false
     argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -649,6 +674,8 @@ apps:
       values:
         address_pool: []
     argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
