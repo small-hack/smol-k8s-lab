@@ -146,9 +146,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "argocd"
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
-      project_source_repos:
-        - https://argoproj.github.io/argo-helm
-        - https://small-hack.github.io/appset-secret-plugin
+      project:
+        source_repos:
+          - https://argoproj.github.io/argo-helm
+          - https://small-hack.github.io/appset-secret-plugin
+        destination:
+          namespaces:
+            - argocd
 
   appset_secret_plugin:
     # Required if you want to use the default small-hack/argocd-apps argo.repo and
@@ -178,8 +182,12 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "argocd"
-      project_source_repos:
-        - https://small-hack.github.io/appset-secret-plugin
+      project:
+        source_repos:
+          - https://small-hack.github.io/appset-secret-plugin
+        destination:
+          namespaces:
+            - argocd
 
   bitwarden_eso_provider:
     enabled: true
@@ -209,9 +217,14 @@ apps:
       # namespace to install the k8s app in
       namespace: "external-secrets"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        # where the helm chart lives. Go here for more info
-        - "https://jessebot.github.io/bitwarden-eso-provider"
+      project:
+        source_repos:
+          # where the helm chart lives. Go here for more info
+          - "https://jessebot.github.io/bitwarden-eso-provider"
+        destination:
+          namespaces:
+            - argocd
+            - external-secrets
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by ArgoCD if you enable it below
@@ -248,8 +261,12 @@ apps:
       # namespace to install the k8s app in
       namespace: "ingress"
       # source repos for cert-manager CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - https://charts.jetstack.io
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+        destination:
+          namespaces:
+            - argocd
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by ArgoCD if you enable it below
@@ -274,8 +291,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "cilium"
       # source repos for Argo CD cilium Project
-      project_source_repos:
-        - "https://helm.cilium.io/"
+      project:
+        source_repos:
+          - "https://helm.cilium.io/"
+        destination:
+          namespaces:
+            - argocd
+            - cilium
 
   external_secrets_operator:
     enabled: true
@@ -297,10 +319,14 @@ apps:
       # namespace to install the k8s app in
       namespace: "external-secrets"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        - "https://charts.external-secrets.io"
-        # you can remove this one if you're not using bitwarden to store your k8s secrets
-        - "https://jessebot.github.io/bitwarden-eso-provider"
+      project:
+        source_repos:
+          - "https://charts.external-secrets.io"
+          # you can remove this one if you're not using bitwarden to store your k8s secrets
+          - "https://jessebot.github.io/bitwarden-eso-provider"
+        destination:
+          namespaces:
+            - argocd
 
   infisical:
     enabled: false
@@ -326,9 +352,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "infisical"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
+      project:
+        source_repos:
+          - "registry-1.docker.io"
+          - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
+        destination:
+          namespaces:
+            - argocd
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by ArgoCD if you enable it below
@@ -348,11 +378,15 @@ apps:
       # namespace to install the k8s app in
       namespace: "ingress"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - https://charts.jetstack.io
-        - "https://kubernetes.github.io/ingress-nginx"
-        - "https://jessebot.github.io/vouch-helm-chart"
-        - "https://github.com/kubernetes/ingress-nginx"
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+          - "https://kubernetes.github.io/ingress-nginx"
+          - "https://jessebot.github.io/vouch-helm-chart"
+          - "https://github.com/kubernetes/ingress-nginx"
+        destination:
+          namespaces:
+            - argocd
 
   k8tz:
     enabled: false
@@ -376,8 +410,12 @@ apps:
       # namespace to install the k8s app in
       namespace: "k8tz"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        - "https://k8up-io.github.io/k8up"
+      project:
+        source_repos:
+          - "https://k8up-io.github.io/k8up"
+        destination:
+          namespaces:
+            - argocd
 
   k8up:
     enabled: true
@@ -402,9 +440,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "k8up"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        - "https://k8up-io.github.io/k8up"
-        - "https://github.com/k8up-io/k8up.git"
+      project:
+        source_repos:
+          - "https://k8up-io.github.io/k8up"
+          - "https://github.com/k8up-io/k8up.git"
+        destination:
+          namespaces:
+            - argocd
 
   kepler:
     description: |
@@ -425,8 +467,12 @@ apps:
       # namespace to install the k8s app in
       namespace: "kepler"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "https://sustainable-computing-io.github.io/kepler-helm-chart"
+      project:
+        source_repos:
+          - "https://sustainable-computing-io.github.io/kepler-helm-chart"
+        destination:
+          namespaces:
+            - argocd
 
   keycloak:
     enabled: false
@@ -459,8 +505,12 @@ apps:
       # namespace to install the k8s app in
       namespace: "keycloak"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
+      project:
+        source_repos:
+          - "registry-1.docker.io"
+        destination:
+          namespaces:
+            - argocd
 
   kubevirt:
     description: |
@@ -481,7 +531,11 @@ apps:
       # namespace to install the k8s app in
       namespace: "kubevirt"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos: []
+      project:
+        source_repos: []
+        destination:
+          namespaces:
+            - argocd
 
   kyverno:
     description: |
@@ -500,7 +554,11 @@ apps:
       # namespace to install the k8s app in
       namespace: "kyvero"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos: []
+      project:
+        source_repos: []
+        destination:
+          namespaces:
+            - argocd
 
   mastodon:
     description: |
@@ -530,9 +588,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "social"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://jessebot.github.io/mastodon-helm-chart"
+      project:
+        source_repos:
+          - "registry-1.docker.io"
+          - "https://jessebot.github.io/mastodon-helm-chart"
+        destination:
+          namespaces:
+            - argocd
 
   matrix:
     description: |
@@ -560,9 +622,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "matrix"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://jessebot.github.io/matrix-chart"
+      project:
+        source_repos:
+          - "registry-1.docker.io"
+          - "https://jessebot.github.io/matrix-chart"
+        destination:
+          namespaces:
+            - argocd
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by ArgoCD if you enable it below
@@ -592,8 +658,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "metallb-system"
       # source repos for Argo CD metallb Project (in addition to metallb.argo.repo)
-      project_source_repos:
-        - "https://github.com/metallb/metallb.git"
+      project:
+        source_repos:
+          - "https://github.com/metallb/metallb.git"
+        destination:
+          namespaces:
+            - argocd
+            - "metallb-system"
 
   minio:
     enabled: false
@@ -619,7 +690,11 @@ apps:
       # namespace to install the k8s app in
       namespace: "minio"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos: []
+      project:
+        source_repos: []
+        destination:
+          namespaces:
+            - argocd
 
   nextcloud:
     enabled: false
@@ -657,9 +732,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "nextcloud"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://nextcloud.github.io/helm"
+      project:
+        source_repos:
+          - "registry-1.docker.io"
+          - "https://nextcloud.github.io/helm"
+        destination:
+          namespaces:
+            - argocd
 
   prometheus:
     description: |
@@ -696,10 +775,16 @@ apps:
       # namespace to install the k8s app in
       namespace: "prometheus"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://github.com/prometheus-community/helm-charts.git"
-        - "https://prometheus-community.github.io/helm-charts"
+      project:
+        source_repos:
+          - "registry-1.docker.io"
+          - "https://github.com/prometheus-community/helm-charts.git"
+          - "https://prometheus-community.github.io/helm-charts"
+        destination:
+          namespaces:
+            - argocd
+            - prometheus
+            - kube-system
 
   vouch:
     description: |
@@ -736,8 +821,12 @@ apps:
       # namespace to install the k8s app in
       namespace: "ingress"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - https://jessebot.github.io/vouch-helm-chart
+      project:
+        source_repos:
+          - https://jessebot.github.io/vouch-helm-chart
+        destination:
+          namespaces:
+            - argocd
 
   zitadel:
     enabled: true
@@ -784,8 +873,13 @@ apps:
       # namespace to install the k8s app in
       namespace: "zitadel"
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "https://charts.zitadel.com"
-        - "https://zitadel.github.io/zitadel-charts"
-        - "https://charts.cockroachdb.com/"
-        - "registry-1.docker.io"
+      project:
+        source_repos:
+          - "https://charts.zitadel.com"
+          - "https://zitadel.github.io/zitadel-charts"
+          - "https://charts.cockroachdb.com/"
+          - "registry-1.docker.io"
+        destination:
+          namespaces:
+            - argocd
+            - zitadel

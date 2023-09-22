@@ -1,8 +1,74 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal
-from textual.widgets import Label, Static, Switch, Input
+from textual.containers import Container, Horizontal, VerticalScroll
+from textual.widgets import Input, Label, Static, Switch, Button
+from textual.widgets.selection_list import Selection
+
+
+class ArgoCDNewInput(Static):
+    """
+    Add new inputs for new application
+    """
+
+    def compose(self) -> ComposeResult:
+        new_button = Button("[blue]♡ Submit New App[/]", id="new-app-button")
+        new_button.tooltip = "Click to add your own Argo CD app from an existing repo"
+        yield Input(placeholder="Name of New ArgoCD App",
+                    classes="new-app-prompt",
+                    name="new-app-name",
+                    id="new-app-input")
+        with Horizontal(id="new-app-button-box"):
+            yield new_button
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        get pressed "new app" button
+        """
+        input = self.get_widget_by_id("new-app-input")
+        app_name = input.value
+        underscore_app_name = app_name.replace(" ", "_").replace("-", "_")
+
+        # the main config app
+        parent_app = event.button.ancestors[-1]
+
+        # updates the base user yaml
+        parent_app.usr_cfg['apps'][underscore_app_name] = {
+            "enabled": True,
+            "description": "",
+            "argo": {
+                "secret_keys": {},
+                "repo": "",
+                "path": "",
+                "ref": "",
+                "namespace": "",
+                "project": {
+                    "source_repos": [""],
+                    "destination": {
+                        "namespaces": ["argocd"]
+                        }
+                    }
+                }
+            }
+
+        # creates a new hidden app inputs view for the new application
+        inputs = VerticalScroll(
+                ArgoCDAppInputs(
+                    underscore_app_name,
+                    parent_app.usr_cfg['apps'][underscore_app_name]
+                    ),
+                id=f"{underscore_app_name}-inputs",
+                classes="single-app-inputs"
+                )
+        inputs.display = False
+        parent_app.app.get_widget_by_id("app-inputs-pane").mount(inputs)
+
+        # adds selection to the app selection list
+        selection_list = parent_app.get_widget_by_id("selection-list-of-apps")
+        selection_list.add_option(Selection(underscore_app_name.replace("_", "-"),
+                                            underscore_app_name,
+                                            True))
+        input.value = ""
 
 
 class ArgoCDAppInputs(Static):
@@ -85,7 +151,7 @@ class ArgoCDAppInputs(Static):
 
         # standard values to source an argo cd app from an external repo
         with Container(classes=f"{self.app_name} argo-config-container"):
-            yield Label("Advanced Argo CD Parameter Configuration",
+            yield Label("Advanced Argo CD App Configuration",
                         classes=f"{self.app_name} argo-config-header")
 
             for key in ['repo', 'path', 'ref', 'namespace']:
@@ -96,6 +162,35 @@ class ArgoCDAppInputs(Static):
                                        name=key,
                                        classes=f"{self.app_name} argo-config-input"),
                                  classes=f"{self.app_name} argo-config-row")
+
+            # argocd project configuration
+            yield Label("Advanced Argo CD App Project Configuration",
+                        classes=f"{self.app_name} argo-config-header")
+
+            # row for project destination namespaces
+            with Horizontal(classes=f"{self.app_name} argo-config-row"):
+                label = Label("namespaces:",
+                              classes=f"{self.app_name} argo-config-label")
+                label.tooltip = "Comma seperated list of namespaces"
+                yield label
+
+                namespaces = argo_params["project"]["destination"]["namespaces"]
+                yield Input(placeholder="Enter comma seperated list of namespaces",
+                            value=", ".join(namespaces),
+                            classes=f"{self.app_name} argo-config-input")
+
+            # row for project source repos
+            with Horizontal(classes=f"{self.app_name} argo-config-row"):
+                label = Label("source_repos:",
+                              classes=f"{self.app_name} argo-config-label")
+                label.tooltip = "Comma seperated list of project source repos"
+                yield label
+
+                repos = argo_params["project"]["source_repos"]
+                yield Input(placeholder="Please enter source_repos",
+                            value=", ".join(repos),
+                            name="source_repos",
+                            classes=f"{self.app_name} argo-config-input")
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
@@ -115,11 +210,18 @@ class ArgoCDAppInputs(Static):
         input = event.input
         parent_app_yaml = input.ancestors[-1].usr_cfg['apps'][self.app_name]
         if "argo-config-input" in input.classes:
-            parent_app_yaml['argo'][input.name] = input.value
+            if "," in input.value:
+                values = input.value.replace(" ","").split(",")
+                parent_app_yaml['argo'][input.name] = values
+            else:
+                parent_app_yaml['argo'][input.name] = input.value
         elif "app-secret-key-input" in input.classes:
             parent_app_yaml['argo']['secret_keys'][input.name] = input.value
         elif "app-init-input" in input.classes:
             parent_app_yaml['init']['values'][input.name] = input.value
+
+
+
 
 def placeholder_grammar(key: str):
     article = ""

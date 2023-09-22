@@ -3,7 +3,7 @@ from rich.syntax import Syntax
 from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
                                     DEFAULT_DISTRO_OPTIONS)
 from smol_k8s_lab.utils.tui.help_screen import HelpScreen
-from smol_k8s_lab.utils.tui.app_config import ArgoCDAppInputs
+from smol_k8s_lab.utils.tui.app_config import ArgoCDAppInputs, ArgoCDNewInput
 from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
 from smol_k8s_lab.utils.tui.k3s_config import K3sConfig
 from smol_k8s_lab.utils.tui.node_adjustment import NodeAdjustmentBox
@@ -17,17 +17,6 @@ from textual.widgets import (Button, Footer, Header, Label, Select,
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 from yaml import safe_dump
-
-new_app = {"enabled": True,
-           "description": "",
-           "argo": {
-               "secret_keys": {},
-               "repo": "",
-               "ref": "",
-               "namespace": "",
-               "project_source_repos": []
-               }
-           }
 
 
 class SmolK8sLabConfig(App):
@@ -134,10 +123,8 @@ class SmolK8sLabConfig(App):
                         yield selection_list
 
                         # this button let's you create a new app
-                        new_button = Button("[blue]♡ New App[/]", id="new-app-button")
-                        new_button.tooltip = "Click me to add your own Argo CD app from an existing repo"
-                        with Container(id="new-app-button-box"):
-                            yield new_button
+                        with Container(id="new-app-input-box"):
+                            yield ArgoCDNewInput()
 
                     # top right: vertically scrolling container for all inputs
                     with VerticalScroll(id='app-inputs-pane'):
@@ -155,6 +142,7 @@ class SmolK8sLabConfig(App):
             # tab 3 - confirmation
             with TabPane("Confirm Selections", id="confirm-selection"):
                 with Container(id="confirm-tab-container"):
+                    yield Label("Below are all the values you configured:")
                     with VerticalScroll(id="pretty-yaml-scroll-container"):
                         yield Label("", id="pretty-yaml")
                     yield Button("🚊 Let's roll!", id="confirm-button")
@@ -207,8 +195,9 @@ class SmolK8sLabConfig(App):
         highlighted_app = selection_list.get_option_at_index(highlighted_idx).value
 
         # update the bottom app description to the highlighted_app's description
-        blurb = format_description(DEFAULT_APPS[highlighted_app]['description'])
+        blurb = format_description(self.usr_cfg['apps'][highlighted_app]['description'])
         self.get_widget_by_id('app-description').update(blurb)
+
 
         # styling for the select-apps tab - configure apps container - right
         app_title = highlighted_app.replace("_", "-")
@@ -261,23 +250,20 @@ class SmolK8sLabConfig(App):
     @on(TabbedContent.TabActivated)
     def update_yaml_print(self, event: TabbedContent.TabActivated) -> None:
         if event.tab.id == "confirm-selection":
-            rich_highlighted = Syntax(safe_dump(self.usr_cfg), "yaml",
-                                      theme="github-dark")
+            rich_highlighted = Syntax(safe_dump(self.usr_cfg),
+                                      lexer="yaml",
+                                      theme="github-dark",
+                                      background_color="black")
             self.get_widget_by_id("pretty-yaml").update(rich_highlighted)
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """
-        get pressed "new app" button
-        """
-        if event.button.id == "new-app-button":
-            # TODO: FILL THIS OUT
-            return
 
-def format_description(description: str):
+def format_description(description: str = ""):
     """
     change description to dimmed colors
     links are changed to steel_blue and not dimmed
     """
+    if not description:
+        description = "No Description provided yet for this user defined application."
     description = description.replace("[link", "[/dim][steel_blue][link")
     description = description.replace("[/link]", "[/link][/steel_blue][dim]")
 

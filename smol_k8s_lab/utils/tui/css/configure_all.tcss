@@ -140,6 +140,7 @@ HelpScreen {
    content-align: center middle;
    height: 3;
    width: 100%;
+   color: rgb(127,200,255) 90%;
 }
 
 /* input field to manually increase/decrease number of control plane nodes */
@@ -299,6 +300,11 @@ HelpScreen {
    align: center middle;
 }
 
+#new-app-input-box {
+   padding-top: 1;
+   align: center middle;
+}
+
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
    background: rgb(35,35,54) 50%;
@@ -407,7 +413,8 @@ Switch.-on > .switch--slider {
    grid-size: 2;
    grid-columns: 0.5fr 1.5fr;
    padding-bottom: 1;
-   padding-left: 1;
+   padding-left: 2;
+   padding-right: 1;
 }
 
 /* each app input label */
@@ -415,7 +422,7 @@ Switch.-on > .switch--slider {
    height: 3;
    width: 100%;
    content-align: left middle;
-   color: cornflowerblue;
+   color: rgb(127,200,255) 90%;
 }
 
 /* each app input field */
@@ -450,14 +457,15 @@ Switch.-on > .switch--slider {
    grid-size: 2;
    grid-columns: 0.5fr 1.5fr;
    padding-bottom: 1;
-   padding-left: 1;
+   padding-left: 2;
+   padding-right: 1;
 }
 
 .argo-config-label {
    height: 3;
    width: auto;
    content-align: left middle;
-   color: cornflowerblue;
+   color: rgb(127,200,255) 90%;
 }
 
 .argo-config-input {
@@ -495,7 +503,7 @@ Switch.-on > .switch--slider {
 
 #confirm-tab-container {
    layout: grid;
-   grid-rows: 1.3fr 0.1fr;
+   grid-rows: 0.1fr 1fr 0.1fr;
    align: center middle;
 }
 

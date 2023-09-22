@@ -12,7 +12,9 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
     """
     repo = argo_dict['repo']
     path = argo_dict['path']
-    namespace = argo_dict['namespace']
+    app_namespace = argo_dict['namespace']
+    proj_namespaces = set(argo_dict['project']['destination']['namespace'])
+    proj_namespaces.append(app_namespace)
 
     if argo_dict.get('part_of_app_of_apps', None):
         log.debug("Looks like this app is actually part of an app of apps "
@@ -20,13 +22,13 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
         return True
 
     # make sure the namespace already exists
-    k8s_obj.create_namespace(namespace)
+    k8s_obj.create_namespace(app_namespace)
 
     source_repos = [repo]
-    extra_source_repos = argo_dict.get('project_source_repos', [])
+    extra_source_repos = argo_dict["project"].get('source_repos', [])
     if extra_source_repos:
         source_repos.extend(extra_source_repos)
-    create_argocd_project(app, app, namespace, source_repos)
+    create_argocd_project(app, app, proj_namespaces, source_repos)
 
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
@@ -34,7 +36,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
            "--sync-policy automated "
            "--sync-option ApplyOutOfSyncOnly=true "
            "--self-heal "
-           f"--dest-namespace {namespace} "
+           f"--dest-namespace {app_namespace} "
            "--dest-server https://kubernetes.default.svc")
 
     response = subproc([cmd])
@@ -53,7 +55,7 @@ def wait_for_argocd_app(app: str):
 
 def create_argocd_project(project_name: str,
                           app: str,
-                          namespace: str,
+                          namespaces: str,
                           source_repos: list) -> True:
     """
     create an argocd project
@@ -76,11 +78,6 @@ def create_argocd_project(project_name: str,
             "destinations": [
                 {
                     "name": "in-cluster",
-                    "namespace": namespace,
-                    "server": "https://kubernetes.default.svc"
-                },
-                {
-                    "name": "in-cluster",
                     "namespace": 'argocd',
                     "server": "https://kubernetes.default.svc"
                 }
@@ -97,10 +94,12 @@ def create_argocd_project(project_name: str,
         "status": {}
     }
 
-    if project_name == 'prometheus':
-        extra_namespace = {"name": "in-cluster",
-                           "namespace": 'kube-system',
-                           "server": "https://kubernetes.default.svc"}
+    for namespace in namespaces:
+        extra_namespace = {
+                    "name": "in-cluster",
+                    "namespace": namespace,
+                    "server": "https://kubernetes.default.svc"
+                },
         argocd_proj['spec']['destinations'].append(extra_namespace)
 
     apply_custom_resources([argocd_proj])
