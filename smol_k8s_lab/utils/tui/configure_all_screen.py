@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 from rich.syntax import Syntax
-from smol_k8s_lab.constants import (DEFAULT_APPS, DEFAULT_DISTRO,
-                                    DEFAULT_DISTRO_OPTIONS)
+from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
+from smol_k8s_lab.env_config import process_k8s_distros
 from smol_k8s_lab.utils.tui.help_screen import HelpScreen
 from smol_k8s_lab.utils.tui.app_config import ArgoCDAppInputs, ArgoCDNewInput
 from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
@@ -38,7 +38,8 @@ class SmolK8sLabConfig(App):
     def __init__(self, user_config: dict) -> None:
         self.usr_cfg = user_config
         self.previous_app = ''
-        self.previous_distro = DEFAULT_DISTRO
+        self.distros = self.usr_cfg['k8s_distros']
+        self.previous_distro = process_k8s_distros(self.distros, False)[1]
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -59,14 +60,14 @@ class SmolK8sLabConfig(App):
                 d_select =  Select(((line, line) for line in my_options),
                                         id="distro-drop-down",
                                         allow_blank=False,
-                                        value=DEFAULT_DISTRO)
+                                        value=self.previous_distro)
 
-                d_select.tooltip = DEFAULT_DISTRO_OPTIONS[DEFAULT_DISTRO]['description']
+                d_select.tooltip = self.distros[self.previous_distro]['description']
                 yield d_select
 
                 for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
                     # only display the default distro for this OS
-                    if distro == DEFAULT_DISTRO:
+                    if distro == self.previous_distro:
                         display = True
                     else:
                         display = False
@@ -109,7 +110,7 @@ class SmolK8sLabConfig(App):
             # tab 2 - allows selection of different argo cd apps to run in k8s
             with TabPane("Select Applications", id="select-apps"):
                 full_list = []
-                for app, app_meta in DEFAULT_APPS.items():
+                for app, app_meta in self.usr_cfg['apps'].items():
                     item = Selection(app.replace("_","-"), app, app_meta['enabled'])
                     full_list.append(item)
 
@@ -128,7 +129,7 @@ class SmolK8sLabConfig(App):
 
                     # top right: vertically scrolling container for all inputs
                     with VerticalScroll(id='app-inputs-pane'):
-                        for app, metadata in DEFAULT_APPS.items():
+                        for app, metadata in self.usr_cfg['apps'].items():
                             app_inputs = VerticalScroll(id=f"{app}-inputs",
                                                         classes="single-app-inputs")
                             app_inputs.display = False
@@ -171,7 +172,7 @@ class SmolK8sLabConfig(App):
         for distro_desc_box in distro_desc_boxes:
             distro_desc_box.border_title = "[white]Distro Description[/]"
 
-        # kuebelet config styling - middle
+        # kubelet config styling - middle
         kubelet_title = "➕ [green]Extra Parameters for Kubelet"
         kubelet_cfgs = self.query(".kubelet-config-container")
         for box in kubelet_cfgs:
@@ -197,7 +198,6 @@ class SmolK8sLabConfig(App):
         # update the bottom app description to the highlighted_app's description
         blurb = format_description(self.usr_cfg['apps'][highlighted_app]['description'])
         self.get_widget_by_id('app-description').update(blurb)
-
 
         # styling for the select-apps tab - configure apps container - right
         app_title = highlighted_app.replace("_", "-")

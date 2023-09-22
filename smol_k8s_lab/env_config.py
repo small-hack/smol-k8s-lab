@@ -9,7 +9,8 @@ from .constants import (OS,
                         XDG_CONFIG_FILE,
                         DEFAULT_CONFIG,
                         DEFAULT_APPS,
-                        DEFAULT_DISTRO_OPTIONS)
+                        DEFAULT_DISTRO_OPTIONS,
+                        DEFAULT_DISTRO)
 from .utils.rich_cli.console_logging import print_panel, header, sub_header
 from rich.prompt import Confirm, Prompt
 from yaml import dump
@@ -43,7 +44,7 @@ def process_configs(config: dict = {}, delete: bool = False):
     app has a secret if we're using our default Argo CD repo
     """
     k8s_distros = config.get('k8s_distros', None)
-    config['k8s_distros'] = process_k8s_distros(k8s_distros)
+    config['k8s_distros'] = process_k8s_distros(k8s_distros)[0]
 
     # just return this part if we're deleting the cluster
     if delete:
@@ -242,10 +243,12 @@ def initialize_apps_config() -> list:
     return config, return_secrets
 
 
-def process_k8s_distros(k8s_distros: dict = {}):
+def process_k8s_distros(k8s_distros: dict = {}, prompt: bool = True):
     """
     make sure the k8s distro passed into the config is supported and valid for
     the current operating system
+
+    If prompt is set to True, we'll ask the user to select a distro
     """
     # keep track if we even have any enabled
     distros_enabled = False
@@ -265,8 +268,12 @@ def process_k8s_distros(k8s_distros: dict = {}):
                   distros_enabled = True
 
     if not distros_enabled:
-        msg = "[green]Which K8s distro would you like to use for your cluster?"
-        distro = Prompt.ask(msg, choices=DEFAULT_DISTRO_OPTIONS)
-        k8s_distros = {distro: {'enabled': True}}
+        if prompt:
+            msg = "[green]Which K8s distro would you like to use for your cluster?"
+            distro = Prompt.ask(msg, choices=DEFAULT_DISTRO_OPTIONS)
+            k8s_distros[distro]['enabled'] = True
+        else:
+            k8s_distros[DEFAULT_DISTRO]["enabled"] = True
+            default = DEFAULT_DISTRO
 
-    return k8s_distros
+    return k8s_distros, default
