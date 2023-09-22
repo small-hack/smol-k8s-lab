@@ -178,8 +178,9 @@ class ArgoCDAppInputs(Static):
 
                 namespaces = argo_params["project"]["destination"]["namespaces"]
                 yield Input(placeholder="Enter comma seperated list of namespaces",
+                            name="namespaces",
                             value=", ".join(namespaces),
-                            classes=f"{self.app_name} argo-config-input")
+                            classes=f"{self.app_name} argo-config-input argo-proj-ns")
 
             # row for project source repos
             with Horizontal(classes=f"{self.app_name} argo-config-row"):
@@ -192,7 +193,7 @@ class ArgoCDAppInputs(Static):
                 yield Input(placeholder="Please enter source_repos",
                             value=", ".join(repos),
                             name="source_repos",
-                            classes=f"{self.app_name} argo-config-input")
+                            classes=f"{self.app_name} argo-config-input argo-proj-repo")
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
@@ -211,18 +212,31 @@ class ArgoCDAppInputs(Static):
     def update_base_yaml(self, event: Input.Changed) -> None:
         input = event.input
         parent_app_yaml = input.ancestors[-1].usr_cfg['apps'][self.app_name]
+
+        # if this is an Argo CD app/project config input
         if "argo-config-input" in input.classes:
-            if "," in input.value:
+
+            # if this is a project source repo
+            if "argo-proj-repo" in input.classes:
                 values = input.value.replace(" ","").split(",")
-                parent_app_yaml['argo'][input.name] = values
+                parent_app_yaml['argo']['project'][input.name] = values
+
+            # if this is a project destination namespace
+            elif "argo-proj-ns" in input.classes:
+                values = input.value.replace(" ","").split(",")
+                parent_app_yaml['argo']['project']['destination'][input.name] = values
+
+            # otherwise it's probably just a normal app input
             else:
                 parent_app_yaml['argo'][input.name] = input.value
+
+        # if this is a secret key input
         elif "app-secret-key-input" in input.classes:
             parent_app_yaml['argo']['secret_keys'][input.name] = input.value
+
+        # if this is an init input
         elif "app-init-input" in input.classes:
             parent_app_yaml['init']['values'][input.name] = input.value
-
-
 
 
 def placeholder_grammar(key: str):
