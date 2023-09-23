@@ -6,6 +6,4 @@ def launch_config_tui():
     """
     Run all the TUI screens
     """
-    SmolK8sLabConfig(INITIAL_USR_CONFIG).run()
-
-    return True
+    return SmolK8sLabConfig(INITIAL_USR_CONFIG).run()

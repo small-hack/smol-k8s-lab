@@ -140,7 +140,8 @@ class ArgoCDAppInputs(Static):
                     # create input
                     input_keys = {"placeholder": placeholder_grammar(init_key),
                                   "classes": f"app-init-input {self.app_name}",
-                                  "validators": [Length(minimum=2)]}
+                                  "validators": [Length(minimum=2)],
+                                  "name": init_key}
                     if init_value:
                         input_keys['value'] = init_value
 
@@ -151,9 +152,12 @@ class ArgoCDAppInputs(Static):
                             "Init value for special one-time setup of this app."
                             " This value is [i]not[/i] stored in a secret for "
                             "later reference by Argo CD.")
+
                     container_class = f"app-input-row {self.app_name}"
+
                     input = Input(**input_keys)
-                    input.validate(init_value)
+                    if input.validate(init_value):
+                        self.ancestors[-1].invalid_app_inputs[self.app_name].append(init_key)
                     with Horizontal(classes=container_class):
                         yield label
                         yield input
@@ -168,8 +172,10 @@ class ArgoCDAppInputs(Static):
                               value=argo_params[key],
                               name=key,
                               validators=[Length(minimum=2)],
+                              id=f"{self.app_name}-{key}",
                               classes=f"{self.app_name} argo-config-input")
-                input.validate(argo_params[key])
+                if input.validate(argo_params[key]):
+                    self.ancestors[-1].invalid_app_inputs[self.app_name].append(key)
                 yield Horizontal(Label(f"{key}:",
                                        classes=f"{self.app_name} argo-config-label"),
                                  input,
@@ -248,9 +254,11 @@ class ArgoCDAppInputs(Static):
                       "validators": [Length(minimum=2)]}
         if value:
             input_keys['value'] = value
+
         input = Input(**input_keys)
+
         if input.validate(value):
-            self.invalid_inputs = True
+            self.ancestors[-1].invalid_app_inputs[self.app_name].append(secret_key)
 
         # create the input row
         secret_label = Label(f"{key_label}:",
@@ -263,7 +271,8 @@ class ArgoCDAppInputs(Static):
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
         input = event.input
-        parent_app_yaml = input.ancestors[-1].usr_cfg['apps'][self.app_name]
+        parent_app = input.ancestors[-1]
+        parent_app_yaml = parent_app.usr_cfg['apps'][self.app_name]
 
         # if this is an Argo CD app/project config input
         if "argo-config-input" in input.classes:
@@ -290,6 +299,14 @@ class ArgoCDAppInputs(Static):
         elif "app-init-input" in input.classes:
             parent_app_yaml['init']['values'][input.name] = input.value
 
+        # Updating the main app with k8s app that has validation failed
+        if event.validation_result:
+            invalid_inputs = parent_app.invalid_app_inputs
+            if not event.validation_result.is_valid:
+                invalid_inputs[self.app_name].append(input.name)
+            else:
+                if input.name in invalid_inputs[self.app_name]:
+                    invalid_inputs[self.app_name].remove(input.name)
 
 def placeholder_grammar(key: str):
     article = ""
