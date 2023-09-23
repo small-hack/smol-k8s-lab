@@ -28,6 +28,14 @@ Input {
    border: tall black 30%;
 }
 
+Input.-invalid {
+    border: tall magenta 60%;
+}
+
+Input.-valid:focus {
+    border: tall $success;
+}
+
 /* Matches the bottom footer help text on every page */
 Footer {
    background: rgb(35,35,54) 50%;
@@ -298,6 +306,7 @@ HelpScreen {
    background: rgb(35,35,54) 60%;
 }
 
+/* matches the app selection list, the new app input, and submit button */
 #left-apps-container {
    layout: grid;
    grid-rows: 0.3fr 0.1fr 0.1fr;
@@ -317,6 +326,7 @@ HelpScreen {
 SelectionList {
    background: rgb(35,35,54) 40%;
    width: 100%;
+   height: 100%;
 }
 
 /* Matches the "Select apps to install on k8s" Selection List highlighted option */
@@ -369,6 +379,14 @@ SelectionList .option-list--option-hover {
    scrollbar-color: #5f5fd7;
 }
 
+.app-help-label {
+   width: 100%;
+   padding-left: 1;
+   padding-right: 1;
+   padding-bottom: 1;
+   color: gray;
+}
+
 /* entire row for app label, app switch label, and switch for each app with initialization */
 .app-init-switch-and-labels-row {
    background: rgb(65,72,104) 30%;
@@ -377,6 +395,12 @@ SelectionList .option-list--option-hover {
    height: 3;
    grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
    margin-bottom: 1;
+}
+
+.init-divider {
+   margin-top: 0;
+   margin-bottom: 1;
+   color: rgb(65,72,104) 80%;
 }
 
 /* label for each app in the conigure selected apps pane */
