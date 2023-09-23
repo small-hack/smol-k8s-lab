@@ -1,0 +1,56 @@
+/* k3s/k3d extra args container that contains the k3s widget */
+.k3s-config-container {
+   align: center middle;
+   background: rgb(35,35,54) 50%;
+   border: round cornflowerblue;
+   height: 100%;
+}
+
+.k3s-help-label {
+   color: gray;
+   padding-top: 1;
+   padding-left: 1;
+   padding-right: 1;
+   width: 100%;
+}
+
+/* k3s container itself */
+.k3s-arg-scroll {
+   align: center middle;
+   scrollbar-background: #3a3a3a;
+   scrollbar-background-active: #3a3a3a;
+   scrollbar-background-hover: #3a3a3a;
+   scrollbar-color-hover: orange;
+   scrollbar-color: #5f5fd7;
+}
+
+.k3s-grid {
+   grid-size: 2;
+   height: auto;
+}
+
+/* k3s arg row */
+.k3s-arg-row {
+   align: center middle;
+   grid-columns: 1.3fr 0.22fr;
+   grid-size: 2;
+   height: auto;
+   layout: grid;
+   width: 100%;
+   padding-top: 1;
+}
+
+.k3s-arg-input {
+   width: 100%;
+}
+
+.k3s-arg-del-button {
+   width: 100%;
+}
+
+/* button to add another optional k3s extra arg */
+.k3s-arg-add-button {
+   column-span: 2;
+   width: 100%;
+   margin: 1;
+}

@@ -27,8 +27,8 @@ class KubeletConfig(Static):
 
     def compose(self) -> ComposeResult:
         # kubelet config section
-        help = ("Add key value pairs to pass to your kubelet config."
-                " Press [b]Enter[/b] to save [i]each[/i] input field.")
+        help = ("Add key value pairs to pass to your kubelet config. Press "
+                "[dim][gold3]↩ Enter[/][/] to save [i]each[/i] input field.")
         yield Label(help, classes="k3s-help-label")
         with VerticalScroll(classes=f"kubelet-config-scroll {self.distro}",
                             id=f"{self.distro}-kubelet-config-container"):

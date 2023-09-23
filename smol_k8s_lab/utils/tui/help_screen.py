@@ -10,7 +10,7 @@ class HelpScreen(ModalScreen):
     """
     dialog screen to show help text
     """
-    BINDINGS = [Binding(key="h,?,q",
+    BINDINGS = [Binding(key="h,?,q,escape",
                         key_display="h",
                         action="disable_help",
                         description="Exit Help Screen",
@@ -23,10 +23,11 @@ class HelpScreen(ModalScreen):
                      "control )")
 
         # tips for new/forgetful users (the maintainers are also forgetful <3)
-        help_dict = {"left/right arrow key": "Switch tabs if tabs are selected",
-                     "right arrow key": "complete suggestion in input field",
+        help_dict = {"left/right arrow": "Switch tabs if tabs are selected",
+                     "right arrow": "complete suggestion in input field",
+                     "up/down arrow": "navigate up and down the app selection list",
                      "tab": "switch to next box, field, or button",
-                     "shift +tab": "switch to previous pane, field, or button",
+                     "shift+tab": "switch to previous pane, field, or button",
                      "enter": "press button",
                      "h,?": "toggle help screen",
                      "spacebar": "select selection option",
@@ -41,10 +42,10 @@ class HelpScreen(ModalScreen):
                 # TODO: convert to data table widget
                 for help_option, help_text in help_dict.items():
                     with Grid(classes="help-option-row"):
-                        key = f"[gold3]{help_option}[/gold3]"
+                        key = help_option.replace("/", "[bright_white]/[/]")
                         key = key.replace(",", "[bright_white],[/]")
                         key = key.replace("+", "[bright_white]+[/]")
-                        yield Label(key)
+                        yield Label(f"[gold3]{key}[/gold3]")
                         yield Label(help_text, classes="help-text")
 
     def on_mount(self) -> None:

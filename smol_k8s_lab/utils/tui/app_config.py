@@ -3,9 +3,15 @@ from textual import on
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, VerticalScroll
 from textual.validation import Length
-from textual.widgets import Input, Label, Static, Switch, Button, Rule
+from textual.widgets import Input, Label, Static, Switch, Button
 from textual.widgets.selection_list import Selection
 
+
+ARGO_TOOLTIPS = {'repo': 'URL to a git repository where you have k8s manifests ' + \
+                         '(including Argo resources) to deploy',
+                 'path': 'path in repo to resources you want to deploy',
+                 'ref': 'branch or tag to point to in the repo',
+                 'namespace': 'k8s namespace to deploy the Argo CD App in'}
 
 class ArgoCDNewInput(Static):
     """
@@ -37,9 +43,8 @@ class ArgoCDNewInput(Static):
         parent_app.usr_cfg['apps'][underscore_app_name] = {
             "enabled": True,
             "description": "",
-            "init": {"enabled": True},
             "argo": {
-                "secret_keys": {"hostname": ""},
+                "secret_keys": {},
                 "repo": "",
                 "path": "",
                 "ref": "",
@@ -52,6 +57,9 @@ class ArgoCDNewInput(Static):
                     }
                 }
             }
+
+        # add this app to the possible invalid inputs
+        parent_app.invalid_app_inputs[underscore_app_name] = []
 
         # creates a new hidden app inputs view for the new application
         inputs = VerticalScroll(
@@ -85,30 +93,100 @@ class ArgoCDAppInputs(Static):
     def compose(self) -> ComposeResult:
         argo_params = self.metadata['argo']
         secret_keys = argo_params.get('secret_keys', None)
-        init = self.metadata.get('init', {"enabled": False})
-
-        # make a pretty title with an init switch for the app to configure
-        s_class = f"app-init-switch-and-labels-row {self.app_name}"
-        with Container(classes=s_class):
-            yield Label("Initialization",
-                        classes="app-label")
-
-            yield Label("Enabled: ", classes="app-init-switch-label")
-
-            init_enabled = init.get('enabled', False)
-            switch = Switch(value=init_enabled,
-                            id=f"{self.app_name}-init-switch",
-                            classes="app-init-switch")
-            yield switch
+        init = self.metadata.get('init', None)
 
         # container for all inputs associated with one app
         app_inputs_class = f"{self.app_name} app-all-inputs-container"
         inputs_container = Container(id=f"{self.app_name}-init-inputs",
                                      classes=app_inputs_class)
-        if not init_enabled:
-            inputs_container.display = False
 
-        with inputs_container:
+        # make a pretty title with an init switch for the app to configure
+        s_class = f"app-init-switch-and-labels-row {self.app_name}"
+        with Container(classes=s_class):
+            init_lbl = Label("Initialization", classes="app-label")
+            init_lbl.tooltip = ("Parameters for smol-k8s-lab to perform a "
+                                "one-time initial setup of this app")
+            yield init_lbl
+
+            yield Label("Enabled: ", classes="app-init-switch-label")
+
+            if not init:
+                switch = Switch(value=False,
+                                id=f"{self.app_name}-init-switch",
+                                classes="app-init-switch")
+                switch.tooltip = ("Initialization [i]not[/] supported by "
+                                  "smol-k8s-lab at this time")
+                switch.disabled = True
+                switch.animate = False
+            else:
+                init_enabled = init.get('enabled', False)
+                switch = Switch(value=init_enabled,
+                                id=f"{self.app_name}-init-switch",
+                                classes="app-init-switch")
+                if not init_enabled:
+                    inputs_container.display = False
+            yield switch
+
+            if init:
+                with inputs_container:
+                    # these are special values that are only set up via
+                    # smol-k8s-lab and do not live in a secret on the k8s cluster
+                    init_values = init.get('values', None)
+                    if init_values:
+                        for init_key, init_value in init_values.items():
+                            # create input
+                            input_keys = {"placeholder": placeholder_grammar(init_key),
+                                          "classes": f"app-init-input {self.app_name}",
+                                          "validators": [Length(minimum=2)],
+                                          "name": init_key}
+                            if init_value:
+                                input_keys['value'] = init_value
+
+                            # create the input row
+                            label_class = f"app-input-label {self.app_name}"
+                            label = Label(f"{init_key}: ", classes=label_class)
+                            label.tooltip = (
+                                    "Init value for special one-time setup of this app."
+                                    " This value is [i]not[/i] stored in a secret for "
+                                    "later reference by Argo CD.")
+
+                            container_class = f"app-input-row {self.app_name}"
+
+                            input = Input(**input_keys)
+                            if input.validate(init_value):
+                                self.ancestors[-1].invalid_app_inputs[self.app_name].append(init_key)
+                            with Horizontal(classes=container_class):
+                                yield label
+                                yield input
+
+        # standard values to source an argo cd app from an external repo
+        with Container(classes=f"{self.app_name} argo-config-container"):
+            yield Label("Advanced Argo CD App Configuration",
+                        classes=f"{self.app_name} argo-config-header")
+
+            for key, value in ARGO_TOOLTIPS.items():
+                input = Input(placeholder=f"Please enter a {key}",
+                              value=argo_params[key],
+                              name=key,
+                              validators=[Length(minimum=2)],
+                              id=f"{self.app_name}-{key}",
+                              classes=f"{self.app_name} argo-config-input")
+                input.tooltip = value
+
+                if input.validate(argo_params[key]):
+                    self.ancestors[-1].invalid_app_inputs[self.app_name].append(key)
+
+                yield Horizontal(Label(f"{key}:",
+                                       classes=f"{self.app_name} argo-config-label"),
+                                 input,
+                                 classes=f"{self.app_name} argo-config-row")
+
+            # secret keys
+            label =  Label("Template values to pass to Argo CD ApplicationSet ",
+                           classes="secret-key-divider")
+            label.tooltip = ("🔒Added to k8s secret for the Argo CD "
+                             "ApplicationSet Secret Plugin Generator")
+            yield label
             if secret_keys:
                 # iterate through the app's secret keys
                 for secret_key, value in secret_keys.items():
@@ -122,64 +200,16 @@ class ArgoCDAppInputs(Static):
             key_input = Input(placeholder="new key name",
                               id=f"{self.app_name}-new-secret",
                               classes="new-secret-input")
+
             key_input.tooltip = ("🔒key name to pass to the Argo CD ApplicationSet"
                                  "Secret Plugin Generator for templating non-sensitive"
                                  " values such as hostnames.")
+
             yield Horizontal(Button("➕",
                                     id=f"{self.app_name}-new-secret-button",
                                     classes="new-secret-button"),
                              key_input,
                              classes="app-input-row")
-
-            # these are special values that are only set up via
-            # smol-k8s-lab and do not live in a secret on the k8s cluster
-            init_values = init.get('values', None)
-            if init_values:
-                yield Rule(classes="init-divider")
-                for init_key, init_value in init_values.items():
-                    # create input
-                    input_keys = {"placeholder": placeholder_grammar(init_key),
-                                  "classes": f"app-init-input {self.app_name}",
-                                  "validators": [Length(minimum=2)],
-                                  "name": init_key}
-                    if init_value:
-                        input_keys['value'] = init_value
-
-                    # create the input row
-                    label_class = f"app-input-label {self.app_name}"
-                    label = Label(f"{init_key}: ", classes=label_class)
-                    label.tooltip = (
-                            "Init value for special one-time setup of this app."
-                            " This value is [i]not[/i] stored in a secret for "
-                            "later reference by Argo CD.")
-
-                    container_class = f"app-input-row {self.app_name}"
-
-                    input = Input(**input_keys)
-                    if input.validate(init_value):
-                        self.ancestors[-1].invalid_app_inputs[self.app_name].append(init_key)
-                    with Horizontal(classes=container_class):
-                        yield label
-                        yield input
-
-        # standard values to source an argo cd app from an external repo
-        with Container(classes=f"{self.app_name} argo-config-container"):
-            yield Label("Advanced Argo CD App Configuration",
-                        classes=f"{self.app_name} argo-config-header")
-
-            for key in ['repo', 'path', 'ref', 'namespace']:
-                input = Input(placeholder=f"Please enter a {key}",
-                              value=argo_params[key],
-                              name=key,
-                              validators=[Length(minimum=2)],
-                              id=f"{self.app_name}-{key}",
-                              classes=f"{self.app_name} argo-config-input")
-                if input.validate(argo_params[key]):
-                    self.ancestors[-1].invalid_app_inputs[self.app_name].append(key)
-                yield Horizontal(Label(f"{key}:",
-                                       classes=f"{self.app_name} argo-config-label"),
-                                 input,
-                                 classes=f"{self.app_name} argo-config-row")
 
             # argocd project configuration
             yield Label("Advanced Argo CD App Project Configuration",
@@ -263,8 +293,6 @@ class ArgoCDAppInputs(Static):
         # create the input row
         secret_label = Label(f"{key_label}:",
                              classes=f"app-input-label {self.app_name}")
-        secret_label.tooltip = ("🔒Added to k8s secret for the Argo CD "
-                                "ApplicationSet Secret Plugin Generator")
         return Horizontal(secret_label, input,
                           classes=f"app-input-row {self.app_name}")
 
