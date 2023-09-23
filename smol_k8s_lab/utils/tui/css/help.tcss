@@ -1,0 +1,37 @@
+/* help ModalScreen */
+HelpScreen {
+   align: center middle;
+}
+
+#help-container {
+   align: center middle;
+   padding-left: 1;
+   padding-top: 1;
+   width: 80;
+   height: 24;
+   border: round cornflowerblue 80%;
+   background: $surface;
+}
+
+#help-label {
+   color: rgb(168,253,87);
+   align: center middle;
+}
+
+#help-options {
+   layout: grid;
+   border: $surface 80%;
+   align: center middle;
+   width: 100%;
+}
+
+.help-option-row {
+   align: left middle;
+   grid-size: 2;
+   grid-columns: 0.35fr 1fr;
+   width: 100%;
+}
+
+.help-text {
+   width: 100%;
+}

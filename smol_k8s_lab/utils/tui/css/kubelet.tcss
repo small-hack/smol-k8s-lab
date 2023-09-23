@@ -1,0 +1,56 @@
+/* kubelet config container */
+.kubelet-config-container {
+   align: center middle;
+   height: auto;
+   border: round cornflowerblue;
+   background: rgb(35,35,54) 50%;
+}
+
+.kubelet-config-scroll {
+   align: center middle;
+   scrollbar-background: #3a3a3a;
+   scrollbar-background-active: #3a3a3a;
+   scrollbar-background-hover: #3a3a3a;
+   scrollbar-color-hover: orange;
+   scrollbar-color: #5f5fd7;
+}
+
+/* kubelet config arg input row */
+.kubelet-arg-input-row {
+   layout: grid;
+   grid-size: 3;
+   width: 100%;
+   height: auto;
+   grid-columns: 0.75fr 0.74fr 0.12fr;
+   padding-bottom: 1;
+   padding-right: 1;
+   content-align: center middle;
+}
+
+/* kubelet config arg key input field */
+.kubelet-arg-input-key{
+   height: auto;
+   width: 100%;
+}
+
+/* kubelet config arg value input field */
+.kubelet-arg-input-value {
+   height: auto;
+   width: 100%;
+}
+
+/* kubelet config arg row delete button */
+.kubelet-arg-input-del-button {
+   content-align: center middle;
+   height: auto;
+   padding: 0;
+}
+
+/* kubelet config arg row delete button */
+.kubelet-arg-add-button {
+   content-align: center middle;
+   height: auto;
+   width: 100%;
+   margin-right: 1;
+   margin-left: 1;
+}

@@ -23,7 +23,10 @@ class SmolK8sLabConfig(App):
     """
     Textual app to configure smol-k8s-lab
     """
-    CSS_PATH = "./css/configure_all.tcss"
+    CSS_PATH = ["./css/configure_all.tcss",
+                "./css/help.tcss",
+                "./css/k3s.tcss",
+                "./css/kubelet.tcss"]
     BINDINGS = [Binding(key="h,?",
                         key_display="h",
                         action="request_help",
@@ -167,7 +170,8 @@ class SmolK8sLabConfig(App):
         self.sub_title = "now with more 🦑"
 
         # select-apps tab styling - select apps container - top left
-        self.get_widget_by_id("select-add-apps").border_title = "[green]Select apps"
+        select_apps_widget = self.get_widget_by_id("select-add-apps")
+        select_apps_widget.border_title = "[magenta]♥ [/][green]Select apps"
 
         # select-apps tab styling - bottom
         app_desc = self.get_widget_by_id("app-description-container")
@@ -211,7 +215,7 @@ class SmolK8sLabConfig(App):
 
         # styling for the select-apps tab - configure apps container - right
         app_title = highlighted_app.replace("_", "-")
-        app_cfg_title = f"⚙️ [green]Configure initial params for [magenta]{app_title}"
+        app_cfg_title = f"⚙️ [green]Configure Parameters for [steel_blue1]{app_title}"
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
         if self.previous_app:
@@ -288,6 +292,11 @@ class SmolK8sLabConfig(App):
                 self.get_widget_by_id("confirm-button").display = False
                 self.get_widget_by_id("invalid-apps").display = True
                 self.get_widget_by_id("invalid-apps").update(warn)
+
+    @on(Button.Pressed)
+    def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
+        if event.button.id == "confirm-button":
+            self.exit(self.usr_cfg)
 
 
 def format_description(description: str = ""):
