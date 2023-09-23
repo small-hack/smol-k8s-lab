@@ -23,12 +23,13 @@ class HelpScreen(ModalScreen):
                      "control )")
 
         # tips for new/forgetful users (the maintainers are also forgetful <3)
-        help_dict = {"left arrow key,right arrow key": "Switch tabs if tabs are selected",
+        help_dict = {"left/right arrow key": "Switch tabs if tabs are selected",
                      "right arrow key": "complete suggestion in input field",
                      "tab": "switch to next box, field, or button",
                      "shift +tab": "switch to previous pane, field, or button",
                      "enter": "press button",
                      "h,?": "toggle help screen",
+                     "spacebar": "select selection option",
                      "meta+click": link_help}
 
         welcome = ("Use your 🐁 to click anything in this UI ✨ Or use "

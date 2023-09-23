@@ -40,6 +40,7 @@ class SmolK8sLabConfig(App):
         self.previous_app = ''
         self.distros = self.usr_cfg['k8s_distros']
         self.previous_distro = process_k8s_distros(self.distros, False)[1]
+        self.invalid_app_inputs = []
         super().__init__()
 
     def compose(self) -> ComposeResult:
