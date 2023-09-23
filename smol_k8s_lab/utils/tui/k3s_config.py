@@ -28,16 +28,26 @@ class K3sConfig(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Label("After adding a new argument, hit enter to save it",
-                    classes="k3s-help-label")
+        txt = "After modifying an input field, [dim][gold3]↩ Enter[/][/] to save it"
+        yield Label(txt, classes="k3s-help-label")
+
         with VerticalScroll(classes=f"{self.distro} k3s-arg-scroll"):
             with Grid(classes="k3s-grid"):
                 if self.k3s_args:
                     for arg in self.k3s_args:
                         yield self.generate_half_row(arg)
-                    # just to make the row even if there's only one arg
-                    if len(self.k3s_args) < 2:
+
+                    arg_len = len(self.k3s_args)
+                    # if there's only one arg or the arg count is uneven we add
+                    # an extra field just to make the row even
+                    if arg_len == 1 or arg_len % 2 != 0:
                         yield self.generate_half_row()
+
+                # if there's no args we add *two* extra fields just to make
+                # the row and container feel full
+                else:
+                    yield self.generate_half_row()
+                    yield self.generate_half_row()
 
             yield Button("➕ [blue]New Argument[/blue]",
                          classes=f"{self.distro} k3s-arg-add-button")

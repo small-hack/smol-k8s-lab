@@ -40,7 +40,7 @@ class SmolK8sLabConfig(App):
         self.previous_app = ''
         self.distros = self.usr_cfg['k8s_distros']
         self.previous_distro = process_k8s_distros(self.distros, False)[1]
-        self.invalid_app_inputs = []
+        self.invalid_app_inputs = {}
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -55,7 +55,7 @@ class SmolK8sLabConfig(App):
         # Add the TabbedContent widget
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
-            with TabPane("Select Kubernetes distro", id="select-distro"):
+            with TabPane("Configure Kubernetes Distro", id="select-distro"):
                 # create all distro selection choices for the top of tabbed content
                 my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
                 d_select =  Select(((line, line) for line in my_options),
@@ -112,6 +112,7 @@ class SmolK8sLabConfig(App):
             with TabPane("Select Applications", id="select-apps"):
                 full_list = []
                 for app, app_meta in self.usr_cfg['apps'].items():
+                    self.invalid_app_inputs[app] = []
                     item = Selection(app.replace("_","-"), app, app_meta['enabled'])
                     full_list.append(item)
 
@@ -144,10 +145,15 @@ class SmolK8sLabConfig(App):
 
             # tab 3 - confirmation
             with TabPane("Confirm Selections", id="confirm-selection"):
+                warning_label = Label("", id="invalid-apps")
+                warning_label.display = False
+                yield warning_label
                 with Container(id="confirm-tab-container"):
                     with VerticalScroll(id="pretty-yaml-scroll-container"):
                         yield Label("", id="pretty-yaml")
-                    yield Button("🚊 Let's roll!", id="confirm-button")
+                    button = Button("🚊 Let's roll!", id="confirm-button")
+                    button.display = False
+                    yield button
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
@@ -184,7 +190,7 @@ class SmolK8sLabConfig(App):
 
         # confirm box - last tab
         confirm_box = self.get_widget_by_id("pretty-yaml-scroll-container")
-        confirm_box.border_title = "All the configured values"
+        confirm_box.border_title = "All Configured Values"
 
 
     @on(Mount)
@@ -252,13 +258,36 @@ class SmolK8sLabConfig(App):
         self.push_screen(HelpScreen())
 
     @on(TabbedContent.TabActivated)
-    def update_yaml_print(self, event: TabbedContent.TabActivated) -> None:
+    def update_confirm_tab(self, event: TabbedContent.TabActivated) -> None:
         if event.tab.id == "confirm-selection":
             rich_highlighted = Syntax(safe_dump(self.usr_cfg),
                                       lexer="yaml",
                                       theme="github-dark",
                                       background_color="black")
             self.get_widget_by_id("pretty-yaml").update(rich_highlighted)
+
+            # if the app is selected
+            selected = self.query_one(SelectionList).selected
+
+            if self.invalid_app_inputs:
+                warn = ("[yellow on black]⚠️ The following fields are invalid. "
+                        "They either have errors or have not been filled out.[/]\n")
+                at_least_one_missing_field = False
+                for key, value in self.invalid_app_inputs.items():
+                    if value and key in selected:
+                        at_least_one_missing_field = True
+                        missing = "[/], [magenta]".join(value)
+                        tabs = "\t"
+                        if len(key) < 6:
+                            tabs = "\t\t"
+                        warn += f"\n [gold3]{key}[/]:{tabs}[magenta]{missing}[/]"
+            if not at_least_one_missing_field:
+                self.get_widget_by_id("invalid-apps").display = False
+                self.get_widget_by_id("confirm-button").display = True
+            else:
+                self.get_widget_by_id("confirm-button").display = False
+                self.get_widget_by_id("invalid-apps").display = True
+                self.get_widget_by_id("invalid-apps").update(warn)
 
 
 def format_description(description: str = ""):

@@ -118,7 +118,7 @@ HelpScreen {
 .k8s-distro-config {
    layout: grid;
    grid-size: 1;
-   grid-rows: 0.6fr 1fr 1fr;
+   grid-rows: 0.35fr 1fr 1fr;
    align: center middle;
    scrollbar-background: #3a3a3a;
    scrollbar-background-active: #3a3a3a;
@@ -526,9 +526,19 @@ Switch.-on > .switch--slider {
    width: 100%;
 }
 
+/* final tab with confirmation data */
 #confirm-tab-container {
    layout: grid;
-   grid-rows: 1.2fr 0.1fr;
+   align: center middle;
+   grid-rows: 5.5fr 0.8fr;
+   margin-top: 1;
+}
+
+#invalid-apps {
+  border: dashed yellow 60%;
+  padding: 1;
+  margin-bottom: 1;
+  width: 100%;
 }
 
 #pretty-yaml-scroll-container {
@@ -539,6 +549,7 @@ Switch.-on > .switch--slider {
    scrollbar-color-hover: orange;
    scrollbar-color: #5f5fd7;
    height: 100%;
+   padding-top: 1;
 }
 
 #confirm-button {
