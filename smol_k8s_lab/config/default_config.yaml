@@ -210,6 +210,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
+      # optional secrets keys to pass to the argo cd appset secret plugin generator
+      secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
         source_repos:
@@ -462,7 +464,7 @@ apps:
     enabled: false
     # Initialization of the app through smol-k8s-lab
     init:
-      enabled: true
+      enabled: false
     argo:
       # secret keys to provide for the argocd secret plugin app, none by default
       secret_keys: {}
@@ -520,36 +522,37 @@ apps:
           namespaces:
             - argocd
 
-  kubevirt:
-    description: |
-      ⚠️ [magenta]Alpha Status[/magenta]
-
-      kubevirt lets you manage virtual machines via k8s
-
-      Learn more: [link=https://kubevirt.io/]https://kubevirt.io/[/link]
-    # default disabled while a helm chart is being actively developed
-    enabled: false
-    # Initialization of the app through smol-k8s-lab
-    init:
-      # Switch to true to provide your own secret keys for a custom arogo.repo
-      enabled: false
-    argo:
-      # secret keys to provide for the argocd secret plugin app, none by default
-      secret_keys: {}
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "kubevirt/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "kubevirt"
-      # source repos for Argo CD App Project (in addition to argo.repo)
-      project:
-        source_repos: []
-        destination:
-          namespaces:
-            - argocd
+  # kubevirt:
+  #   description: |
+  #     ⚠️ [magenta]Alpha Status[/magenta]
+  #     only uncomment if you have your own kubevirt app repo for now.
+  #
+  #     kubevirt lets you manage virtual machines via k8s
+  #
+  #     Learn more: [link=https://kubevirt.io/]https://kubevirt.io/[/link]
+  #   # default disabled while a helm chart is being actively developed
+  #   enabled: false
+  #   # Initialization of the app through smol-k8s-lab
+  #   init:
+  #     # Switch to true to provide your own secret keys for a custom arogo.repo
+  #     enabled: false
+  #   argo:
+  #     # secret keys to provide for the argocd secret plugin app, none by default
+  #     secret_keys: {}
+  #     # git repo to install the Argo CD app from
+  #     repo: "https://github.com/small-hack/argocd-apps"
+  #     # path in the argo repo to point to. Trailing slash very important!
+  #     path: "kubevirt/"
+  #     # either the branch or tag to point at in the argo repo above
+  #     ref: "main"
+  #     # namespace to install the k8s app in
+  #     namespace: "kubevirt"
+  #     # source repos for Argo CD App Project (in addition to argo.repo)
+  #     project:
+  #       source_repos: []
+  #       destination:
+  #         namespaces:
+  #           - argocd
 
   kyverno:
     description: |
