@@ -132,6 +132,7 @@ Footer .footer--highlight-key {
 
 /* interactive (TUI) config box */
 #tui-config{
+    margin-top: 1;
     padding-left: 3;
     margin-left: 1;
     margin-right: 1;
@@ -161,4 +162,9 @@ Footer .footer--highlight-key {
     background: rgb(35,35,54) 50%;
     layout: grid;
     align: center middle;
+}
+
+.help-text {
+    color: gray;
+    width: 100%;
 }

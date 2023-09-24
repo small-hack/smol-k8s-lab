@@ -16,7 +16,8 @@ class SmolK8sLabConfig(App):
     """
     Textual app to configure smol-k8s-lab itself
     """
-    CSS_PATH = ["./css/smol_k8s_cfg.tcss"]
+    CSS_PATH = ["./css/smol_k8s_cfg.tcss",
+                "./css/help.tcss"]
     BINDINGS = [Binding(key="h,?",
                         key_display="h",
                         action="request_help",
@@ -58,8 +59,7 @@ class SmolK8sLabConfig(App):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        self.sub_title = "now with more 🦑"
+        self.title = " 🪛 configure 🧸 smol k8s lab"
 
     def action_request_help(self) -> None:
         """
@@ -100,20 +100,22 @@ class TuiConfig(Widget):
                         tooltip="always enable interactive mode"
                         )
 
-            yield bool_option(
-                    label="k9s enabled:",
-                    name="k9s-enabled",
-                    switch_value=self.cfg['k9s']['enabled'],
-                    tooltip="launch k9s, a k8s TUI dashboard when cluster is up"
-                    )
 
-            yield input_field(
-                    label="k9s command:",
-                    name="k9s-command",
-                    initial_value=self.cfg['k9s']['command'],
-                    placeholder="command to run when k9s starts",
-                    tooltip="command to run via k9s"
-                    )
+            with Horizontal(classes="double-switch-row"):
+                yield bool_option(
+                        label="k9s enabled:",
+                        name="k9s-enabled",
+                        switch_value=self.cfg['k9s']['enabled'],
+                        tooltip="launch k9s, a k8s TUI dashboard when cluster is up"
+                        )
+
+                yield input_field(
+                        label="k9s command:",
+                        name="k9s-command",
+                        initial_value=self.cfg['k9s']['command'],
+                        placeholder="command to run when k9s starts",
+                        tooltip="command to run via k9s"
+                        )
 
     def on_mount(self) -> None:
         """
@@ -167,21 +169,24 @@ class LoggingConfig(Widget):
         possible_levels.remove(current_level)
 
         with Container(id="logging-config"):
-            with Horizontal(classes="radioset-row"):
-                yield Label("level:", classes="radioset-row-label")
-                with RadioSet(classes="radioset-row-radioset"):
-                    button = RadioButton(current_level, value=True)
-                    button.BUTTON_INNER = "♥"
-                    yield button
-                    for level in possible_levels:
-                        button = RadioButton(level)
+            with Horizontal(classes="double-switch-row"):
+                with Horizontal(classes="radioset-row"):
+                    label = Label("level:", classes="radioset-row-label")
+                    label.tooltip = "logging verbosity level"
+                    yield label
+                    with RadioSet(classes="radioset-row-radioset"):
+                        button = RadioButton(current_level, value=True)
                         button.BUTTON_INNER = "♥"
                         yield button
+                        for level in possible_levels:
+                            button = RadioButton(level)
+                            button.BUTTON_INNER = "♥"
+                            yield button
 
-            yield input_field("file:",
-                              logging_opt['file'],
-                              XDG_STATE_HOME,
-                              "File to log to")
+                yield input_field("file:",
+                                  logging_opt['file'],
+                                  XDG_STATE_HOME,
+                                  "File to log to")
 
     def on_mount(self) -> None:
         """
@@ -220,7 +225,9 @@ class PasswordManagerConfig(Widget):
         Compose widget for configuring the local password manager
         """
         with Container(id="password-manager-config"):
-            yield Label("Only Bitwarden is supported at this time")
+            yield Label("Save app credentials to a local password manager vault. "
+                        "Only Bitwarden is supported at this time.",
+                        classes="help-text")
 
             enabled_tooltip = "enable storing passwords for apps in a password manager"
             with Horizontal(classes="double-switch-row"):
