@@ -1,0 +1,150 @@
+/* Matches the entire screen */
+Screen {
+   align: center middle;
+   scrollbar-background: #3a3a3a;
+   scrollbar-background-active: #3a3a3a;
+   scrollbar-background-hover: #3a3a3a;
+   scrollbar-color-hover: orange;
+   scrollbar-color: #5f5fd7;
+}
+
+Tooltip {
+  background: rgb(35,35,54) 50%;
+  color: #7a7a7a;
+  border: round gray 80%;
+  padding-bottom: 0;
+}
+
+Button {
+  background: rgb(123,120,191) 10%;
+  border-top: tall rgb(65,72,104) 60%;
+  border-bottom: tall rgb(0,0,0) 30%;
+}
+
+Input {
+  background: #7a7a7a 8%;
+  color: white 75%;
+  border: tall black 30%;
+}
+
+Input.-invalid {
+   border: tall magenta 60%;
+}
+
+Input.-valid:focus {
+   border: tall $success;
+}
+
+/* Matches the bottom footer help text on every page */
+Footer {
+   background: rgb(35,35,54) 50%;
+}
+
+Footer .footer--description {
+   color: cornflowerblue;
+   background: rgb(35,35,54) 50%;
+}
+
+Footer .footer--key {
+   color: #282727;
+   background: cornflowerblue;
+}
+
+Footer .footer--highlight {
+   color: orange;
+   background: rgb(35,35,54) 50%;
+}
+
+Footer .footer--highlight-key {
+  color: #282727;
+  background: orange;
+}
+
+/* truthy value rows with switches */
+.bool-switch-row {
+    align: left middle;
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.3fr 1fr;
+}
+
+.bool-switch-row-label {
+    height: 3;
+}
+
+.bool-switch-row-switch {
+    height: 3;
+}
+
+/* any basic "label: input" row */
+.input-row {
+    align: left middle;
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.3fr 1fr;
+    height: auto;
+}
+
+/* Label in "label: input" row */
+.input-row-label {
+    align: center middle;
+    height: 3;
+}
+
+/* Input in "label: input" row */
+.input-row-input {
+    align: center middle;
+}
+
+/* radio set for logging config */
+.radioset-row {
+    align: left middle;
+    layout: grid;
+    grid-size: 2;
+    height: 10;
+    grid-columns: 0.3fr 1fr;
+    margin-bottom: 1;
+}
+
+.radioset-row-label {
+    content-align: center middle;
+    height: 6;
+}
+
+.radioset-row-radioset {
+    align: center middle;
+}
+
+/* interactive (TUI) config box */
+#interactive-config {
+    padding-left: 3;
+    padding-top: 1;
+    margin: 1;
+    border: solid lime;
+    layout: grid;
+    width: 90%;
+    align: center middle;
+}
+
+/* logging config box */
+#logging-config {
+    padding-left: 3;
+    margin: 1;
+    border: solid gold;
+    layout: grid;
+    width: 90%;
+    height: 16;
+    align: center middle;
+}
+
+/* password manager config box */
+#password-manager-config {
+    padding-left: 3;
+    padding-top: 1;
+    margin: 1;
+    border: solid cornflowerblue;
+    layout: grid;
+    width: 90%;
+    height: 16;
+    align: center middle;
+}

@@ -112,7 +112,7 @@ def main(config: str = "",
         USR_CFG, SECRETS = process_configs(delete)
 
     # setup logging immediately
-    log = process_log_config(USR_CFG['log'])
+    log = process_log_config(USR_CFG['smol_k8s_lab']['log'])
     log.debug("Logging configured.")
 
     k8s_distros = USR_CFG['k8s_distros']
@@ -126,10 +126,10 @@ def main(config: str = "",
 
     bw = None
     # if we're using bitwarden, unlock the vault
-    pw_manager_enabled = USR_CFG['local_password_manager']['enabled']
-    pw_manager = USR_CFG['local_password_manager']['name']
-    if pw_manager_enabled and pw_manager == 'bitwarden':
-        bw = BwCLI(USR_CFG['local_password_manager']['overwrite'])
+    pw_enabled = USR_CFG['smol_k8s_lab']['local_password_manager']['enabled']
+    pw_manager = USR_CFG['smol_k8s_lab']['local_password_manager']['name']
+    if pw_enabled and pw_manager == 'bitwarden':
+        bw = BwCLI(USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite'])
         bw.unlock()
 
     for distro, metadata in k8s_distros.items():

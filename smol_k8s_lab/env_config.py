@@ -12,11 +12,8 @@ from .constants import (OS,
                         DEFAULT_DISTRO_OPTIONS,
                         DEFAULT_DISTRO)
 from .utils.rich_cli.console_logging import print_panel, header, sub_header
+from .utils.write_yaml import dump_to_file
 from rich.prompt import Confirm, Prompt
-# this is for dumping with comments
-import ruamel.yaml
-
-yaml = ruamel.yaml.YAML()
 
 
 def check_os_support(supported_os=('Linux', 'Darwin')):
@@ -72,7 +69,7 @@ def process_configs(config: dict = {}, delete: bool = False):
         apps_config, secrets = process_app_configs(config['apps'])
     config['apps'] = apps_config
 
-    config['log'] = config.get("log", DEFAULT_CONFIG["log"])
+    config['smol_k8s_lab']['log'] = config.get("log", DEFAULT_CONFIG["log"])
 
     # make sure we have a globally set lets-encrypt cluster issuer
     default_issuer = DEFAULT_CONFIG['apps_global_config']['cluster_issuer']
@@ -90,8 +87,7 @@ def process_configs(config: dict = {}, delete: bool = False):
     # Write newly updated YAML data to config file
     if initialize or DEFAULT_CONFIG != config:
         sub_header("✏️ Writing out your newly updated config file")
-        with open(XDG_CONFIG_FILE, 'w') as conf_file:
-            yaml.dump(config, conf_file)
+        dump_to_file(config)
 
     return config, secrets
 

@@ -1,10 +1,40 @@
 ---
-# logging config for the smol-k8s-lab CLI
-log:
-  # path of file to log to if console logging is NOT desired
-  # file: "./smol-k8s-log.log"
-  # logging level, Options: debug, info, warn, error
-  level: "debug"
+smol_k8s_lab:
+  # this is useful for learning smol-k8s-lab or verifying your configuration
+  interactive:
+    # show bottom footer help bar
+    show_footer: true
+    # if this is set to true, we'll always launch smol-k8s-lab in interactive mode :)
+    always_enabled: false
+    # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
+    k9s:
+      # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s
+      # immediately after the cluster is up and enabled apps have been installed
+      enabled: false
+      # default command to run when k9s launches. defaults to application.argoproj.io
+      # so that you can view the status of all of your argo apps immediately. This
+      # default results in running: k9s --command applications.argoproj.io
+      command: applications.argoproj.io
+
+  # logging config for the smol-k8s-lab CLI
+  log:
+    # path of file to log to if console logging is NOT desired
+    file: "./smol-k8s-log.log"
+    # logging level, Options: debug, info, warn, error
+    level: debug
+
+  # store your password and tokens directly in your local password manager
+  local_password_manager:
+    enabled: false
+    # enable the use of bitwarden as your password manager.
+    # To use Bitwarden, you must export the following environment variables:
+    # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
+    # If you're missing any of these, smol-k8s-lab will prompt for them
+    name: bitwarden
+    # if existing items are found in your password manager, give smol-k8s-lab
+    # permission to delete the old item and create a new one.
+    # If set to false, we attempt to create a second item
+    overwrite: false
 
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind and k3d are available on macOS at this time
@@ -74,35 +104,6 @@ k8s_distros:
     nodes:
       control_plane: 1
       workers: 0
-
-# this is useful for learning smol-k8s-lab or verifying your configuration
-interactive:
-  # hide bottom help bar
-  hide_footer: false
-  # if this is set to true, we'll always launch smol-k8s-lab in interactive mode :)
-  always_enabled: false
-  # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
-  k9s:
-    # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s
-    # immediately after the cluster is up and enabled apps have been installed
-    enabled: false
-    # default command to run when k9s launches. defaults to application.argoproj.io
-    # so that you can view the status of all of your argo apps immediately. This
-    # default results in running: k9s --command applications.argoproj.io
-    command: "applications.argoproj.io"
-
-# store your password and tokens directly in your local password manager
-local_password_manager:
-  enabled: true
-  # enable the use of bitwarden as your password manager.
-  # To use Bitwarden, you must export the following environment variables:
-  # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
-  # If you're missing any of these, smol-k8s-lab will prompt for them
-  name: bitwarden
-  # if existing items are found in your password manager, give smol-k8s-lab
-  # permission to delete the old item and create a new one.
-  # If set to false, we attempt to create a second item
-  overwrite: false
 
 # anything here gets set for all apps if you're using our default repos
 apps_global_config:

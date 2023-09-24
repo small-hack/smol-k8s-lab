@@ -2,7 +2,8 @@
 from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS, XDG_CONFIG_FILE
 from smol_k8s_lab.env_config import process_k8s_distros
 from smol_k8s_lab.utils.yaml_with_comments import syntax_highlighted_yaml
-from smol_k8s_lab.utils.tui.help_screen import HelpScreen
+from smol_k8s_lab.utils.write_yaml import dump_to_file
+from smol_k8s_lab.utils.tui.cluster_config_help import HelpScreen
 from smol_k8s_lab.utils.tui.app_config import ArgoCDAppInputs, ArgoCDNewInput
 from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
 from smol_k8s_lab.utils.tui.k3s_config import K3sConfig
@@ -16,12 +17,9 @@ from textual.widgets import (Button, Footer, Header, Label, Select,
                              SelectionList, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
-import ruamel.yaml
-
-yaml = ruamel.yaml.YAML()
 
 
-class SmolK8sLabConfig(App):
+class ClusterConfig(App):
     """
     Textual app to configure smol-k8s-lab
     """
@@ -297,9 +295,7 @@ class SmolK8sLabConfig(App):
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
         if event.button.id == "confirm-button":
-            with open(XDG_CONFIG_FILE, 'w') as smol_k8s_config:
-                yaml.dump(self.usr_cfg, smol_k8s_config)
-
+            dump_to_file(self.usr_cfg)
             self.exit(self.usr_cfg)
 
 
@@ -310,6 +306,7 @@ def format_description(description: str = ""):
     """
     if not description:
         description = "No Description provided yet for this user defined application."
+
     description = description.replace("[link", "[/dim][steel_blue][link")
     description = description.replace("[/link]", "[/link][/steel_blue][dim]")
 
@@ -319,5 +316,5 @@ def format_description(description: str = ""):
 if __name__ == "__main__":
     # this is temporary during testing
     from smol_k8s_lab.constants import INITIAL_USR_CONFIG
-    reply = SmolK8sLabConfig(INITIAL_USR_CONFIG).run()
+    reply = ClusterConfig(INITIAL_USR_CONFIG).run()
     print(reply)
