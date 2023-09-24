@@ -13,7 +13,10 @@ from .constants import (OS,
                         DEFAULT_DISTRO)
 from .utils.rich_cli.console_logging import print_panel, header, sub_header
 from rich.prompt import Confirm, Prompt
-from yaml import dump
+# this is for dumping with comments
+import ruamel.yaml
+
+yaml = ruamel.yaml.YAML()
 
 
 def check_os_support(supported_os=('Linux', 'Darwin')):
@@ -88,7 +91,7 @@ def process_configs(config: dict = {}, delete: bool = False):
     if initialize or DEFAULT_CONFIG != config:
         sub_header("✏️ Writing out your newly updated config file")
         with open(XDG_CONFIG_FILE, 'w') as conf_file:
-            dump(config, conf_file)
+            yaml.dump(config, conf_file)
 
     return config, secrets
 
