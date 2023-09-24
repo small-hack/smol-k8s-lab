@@ -38,7 +38,7 @@ Input.-valid:focus {
 
 /* Matches the bottom footer help text on every page */
 Footer {
-   background: rgb(35,35,54) 50%;
+   background: $background 1%;
 }
 
 Footer .footer--description {
