@@ -8,13 +8,11 @@ from getpass import getuser
 from importlib.metadata import version as get_version
 from os import environ, path, uname
 from pathlib import Path
-# import ruamel.yaml
+from ruamel.yaml import YAML
 from shutil import copyfile
-import yaml
-from xdg_base_dirs import xdg_cache_home, xdg_config_home 
+from xdg_base_dirs import xdg_cache_home, xdg_config_home
 
-# if using ruamel.yaml
-# yaml = ruamel.yaml.YAML()
+yaml = YAML()
 
 # env
 SYSINFO = uname()
@@ -59,7 +57,7 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
 
     # open the yaml config file and then return the dict
     with open(yaml_config_file, 'r') as yaml_file:
-        return yaml.safe_load(yaml_file)
+        return yaml.load(yaml_file)
 
 
 DEFAULT_CONFIG = load_yaml(DEFAULT_CONFIG_FILE)

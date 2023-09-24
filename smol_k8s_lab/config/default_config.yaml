@@ -108,7 +108,7 @@ local_password_manager:
 apps_global_config:
   # setting this changes all the below domains to use the following cluster_issuer
   # change to letsencrypt-prod when you're ready to go live with your infra
-  cluster_issuer: letsencrypt-staging
+  cluster_issuer: "letsencrypt-staging"
 
 # ---------------------------------------------------------------------------
 # Argo CD deployed and maintained Applications to run on Kubernetes
@@ -214,8 +214,8 @@ apps:
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
+        # where the helm chart lives. Go here for more info
         source_repos:
-          # where the helm chart lives. Go here for more info
           - "https://jessebot.github.io/bitwarden-eso-provider"
         destination:
           namespaces:
