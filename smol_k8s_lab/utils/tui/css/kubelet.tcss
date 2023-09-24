@@ -1,7 +1,5 @@
 /* kubelet config container */
 .kubelet-config-container {
-   align: center middle;
-   height: auto;
    border: round cornflowerblue;
    background: rgb(35,35,54) 50%;
 }
