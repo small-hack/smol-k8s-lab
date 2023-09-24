@@ -9,7 +9,7 @@ from smol_k8s_lab.utils.tui.k3s_config import K3sConfig
 from smol_k8s_lab.utils.tui.node_adjustment import NodeAdjustmentBox
 from textual import on
 from textual.app import App, ComposeResult
-from textual.containers import VerticalScroll, Container
+from textual.containers import VerticalScroll, Container, Horizontal
 from textual.binding import Binding
 from textual.events import Mount
 from textual.widgets import (Button, Footer, Header, Label, Select,
@@ -59,15 +59,19 @@ class SmolK8sLabConfig(App):
         with TabbedContent(initial="select-distro"):
             # tab 1 - select a kubernetes distro
             with TabPane("Configure Kubernetes Distro", id="select-distro"):
+                label = Label("Selected Distro:", id="select-distro-label")
+                label.tooltip = self.distros[self.previous_distro]['description']
+
                 # create all distro selection choices for the top of tabbed content
                 my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
-                d_select =  Select(((line, line) for line in my_options),
-                                        id="distro-drop-down",
-                                        allow_blank=False,
-                                        value=self.previous_distro)
 
-                d_select.tooltip = self.distros[self.previous_distro]['description']
-                yield d_select
+                # container for top drop down
+                with Horizontal(id="distro-select-box"):
+                    yield label
+                    yield Select(((line, line) for line in my_options),
+                                 id="distro-drop-down",
+                                 allow_blank=False,
+                                 value=self.previous_distro)
 
                 for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
                     # only display the default distro for this OS
@@ -76,7 +80,7 @@ class SmolK8sLabConfig(App):
                     else:
                         display = False
 
-                    distro_box = VerticalScroll(classes=f"k8s-distro-config {distro}",
+                    distro_box = Container(classes=f"k8s-distro-config {distro}",
                                                 id=f"{distro}-box")
                     distro_box.display = display
 
@@ -110,6 +114,8 @@ class SmolK8sLabConfig(App):
                             k3s_box_classes = f"{distro} k3s-config-container"
                             yield Container(K3sConfig(distro, k3s_args),
                                             classes=k3s_box_classes)
+                        else:
+                            yield Label(" ", id="kind-placeholder")
 
             # tab 2 - allows selection of different argo cd apps to run in k8s
             with TabPane("Select Applications", id="select-apps"):
@@ -296,7 +302,16 @@ class SmolK8sLabConfig(App):
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
         if event.button.id == "confirm-button":
-            self.exit(self.usr_cfg)
+            apps = self.usr_cfg['apps']
+            if apps['appset_secret_plugin']['enabled']:
+                secrets = {}
+                for app, metadata in apps:
+                    if metadata['enabled']:
+                        secrets_keys = metadata['argo']['secrets_keys']
+                        if secrets_keys:
+                            for key, value in secrets_keys:
+                                secrets[f"{app}_{key}"] = value
+            self.exit([self.usr_cfg, secrets])
 
 
 def format_description(description: str = ""):
