@@ -6,4 +6,16 @@ def launch_config_tui():
     """
     Run all the TUI screens
     """
-    return SmolK8sLabConfig(INITIAL_USR_CONFIG).run()
+    config = SmolK8sLabConfig(INITIAL_USR_CONFIG).run()
+
+    apps = config['apps']
+    if apps['appset_secret_plugin']['enabled']:
+        secrets = {}
+        for app, metadata in apps.items():
+            if metadata['enabled']:
+                secrets_keys = metadata['argo']['secrets_keys']
+                if secrets_keys:
+                    for key, value in secrets_keys.items():
+                        secrets[f"{app}_{key}"] = value
+
+    return config, secrets

@@ -302,16 +302,7 @@ class SmolK8sLabConfig(App):
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
         if event.button.id == "confirm-button":
-            apps = self.usr_cfg['apps']
-            if apps['appset_secret_plugin']['enabled']:
-                secrets = {}
-                for app, metadata in apps:
-                    if metadata['enabled']:
-                        secrets_keys = metadata['argo']['secrets_keys']
-                        if secrets_keys:
-                            for key, value in secrets_keys:
-                                secrets[f"{app}_{key}"] = value
-            self.exit([self.usr_cfg, secrets])
+            self.exit(self.usr_cfg)
 
 
 def format_description(description: str = ""):
