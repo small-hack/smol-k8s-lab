@@ -127,37 +127,37 @@ class ArgoCDAppInputs(Static):
                     inputs_container.display = False
             yield switch
 
-            if init:
-                with inputs_container:
-                    # these are special values that are only set up via
-                    # smol-k8s-lab and do not live in a secret on the k8s cluster
-                    init_values = init.get('values', None)
-                    if init_values:
-                        for init_key, init_value in init_values.items():
-                            # create input
-                            input_keys = {"placeholder": placeholder_grammar(init_key),
-                                          "classes": f"app-init-input {self.app_name}",
-                                          "validators": [Length(minimum=2)],
-                                          "name": init_key}
-                            if init_value:
-                                input_keys['value'] = init_value
+        if init:
+            with inputs_container:
+                # these are special values that are only set up via
+                # smol-k8s-lab and do not live in a secret on the k8s cluster
+                init_values = init.get('values', None)
+                if init_values:
+                    for init_key, init_value in init_values.items():
+                        # create input
+                        input_keys = {"placeholder": placeholder_grammar(init_key),
+                                      "classes": f"app-init-input {self.app_name}",
+                                      "validators": [Length(minimum=2)],
+                                      "name": init_key}
+                        if init_value:
+                            input_keys['value'] = init_value
 
-                            # create the input row
-                            label_class = f"app-input-label {self.app_name}"
-                            label = Label(f"{init_key}: ", classes=label_class)
-                            label.tooltip = (
-                                    "Init value for special one-time setup of this app."
-                                    " This value is [i]not[/i] stored in a secret for "
-                                    "later reference by Argo CD.")
+                        # create the input row
+                        label_class = f"app-input-label {self.app_name}"
+                        label = Label(f"{init_key}: ", classes=label_class)
+                        label.tooltip = (
+                                "Init value for special one-time setup of this app."
+                                " This value is [i]not[/i] stored in a secret for "
+                                "later reference by Argo CD.")
 
-                            container_class = f"app-input-row {self.app_name}"
+                        container_class = f"app-input-row {self.app_name}"
 
-                            input = Input(**input_keys)
-                            if input.validate(init_value):
-                                self.ancestors[-1].invalid_app_inputs[self.app_name].append(init_key)
-                            with Horizontal(classes=container_class):
-                                yield label
-                                yield input
+                        input = Input(**input_keys)
+                        if input.validate(init_value):
+                            self.ancestors[-1].invalid_app_inputs[self.app_name].append(init_key)
+                        with Horizontal(classes=container_class):
+                            yield label
+                            yield input
 
         # standard values to source an argo cd app from an external repo
         with Container(classes=f"{self.app_name} argo-config-container"):
