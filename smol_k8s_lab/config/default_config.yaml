@@ -404,6 +404,8 @@ apps:
 
       Containers do not inherit timezones from host machines and have only accessed to the clock from the kernel. The default timezone for most images is UTC, yet it is not guaranteed and may be different from container to container. With k8tz it is easy to standardize selected timezone across pods and namespaces automatically with minimal effort.
 
+      You can find your timezone identifier here: [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]https://wikipedia.org/wiki/List_of_tz_database_time_zones[/link]
+
       Learn more: [link=https://github.com/k8tz/k8tz]https://github.com/k8tz/k8tz[/link]
     init:
       enabled: true
@@ -421,7 +423,7 @@ apps:
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
         source_repos:
-          - "https://k8up-io.github.io/k8up"
+          - "https://k8tz.github.io/k8tz/"
         destination:
           namespaces:
             - argocd
@@ -432,6 +434,7 @@ apps:
       K8up ([i]pronounced "ketchup?"[/]) is a Kubernetes Operator based on Restic for backups of Persistent Volumes in k8s into S3 compatible storage like MinIO. Backs up all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label. Can also perform "Application Aware" backups, containing the output of any tool capable of writing to stdout.
 
       You can also perform individual, on-demand backups, and restores from the k8up CLI tool.
+      You can find your timezone identifier here: [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]https://wikipedia.org/wiki/List_of_tz_database_time_zones[/link]
 
       Learn more: [link=https://k8up.io]https://k8up.io[/link]
 
