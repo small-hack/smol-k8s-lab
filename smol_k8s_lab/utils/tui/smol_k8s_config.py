@@ -6,9 +6,11 @@ from textual.containers import Container, Horizontal
 from textual.binding import Binding
 from textual.widgets import (Footer, Header, Input, Label, Switch, RadioButton,
                              RadioSet)
+from textual.widget import Widget
 from xdg_base_dirs import xdg_state_home
 
 XDG_STATE_HOME = xdg_state_home
+
 
 class SmolK8sLabConfig(App):
     """
@@ -32,67 +34,20 @@ class SmolK8sLabConfig(App):
         # header to be cute
         yield Header()
 
-        # Footer to show keys
+        # Footer to show help keys, if enabled
         footer = Footer()
         if not self.cfg['interactive']['show_footer']:
             footer.display = False
-
         yield Footer()
 
-        yield 
+        with Container(id="config-screen"):
+            # interactive config for hide_footer, always_enabled, and k9s
+            yield TuiConfig(self.cfg['interactive'])
 
-        # interactive config for hide_footer, always_enabled, and k9s
-        interactive_opt = self.cfg['interactive']
-        with Container(id="interactive-config"):
-            yield bool_option("show footer:",
-                              interactive_opt['show_footer'],
-                              "show the footer at the bottom of the screen")
+            yield LoggingConfig(self.cfg['log'])
 
-            yield bool_option("always enabled:",
-                              interactive_opt['always_enabled'],
-                              "always enable interactive mode")
-
-            yield bool_option("k9s enabled:",
-                              interactive_opt['k9s']['enabled'],
-                              "launch k9s, a k8s TUI dashboard, after we're finished")
-
-            yield input_field("k9s command:",
-                              interactive_opt['k9s']['command'],
-                              "applications.argoproj.io",
-                              "command to run via k9s")
-
-        # logging config for log.level and log.file
-        logging_opt = self.cfg['log']
-        current_level = logging_opt['level']
-        possible_levels = ['debug' , 'info', 'warn', 'error']
-        possible_levels.remove(current_level)
-
-        with Container(id="logging-config"):
-            with Horizontal(classes="radioset-row"):
-                yield Label("level:", classes="radioset-row-label")
-                with RadioSet(classes="radioset-row-radioset"):
-                    yield RadioButton(current_level, value=True)
-                    for level in possible_levels:
-                        yield RadioButton(level)
-
-            yield input_field("file:",
-                              logging_opt['file'],
-                              XDG_STATE_HOME,
-                              "File to log to")
-
-        # local password manager config for enabled, name, and overwrite
-        pw_opt = self.cfg['local_password_manager']
-        with Container(id="password-manager-config"):
-            yield Label("Only Bitwarden is supported at this time")
-
-            enabled_tooltip = "enable storing passwords for apps in a password manager"
-            yield bool_option("enabled:", pw_opt['enabled'], enabled_tooltip)
-
-            yield bool_option("Overwrite existing:",
-                              pw_opt['overwrite'],
-                              "Overwrite existing items in your password vault. "
-                              "If disabled, smol-k8s-lab will create duplicates, "
-                              "which can be dangerous")
+            # local password manager config for enabled, name, and overwrite
+            yield PasswordManagerConfig(self.cfg['local_password_manager'])
 
     def on_mount(self) -> None:
         """
@@ -100,15 +55,6 @@ class SmolK8sLabConfig(App):
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "now with more 🦑"
-
-        pass_title = "🔒[pink]Password Manager"
-        self.get_widget_by_id("password-manager-config").border_title = pass_title
-
-        tui_title = "⚙️ [green]Terminal UI Config"
-        self.get_widget_by_id("interactive-config").border_title = tui_title
-
-        log_title = "🪵[gold3]Logging Config"
-        self.get_widget_by_id("logging-config").border_title = log_title
 
     def action_request_help(self) -> None:
         """
@@ -123,6 +69,110 @@ class SmolK8sLabConfig(App):
         dump_to_file(self.cfg)
         # self.app.pop_screen()
         self.exit(self.cfg)
+
+
+class TuiConfig(Widget):
+    def __init__(self, config: dict) -> None:
+        self.cfg = config
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        """
+        Compose widget for configuring the interactive experience
+        """
+        with Container(id="interactive-config"):
+            yield bool_option("show footer:",
+                              self.cfg['show_footer'],
+                              "show the footer at the bottom of the screen")
+
+            yield bool_option("always enabled:",
+                              self.cfg['always_enabled'],
+                              "always enable interactive mode")
+
+            yield bool_option("k9s enabled:",
+                              self.cfg['k9s']['enabled'],
+                              "launch k9s, a k8s TUI dashboard, after we're finished")
+
+            yield input_field("k9s command:",
+                              self.cfg['k9s']['command'],
+                              "applications.argoproj.io",
+                              "command to run via k9s")
+
+    def on_mount(self) -> None:
+        """
+        box border styling
+        """
+        tui_title = "🖥️ [green]Terminal UI Config"
+        self.get_widget_by_id("interactive-config").border_title = tui_title
+
+
+class LoggingConfig(Widget):
+    def __init__(self, config: dict) -> None:
+        self.cfg = config
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        """
+        Compose widget for configuring logging
+        """
+        # logging config for log.level and log.file
+        logging_opt = self.cfg
+        current_level = logging_opt['level']
+        possible_levels = ['debug' , 'info', 'warn', 'error']
+        possible_levels.remove(current_level)
+
+        with Container(id="logging-config"):
+            with Horizontal(classes="radioset-row"):
+                yield Label("level:", classes="radioset-row-label")
+                with RadioSet(classes="radioset-row-radioset"):
+                    button = RadioButton(current_level, value=True)
+                    button.BUTTON_INNER = "♥"
+                    yield button
+                    for level in possible_levels:
+                        button = RadioButton(level)
+                        button.BUTTON_INNER = "♥"
+                        yield button
+
+            yield input_field("file:",
+                              logging_opt['file'],
+                              XDG_STATE_HOME,
+                              "File to log to")
+
+    def on_mount(self) -> None:
+        """
+        box border styling
+        """
+        log_title = "🪵[gold3]Logging Config"
+        self.get_widget_by_id("logging-config").border_title = log_title
+
+
+class PasswordManagerConfig(Widget):
+    def __init__(self, config: dict) -> None:
+        self.cfg = config
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        """
+        Compose widget for configuring the local password manager
+        """
+        with Container(id="password-manager-config"):
+            yield Label("Only Bitwarden is supported at this time")
+
+            enabled_tooltip = "enable storing passwords for apps in a password manager"
+            yield bool_option("enabled:", self.cfg['enabled'], enabled_tooltip)
+
+            yield bool_option("Overwrite existing:",
+                              self.cfg['overwrite'],
+                              "Overwrite existing items in your password vault. "
+                              "If disabled, smol-k8s-lab will create duplicates, "
+                              "which can be dangerous")
+
+    def on_mount(self) -> None:
+        """
+        box border styling
+        """
+        pass_title = "🔒[cornflower_blue]Password Manager"
+        self.get_widget_by_id("password-manager-config").border_title = pass_title
 
 
 def bool_option(label: str, switch_value: bool, tooltip: str):

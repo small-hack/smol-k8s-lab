@@ -37,7 +37,7 @@ Input.-valid:focus {
 
 /* Matches the bottom footer help text on every page */
 Footer {
-   background: rgb(35,35,54) 50%;
+   background: $background 1%;
 }
 
 Footer .footer--description {
@@ -115,15 +115,23 @@ Footer .footer--highlight-key {
     align: center middle;
 }
 
+#config-screen {
+    layout: grid;
+    width: 90%;
+    margin: 1;
+    align: center middle;
+}
+
 /* interactive (TUI) config box */
 #interactive-config {
     padding-left: 3;
     padding-top: 1;
     margin: 1;
     border: solid lime;
+    background: rgb(35,35,54) 50%;
     layout: grid;
-    width: 90%;
     align: center middle;
+    height: 20;
 }
 
 /* logging config box */
@@ -131,9 +139,9 @@ Footer .footer--highlight-key {
     padding-left: 3;
     margin: 1;
     border: solid gold;
+    background: rgb(35,35,54) 50%;
     layout: grid;
-    width: 90%;
-    height: 16;
+    height: auto;
     align: center middle;
 }
 
@@ -143,8 +151,8 @@ Footer .footer--highlight-key {
     padding-top: 1;
     margin: 1;
     border: solid cornflowerblue;
+    background: rgb(35,35,54) 50%;
     layout: grid;
-    width: 90%;
     height: 16;
     align: center middle;
 }
