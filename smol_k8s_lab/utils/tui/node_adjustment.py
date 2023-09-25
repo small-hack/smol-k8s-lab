@@ -1,9 +1,8 @@
 #!/usr/bin/env python3.11
-from textual import on
 from textual.app import ComposeResult, Widget
 from textual.containers import Horizontal
-from textual.widgets import Label, Input, Pretty
-from textual.validation import Function, Number, ValidationResult, Validator
+from textual.widgets import Label, Input
+from textual.validation import Number
 
 
 NO_NODE_TXT = (
@@ -11,7 +10,7 @@ NO_NODE_TXT = (
         "map to support extra nodes in the future. In the meantime, you can "
         "still follow the instructions at [link="
         "https://docs.k3s.io/quick-start#install-script]"
-        "docs.k3s.io/quick-start#install-script[/link] to install a new node"
+        "docs.k3s.io/quick-start#install-script[/link] to add a new node"
         )
 
 
@@ -42,7 +41,11 @@ class NodeAdjustmentBox(Widget):
             disabled = False
 
         with node_input_row:
-            yield Label("control plane:", classes=f"{node_class}-label")
+            label = Label("control plane:", classes=f"{node_class}-label")
+            label.tooltip = (
+                    "The control plane manages the worker nodes and the Pods in "
+                    "the cluster")
+            yield label
             yield Input(value=self.control_plane_nodes,
                         placeholder='1',
                         classes=f"{node_class}-control-input",
@@ -50,8 +53,11 @@ class NodeAdjustmentBox(Widget):
                         disabled=disabled)
 
             worker_label = Label("workers:", classes=f"{node_class}-label")
-            worker_label.tooltip = ("If workers is 0, the control plane acts "
-                                    "as the worker.")
+            worker_label.tooltip = (
+                    "The worker node(s) host the Pods that are the components of"
+                    " the application workload. If workers is 0, the control "
+                    "plane acts as the worker."
+                    )
             yield worker_label
             yield Input(value=self.worker_nodes,
                         placeholder='0',
