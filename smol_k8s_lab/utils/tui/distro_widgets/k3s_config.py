@@ -30,11 +30,9 @@ class K3sConfig(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        txt = ("After modifying an input field, [dim][gold3]↩ Enter[/][/] to save it."
-               " If [dim][green]metallb[/][/] is [i]enabled[/], we automatically pass "
-               "in --disabled-servicelb. If [dim][green]cilium[/][/] is [i]enabled[/],"
-               " we automatically pass in --flannel-backend=none and "
-               "--disable-network-policy."
+        txt = ("If [dim][green]metallb[/][/] is [i]enabled[/], we add "
+               "--disabled-servicelb.\nIf [dim][green]cilium[/][/] is [i]enabled[/],"
+               " we also add --flannel-backend=none --disable-network-policy."
                )
         yield Label(txt, classes="k3s-help-label")
 

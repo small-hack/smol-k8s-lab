@@ -37,10 +37,10 @@ class ArgoCDNewInput(Static):
         underscore_app_name = app_name.replace(" ", "_").replace("-", "_")
 
         # the main config app
-        parent_app = event.button.ancestors[-1]
+        parent_app = event.button.ancestors[-2]
 
         # updates the base user yaml
-        parent_app.usr_cfg[underscore_app_name] = {
+        parent_app.cfg[underscore_app_name] = {
             "enabled": True,
             "description": "",
             "argo": {
@@ -65,10 +65,11 @@ class ArgoCDNewInput(Static):
         inputs = VerticalScroll(
                 ArgoCDAppInputs(
                     underscore_app_name,
-                    parent_app.usr_cfg[underscore_app_name]
+                    parent_app.cfg[underscore_app_name]
                     ),
                 id=f"{underscore_app_name}-inputs"
                 )
+
         inputs.display = False
         parent_app.app.get_widget_by_id("app-inputs-pane").mount(inputs)
 
@@ -157,7 +158,12 @@ class ArgoCDAppInputs(Static):
 
                             input = Input(**input_keys)
                             if input.validate(init_value):
-                                self.ancestors[-1].invalid_app_inputs[self.app_name].append(init_key)
+                                invalid_inputs = self.ancestors[-2].invalid_app_inputs
+                                app_inputs = invalid_inputs.get(self.app_name, None)
+                                if app_inputs:
+                                    app_inputs.append(init_key)
+                                else:
+                                    invalid_inputs[self.app_name] = [init_key]
                             with Horizontal(classes=container_class):
                                 yield label
                                 yield input
@@ -177,7 +183,12 @@ class ArgoCDAppInputs(Static):
                     input.tooltip = value
 
                     if input.validate(argo_params[key]):
-                        self.ancestors[-1].invalid_app_inputs[self.app_name].append(key)
+                        invalid_inputs = self.ancestors[-2].invalid_app_inputs
+                        app_inputs = invalid_inputs.get(self.app_name, None)
+                        if app_inputs:
+                            app_inputs.append(key)
+                        else:
+                            invalid_inputs[self.app_name] = [key]
 
                     yield Horizontal(
                             Label(f"{key}:",
@@ -257,7 +268,7 @@ class ArgoCDAppInputs(Static):
         except Exception as e:
             if "NoMatches" in str(e):
                 pass
-        parent_app_yaml = event.switch.ancestors[-1].usr_cfg[self.app_name]
+        parent_app_yaml = event.switch.ancestors[-2].cfg[self.app_name]
         parent_app_yaml['init']['enabled'] = truthy_value
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -270,7 +281,7 @@ class ArgoCDAppInputs(Static):
 
             if input:
                 # root app yaml
-                apps_yaml = event.button.ancestors[-1].usr_cfg[self.app_name]
+                apps_yaml = event.button.ancestors[-2].cfg[self.app_name]
                 apps_yaml['argo']['secret_keys'][input] = ""
 
                 # add new secret key row
@@ -294,7 +305,12 @@ class ArgoCDAppInputs(Static):
         input = Input(**input_keys)
 
         if input.validate(value):
-            self.ancestors[-1].invalid_app_inputs[self.app_name].append(secret_key)
+            invalid_inputs = self.ancestors[-2].invalid_app_inputs
+            app_inputs = invalid_inputs.get(self.app_name, None)
+            if app_inputs:
+                app_inputs.append(secret_key)
+            else:
+                invalid_inputs[self.app_name] = [secret_key]
 
         # create the input row
         secret_label = Label(f"{key_label}:",
@@ -305,8 +321,8 @@ class ArgoCDAppInputs(Static):
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
         input = event.input
-        parent_app = input.ancestors[-1]
-        parent_app_yaml = parent_app.usr_cfg[self.app_name]
+        parent_app = input.ancestors[-2]
+        parent_app_yaml = parent_app.cfg[self.app_name]
 
         # if this is an Argo CD app/project config input
         if "argo-config-input" in input.classes:

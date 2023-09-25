@@ -1,36 +1,35 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.utils.write_yaml import dump_to_file
-from smol_k8s_lab.utils.tui.help import HelpScreen
 from smol_k8s_lab.utils.tui.app_widgets.app_inputs_confg import (ArgoCDAppInputs,
                                                                  ArgoCDNewInput)
 from textual import on
-from textual.app import App, ComposeResult
+from textual.app import ComposeResult
+from textual.screen import Screen
 from textual.containers import VerticalScroll, Container
-from textual.binding import Binding
 from textual.events import Mount
 from textual.widgets import Button, Footer, Header, Label, SelectionList
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 
 
-class AppConfig(App):
+class AppConfig(Screen):
     """
     Textual app to smol-k8s-lab applications
     """
-    CSS_PATH = ["./css/apps_config.tcss",
-                "./css/help.tcss"]
-    BINDINGS = [Binding(key="h,?",
-                        key_display="h",
-                        action="request_help",
-                        description="Show Help",
-                        show=True)]
+    CSS_PATH = ["./css/apps_config.tcss"]
     ToggleButton.BUTTON_INNER = '♥'
 
-    def __init__(self, user_config: dict, show_footer: bool = True) -> None:
-        self.usr_cfg = user_config
+    def __init__(self, config: dict, show_footer: bool = True) -> None:
+        # show the footer at bottom of screen or not
         self.show_footer = show_footer
+
+        # should be the apps section of smol k8s lab config
+        self.cfg = config
+
+        # this is state storage
         self.previous_app = ''
         self.invalid_app_inputs = {}
+
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -47,8 +46,7 @@ class AppConfig(App):
         yield footer
 
         full_list = []
-        for app, app_meta in self.usr_cfg.items():
-            self.invalid_app_inputs[app] = []
+        for app, app_meta in self.cfg.items():
             item = Selection(app.replace("_","-"), app, app_meta['enabled'])
             full_list.append(item)
 
@@ -67,7 +65,7 @@ class AppConfig(App):
 
             # top right: vertically scrolling container for all inputs
             with VerticalScroll(id='app-inputs-pane'):
-                for app, metadata in self.usr_cfg.items():
+                for app, metadata in self.cfg.items():
                     yield ArgoCDAppInputs(app, metadata)
 
             # Bottom half of the screen for select-apps
@@ -101,7 +99,7 @@ class AppConfig(App):
         highlighted_app = selection_list.get_option_at_index(highlighted_idx).value
 
         # update the bottom app description to the highlighted_app's description
-        blurb = format_description(self.usr_cfg[highlighted_app]['description'])
+        blurb = format_description(self.cfg[highlighted_app]['description'])
         self.get_widget_by_id('app-description').update(blurb)
 
         # styling for the select-apps - configure apps container - right
@@ -123,21 +121,15 @@ class AppConfig(App):
         selection_list = self.query_one(SelectionList)
         app = selection_list.get_option_at_index(event.selection_index).value
         if app in selection_list.selected:
-            self.usr_cfg[app]['enabled'] = True
+            self.cfg[app]['enabled'] = True
         else:
-            self.usr_cfg[app]['enabled'] = False
-
-    def action_request_help(self) -> None:
-        """
-        if the user presses 'h' or '?', show the help modal screen
-        """
-        self.push_screen(HelpScreen())
+            self.cfg[app]['enabled'] = False
 
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
         if event.button.id == "confirm-button":
-            dump_to_file(self.usr_cfg)
-            self.exit(self.usr_cfg)
+            dump_to_file(self.cfg)
+            self.exit(self.cfg)
 
 
 def format_description(description: str = ""):
@@ -152,10 +144,3 @@ def format_description(description: str = ""):
     description = description.replace("[/link]", "[/link][/steel_blue][dim]")
 
     return f"""[dim]{description}[/dim]"""
-
-
-if __name__ == "__main__":
-    # this is temporary during testing
-    from smol_k8s_lab.constants import INITIAL_USR_CONFIG
-    reply = AppConfig(INITIAL_USR_CONFIG['apps']).run()
-    print(reply)

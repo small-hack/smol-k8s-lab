@@ -28,8 +28,7 @@ class KubeletConfig(Widget):
 
     def compose(self) -> ComposeResult:
         # kubelet config section
-        help = ("Add key value pairs to pass to your kubelet config. Press "
-                "[dim][gold3]↩ Enter[/][/] to save [i]each[/i] input field.")
+        help = ("Add key value pairs to pass to your kubelet config.")
         if self.distro == 'kind':
             help += (" If the [dim][green]cilium[/][/] app is enabled, we "
                      "automatically pass in disableDefualtCNI: true")

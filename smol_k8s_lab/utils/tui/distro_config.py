@@ -2,35 +2,29 @@
 from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
 from smol_k8s_lab.env_config import process_k8s_distros
 from smol_k8s_lab.utils.write_yaml import dump_to_file
-from smol_k8s_lab.utils.tui.help import HelpScreen
 from smol_k8s_lab.utils.tui.distro_widgets.kubelet_config import KubeletConfig
 from smol_k8s_lab.utils.tui.distro_widgets.k3s_config import K3sConfig
 from smol_k8s_lab.utils.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
 from textual import on
-from textual.app import App, ComposeResult
+from textual.app import ComposeResult
 from textual.containers import Container, Horizontal
-from textual.binding import Binding
+from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Label, Select
 
 
-class DistroConfig(App):
+class DistroConfig(Screen):
     """
     Textual app to configure smol-k8s-lab
     """
     CSS_PATH = ["./css/distro_config.tcss",
-                "./css/help.tcss",
                 "./css/k3s.tcss",
                 "./css/kubelet.tcss"]
-    BINDINGS = [Binding(key="h,?",
-                        key_display="h",
-                        action="request_help",
-                        description="Show Help",
-                        show=True)]
 
-    def __init__(self, user_config: dict, show_footer: bool = True) -> None:
-        self.usr_cfg = user_config
-        self.previous_distro = process_k8s_distros(self.usr_cfg, False)[1]
+    def __init__(self, config: dict, show_footer: bool = True) -> None:
+        self.cfg = config
+        self.previous_distro = process_k8s_distros(self.cfg, False)[1]
         self.show_footer = show_footer
+
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -51,7 +45,7 @@ class DistroConfig(App):
 
         # this is for selecting distros
         label = Label("Selected Distro:", id="select-distro-label")
-        label.tooltip = self.usr_cfg[self.previous_distro]['description']
+        label.tooltip = self.cfg[self.previous_distro]['description']
 
         # create all distro selection choices for the top of tabbed content
         my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
@@ -64,8 +58,10 @@ class DistroConfig(App):
                          allow_blank=False,
                          value=self.previous_distro)
 
-        advanced_label = Label("⚙️ [i]Advanced Configuration",
-                               id="advanced-config-label")
+        advanced_label = Label(
+                "⚙️ [i]Advanced Configuration - [dim]Press [gold3]↩ Enter[/] "
+                "to save [i]each[/i] input field.",
+                id="advanced-config-label")
 
         yield advanced_label
         for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
@@ -138,30 +134,29 @@ class DistroConfig(App):
         if self.previous_distro:
             distro_obj = self.get_widget_by_id(f"{self.previous_distro}-box")
             distro_obj.display = False
-            self.usr_cfg[self.previous_distro]['enabled'] = False
+            self.cfg[self.previous_distro]['enabled'] = False
 
         # change display to True if the distro is selected
         distro_obj = self.get_widget_by_id(f"{distro}-box")
         distro_obj.display = True
-        self.usr_cfg[distro]['enabled'] = True
+        self.cfg[distro]['enabled'] = True
 
         # update the tooltip to be the correct distro's description
-        distro_description = self.usr_cfg[distro]["description"]
+        distro_description = self.cfg[distro]["description"]
         self.get_widget_by_id("select-distro-label").tooltip = distro_description
+
+        self.ancestors[-1].cfg['k8s_distros'][distro]['enabled'] = True
+        self.ancestors[-1].cfg['k8s_distros'][self.previous_distro]['enabled'] = False
+        self.ancestors[-1].write_yaml()
 
         self.previous_distro = distro
 
-    def action_request_help(self) -> None:
-        """
-        if the user presses 'h' or '?', show the help modal screen
-        """
-        self.push_screen(HelpScreen())
 
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
         if event.button.id == "confirm-button":
-            dump_to_file(self.usr_cfg)
-            self.exit(self.usr_cfg)
+            dump_to_file(self.cfg)
+            self.exit(self.cfg)
 
 
 def format_description(description: str = ""):
@@ -178,5 +173,5 @@ def format_description(description: str = ""):
 if __name__ == "__main__":
     # this is temporary during testing
     from smol_k8s_lab.constants import INITIAL_USR_CONFIG
-    reply = DistroConfig(INITIAL_USR_CONFIG['k8s_distros']).run()
+    reply = DistroConfig(INITIAL_USR_CONFIG).run()
     print(reply)

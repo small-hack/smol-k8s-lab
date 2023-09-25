@@ -1,18 +1,19 @@
-from .apps_config import AppConfig
-from smol_k8s_lab.constants import INITIAL_USR_CONFIG
+from .base import BaseApp
 
 
 def launch_config_tui():
     """
     Run all the TUI screens
     """
-    config = AppConfig(INITIAL_USR_CONFIG).run()
+    config = BaseApp().run()
 
-    apps = config['apps']
-
+    # assume there's no secrets
     secrets = {}
-    if apps['appset_secret_plugin']['enabled']:
-        for app, metadata in apps.items():
+
+    # check is we're using the appset_secret_plugin at all
+    if config['apps']['appset_secret_plugin']['enabled']:
+        # if we are using the appset_secret_plugin, then grab all the secret keys
+        for app, metadata in config['apps'].items():
             if metadata['enabled']:
                 secret_keys = metadata['argo']['secret_keys']
                 if secret_keys:
