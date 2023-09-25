@@ -9,7 +9,7 @@ from textual.widgets import (Footer, Header, Input, Label, Switch, RadioButton,
 from textual.widget import Widget
 from xdg_base_dirs import xdg_state_home
 
-XDG_STATE_HOME = xdg_state_home
+XDG_STATE_HOME = str(xdg_state_home()) + "/smol-k8s-lab/smol.log"
 
 
 class SmolK8sLabConfig(App):
@@ -23,10 +23,10 @@ class SmolK8sLabConfig(App):
                         action="request_help",
                         description="Show Help",
                         show=True),
-                Binding(key="q",
+                Binding(key="q,c",
                         key_display="q",
                         action="save_and_quit",
-                        description="Save and Quit",
+                        description="Save and Continue",
                         show=True)]
 
     def __init__(self, config: dict) -> None:
@@ -47,13 +47,13 @@ class SmolK8sLabConfig(App):
         yield Footer()
 
         with Container(id="config-screen"):
-            # interactive config for hide_footer, always_enabled, and k9s
-            yield TuiConfig(self.cfg['interactive'])
-
             yield LoggingConfig(self.cfg['log'])
 
             # local password manager config for enabled, name, and overwrite
             yield PasswordManagerConfig(self.cfg['local_password_manager'])
+
+            # interactive config for hide_footer, always_enabled, and k9s
+            yield TuiConfig(self.cfg['interactive'])
 
     def on_mount(self) -> None:
         """
@@ -183,10 +183,12 @@ class LoggingConfig(Widget):
                             button.BUTTON_INNER = "♥"
                             yield button
 
-                yield input_field("file:",
-                                  logging_opt['file'],
-                                  XDG_STATE_HOME,
-                                  "File to log to")
+                yield input_field(label="file:",
+                                  initial_value=logging_opt['file'],
+                                  name="file",
+                                  placeholder=XDG_STATE_HOME,
+                                  tooltip="File to log to. If provided, no console "
+                                          "logging will take place")
 
     def on_mount(self) -> None:
         """
@@ -226,7 +228,10 @@ class PasswordManagerConfig(Widget):
         """
         with Container(id="password-manager-config"):
             yield Label("Save app credentials to a local password manager vault. "
-                        "Only Bitwarden is supported at this time.",
+                        "Only Bitwarden is supported at this time, but if enabled,"
+                        " Bitwarden can be used as your k8s external secret provider."
+                        " To avoid a password prompt, export the following env vars: "
+                        "BW_PASSWORD, BW_CLIENTID, and BW_CLIENTSECRET.",
                         classes="help-text")
 
             enabled_tooltip = "enable storing passwords for apps in a password manager"
@@ -280,7 +285,7 @@ def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Hori
 
 def input_field(label: str, initial_value: str, name: str, placeholder: str,
                 tooltip: str = "") -> Horizontal:
-    """ 
+    """
     returns an input label and field within a Horizontal container
     """
     label = Label(label, classes="input-row-label")
