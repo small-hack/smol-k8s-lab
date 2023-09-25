@@ -30,6 +30,7 @@ class DistroConfig(App):
     def __init__(self, user_config: dict, show_footer: bool = True) -> None:
         self.usr_cfg = user_config
         self.previous_distro = process_k8s_distros(self.usr_cfg, False)[1]
+        self.show_footer = show_footer
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -38,9 +39,17 @@ class DistroConfig(App):
         """
         # header to be cute
         yield Header()
-        # Footer to show keys
-        yield Footer()
 
+        # Footer to show keys
+        footer = Footer()
+        if not self.show_footer:
+            footer.display = False
+        yield footer
+
+        help = Label("🌱 Select a distro to get started", id="distro-help")
+        yield help
+
+        # this is for selecting distros
         label = Label("Selected Distro:", id="select-distro-label")
         label.tooltip = self.usr_cfg[self.previous_distro]['description']
 
@@ -55,6 +64,10 @@ class DistroConfig(App):
                          allow_blank=False,
                          value=self.previous_distro)
 
+        advanced_label = Label("⚙️ Advanced Configuration",
+                               id="advanced-config-label")
+
+        yield advanced_label
         for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
             # only display the default distro for this OS
             if distro == self.previous_distro:

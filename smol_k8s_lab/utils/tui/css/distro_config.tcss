@@ -7,6 +7,7 @@ Screen {
    scrollbar-color: #5f5fd7;
    align: center middle;
    layout: grid;
+   grid-rows: 0.35fr 0.35fr 0.3fr 3fr;
 }
 
 Tooltip {
@@ -36,7 +37,7 @@ Input.-valid:focus {
    border: tall $success;
 }
 
-/* Matches the bottom footer help text on every page */
+/* Matches the bottom footer on every page */
 Footer {
    background: $background 1%;
 }
@@ -61,11 +62,29 @@ Footer .footer--highlight-key {
   background: orange;
 }
 
+#distro-help {
+    margin-top: 1;
+    padding-top: 1;
+    padding-bottom: 1;
+    content-align: center middle;
+    width: 100%;
+    color: rgb(168,253,87);
+    background: rgb(65,72,104) 30%;
+}
+
+#advanced-config-label {
+   height: 3;
+   width: 100%;
+   content-align: center middle;
+   color: rgb(168,253,87);
+   background: rgb(65,72,104) 30%;
+}
+
 #distro-select-box {
    height: 3;
    padding-left: 1;
    background: rgb(35,35,54) 50%;
-   margin-bottom: 1;
+   margin-top: 1;
 }
 
 #select-distro-label {
@@ -81,12 +100,11 @@ Footer .footer--highlight-key {
    background: rgb(65,72,104) 90%;
 }
 
-/* the whole middle k8s distro config area */
+/* bottom half k8s distro config area */
 .k8s-distro-config {
    layout: grid;
-   grid-size: 1;
-   grid-rows: 0.4fr 1fr 1fr;
    align: center top;
+   grid-rows: 0.5fr 1fr 1.1fr;
 }
 
 /* number of nodes input row */
@@ -97,7 +115,9 @@ Footer .footer--highlight-key {
    grid-size: 5;
    align: center middle;
    width: 100%;
-   height: 7;
+   padding-top: 1;
+   padding-bottom: 1;
+   margin-bottom: 1;
 }
 
 .nodes-input-label {
@@ -122,11 +142,4 @@ Footer .footer--highlight-key {
 
 /* kind placeholder box to make the grid look nice */
 #kind-placeholder {
-}
-
-/* k8s distro description container */
-.k8s-distro-description-container {
-   align: center middle;
-   border: round gray;
-   padding: 1;
 }
