@@ -44,7 +44,7 @@ class NodeAdjustmentBox(Widget):
             label = Label("control plane:", classes=f"{node_class}-label")
             label.tooltip = (
                     "The control plane manages the worker nodes and the Pods in "
-                    "the cluster")
+                    "the cluster. You have to have at least one.")
             yield label
             yield Input(value=self.control_plane_nodes,
                         placeholder='1',
@@ -56,7 +56,7 @@ class NodeAdjustmentBox(Widget):
             worker_label.tooltip = (
                     "The worker node(s) host the Pods that are the components of"
                     " the application workload. If workers is 0, the control "
-                    "plane acts as the worker."
+                    "plane acts as the worker as well."
                     )
             yield worker_label
             yield Input(value=self.worker_nodes,
