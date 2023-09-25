@@ -2,7 +2,8 @@
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll, Container
-from textual.widgets import Input, Button, Static, Label
+from textual.widget import Widget
+from textual.widgets import Input, Button, Label
 from textual.suggester import SuggestFromList
 
 SUGGESTIONS = SuggestFromList((
@@ -15,7 +16,7 @@ SUGGESTIONS = SuggestFromList((
 VALUE_SUGGESTIONS = SuggestFromList(("ingress-ready=true"))
 
 
-class KubeletConfig(Static):
+class KubeletConfig(Widget):
     """
     Extra Args for Kubelet Config section
     """
