@@ -64,8 +64,8 @@ Footer .footer--highlight-key {
 .bool-switch-row {
     align: left middle;
     layout: grid;
-    grid-size: 2;
-    grid-columns: 1fr 1fr;
+    grid-size: 3;
+    grid-columns: 0.8fr 1fr 0.1fr;
 }
 
 .bool-switch-row-label {
@@ -79,6 +79,22 @@ Footer .footer--highlight-key {
 
 /* two bool-switch-rows side by side */
 .double-switch-row {
+    align: left middle;
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.8fr 1fr;
+}
+
+/* k9s row of a switch and input field */
+.k9s-switch-input-row {
+    align: left middle;
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.8fr 1fr;
+}
+
+.k9s-switch-input-row .input-row {
+    padding-top: 1;
 }
 
 /* any basic "label: input" row */
@@ -87,7 +103,6 @@ Footer .footer--highlight-key {
     layout: grid;
     grid-size: 2;
     grid-columns: 0.3fr 1fr;
-    height: auto;
 }
 
 /* Label in "label: input" row */
@@ -95,6 +110,7 @@ Footer .footer--highlight-key {
     align: center middle;
     padding-top: 1;
     padding-bottom: 1;
+    width: 100%;
 }
 
 /* Input in "label: input" row */
@@ -123,8 +139,7 @@ Footer .footer--highlight-key {
 #config-screen {
     layout: grid;
     grid-size: 1;
-    grid-rows: 1.9fr 1.3fr 0.9fr;
-    width: 90%;
+    grid-rows: 1.3fr 1.2fr 0.9fr;
     margin-left: 1;
     margin-right: 1;
     align: center middle;
@@ -132,24 +147,28 @@ Footer .footer--highlight-key {
 
 /* interactive (TUI) config box */
 #tui-config{
-    margin-top: 1;
+    padding-top: 2;
     padding-left: 3;
     margin-left: 1;
     margin-right: 1;
+    margin-top: 2;
+    margin-bottom: 2;
     border: solid lime;
     background: rgb(35,35,54) 50%;
     layout: grid;
+    grid-rows: 0.8fr 1fr;
     align: center middle;
 }
 
 /* logging config box */
 #logging-config {
     padding-left: 3;
-    margin: 1;
+    margin-top: 1;
+    margin-left: 1;
+    margin-right: 1;
+    margin-bottom: 3;
     border: solid gold;
     background: rgb(35,35,54) 50%;
-    layout: grid;
-    align: center middle;
 }
 
 /* password manager config box */
@@ -158,10 +177,9 @@ Footer .footer--highlight-key {
     padding-top: 1;
     margin-left: 1;
     margin-right: 1;
+    margin-bottom: 1;
     border: solid cornflowerblue;
     background: rgb(35,35,54) 50%;
-    layout: grid;
-    align: center middle;
 }
 
 .help-text {
