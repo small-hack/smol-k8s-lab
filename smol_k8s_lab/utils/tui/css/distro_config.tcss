@@ -1,0 +1,132 @@
+/* Matches the entire screen for each page */
+Screen {
+   scrollbar-background: #3a3a3a;
+   scrollbar-background-active: #3a3a3a;
+   scrollbar-background-hover: #3a3a3a;
+   scrollbar-color-hover: orange;
+   scrollbar-color: #5f5fd7;
+   align: center middle;
+   layout: grid;
+}
+
+Tooltip {
+  background: rgb(35,35,54) 50%;
+  color: #7a7a7a;
+  border: round gray 80%;
+  padding-bottom: 0;
+}
+
+Button {
+  background: rgb(123,120,191) 10%;
+  border-top: tall rgb(65,72,104) 60%;
+  border-bottom: tall rgb(0,0,0) 30%;
+}
+
+Input {
+  background: #7a7a7a 8%;
+  color: white 75%;
+  border: tall black 30%;
+}
+
+Input.-invalid {
+   border: tall magenta 60%;
+}
+
+Input.-valid:focus {
+   border: tall $success;
+}
+
+/* Matches the bottom footer help text on every page */
+Footer {
+   background: $background 1%;
+}
+
+Footer .footer--description {
+   color: cornflowerblue;
+   background: rgb(35,35,54) 50%;
+}
+
+Footer .footer--key {
+   color: #282727;
+   background: cornflowerblue;
+}
+
+Footer .footer--highlight {
+   color: orange;
+   background: rgb(35,35,54) 50%;
+}
+
+Footer .footer--highlight-key {
+  color: #282727;
+  background: orange;
+}
+
+#distro-select-box {
+   height: 3;
+   padding-left: 1;
+   background: rgb(35,35,54) 50%;
+   margin-bottom: 1;
+}
+
+#select-distro-label {
+   content-align: center middle;
+   height: 3;
+}
+
+#distro-drop-down {
+   content-align: center middle;
+}
+
+#distro-drop-down .option-list--option-highlighted {
+   background: rgb(65,72,104) 90%;
+}
+
+/* the whole middle k8s distro config area */
+.k8s-distro-config {
+   layout: grid;
+   grid-size: 1;
+   grid-rows: 0.4fr 1fr 1fr;
+   align: center top;
+}
+
+/* number of nodes input row */
+.nodes-input-row {
+   background: rgb(35,35,54) 50%;
+   border: round cornflowerblue;
+   layout: grid;
+   grid-size: 5;
+   align: center middle;
+   width: 100%;
+   height: 7;
+}
+
+.nodes-input-label {
+   content-align: center middle;
+   height: 3;
+   width: 100%;
+   color: rgb(127,200,255) 90%;
+}
+
+/* input field to manually increase/decrease number of control plane nodes */
+.nodes-input-control-input {
+   width: auto;
+   height: 3;
+}
+
+/* input field to manually increase/decrease number of worker nodes */
+.nodes-input-worker-input {
+   align: center middle;
+   width: auto;
+   height: 3;
+}
+
+/* kind placeholder box to make the grid look nice */
+#kind-placeholder {
+}
+
+/* k8s distro description container */
+.k8s-distro-description-container {
+   align: center middle;
+   border: round gray;
+   padding: 1;
+}

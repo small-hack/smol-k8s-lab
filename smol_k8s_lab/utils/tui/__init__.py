@@ -1,4 +1,4 @@
-from .configure_all_screen import ClusterConfig
+from .apps_config import AppConfig
 from smol_k8s_lab.constants import INITIAL_USR_CONFIG
 
 
@@ -6,7 +6,7 @@ def launch_config_tui():
     """
     Run all the TUI screens
     """
-    config = ClusterConfig(INITIAL_USR_CONFIG).run()
+    config = AppConfig(INITIAL_USR_CONFIG).run()
 
     apps = config['apps']
 

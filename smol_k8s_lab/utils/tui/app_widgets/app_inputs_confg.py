@@ -40,7 +40,7 @@ class ArgoCDNewInput(Static):
         parent_app = event.button.ancestors[-1]
 
         # updates the base user yaml
-        parent_app.usr_cfg['apps'][underscore_app_name] = {
+        parent_app.usr_cfg[underscore_app_name] = {
             "enabled": True,
             "description": "",
             "argo": {
@@ -65,7 +65,7 @@ class ArgoCDNewInput(Static):
         inputs = VerticalScroll(
                 ArgoCDAppInputs(
                     underscore_app_name,
-                    parent_app.usr_cfg['apps'][underscore_app_name]
+                    parent_app.usr_cfg[underscore_app_name]
                     ),
                 id=f"{underscore_app_name}-inputs",
                 classes="single-app-inputs"
@@ -251,7 +251,7 @@ class ArgoCDAppInputs(Static):
         except Exception as e:
             if "NoMatches" in str(e):
                 pass
-        parent_app_yaml = event.switch.ancestors[-1].usr_cfg['apps'][self.app_name]
+        parent_app_yaml = event.switch.ancestors[-1].usr_cfg[self.app_name]
         parent_app_yaml['init']['enabled'] = truthy_value
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -264,7 +264,7 @@ class ArgoCDAppInputs(Static):
 
             if input:
                 # root app yaml
-                apps_yaml = event.button.ancestors[-1].usr_cfg['apps'][self.app_name]
+                apps_yaml = event.button.ancestors[-1].usr_cfg[self.app_name]
                 apps_yaml['argo']['secret_keys'][input] = ""
 
                 # add new secret key row
@@ -300,7 +300,7 @@ class ArgoCDAppInputs(Static):
     def update_base_yaml(self, event: Input.Changed) -> None:
         input = event.input
         parent_app = input.ancestors[-1]
-        parent_app_yaml = parent_app.usr_cfg['apps'][self.app_name]
+        parent_app_yaml = parent_app.usr_cfg[self.app_name]
 
         # if this is an Argo CD app/project config input
         if "argo-config-input" in input.classes:
