@@ -101,7 +101,7 @@ class TuiConfig(Widget):
                         )
 
 
-            with Horizontal(classes="double-switch-row"):
+            with Horizontal(classes="k9s-switch-input-row"):
                 yield bool_option(
                         label="k9s enabled:",
                         name="k9s-enabled",
