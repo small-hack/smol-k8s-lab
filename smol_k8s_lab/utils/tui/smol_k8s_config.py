@@ -1,9 +1,8 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.utils.tui.help import HelpScreen
 from textual import on
-from textual.app import App, ComposeResult
+from textual.app import ComposeResult
 from textual.containers import Container, Horizontal
-from textual.binding import Binding
+from textual.screen import Screen
 from textual.widgets import (Footer, Header, Input, Label, Switch, RadioButton,
                              RadioSet)
 from textual.widget import Widget
@@ -12,24 +11,14 @@ from xdg_base_dirs import xdg_state_home
 XDG_STATE_HOME = str(xdg_state_home()) + "/smol-k8s-lab/smol.log"
 
 
-class SmolK8sLabConfig(App):
+class SmolK8sLabConfig(Screen):
     """
     Textual app to configure smol-k8s-lab itself
     """
-    CSS_PATH = ["./css/smol_k8s_cfg.tcss",
-                "./css/help.tcss"]
-    BINDINGS = [Binding(key="h,?",
-                        key_display="h",
-                        action="request_help",
-                        description="Show Help",
-                        show=True),
-                Binding(key="q,c",
-                        key_display="q",
-                        action="save_and_quit",
-                        description="Save and Continue",
-                        show=True)]
+    CSS_PATH = ["./css/smol_k8s_cfg.tcss"]
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: dict, show_footer: bool = True) -> None:
+        self.show_footer = show_footer
         self.cfg = config
         super().__init__()
 
@@ -37,12 +26,13 @@ class SmolK8sLabConfig(App):
         """
         Compose app with tabbed content.
         """
+
         # header to be cute
         yield Header()
 
         # Footer to show help keys, if enabled
         footer = Footer()
-        if not self.cfg['interactive']['show_footer']:
+        if not self.show_footer:
             footer.display = False
         yield footer
 
@@ -61,18 +51,6 @@ class SmolK8sLabConfig(App):
         """
         self.title = " 🪛 configure 🧸 smol k8s lab"
 
-    def action_request_help(self) -> None:
-        """
-        if the user presses 'h' or '?', show the help modal screen
-        """
-        self.push_screen(HelpScreen())
-
-    def update_parent_cfg(self, key: str) -> None:
-        """
-        udpate parent cfg
-        """
-        # self.ancestors[-1].usr_cfg['smol_k8s_lab'][key] = self.cfg[key]
-        return
 
 class TuiConfig(Widget):
     def __init__(self, config: dict) -> None:
@@ -132,7 +110,7 @@ class TuiConfig(Widget):
         truthy_value = event.value
         switch_name = event.switch.name
 
-        parent_cfg = event.switch.ancestors[-1].cfg['interactive']
+        parent_cfg = event.switch.ancestors[-1].cfg['smol_k8s_lab']['interactive']
 
         if "k9s" in switch_name:
             name = switch_name.replace("k9s-","")
@@ -142,15 +120,15 @@ class TuiConfig(Widget):
             self.cfg[switch_name] = truthy_value
             parent_cfg[switch_name] = truthy_value
 
-        event.switch.ancestors[-1].update_parent_cfg('interactive')
+        self.ancestors[-1].write_yaml()
 
     @on(Input.Changed)
     def update_parent_config_for_input(self, event: Input.Changed) -> None:
         input = event.input
-        parent_cfg = input.ancestors[-1].cfg['interactive']['k9s']
+        parent_cfg = input.ancestors[-1].cfg['smol_k8s_lab']['interactive']['k9s']
 
         parent_cfg[input.name] = input.value
-        input.ancestors[-1].update_parent_cfg('interactive')
+        self.ancestors[-1].write_yaml()
 
 
 class LoggingConfig(Widget):
@@ -205,16 +183,20 @@ class LoggingConfig(Widget):
         input = event.input
         parent_cfg = input.ancestors[-1]
 
-        parent_cfg.cfg['log'][input.name] = input.value
-        parent_cfg.update_parent_cfg('log')
+        parent_cfg.cfg['smol_k8s_lab']['log'][input.name] = input.value
+        self.ancestors[-1].write_yaml()
 
     def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
         """
         update  self and parent app self config with changed radio set
         """
         parent_cfg = event.radio_set.ancestors[-1]
-        self.cfg['level'] = parent_cfg.cfg['log']['level'] = event.pressed.label
-        parent_cfg.update_parent_cfg('log')
+        self.cfg['level'] = event.pressed.label
+        parent_cfg.cfg['smol_k8s_lab']['log']['level'] = str(event.pressed.label)
+        self.ancestors[-1].write_yaml()
+
+    def action_save_and_quit(self) -> None:
+        self.app.pop_screen()
 
 
 class PasswordManagerConfig(Widget):
@@ -262,12 +244,11 @@ class PasswordManagerConfig(Widget):
         """
         truthy_value = event.value
         switch_name = event.switch.name
-        parent_cfg = event.switch.ancestors[-1].cfg['local_password_manager']
+        parent_cfg = event.switch.ancestors[-1].cfg['smol_k8s_lab']
 
+        parent_cfg['local_password_manager'][switch_name] = truthy_value
         # update our own truthy value
-        parent_cfg[switch_name] = self.cfg[switch_name] = truthy_value
-
-        event.switch.ancestors[-1].update_parent_cfg('interactive')
+        self.cfg[switch_name] = truthy_value
 
 
 def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Horizontal:
@@ -300,9 +281,3 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
     input = Input(**input_dict)
 
     return Horizontal(label, input, classes="input-row")
-
-if __name__ == "__main__":
-    # this is temporary during testing
-    from smol_k8s_lab.constants import INITIAL_USR_CONFIG
-    reply = SmolK8sLabConfig(INITIAL_USR_CONFIG['smol_k8s_lab']).run()
-    print(reply)
