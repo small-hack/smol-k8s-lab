@@ -82,7 +82,7 @@ def create_k8s_distro(k8s_distro: str,
                              '--disable-network-policy'])
 
         if k8s_distro == "k3s":
-            install_k3s_cluster(k3s_args,
+            install_k3s_cluster(set(k3s_args),
                                 kubelet_args,
                                 distro_metadata['external_nodes'])
 

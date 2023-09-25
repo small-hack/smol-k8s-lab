@@ -253,7 +253,9 @@ class ClusterConfig(App):
         distro_obj.display = True
         self.usr_cfg['k8s_distros'][distro]['enabled'] = True
 
-        event.select.tooltip = self.usr_cfg['k8s_distros'][distro]["description"]
+        # update the tooltip to be the correct distro's description
+        distro_description = self.usr_cfg['k8s_distros'][distro]["description"]
+        self.get_widget_by_id("select-distro-label").tooltip = distro_description
 
         self.previous_distro = distro
 
