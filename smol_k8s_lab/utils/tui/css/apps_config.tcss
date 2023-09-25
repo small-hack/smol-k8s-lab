@@ -1,5 +1,3 @@
-/* ALL TABS */
-
 /* Matches the entire screen for each page */
 Screen {
    scrollbar-background: #3a3a3a;
@@ -61,14 +59,15 @@ Footer .footer--highlight-key {
   background: orange;
 }
 
-/* BEGIN First TAB */
-
-/* Matches the WHOLE TOP part of screen in 1st tab content container */
+/* Matches the WHOLE TOP part of screen in content container */
 #select-apps-container {
    layout: grid;
    grid-size: 2;
    grid-columns: 0.5fr 1.2fr;
    grid-rows: 1.5fr 0.4fr;
+   margin-top: 2;
+   margin-left: 1;
+   margin-right: 1;
 }
 
 /* matches only the left hand side of top half of screen */
@@ -284,7 +283,7 @@ Switch.-on > .switch--slider {
 }
 
 
-/* Matches App Description in Select k8s apps tab */
+/* Matches App Description in Select k8s apps */
 #app-description-container{
    column-span: 2;
    border: round gray;
@@ -303,46 +302,10 @@ Switch.-on > .switch--slider {
    padding-top: 1;
 }
 
-/* manages just Description heading for select k8s apps tab */
+/* manages just Description heading for select k8s apps */
 #app-description-label {
    margin-bottom: 1;
    color: rgb(168,253,87);
    background: gray;
    width: 100%;
-}
-
-/* final tab with confirmation data */
-#confirm-tab-container {
-   layout: grid;
-   align: center middle;
-   grid-rows: 5.5fr 0.8fr;
-   margin-top: 1;
-}
-
-#invalid-apps {
-  border: dashed yellow 60%;
-  padding: 1;
-  margin-bottom: 1;
-  width: 100%;
-  background: rgb(35,35,54) 60%;
-}
-
-#pretty-yaml-scroll-container {
-   border: solid cornflowerblue;
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
-   height: 100%;
-   padding-top: 1;
-   background: rgb(35,35,54) 60%;
-}
-
-#confirm-button {
-   width: 100%;
-   margin-top: 1;
-   background: rgb(123,120,191) 10%;
-   border-top: tall rgb(65,72,104) 60%;
-   border-bottom: tall rgb(0,0,0) 30%;
 }
