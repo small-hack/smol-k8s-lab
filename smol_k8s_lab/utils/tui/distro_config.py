@@ -64,7 +64,7 @@ class DistroConfig(App):
                          allow_blank=False,
                          value=self.previous_distro)
 
-        advanced_label = Label("⚙️ Advanced Configuration",
+        advanced_label = Label("⚙️ [i]Advanced Configuration",
                                id="advanced-config-label")
 
         yield advanced_label

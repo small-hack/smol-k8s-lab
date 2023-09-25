@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.utils.tui.cluster_config_help import HelpScreen
+from smol_k8s_lab.utils.tui.help import HelpScreen
 from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Container, Horizontal
@@ -44,7 +44,7 @@ class SmolK8sLabConfig(App):
         footer = Footer()
         if not self.cfg['interactive']['show_footer']:
             footer.display = False
-        yield Footer()
+        yield footer
 
         with Container(id="config-screen"):
             yield LoggingConfig(self.cfg['log'])
