@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.utils.write_yaml import dump_to_file
-from smol_k8s_lab.utils.tui.app_widgets.app_inputs_confg import (ArgoCDAppInputs,
-                                                                 ArgoCDNewInput)
+from smol_k8s_lab.utils.tui.app_widgets.app_inputs_confg import (AppInputs,
+                                                                 AddAppInput)
 from textual import on
 from textual.app import ComposeResult
 from textual.screen import Screen
@@ -61,12 +61,15 @@ class AppConfig(Screen):
 
                 # this button let's you create a new app
                 with Container(id="new-app-input-box"):
-                    yield ArgoCDNewInput()
+                    yield AddAppInput()
 
             # top right: vertically scrolling container for all inputs
             with VerticalScroll(id='app-inputs-pane'):
                 for app, metadata in self.cfg.items():
-                    yield ArgoCDAppInputs(app, metadata)
+                    app_inputs = AppInputs(app, metadata)
+                    app_inputs.display = False
+                    app_inputs.id = f"{app}-inputs"
+                    yield app_inputs
 
             # Bottom half of the screen for select-apps
             with VerticalScroll(id="app-description-container"):

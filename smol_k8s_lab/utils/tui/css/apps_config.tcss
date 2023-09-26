@@ -3,7 +3,7 @@
    layout: grid;
    grid-size: 2;
    grid-columns: 0.5fr 1.2fr;
-   grid-rows: 1.5fr 0.4fr;
+   grid-rows: 1.4fr 0.4fr;
    margin-top: 1;
    margin-left: 1;
    margin-right: 1;
@@ -127,7 +127,7 @@ SelectionList .option-list--option-hover {
 }
 
 /* label for each app in the conigure selected apps pane */
-.app-label {
+.initialization-label {
    height: 3;
    width: 100%;
    content-align: left middle;
@@ -221,11 +221,9 @@ Switch.-on > .switch--slider {
    content-align: left middle;
 }
 
-
 /* Matches App Description in Select k8s apps */
 #app-description-container{
    column-span: 2;
-   margin-bottom: 2;
    border: round gray;
    content-align: center middle;
    scrollbar-background: #3a3a3a;
@@ -234,6 +232,7 @@ Switch.-on > .switch--slider {
    scrollbar-color-hover: orange;
    scrollbar-color: #5f5fd7;
    height: auto;
+   margin-top: 1;
 }
 
 #app-description {
