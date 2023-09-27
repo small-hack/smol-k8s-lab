@@ -82,11 +82,14 @@ class AppInputs(Static):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        with Container(classes="init-widget"):
-            yield InitValues(self.app_name, self.init)
 
         # standard values to source an argo cd app from an external repo
-        with Container(classes=f"{self.app_name} argo-config-container"):
+        with VerticalScroll(classes=f"{self.app_name} argo-config-container"):
+
+            # this has to live here because it is awful
+            with Container(classes="init-widget"):
+                yield InitValues(self.app_name, self.init)
+
             yield Label("Advanced Argo CD App Configuration",
                         classes=f"{self.app_name} argo-config-header")
 
