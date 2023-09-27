@@ -36,7 +36,8 @@ class BaseApp(App):
                  show_footer: bool = True) -> None:
         self.cfg = user_config
         self.show_footer = show_footer
-        self.previous_app = ''
+        # self.previous_app = ''
+        self.previous_screen = ''
         self.invalid_app_inputs = {}
         super().__init__()
 
@@ -52,14 +53,20 @@ class BaseApp(App):
 
     def action_request_apps_cfg(self) -> None:
         """
-        launches the argo app config
+        launches the argo app config screen
         """
+        # if there's currently a screen, remove it
+        if self.previous_screen:
+            self.app.pop_screen(self.previous_screen)
+
         self.app.push_screen(AppConfig(self.cfg['apps']))
 
     def action_request_distro_cfg(self) -> None:
         """
-        launches the k8s disto config
+        launches the k8s disto (k3s,k3d,kind) config screen
         """
+        if self.previous_screen:
+            self.app.pop_screen(self.previous_screen)
         self.app.push_screen(DistroConfig(self.cfg['k8s_distros']))
 
     def action_request_smol_k8s_cfg(self) -> None:
@@ -67,6 +74,8 @@ class BaseApp(App):
         launches the smol-k8s-lab config for the program itself for things like
         the TUI, but also logging and password management
         """
+        if self.previous_screen:
+            self.app.pop_screen(self.previous_screen)
         self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
 
     def action_request_help(self) -> None:
