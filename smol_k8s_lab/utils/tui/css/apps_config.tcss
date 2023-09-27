@@ -3,7 +3,7 @@
    layout: grid;
    grid-size: 2;
    grid-columns: 0.5fr 1.2fr;
-   grid-rows: 1.4fr 0.4fr;
+   grid-rows: 1.3fr 0.4fr;
    margin-top: 1;
    margin-left: 1;
    margin-right: 1;
@@ -189,6 +189,7 @@ SelectionList .option-list--option-hover {
    scrollbar-color-hover: orange;
    scrollbar-color: #5f5fd7;
    height: auto;
+   margin-top: 1;
 }
 
 #app-description {
