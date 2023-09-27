@@ -87,4 +87,5 @@ class AppInputs(Widget):
 
     def compose(self) -> ComposeResult:
         yield InitValuesWidget(self.app_name, self.metadata.get('init', None))
-        yield ArgoCDAppProjInputs(self.app_name, self.metadata['argo'])
+        with VerticalScroll(id=f"{self.app_name}-inputs", classes="single-app-inputs"):
+            yield ArgoCDAppProjInputs(self.app_name, self.metadata['argo'])

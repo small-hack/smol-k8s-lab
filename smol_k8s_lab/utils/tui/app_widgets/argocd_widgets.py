@@ -18,107 +18,103 @@ class ArgoCDAppProjInputs(Widget):
     """
     Display inputs for given smol-k8s-lab supported application
     """
-    def __init__(self, app_name: str, argo: dict) -> None:
+    def __init__(self, app_name: str, argo_params: dict) -> None:
         self.app_name = app_name
-        self.argo_params = argo
+        self.argo_params = argo_params
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        argo_inputs = VerticalScroll(id=f"{self.app_name}-inputs",
-                                     classes="single-app-inputs")
-        argo_inputs.display = False
-        with argo_inputs:
-            secret_keys = self.argo_params.get('secret_keys', None)
+        secret_keys = self.argo_params.get('secret_keys', None)
 
-            # standard values to source an argo cd app from an external repo
-            with Container(classes=f"{self.app_name} argo-config-container"):
-                yield Label("Advanced Argo CD App Configuration",
-                            classes=f"{self.app_name} argo-config-header")
+        # standard values to source an argo cd app from an external repo
+        with Container(classes=f"{self.app_name} argo-config-container"):
+            yield Label("Advanced Argo CD App Configuration",
+                        classes=f"{self.app_name} argo-config-header")
 
-                for key, value in ARGO_TOOLTIPS.items():
-                    input = Input(placeholder=f"Please enter a {key}",
-                                  value=self.argo_params[key],
-                                  name=key,
-                                  validators=[Length(minimum=2)],
-                                  id=f"{self.app_name}-{key}",
-                                  classes=f"{self.app_name} argo-config-input")
-                    input.tooltip = value
+            for key, value in ARGO_TOOLTIPS.items():
+                input = Input(placeholder=f"Please enter a {key}",
+                              value=self.argo_params[key],
+                              name=key,
+                              validators=[Length(minimum=2)],
+                              id=f"{self.app_name}-{key}",
+                              classes=f"{self.app_name} argo-config-input")
+                input.tooltip = value
 
-                    if input.validate(self.argo_params[key]):
-                        invalid_inputs = self.ancestors[-1].invalid_app_inputs
-                        app_inputs = invalid_inputs.get(self.app_name, None)
-                        if app_inputs:
-                            app_inputs.append(key)
-                        else:
-                            invalid_inputs[self.app_name] = [key]
+                if input.validate(self.argo_params[key]):
+                    invalid_inputs = self.ancestors[-1].invalid_app_inputs
+                    app_inputs = invalid_inputs.get(self.app_name, None)
+                    if app_inputs:
+                        app_inputs.append(key)
+                    else:
+                        invalid_inputs[self.app_name] = [key]
 
-                    yield Horizontal(
-                            Label(f"{key}:",
-                                  classes=f"{self.app_name} argo-config-label"),
-                                  input,
-                                  classes=f"{self.app_name} argo-config-row")
+                yield Horizontal(
+                        Label(f"{key}:",
+                              classes=f"{self.app_name} argo-config-label"),
+                              input,
+                              classes=f"{self.app_name} argo-config-row")
 
-                # secret keys
-                label =  Label("Template values to pass to Argo CD ApplicationSet ",
-                               classes="secret-key-divider")
-                label.tooltip = ("🔒Added to k8s secret for the Argo CD "
-                                 "ApplicationSet Secret Plugin Generator")
+            # secret keys
+            label =  Label("Template values to pass to Argo CD ApplicationSet ",
+                           classes="secret-key-divider")
+            label.tooltip = ("🔒Added to k8s secret for the Argo CD "
+                             "ApplicationSet Secret Plugin Generator")
+            yield label
+            if secret_keys:
+                # iterate through the app's secret keys
+                for secret_key, value in secret_keys.items():
+                    yield self.generate_secret_key_row(secret_key, value)
+            else:
+                help = ("smol-k8s-lab doesn't include any templated values for"
+                        " this app, but you can add some below if you're using "
+                        "a custom Argo CD App repo.")
+                yield Label(help, classes="app-help-label")
+
+            key_input = Input(placeholder="new key name",
+                              id=f"{self.app_name}-new-secret",
+                              classes="new-secret-input")
+
+            key_input.tooltip = ("🔒key name to pass to the Argo CD ApplicationSet"
+                                 " Secret Plugin Generator for templating non-"
+                                 "sensitive values such as hostnames.")
+
+            yield Horizontal(Button("➕",
+                                    id=f"{self.app_name}-new-secret-button",
+                                    classes="new-secret-button"),
+                             key_input,
+                             classes="app-input-row")
+
+            # argocd project configuration
+            yield Label("Advanced Argo CD App Project Configuration",
+                        classes=f"{self.app_name} argo-config-header")
+
+            # row for project destination namespaces
+            with Horizontal(classes=f"{self.app_name} argo-config-row"):
+                label = Label("namespaces:",
+                              classes=f"{self.app_name} argo-config-label")
+                label.tooltip = "Comma seperated list of namespaces"
                 yield label
-                if secret_keys:
-                    # iterate through the app's secret keys
-                    for secret_key, value in secret_keys.items():
-                        yield self.generate_secret_key_row(secret_key, value)
-                else:
-                    help = ("smol-k8s-lab doesn't include any templated values for"
-                            " this app, but you can add some below if you're using "
-                            "a custom Argo CD App repo.")
-                    yield Label(help, classes="app-help-label")
 
-                key_input = Input(placeholder="new key name",
-                                  id=f"{self.app_name}-new-secret",
-                                  classes="new-secret-input")
+                n_spaces = self.argo_params["project"]["destination"]["namespaces"]
+                classes = f"{self.app_name} argo-config-input argo-proj-ns"
+                yield Input(placeholder="Enter comma seperated list of namespaces",
+                            name="namespaces",
+                            value=", ".join(n_spaces),
+                            classes=classes)
 
-                key_input.tooltip = ("🔒key name to pass to the Argo CD ApplicationSet"
-                                     " Secret Plugin Generator for templating non-"
-                                     "sensitive values such as hostnames.")
+            # row for project source repos
+            with Horizontal(classes=f"{self.app_name} argo-config-row"):
+                label = Label("source_repos:",
+                              classes=f"{self.app_name} argo-config-label")
+                label.tooltip = "Comma seperated list of project source repos"
+                yield label
 
-                yield Horizontal(Button("➕",
-                                        id=f"{self.app_name}-new-secret-button",
-                                        classes="new-secret-button"),
-                                 key_input,
-                                 classes="app-input-row")
-
-                # argocd project configuration
-                yield Label("Advanced Argo CD App Project Configuration",
-                            classes=f"{self.app_name} argo-config-header")
-
-                # row for project destination namespaces
-                with Horizontal(classes=f"{self.app_name} argo-config-row"):
-                    label = Label("namespaces:",
-                                  classes=f"{self.app_name} argo-config-label")
-                    label.tooltip = "Comma seperated list of namespaces"
-                    yield label
-
-                    n_spaces = self.argo_params["project"]["destination"]["namespaces"]
-                    classes = f"{self.app_name} argo-config-input argo-proj-ns"
-                    yield Input(placeholder="Enter comma seperated list of namespaces",
-                                name="namespaces",
-                                value=", ".join(n_spaces),
-                                classes=classes)
-
-                # row for project source repos
-                with Horizontal(classes=f"{self.app_name} argo-config-row"):
-                    label = Label("source_repos:",
-                                  classes=f"{self.app_name} argo-config-label")
-                    label.tooltip = "Comma seperated list of project source repos"
-                    yield label
-
-                    repos = self.argo_params["project"]["source_repos"]
-                    classes = f"{self.app_name} argo-config-input argo-proj-repo"
-                    yield Input(placeholder="Please enter source_repos",
-                                value=", ".join(repos),
-                                name="source_repos",
-                                classes=classes)
+                repos = self.argo_params["project"]["source_repos"]
+                classes = f"{self.app_name} argo-config-input argo-proj-repo"
+                yield Input(placeholder="Please enter source_repos",
+                            value=", ".join(repos),
+                            name="source_repos",
+                            classes=classes)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
