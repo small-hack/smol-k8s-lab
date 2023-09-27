@@ -88,11 +88,6 @@ SelectionList .option-list--option-hover {
 }
 
 .single-app-inputs {
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
 }
 
 /* each app input label and input field row */
@@ -116,8 +111,12 @@ SelectionList .option-list--option-hover {
 
 /* argo cd config param section */
 .argo-config-container {
-    align: left top;
-    margin-top: 1;
+   align: left top;
+   scrollbar-background: #3a3a3a;
+   scrollbar-background-active: #3a3a3a;
+   scrollbar-background-hover: #3a3a3a;
+   scrollbar-color-hover: orange;
+   scrollbar-color: #5f5fd7;
 }
 
 .argo-config-header {
