@@ -1,0 +1,49 @@
+/* RIGHT TOP HALF OF SCREEN */
+
+.init-widget {
+   padding: 0;
+   height: auto;
+}
+
+/* entire row for app label, app switch label, and switch for each app with initialization */
+.app-init-switch-and-labels-row {
+   background: rgb(65,72,104) 30%;
+   layout: grid;
+   grid-size: 4;
+   height: 3;
+   grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
+}
+
+/* label for each app in the conigure selected apps pane */
+.initialization-label {
+   height: 3;
+   width: 100%;
+   content-align: left middle;
+   padding-left: 1;
+   color: rgb(168,253,87);
+}
+
+/* switch label for each app */
+.app-init-switch-label {
+   height: 3;
+   width: 100%;
+   content-align: right middle;
+}
+
+/* sets the init switch slider color only when it's on */
+Switch.-on > .switch--slider {
+   color: rgb(168,253,87) 85%;
+}
+
+/* container for all of an apps input fields */
+.init-inputs-container {
+   height: auto;
+   width: auto;
+}
+
+/* each app input field */
+.app-init-input {
+   margin-top: 1;
+   height: auto;
+   width: 100;
+}

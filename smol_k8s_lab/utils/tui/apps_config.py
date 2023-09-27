@@ -4,9 +4,9 @@ from smol_k8s_lab.utils.tui.app_widgets.app_inputs_confg import (AppInputs,
                                                                  AddAppInput)
 from textual import on
 from textual.app import ComposeResult
-from textual.screen import Screen
 from textual.containers import VerticalScroll, Container
-from textual.events import Mount
+from textual.css.query import NoMatches
+from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Label, SelectionList
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
@@ -16,7 +16,8 @@ class AppConfig(Screen):
     """
     Textual app to smol-k8s-lab applications
     """
-    CSS_PATH = ["./css/apps_config.tcss"]
+    CSS_PATH = ["./css/apps_config.tcss",
+                "./css/apps_init_config.tcss"]
     ToggleButton.BUTTON_INNER = '♥'
 
     def __init__(self, config: dict, show_footer: bool = True) -> None:
@@ -53,7 +54,7 @@ class AppConfig(Screen):
         selection_list = SelectionList[str](*full_list,
                                             id='selection-list-of-apps')
 
-        with Container(id="select-apps-container"):
+        with Container(id="apps-config-container"):
             # top left: the SelectionList of k8s applications
             with Container(id="left-apps-container"):
                 with VerticalScroll(id="select-add-apps"):
@@ -64,12 +65,7 @@ class AppConfig(Screen):
                     yield AddAppInput()
 
             # top right: vertically scrolling container for all inputs
-            with VerticalScroll(id='app-inputs-pane'):
-                for app, metadata in self.cfg.items():
-                    app_inputs = AppInputs(app, metadata)
-                    app_inputs.display = False
-                    app_inputs.id = f"{app}-inputs"
-                    yield app_inputs
+            yield VerticalScroll(id='app-inputs-pane')
 
             # Bottom half of the screen for select-apps
             with VerticalScroll(id="app-description-container"):
@@ -90,7 +86,6 @@ class AppConfig(Screen):
         app_desc = self.get_widget_by_id("app-description-container")
         app_desc.border_title = "[white]App Description[/]"
 
-    @on(Mount)
     @on(SelectionList.SelectionHighlighted)
     def update_highlighted_app_view(self) -> None:
         selection_list = self.query_one(SelectionList)
@@ -110,12 +105,19 @@ class AppConfig(Screen):
         app_cfg_title = f"⚙️ [green]Configure Parameters for [steel_blue1]{app_title}"
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
-        if self.previous_app:
+        if self.previous_app != "":
             app_input = self.get_widget_by_id(f"{self.previous_app}-inputs")
             app_input.display = False
 
-        app_input = self.get_widget_by_id(f"{highlighted_app}-inputs")
-        app_input.display = True
+        try:
+            app_input = self.get_widget_by_id(f"{highlighted_app}-inputs")
+            app_input.display = True
+        except NoMatches:
+            app_metadata = self.cfg[highlighted_app]
+            app_input = VerticalScroll(AppInputs(highlighted_app, app_metadata),
+                                       id=f"{highlighted_app}-inputs",
+                                       classes="single-app-inputs")
+            self.get_widget_by_id("app-inputs-pane").mount(app_input)
 
         self.previous_app = highlighted_app
 
