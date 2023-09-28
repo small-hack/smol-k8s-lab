@@ -1,23 +1,3 @@
-/*
-*      HEX       RGB              name of color in css
-*      ---------------------------------------------
-*      #bdd8ff  rgb(189,216,255)  bluish_white
-*      #aea8f8  rgb(174,168,248)  lavender
-*      #ff8d87  rgb(255,141,135)  spacechalk_red
-*      #f289f9  rgb(242,137,249)  neon_magenta
-*      #ffaff9  rgb(255,175,249)  light_pink
-*      #fdcd36  rgb(253,205,54)   orange
-*      #f9f986  rgb(249,249,134)  soft_yellow
-*      #C1FF87  rgb(193,255,135)  soft_green
-*      #a8fd57  rgb(168,253,87)   spacechalk_lime
-*      #5cc9fd  rgb(92,201,253)   sky_blue
-*      #5f87ff  rgb(95,135,255)   cornflower
-*      #7aa2f7  rgb(122,162,247)  light_cornflower
-*      #565f89  rgb(86,95,137)    blue_grey
-*      #3a3a3a  rgb(58,58,58)     dark_gray
-*      #232336  rgb(35,35,54)     navy
-*/
-
 $bluish_white: rgb(189,216,255);
 $lavender: rgb(174,168,248);
 $spacechalk_red: rgb(255,141,135);
@@ -151,7 +131,7 @@ $navy: rgb(35,35,54);
     padding-left: 3;
     margin-top: 2;
     margin-bottom: 1;
-    border: solid lime;
+    border: solid $soft_green;
     background: $navy 50%;
     layout: grid;
     grid-rows: 0.8fr 1fr;

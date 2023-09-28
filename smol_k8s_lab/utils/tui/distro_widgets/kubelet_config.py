@@ -41,7 +41,7 @@ class KubeletConfig(Widget):
                 for key, value in self.kubelet_extra_args.items():
                     yield self.generate_row(key, str(value))
 
-            yield Button("➕ [blue]Parameter[/blue]",
+            yield Button("➕ Parameter",
                          classes=f"{self.distro} kubelet-arg-add-button")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -55,7 +55,7 @@ class KubeletConfig(Widget):
             parent_row = event.button.parent
             input_key = parent_row.children[0].value
             if input_key:
-                yaml = event.button.ancestors[-1].usr_cfg['k8s_distros']
+                yaml = event.button.ancestors[-1].cfg['k8s_distros']
                 yaml[self.distro]['kubelet_extra_args'].pop(input_key)
             parent_row.remove()
 
@@ -76,7 +76,7 @@ class KubeletConfig(Widget):
             pass
 
         # grab the user's yaml file from the parent app
-        root_yaml = event.input.ancestors[-1].usr_cfg['k8s_distros'][self.distro]
+        root_yaml = event.input.ancestors[-1].cfg['k8s_distros'][self.distro]
         extra_args = root_yaml['kubelet_extra_args']
 
         if "kubelet-arg-input-key" in event.input.classes:

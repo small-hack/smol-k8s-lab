@@ -21,7 +21,7 @@ class AddAppInput(Static):
     """
 
     def compose(self) -> ComposeResult:
-        new_button = Button("[blue]♡ Submit New App[/]", id="new-app-button")
+        new_button = Button("♡ Submit New App", id="new-app-button")
         new_button.tooltip = "Click to add your own Argo CD app from an existing repo"
         yield Input(placeholder="Name of New ArgoCD App",
                     classes="new-app-prompt",

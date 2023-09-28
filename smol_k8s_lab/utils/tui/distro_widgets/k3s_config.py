@@ -54,7 +54,7 @@ class K3sConfig(Widget):
                     yield self.generate_half_row()
                     yield self.generate_half_row()
 
-            yield Button("➕ [blue]New Argument[/blue]",
+            yield Button("➕ New Argument",
                          classes=f"{self.distro} k3s-arg-add-button")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
@@ -70,7 +70,7 @@ class K3sConfig(Widget):
 
             # if the input field is not blank
             if input_key:
-                yaml = event.button.ancestors[-1].usr_cfg['k8s_distros']
+                yaml = event.button.ancestors[-1].cfg['k8s_distros']
                 cli_args = yaml[self.distro][self.yaml_key]
                 if cli_args:
                     for idx, arg in enumerate(cli_args):
@@ -89,7 +89,7 @@ class K3sConfig(Widget):
     @on(Input.Submitted)
     def update_base_yaml(self, event: Input.Changed) -> None:
         input = event.input
-        yaml = input.ancestors[-1].usr_cfg['k8s_distros'][self.distro][self.yaml_key]
+        yaml = input.ancestors[-1].cfg['k8s_distros'][self.distro][self.yaml_key]
         if input.value not in yaml:
             yaml.append(input.value)
 
