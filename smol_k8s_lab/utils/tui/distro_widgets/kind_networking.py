@@ -7,39 +7,41 @@ from textual.widgets import Input, Button, Label
 from textual.suggester import SuggestFromList
 
 SUGGESTIONS = SuggestFromList((
-        "podsPerCore",
-        "maxPods",
-        "node-labels",
-        "featureGates"
+        "apiServerPort",
+        "apiServerAddress",
+        "disableDefaultCNI",
+        "ipFamily",
+        "kubeProxyMode",
+        "podSubnet",
+        "serviceSubnet"
         ))
 
-VALUE_SUGGESTIONS = SuggestFromList(("ingress-ready=true"))
+VALUE_SUGGESTIONS = SuggestFromList(("true"))
 
 
-class KubeletConfig(Widget):
+class KindNetworkingConfig(Widget):
     """
-    Extra Args for Kubelet Config section
+    Extra Args for kind networking Config section
     """
 
-    def __init__(self, distro: str, kubelet_extra_args: list = []) -> None:
-        self.distro = distro
-        self.kubelet_extra_args = kubelet_extra_args
+    def __init__(self, kind_neworking_params: list = []) -> None:
+        self.kind_neworking_params = kind_neworking_params
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        # kubelet config section
-        help = ("Add key value pairs to pass to your kubelet config.")
-
+        # kind networking config section
+        help = ("Add key value pairs to kind networking config. If [dim][green]cilium"
+                "[/][/] is enabled, we pass in disableDefaultCNI=true.")
         yield Label(help, classes="k3s-help-label")
-        with VerticalScroll(classes=f"kubelet-config-scroll {self.distro}",
-                            id=f"{self.distro}-kubelet-config-container"):
 
-            if self.kubelet_extra_args:
-                for key, value in self.kubelet_extra_args.items():
+        with VerticalScroll(classes="kind-networking-config-scroll"):
+            if self.kind_neworking_params:
+                for key, value in self.kind_neworking_params.items():
                     yield self.generate_row(key, str(value))
+            else:
+                yield self.generate_row()
 
-            yield Button("➕ Parameter",
-                         classes=f"{self.distro} kubelet-arg-add-button")
+            yield Button("➕ Parameter", classes="kind-networking-add-button")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
@@ -47,17 +49,17 @@ class KubeletConfig(Widget):
         """
         button_classes = event.button.classes
 
-        # lets you delete a kubelet-arg row
-        if "kubelet-arg-input-del-button" in button_classes:
+        # lets you delete a kind networking-arg row
+        if "kind-networking-input-del-button" in button_classes:
             parent_row = event.button.parent
             input_key = parent_row.children[0].value
             if input_key:
-                yaml = event.button.ancestors[-1].cfg['k8s_distros']
-                yaml[self.distro]['kubelet_extra_args'].pop(input_key)
+                yaml = event.button.ancestors[-1].cfg['k8s_distros']['kind']
+                yaml['networking_args'].pop(input_key)
             parent_row.remove()
 
-        # add a new row of kubelet arg inputs before the add button
-        if "kubelet-arg-add-button" in button_classes:
+        # add a new row of kind networking arg inputs before the add button
+        if "kind-networking-add-button" in button_classes:
             parent_container = event.button.parent
             parent_container.mount(self.generate_row(), before=event.button)
 
@@ -67,26 +69,22 @@ class KubeletConfig(Widget):
         parent_row = event.input.parent
         input_key = parent_row.children[0].value
         input_value = parent_row.children[1].value
-        try:
-            input_value = int(input_value)
-        except ValueError:
-            pass
 
         # grab the user's yaml file from the parent app
-        root_yaml = event.input.ancestors[-1].cfg['k8s_distros'][self.distro]
-        extra_args = root_yaml['kubelet_extra_args']
+        root_yaml = event.input.ancestors[-1].cfg['k8s_distros']['kind']
+        extra_args = root_yaml['networking_args']
 
-        if "kubelet-arg-input-key" in event.input.classes:
+        if "kind-networking-input-key" in event.input.classes:
             if event.input.value not in extra_args.keys():
                 extra_args[event.input.value] = input_value
 
-        elif "kubelet-arg-input-value" in event.input.classes:
-            # convert this to an int if its possible
-            try:
-                int_value = int(event.input.value)
-                extra_args[input_key] = int_value
-            # if value can't an int, just set it normally
-            except ValueError:
+        elif "kind-networking-input-value" in event.input.classes:
+            # if they answer with a boolean, make sure it's written out correctly
+            if event.input.value == 'true':
+                extra_args[input_key] = True
+            elif event.input.value == 'false':
+                extra_args[input_key] = False
+            else:
                 extra_args[input_key] = event.input.value
 
         event.input.ancestors[-1].write_yaml()
@@ -96,10 +94,10 @@ class KubeletConfig(Widget):
         generate a new input field set
         """
         # base class for all the below object
-        row_class = f"{self.distro} kubelet-arg-input"
+        row_class = "kind-networking-input"
 
         # first input field
-        param_input_args = {"placeholder": "optional kubelet parameter",
+        param_input_args = {"placeholder": "optional kind networking param",
                             "classes": f"{row_class}-key",
                             "suggester": SUGGESTIONS}
         if param:
@@ -108,7 +106,7 @@ class KubeletConfig(Widget):
 
         # second input field
         param_value_input_args = {"classes": f"{row_class}-value",
-                                  "placeholder": "kubelet parameter value",
+                                  "placeholder": "kind networking param value",
                                   "suggester": VALUE_SUGGESTIONS}
         if value:
             param_value_input_args["value"] = value
@@ -116,7 +114,7 @@ class KubeletConfig(Widget):
 
         # delete button for each row
         del_button = Button("🚮", classes=f"{row_class}-del-button")
-        del_button.tooltip = "Delete this kubelet parameter"
+        del_button.tooltip = "Delete this kind networking parameter"
 
         return Container(param_input, param_value_input, del_button,
                          classes=f"{row_class}-row")

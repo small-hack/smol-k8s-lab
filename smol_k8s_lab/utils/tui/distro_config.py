@@ -1,15 +1,18 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
 from smol_k8s_lab.env_config import process_k8s_distros
-from smol_k8s_lab.utils.write_yaml import dump_to_file
-from smol_k8s_lab.utils.tui.distro_widgets.kubelet_config import KubeletConfig
 from smol_k8s_lab.utils.tui.distro_widgets.k3s_config import K3sConfig
+from smol_k8s_lab.utils.tui.distro_widgets.kind_networking import KindNetworkingConfig
+from smol_k8s_lab.utils.tui.distro_widgets.kubelet_config import KubeletConfig
 from smol_k8s_lab.utils.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal
 from textual.screen import Screen
-from textual.widgets import Button, Footer, Header, Label, Select
+from textual.widgets import Footer, Header, Label, Select
+
+
+DEFAULT_OPTIONS = DEFAULT_DISTRO_OPTIONS.keys()
 
 
 class DistroConfig(Screen):
@@ -18,7 +21,8 @@ class DistroConfig(Screen):
     """
     CSS_PATH = ["./css/distro_config.tcss",
                 "./css/k3s.tcss",
-                "./css/kubelet.tcss"]
+                "./css/kubelet.tcss",
+                "./css/kind.tcss"]
 
     def __init__(self, config: dict, show_footer: bool = True) -> None:
         """
@@ -50,16 +54,13 @@ class DistroConfig(Screen):
         yield footer
 
         with Container(id="distro-config-screen"):
-            # help = Label("🌱 Select a distro to get started", id="distro-help")
-            # yield help
-
             # this is for selecting distros
             label = Label("🌱 Select a distro to get started:",
                           id="select-distro-label")
             label.tooltip = self.cfg[self.previous_distro]['description']
 
             # create all distro selection choices for the top of tabbed content
-            my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
+            my_options = tuple(DEFAULT_OPTIONS)
 
             # container for top drop down
             with Horizontal(id="distro-select-box"):
@@ -69,13 +70,18 @@ class DistroConfig(Screen):
                              allow_blank=False,
                              value=self.previous_distro)
 
+            # below is advanced configuration
             advanced_label = Label(
                     "⚙️ [i]Advanced Configuration - [dim]Press [gold3]↩ Enter[/]"
                     " to save [i]each[/i] input field.",
                     id="advanced-config-label")
-
             yield advanced_label
-            for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
+
+            for distro in DEFAULT_OPTIONS:
+                distro_metadata = self.cfg.get(distro, None)
+                if not distro_metadata:
+                    distro_metadata = DEFAULT_DISTRO_OPTIONS[distro]
+
                 # only display the default distro for this OS
                 if distro == self.previous_distro:
                     display = True
@@ -83,12 +89,13 @@ class DistroConfig(Screen):
                     display = False
 
                 distro_box = Container(classes=f"k8s-distro-config {distro}",
-                                            id=f"{distro}-box")
+                                       id=f"{distro}-box")
                 distro_box.display = display
 
                 with distro_box:
                     # take number of nodes from config and make string
                     nodes = distro_metadata.get('nodes', False)
+
                     if nodes:
                         control_nodes = str(nodes.get('control_plane', 1))
                         worker_nodes = str(nodes.get('workers', 0))
@@ -97,16 +104,13 @@ class DistroConfig(Screen):
                         worker_nodes = "0"
 
                     # node input row
-                    adjust = NodeAdjustmentBox(distro,
-                                               control_nodes,
-                                               worker_nodes)
+                    adjust = NodeAdjustmentBox(distro, control_nodes, worker_nodes)
                     yield Container(adjust, classes=f"{distro} nodes-box")
 
                     # kubelet config section
                     extra_args = distro_metadata['kubelet_extra_args']
                     kubelet_class = f"{distro} kubelet-config-container"
-                    yield Container(KubeletConfig(distro,
-                                                  extra_args),
+                    yield Container(KubeletConfig(distro, extra_args),
                                     classes=kubelet_class)
 
                     # take extra k3s args if distro is k3s or k3d
@@ -117,6 +121,11 @@ class DistroConfig(Screen):
 
                         yield Container(K3sConfig(distro, k3s_args),
                                         classes=k3s_box_classes)
+                    elif distro == 'kind':
+                        yield Container(
+                                KindNetworkingConfig(distro_metadata['networking_args']),
+                                id="kind-networking-container"
+                                )
 
     def on_mount(self) -> None:
         """
@@ -134,6 +143,10 @@ class DistroConfig(Screen):
         # k3s arg config sytling - middle
         k3s_title = "➕ [green]Extra Args for k3s install script"
         self.query_one(".k3s-config-container").border_title = k3s_title
+
+        # kind networking arg config sytling - bottom
+        kind_title = "➕ [green]Extra Args for kind networking config"
+        self.get_widget_by_id("kind-networking-container").border_title = kind_title
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:
@@ -159,13 +172,6 @@ class DistroConfig(Screen):
         self.ancestors[-1].write_yaml()
 
         self.previous_distro = distro
-
-
-    @on(Button.Pressed)
-    def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
-        if event.button.id == "confirm-button":
-            dump_to_file(self.cfg)
-            self.exit(self.cfg)
 
 
 def format_description(description: str = ""):

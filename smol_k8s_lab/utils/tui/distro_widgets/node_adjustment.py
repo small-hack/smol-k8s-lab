@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.11
+from textual import on
 from textual.app import ComposeResult, Widget
 from textual.containers import Horizontal
 from textual.widgets import Label, Input
@@ -49,6 +50,7 @@ class NodeAdjustmentBox(Widget):
             yield Input(value=self.control_plane_nodes,
                         placeholder='1',
                         classes=f"{node_class}-control-input",
+                        name="control_plane_nodes",
                         validators=[Number(minimum=1, maximum=50)],
                         disabled=disabled)
 
@@ -62,9 +64,30 @@ class NodeAdjustmentBox(Widget):
             yield Input(value=self.worker_nodes,
                         placeholder='0',
                         classes=f"{node_class}-worker-input",
+                        name="worker_nodes",
                         validators=[Number(minimum=0, maximum=100)],
                         disabled=disabled)
 
     def on_mount(self) -> None:
+        """
+        styling for the border
+        """
         node_row = self.query_one(".nodes-input-row")
         node_row.border_title = "[green]🖥️ Adjust how many of each node type to deploy"
+
+    @on(Input.Changed)
+    def update_parent_yaml(self, event: Input.Changed):
+        """
+        update the base parent app yaml with worker/control plane node count
+        only if input is valid, and the distro is not k3s
+        """
+        if event.validation_result.is_valid and self.distro != "k3s":
+            distro_cfg = self.ancestors[-1].cfg['k8s_distros'][self.distro]['nodes']
+
+            if event.input.name == "worker_nodes":
+                distro_cfg['workers'] = int(event.input.value)
+                self.ancestors[-1].write_yaml()
+
+            if event.input.name == "control_plane_nodes":
+                distro_cfg['control_plane'] = int(event.input.value)
+                self.ancestors[-1].write_yaml()
