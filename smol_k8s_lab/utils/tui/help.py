@@ -18,24 +18,24 @@ class HelpScreen(ModalScreen):
                 ]
 
     def compose(self) -> ComposeResult:
-        link_help = ("open link; terminal dependent, so [gold3]meta"
-                     "[/gold3] can be shift, option, windowsKey, command, or "
-                     "control )")
+        link_help = ("open link; terminal dependent, so [gold3]meta[/gold3] can"
+                     " be shift, option, windowsKey, command, or control )")
 
         # tips for new/forgetful users (the maintainers are also forgetful <3)
-        help_dict = {"left/right arrow": "Switch tabs if tabs are selected",
-                     "right arrow": "complete suggestion in input field",
-                     "up/down arrow": "navigate up and down the app selection list",
-                     "tab": "switch to next box, field, or button",
-                     "shift+tab": "switch to previous pane, field, or button",
-                     "enter": "press button",
-                     "?": "toggle help screen",
-                     "spacebar": "select selection option",
-                     "meta+click": link_help,
-                     "escape,q": "leave current screen and go home"}
+        help_dict = {
+                "→": "complete suggestion in input field",
+                "⬆/⬇": "navigate up and down the app selection list",
+                "tab": "go to next input field, switch, selection, or button",
+                "shift+tab": "go to previous input field, switch, selection, or button",
+                "↩ enter": "press button",
+                "?": "toggle help screen",
+                "spacebar": "select selection option",
+                "meta+click": link_help,
+                "escape,q": "leave current screen and go home"
+                }
 
-        welcome = ("Use your 🐁 to click anything in this UI ✨ Or use "
-                   "these key bindings:")
+        welcome = ("Use your 🐁 to click anything in the UI ✨ Or use these "
+                   "key bindings:")
 
         with Container(id="help-container"):
             yield Label(welcome, id="help-label")

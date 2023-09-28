@@ -1,4 +1,4 @@
-from textual.app import App, ComposeResult
+from textual.app import App, ComposeResult, ScreenStackError
 from textual.binding import Binding
 from textual.containers import Grid, Container
 from textual.widgets import Footer, Header, Button
@@ -122,6 +122,12 @@ class BaseApp(App):
         """
         launches the argo app config screen
         """
+        try:
+            self.app.pop_screen()
+        # this error happens if there's not already a screen on the stack
+        except ScreenStackError:
+            pass
+
         if app_to_highlight:
             self.app.push_screen(AppConfig(self.cfg['apps'],
                                            app_to_highlight,
@@ -133,6 +139,12 @@ class BaseApp(App):
         """
         launches the k8s disto (k3s,k3d,kind) config screen
         """
+        try:
+            self.app.pop_screen()
+        # this error happens if there's not already a screen on the stack
+        except ScreenStackError:
+            pass
+
         self.app.push_screen(DistroConfig(self.cfg['k8s_distros'], self.show_footer))
 
     def action_request_smol_k8s_cfg(self) -> None:
@@ -140,10 +152,25 @@ class BaseApp(App):
         launches the smol-k8s-lab config for the program itself for things like
         the TUI, but also logging and password management
         """
+        try:
+            self.app.pop_screen()
+        # this error happens if there's not already a screen on the stack
+        except ScreenStackError:
+            pass
+
         self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab'],
                                               self.show_footer))
 
     def action_request_confirm(self) -> None:
+        """
+        show confirmation screen
+        """
+        try:
+            self.app.pop_screen()
+        # this error happens if there's not already a screen on the stack
+        except ScreenStackError:
+            pass
+
         self.app.push_screen(ConfirmConfig(self.cfg, self.show_footer))
 
     def action_request_help(self) -> None:
