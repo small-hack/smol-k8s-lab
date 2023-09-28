@@ -48,11 +48,11 @@ Input {
 }
 
 Input.-invalid {
-   border: tall $neon_magenta;
+   border: tall $neon_magenta 90%;
 }
 
 Input.-valid:focus {
-   border: tall $success;
+   border: tall $spacechalk_lime 90%;
 }
 
 /* Matches the bottom footer help text on every page */
@@ -88,39 +88,44 @@ Switch.-on > .switch--slider {
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
    background: $navy 40%;
+   color: $bluish_white;
    width: 100%;
 }
 
 /* Matches the "Select apps to install on k8s" Selection List highlighted option */
 SelectionList .option-list--option-highlighted {
    background: $blue_gray 50%;
+   color: $sky_blue;
 }
 
 SelectionList .option-list--option-hover-highlighted {
    background: $blue_gray 90%;
+   color: $sky_blue;
 }
 
 SelectionList .option-list--option-hover {
    background: $blue_gray 70%;
+   color: $sky_blue;
 }
 
 /* changes color of filled in app selection button */
 .selection-list--button-selected {
-   color: $neon_magenta;
+   color: $neon_magenta 90%;
    background: $dark_gray;
 }
 
 /* changes color of filled in app selection button */
 .selection-list--button-highlighted {
-   color: $neon_magenta;
+   color: $neon_magenta 90%;
    background: $dark_gray;
 }
 
 /* changes color of filled in app selection button when highlighted */
 .selection-list--button-selected-highlighted {
-   color: $neon_magenta;
+   color: $neon_magenta 90%;
    background: $dark_gray;
 }
+
 
 #base-screen-container {
    grid-size: 1;
@@ -142,5 +147,10 @@ SelectionList .option-list--option-hover {
 #first-confirm-button-row {
    align: center middle;
    content-align: center middle;
-   height: 25%;
+   height: 30%;
+}
+
+/* first confirm button on the base app screen */
+#confirm-cfg {
+   color: $soft_green 75%;
 }

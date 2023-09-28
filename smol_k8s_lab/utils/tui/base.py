@@ -118,11 +118,16 @@ class BaseApp(App):
         self.get_widget_by_id("base-button-grid").border_title = grid_title
 
 
-    def action_request_apps_cfg(self) -> None:
+    def action_request_apps_cfg(self, app_to_highlight: str = "") -> None:
         """
         launches the argo app config screen
         """
-        self.app.push_screen(AppConfig(self.cfg['apps'], self.show_footer))
+        if app_to_highlight:
+            self.app.push_screen(AppConfig(self.cfg['apps'],
+                                           app_to_highlight,
+                                           self.show_footer))
+        else:
+            self.app.push_screen(AppConfig(self.cfg['apps'], "", self.show_footer))
 
     def action_request_distro_cfg(self) -> None:
         """
