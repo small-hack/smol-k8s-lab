@@ -17,6 +17,7 @@ class SmolK8sLabConfig(Screen):
     Textual app to configure smol-k8s-lab itself
     """
     CSS_PATH = ["./css/smol_k8s_cfg.tcss"]
+
     BINDINGS = [Binding(key="escape,q",
                         key_display="esc,q",
                         action="app.pop_screen",
