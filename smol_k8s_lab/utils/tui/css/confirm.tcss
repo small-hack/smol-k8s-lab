@@ -1,3 +1,19 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
 #confirm-tab-container {
    layout: grid;
    align: center middle;
@@ -6,29 +22,21 @@
 }
 
 #invalid-apps {
-  border: dashed yellow 60%;
+  border: dashed $soft_yellow 60%;
   padding: 1;
   margin-bottom: 1;
   width: 100%;
-  background: rgb(35,35,54) 60%;
+  background: $navy 60%;
 }
 
 #pretty-yaml-scroll-container {
-   border: solid cornflowerblue;
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
+   border: solid $cornflower;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-hover: $light_cornflower;
+   scrollbar-color: $cornflower;
    height: 100%;
    padding-top: 1;
-   background: rgb(35,35,54) 60%;
-}
-
-#confirm-button {
-   width: 100%;
-   margin-top: 1;
-   background: rgb(123,120,191) 10%;
-   border-top: tall rgb(65,72,104) 60%;
-   border-bottom: tall rgb(0,0,0) 30%;
+   background: $navy 60%;
 }

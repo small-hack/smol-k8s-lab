@@ -16,6 +16,7 @@ class SmolK8sLabConfig(Screen):
     Textual app to configure smol-k8s-lab itself
     """
     CSS_PATH = ["./css/smol_k8s_cfg.tcss"]
+    BINDINGS = [("escape,b", "app.pop_screen", "Pop screen")]
 
     def __init__(self, config: dict, show_footer: bool = True) -> None:
         self.show_footer = show_footer
@@ -49,7 +50,8 @@ class SmolK8sLabConfig(Screen):
         """
         screen and box border styling
         """
-        self.title = " 🪛 configure 🧸 smol k8s lab"
+        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
+        self.sub_title = "configure smol-k8s-lab itself"
 
 
 class TuiConfig(Widget):

@@ -24,6 +24,8 @@ class DistroConfig(Screen):
                 "./css/kubelet.tcss",
                 "./css/kind.tcss"]
 
+    BINDINGS = [("escape,b", "app.pop_screen", "Pop screen")]
+
     def __init__(self, config: dict, show_footer: bool = True) -> None:
         """
         config dict struct:

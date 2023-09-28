@@ -10,7 +10,7 @@ $spacechalk_lime: rgb(168,253,87);
 $sky_blue: rgb(92,201,253);
 $cornflower: rgb(95,135,255);
 $light_cornflower: rgb(122,162,247);
-$blue_grey: rgb(86,95,137);
+$blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
@@ -20,7 +20,8 @@ Screen {
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;
-   scrollbar-color-hover: $soft_green;
+   scrollbar-color-active: $sky_blue;
+   scrollbar-color-hover: $cornflower;
    scrollbar-color: $light_cornflower;
 }
 
@@ -36,7 +37,7 @@ Tooltip {
 Button {
   color: $light_cornflower;
   background: $lavender 10%;
-  border-top: tall $blue_grey 60%;
+  border-top: tall $blue_gray 60%;
   border-bottom: tall $dark_gray 50%;
 }
 
@@ -92,15 +93,15 @@ SelectionList {
 
 /* Matches the "Select apps to install on k8s" Selection List highlighted option */
 SelectionList .option-list--option-highlighted {
-   background: $blue_grey 50%;
+   background: $blue_gray 50%;
 }
 
 SelectionList .option-list--option-hover-highlighted {
-   background: $blue_grey 90%;
+   background: $blue_gray 90%;
 }
 
 SelectionList .option-list--option-hover {
-   background: $blue_grey 70%;
+   background: $blue_gray 70%;
 }
 
 /* changes color of filled in app selection button */
@@ -119,4 +120,28 @@ SelectionList .option-list--option-hover {
 .selection-list--button-selected-highlighted {
    color: $neon_magenta;
    background: $dark_gray;
+}
+
+#base-screen-container {
+   grid-size: 1;
+   align: center middle;
+   content-align: center middle;
+   width: 90%;
+   height: 50%;
+}
+
+#base-button-grid {
+   height: 90%;
+   grid-size: 3;
+   background: $navy;
+   align: center middle;
+   content-align: center middle;
+   border: solid $cornflower;
+   margin-bottom: 1;
+}
+
+#first-confirm-button-row {
+   align: center middle;
+   content-align: center middle;
+   height: 20%;
 }
