@@ -1,5 +1,4 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.utils.write_yaml import dump_to_file
 from smol_k8s_lab.utils.tui.app_widgets.app_inputs_confg import (AppInputs,
                                                                  AddAppInput)
 from textual import on
@@ -8,7 +7,7 @@ from textual.binding import Binding
 from textual.containers import VerticalScroll, Container
 from textual.css.query import NoMatches
 from textual.screen import Screen
-from textual.widgets import Button, Footer, Header, Label, SelectionList
+from textual.widgets import Footer, Header, Label, SelectionList
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 
@@ -136,12 +135,6 @@ class AppConfig(Screen):
             self.cfg[app]['enabled'] = True
         else:
             self.cfg[app]['enabled'] = False
-
-    @on(Button.Pressed)
-    def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
-        if event.button.id == "confirm-button":
-            dump_to_file(self.cfg)
-            self.exit(self.cfg)
 
 
 def format_description(description: str = ""):
