@@ -139,7 +139,8 @@ class AppInputs(Static):
 
             key_input = Input(placeholder="new key name",
                               id=f"{self.app_name}-new-secret",
-                              classes="new-secret-input")
+                              classes="new-secret-input",
+                              validators=Length(minimum=2))
 
             key_input.tooltip = ("🔒key name to pass to the Argo CD ApplicationSet"
                                  " Secret Plugin Generator for templating non-"
@@ -191,7 +192,7 @@ class AppInputs(Static):
             inputs_box = self.get_widget_by_id(f"{self.app_name}-argo-config-container")
             input = self.get_widget_by_id(f"{self.app_name}-new-secret")
 
-            if input:
+            if len(input.value) > 1:
                 # add new secret key row
                 inputs_box.mount(
                         self.generate_secret_key_row(input.value),
