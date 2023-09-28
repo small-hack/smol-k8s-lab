@@ -84,7 +84,7 @@ $navy: rgb(35,35,54);
    height: 3;
    width: 100%;
    content-align: left middle;
-   color: $sky_blue 90%;
+   color: $bluish_white 90%;
 }
 
 /* argo cd config param section */
@@ -122,7 +122,7 @@ $navy: rgb(35,35,54);
    height: 3;
    width: auto;
    content-align: left middle;
-   color: $sky_blue 90%;
+   color: $bluish_white 90%;
 }
 
 .argo-config-input {

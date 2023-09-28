@@ -26,7 +26,10 @@ class AppConfig(Screen):
 
     ToggleButton.BUTTON_INNER = '♥'
 
-    def __init__(self, config: dict, show_footer: bool = True) -> None:
+    def __init__(self,
+                 config: dict,
+                 highlighted_app: str = "",
+                 show_footer: bool = True) -> None:
         # show the footer at bottom of screen or not
         self.show_footer = show_footer
 
@@ -36,6 +39,9 @@ class AppConfig(Screen):
         # this is state storage
         self.previous_app = ''
         self.invalid_app_inputs = {}
+
+        # inital highlight if we got here via a link
+        self.initial_app = highlighted_app
 
         super().__init__()
 
@@ -91,6 +97,15 @@ class AppConfig(Screen):
         # select-apps styling - bottom
         app_desc = self.get_widget_by_id("app-description-container")
         app_desc.border_title = "[white]App Description[/]"
+
+        if self.initial_app:
+            selection_list = self.query_one(SelectionList)
+            highlighted = selection_list.highlighted
+            high_value = selection_list.get_option_at_index(highlighted).value
+            while high_value != self.initial_app:
+                selection_list.action_cursor_down()
+                highlighted = selection_list.highlighted
+                high_value = selection_list.get_option_at_index(highlighted).value
 
     @on(SelectionList.SelectionHighlighted)
     def update_highlighted_app_view(self) -> None:
