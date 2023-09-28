@@ -84,7 +84,8 @@ class AppInputs(Static):
     def compose(self) -> ComposeResult:
 
         # standard values to source an argo cd app from an external repo
-        with VerticalScroll(classes=f"{self.app_name} argo-config-container"):
+        with VerticalScroll(id=f"{self.app_name}-argo-config-container",
+                            classes="argo-config-container"):
 
             # this has to live here because it is awful
             with Container(classes="init-widget"):
@@ -100,7 +101,6 @@ class AppInputs(Static):
                               validators=[Length(minimum=2)],
                               id=f"{self.app_name}-{key}",
                               classes=f"{self.app_name} argo-config-input")
-                input.tooltip = value
 
                 if input.validate(self.argo_params[key]):
                     invalid_inputs = self.ancestors[-1].invalid_app_inputs
@@ -110,15 +110,17 @@ class AppInputs(Static):
                     else:
                         invalid_inputs[self.app_name] = [key]
 
-                yield Horizontal(
-                        Label(f"{key}:",
-                              classes=f"{self.app_name} argo-config-label"),
-                              input,
-                              classes=f"{self.app_name} argo-config-row")
+                argo_label = Label(f"{key}:",
+                                   classes=f"{self.app_name} argo-config-label")
+                argo_label.tooltip = value
+
+                yield Horizontal(argo_label, input,
+                                 classes=f"{self.app_name} argo-config-row")
 
             # secret keys
             label =  Label("Template values to pass to Argo CD ApplicationSet ",
-                           classes="secret-key-divider")
+                           classes="secret-key-divider",
+                           id=f"{self.app_name}-secret-key-divider")
             label.tooltip = ("🔒Added to k8s secret for the Argo CD "
                              "ApplicationSet Secret Plugin Generator")
             yield label
@@ -186,21 +188,27 @@ class AppInputs(Static):
         add a new input row for secret stuff
         """
         if event.button.id == f"{self.app_name}-new-secret-button":
-            inputs_box = self.get_widget_by_id(f"{self.app_name}-init-inputs")
-            input = self.get_widget_by_id(f"{self.app_name}-new-secret").value
+            inputs_box = self.get_widget_by_id(f"{self.app_name}-argo-config-container")
+            input = self.get_widget_by_id(f"{self.app_name}-new-secret")
 
             if input:
-                # root app yaml
-                apps_yaml = self.app.ancestors[-1].cfg['apps'][self.app_name]
-                apps_yaml['argo']['secret_keys'][input] = ""
-
                 # add new secret key row
-                inputs_box.mount(self.generate_secret_key_row(input), before=0)
+                inputs_box.mount(
+                        self.generate_secret_key_row(input.value),
+                        after=self.get_widget_by_id(f"{self.app_name}-secret-key-divider")
+                        )
+                # clear the input field after we're created the new row and
+                # updated the yaml
+                input.value = ""
 
     def generate_secret_key_row(self, secret_key: str, value: str = "") -> None:
         """
         add a new row of secret keys to pass to the argocd app
         """
+        # root app yaml
+        apps_yaml = self.ancestors[-1].cfg['apps'][self.app_name]
+        apps_yaml['argo']['secret_keys'][secret_key] = ""
+
         key_label = secret_key.replace("_", " ")
 
         # create input
@@ -209,6 +217,7 @@ class AppInputs(Static):
                       "classes": input_class,
                       "name": secret_key,
                       "validators": [Length(minimum=2)]}
+
         if value:
             input_keys['value'] = value
 
@@ -226,6 +235,7 @@ class AppInputs(Static):
         # create the input row
         secret_label = Label(f"{key_label}:",
                              classes=f"app-input-label {self.app_name}")
+
         return Horizontal(secret_label, input,
                           classes=f"app-input-row {self.app_name}")
 
@@ -238,12 +248,13 @@ class AppInputs(Static):
         # if this is an Argo CD app/project config input
         if "argo-config-input" in input.classes:
 
-            # if this is a project source repo
+            # if project source repo (that allowed to be used for gitops by apps
+            # in project)
             if "argo-proj-repo" in input.classes:
                 values = input.value.replace(" ","").split(",")
                 parent_app_yaml['argo']['project'][input.name] = values
 
-            # if this is a project destination namespace
+            # if project destination namespace (that argo app is allowed to use)
             elif "argo-proj-ns" in input.classes:
                 values = input.value.replace(" ","").split(",")
                 parent_app_yaml['argo']['project']['destination'][input.name] = values
@@ -259,6 +270,7 @@ class AppInputs(Static):
         # Updating the main app with k8s app that has validation failed
         if event.validation_result:
             invalid_inputs = parent_app.invalid_app_inputs
+
             if not event.validation_result.is_valid:
                 invalid_inputs[self.app_name].append(input.name)
             else:
@@ -273,6 +285,7 @@ class InitValues(Static):
     def __init__(self, app_name: str, init_dict: dict) -> None:
         self.app_name = app_name
         self.init = init_dict
+
         if self.init:
             self.init_values = self.init.get('values', None)
         else:
