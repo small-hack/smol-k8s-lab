@@ -7,6 +7,7 @@ from smol_k8s_lab.utils.tui.distro_widgets.kubelet_config import KubeletConfig
 from smol_k8s_lab.utils.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Container, Horizontal
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Label, Select
@@ -24,7 +25,10 @@ class DistroConfig(Screen):
                 "./css/kubelet.tcss",
                 "./css/kind.tcss"]
 
-    BINDINGS = [("escape,b", "app.pop_screen", "Pop screen")]
+    BINDINGS = [Binding(key="escape,q",
+                        key_display="esc,q",
+                        action="app.pop_screen",
+                        description="↩ Back")]
 
     def __init__(self, config: dict, show_footer: bool = True) -> None:
         """

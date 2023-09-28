@@ -10,7 +10,7 @@ class HelpScreen(ModalScreen):
     """
     dialog screen to show help text
     """
-    BINDINGS = [Binding(key="h,?,q,escape",
+    BINDINGS = [Binding(key="?,q,escape",
                         key_display="h",
                         action="disable_help",
                         description="Exit Help Screen",
@@ -29,9 +29,10 @@ class HelpScreen(ModalScreen):
                      "tab": "switch to next box, field, or button",
                      "shift+tab": "switch to previous pane, field, or button",
                      "enter": "press button",
-                     "h,?": "toggle help screen",
+                     "?": "toggle help screen",
                      "spacebar": "select selection option",
-                     "meta+click": link_help}
+                     "meta+click": link_help,
+                     "escape,q": "leave current screen and go home"}
 
         welcome = ("Use your 🐁 to click anything in this UI ✨ Or use "
                    "these key bindings:")
@@ -50,7 +51,9 @@ class HelpScreen(ModalScreen):
 
     def on_mount(self) -> None:
         # styling for the select-apps tab - select apps container - left
-        select_apps_title = 'Welcome to [i][link="https://github.com/small-hack/smol-k8s-lab"]smol-k8s-lab[/link][/i]'
+        select_apps_title = ('[steel_blue1]Welcome to [u]'
+                             '[link=https://github.com/small-hack/smol-k8s-lab]'
+                             'smol-k8s-lab[/link]')
         help_container = self.get_widget_by_id("help-container")
         help_container.border_title = select_apps_title
         help_container.border_subtitle = "made with 💙 + 🐍 + [u][link=https://github.com/Textualize/textual]textual[/u]"

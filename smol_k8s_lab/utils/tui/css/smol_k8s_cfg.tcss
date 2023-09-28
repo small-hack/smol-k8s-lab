@@ -26,7 +26,8 @@ $navy: rgb(35,35,54);
     padding-top: 1;
     padding-bottom: 1;
     align: left middle;
-    color: $sky_blue;
+    color: $bluish_white;
+    width: 100%;
 }
 
 .bool-switch-row-switch {
@@ -66,7 +67,7 @@ $navy: rgb(35,35,54);
     padding-top: 1;
     padding-bottom: 1;
     width: 100%;
-    color: $sky_blue;
+    color: $bluish_white;
 }
 
 /* Input in "label: input" row */
@@ -86,7 +87,7 @@ $navy: rgb(35,35,54);
 .radioset-row-label {
     content-align: center middle;
     height: 6;
-    color: $sky_blue;
+    color: $bluish_white;
 }
 
 .radioset-row-radioset {

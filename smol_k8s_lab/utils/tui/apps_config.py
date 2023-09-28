@@ -4,6 +4,7 @@ from smol_k8s_lab.utils.tui.app_widgets.app_inputs_confg import (AppInputs,
                                                                  AddAppInput)
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import VerticalScroll, Container
 from textual.css.query import NoMatches
 from textual.screen import Screen
@@ -19,7 +20,10 @@ class AppConfig(Screen):
     CSS_PATH = ["./css/apps_config.tcss",
                 "./css/apps_init_config.tcss"]
 
-    BINDINGS = [("escape,b", "app.pop_screen", "Pop screen")]
+    BINDINGS = [Binding(key="escape,q",
+                        key_display="esc,q",
+                        action="app.pop_screen",
+                        description="↩ Back")]
 
     ToggleButton.BUTTON_INNER = '♥'
 
