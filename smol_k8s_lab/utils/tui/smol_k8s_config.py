@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Container, Horizontal
 from textual.screen import Screen
 from textual.widgets import (Footer, Header, Input, Label, Switch, RadioButton,
@@ -16,7 +17,10 @@ class SmolK8sLabConfig(Screen):
     Textual app to configure smol-k8s-lab itself
     """
     CSS_PATH = ["./css/smol_k8s_cfg.tcss"]
-    BINDINGS = [("escape,b", "app.pop_screen", "Pop screen")]
+    BINDINGS = [Binding(key="escape,q",
+                        key_display="esc,q",
+                        action="app.pop_screen",
+                        description="↩ Back")]
 
     def __init__(self, config: dict, show_footer: bool = True) -> None:
         self.show_footer = show_footer

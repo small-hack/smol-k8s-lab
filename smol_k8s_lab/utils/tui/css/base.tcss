@@ -127,7 +127,7 @@ SelectionList .option-list--option-hover {
    align: center middle;
    content-align: center middle;
    width: 90%;
-   height: 50%;
+   height: 45%;
 }
 
 #base-button-grid {
@@ -137,11 +137,10 @@ SelectionList .option-list--option-hover {
    align: center middle;
    content-align: center middle;
    border: solid $cornflower;
-   margin-bottom: 1;
 }
 
 #first-confirm-button-row {
    align: center middle;
    content-align: center middle;
-   height: 20%;
+   height: 25%;
 }

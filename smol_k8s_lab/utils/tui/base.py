@@ -23,15 +23,11 @@ class BaseApp(App):
                 Binding(key="d",
                         key_display="d",
                         action="request_distro_cfg",
-                        description="🐳 Select distros"),
+                        description="🐳 distros"),
                 Binding(key="a",
                         key_display="a",
                         action="request_apps_cfg",
-                        description="📱Select Apps"),
-                Binding(key="h,b",
-                        key_display="h,b",
-                        action="request_home",
-                        description="go home")
+                        description="📱Apps")
                 ]
 
     CSS_PATH = ["./css/base.tcss",
@@ -111,7 +107,7 @@ class BaseApp(App):
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "Getting Started"
 
-        grid_title = "Let's get started configuring a new cluster 🪛"
+        grid_title = "[green]Let's get started configuring a new cluster 🪛"
         self.get_widget_by_id("base-button-grid").border_title = grid_title
 
 
