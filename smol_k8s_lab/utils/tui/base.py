@@ -31,12 +31,9 @@ class BaseApp(App):
     CSS_PATH = ["./css/base.tcss",
                 "./css/help.tcss"]
 
-    def __init__(self,
-                 user_config: dict = INITIAL_USR_CONFIG,
-                 show_footer: bool = True) -> None:
+    def __init__(self, user_config: dict = INITIAL_USR_CONFIG) -> None:
         self.cfg = user_config
-        self.show_footer = show_footer
-        # self.previous_app = ''
+        self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
         self.previous_screen = ''
         self.invalid_app_inputs = {}
         super().__init__()
@@ -59,7 +56,7 @@ class BaseApp(App):
         if self.previous_screen:
             self.app.pop_screen(self.previous_screen)
 
-        self.app.push_screen(AppConfig(self.cfg['apps']))
+        self.app.push_screen(AppConfig(self.cfg['apps'], self.show_footer))
 
     def action_request_distro_cfg(self) -> None:
         """
@@ -67,7 +64,8 @@ class BaseApp(App):
         """
         if self.previous_screen:
             self.app.pop_screen(self.previous_screen)
-        self.app.push_screen(DistroConfig(self.cfg['k8s_distros']))
+
+        self.app.push_screen(DistroConfig(self.cfg['k8s_distros'], self.show_footer))
 
     def action_request_smol_k8s_cfg(self) -> None:
         """
@@ -76,7 +74,9 @@ class BaseApp(App):
         """
         if self.previous_screen:
             self.app.pop_screen(self.previous_screen)
-        self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
+
+        self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab'],
+                                              self.show_footer))
 
     def action_request_help(self) -> None:
         """

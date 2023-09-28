@@ -14,24 +14,25 @@ $blue_grey: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-/* kubelet config container */
-.kubelet-config-container {
-   border: round $cornflower;
-   background: rgb(35,35,54) 50%;
+/* kind-networking config container */
+#kind-networking-container {
+   border: round cornflowerblue;
+   background: $navy 50%;
    height: 100%;
+   margin-top: 1;
 }
 
-.kubelet-config-scroll {
+.kind-networking-config-scroll {
    align: center middle;
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-hover: $soft_green;
+   scrollbar-color: $light_cornflower;
 }
 
-/* kubelet config arg input row */
-.kubelet-arg-input-row {
+/* kind-networking config arg input row */
+.kind-networking-input-row {
    layout: grid;
    grid-size: 3;
    width: 100%;
@@ -42,27 +43,27 @@ $navy: rgb(35,35,54);
    content-align: center middle;
 }
 
-/* kubelet config arg key input field */
-.kubelet-arg-input-key{
+/* kind-networking config arg key input field */
+.kind-networking-input-key{
    height: auto;
    width: 100%;
 }
 
-/* kubelet config arg value input field */
-.kubelet-arg-input-value {
+/* kind-networking config arg value input field */
+.kind-networking-input-value {
    height: auto;
    width: 100%;
 }
 
-/* kubelet config arg row delete button */
-.kubelet-arg-input-del-button {
+/* kind-networking config arg row delete button */
+.kind-networking-input-del-button {
    content-align: center middle;
    height: auto;
    padding: 0;
 }
 
-/* kubelet config arg row delete button */
-.kubelet-arg-add-button {
+/* kind-networking config arg row delete button */
+.kind-networking-add-button {
    content-align: center middle;
    height: auto;
    width: 100%;

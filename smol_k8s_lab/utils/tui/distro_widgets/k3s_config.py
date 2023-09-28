@@ -32,7 +32,7 @@ class K3sConfig(Widget):
     def compose(self) -> ComposeResult:
         txt = ("If [dim][green]metallb[/][/] is [i]enabled[/], we add "
                "--disabled-servicelb.\nIf [dim][green]cilium[/][/] is [i]enabled[/],"
-               " we also add --flannel-backend=none --disable-network-policy."
+               " we add --flannel-backend=none --disable-network-policy."
                )
         yield Label(txt, classes="k3s-help-label")
 
@@ -92,6 +92,8 @@ class K3sConfig(Widget):
         yaml = input.ancestors[-1].cfg['k8s_distros'][self.distro][self.yaml_key]
         if input.value not in yaml:
             yaml.append(input.value)
+
+        event.input.ancestors[-1].write_yaml()
 
     def generate_half_row(self, value: str = "") -> Container:
         """

@@ -47,9 +47,9 @@ k8s_distros:
       K3s is packaged as a single <70MB binary that reduces the dependencies and steps needed to install, run and auto-update a production Kubernetes cluster. It's also optomized for ARM.
 
     # change the kubelet config for this node in k3s, feel free to add more values
+    # we set the maximum pods per node via /etc/rancher/k3s/kubelet.config
+    # it's set high for beefy nodes, but you can set it lower if you'd like
     kubelet_extra_args:
-      # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
-      # it's set high for beefy nodes, but you can set it lower if you'd like
       max_pods: 200
     # if k8s_distro set to k3s, you can add an array of extra arguments to pass
     # to the k3s install script. we automatically append --disable=servicelb if
@@ -68,9 +68,9 @@ k8s_distros:
       k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal Kubernetes distribution) in docker.
 
     # change the kubelet config for all k3d nodes, feel free to add more values
+    # we set the maximum pods per node via /etc/rancher/k3s/kubelet.config
+    # it's set high for beefy nodes, but you can set it lower if you'd like
     kubelet_extra_args:
-      # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
-      # it's set high for beefy nodes, but you can set it lower if you'd like
       max_pods: 200
     # if k8s_distos set to k3d, you can add an array of extra arguments to pass
     # to the k3s install script. we automatically append --disable=servicelb if
@@ -94,11 +94,7 @@ k8s_distros:
 
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
-      # set the maximum pods per node via 
-      # it's set high for beefy nodes, but you can set it lower if you'd like
       node-labels: "ingress-ready=true"
-    # See: https://kind.sigs.k8s.io/docs/user/configuration/#networking
-    # if you enable cilium, we automatically add {disableDefaultCNI: true}
     networking_args: {}
     # how many dockerized kind nodes to deploy
     nodes:
