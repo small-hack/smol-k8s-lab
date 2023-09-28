@@ -108,22 +108,27 @@ SelectionList .option-list--option-hover {
    color: $sky_blue;
 }
 
+.selection-list--button {
+   background: $blue_gray 40%;
+   color: $navy;
+}
+
 /* changes color of filled in app selection button */
 .selection-list--button-selected {
    color: $neon_magenta 90%;
-   background: $dark_gray;
+   background: $blue_gray 40%;
 }
 
 /* changes color of filled in app selection button */
 .selection-list--button-highlighted {
    color: $neon_magenta 90%;
-   background: $dark_gray;
+   background: $blue_gray 40%;
 }
 
 /* changes color of filled in app selection button when highlighted */
 .selection-list--button-selected-highlighted {
-   color: $neon_magenta 90%;
-   background: $dark_gray;
+   color: $neon_magenta;
+   background: $blue_gray 40%;
 }
 
 
@@ -136,7 +141,7 @@ SelectionList .option-list--option-hover {
 }
 
 #base-button-grid {
-   height: 90%;
+   height: 88%;
    grid-size: 3;
    background: $navy;
    align: center middle;
