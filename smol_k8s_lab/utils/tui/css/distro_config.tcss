@@ -1,8 +1,24 @@
-/* Matches the entire screen for each page */
-Screen {
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_grey: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+/* Matches the entire distro screen */
+#distro-config-screen {
    align: center middle;
    layout: grid;
-   grid-rows: 0.35fr 0.35fr 0.3fr 3fr;
+   grid-rows: 0.35fr 0.35fr 3fr;
 }
 
 #distro-help {
@@ -11,27 +27,28 @@ Screen {
     padding-bottom: 1;
     content-align: center middle;
     width: 100%;
-    color: rgb(168,253,87);
-    background: rgb(65,72,104) 30%;
+    color: $soft_green;
+    background: $blue_grey 30%;
 }
 
 #advanced-config-label {
    height: 3;
    width: 100%;
    content-align: center middle;
-   color: rgb(168,253,87);
-   background: rgb(65,72,104) 30%;
+   color: silver;
+   background: $blue_grey 20%;
 }
 
 #distro-select-box {
    height: 3;
    padding-left: 1;
-   background: rgb(35,35,54) 50%;
+   background: $blue_grey 30%;
    margin-top: 1;
 }
 
 #select-distro-label {
    content-align: center middle;
+   color: $soft_green;
    height: 3;
 }
 
@@ -40,7 +57,7 @@ Screen {
 }
 
 #distro-drop-down .option-list--option-highlighted {
-   background: rgb(65,72,104) 90%;
+   background: $blue_grey 90%;
 }
 
 /* bottom half k8s distro config area */
@@ -52,8 +69,8 @@ Screen {
 
 /* number of nodes input row */
 .nodes-input-row {
-   background: rgb(35,35,54) 50%;
-   border: round cornflowerblue;
+   background: $navy 50%;
+   border: round $cornflower;
    layout: grid;
    grid-size: 5;
    align: center middle;
@@ -67,7 +84,7 @@ Screen {
    content-align: center middle;
    height: 3;
    width: 100%;
-   color: rgb(127,200,255) 90%;
+   color: $sky_blue 90%;
 }
 
 /* input field to manually increase/decrease number of control plane nodes */
@@ -81,8 +98,4 @@ Screen {
    align: center middle;
    width: auto;
    height: 3;
-}
-
-/* kind placeholder box to make the grid look nice */
-#kind-placeholder {
 }

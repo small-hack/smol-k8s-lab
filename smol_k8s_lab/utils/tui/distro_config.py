@@ -21,6 +21,15 @@ class DistroConfig(Screen):
                 "./css/kubelet.tcss"]
 
     def __init__(self, config: dict, show_footer: bool = True) -> None:
+        """
+        config dict struct:
+            {"distro":
+               {"enabled": bool},
+               {"k3s_extra_args": []},
+               {"kubelet_extra_args": {}},
+               {"description": ""}
+            }
+        """
         self.cfg = config
         self.previous_distro = process_k8s_distros(self.cfg, False)[1]
         self.show_footer = show_footer
@@ -40,74 +49,74 @@ class DistroConfig(Screen):
             footer.display = False
         yield footer
 
-        help = Label("🌱 Select a distro to get started", id="distro-help")
-        yield help
+        with Container(id="distro-config-screen"):
+            # help = Label("🌱 Select a distro to get started", id="distro-help")
+            # yield help
 
-        # this is for selecting distros
-        label = Label("Selected Distro:", id="select-distro-label")
-        label.tooltip = self.cfg[self.previous_distro]['description']
+            # this is for selecting distros
+            label = Label("🌱 Select a distro to get started:",
+                          id="select-distro-label")
+            label.tooltip = self.cfg[self.previous_distro]['description']
 
-        # create all distro selection choices for the top of tabbed content
-        my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
+            # create all distro selection choices for the top of tabbed content
+            my_options = tuple(DEFAULT_DISTRO_OPTIONS.keys())
 
-        # container for top drop down
-        with Horizontal(id="distro-select-box"):
-            yield label
-            yield Select(((line, line) for line in my_options),
-                         id="distro-drop-down",
-                         allow_blank=False,
-                         value=self.previous_distro)
+            # container for top drop down
+            with Horizontal(id="distro-select-box"):
+                yield label
+                yield Select(((line, line) for line in my_options),
+                             id="distro-drop-down",
+                             allow_blank=False,
+                             value=self.previous_distro)
 
-        advanced_label = Label(
-                "⚙️ [i]Advanced Configuration - [dim]Press [gold3]↩ Enter[/] "
-                "to save [i]each[/i] input field.",
-                id="advanced-config-label")
+            advanced_label = Label(
+                    "⚙️ [i]Advanced Configuration - [dim]Press [gold3]↩ Enter[/]"
+                    " to save [i]each[/i] input field.",
+                    id="advanced-config-label")
 
-        yield advanced_label
-        for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
-            # only display the default distro for this OS
-            if distro == self.previous_distro:
-                display = True
-            else:
-                display = False
-
-            distro_box = Container(classes=f"k8s-distro-config {distro}",
-                                        id=f"{distro}-box")
-            distro_box.display = display
-
-            with distro_box:
-                # take number of nodes from config and make string
-                nodes = distro_metadata.get('nodes', False)
-                if nodes:
-                    control_nodes = str(nodes.get('control_plane', 1))
-                    worker_nodes = str(nodes.get('workers', 0))
+            yield advanced_label
+            for distro, distro_metadata in DEFAULT_DISTRO_OPTIONS.items():
+                # only display the default distro for this OS
+                if distro == self.previous_distro:
+                    display = True
                 else:
-                    control_nodes = "1"
-                    worker_nodes = "0"
+                    display = False
 
-                # node input row
-                adjust = NodeAdjustmentBox(distro, control_nodes, worker_nodes)
-                yield Container(adjust, classes=f"{distro} nodes-box")
+                distro_box = Container(classes=f"k8s-distro-config {distro}",
+                                            id=f"{distro}-box")
+                distro_box.display = display
 
-                # kubelet config section
-                extra_args = distro_metadata['kubelet_extra_args']
-                kubelet_class = f"{distro} kubelet-config-container"
-                yield Container(KubeletConfig(distro, extra_args),
-                                classes=kubelet_class)
-
-                # take extra k3s args
-                if distro == 'k3s' or distro == 'k3d':
-                    if distro == 'k3s':
-                        k3s_args = distro_metadata['extra_cli_args']
+                with distro_box:
+                    # take number of nodes from config and make string
+                    nodes = distro_metadata.get('nodes', False)
+                    if nodes:
+                        control_nodes = str(nodes.get('control_plane', 1))
+                        worker_nodes = str(nodes.get('workers', 0))
                     else:
+                        control_nodes = "1"
+                        worker_nodes = "0"
+
+                    # node input row
+                    adjust = NodeAdjustmentBox(distro,
+                                               control_nodes,
+                                               worker_nodes)
+                    yield Container(adjust, classes=f"{distro} nodes-box")
+
+                    # kubelet config section
+                    extra_args = distro_metadata['kubelet_extra_args']
+                    kubelet_class = f"{distro} kubelet-config-container"
+                    yield Container(KubeletConfig(distro,
+                                                  extra_args),
+                                    classes=kubelet_class)
+
+                    # take extra k3s args if distro is k3s or k3d
+                    if distro == 'k3s' or distro == 'k3d':
                         k3s_args = distro_metadata['extra_k3s_cli_args']
 
-                    k3s_box_classes = f"{distro} k3s-config-container"
-                    yield Container(K3sConfig(distro, k3s_args),
-                                    classes=k3s_box_classes)
-                else:
-                    yield Label(" ", id="kind-placeholder")
+                        k3s_box_classes = f"{distro} k3s-config-container"
 
+                        yield Container(K3sConfig(distro, k3s_args),
+                                        classes=k3s_box_classes)
 
     def on_mount(self) -> None:
         """

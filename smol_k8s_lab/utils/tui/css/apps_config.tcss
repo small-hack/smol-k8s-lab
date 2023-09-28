@@ -1,3 +1,40 @@
+/*
+*      HEX       RGB              name of color in css
+*      ---------------------------------------------
+*      #bdd8ff  rgb(189,216,255)  bluish_white
+*      #aea8f8  rgb(174,168,248)  lavender
+*      #ff8d87  rgb(255,141,135)  spacechalk_red
+*      #f289f9  rgb(242,137,249)  neon_magenta
+*      #ffaff9  rgb(255,175,249)  light_pink
+*      #fdcd36  rgb(253,205,54)   orange
+*      #f9f986  rgb(249,249,134)  soft_yellow
+*      #C1FF87  rgb(193,255,135)  soft_green
+*      #a8fd57  rgb(168,253,87)   spacechalk_lime
+*      #5cc9fd  rgb(92,201,253)   sky_blue
+*      #5f87ff  rgb(95,135,255)   cornflower
+*      #7aa2f7  rgb(122,162,247)  light_cornflower
+*      #565f89  rgb(86,95,137)    blue_grey
+*      #3a3a3a  rgb(58,58,58)     dark_gray
+*      #232336  rgb(35,35,54)     navy
+*/
+
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_grey: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+
 /* Matches the WHOLE TOP part of screen in content container */
 #apps-config-container {
    layout: grid;
@@ -13,12 +50,12 @@
 
 /* matches only the left hand side of top half of screen */
 #select-add-apps {
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
-   border: round cornflowerblue;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-hover: $orange;
+   scrollbar-color: $cornflower;
+   border: round $cornflower;
    background: rgb(35,35,54) 60%;
    align: center top;
    height: auto;
@@ -29,40 +66,6 @@
    layout: grid;
    grid-rows: 0.22fr 0.1fr 0.1fr;
    align: center top;
-}
-
-/* Matches the "Select apps to install on k8s" Selection List */
-SelectionList {
-   background: rgb(35,35,54) 40%;
-   width: 100%;
-}
-
-/* Matches the "Select apps to install on k8s" Selection List highlighted option */
-SelectionList .option-list--option-highlighted {
-   background: rgb(65,72,104) 50%;
-}
-
-SelectionList .option-list--option-hover-highlighted {
-   background: rgb(65,72,104) 90%;
-}
-
-SelectionList .option-list--option-hover {
-   background: rgb(65,72,104) 70%;
-}
-
-/* changes color of filled in app selection button */
-.selection-list--button-selected {
-   color: rgb(242,137,249);
-}
-
-/* changes color of filled in app selection button */
-.selection-list--button-highlighted {
-   color: rgb(242,137,249);
-}
-
-/* changes color of filled in app selection button when highlighted */
-.selection-list--button-selected-highlighted {
-   color: rgb(242,137,249);
 }
 
 /* new app input and button boxes below the app selection list */
@@ -83,7 +86,7 @@ SelectionList .option-list--option-hover {
 /* Matches the "Configure parameters for {app}" input list pane itself */
 #app-inputs-pane {
    padding-top: 1;
-   border: round cornflowerblue;
+   border: round $cornflower;
    background: rgb(35,35,54) 50%;
 }
 
@@ -106,17 +109,17 @@ SelectionList .option-list--option-hover {
    height: 3;
    width: 100%;
    content-align: left middle;
-   color: rgb(127,200,255) 90%;
+   color: $sky_blue 90%;
 }
 
 /* argo cd config param section */
 .argo-config-container {
    align: left top;
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-hover: $orange;
+   scrollbar-color: $cornflower;
 }
 
 .argo-config-header {
@@ -143,7 +146,7 @@ SelectionList .option-list--option-hover {
    height: 3;
    width: auto;
    content-align: left middle;
-   color: rgb(127,200,255) 90%;
+   color: $sky_blue 90%;
 }
 
 .argo-config-input {
@@ -183,11 +186,11 @@ SelectionList .option-list--option-hover {
    column-span: 2;
    border: round gray;
    content-align: center middle;
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-hover: $orange;
+   scrollbar-color: $cornflower;
    height: auto;
    margin-top: 1;
 }
