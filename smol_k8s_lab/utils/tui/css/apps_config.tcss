@@ -10,7 +10,7 @@ $spacechalk_lime: rgb(168,253,87);
 $sky_blue: rgb(92,201,253);
 $cornflower: rgb(95,135,255);
 $light_cornflower: rgb(122,162,247);
-$blue_grey: rgb(86,95,137);
+$blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
@@ -30,13 +30,8 @@ $navy: rgb(35,35,54);
 
 /* matches only the left hand side of top half of screen */
 #select-add-apps {
-   scrollbar-background: $dark_gray;
-   scrollbar-background-active: $dark_gray;
-   scrollbar-background-hover: $dark_gray;
-   scrollbar-color-hover: $soft_green;
-   scrollbar-color: $cornflower;
    border: round $cornflower;
-   background: rgb(35,35,54) 60%;
+   background: $navy 60%;
    align: center top;
    height: auto;
 }
@@ -67,7 +62,7 @@ $navy: rgb(35,35,54);
 #app-inputs-pane {
    padding-top: 1;
    border: round $cornflower;
-   background: rgb(35,35,54) 50%;
+   background: $navy 50%;
 }
 
 .single-app-inputs {
@@ -98,15 +93,16 @@ $navy: rgb(35,35,54);
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;
-   scrollbar-color-hover: $soft_green;
-   scrollbar-color: $cornflower;
+   scrollbar-color-active: $sky_blue;
+   scrollbar-color-hover: $cornflower;
+   scrollbar-color: $light_cornflower;
 }
 
 .argo-config-header {
    width: 100%;
    content-align: left middle;
    padding-left: 1;
-   background: $blue_grey 20%;
+   background: $blue_gray 20%;
    color: $soft_green 90%;
    height: 3;
    margin-bottom: 1;
@@ -141,7 +137,7 @@ $navy: rgb(35,35,54);
    height: 3;
    padding-left: 1;
    width: 100%;
-   background: $blue_grey 18%;
+   background: $blue_gray 18%;
    content-align: left middle;
    margin-bottom: 1;
 }
@@ -169,8 +165,8 @@ $navy: rgb(35,35,54);
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;
-   scrollbar-color-hover: $orange;
-   scrollbar-color: $cornflower;
+   scrollbar-color-hover: $cornflower;
+   scrollbar-color: $light_cornflower;
    height: auto;
    margin-top: 1;
 }

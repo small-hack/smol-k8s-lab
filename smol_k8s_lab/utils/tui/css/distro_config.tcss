@@ -10,7 +10,7 @@ $spacechalk_lime: rgb(168,253,87);
 $sky_blue: rgb(92,201,253);
 $cornflower: rgb(95,135,255);
 $light_cornflower: rgb(122,162,247);
-$blue_grey: rgb(86,95,137);
+$blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
@@ -28,7 +28,7 @@ $navy: rgb(35,35,54);
     content-align: center middle;
     width: 100%;
     color: $soft_green;
-    background: $blue_grey 30%;
+    background: $blue_gray 30%;
 }
 
 #advanced-config-label {
@@ -36,13 +36,13 @@ $navy: rgb(35,35,54);
    width: 100%;
    content-align: center middle;
    color: silver;
-   background: $blue_grey 20%;
+   background: $blue_gray 20%;
 }
 
 #distro-select-box {
    height: 3;
    padding-left: 1;
-   background: $blue_grey 30%;
+   background: $blue_gray 30%;
    margin-top: 1;
 }
 
@@ -57,7 +57,7 @@ $navy: rgb(35,35,54);
 }
 
 #distro-drop-down .option-list--option-highlighted {
-   background: $blue_grey 90%;
+   background: $blue_gray 90%;
 }
 
 /* bottom half k8s distro config area */

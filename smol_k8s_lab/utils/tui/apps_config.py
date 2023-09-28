@@ -18,6 +18,9 @@ class AppConfig(Screen):
     """
     CSS_PATH = ["./css/apps_config.tcss",
                 "./css/apps_init_config.tcss"]
+
+    BINDINGS = [("escape,b", "app.pop_screen", "Pop screen")]
+
     ToggleButton.BUTTON_INNER = '♥'
 
     def __init__(self, config: dict, show_footer: bool = True) -> None:
@@ -76,7 +79,7 @@ class AppConfig(Screen):
         screen and box border styling
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        self.sub_title = "now with more 🦑"
+        self.sub_title = "k8s apps config (now with more 🦑)"
 
         # select-apps styling - select apps container - top left
         select_apps_widget = self.get_widget_by_id("select-add-apps")

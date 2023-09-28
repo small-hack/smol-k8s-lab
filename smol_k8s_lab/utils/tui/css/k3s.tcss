@@ -10,7 +10,7 @@ $spacechalk_lime: rgb(168,253,87);
 $sky_blue: rgb(92,201,253);
 $cornflower: rgb(95,135,255);
 $light_cornflower: rgb(122,162,247);
-$blue_grey: rgb(86,95,137);
+$blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
@@ -34,11 +34,12 @@ $navy: rgb(35,35,54);
 /* k3s container itself */
 .k3s-arg-scroll {
    align: center middle;
-   scrollbar-background: #3a3a3a;
-   scrollbar-background-active: #3a3a3a;
-   scrollbar-background-hover: #3a3a3a;
-   scrollbar-color-hover: orange;
-   scrollbar-color: #5f5fd7;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-active: $sky_blue;
+   scrollbar-color-hover: $cornflower;
+   scrollbar-color: $light_cornflower;
 }
 
 .k3s-grid {
