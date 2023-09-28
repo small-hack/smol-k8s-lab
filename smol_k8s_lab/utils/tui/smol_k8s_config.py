@@ -131,9 +131,17 @@ class TuiConfig(Widget):
     @on(Input.Changed)
     def update_parent_config_for_input(self, event: Input.Changed) -> None:
         input = event.input
-        parent_cfg = input.ancestors[-1].cfg['smol_k8s_lab']['interactive']['k9s']
+        input_name = event.input.name
 
-        parent_cfg[input.name] = input.value
+        parent_cfg = event.input.ancestors[-1].cfg['smol_k8s_lab']['interactive']
+
+        if "k9s" in input_name:
+            name = input_name.replace("k9s-","")
+            self.cfg['k9s'][name] = input.value
+            parent_cfg['k9s'][name] = input.value
+        else:
+            parent_cfg[input.name] = input.value
+
         self.ancestors[-1].write_yaml()
 
 

@@ -3,10 +3,11 @@ from textual.binding import Binding
 from textual.containers import Grid, Container
 from textual.widgets import Footer, Header, Button
 from smol_k8s_lab.utils.write_yaml import dump_to_file
+from smol_k8s_lab.utils.tui.apps_config import AppConfig
+from smol_k8s_lab.utils.tui.confirm_selection import ConfirmConfig
+from smol_k8s_lab.utils.tui.distro_config import DistroConfig
 from smol_k8s_lab.utils.tui.help import HelpScreen
 from smol_k8s_lab.utils.tui.smol_k8s_config import SmolK8sLabConfig
-from smol_k8s_lab.utils.tui.distro_config import DistroConfig
-from smol_k8s_lab.utils.tui.apps_config import AppConfig
 from smol_k8s_lab.constants import INITIAL_USR_CONFIG
 
 
@@ -27,7 +28,11 @@ class BaseApp(App):
                 Binding(key="a",
                         key_display="a",
                         action="request_apps_cfg",
-                        description="📱Apps")
+                        description="📱Apps"),
+                Binding(key="c",
+                        key_display="c",
+                        action="request_confirm",
+                        description="✅ Confirm")
                 ]
 
     CSS_PATH = ["./css/base.tcss",
@@ -99,6 +104,8 @@ class BaseApp(App):
             self.action_request_distro_cfg()
         elif button_id == "apps-cfg":
             self.action_request_apps_cfg()
+        elif button_id == "confirm-cfg":
+            self.action_request_confirm()
 
     def on_mount(self) -> None:
         """
@@ -130,6 +137,9 @@ class BaseApp(App):
         """
         self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab'],
                                               self.show_footer))
+
+    def action_request_confirm(self) -> None:
+        self.app.push_screen(ConfirmConfig(self.cfg, self.show_footer))
 
     def action_request_help(self) -> None:
         """

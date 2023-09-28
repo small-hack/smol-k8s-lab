@@ -14,11 +14,9 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-#confirm-tab-container {
-   layout: grid;
+#confirm-container {
    align: center middle;
-   grid-rows: 5.5fr 0.8fr;
-   margin-top: 1;
+   height: 90%;
 }
 
 #invalid-apps {
@@ -26,6 +24,7 @@ $navy: rgb(35,35,54);
   padding: 1;
   margin-bottom: 1;
   width: 100%;
+  height: auto;
   background: $navy 60%;
 }
 
@@ -35,8 +34,14 @@ $navy: rgb(35,35,54);
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;
    scrollbar-color-hover: $light_cornflower;
+   scrollbar-color-active: $sky_blue;
    scrollbar-color: $cornflower;
-   height: 100%;
+   height: 90%;
    padding-top: 1;
    background: $navy 60%;
+}
+
+#final-confirm-button-box {
+  align: center middle;
+  height: 5%;
 }
