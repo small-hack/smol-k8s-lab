@@ -7,6 +7,7 @@ DESCRIPTION: install k3d :D Not affiliated with k3s, rancher, or suse. just a fa
 """
 from ..utils.rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
+import logging as log
 
 
 def install_k3d_cluster(k3s_cli_args: list,
@@ -35,7 +36,10 @@ def install_k3d_cluster(k3s_cli_args: list,
         for cli_arg in k3s_cli_args:
             install_cmd += f" --k3s-arg '{cli_arg}'"
 
-    subproc([install_cmd])
+    log.debug(f"k3d install command: {install_cmd}")
+
+    res = subproc([install_cmd])
+    log.info(res)
     return True
 
 
