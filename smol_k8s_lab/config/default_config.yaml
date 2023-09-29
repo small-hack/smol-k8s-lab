@@ -160,11 +160,10 @@ apps:
     description: |
       Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [gold3]argo.repo[/gold3] and default enabled if ArgoCD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
 
+      Switch to initialization off if you don't want to deploy a default secret with all keys in each apps.{app}.argo.secret_keys
+
       Learn more: [link=https://github.com/small-hack/appset-secret-plugin]https://github.com/small-hack/appset-secret-plugin[/link]
-    # Initialization of the app through smol-k8s-lab
     init:
-      # Switch to false if you don't want to deploy a default secret with all
-      # keys in each apps.{app}.argo.secret_keys
       enabled: true
     argo:
       # skip installing this app b/c its part of another app of apps with this
@@ -195,7 +194,6 @@ apps:
       BITWARDEN_PASSWORD, BITWARDEN_CLIENTSECRET, BITWARDEN_CLIENTID
 
       Learn more: [link="https://github.com/jessebot/bitwarden-eso-provider/"]https://github.com/jessebot/bitwarden-eso-provider/[/link]
-    # Initialization of the app through smol-k8s-lab
     init:
       # Switch to false if you don't want to be prompted for your Bitwarden
       # API credentials to be created as a kubernetes secret.
@@ -305,7 +303,6 @@ apps:
       Learn more: [link=https://external-secrets.io/latest/]https://external-secrets.io/latest/[/link]
     # Initialization of the app through smol-k8s-lab
     init:
-      # Switch to true to provide your own secret keys for a custom arogo.repo
       enabled: false
     argo:
       # git repo to install the Argo CD app from
@@ -342,7 +339,6 @@ apps:
       Learn more: [link=https://infisical.com/]https://infisical.com/[/link]
     # Initialization of the app through smol-k8s-lab
     init:
-      # Switch to false if you don't want to 
       enabled: true
     argo:
       secret_keys:
@@ -367,10 +363,10 @@ apps:
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by ArgoCD if you enable it below
   ingress_nginx:
-    # this cannot be disabled unless you provide your own ingress controller app
     enabled: true
     description: |
       deploy ingress-nginx and cert-manager as one argocd app of apps and project in the same namespace
+      Ingress-nginx cannot be disabled unless you provide your own ingress controller app
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -489,12 +485,9 @@ apps:
     enabled: false
     description: |
       keycloak is an IAM provider that you can use with ArgoCD for user/group management and oauth2
-    # Initialization of the app through smol-k8s-lab
+
+      smol-k8s-lab initializes keycloak by creating an initial user & clients for ArgoCD and vouch this will also prompt you for input for creating an admin user. Switch to initialization to false if you want to use your own argo repo that does not not use the appset_secret_plugin or setup an initial user/clients
     init:
-      # initialize keycloak by creating a 1st user & clients for ArgoCD and
-      # vouch this will also prompt you for input for creating an admin user
-      # Switch to false if you want to use your own argo repo that does not not
-      # use the argo_cd_appset_secret_plugin or setup an initial user/clients
       enabled: true
       values:
         # first human user to setup
@@ -556,7 +549,6 @@ apps:
       Kyverno is a native policy manager for Kubernetes
 
       learn more: [link=https://kyverno.io/]https://kyverno.io/[/link]
-    # enable kyverno, for k8s native policy management
     enabled: false
     argo:
       # secret keys to provide for the argocd secret plugin app, none by default
@@ -582,13 +574,9 @@ apps:
 
        learn more: [link=https://joinmastodon.org/]https://joinmastodon.org/[/link]
 
-       smol-k8s-lab supports initializing mastodon, by setting up your hostname
-       and SMTP credentials
+       smol-k8s-lab supports initializing mastodon, by setting up your hostname and SMTP credentials as well as your credentials for redis, postgresql, and an admin user
     enabled: false
-    # initialize the app by setting up new k8s secrets and/or bitwarden items
     init:
-      # Switch to false if you don't want to setup your create initial secrets for
-      # your hostnames, and credentials for: redis, postgresql, admin user, SMTP
       enabled: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
@@ -618,12 +606,10 @@ apps:
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
 
       Learn more: [link=https://matrix.org/]https://matrix.org/[/link]
-    # enable matrix for a self hosted chat service
+
+      smol-k8s-lab supports initialization by setting up your create initial secrets for your hostnames, and credentials for: postgresql, admin user, SMTP
     enabled: false
-    # initialize the app by setting up new k8s secrets and/or bitwarden items
     init:
-      # Switch to false if you don't want to setup your create initial secrets for
-      # your hostnames, and credentials for: postgresql, admin user, SMTP
       enabled: true
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
@@ -656,11 +642,10 @@ apps:
       Cloud Compatibility: [link=https://metallb.org/installation/clouds/]https://metallb.org/installation/clouds/[/link]
 
       Learn more: [link=https://metallb.org/]https://metallb.org/[/link]
+
+      smol-k8s-lab support initialization by deploying a default l2Advertisement  IPAddressPool.
     # Initialize of the app through smol-k8s-lab
     init:
-      # Deploys default l2Advertisement and prompts for an IPAddressPool if
-      # metallb.init.address_pool is not set. Change to false if you don't want
-      # to deploy these resources
       enabled: true
       values:
         address_pool: []
@@ -718,14 +703,11 @@ apps:
 
       Learn more: [link=https://nextcloud.com/]https://nextcloud.com/[/link]
 
-      smol-k8s-lab supports initialization by setting up your administration username,
-      password, and SMTP username and password.
+      smol-k8s-lab supports initialization by setting up your admin username, password, and SMTP username and password, as well as your redis and postgresql credentials
 
       Note: smol-k8s-lab is not officially affiliated with nextcloud or vis versa
     # initialize the app by setting up new k8s secrets and/or bitwarden items
     init:
-      # Switch to false if you don't want to create inital k8s secrets for your
-      # hostnames, admin credentials, SMTP credentials, redis credentials, and postgresql
       enabled: true
       values:
         admin_user: ""
@@ -807,8 +789,6 @@ apps:
     enabled: true
     # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
     init:
-      # Switch to false if you don't want to deploy initial k8s secret_keys
-      # or use keycloak or zitadel as your OIDC providers
       enabled: true
       values:
         # list of domains allowed to be behind vouch such as example.com
@@ -850,12 +830,11 @@ apps:
       - an admin service account
       - a human admin user (including an autogenerated password)
       - 2 OIDC applications for Argo CD and Vouch
-    # Initialization of the app through smol-k8s-lab. Creates bitwarden and/or k8s secrets
-    # and also creates an initial OIDC application for Argo CD, a human admin user,
-    # and two groups for argo (users/admins) along with a groupsClaim action. Updates
-    # your values in the argo_cd_appset_secret_plugin secret and refreshes the pod
+      - 2 Argo CD groups (admins and users), 1 vouch groups
+      - groupsClaim action to enforce group roles on authentication
+      - updates your appset_secret_plugin secret and refreshes the pod
     init:
-      # Switch to false if you don't want to create intial secrets or use a the
+      # Switch to false if you don't want to create intial secrets or use the
       # API via a service acocunt to create the above described resources
       enabled: true
       values:
