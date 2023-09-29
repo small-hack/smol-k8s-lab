@@ -99,7 +99,7 @@ def create_argocd_project(project_name: str,
                     "name": "in-cluster",
                     "namespace": namespace,
                     "server": "https://kubernetes.default.svc"
-                },
+                }
         argocd_proj['spec']['destinations'].append(extra_namespace)
 
     apply_custom_resources([argocd_proj])
