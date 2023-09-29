@@ -18,7 +18,6 @@ $navy: rgb(35,35,54);
 #distro-config-screen {
    align: center middle;
    layout: grid;
-   grid-rows: 0.35fr 0.35fr 3fr;
 }
 
 #distro-help {
@@ -32,18 +31,20 @@ $navy: rgb(35,35,54);
 }
 
 #advanced-config-label {
-   height: 3;
    width: 100%;
    content-align: center middle;
    color: silver;
-   background: $blue_gray 20%;
+   background: $blue_gray 10%;
+   margin-bottom: 1;
+   margin-top: 1;
 }
 
 #distro-select-box {
    height: 3;
    padding-left: 1;
    background: $blue_gray 30%;
-   margin-top: 1;
+   margin-top: 2;
+   margin-bottom: 2;
 }
 
 #select-distro-label {
@@ -63,8 +64,8 @@ $navy: rgb(35,35,54);
 /* bottom half k8s distro config area */
 .k8s-distro-config {
    layout: grid;
-   align: center top;
    grid-rows: 0.5fr 1fr 1.1fr;
+   width: 95%
 }
 
 /* number of nodes input row */

@@ -20,6 +20,7 @@ $navy: rgb(35,35,54);
    background: $navy 50%;
    height: 100%;
    margin-top: 1;
+   margin-bottom: 1;
 }
 
 .kind-networking-config-scroll {

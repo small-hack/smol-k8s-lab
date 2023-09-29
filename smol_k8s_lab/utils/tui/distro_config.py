@@ -59,29 +59,30 @@ class DistroConfig(Screen):
             footer.display = False
         yield footer
 
+        # this is for selecting distros
+        label = Label("🌱 Select a distro to get started:",
+                      id="select-distro-label")
+        label.tooltip = self.cfg[self.previous_distro]['description']
+
+        # create all distro selection choices for the top of tabbed content
+        my_options = tuple(DEFAULT_OPTIONS)
+
+        # container for top drop down
+        with Horizontal(id="distro-select-box"):
+            yield label
+            yield Select(((line, line) for line in my_options),
+                         id="distro-drop-down",
+                         allow_blank=False,
+                         value=self.previous_distro)
+
+        # below is advanced configuration
+        advanced_label = Label(
+                "⚙️ [i]Advanced Configuration - [dim]Press [gold3]↩ Enter[/]"
+                " to save [i]each[/i] input field.",
+                id="advanced-config-label")
+        yield advanced_label
+
         with Container(id="distro-config-screen"):
-            # this is for selecting distros
-            label = Label("🌱 Select a distro to get started:",
-                          id="select-distro-label")
-            label.tooltip = self.cfg[self.previous_distro]['description']
-
-            # create all distro selection choices for the top of tabbed content
-            my_options = tuple(DEFAULT_OPTIONS)
-
-            # container for top drop down
-            with Horizontal(id="distro-select-box"):
-                yield label
-                yield Select(((line, line) for line in my_options),
-                             id="distro-drop-down",
-                             allow_blank=False,
-                             value=self.previous_distro)
-
-            # below is advanced configuration
-            advanced_label = Label(
-                    "⚙️ [i]Advanced Configuration - [dim]Press [gold3]↩ Enter[/]"
-                    " to save [i]each[/i] input field.",
-                    id="advanced-config-label")
-            yield advanced_label
 
             for distro in DEFAULT_OPTIONS:
                 distro_metadata = self.cfg.get(distro, None)
