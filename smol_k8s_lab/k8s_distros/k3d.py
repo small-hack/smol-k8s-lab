@@ -9,8 +9,8 @@ from ..utils.rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
 
 
-def install_k3d_cluster(kubelet_args: dict,
-                        k3s_cli_args: list,
+def install_k3d_cluster(k3s_cli_args: list,
+                        kubelet_args: dict,
                         control_plane_nodes: int = 1,
                         worker_nodes: int = 0) -> bool:
     """
