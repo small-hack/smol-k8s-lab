@@ -88,7 +88,7 @@ def create_k8s_distro(k8s_distro: str,
 
         # curently unsupported - in alpha state
         if k8s_distro == "k3d":
-            install_k3d_cluster(k3s_args,
+            install_k3d_cluster(set(k3s_args),
                                 kubelet_args,
                                 distro_metadata['nodes']['control_plane'],
                                 distro_metadata['nodes']['workers'])
