@@ -13,7 +13,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
     repo = argo_dict['repo']
     path = argo_dict['path']
     app_namespace = argo_dict['namespace']
-    proj_namespaces = set(argo_dict['project']['destination']['namespace'])
+    proj_namespaces = set(argo_dict['project']['destination']['namespaces'])
     proj_namespaces.append(app_namespace)
 
     if argo_dict.get('part_of_app_of_apps', None):
