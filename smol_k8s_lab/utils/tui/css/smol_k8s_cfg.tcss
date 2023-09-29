@@ -18,8 +18,8 @@ $navy: rgb(35,35,54);
 .bool-switch-row {
     align: left middle;
     layout: grid;
-    grid-size: 3;
-    grid-columns: 0.8fr 1fr 0.1fr;
+    grid-size: 2;
+    grid-columns: 0.8fr 1fr;
 }
 
 .bool-switch-row-label {
@@ -35,10 +35,9 @@ $navy: rgb(35,35,54);
 
 /* two bool-switch-rows side by side */
 .double-switch-row {
-    align: left middle;
+    align: center middle;
     layout: grid;
     grid-size: 2;
-    grid-columns: 0.8fr 1fr;
 }
 
 /* k9s row of a switch and input field */
@@ -108,7 +107,7 @@ $navy: rgb(35,35,54);
     padding-left: 3;
     margin-top: 2;
     margin-bottom: 2;
-    border: solid $orange;
+    border: solid $cornflower;
     background: $navy 50%;
 }
 
@@ -132,7 +131,7 @@ $navy: rgb(35,35,54);
     padding-left: 3;
     margin-top: 2;
     margin-bottom: 1;
-    border: solid $soft_green;
+    border: solid $cornflower;
     background: $navy 50%;
     layout: grid;
     grid-rows: 0.8fr 1fr;
