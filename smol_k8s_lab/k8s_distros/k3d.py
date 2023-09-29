@@ -26,7 +26,8 @@ def install_k3d_cluster(k3s_cli_args: list,
     # base config for k3s
     k3d_cfg = {"apiVersion": "k3d.io/v1alpha5",
                "kind": "Simple",
-               "metadata": {"name": cluster_name}}
+               "metadata": {"name": cluster_name}
+               }
 
     # filter for which nodes to apply which k3s args to
     node_filters = []
@@ -46,7 +47,7 @@ def install_k3d_cluster(k3s_cli_args: list,
         k3d_cfg['options'] = {'k3s': {"extraArgs": []}}
         for key, value in kubelet_args.items():
             cli_arg = f"--kubelet-arg={key}={value}"
-            arg_dict = {"arg": cli_arg, "nodeFilters": node_filters.copy()}
+            arg_dict = {"arg": f'"{cli_arg}"', "nodeFilters": node_filters.copy()}
 
             k3d_cfg['options']['k3s']['extraArgs'].append(arg_dict)
 
@@ -56,7 +57,7 @@ def install_k3d_cluster(k3s_cli_args: list,
             k3d_cfg['options'] = {'k3s': {"extraArgs": []}}
 
         for cli_arg in k3s_cli_args:
-            arg_dict = {"arg": cli_arg, "nodeFilters": node_filters.copy()}
+            arg_dict = {"arg": f'"{cli_arg}"', "nodeFilters": node_filters.copy()}
             k3d_cfg['options']['k3s']['extraArgs'].append(arg_dict)
 
     cfg_file = f"{XDG_CACHE_DIR}/k3d-config.yaml"
