@@ -15,7 +15,7 @@ def launch_config_tui():
         # if we are using the appset_secret_plugin, then grab all the secret keys
         for app, metadata in config['apps'].items():
             if metadata['enabled']:
-                secret_keys = metadata['argo']['secret_keys']
+                secret_keys = metadata['argo'].get('secret_keys', None)
                 if secret_keys:
                     for key, value in secret_keys.items():
                         secrets[f"{app}_{key}"] = value
