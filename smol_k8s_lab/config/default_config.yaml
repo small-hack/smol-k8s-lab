@@ -55,7 +55,7 @@ k8s_distros:
     # to the k3s install script. we automatically append --disable=servicelb if
     # you enabled metallb and we automatically append --flannel-backend=none and
     # --disable-network-policy if you enable cilium
-    extra_cli_args:
+    extra_k3s_cli_args:
       # disables traefik so we can enable ingress-nginx, remove if you're using traefik
       - "--disable=traefik"
       # enables encryption at rest for kubernetes secrets

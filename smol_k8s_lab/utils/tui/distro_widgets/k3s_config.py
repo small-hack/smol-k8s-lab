@@ -23,10 +23,6 @@ class K3sConfig(Widget):
     def __init__(self, distro: str, k3s_args: list = []) -> None:
         self.k3s_args = k3s_args
         self.distro = distro
-        if self.distro == 'k3s':
-            self.yaml_key = 'extra_cli_args'
-        else:
-            self.yaml_key = 'extra_k3s_cli_args'
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -71,7 +67,7 @@ class K3sConfig(Widget):
             # if the input field is not blank
             if input_key:
                 yaml = event.button.ancestors[-1].cfg['k8s_distros']
-                cli_args = yaml[self.distro][self.yaml_key]
+                cli_args = yaml[self.distro]["extra_k3s_cli_args"]
                 if cli_args:
                     for idx, arg in enumerate(cli_args):
                         if arg == input_key:
@@ -89,7 +85,7 @@ class K3sConfig(Widget):
     @on(Input.Submitted)
     def update_base_yaml(self, event: Input.Changed) -> None:
         input = event.input
-        yaml = input.ancestors[-1].cfg['k8s_distros'][self.distro][self.yaml_key]
+        yaml = input.ancestors[-1].cfg['k8s_distros'][self.distro]["extra_k3s_cli_args"]
         if input.value not in yaml:
             yaml.append(input.value)
 
