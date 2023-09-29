@@ -190,10 +190,3 @@ def format_description(description: str = ""):
     description = description.replace("[/link]", "[/link][/steel_blue][dim]")
 
     return f"""[dim]{description}[/dim]"""
-
-
-if __name__ == "__main__":
-    # this is temporary during testing
-    from smol_k8s_lab.constants import INITIAL_USR_CONFIG
-    reply = DistroConfig(INITIAL_USR_CONFIG).run()
-    print(reply)
