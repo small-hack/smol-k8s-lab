@@ -159,20 +159,25 @@ class LoggingConfig(Widget):
         logging_opt = self.cfg
         current_level = logging_opt['level']
         possible_levels = ['debug' , 'info', 'warn', 'error']
-        possible_levels.remove(current_level)
 
         with Container(id="logging-config"):
             with Horizontal(classes="double-switch-row"):
+
                 with Horizontal(classes="radioset-row"):
                     label = Label("level:", classes="radioset-row-label")
                     label.tooltip = "logging verbosity level"
                     yield label
+
                     with RadioSet(classes="radioset-row-radioset"):
-                        button = RadioButton(current_level, value=True)
-                        button.BUTTON_INNER = "♥"
-                        yield button
                         for level in possible_levels:
-                            button = RadioButton(level)
+
+                            # make sure the user selected level is already selected
+                            if level == current_level:
+                                button = RadioButton(current_level, value=True)
+                            else:
+                                button = RadioButton(level)
+
+                            # set the radio button to be a heart :3
                             button.BUTTON_INNER = "♥"
                             yield button
 
