@@ -9,7 +9,7 @@ DESCRIPTION: generic kubernetes utilities
 from base64 import b64decode as b64dec
 from base64 import standard_b64encode as b64enc
 from os import path
-from yaml import dump, safe_load
+from yaml import safe_dump, safe_load
 import logging as log
 from .k8s_lib import K8s
 from ..constants import XDG_CACHE_DIR
@@ -52,8 +52,10 @@ def apply_custom_resources(custom_resource_dict_list: dict):
         resource_name = "_".join([custom_resource_dict['kind'],
                                   custom_resource_dict['metadata']['name']])
         yaml_file_name = path.join(XDG_CACHE_DIR, f'{resource_name}.yaml')
+
         with open(yaml_file_name, 'w') as cr_file:
-            dump(custom_resource_dict, cr_file)
+            safe_dump(custom_resource_dict, cr_file)
+
         commands[f'Installing {resource_name}'] = k_cmd + yaml_file_name
 
     # loops with progress bar until this succeeds
