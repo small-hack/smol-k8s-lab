@@ -158,7 +158,7 @@ def main(config: str = "",
                         apps['ingress_nginx'],
                         apps['cert_manager'],
                         argo_enabled,
-                        apps['argo_cd_appset_secret_plugin']['enabled'])
+                        apps['appset_secret_plugin']['enabled'])
 
         # 🦑 Install Argo CD: continuous deployment app for k8s
         if argo_enabled:
