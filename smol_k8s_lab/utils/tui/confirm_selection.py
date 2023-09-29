@@ -3,7 +3,7 @@ from smol_k8s_lab.utils.yaml_with_comments import syntax_highlighted_yaml
 from textual import on
 from textual.binding import Binding
 from textual.app import ComposeResult
-from textual.containers import VerticalScroll, Grid, Container
+from textual.containers import VerticalScroll, Grid
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Label
 
@@ -97,13 +97,6 @@ class ConfirmConfig(Screen):
             self.get_widget_by_id("invalid-apps").display = True
             self.build_pretty_nope()
 
-    @on(Button.Pressed)
-    def exit_app_and_return_new_config(self, event: Button.Pressed) -> None:
-        if event.button.id == "confirm-button":
-            self.ancestors[-1].exit(self.ancestors[-1].cfg)
-        if event.button.id == "back-button":
-            self.app.pop_screen()
-
     def get_app_inputs(self) -> None:
         """
         processes the entire apps config to check for empty fields
@@ -129,6 +122,13 @@ class ConfirmConfig(Screen):
                           classes="nope-fields")
             nope_row = Grid(label, nopes, classes="nope-row")
             nope_container.mount(nope_row)
+
+    @on(Button.Pressed)
+    def exit_app_and_return_new_config(self, event: Button.Pressed) -> None:
+        if event.button.id == "confirm-button":
+            self.ancestors[-1].exit(self.ancestors[-1].cfg)
+        if event.button.id == "back-button":
+            self.app.pop_screen()
 
 
 def check_for_invalid_inputs(metadata) -> list:
