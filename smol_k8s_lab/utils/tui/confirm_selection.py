@@ -110,9 +110,7 @@ class ConfirmConfig(Screen):
         """
         processes the entire apps config to check for empty fields
         """
-        config = self.apps
-
-        for app, metadata in config.items():
+        for app, metadata in self.apps.items():
             empty_fields = check_for_invalid_inputs(metadata)
             if empty_fields:
                 self.invalid_apps[app] = empty_fields
