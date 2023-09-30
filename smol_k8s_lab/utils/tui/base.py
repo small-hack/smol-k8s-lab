@@ -5,7 +5,7 @@ from textual.widgets import Footer, Header, Button
 from smol_k8s_lab.utils.write_yaml import dump_to_file
 from smol_k8s_lab.utils.tui.apps_config import AppConfig
 from smol_k8s_lab.utils.tui.confirm_selection import ConfirmConfig
-from smol_k8s_lab.utils.tui.distro_config import DistroConfig
+from smol_k8s_lab.utils.tui.distro_config import DistroConfigScreen
 from smol_k8s_lab.utils.tui.help import HelpScreen
 from smol_k8s_lab.utils.tui.smol_k8s_config import SmolK8sLabConfig
 from smol_k8s_lab.constants import INITIAL_USR_CONFIG
@@ -15,24 +15,31 @@ class BaseApp(App):
     BINDINGS = [Binding(key="?",
                         key_display="?",
                         action="request_help",
-                        description="Show Help",
+                        description="Help",
                         show=True),
                 Binding(key="s",
                         key_display="s",
+                        show=False,
                         action="request_smol_k8s_cfg",
-                        description="⚙️ config"),
+                        description="Config"),
                 Binding(key="d",
                         key_display="d",
+                        show=False,
                         action="request_distro_cfg",
-                        description="🐳 distros"),
+                        description="Distros"),
                 Binding(key="a",
                         key_display="a",
+                        show=False,
                         action="request_apps_cfg",
-                        description="📱Apps"),
+                        description="Apps"),
                 Binding(key="c",
                         key_display="c",
                         action="request_confirm",
-                        description="✅ Confirm")
+                        description="Confirm"),
+                Binding(key="f",
+                        key_display="f",
+                        action="toggle_footer",
+                        description="toggle footer")
                 ]
 
     CSS_PATH = ["./css/base.tcss",
@@ -64,15 +71,15 @@ class BaseApp(App):
                 smol_cfg_button = Button("🧸smol-k8s-lab", id="smol-cfg")
                 smol_cfg_button.tooltip = (
                         "Configure smol-k8s-lab itself from password management, "
-                        "to logging, to the terminal UI. Hot key: s"
+                        "to logging, to the terminal UI.\nHot key: [gold3]s[/]"
                         )
                 yield smol_cfg_button
 
                 # config distro button
                 distro_cfg_button = Button("🐳 k8s distro", id="distro-cfg")
                 distro_cfg_button.tooltip = (
-                        "Select and configure a kubernetes distribution. "
-                        "Hot key: d"
+                        "Select and configure a kubernetes distribution.\n"
+                        "Hot key: [gold3]d[/]"
                         )
                 yield distro_cfg_button
 
@@ -80,15 +87,15 @@ class BaseApp(App):
                 apps_cfg_button = Button("📱k8s apps", id="apps-cfg")
                 apps_cfg_button.tooltip = (
                         "Select and configure Kubernetes applications via Argo CD."
-                        " Hot key: a"
+                        "\nHot key: [gold3]a[/]"
                         )
                 yield apps_cfg_button
 
             with Container(id="first-confirm-button-row"):
                 confirm_button = Button("✅ confirm settings", id="confirm-cfg")
                 confirm_button.tooltip = (
-                        "Confirm all your settings and run smol-k8s-lab"
-                        " Hot key: c"
+                        "Confirm all your settings and run smol-k8s-lab."
+                        "\nHot key: [gold3]c[/]"
                         )
                 yield confirm_button
 
@@ -129,11 +136,9 @@ class BaseApp(App):
             pass
 
         if app_to_highlight:
-            self.app.push_screen(AppConfig(self.cfg['apps'],
-                                           app_to_highlight,
-                                           self.show_footer))
+            self.app.push_screen(AppConfig(self.cfg['apps'], app_to_highlight))
         else:
-            self.app.push_screen(AppConfig(self.cfg['apps'], "", self.show_footer))
+            self.app.push_screen(AppConfig(self.cfg['apps'], ""))
 
     def action_request_distro_cfg(self) -> None:
         """
@@ -145,7 +150,7 @@ class BaseApp(App):
         except ScreenStackError:
             pass
 
-        self.app.push_screen(DistroConfig(self.cfg['k8s_distros'], self.show_footer))
+        self.app.push_screen(DistroConfigScreen(self.cfg['k8s_distros']))
 
     def action_request_smol_k8s_cfg(self) -> None:
         """
@@ -158,8 +163,7 @@ class BaseApp(App):
         except ScreenStackError:
             pass
 
-        self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab'],
-                                              self.show_footer))
+        self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
 
     def action_request_confirm(self) -> None:
         """
@@ -171,13 +175,29 @@ class BaseApp(App):
         except ScreenStackError:
             pass
 
-        self.app.push_screen(ConfirmConfig(self.cfg, self.show_footer))
+        self.app.push_screen(ConfirmConfig(self.cfg))
 
     def action_request_help(self) -> None:
         """
         if the user presses 'h' or '?', show the help modal screen
         """
         self.push_screen(HelpScreen())
+
+    def action_toggle_footer(self) -> None:
+        """
+        don't display the footer, or do 🤷
+        """
+        footer = self.query_one(Footer)
+
+        if footer.display:
+            footer.display = False
+            self.notify(
+                "\n✨ Press [gold3]f[/] to re-enable the footer",
+                timeout=9,
+                title="Footer disabled"
+            )
+        else:
+            footer.display = True
 
     def write_yaml(self) -> None:
         dump_to_file(self.cfg)
