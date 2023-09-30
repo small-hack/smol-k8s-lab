@@ -31,8 +31,7 @@ HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
-def process_log_config(log_dict: dict = {'log':
-                                         {'level': 'warn', 'file': None}}):
+def process_log_config(log_dict: dict = {'level': 'warn', 'file': None}):
     """
     Sets up rich logger for the entire project. (ᐢ._.ᐢ) <---- who is he? :3
     Returns logging.getLogger("rich")
