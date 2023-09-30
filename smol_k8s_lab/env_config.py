@@ -120,7 +120,7 @@ def process_app_configs(apps: dict = {}) -> list:
 
     for app_key, app in apps.items():
         # grab the default app config to compare to
-        default_cfg = DEFAULT_APPS[app_key]
+        default_cfg = DEFAULT_APPS.get(app_key, {})
         # anything with an "enabled" field is default enabled
         default_enabled = default_cfg.get('enabled', True)
         # if the user config doesn't have this section we write in defaults
@@ -133,12 +133,21 @@ def process_app_configs(apps: dict = {}) -> list:
             # write in defaults if they're missing this section
             argo_section = app.get('argo', 'missing')
             if argo_section == 'missing':
-                apps[app_key]['argo'] = argo_section = default_cfg['argo']
+                if default_cfg:
+                    apps[app_key]['argo'] = argo_section = default_cfg['argo']
+                else:
+                    raise Exception(
+                            f"{app_key} is missing its argo section in your yaml. "
+                            "Please add that before re-running smol-k8s-lab. Suggestion"
+                            ": use the interactive config with: smol-k8s-lab -i")
 
             # verify they're using our default repo config for this app
             if argo_section['repo'] == default_repo:
                 # use secret section if exists, else grab from the default cfg
-                default_secrets = argo_section.get('secret_keys', '')
+                if default_cfg:
+                    default_secrets = default_cfg['argo'].get('secret_keys', '')
+                else:
+                    default_secrets = None
                 secrets = argo_section.get('secret_keys', '')
 
                 # if secret keys are not present in existing config or default
@@ -153,10 +162,10 @@ def process_app_configs(apps: dict = {}) -> list:
                     secrets = default_secrets
 
                 # iterate through each secret for the app
-                for secret_key, secret in sorted(default_secrets.items()):
+                for secret_key, secret in sorted(secrets.items()):
                     # create app k8s secret key like argocd_hostname
                     k8s_secret_key = "_".join([app_key, secret_key])
-                    # this is so we don't prompt for values we don't need for 
+                    # this is so we don't prompt for values we don't need for
                     # backup types we don't use
                     if secret and k8s_secret_key == 'nextcloud_backup_method':
                         backup_method = secret
