@@ -41,12 +41,14 @@ $navy: rgb(35,35,54);
    padding-top: 1;
    background: $navy 60%;
    height: 90%;
+   width: 95%;
 }
 
 #final-confirm-button-box {
   align: center middle;
   grid-size: 2;
   margin-bottom: 2;
+  width: 95%;
 }
 
 #confirm-button {

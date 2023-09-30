@@ -104,9 +104,7 @@ def main(config: str = "",
     bw = None
 
     if interactive:
-        USR_CFG, SECRETS, bw = launch_config_tui()
-        if bw:
-            bw.unlock()
+        USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
     else:
         if setup:
             # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
@@ -129,15 +127,15 @@ def main(config: str = "",
 
             # if any of the credentials are missing from the env, launch the tui
             if not any([password, client_id, client_secret]):
-                bw = ReturnBitwardenObj(overwrite).run()
-            else:
-                bw = BwCLI(password, client_id, client_secret, overwrite)
-
-            bw.unlock()
+                bitwarden_credentials = ReturnBitwardenObj(overwrite).run()
 
     # setup logging immediately
     log = process_log_config(USR_CFG['smol_k8s_lab']['log'])
     log.debug("Logging configured.")
+
+    if bitwarden_credentials:
+        bw = BwCLI(**bitwarden_credentials)
+        bw.unlock()
 
     k8s_distros = USR_CFG['k8s_distros']
     if delete:

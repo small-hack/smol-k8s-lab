@@ -1,13 +1,17 @@
 #!/usr/bin/env python3.11
 from .bitwarden.bitwarden_modal_screen import BitwardenCredentials
 from smol_k8s_lab.utils.yaml_with_comments import syntax_highlighted_yaml
-from smol_k8s_lab.utils.bw_cli import BwCLI, check_env_for_credentials
+from smol_k8s_lab.utils.bw_cli import check_env_for_credentials
 from textual import on
 from textual.binding import Binding
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll, Grid
 from textual.screen import Screen
 from textual.widgets import Button, Footer, Header, Label
+
+
+leaving_notification = ("\n- disable the bitwarden eso provider apps\n"
+                        "- turn off local password manager")
 
 
 class ConfirmConfig(Screen):
@@ -135,55 +139,60 @@ class ConfirmConfig(Screen):
             nope_row = Grid(label, nopes, classes="nope-row")
             nope_container.mount(nope_row)
 
-    def get_bitwarden_credentials_if_needed(self) -> BwCLI:
+    def get_bitwarden_credentials(self) -> None:
         """
         check if we need to grab the password or not
         """
-        overwrite = self.smol_k8s_cfg['local_password_manager']['overwrite']
 
-        def check_modal_output(credentials: dict):
+        def process_modal_output(credentials: dict):
+            """
+            Exit with credentials
+            """
             if credentials:
-                self.app.exit([self.cfg,
-                               BwCLI(credentials["BW_PASSWORD"],
-                                     credentials["BW_CLIENTID"],
-                                     credentials["BW_CLIENTSECRET"],
-                                     overwrite)]
-                              )
-
-        # this is the official small-hack repo
-        repo = "https://github.com/small-hack/argocd-apps"
-
-        # if using a password manager, we check that it's bitwarden
-        pw_mngr = self.smol_k8s_cfg['local_password_manager']
-        local_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
-
-        # check if bweso is enabled
-        bweso = self.apps['bitwarden_eso_provider']
-        official_bweso = bweso['enabled'] and bweso['argo']['repo'] == repo
-
-        if local_bitwarden or official_bweso:
-            password, client_id, client_secret = check_env_for_credentials()
-            if not any([password, client_id, client_secret]):
-                self.app.push_screen(BitwardenCredentials(), check_modal_output)
+                self.app.exit([self.cfg, credentials])
             else:
-                self.app.exit([self.cfg,
-                               BwCLI(password, client_id, client_secret, overwrite)])
+                self.notify(leaving_notification, timeout=8,
+                            title="💡To avoid the credentials prompt in the future")
+
+        password, client_id, client_secret = check_env_for_credentials()
+        if not any([password, client_id, client_secret]):
+            self.app.push_screen(BitwardenCredentials(), process_modal_output)
         else:
-            self.app.exit([self.cfg, None])
+            self.app.exit(
+                    [{'BW_PASSWORD': password,
+                      'BW_CLIENTID': client_id,
+                      'BW_CLIENTSECRET': client_secret},
+                     self.cfg])
 
     @on(Button.Pressed)
-    def exit_app_and_return_new_config(self, event: Button.Pressed) -> None:
+    def confirm_or_back_button(self, event: Button.Pressed) -> None:
         """
         Checks which button was returned on Button.Pressed events. If it's the
-        confirm button, we return the root parent app config to itself and call
-        app.exit it, which pops this screen as well as the root, leaving the TUI.
+        confirm button, we exit the TUI with the final confirmed config dict
 
         If the button is the back-button, we just pop the screen, which goes back
         to the main menu screen.
         """
         if event.button.id == "confirm-button":
-            # check if we need bitwarden credentials before proceeding
-            self.get_bitwarden_credentials_if_needed()
+            # First, check if we need bitwarden credentials before proceeding
+
+            # this is the official small-hack repo
+            repo = "https://github.com/small-hack/argocd-apps"
+            pw_mngr = self.smol_k8s_cfg['local_password_manager']
+            bweso = self.apps['bitwarden_eso_provider']
+
+
+            # if local_password_manager is enabled, and is bitwarden
+            local_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
+
+            # check if bweso is enabled and we're using the default repo
+            official_bweso = bweso['enabled'] and bweso['argo']['repo'] == repo
+
+            # if local password manager is bitwarden/enabled or we're using bweso
+            if local_bitwarden or official_bweso:
+                self.get_bitwarden_credentials()
+            else:
+                self.app.exit([self.cfg, None])
 
         if event.button.id == "back-button":
             self.app.pop_screen()

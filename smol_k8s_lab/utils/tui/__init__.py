@@ -7,12 +7,12 @@ def launch_config_tui():
     """
     res = BaseApp().run()
     config = res[0]
-    bitwarden = res[1]
+    bitwarden_credentials = res[1]
 
     # assume there's no secrets
     secrets = {}
 
-    # check is we're using the appset_secret_plugin at all
+    # check if we're using the appset_secret_plugin at all
     if config['apps']['appset_secret_plugin']['enabled']:
         # if we are using the appset_secret_plugin, then grab all the secret keys
         for app, metadata in config['apps'].items():
@@ -22,4 +22,4 @@ def launch_config_tui():
                     for key, value in secret_keys.items():
                         secrets[f"{app}_{key}"] = value
 
-    return config, secrets, bitwarden
+    return config, secrets, bitwarden_credentials
