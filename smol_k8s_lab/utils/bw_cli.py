@@ -38,7 +38,8 @@ class BwCLI():
     """
     Python Wrapper for the Bitwarden cli
     """
-    def __init__(self, overwrite: bool = False):
+    def __init__(self, password: str, client_id: str, client_secret: str,
+                 overwrite: bool = False):
         """
         This is mostly for storing the session, credentials, and overwrite bool
         """
@@ -59,20 +60,9 @@ class BwCLI():
         self.host = env.get("BW_HOST", default="https://bitwarden.com")
         log.debug(f"Using {self.host} as $BW_HOST")
 
-        # get password from env var, and if empty, prompt user for input
-        self.password = env.get("BW_PASSWORD", None)
-        if not self.password:
-            self.password = self.__get_credential__("password")
-
-        # get clientID from env var, and if empty, prompt user for input
-        self.client_id = env.get("BW_CLIENTID", None)
-        if not self.client_id:
-            self.client_id = self.__get_credential__("clientID")
-
-        # get clientSecret from env var, and if empty, prompt user for input
-        self.client_secret = env.get("BW_CLIENTSECRET", None)
-        if not self.client_secret:
-            self.client_secret = self.__get_credential__("clientSecret")
+        self.password = password
+        self.client_id = client_id
+        self.client_secret = client_secret
 
         # controls if we overwrite the existing items when creating new items
         self.overwrite = overwrite
@@ -265,3 +255,14 @@ class BwCLI():
                      "PATH": self.user_path,
                      "HOME": self.home})
         log.info('Created bitwarden login item.')
+
+
+def check_env_for_credentials() -> list:
+    """
+    check if bitwarden credentials are in the environment already
+    """
+    password = env.get("BW_PASSWORD", None)
+    client_id = env.get("BW_CLIENTID", None)
+    client_secret = env.get("BW_CLIENTSECRET", None)
+
+    return password, client_id, client_secret
