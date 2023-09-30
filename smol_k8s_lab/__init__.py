@@ -101,7 +101,7 @@ def main(config: str = "",
     check_os_support()
 
     # declaring bitwarden for the future in case user doesn't enable this
-    bw = None
+    bitwarden_credentials = None
 
     if interactive:
         USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
@@ -118,24 +118,32 @@ def main(config: str = "",
         pw_mngr = USR_CFG['smol_k8s_lab']['local_password_manager']
         using_bw_pw_manager = pw_mngr['enabled'] and pw_mngr['name'] == 'bitwarden'
         using_bweso = USR_CFG['apps']['bitwarden_eso_provider']['enabled']
-        if using_bw_pw_manager or using_bweso:
-            # check if we're allowed to overwrite existing bitwarden credentials
-            overwrite = USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite']
 
+        if using_bw_pw_manager or using_bweso:
             # get bitwarden credentials from the env if there are any
             password, client_id, client_secret = check_env_for_credentials()
 
             # if any of the credentials are missing from the env, launch the tui
             if not any([password, client_id, client_secret]):
-                bitwarden_credentials = ReturnBitwardenObj(overwrite).run()
+                bitwarden_credentials = ReturnBitwardenObj().run()
+                if not bitwarden_credentials:
+                    raise Exception("Exiting because no credentials were passed in "
+                                    "but bitwarden is enabled")
+            else:
+                bitwarden_credentials = {"password": password,
+                                         "client_id": client_id,
+                                         "client_secret": client_secret}
 
     # setup logging immediately
     log = process_log_config(USR_CFG['smol_k8s_lab']['log'])
     log.debug("Logging configured.")
 
     if bitwarden_credentials:
-        bw = BwCLI(**bitwarden_credentials)
+        overwrite = USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite']
+        bw = BwCLI(**bitwarden_credentials, overwrite=overwrite)
         bw.unlock()
+    else:
+        bw = None
 
     k8s_distros = USR_CFG['k8s_distros']
     if delete:
@@ -151,6 +159,7 @@ def main(config: str = "",
         # if the cluster isn't enabled, just continue on
         if not k8s_distros[distro].get('enabled', False):
             continue
+
         # this is a dict of all the apps we can install
         apps = USR_CFG['apps']
         # check immediately if metallb is enabled

@@ -30,7 +30,7 @@ class BitwardenCredentials(ModalScreen):
                 # base help text to start us off
                 yield Label(HELP_TXT, id="bitwarden-help-text")
 
-                for variable in ['BW_PASSWORD', 'BW_CLIENTID', 'BW_CLIENTSECRET']:
+                for variable in ['password', 'client_id', 'client_secret']:
                     yield self.generate_credential_row(variable)
 
                 with Grid(id="bitwarden-button-box"):
@@ -92,8 +92,7 @@ class BitwardenCredentials(ModalScreen):
         """
         return a row of a Label and Input in a Grid container
         """
-        pretty_label = label.lower().replace("_", " ").replace("bw", "Bitwarden") + ":"
-        pretty_label = pretty_label.replace("client", "client ")
+        pretty_label = label.replace("_", " ").replace("id", "ID") + ":"
         input_label = Label(pretty_label, classes="bitwarden-label")
 
         input = Input(placeholder=label,
