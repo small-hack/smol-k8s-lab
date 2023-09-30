@@ -5,7 +5,9 @@ def launch_config_tui():
     """
     Run all the TUI screens
     """
-    config, bitwarden = BaseApp().run()
+    res = BaseApp().run()
+    config = res[0]
+    bitwarden = res[1]
 
     # assume there's no secrets
     secrets = {}
