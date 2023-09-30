@@ -16,7 +16,7 @@ from textual.widgets import Footer, Header, Label, Select
 DEFAULT_OPTIONS = DEFAULT_DISTRO_OPTIONS.keys()
 
 
-class DistroConfig(Screen):
+class DistroConfigScreen(Screen):
     """
     Textual app to configure smol-k8s-lab
     """
@@ -30,7 +30,7 @@ class DistroConfig(Screen):
                         action="app.pop_screen",
                         description="↩ Back")]
 
-    def __init__(self, config: dict, show_footer: bool = True) -> None:
+    def __init__(self, config: dict) -> None:
         """
         config dict struct:
             {"distro":
@@ -42,7 +42,7 @@ class DistroConfig(Screen):
         """
         self.cfg = config
         self.previous_distro = process_k8s_distros(self.cfg, False)[1]
-        self.show_footer = show_footer
+        self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
 
         super().__init__()
 

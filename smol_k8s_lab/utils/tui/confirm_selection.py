@@ -1,5 +1,7 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.utils.yaml_with_comments import syntax_highlighted_yaml
+from smol_k8s_lab.utils.bw_cli import BwCLI, check_env_for_credentials
+from smol_k8s_lab.utils.tui.bitwarden import BitwardenCredentials
 from textual import on
 from textual.binding import Binding
 from textual.app import ComposeResult
@@ -19,9 +21,12 @@ class ConfirmConfig(Screen):
                         action="app.pop_screen",
                         description="↩ Back")]
 
-    def __init__(self, config: dict, show_footer: bool = True) -> None:
+    def __init__(self, config: dict) -> None:
+        """
+        takes config: dict, should be the entire smol-k8s-lab config.yaml
+        """
         self.cfg = config
-        self.show_footer = show_footer
+        self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
         self.invalid_apps = {}
         super().__init__()
 
@@ -32,10 +37,12 @@ class ConfirmConfig(Screen):
         # header to be cute
         yield Header()
 
-        # Footer to show keys
+        # Footer to show keys unless the footer is disabled globally
         footer = Footer()
+
         if not self.show_footer:
             footer.display = False
+
         yield footer
 
         with Grid(id="confirm-container"):
@@ -65,7 +72,7 @@ class ConfirmConfig(Screen):
         screen and box border styling
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        self.sub_title = "all configuration confirmation"
+        self.sub_title = "Review your configuration (last step!)"
 
         # confirm box title styling
         confirm_box = self.get_widget_by_id("pretty-yaml-scroll-container")
@@ -95,7 +102,7 @@ class ConfirmConfig(Screen):
             self.get_widget_by_id("pretty-yaml-scroll-container").display = False
             self.get_widget_by_id("confirm-button").display = False
             self.get_widget_by_id("invalid-apps").display = True
-            self.build_pretty_nope()
+            self.build_pretty_nope_table()
 
     def get_app_inputs(self) -> None:
         """
@@ -108,25 +115,61 @@ class ConfirmConfig(Screen):
             if empty_fields:
                 self.invalid_apps[app] = empty_fields
 
-    def build_pretty_nope(self) -> None:
+    def build_pretty_nope_table(self) -> None:
         """
         No, but with flare ✨
+
+        This is just a grid of apps to update if a user leaves a field blank
         """
         nope_container = self.get_widget_by_id("invalid-apps")
 
         for app, fields in self.invalid_apps.items():
             app_link = f'app.request_apps_cfg("{app}")'
+
             label = Label(f"[yellow][@click='{app_link}']{app}[/]:",
                           classes="nope-label nope-link")
+
             nopes = Label("[magenta]" + "[/], [magenta]".join(fields),
                           classes="nope-fields")
+
             nope_row = Grid(label, nopes, classes="nope-row")
             nope_container.mount(nope_row)
 
+    def get_bitwarden_credentials_if_needed(self) -> BwCLI:
+        """
+        check if we need to grab the password or not
+        """
+        # this is the official small-hack repo
+        repo = "https://github.com/small-hack/argocd-apps"
+
+        # if using a password manager, we check that it's bitwarden
+        pw_mngr = self.cfg['smol_k8s_lab']['local_password_manager']
+        local_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
+
+        # check if bweso is enabled
+        bweso = self.cfg['apps']['bitwarden_eso_provider']
+        official_bweso = bweso['enabled'] and bweso['argo']['repo'] == repo
+
+        if local_bitwarden or official_bweso:
+            password, client_id, client_secret = check_env_for_credentials()
+            if not any([password, client_id, client_secret]):
+                self.app.push_screen(BitwardenCredentials())
+        else:
+            return None
+
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> None:
+        """
+        Checks which button was returned on Button.Pressed events. If it's the
+        confirm button, we return the root parent app config to itself and call
+        app.exit it, which pops this screen as well as the root, leaving the TUI.
+
+        If the button is the back-button, we just pop the screen, which goes back
+        to the main menu screen.
+        """
         if event.button.id == "confirm-button":
-            self.ancestors[-1].exit(self.ancestors[-1].cfg)
+            self.get_bitwarden_credentials_if_needed()
+
         if event.button.id == "back-button":
             self.app.pop_screen()
 
