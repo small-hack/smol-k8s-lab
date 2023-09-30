@@ -26,7 +26,9 @@ class ConfirmConfig(Screen):
         takes config: dict, should be the entire smol-k8s-lab config.yaml
         """
         self.cfg = config
-        self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
+        self.apps = self.cfg['apps']
+        self.smol_k8s_cfg = self.cfg["smol_k8s_lab"]
+        self.show_footer = self.smol_k8s_cfg['interactive']['show_footer']
         self.invalid_apps = {}
         super().__init__()
 
@@ -108,7 +110,7 @@ class ConfirmConfig(Screen):
         """
         processes the entire apps config to check for empty fields
         """
-        config = self.ancestors[-1].cfg['apps']
+        config = self.apps
 
         for app, metadata in config.items():
             empty_fields = check_for_invalid_inputs(metadata)
@@ -139,23 +141,37 @@ class ConfirmConfig(Screen):
         """
         check if we need to grab the password or not
         """
+        overwrite = self.smol_k8s_cfg['local_password_manager']['overwrite']
+
+        def check_modal_output(credentials: dict):
+            if credentials:
+                self.app.exit(self.cfg,
+                              BwCLI(credentials["BW_PASSWORD"],
+                                    credentials["BW_CLIENTID"],
+                                    credentials["BW_CLIENTSECRET"],
+                                    overwrite)
+                              )
+
         # this is the official small-hack repo
         repo = "https://github.com/small-hack/argocd-apps"
 
         # if using a password manager, we check that it's bitwarden
-        pw_mngr = self.cfg['smol_k8s_lab']['local_password_manager']
+        pw_mngr = self.smol_k8s_cfg['local_password_manager']
         local_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
 
         # check if bweso is enabled
-        bweso = self.cfg['apps']['bitwarden_eso_provider']
+        bweso = self.apps['bitwarden_eso_provider']
         official_bweso = bweso['enabled'] and bweso['argo']['repo'] == repo
 
         if local_bitwarden or official_bweso:
             password, client_id, client_secret = check_env_for_credentials()
             if not any([password, client_id, client_secret]):
-                self.app.push_screen(BitwardenCredentials())
+                self.app.push_screen(BitwardenCredentials(), check_modal_output)
+            else:
+                self.app.exit(self.cfg,
+                              BwCLI(password, client_id, client_secret, overwrite))
         else:
-            return None
+            self.app.exit(self.cfg, None)
 
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> None:
@@ -168,6 +184,7 @@ class ConfirmConfig(Screen):
         to the main menu screen.
         """
         if event.button.id == "confirm-button":
+            # check if we need bitwarden credentials before proceeding
             self.get_bitwarden_credentials_if_needed()
 
         if event.button.id == "back-button":
