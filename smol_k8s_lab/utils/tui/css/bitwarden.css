@@ -60,6 +60,7 @@ $navy: rgb(35,35,54);
 
 /* submit button */
 #bitwarden-button-box {
+    grid-size: 2;
     align: center middle;
     margin-bottom: 1;
 }

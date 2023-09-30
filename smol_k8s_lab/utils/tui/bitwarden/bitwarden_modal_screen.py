@@ -1,6 +1,6 @@
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Grid, Container
+from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.validation import Length
 from textual.widgets import Label, Input, Button
@@ -33,14 +33,21 @@ class BitwardenCredentials(ModalScreen):
                 for variable in ['BW_PASSWORD', 'BW_CLIENTID', 'BW_CLIENTSECRET']:
                     yield self.generate_credential_row(variable)
 
-                with Container(id="bitwarden-button-box"):
-                    button = Button("submit", id="bitwarden-submit")
-                    button.disabled = True
-                    yield button
+                with Grid(id="bitwarden-button-box"):
+                    confirm_button = Button("submit", id="bitwarden-submit")
+                    confirm_button.disabled = True
+                    confirm_button.tooltip = ("submit your credentials, disabled"
+                                              " until all fields are filled out.")
+                    yield confirm_button
+
+                    back_button = Button("cancel", id="bitwarden-cancel")
+                    back_button.tooltip = ("Exit Bitwarden credentials input screen "
+                                           "without saving")
+                    yield back_button
 
     def on_mount(self,) -> None:
         credentials_box = self.get_widget_by_id("credentials-box")
-        credentials_box.border_title = "[green]🛡️ Enter your Bitwarden Credentials"
+        credentials_box.border_title = "[green]🛡️ Enter Bitwarden Vault Credentials"
 
         self.credentials = {}
 
@@ -48,7 +55,10 @@ class BitwardenCredentials(ModalScreen):
         """
         return bitwarden password, client id, and client secret as a dict
         """
-        self.dismiss(self.credentials)
+        if event.button.id == "bitwarden-cancel":
+            self.dismiss(None)
+        else:
+            self.dismiss(self.credentials)
 
     @on(Input.Changed)
     def on_input_changed(self, event: Input.Changed) -> None:
@@ -75,6 +85,8 @@ class BitwardenCredentials(ModalScreen):
         # disable button if any inputs are invalid
         if all_valid:
             confirm_button.disabled = False
+        else:
+            confirm_button.disabled = True
 
     def generate_credential_row(self, label: str) -> None:
         """

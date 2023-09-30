@@ -1,5 +1,4 @@
 from smol_k8s_lab.utils.tui.bitwarden.bitwarden_modal_screen import BitwardenCredentials
-from smol_k8s_lab.utils.bw_cli import BwCLI
 from textual.app import App, ComposeResult
 from textual.widgets import Label
 
@@ -19,6 +18,7 @@ class ReturnBitwardenObj(App[None]):
         Screen {
            align: center middle;
         }
+
         Tooltip {
           background: $navy 50%;
           color: $bluish_white 75%;
@@ -67,10 +67,7 @@ class ReturnBitwardenObj(App[None]):
     def get_credentials(self,) -> None:
         def check_modal_output(credentials: dict):
             if credentials:
-                self.app.exit(BwCLI(credentials["BW_PASSWORD"],
-                                     credentials["BW_CLIENTID"],
-                                     credentials["BW_CLIENTSECRET"],
-                                     self.overwrite))
+                self.app.exit([credentials, self.overwrite])
 
         self.app.push_screen(BitwardenCredentials(), check_modal_output)
 
