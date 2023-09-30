@@ -8,8 +8,8 @@ from textual.widgets import Label, Input, Button
 
 HELP_TXT = ("To use Bitwarden to store sensitive data, we need your credentials."
             " If you haven't set up a personal API credentials, please checkout "
-            "[link=https://bitwarden.com/help/personal-api-key/]Bitwarden's docs"
-            "[/] to generate them. To avoid these prompts in the future, export"
+            "[u][link=https://bitwarden.com/help/personal-api-key/]Bitwarden's docs"
+            "[/][/] to generate them. To avoid these prompts in the future, export "
             "BW_PASSWORD, BW_CLIENTID, and BW_CLIENTSECRET env vars ahead of time.")
 
 
