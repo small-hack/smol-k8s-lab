@@ -25,7 +25,7 @@ class SmolK8sLabConfig(Screen):
 
     def __init__(self, config: dict) -> None:
         self.cfg = config
-        self.show_footer = self.app.cfg['interactive']['show_footer']
+        self.show_footer = self.app.cfg['smol_k8s_lab']['interactive']['show_footer']
         super().__init__()
 
     def compose(self) -> ComposeResult:
