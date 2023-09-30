@@ -6,11 +6,11 @@ DESC: everything to do with initial configuration of a new environment via the c
 
 from .constants import (OS,
                         VERSION,
-                        XDG_CONFIG_FILE,
                         DEFAULT_CONFIG,
                         DEFAULT_APPS,
                         DEFAULT_DISTRO_OPTIONS,
-                        DEFAULT_DISTRO)
+                        DEFAULT_DISTRO,
+                        INITIAL_USR_CONFIG)
 from .utils.rich_cli.console_logging import print_panel, header, sub_header
 from .utils.write_yaml import dump_to_file
 from rich.prompt import Confirm, Prompt
@@ -38,7 +38,7 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
         return True
 
 
-def process_configs(config: dict = {}, delete: bool = False):
+def process_configs(config: dict = INITIAL_USR_CONFIG, delete: bool = False):
     """
     process the config in ~/.config/smol-k8s-lab/config.yaml and ensure each
     app has a secret if we're using our default Argo CD repo
@@ -48,7 +48,6 @@ def process_configs(config: dict = {}, delete: bool = False):
 
     # just return this part if we're deleting the cluster
     if delete:
-        # print("process_configs found that delete was passed in")
         return config, {}
 
     initialize = False
@@ -59,8 +58,8 @@ def process_configs(config: dict = {}, delete: bool = False):
     # if the config doesn't have the apps section, then we initialize a new one
     # and return that to avoid extra computations on comparing the default conf
     if not config_apps or DEFAULT_APPS == config_apps:
-        sub_header("No application configurations found. 🌱 We'll initialize"
-                   " them for you")
+        sub_header("No application configurations found. 🌱 We'll initialize "
+                   "them for you")
         initialize = True
         apps_config, secrets = initialize_apps_config()
     else:
@@ -69,7 +68,9 @@ def process_configs(config: dict = {}, delete: bool = False):
         apps_config, secrets = process_app_configs(config['apps'])
     config['apps'] = apps_config
 
-    config['smol_k8s_lab']['log'] = config.get("log", DEFAULT_CONFIG["log"])
+    # if no logging was configured, use the defaults
+    if not config['smol_k8s_lab'].get('log', None):
+        config['smol_k8s_lab']['log'] = DEFAULT_CONFIG["log"]
 
     # make sure we have a globally set lets-encrypt cluster issuer
     default_issuer = DEFAULT_CONFIG['apps_global_config']['cluster_issuer']
@@ -167,8 +168,8 @@ def process_app_configs(apps: dict = {}) -> list:
                         # this nextcloud block handles differnet backup types
                         if app_key == 'nextcloud':
                             if k8s_secret_key == 'nextcloud_backup_method':
-                                res, backup_method = Prompt.ask(m, choices=['s3',
-                                                                            'local'])
+                                opt = ['s3', 'local']
+                                res, backup_method = Prompt.ask(m, choices=opt)
                             elif 'nextcloud_backup_s3' in k8s_secret_key:
                                 if backup_method == 'local':
                                     res = '""'
@@ -219,8 +220,9 @@ def initialize_apps_config() -> list:
                 continue
 
             # if secrets are set, but init is disabled, continue the loop to next app
-            if not app['init']['enabled']:
-                continue
+            if app.get('init', None):
+                if not app['init']['enabled']:
+                    continue
 
             # iterate through each secret for the app
             for secret in secrets.keys():

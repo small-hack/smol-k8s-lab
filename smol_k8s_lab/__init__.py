@@ -114,7 +114,7 @@ def main(config: str = "",
             do_setup()
 
         # process all of the config file, or create a new one and also grab secrets
-        USR_CFG, SECRETS = process_configs(delete)
+        USR_CFG, SECRETS = process_configs(delete=delete)
 
         # if we're using bitwarden, unlock the vault
         pw_manager = USR_CFG['smol_k8s_lab']['local_password_manager']
