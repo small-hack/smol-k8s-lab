@@ -23,9 +23,9 @@ class SmolK8sLabConfig(Screen):
                         action="app.pop_screen",
                         description="↩ Back")]
 
-    def __init__(self, config: dict, show_footer: bool = True) -> None:
-        self.show_footer = show_footer
+    def __init__(self, config: dict) -> None:
         self.cfg = config
+        self.show_footer = self.app.cfg['interactive']['show_footer']
         super().__init__()
 
     def compose(self) -> ComposeResult:

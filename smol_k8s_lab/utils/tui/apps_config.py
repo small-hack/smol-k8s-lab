@@ -26,12 +26,9 @@ class AppConfig(Screen):
 
     ToggleButton.BUTTON_INNER = '♥'
 
-    def __init__(self,
-                 config: dict,
-                 highlighted_app: str = "",
-                 show_footer: bool = True) -> None:
+    def __init__(self, config: dict, highlighted_app: str = "") -> None:
         # show the footer at bottom of screen or not
-        self.show_footer = show_footer
+        self.show_footer = self.app.cfg['smol_k8s_lab']['interactive']['show_footer']
 
         # should be the apps section of smol k8s lab config
         self.cfg = config

@@ -42,7 +42,7 @@ class DistroConfigScreen(Screen):
         """
         self.cfg = config
         self.previous_distro = process_k8s_distros(self.cfg, False)[1]
-        self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
+        self.show_footer = self.app.cfg['smol_k8s_lab']['interactive']['show_footer']
 
         super().__init__()
 
