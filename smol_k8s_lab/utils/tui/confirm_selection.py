@@ -143,11 +143,11 @@ class ConfirmConfig(Screen):
 
         def check_modal_output(credentials: dict):
             if credentials:
-                self.app.exit(self.cfg,
-                              BwCLI(credentials["BW_PASSWORD"],
-                                    credentials["BW_CLIENTID"],
-                                    credentials["BW_CLIENTSECRET"],
-                                    overwrite)
+                self.app.exit([self.cfg,
+                               BwCLI(credentials["BW_PASSWORD"],
+                                     credentials["BW_CLIENTID"],
+                                     credentials["BW_CLIENTSECRET"],
+                                     overwrite)]
                               )
 
         # this is the official small-hack repo
@@ -166,10 +166,10 @@ class ConfirmConfig(Screen):
             if not any([password, client_id, client_secret]):
                 self.app.push_screen(BitwardenCredentials(), check_modal_output)
             else:
-                self.app.exit(self.cfg,
-                              BwCLI(password, client_id, client_secret, overwrite))
+                self.app.exit([self.cfg,
+                               BwCLI(password, client_id, client_secret, overwrite)])
         else:
-            self.app.exit(self.cfg, None)
+            self.app.exit([self.cfg, None])
 
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> None:
