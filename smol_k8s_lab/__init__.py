@@ -105,6 +105,8 @@ def main(config: str = "",
 
     if interactive:
         USR_CFG, SECRETS, bw = launch_config_tui()
+        if bw:
+            bw.unlock()
     else:
         if setup:
             # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
