@@ -50,13 +50,6 @@ class ReturnBitwardenObj(App[None]):
         }
         """
 
-    def __init__(self, overwrite: bool = False) -> None:
-        """
-        just take the overwrite boolean
-        """
-        self.overwrite = overwrite
-        super().__init__()
-
     def compose(self) -> ComposeResult:
         """
         check if we need to grab the password or not
@@ -67,7 +60,9 @@ class ReturnBitwardenObj(App[None]):
     def get_credentials(self,) -> None:
         def check_modal_output(credentials: dict):
             if credentials:
-                self.app.exit([credentials, self.overwrite])
+                self.app.exit(credentials)
+            else:
+                self.app.exit(None)
 
         self.app.push_screen(BitwardenCredentials(), check_modal_output)
 
