@@ -100,8 +100,11 @@ def main(config: str = "",
     # make sure this OS is supported
     check_os_support()
 
+    # declaring bitwarden for the future in case user doesn't enable this
+    bw = None
+
     if interactive:
-        USR_CFG, SECRETS = launch_config_tui()
+        USR_CFG, SECRETS, bw = launch_config_tui()
     else:
         if setup:
             # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
@@ -110,6 +113,12 @@ def main(config: str = "",
 
         # process all of the config file, or create a new one and also grab secrets
         USR_CFG, SECRETS = process_configs(delete)
+
+        # if we're using bitwarden, unlock the vault
+        pw_manager = USR_CFG['smol_k8s_lab']['local_password_manager']
+        if pw_manager['enabled'] and pw_manager['name'] == 'bitwarden':
+            bw = BwCLI(USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite'])
+            bw.unlock()
 
     # setup logging immediately
     log = process_log_config(USR_CFG['smol_k8s_lab']['log'])
@@ -124,13 +133,6 @@ def main(config: str = "",
                 delete_cluster(distro)
         exit()
 
-    bw = None
-    # if we're using bitwarden, unlock the vault
-    pw_enabled = USR_CFG['smol_k8s_lab']['local_password_manager']['enabled']
-    pw_manager = USR_CFG['smol_k8s_lab']['local_password_manager']['name']
-    if pw_enabled and pw_manager == 'bitwarden':
-        bw = BwCLI(USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite'])
-        bw.unlock()
 
     for distro, metadata in k8s_distros.items():
         # if the cluster isn't enabled, just continue on
@@ -203,7 +205,7 @@ def main(config: str = "",
             # apps as Argo CD Applications
             header("Installing the rest of the Argo CD apps")
             for app_key, app in apps.items():
-                if app.get('enabled', True):
+                if app.get['enabled']:
                     if not app['argo'].get('part_of_app_of_apps', False):
                         argo_app = app_key.replace('_', '-')
                         sub_header(f"Installing app: {argo_app}")
