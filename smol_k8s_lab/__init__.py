@@ -21,10 +21,11 @@ from .k8s_apps import (setup_oidc_provider, setup_base_apps,
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
-from .utils.bw_cli import BwCLI
+from .utils.bw_cli import BwCLI, check_env_for_credentials
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
 from .utils.tui import launch_config_tui
+from .utils.tui.bitwarden.bitwarden_app import ReturnBitwardenObj
 
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -117,9 +118,22 @@ def main(config: str = "",
         USR_CFG, SECRETS = process_configs(delete=delete)
 
         # if we're using bitwarden, unlock the vault
-        pw_manager = USR_CFG['smol_k8s_lab']['local_password_manager']
-        if pw_manager['enabled'] and pw_manager['name'] == 'bitwarden':
-            bw = BwCLI(USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite'])
+        pw_mngr = USR_CFG['smol_k8s_lab']['local_password_manager']
+        using_bw_pw_manager = pw_mngr['enabled'] and pw_mngr['name'] == 'bitwarden'
+        using_bweso = USR_CFG['apps']['bitwarden_eso_provider']['enabled']
+        if using_bw_pw_manager or using_bweso:
+            # check if we're allowed to overwrite existing bitwarden credentials
+            overwrite = USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite']
+
+            # get bitwarden credentials from the env if there are any
+            password, client_id, client_secret = check_env_for_credentials()
+
+            # if any of the credentials are missing from the env, launch the tui
+            if not any([password, client_id, client_secret]):
+                bw = ReturnBitwardenObj(overwrite).run()
+            else:
+                bw = BwCLI(password, client_id, client_secret, overwrite)
+
             bw.unlock()
 
     # setup logging immediately

@@ -17,7 +17,7 @@ class BitwardenCredentials(ModalScreen):
     """
     modal screen to ask for bitwarden credentials
     """
-    CSS_PATH = "./css/bitwarden.css"
+    CSS_PATH = "../css/bitwarden.css"
 
     def compose(self) -> ComposeResult:
 
@@ -40,7 +40,7 @@ class BitwardenCredentials(ModalScreen):
 
     def on_mount(self,) -> None:
         credentials_box = self.get_widget_by_id("credentials-box")
-        credentials_box.border_title = "[green]🛡️ Bitwarden Credentials"
+        credentials_box.border_title = "[green]🛡️ Enter your Bitwarden Credentials"
 
         self.credentials = {}
 
