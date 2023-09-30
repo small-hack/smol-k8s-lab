@@ -47,7 +47,7 @@ class BitwardenCredentials(ModalScreen):
         """
         return bitwarden password, client id, and client secret as a dict
         """
-        self.app.dismiss(self.credentials)
+        self.dismiss(self.credentials)
 
     @on(Input.Changed)
     def on_input_changed(self, event: Input.Changed) -> None:
