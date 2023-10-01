@@ -72,9 +72,9 @@ def install_k3d_cluster(k3s_cli_args: list,
     return True
 
 
-def uninstall_k3d_cluster():
+def uninstall_k3d_cluster(cluster_name: str = 'smol-k8s-lab-k3d') -> bool:
     """
-    remove k3d
+    delete k3d cluster by name
     """
-    subproc(['k3d cluster delete'])
+    subproc([f'k3d cluster delete {cluster_name}'])
     return True

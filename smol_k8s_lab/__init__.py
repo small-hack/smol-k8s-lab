@@ -104,7 +104,8 @@ def main(config: str = "",
     bitwarden_credentials = None
 
     if interactive:
-        USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
+        if not delete:
+            USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
     else:
         if setup:
             # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
@@ -138,13 +139,7 @@ def main(config: str = "",
     log = process_log_config(USR_CFG['smol_k8s_lab']['log'])
     log.debug("Logging configured.")
 
-    if bitwarden_credentials:
-        overwrite = USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite']
-        bw = BwCLI(**bitwarden_credentials, overwrite=overwrite)
-        bw.unlock()
-    else:
-        bw = None
-
+    # if we're just deleting a cluster, do that immediately
     k8s_distros = USR_CFG['k8s_distros']
     if delete:
         logging.debug("Cluster deletion was requested")
@@ -154,7 +149,15 @@ def main(config: str = "",
                 delete_cluster(distro)
         exit()
 
+    # if we have bitwarden credetials unlock the vault
+    if bitwarden_credentials:
+        overwrite = USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite']
+        bw = BwCLI(**bitwarden_credentials, overwrite=overwrite)
+        bw.unlock()
+    else:
+        bw = None
 
+    # iterate through each passed in k8s distro and create cluster + install apps
     for distro, metadata in k8s_distros.items():
         # if the cluster isn't enabled, just continue on
         if not k8s_distros[distro].get('enabled', False):
