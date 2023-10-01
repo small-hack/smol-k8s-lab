@@ -15,15 +15,15 @@ $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
 
-/* Matches the WHOLE TOP part of screen in content container */
+/* Matches the WHOLE screen */
 #apps-config-container {
    layout: grid;
    grid-size: 2;
    grid-columns: 0.5fr 1.2fr;
-   grid-rows: 1.3fr 0.4fr;
-   margin-top: 1;
-   margin-left: 1;
-   margin-right: 1;
+   grid-rows: 1.5fr 0.5fr;
+   width: 90%;
+   height: 95%;
+   align: center middle;
 }
 
 /* LEFT TOP HALF OF SCREEN */
@@ -34,6 +34,7 @@ $navy: rgb(35,35,54);
    background: $navy 60%;
    align: center top;
    height: auto;
+   margin-right: 1;
 }
 
 /* matches the app selection list, the new app input, and submit button */
@@ -63,6 +64,7 @@ $navy: rgb(35,35,54);
    padding-top: 1;
    border: round $cornflower;
    background: $navy 50%;
+   margin-right: 1;
 }
 
 .single-app-inputs {
@@ -167,8 +169,8 @@ $navy: rgb(35,35,54);
    scrollbar-background-hover: $dark_gray;
    scrollbar-color-hover: $cornflower;
    scrollbar-color: $light_cornflower;
-   height: auto;
-   margin-top: 1;
+   height: 100%;
+   margin-top: 2;
 }
 
 #app-description {

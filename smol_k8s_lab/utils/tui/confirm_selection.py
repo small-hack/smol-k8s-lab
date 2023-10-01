@@ -158,11 +158,9 @@ class ConfirmConfig(Screen):
         if not any([password, client_id, client_secret]):
             self.app.push_screen(BitwardenCredentials(), process_modal_output)
         else:
-            self.app.exit(
-                    [{'BW_PASSWORD': password,
-                      'BW_CLIENTID': client_id,
-                      'BW_CLIENTSECRET': client_secret},
-                     self.cfg])
+            self.app.exit([self.cfg, {'password': password,
+                                      'client_id': client_id,
+                                      'client_secret': client_secret}])
 
     @on(Button.Pressed)
     def confirm_or_back_button(self, event: Button.Pressed) -> None:

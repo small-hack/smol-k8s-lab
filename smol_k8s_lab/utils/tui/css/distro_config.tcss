@@ -65,7 +65,8 @@ $navy: rgb(35,35,54);
 .k8s-distro-config {
    layout: grid;
    grid-rows: 0.5fr 1fr 1.1fr;
-   width: 95%
+   width: 90%;
+   height: 95%;
 }
 
 /* number of nodes input row */

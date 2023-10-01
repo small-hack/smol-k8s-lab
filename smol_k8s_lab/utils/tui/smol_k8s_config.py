@@ -2,7 +2,7 @@
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal
+from textual.containers import Container, Horizontal, Grid
 from textual.screen import Screen
 from textual.widgets import (Footer, Header, Input, Label, Switch, RadioButton,
                              RadioSet)
@@ -10,6 +10,15 @@ from textual.widget import Widget
 from xdg_base_dirs import xdg_state_home
 
 XDG_STATE_HOME = str(xdg_state_home()) + "/smol-k8s-lab/smol.log"
+
+logging_tool_tip = """
+Logging verbosity level:
+
+[dim]error:  only print error messages[/]
+warn:   print warnings, plus errors
+[dim]info:   check ins at each stage, plus warnings/errors[/]
+debug:  most detailed, includes all sorts of variable printing
+"""
 
 
 class SmolK8sLabConfig(Screen):
@@ -32,7 +41,6 @@ class SmolK8sLabConfig(Screen):
         """
         Compose app with tabbed content.
         """
-
         # header to be cute
         yield Header()
 
@@ -42,7 +50,7 @@ class SmolK8sLabConfig(Screen):
             footer.display = False
         yield footer
 
-        with Container(id="config-screen"):
+        with Grid(id="config-screen"):
             yield LoggingConfig(self.cfg['log'])
 
             # local password manager config for enabled, name, and overwrite
@@ -158,14 +166,14 @@ class LoggingConfig(Widget):
         # logging config for log.level and log.file
         logging_opt = self.cfg
         current_level = logging_opt['level']
-        possible_levels = ['debug' , 'info', 'warn', 'error']
+        possible_levels = ['error', 'warn', 'debug', 'info']
 
-        with Container(id="logging-config"):
-            with Horizontal(classes="double-switch-row"):
+        with Grid(id="logging-config"):
+            with Grid(classes="radio-and-input-row"):
 
-                with Horizontal(classes="radioset-row"):
+                with Grid(classes="radioset-row"):
                     label = Label("level:", classes="radioset-row-label")
-                    label.tooltip = "logging verbosity level"
+                    label.tooltip = (logging_tool_tip)
                     yield label
 
                     with RadioSet(classes="radioset-row-radioset"):

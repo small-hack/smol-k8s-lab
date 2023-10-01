@@ -14,12 +14,55 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
+#config-screen {
+    grid-size: 1;
+    grid-rows: 0.85fr 1fr 1.2fr;
+    margin-left: 1;
+    margin-right: 1;
+    align: center middle;
+    width: 90%;
+    height: 90%;
+}
+
+/* logging config box */
+#logging-config {
+    padding-left: 3;
+    margin-bottom: 2;
+    border: solid $cornflower;
+    background: $navy 50%;
+}
+
+.radio-and-input-row {
+    align: left middle;
+    grid-size: 2;
+    grid-columns: 0.75fr 1.3fr;
+}
+
+
+/* radio set for logging config */
+.radioset-row {
+    align: left middle;
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.3fr 1fr;
+    margin-bottom: 1;
+}
+
+.radioset-row-label {
+    content-align: left middle;
+    height: 6;
+    color: $bluish_white;
+}
+
+.radioset-row-radioset {
+    align: left middle;
+}
+
 /* truthy value rows with switches */
 .bool-switch-row {
     align: left middle;
     layout: grid;
     grid-size: 2;
-    grid-columns: 0.8fr 1fr;
 }
 
 .bool-switch-row-label {
@@ -35,7 +78,7 @@ $navy: rgb(35,35,54);
 
 /* two bool-switch-rows side by side */
 .double-switch-row {
-    align: center middle;
+    align: left middle;
     layout: grid;
     grid-size: 2;
 }
@@ -72,43 +115,6 @@ $navy: rgb(35,35,54);
 /* Input in "label: input" row */
 .input-row-input {
     align: center middle;
-}
-
-/* radio set for logging config */
-.radioset-row {
-    align: left middle;
-    layout: grid;
-    grid-size: 2;
-    grid-columns: 0.3fr 1fr;
-    margin-bottom: 1;
-}
-
-.radioset-row-label {
-    content-align: center middle;
-    height: 6;
-    color: $bluish_white;
-}
-
-.radioset-row-radioset {
-    align: center middle;
-}
-
-#config-screen {
-    layout: grid;
-    grid-size: 1;
-    grid-rows: 1fr 1fr 1.2fr;
-    margin-left: 1;
-    margin-right: 1;
-    align: center middle;
-}
-
-/* logging config box */
-#logging-config {
-    padding-left: 3;
-    margin-top: 2;
-    margin-bottom: 2;
-    border: solid $cornflower;
-    background: $navy 50%;
 }
 
 /* password manager config box */
