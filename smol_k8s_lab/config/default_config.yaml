@@ -65,7 +65,7 @@ k8s_distros:
     # set to true to enable deploying a kubernetes cluster using k3d
     enabled: false
     description: |
-      k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal Kubernetes distribution) in docker.
+      k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal Kubernetes distribution) in docker. k3d via smol-k8s-lab is still in beta.
 
     # change the kubelet config for all k3d nodes, feel free to add more values
     # we set the maximum pods per node via /etc/rancher/k3s/kubelet.config
