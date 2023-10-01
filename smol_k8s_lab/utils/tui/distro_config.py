@@ -8,7 +8,7 @@ from smol_k8s_lab.utils.tui.distro_widgets.node_adjustment import NodeAdjustment
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal
+from textual.containers import Container, Horizontal, Grid
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Label, Select
 
@@ -82,8 +82,7 @@ class DistroConfigScreen(Screen):
                 id="advanced-config-label")
         yield advanced_label
 
-        with Container(id="distro-config-screen"):
-
+        with Grid(id="distro-config-screen"):
             for distro in DEFAULT_OPTIONS:
                 distro_metadata = self.cfg.get(distro, None)
                 if not distro_metadata:

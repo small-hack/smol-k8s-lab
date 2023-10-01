@@ -19,6 +19,7 @@ $navy: rgb(35,35,54);
    border: round $cornflower;
    background: rgb(35,35,54) 50%;
    height: 100%;
+   padding: 1;
 }
 
 .kubelet-config-scroll {
