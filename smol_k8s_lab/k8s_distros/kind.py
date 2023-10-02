@@ -14,11 +14,15 @@ from shutil import which
 from yaml import dump
 
 
-def install_kind_cluster(kubelet_args: dict = {}, disable_cni: bool = False):
+def install_kind_cluster(kubelet_args: dict = {},
+                         networking_args: dict = {},
+                         control_plane_nodes: int = 1,
+                         worker_nodes: int = 1) -> bool:
     """
     Run installation process for kind and create cluster
     returns True
     """
+
     # make sure kind is installed first, and if not, install it
     if not which("kind"):
         msg = ("ʕ•́ᴥ•̀ʔ [b]kind[/b] is [warn]not installed[/warn]. "
@@ -30,7 +34,8 @@ def install_kind_cluster(kubelet_args: dict = {}, disable_cni: bool = False):
     log.debug("Creating a kind cluster...")
 
     kind_cfg = path.join(XDG_CACHE_DIR, 'kind_cfg.yaml')
-    build_kind_config(kind_cfg)
+    build_kind_config(kind_cfg, kubelet_args, networking_args,
+                      control_plane_nodes, worker_nodes)
 
     cmd = f"kind create cluster --name smol-k8s-lab-kind --config={kind_cfg}"
     subproc([cmd])

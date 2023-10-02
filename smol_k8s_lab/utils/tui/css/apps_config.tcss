@@ -22,7 +22,7 @@ $navy: rgb(35,35,54);
    grid-columns: 0.5fr 1.2fr;
    grid-rows: 1.5fr 0.5fr;
    width: 90%;
-   height: 95%;
+   height: 92%;
    align: center middle;
 }
 
@@ -170,7 +170,7 @@ $navy: rgb(35,35,54);
    scrollbar-color-hover: $cornflower;
    scrollbar-color: $light_cornflower;
    height: 100%;
-   margin-top: 2;
+   margin-top: 1;
 }
 
 #app-description {

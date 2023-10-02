@@ -18,7 +18,7 @@ VALUE_SUGGESTIONS = SuggestFromList(("ingress-ready=true"))
 
 class KubeletConfig(Widget):
     """
-    Extra Args for Kubelet Config section
+    Widget to take Extra Args for Kubelet Config section
     """
 
     def __init__(self, distro: str, kubelet_extra_args: list = []) -> None:
@@ -27,10 +27,8 @@ class KubeletConfig(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        # kubelet config section
-        help = ("Add key value pairs to pass to your kubelet config.")
-
-        yield Label(help, classes="k3s-help-label")
+        yield Label("Add key value pairs to pass to your kubelet config.",
+                    classes="k3s-help-label")
         with VerticalScroll(classes=f"kubelet-config-scroll {self.distro}",
                             id=f"{self.distro}-kubelet-config-container"):
 

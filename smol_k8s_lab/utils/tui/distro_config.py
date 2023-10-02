@@ -8,9 +8,23 @@ from smol_k8s_lab.utils.tui.distro_widgets.node_adjustment import NodeAdjustment
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal, Grid
+from textual.containers import Container, Grid
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Label, Select
+
+
+# the description of the k8s distro
+DISTRO_DESC = {
+        "k3s": ("K3s, by Rancher Labs, is a minimal k8s distro that fits in about 70MB."
+                "(it's also optomized for ARM) Learn more at [link=https://k3s.io]"
+                "k3s.io[/]."),
+        "k3d": ("k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal "
+                "k8s distribution) in docker. Learn more at [link=https://k3d.io]"
+                "k3d.io[/]."),
+        "kind": ("kind runs k8s clusters using Docker containers as nodes. Was "
+                 " designed for testing k8s itself. Learn more at "
+                 "[link=https://kind.sigs.k8s.io/]kind.sigs.k8s.io/[/]")
+        }
 
 
 DEFAULT_OPTIONS = DEFAULT_DISTRO_OPTIONS.keys()
@@ -25,10 +39,14 @@ class DistroConfigScreen(Screen):
                 "./css/kubelet.tcss",
                 "./css/kind.tcss"]
 
-    BINDINGS = [Binding(key="escape,q",
-                        key_display="esc,q",
+    BINDINGS = [Binding(key="b",
+                        key_display="b",
                         action="app.pop_screen",
-                        description="↩ Back")]
+                        description="Back"),
+                Binding(key="n",
+                        key_display="n",
+                        action="app.request_apps_cfg",
+                        description="Next")]
 
     def __init__(self, config: dict) -> None:
         """
@@ -36,8 +54,7 @@ class DistroConfigScreen(Screen):
             {"distro":
                {"enabled": bool},
                {"k3s_extra_args": []},
-               {"kubelet_extra_args": {}},
-               {"description": ""}
+               {"kubelet_extra_args": {}}
             }
         """
         self.cfg = config
@@ -59,30 +76,22 @@ class DistroConfigScreen(Screen):
             footer.display = False
         yield footer
 
-        # this is for selecting distros
-        label = Label("🌱 Select a distro to get started:",
-                      id="select-distro-label")
-        label.tooltip = self.cfg[self.previous_distro]['description']
-
         # create all distro selection choices for the top of tabbed content
         my_options = tuple(DEFAULT_OPTIONS)
 
-        # container for top drop down
-        with Horizontal(id="distro-select-box"):
-            yield label
-            yield Select(((line, line) for line in my_options),
-                         id="distro-drop-down",
-                         allow_blank=False,
-                         value=self.previous_distro)
-
-        # below is advanced configuration
-        advanced_label = Label(
-                "⚙️ [i]Advanced Configuration - [dim]Press [gold3]↩ Enter[/]"
-                " to save [i]each[/i] input field.",
-                id="advanced-config-label")
-        yield advanced_label
-
         with Grid(id="distro-config-screen"):
+
+            # tippy top row with the selection drop down
+            with Grid(id="top-distro-row"):
+                # container for top drop down and label
+                with Grid(id="distro-select-box"):
+                    yield Select(((line, line) for line in my_options),
+                                 id="distro-drop-down",
+                                 allow_blank=False,
+                                 value=self.previous_distro)
+                    yield Label(DISTRO_DESC[self.previous_distro],
+                                id="distro-description")
+
             for distro in DEFAULT_OPTIONS:
                 distro_metadata = self.cfg.get(distro, None)
                 if not distro_metadata:
@@ -140,18 +149,21 @@ class DistroConfigScreen(Screen):
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "k8s distro config"
 
+        select_distro_title = "🌱 [chartreuse2]Select a k8s distro to get started"
+        self.get_widget_by_id("top-distro-row").border_title = select_distro_title
+
         # kubelet config styling - middle
-        kubelet_title = "➕ [green]Extra Parameters for Kubelet"
+        kubelet_title = "[gold3]Optional[/]: [chartreuse2]Extra Parameters for Kubelet"
         kubelet_cfgs = self.query(".kubelet-config-container")
         for box in kubelet_cfgs:
             box.border_title = kubelet_title
 
         # k3s arg config sytling - middle
-        k3s_title = "➕ [green]Extra Args for k3s install script"
+        k3s_title = "[gold3]Optional[/]: [chartreuse2]Extra Args for k3s install script"
         self.query_one(".k3s-config-container").border_title = k3s_title
 
         # kind networking arg config sytling - bottom
-        kind_title = "➕ [green]Extra Args for kind networking config"
+        kind_title = "[gold3]Optional[/]: [chartreuse2]Extra Args for kind networking"
         self.get_widget_by_id("kind-networking-container").border_title = kind_title
 
     @on(Select.Changed)
@@ -170,8 +182,8 @@ class DistroConfigScreen(Screen):
         self.cfg[distro]['enabled'] = True
 
         # update the tooltip to be the correct distro's description
-        distro_description = self.cfg[distro]["description"]
-        self.get_widget_by_id("select-distro-label").tooltip = distro_description
+        distro_description = DISTRO_DESC[distro]
+        self.get_widget_by_id("distro-description").update(distro_description)
 
         self.ancestors[-1].cfg['k8s_distros'][distro]['enabled'] = True
         self.ancestors[-1].cfg['k8s_distros'][self.previous_distro]['enabled'] = False

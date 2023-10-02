@@ -21,7 +21,7 @@ $navy: rgb(35,35,54);
     margin-right: 1;
     align: center middle;
     width: 90%;
-    height: 90%;
+    height: 92%;
 }
 
 /* logging config box */

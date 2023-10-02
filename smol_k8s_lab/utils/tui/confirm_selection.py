@@ -20,10 +20,10 @@ class ConfirmConfig(Screen):
     """
     CSS_PATH = ["./css/confirm.tcss"]
 
-    BINDINGS = [Binding(key="escape,q",
-                        key_display="esc,q",
+    BINDINGS = [Binding(key="b",
+                        key_display="b",
                         action="app.pop_screen",
-                        description="↩ Back")]
+                        description="⬅️ Back")]
 
     def __init__(self, config: dict) -> None:
         """
@@ -82,7 +82,7 @@ class ConfirmConfig(Screen):
 
         # confirm box title styling
         confirm_box = self.get_widget_by_id("pretty-yaml-scroll-container")
-        confirm_box.border_title = "[gold3]All Configured Values"
+        confirm_box.border_title = "[magenta]Review [i]All[/i] Values"
 
         # display the current user yaml
         rich_highlighted = syntax_highlighted_yaml(self.cfg)

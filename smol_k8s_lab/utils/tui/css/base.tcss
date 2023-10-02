@@ -131,7 +131,6 @@ SelectionList .option-list--option-hover {
    background: $blue_gray 40%;
 }
 
-
 #base-screen-container {
    grid-size: 1;
    align: center middle;
@@ -141,21 +140,31 @@ SelectionList .option-list--option-hover {
 }
 
 #base-button-grid {
-   height: 88%;
-   grid-size: 3;
+   grid-size: 1;
    background: $navy;
    align: center middle;
    content-align: center middle;
    border: solid $cornflower;
+   height: 50%;
+   padding: 1;
 }
 
-#first-confirm-button-row {
+/* this is a grid for the no-clusters-found-text label */
+#base-help-grid {
+   align: center middle;
+   height: auto;
+}
+
+/* this label just lets the user know there's no clusters right now */
+#no-clusters-found-text {
+   width: 100%;
    align: center middle;
    content-align: center middle;
-   height: 30%;
+   height: auto;
 }
 
-/* first confirm button on the base app screen */
-#confirm-cfg {
-   color: $soft_green 75%;
+#new-cluster-button-container {
+   align: center middle;
+   content-align: center middle;
+   height: 20;
 }
