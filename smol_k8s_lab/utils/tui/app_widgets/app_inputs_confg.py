@@ -101,14 +101,7 @@ class AppInputs(Static):
                               validators=[Length(minimum=2)],
                               id=f"{self.app_name}-{key}",
                               classes=f"{self.app_name} argo-config-input")
-
-                if input.validate(self.argo_params[key]):
-                    invalid_inputs = self.ancestors[-1].invalid_app_inputs
-                    app_inputs = invalid_inputs.get(self.app_name, None)
-                    if app_inputs:
-                        app_inputs.append(key)
-                    else:
-                        invalid_inputs[self.app_name] = [key]
+                input.validate(self.argo_params[key])
 
                 argo_label = Label(f"{key}:",
                                    classes=f"{self.app_name} argo-config-label")
@@ -223,15 +216,7 @@ class AppInputs(Static):
             input_keys['value'] = value
 
         input = Input(**input_keys)
-
-        if input.validate(value):
-            invalid_inputs = self.ancestors[-1].invalid_app_inputs
-            app_inputs = invalid_inputs.get(self.app_name, None)
-
-            if app_inputs:
-                app_inputs.append(secret_key)
-            else:
-                invalid_inputs[self.app_name] = [secret_key]
+        input.validate(value)
 
         # create the input row
         secret_label = Label(f"{key_label}:",
@@ -267,16 +252,6 @@ class AppInputs(Static):
         # if this is a secret key input
         elif "app-secret-key-input" in input.classes:
             parent_app_yaml['argo']['secret_keys'][input.name] = input.value
-
-        # Updating the main app with k8s app that has validation failed
-        if event.validation_result:
-            invalid_inputs = parent_app.invalid_app_inputs
-
-            if not event.validation_result.is_valid:
-                invalid_inputs[self.app_name].append(input.name)
-            else:
-                if input.name in invalid_inputs[self.app_name]:
-                    invalid_inputs[self.app_name].remove(input.name)
 
         self.app.write_yaml()
 
@@ -357,13 +332,7 @@ class InitValues(Static):
         container_class = f"app-input-row {self.app_name}"
 
         input = Input(**input_keys)
-        if input.validate(init_value):
-            invalid_inputs = self.ancestors[-1].invalid_app_inputs
-            app_inputs = invalid_inputs.get(self.app_name, None)
-            if app_inputs:
-                app_inputs.append(init_key)
-            else:
-                invalid_inputs[self.app_name] = [init_key]
+        input.validate(init_value)
 
         return Horizontal(label, input, classes=container_class)
 
@@ -385,17 +354,10 @@ class InitValues(Static):
         input = event.input
         parent_app = input.ancestors[-1]
         parent_app_yaml = parent_app.cfg['apps'][self.app_name]
-        # if this is an init input
-        if "app-init-input" in input.classes:
-            parent_app_yaml['init']['values'][input.name] = input.value
 
-        # Updating the main app with k8s app that has validation failed
-        if event.validation_result:
-            invalid_inputs = parent_app.invalid_app_inputs
-            if not event.validation_result.is_valid:
-                invalid_inputs[self.app_name].append(input.name)
-            else:
-                if input.name in invalid_inputs[self.app_name]:
-                    invalid_inputs[self.app_name].remove(input.name)
+        if not event.validation_result:
+            # if this is an init input
+            if "app-init-input" in input.classes:
+                parent_app_yaml['init']['values'][input.name] = input.value
 
         self.app.write_yaml()

@@ -42,10 +42,6 @@ k8s_distros:
   k3s:
     # set to true to enable deploying a kubernetes cluster using k3s
     enabled: false
-    # the description of the k8s distro
-    description: |
-      K3s is packaged as a single <70MB binary that reduces the dependencies and steps needed to install, run and auto-update a production Kubernetes cluster. It's also optomized for ARM.
-
     # change the kubelet config for this node in k3s, feel free to add more values
     # we set the maximum pods per node via /etc/rancher/k3s/kubelet.config
     # it's set high for beefy nodes, but you can set it lower if you'd like
@@ -64,9 +60,6 @@ k8s_distros:
   k3d:
     # set to true to enable deploying a kubernetes cluster using k3d
     enabled: false
-    description: |
-      k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal Kubernetes distribution) in docker. k3d via smol-k8s-lab is still in beta.
-
     # change the kubelet config for all k3d nodes, feel free to add more values
     # we set the maximum pods per node via /etc/rancher/k3s/kubelet.config
     # it's set high for beefy nodes, but you can set it lower if you'd like
@@ -89,9 +82,6 @@ k8s_distros:
   kind:
     # set to true to enable deploying a kubernetes cluster using kind
     enabled: false
-    description: |
-      kind is a tool for running local k8s clusters using Docker containers as “nodes”. It was primarily designed for testing Kubernetes itself, but may be used for local development or CI.
-
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
       node-labels: "ingress-ready=true"

@@ -47,12 +47,14 @@ class NodeAdjustmentBox(Widget):
                     "The control plane manages the worker nodes and the Pods in "
                     "the cluster. You have to have at least one.")
             yield label
-            yield Input(value=self.control_plane_nodes,
-                        placeholder='1',
-                        classes=f"{node_class}-control-input",
-                        name="control_plane_nodes",
-                        validators=[Number(minimum=1, maximum=50)],
-                        disabled=disabled)
+            control_input = Input(value=self.control_plane_nodes,
+                                  placeholder='1',
+                                  classes=f"{node_class}-control-input",
+                                  name="control_plane_nodes",
+                                  validators=[Number(minimum=1, maximum=50)],
+                                  disabled=disabled)
+            control_input.tooltip = "Press [gold3]↩ Enter[/] to save"
+            yield control_input
 
             worker_label = Label("workers:", classes=f"{node_class}-label")
             worker_label.tooltip = (
@@ -73,7 +75,8 @@ class NodeAdjustmentBox(Widget):
         styling for the border
         """
         node_row = self.query_one(".nodes-input-row")
-        node_row.border_title = "[green]🖥️ Adjust how many of each node type to deploy"
+        node_row.border_title = ("[gold3]Optional[/]: [chartreuse2]Adjust how many"
+                                 " of each node type to deploy")
 
     @on(Input.Changed)
     def update_parent_yaml(self, event: Input.Changed):

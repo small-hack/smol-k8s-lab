@@ -19,10 +19,14 @@ class AppConfig(Screen):
     CSS_PATH = ["./css/apps_config.tcss",
                 "./css/apps_init_config.tcss"]
 
-    BINDINGS = [Binding(key="escape,q",
-                        key_display="esc,q",
+    BINDINGS = [Binding(key="b",
+                        key_display="b",
                         action="app.pop_screen",
-                        description="↩ Back")]
+                        description="Back"),
+                Binding(key="n",
+                        key_display="n",
+                        action="app.request_smol_k8s_cfg",
+                        description="Next")]
 
     ToggleButton.BUTTON_INNER = '♥'
 
@@ -35,7 +39,6 @@ class AppConfig(Screen):
 
         # this is state storage
         self.previous_app = ''
-        self.invalid_app_inputs = {}
 
         # inital highlight if we got here via a link
         self.initial_app = highlighted_app
@@ -89,11 +92,11 @@ class AppConfig(Screen):
 
         # select-apps styling - select apps container - top left
         select_apps_widget = self.get_widget_by_id("select-add-apps")
-        select_apps_widget.border_title = "[magenta]♥ [/][green]Select apps"
+        select_apps_widget.border_title = "[magenta]♥ [/][chartreuse2]Select apps"
 
         # select-apps styling - bottom
         app_desc = self.get_widget_by_id("app-description-container")
-        app_desc.border_title = "[white]App Description[/]"
+        app_desc.border_title = "[cornflower_blue]App Description[/]"
 
         if self.initial_app:
             selection_list = self.query_one(SelectionList)
@@ -120,7 +123,8 @@ class AppConfig(Screen):
 
         # styling for the select-apps - configure apps container - right
         app_title = highlighted_app.replace("_", "-")
-        app_cfg_title = f"⚙️ [green]Configure Parameters for [steel_blue1]{app_title}"
+        app_cfg_title = ("⚙️ [chartreuse2]Configure Parameters for [steel_blue1]"
+                         f"{app_title}")
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
         if self.previous_app != "":

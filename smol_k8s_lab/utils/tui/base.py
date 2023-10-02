@@ -1,7 +1,8 @@
-from textual.app import App, ComposeResult, ScreenStackError
+from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid, Container
-from textual.widgets import Footer, Header, Button
+from textual.widgets import Footer, Header, Button, Label, DataTable
+from smol_k8s_lab.k8s_distros import check_all_contexts
 from smol_k8s_lab.utils.write_yaml import dump_to_file
 from smol_k8s_lab.utils.tui.apps_config import AppConfig
 from smol_k8s_lab.utils.tui.confirm_selection import ConfirmConfig
@@ -17,25 +18,6 @@ class BaseApp(App):
                         action="request_help",
                         description="Help",
                         show=True),
-                Binding(key="s",
-                        key_display="s",
-                        show=False,
-                        action="request_smol_k8s_cfg",
-                        description="Config"),
-                Binding(key="d",
-                        key_display="d",
-                        show=False,
-                        action="request_distro_cfg",
-                        description="Distros"),
-                Binding(key="a",
-                        key_display="a",
-                        show=False,
-                        action="request_apps_cfg",
-                        description="Apps"),
-                Binding(key="c",
-                        key_display="c",
-                        action="request_confirm",
-                        description="Confirm"),
                 Binding(key="f",
                         key_display="f",
                         action="toggle_footer",
@@ -48,8 +30,8 @@ class BaseApp(App):
     def __init__(self, user_config: dict = INITIAL_USR_CONFIG) -> None:
         self.cfg = user_config
         self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
-        self.previous_screen = ''
-        self.invalid_app_inputs = {}
+        self.current_screen = 'start'
+        # self.invalid_app_inputs = {}
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -67,37 +49,14 @@ class BaseApp(App):
 
         with Grid(id="base-screen-container"):
             with Grid(id="base-button-grid"):
-                # config smol k8s lab button
-                smol_cfg_button = Button("🧸smol-k8s-lab", id="smol-cfg")
-                smol_cfg_button.tooltip = (
-                        "Configure smol-k8s-lab itself from password management, "
-                        "to logging, to the terminal UI.\nHot key: [gold3]s[/]"
-                        )
-                yield smol_cfg_button
+                cluster_table = DataTable(id="cluster-table")
+                cluster_table.display = False
+                yield cluster_table
 
-                # config distro button
-                distro_cfg_button = Button("🐳 k8s distro", id="distro-cfg")
-                distro_cfg_button.tooltip = (
-                        "Select and configure a kubernetes distribution.\n"
-                        "Hot key: [gold3]d[/]"
-                        )
-                yield distro_cfg_button
-
-                # config apps button
-                apps_cfg_button = Button("📱k8s apps", id="apps-cfg")
-                apps_cfg_button.tooltip = (
-                        "Select and configure Kubernetes applications via Argo CD."
-                        "\nHot key: [gold3]a[/]"
-                        )
-                yield apps_cfg_button
-
-            with Container(id="first-confirm-button-row"):
-                confirm_button = Button("✅ confirm settings", id="confirm-cfg")
-                confirm_button.tooltip = (
-                        "Confirm all your settings and run smol-k8s-lab."
-                        "\nHot key: [gold3]c[/]"
-                        )
-                yield confirm_button
+                with Container(id="new-cluster-button-container"):
+                    new_button = Button("✨ New Cluster", id="new-cluster-button")
+                    new_button.tooltip = "Add a new cluster managed by smol-k8s-lab"
+                    yield new_button
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
@@ -105,14 +64,8 @@ class BaseApp(App):
         """
         button_id = event.button.id
 
-        if button_id == "smol-cfg":
-            self.action_request_smol_k8s_cfg()
-        elif button_id == "distro-cfg":
+        if button_id == "new-cluster-button":
             self.action_request_distro_cfg()
-        elif button_id == "apps-cfg":
-            self.action_request_apps_cfg()
-        elif button_id == "confirm-cfg":
-            self.action_request_confirm()
 
     def on_mount(self) -> None:
         """
@@ -121,20 +74,28 @@ class BaseApp(App):
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "Getting Started"
 
-        grid_title = "[green]Let's get started configuring a new cluster 🪛"
-        self.get_widget_by_id("base-button-grid").border_title = grid_title
+        clusters = check_all_contexts()
+        main_grid = self.get_widget_by_id("base-button-grid")
 
+        if not clusters:
+            oops = Grid(Label("No clusters found 🤷 We can fix that though!",
+                              id="no-clusters-found-text"),
+                        id="base-help-grid")
+            main_grid.mount(oops, before="#new-cluster-button-container")
+
+            grid_title = "[chartreuse2]Modify or Create clusters"
+            self.get_widget_by_id("base-button-grid").border_title = grid_title
+
+        else:
+            table = self.query_one(DataTable)
+            table.display = True
+            table.add_columns(*clusters[0])
+            table.add_rows(clusters[1:])
 
     def action_request_apps_cfg(self, app_to_highlight: str = "") -> None:
         """
         launches the argo app config screen
         """
-        try:
-            self.app.pop_screen()
-        # this error happens if there's not already a screen on the stack
-        except ScreenStackError:
-            pass
-
         if app_to_highlight:
             self.app.push_screen(AppConfig(self.cfg['apps'], app_to_highlight))
         else:
@@ -144,12 +105,6 @@ class BaseApp(App):
         """
         launches the k8s disto (k3s,k3d,kind) config screen
         """
-        try:
-            self.app.pop_screen()
-        # this error happens if there's not already a screen on the stack
-        except ScreenStackError:
-            pass
-
         self.app.push_screen(DistroConfigScreen(self.cfg['k8s_distros']))
 
     def action_request_smol_k8s_cfg(self) -> None:
@@ -157,24 +112,12 @@ class BaseApp(App):
         launches the smol-k8s-lab config for the program itself for things like
         the TUI, but also logging and password management
         """
-        try:
-            self.app.pop_screen()
-        # this error happens if there's not already a screen on the stack
-        except ScreenStackError:
-            pass
-
         self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
 
     def action_request_confirm(self) -> None:
         """
         show confirmation screen
         """
-        try:
-            self.app.pop_screen()
-        # this error happens if there's not already a screen on the stack
-        except ScreenStackError:
-            pass
-
         self.app.push_screen(ConfirmConfig(self.cfg))
 
     def action_request_help(self) -> None:

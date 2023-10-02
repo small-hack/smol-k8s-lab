@@ -1,4 +1,7 @@
 def placeholder_grammar(key: str):
+    """
+    fixes the placeholder grammar for any given key
+    """
     article = ""
 
     # make sure this isn't a plural key

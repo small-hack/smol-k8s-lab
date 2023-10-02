@@ -27,10 +27,14 @@ class SmolK8sLabConfig(Screen):
     """
     CSS_PATH = ["./css/smol_k8s_cfg.tcss"]
 
-    BINDINGS = [Binding(key="escape,q",
-                        key_display="esc,q",
+    BINDINGS = [Binding(key="b",
+                        key_display="b",
                         action="app.pop_screen",
-                        description="↩ Back")]
+                        description="Back"),
+                Binding(key="n",
+                        key_display="n",
+                        action="app.request_confirm",
+                        description="Next")]
 
     def __init__(self, config: dict) -> None:
         self.cfg = config
