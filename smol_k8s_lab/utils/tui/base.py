@@ -1,16 +1,18 @@
 from rich.text import Text
+from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid, Container
 from textual.widgets import Footer, Header, Button, Label, DataTable
+from smol_k8s_lab.constants import INITIAL_USR_CONFIG
 from smol_k8s_lab.k8s_distros import check_all_contexts
-from smol_k8s_lab.utils.write_yaml import dump_to_file
+from smol_k8s_lab.utils.tui.base_cluster_modal import ClusterModalScreen
 from smol_k8s_lab.utils.tui.apps_config import AppConfig
 from smol_k8s_lab.utils.tui.confirm_selection import ConfirmConfig
 from smol_k8s_lab.utils.tui.distro_config import DistroConfigScreen
 from smol_k8s_lab.utils.tui.help import HelpScreen
 from smol_k8s_lab.utils.tui.smol_k8s_config import SmolK8sLabConfig
-from smol_k8s_lab.constants import INITIAL_USR_CONFIG
+from smol_k8s_lab.utils.write_yaml import dump_to_file
 
 
 class BaseApp(App):
@@ -49,10 +51,12 @@ class BaseApp(App):
 
         with Grid(id="base-screen-container"):
             with Grid(id="base-box-grid"):
+                yield Label(id="clusters-text")
 
                 with Grid(id="table-grid"):
                     yield DataTable(zebra_stripes=True,
-                                    id="clusters-data-table")
+                                    id="clusters-data-table",
+                                    cursor_type="row")
 
                 with Container(id="new-cluster-button-container"):
                     new_button = Button("✨ New Cluster", id="new-cluster-button")
@@ -80,16 +84,12 @@ class BaseApp(App):
         grid_title = "[chartreuse2]Modify or Create clusters"
         self.get_widget_by_id("base-box-grid").border_title = grid_title
 
-        # data table grid container
-        main_grid = self.get_widget_by_id("base-box-grid")
-
         # go check if we have existing clusters
         clusters = check_all_contexts()
 
         if not clusters:
-            oops = Label("No clusters found 🤷 We can fix that though!",
-                         id="no-clusters-found-text")
-            main_grid.mount(oops, before="#new-cluster-button-container")
+            cluster_help = self.query_one("#clusters-text")
+            cluster_help.update("No clusters found 🤷 We can fix that though!")
         else:
             self.generate_cluster_table(clusters)
 
@@ -100,20 +100,38 @@ class BaseApp(App):
         Each row is has a height of 3 and is centered to make it easier to read
         for people with dyslexia
         """
-        datatable = self.query_one(DataTable)
+        # first, update the header text to let user know we've found clusters
+        cluster_help = self.query_one("#clusters-text")
+        cluster_help.update(
+                "We found the following clusters. Select a row to modify the cluster's"
+                " apps or even delete the cluster. You can also create a new cluster "
+                "using button below.")
 
+        # then fill in the cluster table
+        datatable = self.query_one(DataTable)
         datatable.add_column(Text("Cluster", justify="center"))
         datatable.add_column(Text("Distro", justify="center"))
-        datatable.add_column(Text("Edit", justify="center"))
 
         for row in clusters:
-            # we use an extra line to even the rows and make them more readable
-            final_row = (f"\n{row[0]}", f"\n{row[1]}", "\n✏️")
+            # we use an extra line to center the rows vertically 
+            styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
-            styled_row = [
-                    Text(str(cell), justify="center") for cell in final_row
-                    ]
-            datatable.add_row(*styled_row, height=3)
+            # we add extra height to make the rows more readable
+            datatable.add_row(*styled_row, height=3, key=row[0])
+
+    @on(DataTable.RowSelected)
+    def cluster_row_highlighted(self, event: DataTable.RowSelected) -> None:
+        """
+        check which row was selected to launch a modal screen
+        """
+        row_index = event.cursor_row
+        row = event.data_table.get_row_at(row_index)
+        # get the row's first column (the name of the cluster) and remove whitespace
+        cluster_name = row[0].plain.strip()
+        distro = row[1].plain.strip()
+
+        self.app.push_screen(ClusterModalScreen(cluster_name, distro))
+
 
     def action_request_apps_cfg(self, app_to_highlight: str = "") -> None:
         """
@@ -166,7 +184,11 @@ class BaseApp(App):
             footer.display = True
 
     def write_yaml(self) -> None:
+        """
+        dump current self.cfg to user's smol-k8s-lab config.yaml
+        """
         dump_to_file(self.cfg)
+
 
 if __name__ == "__main__":
     app = BaseApp()
