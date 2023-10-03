@@ -1,3 +1,4 @@
+from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid, Container
@@ -31,7 +32,6 @@ class BaseApp(App):
         self.cfg = user_config
         self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
         self.current_screen = 'start'
-        # self.invalid_app_inputs = {}
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -48,10 +48,11 @@ class BaseApp(App):
         yield footer
 
         with Grid(id="base-screen-container"):
-            with Grid(id="base-button-grid"):
-                cluster_table = DataTable(id="cluster-table")
-                cluster_table.display = False
-                yield cluster_table
+            with Grid(id="base-box-grid"):
+
+                with Grid(id="table-grid"):
+                    yield DataTable(zebra_stripes=True,
+                                    id="clusters-data-table")
 
                 with Container(id="new-cluster-button-container"):
                     new_button = Button("✨ New Cluster", id="new-cluster-button")
@@ -71,26 +72,48 @@ class BaseApp(App):
         """
         screen and box border styling
         """
+        # screen title
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "Getting Started"
 
+        # main box title
+        grid_title = "[chartreuse2]Modify or Create clusters"
+        self.get_widget_by_id("base-box-grid").border_title = grid_title
+
+        # data table grid container
+        main_grid = self.get_widget_by_id("base-box-grid")
+
+        # go check if we have existing clusters
         clusters = check_all_contexts()
-        main_grid = self.get_widget_by_id("base-button-grid")
 
         if not clusters:
-            oops = Grid(Label("No clusters found 🤷 We can fix that though!",
-                              id="no-clusters-found-text"),
-                        id="base-help-grid")
+            oops = Label("No clusters found 🤷 We can fix that though!",
+                         id="no-clusters-found-text")
             main_grid.mount(oops, before="#new-cluster-button-container")
-
-            grid_title = "[chartreuse2]Modify or Create clusters"
-            self.get_widget_by_id("base-button-grid").border_title = grid_title
-
         else:
-            table = self.query_one(DataTable)
-            table.display = True
-            table.add_columns(*clusters[0])
-            table.add_rows(clusters[1:])
+            self.generate_cluster_table(clusters)
+
+    def generate_cluster_table(self, clusters: list):
+        """ 
+        generate a readable table for all the clusters.
+
+        Each row is has a height of 3 and is centered to make it easier to read
+        for people with dyslexia
+        """
+        datatable = self.query_one(DataTable)
+
+        datatable.add_column(Text("Cluster", justify="center"))
+        datatable.add_column(Text("Distro", justify="center"))
+        datatable.add_column(Text("Edit", justify="center"))
+
+        for row in clusters:
+            # we use an extra line to even the rows and make them more readable
+            final_row = (f"\n{row[0]}", f"\n{row[1]}", "\n✏️")
+
+            styled_row = [
+                    Text(str(cell), justify="center") for cell in final_row
+                    ]
+            datatable.add_row(*styled_row, height=3)
 
     def action_request_apps_cfg(self, app_to_highlight: str = "") -> None:
         """

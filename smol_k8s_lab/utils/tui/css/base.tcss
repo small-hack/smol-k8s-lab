@@ -136,17 +136,59 @@ SelectionList .option-list--option-hover {
    align: center middle;
    content-align: center middle;
    width: 90%;
-   height: 45%;
 }
 
-#base-button-grid {
+#base-box-grid {
    grid-size: 1;
    background: $navy;
    align: center middle;
    content-align: center middle;
    border: solid $cornflower;
-   height: 50%;
    padding: 1;
+   height: 50%;
+}
+
+#table-grid {
+   align: center middle;
+   content-align: center middle;
+}
+
+DataTable {
+    width: auto;
+}
+
+/* just the table header */
+.datatable--header {
+   background: $dark_gray 70%;
+   color: $sky_blue;
+}
+
+.datatable--header-hover {
+   background: $dark_gray 70%;
+   color: $sky_blue;
+}
+
+/* selected table cell or row */
+.datatable--cursor {
+   background: $light_cornflower 70%;
+   color: $navy;
+}
+
+/* row you're currently hovered over */
+.datatable--hover {
+   background: $cornflower 30%;
+   color: $bluish_white;
+}
+
+/* individual table rows */
+.datatable--even-row {
+    color: $light_cornflower;
+    background: $blue_gray 10%;
+}
+
+.datatable--odd-row {
+    color: $light_cornflower;
+    background: $blue_gray 20%;
 }
 
 /* this is a grid for the no-clusters-found-text label */
@@ -164,7 +206,9 @@ SelectionList .option-list--option-hover {
 }
 
 #new-cluster-button-container {
+   margin-top: 1;
    align: center middle;
    content-align: center middle;
-   height: 20;
+   height: auto;
 }
+
