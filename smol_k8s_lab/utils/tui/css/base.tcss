@@ -140,11 +140,11 @@ SelectionList .option-list--option-hover {
 
 #base-box-grid {
    grid-size: 1;
+   grid-rows: 0.15fr 1fr 0.5fr;
    background: $navy;
    align: center middle;
    content-align: center middle;
    border: solid $cornflower;
-   padding: 1;
    height: 50%;
 }
 
@@ -191,22 +191,18 @@ DataTable {
     background: $blue_gray 20%;
 }
 
-/* this is a grid for the no-clusters-found-text label */
-#base-help-grid {
-   align: center middle;
-   height: auto;
-}
-
-/* this label just lets the user know there's no clusters right now */
-#no-clusters-found-text {
+/* this label just lets the user know if there's clusters or not */
+#clusters-text {
    width: 100%;
-   align: center middle;
-   content-align: center middle;
+   padding-left: 1;
+   padding-right: 1;
    height: auto;
+   content-align: center middle;
+   color: $cornflower;
 }
 
+/* button for new cluster */
 #new-cluster-button-container {
-   margin-top: 1;
    align: center middle;
    content-align: center middle;
    height: auto;
