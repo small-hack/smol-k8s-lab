@@ -40,7 +40,7 @@ $navy: rgb(35,35,54);
    height: 3;
    width: 100%;
    padding-left: 1;
-   color: $light_cornflower 90%;
+   color: gray;
 }
 
 #distro-drop-down {
@@ -57,37 +57,4 @@ $navy: rgb(35,35,54);
    layout: grid;
    grid-rows: 0.45fr 1fr 1fr;
    margin-top: 1;
-}
-
-/* number of nodes input row */
-.nodes-input-row {
-   background: $navy 50%;
-   border: round $cornflower;
-   layout: grid;
-   grid-size: 5;
-   align: center middle;
-   width: 100%;
-   padding-top: 1;
-   padding-bottom: 1;
-   margin-bottom: 1;
-}
-
-.nodes-input-label {
-   content-align: center middle;
-   height: 3;
-   width: 100%;
-   color: $sky_blue 90%;
-}
-
-/* input field to manually increase/decrease number of control plane nodes */
-.nodes-input-control-input {
-   width: auto;
-   height: 3;
-}
-
-/* input field to manually increase/decrease number of worker nodes */
-.nodes-input-worker-input {
-   align: center middle;
-   width: auto;
-   height: 3;
 }

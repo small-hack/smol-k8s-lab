@@ -198,7 +198,7 @@ DataTable {
    padding-right: 1;
    height: auto;
    content-align: center middle;
-   color: $cornflower;
+   color: gray;
 }
 
 /* button for new cluster */
