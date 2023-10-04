@@ -1,7 +1,7 @@
 from rich.prompt import Prompt
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.utils.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.utils.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 

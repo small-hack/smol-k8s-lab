@@ -57,7 +57,7 @@ class SmolK8sLabConfig(Screen):
         with Grid(id="config-screen"):
             yield LoggingConfig(self.cfg['log'])
 
-            # local password manager config for enabled, name, and overwrite
+            # local password manager config for enabled, name, and duplicate strategy
             yield PasswordManagerConfig(self.cfg['local_password_manager'])
 
             # interactive config for hide_footer, always_enabled, and k9s
@@ -255,12 +255,34 @@ class PasswordManagerConfig(Widget):
                                   "enabled",
                                   enabled_tooltip)
 
-                yield bool_option("Overwrite existing:",
-                                  self.cfg['overwrite'],
-                                  "overwrite",
-                                  "Overwrite existing items in your password vault. "
-                                  "If disabled, smol-k8s-lab will create duplicates, "
-                                  "which can be dangerous")
+                dup_txt = """
+                    Option details:
+
+                    ask:       (default) display a dialog window asking how to proceed
+                    edit:      if 1 item found, edit item. Still ask if multiple found
+                    duplicate: create an additional item with the same name
+                    no_action: don't do anything, just continue on with the script
+                    """
+
+                with Grid(classes="radioset-row"):
+                    label = Label("duplicate strategy:", classes="radioset-row-label")
+                    label.tooltip = dup_txt
+                    yield label
+
+                    current_value = self.cfg['duplicate_strategy']
+                    possible_values = ["ask", "edit", "duplicate", "no_action"]
+
+                    with RadioSet(classes="radioset-row-radioset"):
+                        for value in possible_values:
+                            # make sure the user selected level is already selected
+                            if value == current_value:
+                                button = RadioButton(current_value, value=True)
+                            else:
+                                button = RadioButton(value)
+
+                            # set the radio button to be a heart :3
+                            button.BUTTON_INNER = "♥"
+                            yield button
 
     def on_mount(self) -> None:
         """
@@ -274,13 +296,11 @@ class PasswordManagerConfig(Widget):
         """
         update the parent app's config file yaml obj
         """
-        truthy_value = event.value
+        value = event.value
         switch_name = event.switch.name
         parent_cfg = event.switch.ancestors[-1].cfg['smol_k8s_lab']
 
-        parent_cfg['local_password_manager'][switch_name] = truthy_value
-        # update our own truthy value
-        self.cfg[switch_name] = truthy_value
+        parent_cfg['local_password_manager'][switch_name] = value
 
 
 def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Horizontal:

@@ -1,5 +1,5 @@
 from .kind import install_kind_cluster, delete_kind_cluster
-from .k3d import install_k3d_cluster, uninstall_k3d_cluster
+from .k3d import install_k3d_cluster, delete_k3d_cluster
 from .k3s import install_k3s_cluster, uninstall_k3s
 from ..utils.rich_cli.console_logging import sub_header, header
 from ..utils.subproc import subproc
@@ -18,22 +18,28 @@ def check_all_contexts() -> list:
     return_contexts = []
 
     if contexts:
-        return_contexts.append(("Cluster", "Modify", "Delete"))
         # split all contexts outputs into a list of context lines
         for k8s_context in contexts.split('\n'):
 
             # split each context into fields
             fields = k8s_context.split()
 
-            # if smol-k8s-lab in any contexts, return them
-            if 'smol-k8s-lab' in k8s_context:
-                # 5 fields if there's a * denoting the current context
-                if len(fields) == 5:
-                     context_tuple = (fields[1], "✏️", "🚮")
+            # HACK: I honestly have no clue why fields is empty sometimes &
+            # don't have time to troubleshoot it either 🤦
+            if fields:
+                # set the cluster name, making sure to not get the * context
+                if fields[0] and fields[0] != "*":
+                    cluster_name = fields[0]
+                else:
+                    cluster_name = fields[1]
 
-                # 4 fields if there's no current context ie no cluster is selected
-                elif len(fields) == 4:
-                    context_tuple = (fields[0], "✏️", "🚮")
+                # determine the distro of k8s we're using
+                for distro_name in "kind", "k3d", "k3s", "gke", "aks", "eks":
+                    if distro_name in cluster_name:
+                        distro = distro_name
+                        break
+
+                context_tuple = (cluster_name, distro)
 
                 return_contexts.append(context_tuple)
 
@@ -146,7 +152,7 @@ def delete_cluster(k8s_distro: str) -> True:
         uninstall_k3s(contexts)
 
     if k8s_distro == 'k3d':
-        uninstall_k3d_cluster()
+        delete_k3d_cluster()
 
     elif k8s_distro == 'kind':
         delete_kind_cluster()
