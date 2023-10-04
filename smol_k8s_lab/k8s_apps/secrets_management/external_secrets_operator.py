@@ -10,7 +10,7 @@ import logging as log
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
-from smol_k8s_lab.utils.bw_cli import BwCLI
+from smol_k8s_lab.utils.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header
 from smol_k8s_lab.utils.subproc import subproc
 

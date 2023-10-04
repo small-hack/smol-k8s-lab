@@ -21,7 +21,7 @@ from .k8s_apps import (setup_oidc_provider, setup_base_apps,
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
-from .utils.bw_cli import BwCLI, check_env_for_credentials
+from .utils.bitwarden.bw_cli import BwCLI, check_env_for_credentials
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
 from .utils.tui import launch_config_tui
@@ -151,8 +151,8 @@ def main(config: str = "",
 
     # if we have bitwarden credetials unlock the vault
     if bitwarden_credentials:
-        overwrite = USR_CFG['smol_k8s_lab']['local_password_manager']['overwrite']
-        bw = BwCLI(**bitwarden_credentials, overwrite=overwrite)
+        strat = USR_CFG['smol_k8s_lab']['local_password_manager']['duplicate_strategy']
+        bw = BwCLI(**bitwarden_credentials, duplicate_strategy=strat)
         bw.unlock()
     else:
         bw = None

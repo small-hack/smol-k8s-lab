@@ -20,6 +20,7 @@ from shutil import which
 from sys import exit
 from os import environ as env
 from .subproc import subproc
+from .bitwarden_dialog_app import AskUserForDuplicateStrategy
 
 
 def create_custom_field(custom_field_name: str, value: str) -> dict:
@@ -39,18 +40,23 @@ class BwCLI():
     Python Wrapper for the Bitwarden cli
     """
     def __init__(self, password: str, client_id: str, client_secret: str,
-                 overwrite: bool = False):
+                 duplicate_strategy: str = "ask"):
         """
-        This is mostly for storing the session, credentials, and overwrite bool
+        for storing the session token, credentials, and duplicate_strategy
+
+        duplicate_strategy: str, must be one of: edit, ask, duplicate, no_action
         """
         self.user_path = env.get("PATH")
         self.home = env.get("HOME")
         self.bw_path = str(which("bw"))
+
         log.debug(f"self.bw_path is {self.bw_path}")
+
         if not self.bw_path:
             log.error("whoops, looks like bw isn't installed. "
                       "Try [green]brew install bw")
             exit()
+
         # if we clean up the session when we're done or not
         self.delete_session = True
 
@@ -63,9 +69,7 @@ class BwCLI():
         self.password = password
         self.client_id = client_id
         self.client_secret = client_secret
-
-        # controls if we overwrite the existing items when creating new items
-        self.overwrite = overwrite
+        self.duplicate_strategy = duplicate_strategy
 
     def sync(self):
         """
@@ -151,28 +155,55 @@ class BwCLI():
         log.info('New password generated.')
         return password
 
-    def get_item(self, item_name: str):
+    def get_item(self, item_name: str) -> list:
         """
         Get Item and return False if it does not exist else return the item ID
         Required Args:
             - item_name: str of name of item
         """
+        # always sync the vault before checking anything
         self.sync()
-        command = f"{self.bw_path} get item {item_name}"
-        response = subproc([command], error_ok=True,
-                           env={"BW_SESSION": f"'{self.session}'",
-                                "PATH": f"'{self.user_path}'",
-                                "HOME": self.home})
-        if 'Not found' in response:
+
+        # go get the actual item
+        response = json.loads(
+                subproc(
+                    [f"{self.bw_path} get item {item_name} --response"],
+                    error_ok=True,
+                    env={"BW_SESSION": f"'{self.session}'",
+                         "PATH": f"'{self.user_path}'",
+                         "HOME": self.home}
+                    )
+                )
+
+        # if there is no item, just return False
+        if response['message'] == 'Not found':
             log.debug(response)
-            return False
-        elif 'More than one result was found' in response:
-            item_list = response.split('\n')
-            item_list.pop(0)
+            return False, None
+
+        elif  'More than one result was found' in response['message']:
+            item_list = response['data']
             log.debug(f"found more than 1 entry for {item_name}: {item_list}")
-            return item_list 
+
+            # make a list of each full item
+            list_for_dialog = []
+            for id in item_list:
+                list_for_dialog.append(self.get_item(id['id'], True)['data'])
+
+            # ask the user what to do
+            user_response = AskUserForDuplicateStrategy(list_for_dialog)
+
+            action = user_response[0]
+            always_do_action = user_response[1]
+            item = user_response[2]
+
+            # if they always want to do this, then set self.duplicate_strategy
+            if always_do_action:
+                # NOTE: we still always ask if there's more than 1 entry returned
+                self.duplicate_strategy = action 
+
+            return item, action
         else:
-            return [json.loads(response)['id']]
+            return response['data'], self.duplicate_strategy
 
     def delete_item(self, item_id: str):
         """
@@ -193,7 +224,8 @@ class BwCLI():
                      password: str = "",
                      fields: list = [],
                      org: str = None,
-                     collection: str = None):
+                     collection: str = None,
+                     strategy: str = None) -> None:
         """
         Create login item to store a set of credentials for one site.
         Required Args:
@@ -205,23 +237,55 @@ class BwCLI():
             - org:         str of organization to use for collection
             - collection:  str collection inside organization to user
             - fields:      list of {key: value} dicts for custom fields
+            - strategy:    str that defaults to self.duplicate_strategy
         """
-        item = self.get_item(name)
+        # don't edit anything by default
+        edit = False
 
-        if item:
-            if self.overwrite:
-                log.info("bitwarden.overwrite set to true, so we will delete"
-                         f"the existing item: {item}")
-                for id in item:
-                    self.delete_item(id)
-            else:
+        # go check for existing items
+        item = self.get_item(name)
+        item_id = item[0]['id']
+
+        if not strategy:
+            strategy = item[1]
+
+        if item[0]:
+            if strategy == 'edit':
+                log.info("bitwarden.duplicate_strategy set to edit, so we will "
+                         f"edit the existing item: {name}")
+                edit = True
+
+            elif strategy == 'duplicate':
                 msg = (f"😵 Item named {name} already exists in your Bitwarden"
-                       " vault and bitwarden.overwrite is set to false. We "
-                       "will create the item anyway, but the Bitwarden ESO "
+                       " vault and bitwarden.duplicate_strategy is set to duplicate."
+                       " We will create the item anyway, but the Bitwarden ESO "
                        "Provider may have trouble finding it :(")
                 log.warn(msg)
 
-        log.info('Creating bitwarden login item...')
+            elif strategy == "ask":
+                user_response = AskUserForDuplicateStrategy(item['data'])
+
+                # if the user set "always do this action"
+                if user_response[1] is True:
+                   # NOTE: we still always ask if there's more than 1 entry returned
+                   self.duplicate_strategy = user_response[0]
+
+                self.create_login(name=name,
+                                  item_url=item_url,
+                                  user=user,
+                                  password=password,
+                                  org=org,
+                                  collection=collection,
+                                  strategy=user_response[0])
+
+            elif strategy == "no_action":
+                log.info(
+                    "We've encounted an existing entry for the item we were going "
+                    " to create. duplicate_strategy is set to 'no_action', so we "
+                    "will not replace or edit it nor will we create a new item."
+                    f"item: {item}"
+                    )
+                return
 
         if name:
             item_name = name
@@ -250,11 +314,24 @@ class BwCLI():
         encodedBytes = base64.b64encode(login_obj.encode("utf-8"))
         encodedStr = str(encodedBytes, "utf-8")
 
-        subproc([f"{self.bw_path} create item {encodedStr}"],
-                env={"BW_SESSION": self.session,
-                     "PATH": self.user_path,
-                     "HOME": self.home})
-        log.info('Created bitwarden login item.')
+        # create new item
+        if not edit:
+            log.info('Creating Bitwarden login item...')
+
+            subproc([f"{self.bw_path} create item {encodedStr}"],
+                    env={"BW_SESSION": self.session,
+                         "PATH": self.user_path,
+                         "HOME": self.home})
+            log.info('Created bitwarden login item.')
+
+        # edit existing item
+        else:
+            log.info('Updating Bitwarden login item...')
+
+            subproc([f"{self.bw_path} edit item {item_id} {encodedStr}"],
+                    env={"BW_SESSION": self.session,
+                         "PATH": self.user_path,
+                         "HOME": self.home})
 
 
 def check_env_for_credentials() -> list:

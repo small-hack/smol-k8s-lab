@@ -2,10 +2,10 @@
 smol_k8s_lab:
   # this is useful for learning smol-k8s-lab or verifying your configuration
   interactive:
-    # show bottom footer help bar
-    show_footer: true
     # if this is set to true, we'll always launch smol-k8s-lab in interactive mode :)
     always_enabled: false
+    # show bottom footer help bar
+    show_footer: true
     # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
     k9s:
       # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s
@@ -31,10 +31,13 @@ smol_k8s_lab:
     # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
     # If you're missing any of these, smol-k8s-lab will prompt for them
     name: bitwarden
-    # if existing items are found in your password manager, give smol-k8s-lab
-    # permission to delete the old item and create a new one.
-    # If set to false, we attempt to create a second item
-    overwrite: false
+    # if existing items are found in your password manager, do one of:
+    #
+    # ask: (default in tui mode) display a dialog window asking you how to proceed
+    # edit: edit item, if there's one item found, ask if multiple found
+    # duplicate: create an additional item with the same name
+    # no_action: don't do anything, just continue on with the script
+    duplicate_strategy: edit
 
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind and k3d are available on macOS at this time

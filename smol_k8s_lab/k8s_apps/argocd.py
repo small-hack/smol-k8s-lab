@@ -11,7 +11,7 @@ import yaml
 from ..constants import XDG_CACHE_DIR
 from ..k8s_tools.helm import Helm
 from ..k8s_tools.k8s_lib import K8s
-from ..utils.bw_cli import BwCLI
+from ..utils.bitwarden.bw_cli import BwCLI
 from ..utils.subproc import subproc
 from ..utils.passwords import create_password
 from ..utils.rich_cli.console_logging import header, sub_header

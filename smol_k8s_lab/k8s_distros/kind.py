@@ -10,14 +10,21 @@ from ..utils.rich_cli.console_logging import sub_header
 from ..utils.subproc import subproc
 import logging as log
 from os import path
+from ruamel.yaml import YAML
 from shutil import which
-from yaml import dump
+
+
+yaml = YAML()
+
+# https://pypi.org/project/ruamel.yaml.string/
+safe_yaml = YAML(typ=['rt', 'string'])
 
 
 def install_kind_cluster(kubelet_args: dict = {},
                          networking_args: dict = {},
                          control_plane_nodes: int = 1,
-                         worker_nodes: int = 1) -> bool:
+                         worker_nodes: int = 1,
+                         cluster_name: str = "smol-k8s-lab") -> bool:
     """
     Run installation process for kind and create cluster
     returns True
@@ -37,13 +44,13 @@ def install_kind_cluster(kubelet_args: dict = {},
     build_kind_config(kind_cfg, kubelet_args, networking_args,
                       control_plane_nodes, worker_nodes)
 
-    cmd = f"kind create cluster --name smol-k8s-lab-kind --config={kind_cfg}"
+    cmd = f"kind create cluster --name {cluster_name} --config={kind_cfg}"
     subproc([cmd])
 
     return True
 
 
-def delete_kind_cluster():
+def delete_kind_cluster(cluster_name: str = "smol-k8s-lab"):
     """
     delete kind cluster, if kind exists
     returns True
@@ -51,7 +58,7 @@ def delete_kind_cluster():
     er = "smol-k8s-lab hasn't installed a [green]kind[/green] cluster here yet"
     if which('kind'):
         if 'smol-k8s-lab-kind' in subproc(['kind get clusters']):
-            subproc(['kind delete cluster --name smol-k8s-lab-kind'])
+            subproc([f'kind delete cluster --name {cluster_name}'])
         else:
             sub_header(er, False, False)
     else:
@@ -61,7 +68,7 @@ def delete_kind_cluster():
     return True
 
 
-def build_kind_config(kind_cfg: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
+def build_kind_config(cfg_file: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
                       kubelet_extra_args: dict = {},
                       networking_args: dict = {},
                       control_plane_nodes: int = 1,
@@ -90,18 +97,20 @@ def build_kind_config(kind_cfg: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
                 }
 
         # only add extra kubelet args if any were passed in
-        node_config['kubeadmConfigPatches'] = [dump(kube_adm_config)]
+        node_config['kubeadmConfigPatches'] = [
+                safe_yaml.dump_to_string(kube_adm_config)
+                ]
 
     kind_cfg = {
             'kind': 'Cluster',
             'apiVersion': 'kind.x-k8s.io/v1alpha4',
             'name': 'smol-k8s-lab-kind',
-            'nodes': [node_config]
+            'nodes': [node_config.copy()]
             }
 
     # if networking args were passed in
     if networking_args:
-        kind_cfg["networking"] = networking_args
+        kind_cfg["networking"] = networking_args.copy()
 
     # if we're testing more than one control plane node
     if control_plane_nodes > 1:
@@ -116,7 +125,7 @@ def build_kind_config(kind_cfg: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
             kind_cfg['nodes'].append(worker_config)
 
     # this creates a kind_cfg.yaml from the kind_cfg dict above
-    with open(kind_cfg, 'w') as kind_config_file:
-        dump(kind_cfg, kind_config_file)
+    with open(cfg_file, 'w') as kind_config_file:
+        yaml.dump(kind_cfg, kind_config_file)
 
     return kind_config_file

@@ -16,7 +16,7 @@ def install_k3d_cluster(k3s_cli_args: list,
                         kubelet_args: dict,
                         control_plane_nodes: int = 1,
                         worker_nodes: int = 0,
-                        cluster_name: str = 'smol-k8s-lab-k3d') -> bool:
+                        cluster_name: str = 'smol-k8s-lab') -> bool:
     """
     python installation for k3d
     returns true if it worked
@@ -72,7 +72,7 @@ def install_k3d_cluster(k3s_cli_args: list,
     return True
 
 
-def uninstall_k3d_cluster(cluster_name: str = 'smol-k8s-lab-k3d') -> bool:
+def delete_k3d_cluster(cluster_name: str = 'smol-k8s-lab-k3d') -> bool:
     """
     delete k3d cluster by name
     """
