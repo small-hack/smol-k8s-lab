@@ -26,41 +26,37 @@ $navy: rgb(35,35,54);
 
 /* logging config box */
 #logging-config {
-    padding-left: 3;
+    grid-size: 2;
+    padding-left: 1;
+    padding-right: 1;
     margin-bottom: 2;
+    grid-columns: 0.5fr 1fr;
     border: solid $cornflower;
     background: $navy 50%;
 }
 
-.radio-and-input-row {
-    align: left middle;
+.selection-row {
     grid-size: 2;
-    grid-columns: 0.75fr 1.3fr;
+    align: center middle;
 }
 
-
-/* radio set for logging config */
-.radioset-row {
-    align: left middle;
-    layout: grid;
-    grid-size: 2;
-    grid-columns: 0.3fr 1fr;
-    margin-bottom: 1;
-}
-
-.radioset-row-label {
-    content-align: left middle;
-    height: 6;
+.selection-row Label {
+    padding-top: 1;
+    padding-bottom: 1;
     color: $bluish_white;
 }
 
-.radioset-row-radioset {
-    align: left middle;
+.selection-row Select {
+    width: 70%;
+}
+
+#logging-config .selection-row {
+    grid-columns: 0.35fr 1fr;
 }
 
 /* truthy value rows with switches */
 .bool-switch-row {
-    align: left middle;
+    align: center middle;
     layout: grid;
     grid-size: 2;
 }
@@ -73,26 +69,15 @@ $navy: rgb(35,35,54);
     width: 100%;
 }
 
-.bool-switch-row-switch {
-}
-
-/* two bool-switch-rows side by side */
-.double-switch-row {
-    align: left middle;
-    layout: grid;
-    grid-size: 2;
+/* three bool-switch-rows side by side */
+.triple-switch-row {
+    align: center middle;
+    grid-size: 3;
 }
 
 /* k9s row of a switch and input field */
-.k9s-switch-input-row {
-    align: left middle;
-    layout: grid;
-    grid-size: 2;
-    grid-columns: 0.8fr 1fr;
-}
-
-.k9s-switch-input-row .input-row {
-    padding-top: 1;
+.k9s-input-row {
+    align: center middle;
 }
 
 /* any basic "label: input" row */
@@ -100,7 +85,7 @@ $navy: rgb(35,35,54);
     align: left middle;
     layout: grid;
     grid-size: 2;
-    grid-columns: 0.3fr 1fr;
+    grid-columns: 0.2fr 1fr;
 }
 
 /* Label in "label: input" row */
@@ -126,20 +111,33 @@ $navy: rgb(35,35,54);
     background: $navy 50%;
 }
 
+#password-manager-options-grid {
+    grid-size: 2;
+    align: center middle;
+    grid-columns: 0.5fr 1fr;
+}
+
+
 .help-text {
     color: gray;
     width: 100%;
 }
 
 /* interactive (TUI) config box */
-#tui-config{
+#tui-config {
     padding-top: 2;
-    padding-left: 3;
+    padding-left: 1;
+    padding-right: 1;
     margin-top: 2;
-    margin-bottom: 1;
     border: solid $cornflower;
     background: $navy 50%;
     layout: grid;
-    grid-rows: 0.8fr 1fr;
     align: center middle;
+}
+
+#tui-config .input-row-label {
+    padding-left: 1;
+    padding-top: 1;
+    padding-right: 1;
+    color: $bluish_white;
 }

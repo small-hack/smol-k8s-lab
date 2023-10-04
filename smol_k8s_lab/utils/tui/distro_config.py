@@ -15,15 +15,15 @@ from textual.widgets import Footer, Header, Label, Select
 
 # the description of the k8s distro
 DISTRO_DESC = {
-        "k3s": ("K3s, by Rancher Labs, is a minimal k8s distro that fits in about 70MB."
-                "(it's also optomized for ARM) Learn more at [link=https://k3s.io]"
-                "k3s.io[/]."),
+        "k3s": ("K3s, by Rancher Labs, is a minimal Kubernetes distro that fits in "
+                "about 70MB. (it's also optomized for ARM) Learn more at "
+                "[u][link=https://k3s.io]k3s.io[/][/]."),
         "k3d": ("k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal "
-                "k8s distribution) in docker. Learn more at [link=https://k3d.io]"
-                "k3d.io[/]."),
+                "Kubernetes distribution) in Docker containers. Learn more at "
+                "[u][link=https://k3d.io]k3d.io[/][/]."),
         "kind": ("kind runs k8s clusters using Docker containers as nodes. Was "
                  " designed for testing k8s itself. Learn more at "
-                 "[link=https://kind.sigs.k8s.io/]kind.sigs.k8s.io/[/]")
+                 "[u][link=https://kind.sigs.k8s.io/]kind.sigs.k8s.io[/][/]")
         }
 
 
@@ -35,6 +35,7 @@ class DistroConfigScreen(Screen):
     Textual app to configure smol-k8s-lab
     """
     CSS_PATH = ["./css/distro_config.tcss",
+                "./css/node_inputs_widget.tcss",
                 "./css/k3s.tcss",
                 "./css/kubelet.tcss",
                 "./css/kind.tcss"]

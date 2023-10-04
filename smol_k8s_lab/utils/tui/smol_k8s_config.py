@@ -4,22 +4,26 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, Grid
 from textual.screen import Screen
-from textual.widgets import (Footer, Header, Input, Label, Switch, RadioButton,
-                             RadioSet)
+from textual.widgets import Footer, Header, Input, Label, Switch, Select
 from textual.widget import Widget
 from xdg_base_dirs import xdg_state_home
 
 XDG_STATE_HOME = str(xdg_state_home()) + "/smol-k8s-lab/smol.log"
 
-logging_tool_tip = """
-Logging verbosity level:
+logging_tool_tip = (
+        "Logging verbosity level:\n\n"
+        "[dim]error:  only print error messages[/]\n\n"
+        "warn:   print warnings, plus errors\n\n"
+        "[dim]info:   check ins at each stage, plus warnings/errors[/]\n\n"
+        "debug:  most detailed, includes all sorts of variable printing"
+        )
 
-[dim]error:  only print error messages[/]
-warn:   print warnings, plus errors
-[dim]info:   check ins at each stage, plus warnings/errors[/]
-debug:  most detailed, includes all sorts of variable printing
-"""
-
+duplicate_tool_tip = (
+    "Option details:\n\n"
+    "[dim]ask:       (default) display a dialog window asking how to proceed[/]\n\n"
+    "edit:      if 1 item found, edit item. Still ask if multiple found\n\n"
+    "[dim]duplicate: create an additional item with the same name[/]\n\n"
+    "no_action: don't do anything, just continue on with the script")
 
 class SmolK8sLabConfig(Screen):
     """
@@ -60,7 +64,7 @@ class SmolK8sLabConfig(Screen):
             # local password manager config for enabled, name, and duplicate strategy
             yield PasswordManagerConfig(self.cfg['local_password_manager'])
 
-            # interactive config for hide_footer, always_enabled, and k9s
+            # interactive config for hide_footer, enabled, and k9s
             yield TuiConfig(self.cfg['interactive'])
 
     def on_mount(self) -> None:
@@ -82,7 +86,15 @@ class TuiConfig(Widget):
         """
 
         with Container(id="tui-config"):
-            with Horizontal(classes="double-switch-row"):
+            with Grid(classes="triple-switch-row"):
+                yield bool_option(
+                        label="enabled:",
+                        name="enabled",
+                        switch_value=self.cfg['enabled'],
+                        tooltip=("Enable interactive mode also known as TUI mode by "
+                                 "default, otherwise you need to pass in -i each time")
+                        )
+
                 yield bool_option(
                         label="show footer:",
                         name="show_footer",
@@ -91,27 +103,20 @@ class TuiConfig(Widget):
                         )
 
                 yield bool_option(
-                        label="always enabled:",
-                        name="always_enabled",
-                        switch_value=self.cfg['always_enabled'],
-                        tooltip="always enable interactive mode"
-                        )
-
-
-            with Horizontal(classes="k9s-switch-input-row"):
-                yield bool_option(
                         label="k9s enabled:",
                         name="k9s-enabled",
                         switch_value=self.cfg['k9s']['enabled'],
                         tooltip="launch k9s, a k8s TUI dashboard when cluster is up"
                         )
 
+
+            with Grid(classes="k9s-input-row"):
                 yield input_field(
                         label="k9s command:",
                         name="k9s-command",
                         initial_value=self.cfg['k9s']['command'],
                         placeholder="command to run when k9s starts",
-                        tooltip="command to run via k9s"
+                        tooltip="if k9s is enabled, run this command when it starts"
                         )
 
     def on_mount(self) -> None:
@@ -173,32 +178,21 @@ class LoggingConfig(Widget):
         possible_levels = ['error', 'warn', 'debug', 'info']
 
         with Grid(id="logging-config"):
-            with Grid(classes="radio-and-input-row"):
+            with Grid(classes="selection-row"):
+                label = Label("level:", classes="selection-label")
+                label.tooltip = logging_tool_tip
+                yield label
 
-                with Grid(classes="radioset-row"):
-                    label = Label("level:", classes="radioset-row-label")
-                    label.tooltip = (logging_tool_tip)
-                    yield label
+                yield Select(((line, line) for line in possible_levels),
+                             id="log-level-select",
+                             value=current_level)
 
-                    with RadioSet(classes="radioset-row-radioset"):
-                        for level in possible_levels:
-
-                            # make sure the user selected level is already selected
-                            if level == current_level:
-                                button = RadioButton(current_level, value=True)
-                            else:
-                                button = RadioButton(level)
-
-                            # set the radio button to be a heart :3
-                            button.BUTTON_INNER = "♥"
-                            yield button
-
-                yield input_field(label="file:",
-                                  initial_value=logging_opt['file'],
-                                  name="file",
-                                  placeholder=XDG_STATE_HOME,
-                                  tooltip="File to log to. If provided, no console "
-                                          "logging will take place")
+            yield input_field(label="file:",
+                              initial_value=logging_opt['file'],
+                              name="file",
+                              placeholder=XDG_STATE_HOME,
+                              tooltip="File to log to. If provided, no console "
+                                      "logging will take place")
 
     def on_mount(self) -> None:
         """
@@ -216,15 +210,6 @@ class LoggingConfig(Widget):
         parent_cfg = input.ancestors[-1]
 
         parent_cfg.cfg['smol_k8s_lab']['log'][input.name] = input.value
-        self.ancestors[-1].write_yaml()
-
-    def on_radio_set_changed(self, event: RadioSet.Changed) -> None:
-        """
-        update  self and parent app self config with changed radio set
-        """
-        parent_cfg = event.radio_set.ancestors[-1]
-        self.cfg['level'] = event.pressed.label
-        parent_cfg.cfg['smol_k8s_lab']['log']['level'] = str(event.pressed.label)
         self.ancestors[-1].write_yaml()
 
     def action_save_and_quit(self) -> None:
@@ -245,44 +230,28 @@ class PasswordManagerConfig(Widget):
                         "Only Bitwarden is supported at this time, but if enabled,"
                         " Bitwarden can be used as your k8s external secret provider."
                         " To avoid a password prompt, export the following env vars: "
-                        "BW_PASSWORD, BW_CLIENTID, and BW_CLIENTSECRET.",
+                        "BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET",
                         classes="help-text")
 
             enabled_tooltip = "enable storing passwords for apps in a password manager"
-            with Horizontal(classes="double-switch-row"):
+            with Grid(id="password-manager-options-grid"):
                 yield bool_option("enabled:",
                                   self.cfg['enabled'],
                                   "enabled",
                                   enabled_tooltip)
 
-                dup_txt = """
-                    Option details:
-
-                    ask:       (default) display a dialog window asking how to proceed
-                    edit:      if 1 item found, edit item. Still ask if multiple found
-                    duplicate: create an additional item with the same name
-                    no_action: don't do anything, just continue on with the script
-                    """
-
-                with Grid(classes="radioset-row"):
-                    label = Label("duplicate strategy:", classes="radioset-row-label")
-                    label.tooltip = dup_txt
+                with Grid(classes="selection-row"):
+                    label = Label("duplicate strategy:",
+                                  classes="radioset-row-label")
+                    label.tooltip = duplicate_tool_tip
                     yield label
 
                     current_value = self.cfg['duplicate_strategy']
                     possible_values = ["ask", "edit", "duplicate", "no_action"]
 
-                    with RadioSet(classes="radioset-row-radioset"):
-                        for value in possible_values:
-                            # make sure the user selected level is already selected
-                            if value == current_value:
-                                button = RadioButton(current_value, value=True)
-                            else:
-                                button = RadioButton(value)
-
-                            # set the radio button to be a heart :3
-                            button.BUTTON_INNER = "♥"
-                            yield button
+                    yield Select(((line, line) for line in possible_values),
+                                 id="duplicate-strategy-select",
+                                 value=current_value)
 
     def on_mount(self) -> None:
         """
