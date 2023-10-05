@@ -57,7 +57,7 @@ def delete_kind_cluster(cluster_name: str = "smol-k8s-lab"):
     """
     er = "smol-k8s-lab hasn't installed a [green]kind[/green] cluster here yet"
     if which('kind'):
-        if 'smol-k8s-lab-kind' in subproc(['kind get clusters']):
+        if cluster_name in subproc(['kind get clusters']):
             subproc([f'kind delete cluster --name {cluster_name}'])
         else:
             sub_header(er, False, False)

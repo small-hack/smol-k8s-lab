@@ -3,6 +3,7 @@ from textual.app import ComposeResult, NoMatches
 from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.widgets import Button, Label
+from textual.widgets.data_table import RowKey
 from smol_k8s_lab.k8s_distros.k3d import delete_k3d_cluster
 from smol_k8s_lab.k8s_distros.k3s import uninstall_k3s
 from smol_k8s_lab.k8s_distros.kind import delete_kind_cluster
@@ -12,20 +13,20 @@ from smol_k8s_lab.utils.subproc import subproc
 class ClusterModalScreen(ModalScreen):
     CSS_PATH = ["./css/cluster_modal.css"]
 
-    def __init__(self, cluster: str, distro: str) -> None:
+    def __init__(self, cluster: str, distro: str, row_key: RowKey) -> None:
         self.cluster = cluster
         self.distro = distro
+        self.row_key = row_key
         super().__init__()
 
     def compose(self) -> ComposeResult:
+        question = ('How would you like to proceed with cluster '
+                    f'"[green]{self.cluster}[/]"?')
         # base screen grid
         with Grid(id="cluster-question-modal-screen"):
             # grid for cluster question and buttons
             with Grid(id="cluster-question-box"):
-                yield Label(
-                        f'How would you like to proceed with cluster "{self.cluster}"?',
-                        id="cluster-modal-text"
-                        )
+                yield Label(question, id="cluster-modal-text")
 
                 with Grid(id="modal-button-box"):
                     yield Button("✏️ Modify", id="modify-cluster-button")
@@ -52,12 +53,14 @@ class ClusterModalScreen(ModalScreen):
             self.get_widget_by_id("modify-cluster-button").display = False
 
             # are you sure, the text
-            are_you_sure = f"Are you sure you want to delete {self.cluster}"
-            self.get_widget_by_id("cluster-modal-text").update(are_you_sure)
+            confirm_txt = ('Are you [b][i]sure[/][/] you want to [magenta]delete[/]'
+                           f' cluster "[green]{self.cluster}[/green]"?')
+            self.get_widget_by_id("cluster-modal-text").update(confirm_txt)
 
             # are you sure, the button
-            sure_button = Button("Yes", id="delete-button-second-try")
-            self.get_widget_by_id("cluster-question-box").mount(sure_button)
+            sure_button = Button("🚮 Yes", id="delete-button-second-try")
+            self.get_widget_by_id("modal-button-box").mount(sure_button,
+                                                            before="#cancel")
 
         # if the user really wants to delete a cluster, we do it
         elif event.button.id == "delete-button-second-try":
@@ -71,7 +74,7 @@ class ClusterModalScreen(ModalScreen):
                 delete_kind_cluster(self.cluster.replace("kind-", ""))
 
             # after deleting pop the screen
-            self.app.pop_screen()
+            self.dismiss([self.cluster, self.row_key])
 
         elif event.button.id == "cancel":
             # resets the modal
@@ -86,6 +89,8 @@ class ClusterModalScreen(ModalScreen):
 
                 reset_text = f"How would you like to proceed with {self.cluster}?"
                 self.get_widget_by_id("cluster-modal-text").update(reset_text)
+
+                self.get_widget_by_id("delete-cluster-first-try").display = True
             except NoMatches:
                 pass
                 self.app.pop_screen()
