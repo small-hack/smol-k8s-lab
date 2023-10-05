@@ -63,15 +63,6 @@ class BaseApp(App):
                     new_button.tooltip = "Add a new cluster managed by smol-k8s-lab"
                     yield new_button
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """
-        get pressed button add or delete button and act on it
-        """
-        button_id = event.button.id
-
-        if button_id == "new-cluster-button":
-            self.action_request_distro_cfg()
-
     def on_mount(self) -> None:
         """
         screen and box border styling
@@ -84,22 +75,34 @@ class BaseApp(App):
         grid_title = "[chartreuse2]Modify or Create clusters"
         self.get_widget_by_id("base-box-grid").border_title = grid_title
 
-        # go check if we have existing clusters
         clusters = check_all_contexts()
 
         if not clusters:
-            cluster_help = self.query_one("#clusters-text")
-            cluster_help.update("No clusters found 🤷 We can fix that though!")
+            self.add_no_clusters_found_text()
         else:
             self.generate_cluster_table(clusters)
 
-    def generate_cluster_table(self, clusters: list):
+    def add_no_clusters_found_text(self,) -> None:
+        """ 
+        don't display the table and add text that says we found no clusters
+        """
+        self.get_widget_by_id("table-grid").display = False
+        self.get_widget_by_id("base-box-grid").remove_class("larger-grid")
+        self.get_widget_by_id("base-box-grid").add_class("smaller-grid")
+        cluster_help = self.query_one("#clusters-text")
+        cluster_help.update("No clusters found 🤷 We can fix that though!")
+
+    def generate_cluster_table(self, clusters: list) -> None:
         """ 
         generate a readable table for all the clusters.
 
         Each row is has a height of 3 and is centered to make it easier to read
         for people with dyslexia
         """
+        self.get_widget_by_id("base-box-grid").add_class("larger-grid")
+
+        data_table = self.query_one(DataTable)
+
         # first, update the header text to let user know we've found clusters
         cluster_help = self.query_one("#clusters-text")
         cluster_help.update(
@@ -108,29 +111,53 @@ class BaseApp(App):
                 "using button below.")
 
         # then fill in the cluster table
-        datatable = self.query_one(DataTable)
-        datatable.add_column(Text("Cluster", justify="center"))
-        datatable.add_column(Text("Distro", justify="center"))
+        data_table.add_column(Text("Cluster", justify="center"))
+        data_table.add_column(Text("Distro", justify="center"))
 
         for row in clusters:
             # we use an extra line to center the rows vertically 
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
             # we add extra height to make the rows more readable
-            datatable.add_row(*styled_row, height=3, key=row[0])
+            data_table.add_row(*styled_row, height=3, key=row[0])
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        get pressed button add or delete button and act on it
+        """
+        button_id = event.button.id
+
+        if button_id == "new-cluster-button":
+            self.action_request_distro_cfg()
+
 
     @on(DataTable.RowSelected)
     def cluster_row_highlighted(self, event: DataTable.RowSelected) -> None:
         """
         check which row was selected to launch a modal screen
         """
+        def check_if_cluster_deleted(response: list = []):
+            """
+            check if cluster has been deleted
+            """
+            cluster = response[0]
+            row_key = response[1]
+
+            if cluster and row_key:
+                data_table = self.query_one(DataTable)
+                data_table.remove_row(row_key)
+
+                if data_table.row_count < 1:
+                    self.add_no_clusters_found_text()
+
         row_index = event.cursor_row
         row = event.data_table.get_row_at(row_index)
         # get the row's first column (the name of the cluster) and remove whitespace
         cluster_name = row[0].plain.strip()
         distro = row[1].plain.strip()
 
-        self.app.push_screen(ClusterModalScreen(cluster_name, distro))
+        self.app.push_screen(ClusterModalScreen(cluster_name, distro, event.row_key),
+                             check_if_cluster_deleted)
 
 
     def action_request_apps_cfg(self, app_to_highlight: str = "") -> None:

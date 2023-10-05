@@ -140,19 +140,29 @@ SelectionList .option-list--option-hover {
 
 #base-box-grid {
    grid-size: 1;
-   grid-rows: 0.15fr 1fr 0.5fr;
    background: $navy;
    align: center middle;
    content-align: center middle;
    border: solid $cornflower;
+}
+
+.larger-grid {
+   grid-rows: 0.15fr 1fr 0.5fr;
    height: 50%;
 }
 
+.smaller-grid {
+   grid-rows: 0.6fr 1fr;
+   height: 25%;
+}
+
+/* grid around the clusters datatable */
 #table-grid {
    align: center middle;
    content-align: center middle;
 }
 
+/* clusters datatable itself */
 DataTable {
     width: auto;
 }
@@ -163,6 +173,7 @@ DataTable {
    color: $sky_blue;
 }
 
+/* just the table header when hovering */
 .datatable--header-hover {
    background: $dark_gray 70%;
    color: $sky_blue;
@@ -196,7 +207,6 @@ DataTable {
    width: 100%;
    padding-left: 1;
    padding-right: 1;
-   height: auto;
    content-align: center middle;
    color: gray;
 }
@@ -207,4 +217,3 @@ DataTable {
    content-align: center middle;
    height: auto;
 }
-

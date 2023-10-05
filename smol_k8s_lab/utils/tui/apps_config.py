@@ -19,7 +19,7 @@ class AppConfig(Screen):
     CSS_PATH = ["./css/apps_config.tcss",
                 "./css/apps_init_config.tcss"]
 
-    BINDINGS = [Binding(key="b",
+    BINDINGS = [Binding(key="b,esc,q",
                         key_display="b",
                         action="app.pop_screen",
                         description="Back"),
