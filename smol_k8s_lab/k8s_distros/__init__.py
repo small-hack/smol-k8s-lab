@@ -77,7 +77,8 @@ def check_contexts_for_distro(k8s_distro: str) -> dict:
     return {}
 
 
-def create_k8s_distro(k8s_distro: str,
+def create_k8s_distro(cluster_name: str,
+                      k8s_distro: str,
                       distro_metadata: dict = {},
                       metallb_enabled: bool = True,
                       cilium_enabled: bool = False) -> True:
@@ -107,7 +108,8 @@ def create_k8s_distro(k8s_distro: str,
         if cilium_enabled:
             networking_args["disableDefaultCNI"] = True
 
-        install_kind_cluster(kubelet_args,
+        install_kind_cluster(cluster_name,
+                             kubelet_args,
                              networking_args,
                              distro_metadata['nodes']['control_plane'],
                              distro_metadata['nodes']['workers'])
@@ -126,13 +128,15 @@ def create_k8s_distro(k8s_distro: str,
                              '--disable-network-policy'])
 
         if k8s_distro == "k3s":
-            install_k3s_cluster(set(k3s_args),
+            install_k3s_cluster(cluster_name,
+                                set(k3s_args),
                                 kubelet_args,
                                 distro_metadata['external_nodes'])
 
         # curently unsupported - in alpha state
         if k8s_distro == "k3d":
-            install_k3d_cluster(set(k3s_args),
+            install_k3d_cluster(cluster_name,
+                                set(k3s_args),
                                 kubelet_args,
                                 distro_metadata['nodes']['control_plane'],
                                 distro_metadata['nodes']['workers'])

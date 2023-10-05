@@ -149,7 +149,7 @@ class ConfirmConfig(Screen):
             Exit with credentials
             """
             if credentials:
-                self.app.exit([self.cfg, credentials])
+                self.app.exit([self.app.current_cluster, self.cfg, credentials])
             else:
                 self.notify(leaving_notification, timeout=8,
                             title="💡To avoid the credentials prompt in the future")
@@ -158,9 +158,11 @@ class ConfirmConfig(Screen):
         if not any([password, client_id, client_secret]):
             self.app.push_screen(BitwardenCredentials(), process_modal_output)
         else:
-            self.app.exit([self.cfg, {'password': password,
-                                      'client_id': client_id,
-                                      'client_secret': client_secret}])
+            self.app.exit([self.app.current_cluster,
+                           self.cfg,
+                           {'password': password,
+                            'client_id': client_id,
+                            'client_secret': client_secret}])
 
     @on(Button.Pressed)
     def confirm_or_back_button(self, event: Button.Pressed) -> None:
@@ -190,7 +192,7 @@ class ConfirmConfig(Screen):
             if local_bitwarden or official_bweso:
                 self.get_bitwarden_credentials()
             else:
-                self.app.exit([self.cfg, None])
+                self.app.exit([self.app.current_cluster, self.cfg, None])
 
         if event.button.id == "back-button":
             self.app.pop_screen()

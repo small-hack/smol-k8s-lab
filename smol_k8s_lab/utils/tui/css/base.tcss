@@ -140,6 +140,8 @@ SelectionList .option-list--option-hover {
 
 #base-box-grid {
    grid-size: 1;
+   padding-left: 1;
+   padding-right: 1;
    background: $navy;
    align: center middle;
    content-align: center middle;
@@ -148,7 +150,7 @@ SelectionList .option-list--option-hover {
 
 .larger-grid {
    grid-rows: 0.15fr 1fr 0.5fr;
-   height: 50%;
+   height: 40%;
 }
 
 .smaller-grid {
@@ -160,6 +162,7 @@ SelectionList .option-list--option-hover {
 #table-grid {
    align: center middle;
    content-align: center middle;
+   margin-top: 1;
 }
 
 /* clusters datatable itself */
@@ -206,7 +209,6 @@ DataTable {
 #clusters-text {
    width: 100%;
    padding-left: 1;
-   padding-right: 1;
    content-align: center middle;
    color: gray;
 }
@@ -216,4 +218,5 @@ DataTable {
    align: center middle;
    content-align: center middle;
    height: auto;
+   margin-top: 1;
 }

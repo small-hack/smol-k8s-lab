@@ -18,8 +18,15 @@ $navy: rgb(35,35,54);
 /* whole modal screen */
 #cluster-question-modal-screen {
     width: 80%;
-    height: 13;
     align: center middle;
+}
+
+.modify-delete-size {
+    height: 13;
+}
+
+.new-size {
+    height: 16;
 }
 
 #cluster-modal-text {
@@ -43,4 +50,8 @@ $navy: rgb(35,35,54);
 #cluster-modal-text {
     content-align: center middle;
     width: 100%;
+}
+
+#cluster-name-input {
+    margin-bottom: 1;
 }

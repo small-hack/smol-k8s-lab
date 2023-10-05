@@ -23,7 +23,7 @@ class ClusterModalScreen(ModalScreen):
         question = ('How would you like to proceed with cluster '
                     f'"[green]{self.cluster}[/]"?')
         # base screen grid
-        with Grid(id="cluster-question-modal-screen"):
+        with Grid(id="cluster-question-modal-screen", classes="modify-delete-size"):
             # grid for cluster question and buttons
             with Grid(id="cluster-question-box"):
                 yield Label(question, id="cluster-modal-text")

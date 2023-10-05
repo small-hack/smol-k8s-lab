@@ -20,11 +20,11 @@ yaml = YAML()
 safe_yaml = YAML(typ=['rt', 'string'])
 
 
-def install_kind_cluster(kubelet_args: dict = {},
+def install_kind_cluster(cluster_name: str,
+                         kubelet_args: dict = {},
                          networking_args: dict = {},
                          control_plane_nodes: int = 1,
-                         worker_nodes: int = 1,
-                         cluster_name: str = "smol-k8s-lab") -> bool:
+                         worker_nodes: int = 1) -> True:
     """
     Run installation process for kind and create cluster
     returns True
@@ -50,9 +50,9 @@ def install_kind_cluster(kubelet_args: dict = {},
     return True
 
 
-def delete_kind_cluster(cluster_name: str = "smol-k8s-lab"):
+def delete_kind_cluster(cluster_name: str = "smol-k8s-lab") -> True:
     """
-    delete kind cluster, if kind exists
+    delete kind cluster by name, if kind exists
     returns True
     """
     er = "smol-k8s-lab hasn't installed a [green]kind[/green] cluster here yet"
@@ -72,9 +72,10 @@ def build_kind_config(cfg_file: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
                       kubelet_extra_args: dict = {},
                       networking_args: dict = {},
                       control_plane_nodes: int = 1,
-                      worker_nodes: int = 0):
+                      worker_nodes: int = 0) -> None:
     """
-    builds a kind config including any extra networking 
+    builds a kind config including any extra kubelet or networking args and then
+    writes it to a yaml in our cache dir
     """
     node_config = {'role': 'control-plane',
                    'extraPortMappings': [
@@ -127,5 +128,3 @@ def build_kind_config(cfg_file: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
     # this creates a kind_cfg.yaml from the kind_cfg dict above
     with open(cfg_file, 'w') as kind_config_file:
         yaml.dump(kind_cfg, kind_config_file)
-
-    return kind_config_file

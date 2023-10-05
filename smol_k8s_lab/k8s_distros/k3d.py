@@ -12,11 +12,11 @@ import logging as log
 from yaml import dump
 
 
-def install_k3d_cluster(k3s_cli_args: list,
+def install_k3d_cluster(cluster_name: str,
+                        k3s_cli_args: list,
                         kubelet_args: dict,
                         control_plane_nodes: int = 1,
-                        worker_nodes: int = 0,
-                        cluster_name: str = 'smol-k8s-lab') -> bool:
+                        worker_nodes: int = 0) -> bool:
     """
     python installation for k3d
     returns true if it worked
