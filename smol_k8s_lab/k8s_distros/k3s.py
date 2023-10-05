@@ -16,7 +16,8 @@ import stat
 from yaml import load, dump
 
 
-def install_k3s_cluster(extra_k3s_cli_args: list = [],
+def install_k3s_cluster(cluster_name: str,
+                        extra_k3s_cli_args: list = [],
                         kubelet_extra_args: dict = {}):
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
@@ -60,7 +61,7 @@ def install_k3s_cluster(extra_k3s_cli_args: list = [],
     subproc([install_cmd], spinner=False)
 
     # adds our newly created cluster for k3s to the user's kubeconfig
-    update_user_kubeconfig()
+    update_user_kubeconfig(cluster_name)
 
     # remove the script after we're done
     remove('./install.sh')
@@ -84,24 +85,23 @@ def uninstall_k3s(context: dict = {}):
     return True
 
 
-def update_user_kubeconfig():
+def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s'):
     """
     update the user's kubeconfig with the cluster, user, and context for the new 
     cluster by grabbing the k3s generated kubeconfig and using it to update your
     current kubeconfig. Handles both existing kubeconfig and none at all.
-    """
-    # this name may be configurable in the future, so it's a variable now
-    context_name = 'smol-k8s-lab-k3s'
 
+    cluster_name: string - the name you'd like to give to the cluster and context
+    """
     # Grab the kubeconfig and copy it locally
     k3s_kubeconfig = load(subproc(['sudo /bin/cat /etc/rancher/k3s/k3s.yaml']))
 
     # update name of cluster, user, and context from default to smol-k8s-lab-k3s
-    k3s_kubeconfig['clusters'][0]['name'] = context_name
-    k3s_kubeconfig['users'][0]['name'] = context_name
-    k3s_kubeconfig['contexts'][0]['name'] = context_name
-    k3s_kubeconfig['contexts'][0]['context']['cluster'] = context_name
-    k3s_kubeconfig['contexts'][0]['context']['user'] = context_name
+    k3s_kubeconfig['clusters'][0]['name'] = cluster_name
+    k3s_kubeconfig['users'][0]['name'] = cluster_name
+    k3s_kubeconfig['contexts'][0]['name'] = cluster_name
+    k3s_kubeconfig['contexts'][0]['context']['cluster'] = cluster_name
+    k3s_kubeconfig['contexts'][0]['context']['user'] = cluster_name
 
     # if the kubeconfig already exists and is not empty, we update it
     if path.exists(KUBECONFIG):
@@ -116,7 +116,7 @@ def update_user_kubeconfig():
             existing_config['contexts'].extend(k3s_kubeconfig['context'])
 
             # update the current-context to ours :)
-            existing_config['current-context'] = context_name
+            existing_config['current-context'] = cluster_name
 
             # write back the updated user kubeconfig file
             with open(KUBECONFIG, 'w') as user_kubeconfig:

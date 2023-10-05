@@ -6,8 +6,9 @@ def launch_config_tui():
     Run all the TUI screens
     """
     res = BaseApp().run()
-    config = res[0]
-    bitwarden_credentials = res[1]
+    cluster_name = res[0]
+    config = res[1]
+    bitwarden_credentials = res[2]
 
     # assume there's no secrets
     secrets = {}
@@ -26,4 +27,4 @@ def launch_config_tui():
         global_cluster_issuer = config['apps_global_config']['cluster_issuer']
         secrets['global_cluster_issuer'] = global_cluster_issuer
 
-    return config, secrets, bitwarden_credentials
+    return cluster_name, config, secrets, bitwarden_credentials

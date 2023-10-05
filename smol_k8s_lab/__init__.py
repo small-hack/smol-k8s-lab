@@ -27,6 +27,7 @@ from .utils.rich_cli.help_text import RichCommand, options_help
 from .utils.tui import launch_config_tui
 from .utils.tui.bitwarden.bitwarden_app import ReturnBitwardenObj
 
+
 HELP = options_help()
 HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -103,9 +104,12 @@ def main(config: str = "",
     # declaring bitwarden for the future in case user doesn't enable this
     bitwarden_credentials = None
 
+    # declaring the default name to be smol-k8s-lab
+    cluster_name = "smol-k8s-lab"
+
     if interactive:
         if not delete:
-            USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
+            cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
     else:
         if setup:
             # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
@@ -170,8 +174,9 @@ def main(config: str = "",
         # check immediately if cilium is enabled
         cilium_enabled = apps['cilium']['enabled']
 
-        # install the actual KIND, k3s, or k3d (experimental) cluster
-        create_k8s_distro(distro, metadata, metallb_enabled, cilium_enabled)
+        # install the actual KIND, k3s, or k3d cluster
+        create_k8s_distro(cluster_name, distro, metadata, metallb_enabled,
+                          cilium_enabled)
 
         argo_enabled = apps['argo_cd']['enabled']
 

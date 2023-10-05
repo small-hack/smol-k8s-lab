@@ -7,6 +7,7 @@ from textual.widgets import Footer, Header, Button, Label, DataTable
 from smol_k8s_lab.constants import INITIAL_USR_CONFIG
 from smol_k8s_lab.k8s_distros import check_all_contexts
 from smol_k8s_lab.utils.tui.base_cluster_modal import ClusterModalScreen
+from smol_k8s_lab.utils.tui.base_new_cluster_modal import ClusterNameModalScreen
 from smol_k8s_lab.utils.tui.apps_config import AppConfig
 from smol_k8s_lab.utils.tui.confirm_selection import ConfirmConfig
 from smol_k8s_lab.utils.tui.distro_config import DistroConfigScreen
@@ -33,7 +34,7 @@ class BaseApp(App):
     def __init__(self, user_config: dict = INITIAL_USR_CONFIG) -> None:
         self.cfg = user_config
         self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
-        self.current_screen = 'start'
+        self.cluster_names = []
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -49,15 +50,22 @@ class BaseApp(App):
             footer.display = False
         yield footer
 
+        # full screen container
         with Grid(id="base-screen-container"):
+
+            # the actual little box in the middle of screen
             with Grid(id="base-box-grid"):
+
+                # help text that changes based on if we have clusters
                 yield Label(id="clusters-text")
 
+                # grid for the cluster data table
                 with Grid(id="table-grid"):
                     yield DataTable(zebra_stripes=True,
                                     id="clusters-data-table",
                                     cursor_type="row")
 
+                # container for new cluster buton
                 with Container(id="new-cluster-button-container"):
                     new_button = Button("✨ New Cluster", id="new-cluster-button")
                     new_button.tooltip = "Add a new cluster managed by smol-k8s-lab"
@@ -75,6 +83,7 @@ class BaseApp(App):
         grid_title = "[chartreuse2]Modify or Create clusters"
         self.get_widget_by_id("base-box-grid").border_title = grid_title
 
+        # get all clusters
         clusters = check_all_contexts()
 
         if not clusters:
@@ -121,14 +130,22 @@ class BaseApp(App):
             # we add extra height to make the rows more readable
             data_table.add_row(*styled_row, height=3, key=row[0])
 
+            self.cluster_names.append(row[0])
+
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
         get pressed button add or delete button and act on it
         """
         button_id = event.button.id
 
+        def get_new_cluster_name(cluster_name: str = ""):
+            if cluster_name:
+                self.current_cluster = cluster_name
+                self.action_request_apps_cfg()
+
         if button_id == "new-cluster-button":
-            self.action_request_distro_cfg()
+            self.app.push_screen(ClusterNameModalScreen(self.cluster_names),
+                                 get_new_cluster_name)
 
 
     @on(DataTable.RowSelected)
@@ -146,6 +163,8 @@ class BaseApp(App):
             if cluster and row_key:
                 data_table = self.query_one(DataTable)
                 data_table.remove_row(row_key)
+
+                self.cluster_names.remove(cluster)
 
                 if data_table.row_count < 1:
                     self.add_no_clusters_found_text()
