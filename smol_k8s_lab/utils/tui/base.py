@@ -8,7 +8,7 @@ from smol_k8s_lab.constants import INITIAL_USR_CONFIG
 from smol_k8s_lab.k8s_distros import check_all_contexts
 from smol_k8s_lab.utils.tui.base_cluster_modal import ClusterModalScreen
 from smol_k8s_lab.utils.tui.base_new_cluster_modal import ClusterNameModalScreen
-from smol_k8s_lab.utils.tui.apps_config import AppConfig
+from smol_k8s_lab.utils.tui.apps_config import AppsConfig
 from smol_k8s_lab.utils.tui.confirm_selection import ConfirmConfig
 from smol_k8s_lab.utils.tui.distro_config import DistroConfigScreen
 from smol_k8s_lab.utils.tui.help import HelpScreen
@@ -35,6 +35,7 @@ class BaseApp(App):
         self.cfg = user_config
         self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
         self.cluster_names = []
+        self.current_cluster = ""
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -147,7 +148,6 @@ class BaseApp(App):
             self.app.push_screen(ClusterNameModalScreen(self.cluster_names),
                                  get_new_cluster_name)
 
-
     @on(DataTable.RowSelected)
     def cluster_row_highlighted(self, event: DataTable.RowSelected) -> None:
         """
@@ -165,28 +165,32 @@ class BaseApp(App):
                 data_table.remove_row(row_key)
 
                 self.cluster_names.remove(cluster)
+                self.current_cluster = ""
 
                 if data_table.row_count < 1:
                     self.add_no_clusters_found_text()
 
         row_index = event.cursor_row
         row = event.data_table.get_row_at(row_index)
+
         # get the row's first column (the name of the cluster) and remove whitespace
         cluster_name = row[0].plain.strip()
         distro = row[1].plain.strip()
 
+        # set the current cluster name to return after we've done modifications
+        self.current_cluster = cluster_name
+
         self.app.push_screen(ClusterModalScreen(cluster_name, distro, event.row_key),
                              check_if_cluster_deleted)
-
 
     def action_request_apps_cfg(self, app_to_highlight: str = "") -> None:
         """
         launches the argo app config screen
         """
         if app_to_highlight:
-            self.app.push_screen(AppConfig(self.cfg['apps'], app_to_highlight))
+            self.app.push_screen(AppsConfig(self.cfg['apps'], app_to_highlight))
         else:
-            self.app.push_screen(AppConfig(self.cfg['apps'], ""))
+            self.app.push_screen(AppsConfig(self.cfg['apps'], ""))
 
     def action_request_distro_cfg(self) -> None:
         """

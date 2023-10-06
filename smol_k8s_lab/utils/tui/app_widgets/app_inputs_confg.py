@@ -1,8 +1,9 @@
 #!/usr/bin/env python3.11
 from . import placeholder_grammar
+from .new_app_modal import NewAppModalScreen
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal, VerticalScroll
+from textual.containers import Container, Horizontal, VerticalScroll, Grid
 from textual.validation import Length
 from textual.widgets import Input, Label, Button, Switch, Static
 from textual.widgets.selection_list import Selection
@@ -10,41 +11,43 @@ from textual.widgets.selection_list import Selection
 
 ARGO_TOOLTIPS = {'repo': 'URL to a git repository where you have k8s manifests ' + \
                          '(including Argo resources) to deploy',
-                 'path': 'path in repo to resources you want to deploy',
+                 'path': 'path in repo to resources you want to deploy. ' +
+                         'Trailing slash is important.',
                  'ref': 'branch or tag to point to in the repo',
-                 'namespace': 'k8s namespace to deploy the Argo CD App in'}
+                 'namespace': 'k8s namespace to deploy the Argo CD App to'}
 
 
 class AddAppInput(Static):
     """
-    Add new inputs for new application
+    Button for launching a modal to add new apps
     """
 
     def compose(self) -> ComposeResult:
-        new_button = Button("♡ Submit New App", id="new-app-button")
+        new_button = Button("✨New App", id="new-app-button")
         new_button.tooltip = "Click to add your own Argo CD app from an existing repo"
-        yield Input(placeholder="Name of New ArgoCD App",
-                    classes="new-app-prompt",
-                    name="new-app-name",
-                    id="new-app-input")
-        with Horizontal(id="new-app-button-box"):
+        with Grid(id="new-app-button-box"):
             yield new_button
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
         get pressed "new app" button
         """
-        input = self.get_widget_by_id("new-app-input")
-        app_name = input.value
-        underscore_app_name = app_name.replace(" ", "_").replace("-", "_")
+        def get_new_app(app_response):
+            app_name = app_response[0]
+            app_description = app_response[1]
 
-        # the main config app
-        parent_app = event.button.ancestors[-1]
+            if app_name and app_description:
+                self.create_new_app_in_yaml(app_name, app_description)
+
+        self.app.push_screen(NewAppModalScreen(["argo-cd"]), get_new_app)
+
+    def create_new_app_in_yaml(self, app_name: str, app_description: str = "") -> None:
+        underscore_name = app_name.replace(" ", "_").replace("-", "_")
 
         # updates the base user yaml
-        parent_app.cfg['apps'][underscore_app_name] = {
+        self.app.cfg['apps'][underscore_name] = {
             "enabled": True,
-            "description": "",
+            "description": app_description,
             "argo": {
                 "secret_keys": {},
                 "repo": "",
@@ -60,16 +63,13 @@ class AddAppInput(Static):
                 }
             }
 
-        # add this app to the possible invalid inputs
-        parent_app.invalid_app_inputs[underscore_app_name] = []
-
         # adds selection to the app selection list
-        selection_list = parent_app.get_widget_by_id("selection-list-of-apps")
-        selection_list.add_option(Selection(underscore_app_name.replace("_", "-"),
-                                            underscore_app_name,
-                                            True))
-        input.value = ""
+        apps = self.app.get_widget_by_id("selection-list-of-apps")
+        apps.add_option(Selection(underscore_name.replace("_", "-"),
+                                  underscore_name, True))
 
+        # scroll down to the new app
+        apps.action_last()
 
 class AppInputs(Static):
     """
@@ -165,7 +165,7 @@ class AppInputs(Static):
 
             # row for project source repos
             with Horizontal(classes=f"{self.app_name} argo-config-row"):
-                label = Label("source_repos:",
+                label = Label("source repos:",
                               classes=f"{self.app_name} argo-config-label")
                 label.tooltip = "Comma seperated list of project source repos"
                 yield label
@@ -322,19 +322,19 @@ class InitValues(Static):
             input_keys['value'] = init_value
 
         # create the input row
-        label_class = f"app-input-label {self.app_name}"
-        label = Label(f"{init_key}: ", classes=label_class)
+        label_value = init_key.replace("_"," ") + ":"
+        label = Label(label_value, classes=f"app-init-label {self.app_name}")
         label.tooltip = (
                 "Init value for special one-time setup of this app."
                 " This value is [i]not[/i] stored in a secret for "
                 "later reference by Argo CD.")
 
-        container_class = f"app-input-row {self.app_name}"
+        container_class = f"app-init-row {self.app_name}"
 
         input = Input(**input_keys)
         input.validate(init_value)
 
-        return Horizontal(label, input, classes=container_class)
+        return Grid(label, input, classes=container_class)
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:

@@ -15,7 +15,6 @@ $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
 /* RIGHT TOP HALF OF SCREEN */
-
 .init-widget {
    padding: 0;
    height: auto;
@@ -55,7 +54,22 @@ $navy: rgb(35,35,54);
 
 /* each app input field */
 .app-init-input {
-   margin-top: 1;
-   height: auto;
-   width: 100;
+}
+
+.app-init-label {
+    content-align: left middle;
+    align: left middle;
+    padding-top: 1;
+    width: 100%;
+}
+
+.app-init-row {
+    content-align: right middle;
+    align: right middle;
+    grid-size: 2;
+    padding-left: 2;
+    padding-right: 1;
+    grid-columns: 0.5fr 1.5fr;
+    height: auto;
+    padding-top: 1;
 }

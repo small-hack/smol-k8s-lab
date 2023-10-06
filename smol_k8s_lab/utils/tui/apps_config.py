@@ -12,7 +12,7 @@ from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 
 
-class AppConfig(Screen):
+class AppsConfig(Screen):
     """
     Textual app to smol-k8s-lab applications
     """
@@ -98,14 +98,24 @@ class AppConfig(Screen):
         app_desc = self.get_widget_by_id("app-description-container")
         app_desc.border_title = "[cornflower_blue]App Description[/]"
 
+        # scroll down to specific app if requested
         if self.initial_app:
-            selection_list = self.query_one(SelectionList)
-            highlighted = selection_list.highlighted
-            high_value = selection_list.get_option_at_index(highlighted).value
-            while high_value != self.initial_app:
-                selection_list.action_cursor_down()
-                highlighted = selection_list.highlighted
-                high_value = selection_list.get_option_at_index(highlighted).value
+            self.scroll_to_app(self.initial_app)
+
+    def scroll_to_app(self, app_to_highlight: str) -> None:
+        """ 
+        lets you scroll down to the exact app you need in the app selection list
+        """
+        # get the apps selection list
+        apps = self.query_one(SelectionList)
+
+        # get the app name for the highlighted index
+        highlight_app = apps.get_option_at_index(apps.highlighted).value
+
+        # while the highlighted app is not app_to_highlight, keep scrolling
+        while highlight_app != app_to_highlight:
+            apps.action_cursor_down()
+            highlight_app = apps.get_option_at_index(apps.highlighted).value
 
     @on(SelectionList.SelectionHighlighted)
     def update_highlighted_app_view(self) -> None:
