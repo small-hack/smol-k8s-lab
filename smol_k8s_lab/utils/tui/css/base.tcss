@@ -146,6 +146,7 @@ SelectionList .option-list--option-hover {
    align: center middle;
    content-align: center middle;
    border: solid $cornflower;
+   border-title-color: $spacechalk_lime;
 }
 
 .larger-grid {

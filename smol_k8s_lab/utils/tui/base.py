@@ -81,7 +81,7 @@ class BaseApp(App):
         self.sub_title = "Getting Started"
 
         # main box title
-        grid_title = "[chartreuse2]Modify or Create clusters"
+        grid_title = "Modify or Create clusters"
         self.get_widget_by_id("base-box-grid").border_title = grid_title
 
         # get all clusters
@@ -142,7 +142,7 @@ class BaseApp(App):
         def get_new_cluster_name(cluster_name: str = ""):
             if cluster_name:
                 self.current_cluster = cluster_name
-                self.action_request_apps_cfg()
+                self.action_request_distro_cfg()
 
         if button_id == "new-cluster-button":
             self.app.push_screen(ClusterNameModalScreen(self.cluster_names),

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.utils.tui.app_widgets.app_inputs_confg import (AppInputs,
                                                                  AddAppInput)
+from smol_k8s_lab.utils.tui.app_widgets.modify_globals import ModifyAppGlobals
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import VerticalScroll, Container
+from textual.containers import VerticalScroll, Container, Grid
 from textual.css.query import NoMatches
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Label, SelectionList
@@ -68,13 +69,13 @@ class AppsConfig(Screen):
 
         with Container(id="apps-config-container"):
             # top left: the SelectionList of k8s applications
-            with Container(id="left-apps-container"):
+            with Grid(id="left-apps-container"):
                 with VerticalScroll(id="select-add-apps"):
                     yield selection_list
 
-                # this button let's you create a new app
-                with Container(id="new-app-input-box"):
+                with Grid(id="left-button-box"):
                     yield AddAppInput()
+                    yield ModifyAppGlobals()
 
             # top right: vertically scrolling container for all inputs
             yield VerticalScroll(id='app-inputs-pane')
@@ -92,11 +93,11 @@ class AppsConfig(Screen):
 
         # select-apps styling - select apps container - top left
         select_apps_widget = self.get_widget_by_id("select-add-apps")
-        select_apps_widget.border_title = "[magenta]♥ [/][chartreuse2]Select apps"
+        select_apps_widget.border_title = "[magenta]♥ [/]Select apps"
 
         # select-apps styling - bottom
         app_desc = self.get_widget_by_id("app-description-container")
-        app_desc.border_title = "[cornflower_blue]App Description[/]"
+        app_desc.border_title = "App Description"
 
         # scroll down to specific app if requested
         if self.initial_app:
@@ -133,8 +134,7 @@ class AppsConfig(Screen):
 
         # styling for the select-apps - configure apps container - right
         app_title = highlighted_app.replace("_", "-")
-        app_cfg_title = ("⚙️ [chartreuse2]Configure Parameters for [steel_blue1]"
-                         f"{app_title}")
+        app_cfg_title = f"⚙️ Configure Parameters for [steel_blue1]{app_title}"
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
         if self.previous_app != "":

@@ -150,21 +150,21 @@ class DistroConfigScreen(Screen):
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "k8s distro config"
 
-        select_distro_title = "🌱 [chartreuse2]Select a k8s distro to get started"
+        select_distro_title = "🌱 Select a k8s distro to get started"
         self.get_widget_by_id("top-distro-row").border_title = select_distro_title
 
         # kubelet config styling - middle
-        kubelet_title = "[gold3]Optional[/]: [chartreuse2]Extra Parameters for Kubelet"
+        kubelet_title = "[gold3]Optional[/]: Extra Parameters for Kubelet"
         kubelet_cfgs = self.query(".kubelet-config-container")
         for box in kubelet_cfgs:
             box.border_title = kubelet_title
 
         # k3s arg config sytling - middle
-        k3s_title = "[gold3]Optional[/]: [chartreuse2]Extra Args for k3s install script"
+        k3s_title = "[gold3]Optional[/]: Extra Args for k3s install script"
         self.query_one(".k3s-config-container").border_title = k3s_title
 
         # kind networking arg config sytling - bottom
-        kind_title = "[gold3]Optional[/]: [chartreuse2]Extra Args for kind networking"
+        kind_title = "[gold3]Optional[/]: Extra Args for kind networking"
         self.get_widget_by_id("kind-networking-container").border_title = kind_title
 
     @on(Select.Changed)
