@@ -16,24 +16,13 @@ $navy: rgb(35,35,54);
 
 
 /* whole modal screen */
-#cluster-question-modal-screen {
+#question-modal-screen {
     width: 80%;
     align: center middle;
+    height: 27;
 }
 
-.modify-delete-size {
-    height: 14;
-}
-
-.new-size {
-    height: 18;
-}
-
-#cluster-modal-text {
-   color: $cornflower;
-}
-
-#cluster-question-box {
+#question-box {
     align: center middle;
     content-align: center middle;
     background: $navy 75%;
@@ -42,12 +31,13 @@ $navy: rgb(35,35,54);
 }
 
 #modal-button-box {
+    margin-top: 1;
     grid-size: 3;
     align: center middle;
     height: auto;
 }
 
-#cluster-modal-text {
+#modal-text {
     content-align: center middle;
     width: 100%;
     color: $sky_blue;
@@ -56,7 +46,11 @@ $navy: rgb(35,35,54);
     background: $dark_gray 30%;
 }
 
-#cluster-name-input {
+#app-name-input {
     margin-bottom: 1;
     margin-top: 1;
+}
+
+#description-input {
+    height: 5;
 }

@@ -35,6 +35,12 @@ $navy: rgb(35,35,54);
    align: center top;
    height: auto;
    margin-right: 1;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-active: $sky_blue;
+   scrollbar-color-hover: $cornflower;
+   scrollbar-color: $light_cornflower;
 }
 
 /* matches the app selection list, the new app input, and submit button */
@@ -50,11 +56,6 @@ $navy: rgb(35,35,54);
    height: auto;
    margin-top: 1;
    margin-bottom: 1;
-}
-
-#new-app-input-box {
-   align: center top;
-   margin-top: 1;
 }
 
 /* ---------------------- RIGHT TOP HALF OF SCREEN ------------------------- */
