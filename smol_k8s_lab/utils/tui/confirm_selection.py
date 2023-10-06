@@ -82,7 +82,7 @@ class ConfirmConfig(Screen):
 
         # confirm box title styling
         confirm_box = self.get_widget_by_id("pretty-yaml-scroll-container")
-        confirm_box.border_title = "[magenta]Review [i]All[/i] Values"
+        confirm_box.border_title = "Review [i]All[/i] Values"
 
         # display the current user yaml
         rich_highlighted = syntax_highlighted_yaml(self.cfg)
@@ -90,7 +90,7 @@ class ConfirmConfig(Screen):
 
         # invalid apps error title styling
         invalid_box = self.get_widget_by_id("invalid-apps")
-        invalid_box.border_title = "[gold3]⚠️ The following app fields are empty"
+        invalid_box.border_title = "⚠️ The following app fields are empty"
 
         # go check all the app inputs
         self.get_app_inputs()

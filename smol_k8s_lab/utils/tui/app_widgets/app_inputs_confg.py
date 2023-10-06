@@ -23,9 +23,9 @@ class AddAppInput(Static):
     """
 
     def compose(self) -> ComposeResult:
-        new_button = Button("✨New App", id="new-app-button")
+        new_button = Button("✨ New App", id="new-app-button")
         new_button.tooltip = "Click to add your own Argo CD app from an existing repo"
-        with Grid(id="new-app-button-box"):
+        with Grid(classes="button-grid"):
             yield new_button
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

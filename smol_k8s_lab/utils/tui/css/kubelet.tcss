@@ -17,6 +17,7 @@ $navy: rgb(35,35,54);
 /* kubelet config container */
 .kubelet-config-container {
    border: round $cornflower;
+   border-title-color: $spacechalk_lime;
    background: rgb(35,35,54) 50%;
    height: 100%;
    padding: 1;

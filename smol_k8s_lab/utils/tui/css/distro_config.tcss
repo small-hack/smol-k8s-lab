@@ -26,6 +26,7 @@ $navy: rgb(35,35,54);
     align: center middle;
     content-align: center middle;
     border: solid $cornflower;
+    border-title-color: $spacechalk_lime;
     background: $navy 50%;
     padding: 1;
 }

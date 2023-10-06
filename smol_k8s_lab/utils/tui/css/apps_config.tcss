@@ -14,7 +14,6 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-
 /* Matches the WHOLE screen */
 #apps-config-container {
    layout: grid;
@@ -31,6 +30,7 @@ $navy: rgb(35,35,54);
 /* matches only the left hand side of top half of screen */
 #select-add-apps {
    border: round $cornflower;
+   border-title-color: $spacechalk_lime;
    background: $navy 60%;
    align: center top;
    height: auto;
@@ -45,23 +45,28 @@ $navy: rgb(35,35,54);
 
 /* matches the app selection list, the new app input, and submit button */
 #left-apps-container {
-   layout: grid;
-   grid-rows: 0.22fr 0.1fr 0.1fr;
+   grid-rows: 1fr 0.68fr;
    align: center top;
 }
 
-/* new app input and button boxes below the app selection list */
-#new-app-button-box {
-   align: center middle;
-   height: auto;
-   margin-top: 1;
-   margin-bottom: 1;
+/* new app and modify globals buttons boxes below the app selection list */
+#left-button-box {
+   grid-rows: 0.5fr 1fr;
+   align: center top;
+   margin-top: 2;
+   width: 100%;
+   height: 100%;
+}
+
+.button-grid {
+   align: center top;
 }
 
 /* ---------------------- RIGHT TOP HALF OF SCREEN ------------------------- */
 
 /* Matches the "Configure parameters for {app}" input list pane itself */
 #app-inputs-pane {
+   border-title-color: $spacechalk_lime;
    padding-top: 1;
    border: round $cornflower;
    background: $navy 50%;
@@ -164,6 +169,7 @@ $navy: rgb(35,35,54);
 #app-description-container {
    column-span: 2;
    border: round gray;
+   border-title-color: $cornflower;
    content-align: center middle;
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;

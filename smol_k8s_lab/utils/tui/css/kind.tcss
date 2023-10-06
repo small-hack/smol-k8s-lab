@@ -17,6 +17,7 @@ $navy: rgb(35,35,54);
 /* kind-networking config container */
 #kind-networking-container {
    border: round cornflowerblue;
+   border-title-color: $spacechalk_lime;
    background: $navy 50%;
    height: 100%;
    margin-top: 1;

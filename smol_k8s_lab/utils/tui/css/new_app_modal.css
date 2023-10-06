@@ -28,6 +28,7 @@ $navy: rgb(35,35,54);
     background: $navy 75%;
     border: solid $cornflower;
     padding: 1;
+    border-subtitle-color: $light_pink;
 }
 
 #modal-button-box {
