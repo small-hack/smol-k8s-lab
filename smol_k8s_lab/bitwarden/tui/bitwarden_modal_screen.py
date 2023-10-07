@@ -17,7 +17,7 @@ class BitwardenCredentials(ModalScreen):
     """
     modal screen to ask for bitwarden credentials
     """
-    CSS_PATH = "../css/bitwarden.css"
+    CSS_PATH = "./bitwarden.css"
 
     def compose(self) -> ComposeResult:
 
