@@ -21,7 +21,11 @@ $navy: rgb(35,35,54);
    background: $navy 50%;
    height: 100%;
    margin-top: 1;
+   padding-top: 1;
+   padding-left: 1;
+   padding-right: 1;
    margin-bottom: 1;
+   grid-rows: 0.25fr 1fr;
 }
 
 .kind-networking-config-scroll {
@@ -36,7 +40,6 @@ $navy: rgb(35,35,54);
 
 /* kind-networking config arg input row */
 .kind-networking-input-row {
-   layout: grid;
    grid-size: 3;
    width: 100%;
    height: auto;

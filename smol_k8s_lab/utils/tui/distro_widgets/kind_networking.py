@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import VerticalScroll, Container
+from textual.containers import VerticalScroll, Grid
 from textual.widget import Widget
 from textual.widgets import Input, Button, Label
 from textual.suggester import SuggestFromList
@@ -29,19 +29,28 @@ class KindNetworkingConfig(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        # kind networking config section
-        help = ("Add key value pairs to kind networking config. If [dim][green]cilium"
-                "[/][/] is enabled, we pass in disableDefaultCNI=true.")
-        yield Label(help, classes="k3s-help-label")
+        with Grid(id="kind-networking-container"):
+            # kind networking config section
+            help = ("Add key value pairs to kind networking config. If [dim][green]"
+                    "cilium[/][/] is enabled, we pass in disableDefaultCNI=true.")
+            yield Label(help, classes="k3s-help-label")
 
-        with VerticalScroll(classes="kind-networking-config-scroll"):
-            if self.kind_neworking_params:
-                for key, value in self.kind_neworking_params.items():
-                    yield self.generate_row(key, str(value))
-            else:
-                yield self.generate_row()
+            with VerticalScroll(classes="kind-networking-config-scroll"):
+                if self.kind_neworking_params:
+                    for key, value in self.kind_neworking_params.items():
+                        yield self.generate_row(key, str(value))
+                else:
+                    yield self.generate_row()
 
-            yield Button("➕ Parameter", classes="kind-networking-add-button")
+                yield Button("➕ Parameter", classes="kind-networking-add-button")
+
+    def on_mount(self) -> None:
+        """
+        box border styling
+        """
+        # kind networking arg config styling
+        kind_title = "[gold3]Optional[/]: Extra Args for kind networking"
+        self.get_widget_by_id("kind-networking-container").border_title = kind_title
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
@@ -89,7 +98,7 @@ class KindNetworkingConfig(Widget):
 
         event.input.ancestors[-1].write_yaml()
 
-    def generate_row(self, param: str = "", value: str = "") -> Container:
+    def generate_row(self, param: str = "", value: str = "") -> Grid:
         """
         generate a new input field set
         """
@@ -116,5 +125,5 @@ class KindNetworkingConfig(Widget):
         del_button = Button("🚮", classes=f"{row_class}-del-button")
         del_button.tooltip = "Delete this kind networking parameter"
 
-        return Container(param_input, param_value_input, del_button,
-                         classes=f"{row_class}-row")
+        return Grid(param_input, param_value_input, del_button,
+                    classes=f"{row_class}-row")
