@@ -30,7 +30,12 @@ class ClusterModalScreen(ModalScreen):
                 yield Label(question, id="cluster-modal-text")
 
                 with Grid(id="modal-button-box"):
-                    yield Button("✏️ Modify", id="modify-cluster-button")
+                    # modify button allows user to change apps (and soon distro details)
+                    modify_button = Button("✏️ Modify", id="modify-cluster-button")
+                    modify_button.tooltip = "Modify the cluster's Applications"
+                    yield modify_button
+
+                    # delete button deletes the cluster
                     delete_button = Button("🚮 Delete", id="delete-cluster-first-try")
                     # we can only delete the following k8s distro types
                     if self.distro not in ["kind", "k3d", "k3s"]:
