@@ -40,7 +40,7 @@ class DistroConfigScreen(Screen):
                 "./css/kubelet.tcss",
                 "./css/kind.tcss"]
 
-    BINDINGS = [Binding(key="b",
+    BINDINGS = [Binding(key="b,q,esc",
                         key_display="b",
                         action="app.pop_screen",
                         description="Back"),

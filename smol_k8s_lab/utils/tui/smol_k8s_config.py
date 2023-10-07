@@ -31,7 +31,7 @@ class SmolK8sLabConfig(Screen):
     """
     CSS_PATH = ["./css/smol_k8s_cfg.tcss"]
 
-    BINDINGS = [Binding(key="b",
+    BINDINGS = [Binding(key="b,q,esc",
                         key_display="b",
                         action="app.pop_screen",
                         description="Back"),
@@ -85,7 +85,9 @@ class TuiConfig(Widget):
         Compose widget for configuring the interactive experience
         """
 
-        with Container(id="tui-config"):
+        with Grid(id="tui-config"):
+            yield Label("These parameters are all related to the TUI itself.",
+                        classes="soft-text")
             with Grid(classes="triple-switch-row"):
                 yield bool_option(
                         label="enabled:",
@@ -178,21 +180,25 @@ class LoggingConfig(Widget):
         possible_levels = ['error', 'warn', 'debug', 'info']
 
         with Grid(id="logging-config"):
-            with Grid(classes="selection-row"):
-                label = Label("level:", classes="selection-label")
-                label.tooltip = logging_tool_tip
-                yield label
+            yield Label("Configure logging for all of smol-k8s-lab.",
+                        classes="soft-text")
 
-                yield Select(((line, line) for line in possible_levels),
-                             id="log-level-select",
-                             value=current_level)
+            with Grid(id="logging-config-row-grid"):
+                with Grid(classes="selection-row"):
+                    label = Label("level:", classes="selection-label")
+                    label.tooltip = logging_tool_tip
+                    yield label
 
-            yield input_field(label="file:",
-                              initial_value=logging_opt['file'],
-                              name="file",
-                              placeholder=XDG_STATE_HOME,
-                              tooltip="File to log to. If provided, no console "
-                                      "logging will take place")
+                    yield Select(((line, line) for line in possible_levels),
+                                 id="log-level-select",
+                                 value=current_level)
+
+                yield input_field(label="file:",
+                                  initial_value=logging_opt['file'],
+                                  name="file",
+                                  placeholder=XDG_STATE_HOME,
+                                  tooltip="File to log to. If provided, no console "
+                                          "logging will take place")
 
     def on_mount(self) -> None:
         """
@@ -231,7 +237,7 @@ class PasswordManagerConfig(Widget):
                         " Bitwarden can be used as your k8s external secret provider."
                         " To avoid a password prompt, export the following env vars: "
                         "BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET",
-                        classes="help-text")
+                        classes="soft-text")
 
             enabled_tooltip = "enable storing passwords for apps in a password manager"
             with Grid(id="password-manager-options-grid"):

@@ -134,7 +134,7 @@ class AppsConfig(Screen):
 
         # styling for the select-apps - configure apps container - right
         app_title = highlighted_app.replace("_", "-")
-        app_cfg_title = f"⚙️ Configure Parameters for [steel_blue1]{app_title}"
+        app_cfg_title = f"🛠️ Configure Parameters for [steel_blue1]{app_title}"
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
         if self.previous_app != "":
@@ -171,7 +171,7 @@ def format_description(description: str = ""):
     if not description:
         description = "No Description provided yet for this user defined application."
 
-    description = description.replace("[link", "[/dim][steel_blue][link")
-    description = description.replace("[/link]", "[/link][/steel_blue][dim]")
+    description = description.replace("[link", "[steel_blue][link")
+    description = description.replace("[/link]", "[/link][/steel_blue]")
 
-    return f"""[dim]{description}[/dim]"""
+    return f"""{description}"""

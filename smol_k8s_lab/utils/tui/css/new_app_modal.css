@@ -26,7 +26,7 @@ $navy: rgb(35,35,54);
     align: center middle;
     content-align: center middle;
     background: $navy 75%;
-    border: solid $cornflower;
+    border: round $cornflower;
     padding: 1;
     border-subtitle-color: $light_pink;
 }

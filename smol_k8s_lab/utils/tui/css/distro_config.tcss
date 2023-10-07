@@ -25,7 +25,7 @@ $navy: rgb(35,35,54);
 #top-distro-row {
     align: center middle;
     content-align: center middle;
-    border: solid $cornflower;
+    border: round $cornflower;
     border-title-color: $spacechalk_lime;
     background: $navy 50%;
     padding: 1;
@@ -47,10 +47,6 @@ $navy: rgb(35,35,54);
 #distro-drop-down {
    content-align: center middle;
    height: 3;
-}
-
-#distro-drop-down .option-list--option-highlighted {
-   background: $blue_gray 90%;
 }
 
 /* bottom half k8s distro config area */

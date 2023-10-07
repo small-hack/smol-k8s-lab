@@ -19,7 +19,7 @@ $navy: rgb(35,35,54);
    layout: grid;
    grid-size: 2;
    grid-columns: 0.5fr 1.2fr;
-   grid-rows: 1.5fr 0.5fr;
+   grid-rows: 1.5fr 0.45fr;
    width: 90%;
    height: 92%;
    align: center middle;
@@ -167,22 +167,25 @@ $navy: rgb(35,35,54);
 
 /* Matches App Description in Select k8s apps */
 #app-description-container {
-   column-span: 2;
-   border: round gray;
-   border-title-color: $cornflower;
-   content-align: center middle;
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;
    scrollbar-color-hover: $cornflower;
    scrollbar-color: $light_cornflower;
+   column-span: 2;
+   background: $navy 25%;
+   border: round $light_cornflower;
+   border-title-color: $cornflower;
    height: 100%;
    margin-top: 1;
+   align: left middle;
 }
 
 #app-description {
+   content-align: left middle;
    width: 100%;
    padding-left: 1;
    padding-right: 1;
    padding-top: 1;
+   color: $bluish_white 60%;
 }

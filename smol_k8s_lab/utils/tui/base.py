@@ -25,7 +25,10 @@ class BaseApp(App):
                 Binding(key="f",
                         key_display="f",
                         action="toggle_footer",
-                        description="toggle footer")
+                        description="toggle footer"),
+                Binding(key="q",
+                        action="quit",
+                        show=False)
                 ]
 
     CSS_PATH = ["./css/base.tcss",
