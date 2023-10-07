@@ -11,19 +11,22 @@ from xdg_base_dirs import xdg_state_home
 XDG_STATE_HOME = str(xdg_state_home()) + "/smol-k8s-lab/smol.log"
 
 logging_tool_tip = (
-        "Logging verbosity level:\n\n"
-        "[dim]error:  only print error messages[/]\n\n"
-        "warn:   print warnings, plus errors\n\n"
-        "[dim]info:   check ins at each stage, plus warnings/errors[/]\n\n"
-        "debug:  most detailed, includes all sorts of variable printing"
+        "[deep_sky_blue3]Logging verbosity levels[/]:\n\n"
+        "[on grey11][grey50]error[/]:  only print error messages[/]\n\n"
+        "[grey50]warn[/]:   print warnings, plus errors\n\n"
+        "[on grey11][grey50]info[/]:   check ins at each stage, plus warnings/errors[/]"
+        "\n\n"
+        "[grey50]debug[/]:  most detailed, includes all sorts of variable printing"
         )
 
 duplicate_tool_tip = (
-    "Option details:\n\n"
-    "[dim]ask:       (default) display a dialog window asking how to proceed[/]\n\n"
-    "edit:      if 1 item found, edit item. Still ask if multiple found\n\n"
-    "[dim]duplicate: create an additional item with the same name[/]\n\n"
-    "no_action: don't do anything, just continue on with the script")
+    "[deep_sky_blue3]Handling vault item duplicates[/]:\n\n"
+    "[on grey11][grey50]ask[/]:       (default) display a dialog window asking how to "
+    "proceed[/]\n\n"
+    "[grey50]edit[/]:      if 1 item found, edit item. Still ask if multiple found\n\n"
+    "[on grey11][grey50]duplicate[/]: create an additional item with the same name[/]"
+    "\n\n"
+    "[grey50]no_action[/]: don't do anything, just continue on with the script")
 
 class SmolK8sLabConfig(Screen):
     """
@@ -93,7 +96,7 @@ class TuiConfig(Widget):
                         label="enabled:",
                         name="enabled",
                         switch_value=self.cfg['enabled'],
-                        tooltip=("Enable interactive mode also known as TUI mode by "
+                        tooltip=("Enable interactive mode (also known as TUI mode) by "
                                  "default, otherwise you need to pass in -i each time")
                         )
 
@@ -153,16 +156,14 @@ class TuiConfig(Widget):
         input = event.input
         input_name = event.input.name
 
-        parent_cfg = event.input.ancestors[-1].cfg['smol_k8s_lab']['interactive']
-
         if "k9s" in input_name:
             name = input_name.replace("k9s-","")
             self.cfg['k9s'][name] = input.value
-            parent_cfg['k9s'][name] = input.value
+            self.app.cfg['smol_k8s_lab']['interactive']['k9s'][name] = input.value
         else:
-            parent_cfg[input.name] = input.value
+            self.app.cfg['smol_k8s_lab']['interactive'][input.name] = input.value
 
-        self.ancestors[-1].write_yaml()
+        self.app.write_yaml()
 
 
 class LoggingConfig(Widget):
@@ -207,19 +208,18 @@ class LoggingConfig(Widget):
         log_title = "🪵Logging Config"
         self.get_widget_by_id("logging-config").border_title = log_title
 
+    @on(Select.Changed)
+    def update_parent_for_select(self, event: Select.Changed) -> None:
+        self.app.cfg['smol_k8s_lab']['log']['level'] = str(event.value)
+        self.app.write_yaml()
+
     @on(Input.Changed)
     def update_parent_config_for_input(self, event: Input.Changed) -> None:
         """
         update self and parent app self config with changed input field
         """
-        input = event.input
-        parent_cfg = input.ancestors[-1]
-
-        parent_cfg.cfg['smol_k8s_lab']['log'][input.name] = input.value
-        self.ancestors[-1].write_yaml()
-
-    def action_save_and_quit(self) -> None:
-        self.app.pop_screen()
+        self.app.cfg['smol_k8s_lab']['log'][input.name] = event.input.value
+        self.app.write_yaml()
 
 
 class PasswordManagerConfig(Widget):
@@ -273,9 +273,14 @@ class PasswordManagerConfig(Widget):
         """
         value = event.value
         switch_name = event.switch.name
-        parent_cfg = event.switch.ancestors[-1].cfg['smol_k8s_lab']
+        self.app.cfg['smol_k8s_lab']['local_password_manager'][switch_name] = value
+        self.app.write_yaml()
 
-        parent_cfg['local_password_manager'][switch_name] = value
+    @on(Select.Changed)
+    def update_parent_for_select(self, event: Select.Changed) -> None:
+        password_cfg = self.app.cfg['smol_k8s_lab']['local_password_manager']
+        password_cfg['duplicate_strategy'] = str(event.value)
+        self.app.write_yaml()
 
 
 def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Horizontal:
