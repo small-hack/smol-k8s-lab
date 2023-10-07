@@ -131,6 +131,27 @@ SelectionList .option-list--option-hover {
    background: $blue_gray 40%;
 }
 
+/* drop down menus */
+Select .option-list--option {
+   background: $navy;
+}
+
+Select .option-list--option-hover {
+   background: $blue_gray 70%;
+   color: $sky_blue;
+}
+
+Select .option-list--option-highlighted {
+   background: $blue_gray 50%;
+   color: $sky_blue;
+}
+
+Select .option-list--option-hover-highlighted {
+   background: $blue_gray 90%;
+   color: $sky_blue;
+}
+
+
 #base-screen-container {
    grid-size: 1;
    align: center middle;
@@ -145,7 +166,7 @@ SelectionList .option-list--option-hover {
    background: $navy;
    align: center middle;
    content-align: center middle;
-   border: solid $cornflower;
+   border: round $cornflower;
    border-title-color: $spacechalk_lime;
 }
 
@@ -156,7 +177,7 @@ SelectionList .option-list--option-hover {
 
 .smaller-grid {
    grid-rows: 0.6fr 1fr;
-   height: 25%;
+   height: 20%;
 }
 
 /* grid around the clusters datatable */

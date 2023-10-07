@@ -26,54 +26,64 @@ $navy: rgb(35,35,54);
 
 /* logging config box */
 #logging-config {
-    grid-size: 2;
-    padding-left: 1;
-    padding-right: 1;
+    padding: 1;
     margin-bottom: 2;
     grid-columns: 0.5fr 1fr;
-    border: solid $cornflower;
+    grid-rows: 0.25fr 1fr;
+    border: round $cornflower;
     border-title-color: $orange;
     background: $navy 50%;
 }
 
+#logging-config-row-grid {
+    grid-size: 2;
+    align: left middle;
+    grid-columns: 0.5fr 1fr;
+}
+
+#logging-config-row-grid .input-row {
+    grid-columns: 0.15fr 1fr;
+}
+
 .selection-row {
     grid-size: 2;
-    align: center middle;
+    align: left middle;
 }
 
 .selection-row Label {
     padding-top: 1;
     padding-bottom: 1;
+    width: 100%;
     color: $bluish_white;
 }
 
 .selection-row Select {
-    width: 70%;
+    width: 90%;
 }
 
 #logging-config .selection-row {
-    grid-columns: 0.35fr 1fr;
+    grid-columns: 0.6fr 1.6fr;
+    padding-left: 1;
+    align: left middle;
+}
+
+#logging-config .soft-text {
+    align: left middle;
 }
 
 /* truthy value rows with switches */
 .bool-switch-row {
-    align: center middle;
+    align: left middle;
     layout: grid;
     grid-size: 2;
 }
 
 .bool-switch-row-label {
-    padding-top: 1;
-    padding-bottom: 1;
     align: left middle;
+    content-align: left middle;
+    height: 3;
     color: $bluish_white;
     width: 100%;
-}
-
-/* three bool-switch-rows side by side */
-.triple-switch-row {
-    align: center middle;
-    grid-size: 3;
 }
 
 /* k9s row of a switch and input field */
@@ -105,42 +115,55 @@ $navy: rgb(35,35,54);
 
 /* password manager config box */
 #password-manager-config {
-    padding-left: 3;
-    padding-right: 1;
-    padding-top: 1;
-    border: solid $cornflower;
+    padding: 1;
+    border: round $cornflower;
     background: $navy 50%;
 }
 
 #password-manager-options-grid {
     grid-size: 2;
-    align: center middle;
+    padding-left: 1;
+    align: left middle;
     border-title-color: $sky_blue;
     grid-columns: 0.5fr 1fr;
 }
 
 
-.help-text {
-    color: gray;
+#password-manager-options-grid .selection-row {
+    grid-columns: 1fr 1.5fr
+}
+
+/* this is the help-text at the top of each module */
+.soft-text {
+    color: $bluish_white 60%;
     width: 100%;
+    padding-left: 1;
+    padding-top: 1;
 }
 
 /* interactive (TUI) config box */
 #tui-config {
-    padding-top: 2;
-    padding-left: 1;
-    padding-right: 1;
+    padding: 1;
+    grid-rows: 0.4fr 0.55fr 0.4fr;
     margin-top: 2;
-    border: solid $cornflower;
+    border: round $cornflower;
     border-title-color: $spacechalk_lime;
     background: $navy 50%;
-    layout: grid;
     align: center middle;
 }
 
-#tui-config .input-row-label {
+/* three bool-switch-rows side by side */
+.triple-switch-row {
+    align: left middle;
+    grid-size: 3;
     padding-left: 1;
-    padding-top: 1;
+    height: 3;
+}
+
+#tui-config .input-row-label {
+    content-align: left middle;
+    height: 3;
+    padding-left: 1;
     padding-right: 1;
     color: $bluish_white;
 }
