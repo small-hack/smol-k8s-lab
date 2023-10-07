@@ -29,7 +29,7 @@ $navy: rgb(35,35,54);
     padding: 1;
     margin-bottom: 2;
     grid-columns: 0.5fr 1fr;
-    grid-rows: 0.25fr 1fr;
+    grid-rows: 0.5fr 1fr;
     border: round $cornflower;
     border-title-color: $orange;
     background: $navy 50%;
