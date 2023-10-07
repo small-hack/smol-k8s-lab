@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import VerticalScroll, Container
+from textual.containers import VerticalScroll, Grid
 from textual.widget import Widget
 from textual.widgets import Input, Button, Label
 from textual.suggester import SuggestFromList
@@ -15,6 +15,12 @@ SUGGESTIONS = SuggestFromList((
 
 VALUE_SUGGESTIONS = SuggestFromList(("ingress-ready=true"))
 
+kubelet_help = (
+        "Add key value pairs to pass to your [steel_blue][u][link=https://kubernetes.io/docs/"
+        "reference/command-line-tools-reference/kubelet/]kubelet[/link][/u][/]"
+        " [steel_blue][u][link=https://kubernetes.io/docs/reference/config-api/"
+        "kubelet-config.v1beta1/]configuration[/link][/u][/]."
+        )
 
 class KubeletConfig(Widget):
     """
@@ -27,17 +33,26 @@ class KubeletConfig(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        yield Label("Add key value pairs to pass to your kubelet config.",
-                    classes="k3s-help-label")
-        with VerticalScroll(classes=f"kubelet-config-scroll {self.distro}",
-                            id=f"{self.distro}-kubelet-config-container"):
+        with Grid(classes=f"{self.distro} kubelet-config-container"):
+            yield Label(kubelet_help,
+                        classes="k3s-help-label")
+            with VerticalScroll(classes=f"kubelet-config-scroll {self.distro}",
+                                id=f"{self.distro}-kubelet-config-container"):
 
-            if self.kubelet_extra_args:
-                for key, value in self.kubelet_extra_args.items():
-                    yield self.generate_row(key, str(value))
+                if self.kubelet_extra_args:
+                    for key, value in self.kubelet_extra_args.items():
+                        yield self.generate_row(key, str(value))
 
-            yield Button("➕ Parameter",
-                         classes=f"{self.distro} kubelet-arg-add-button")
+                yield Button("➕ Parameter",
+                             classes=f"{self.distro} kubelet-arg-add-button")
+
+    def on_mount(self) -> None:
+        """
+        box border styling
+        """
+        # kubelet config styling
+        kubelet_cfg = self.query_one(".kubelet-config-container")
+        kubelet_cfg.border_title = "[gold3]Optional[/]: Extra Parameters for Kubelet"
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
@@ -89,7 +104,7 @@ class KubeletConfig(Widget):
 
         event.input.ancestors[-1].write_yaml()
 
-    def generate_row(self, param: str = "", value: str = "") -> Container:
+    def generate_row(self, param: str = "", value: str = "") -> Grid:
         """
         generate a new input field set
         """
@@ -116,5 +131,5 @@ class KubeletConfig(Widget):
         del_button = Button("🚮", classes=f"{row_class}-del-button")
         del_button.tooltip = "Delete this kubelet parameter"
 
-        return Container(param_input, param_value_input, del_button,
-                         classes=f"{row_class}-row")
+        return Grid(param_input, param_value_input, del_button,
+                    classes=f"{row_class}-row")

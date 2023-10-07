@@ -1,7 +1,7 @@
 from . import placeholder_grammar
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Grid
+from textual.containers import Grid, VerticalScroll
 from textual.screen import ModalScreen
 from textual.validation import Length, Validator, ValidationResult
 from textual.widgets import Button, Input, Label, Static
@@ -20,7 +20,7 @@ class ModifyAppGlobals(Static):
 
 
 class ModifyAppGlobalsScreen(ModalScreen):
-    CSS_PATH = ["../css/new_app_modal.css"]
+    CSS_PATH = ["../css/modify_globals_modal.css"]
 
     def __init__(self) -> None:
         self.global_params = self.app.cfg["apps_global_config"]
@@ -28,18 +28,15 @@ class ModifyAppGlobalsScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         # base screen grid
-        question = ("Modify [i]globally[/] available Argo CD ApplicationSet "
-                    " templating values.")
+        question = ("Modify [i]globally[/] available Argo CD ApplicationSet"
+                    " [green]templating values[/].")
 
         with Grid(id="question-modal-screen"):
             # grid for app question and buttons
             with Grid(id="question-box"):
                 yield Label(question, id="modal-text")
 
-                if self.global_params:
-                    # iterate through the app's secret keys
-                    for secret_key, value in self.global_params.items():
-                        yield self.generate_secret_key_row(secret_key, value)
+                yield VerticalScroll(id="scroll-container")
 
                 key_input = Input(placeholder="new key name",
                                   id="new-secret",
@@ -62,6 +59,12 @@ class ModifyAppGlobalsScreen(ModalScreen):
                     yield key_input
 
     def on_mount(self,):
+        if self.global_params:
+            scroll_container = self.get_widget_by_id("scroll-container")
+            # iterate through the app's secret keys
+            for secret_key, value in self.global_params.items():
+                scroll_container.mount(self.generate_secret_key_row(secret_key, value))
+
         close_link = "[@click=app.pop_screen]close[/]"
         self.get_widget_by_id("question-box").border_subtitle = close_link
 
@@ -69,7 +72,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
     def generate_secret_key_row(self,
                                 secret_key: str,
                                 value: str = "",
-                                new: bool = False) -> None:
+                                new: bool = False) -> Grid:
         """
         add a new row of secret keys to pass to an argocd app
         if new param is set to True, we also write it to the yaml
@@ -102,13 +105,12 @@ class ModifyAppGlobalsScreen(ModalScreen):
         add a new input row for secret stuff
         """
         if event.button.id == "new-secret-button":
-            inputs_box = self.get_widget_by_id("question-box")
+            inputs_box = self.get_widget_by_id("scroll-container")
             input = self.get_widget_by_id("new-secret")
 
             # add new secret key row
             inputs_box.mount(
-                    self.generate_secret_key_row(input.value, "", True),
-                    before=self.get_widget_by_id("new-row")
+                    self.generate_secret_key_row(input.value, "", True)
                     )
             # clear the input field after we're created the new row and
             # updated the yaml

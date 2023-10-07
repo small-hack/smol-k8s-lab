@@ -27,8 +27,8 @@ Screen {
 
 Tooltip {
   background: $navy 50%;
-  color: $bluish_white 75%;
-  border: dashed gray 80%;
+  color: $light_cornflower 75%;
+  border: round $blue_gray 80%;
   padding-bottom: 0;
   padding-left: 1;
   padding-right: 1;
@@ -151,7 +151,6 @@ Select .option-list--option-hover-highlighted {
    color: $sky_blue;
 }
 
-
 #base-screen-container {
    grid-size: 1;
    align: center middle;
@@ -176,20 +175,27 @@ Select .option-list--option-hover-highlighted {
 }
 
 .smaller-grid {
-   grid-rows: 0.6fr 1fr;
+   grid-rows: 0.7fr 1fr;
    height: 20%;
 }
 
 /* grid around the clusters datatable */
 #table-grid {
+   margin-top: 1;
    align: center middle;
    content-align: center middle;
-   margin-top: 1;
 }
 
 /* clusters datatable itself */
 DataTable {
-    width: auto;
+   width: auto;
+   height: auto;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-active: $sky_blue;
+   scrollbar-color-hover: $cornflower;
+   scrollbar-color: $light_cornflower;
 }
 
 /* just the table header */
@@ -237,8 +243,9 @@ DataTable {
 
 /* button for new cluster */
 #new-cluster-button-container {
+   margin-top: 1;
+   grid-size: 2;
    align: center middle;
    content-align: center middle;
    height: auto;
-   margin-top: 1;
 }

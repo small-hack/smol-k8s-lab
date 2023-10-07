@@ -19,7 +19,7 @@ $navy: rgb(35,35,54);
    align: center middle;
    height: 92%;
    width: 90%;
-   grid-rows: 0.24fr 1.4fr;
+   grid-rows: 0.2fr 1.4fr;
 }
 
 #top-distro-row {
@@ -28,7 +28,9 @@ $navy: rgb(35,35,54);
     border: round $cornflower;
     border-title-color: $spacechalk_lime;
     background: $navy 50%;
-    padding: 1;
+    padding-top: 1;
+    padding-left: 1;
+    padding-right: 1;
 }
 
 #distro-select-box {
@@ -51,7 +53,6 @@ $navy: rgb(35,35,54);
 
 /* bottom half k8s distro config area */
 .k8s-distro-config {
-   layout: grid;
-   grid-rows: 0.45fr 1fr 1fr;
+   grid-rows: 0.3fr 0.9fr 0.9fr;
    margin-top: 1;
 }

@@ -2,12 +2,13 @@ from rich.text import Text
 from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Grid, Container
-from textual.widgets import Footer, Header, Button, Label, DataTable
+from textual.containers import Grid
+from textual.validation import Length
+from textual.widgets import Footer, Header, Button, Label, DataTable, Input, Static
 from smol_k8s_lab.constants import INITIAL_USR_CONFIG
 from smol_k8s_lab.k8s_distros import check_all_contexts
+from smol_k8s_lab.utils.tui.validators.already_exists import CheckIfNameAlreadyInUse
 from smol_k8s_lab.utils.tui.base_cluster_modal import ClusterModalScreen
-from smol_k8s_lab.utils.tui.base_new_cluster_modal import ClusterNameModalScreen
 from smol_k8s_lab.utils.tui.apps_config import AppsConfig
 from smol_k8s_lab.utils.tui.confirm_selection import ConfirmConfig
 from smol_k8s_lab.utils.tui.distro_config import DistroConfigScreen
@@ -70,10 +71,7 @@ class BaseApp(App):
                                     cursor_type="row")
 
                 # container for new cluster buton
-                with Container(id="new-cluster-button-container"):
-                    new_button = Button("✨ New Cluster", id="new-cluster-button")
-                    new_button.tooltip = "Add a new cluster managed by smol-k8s-lab"
-                    yield new_button
+                yield NewClusterInput()
 
     def on_mount(self) -> None:
         """
@@ -135,21 +133,6 @@ class BaseApp(App):
             data_table.add_row(*styled_row, height=3, key=row[0])
 
             self.cluster_names.append(row[0])
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """
-        get pressed button add or delete button and act on it
-        """
-        button_id = event.button.id
-
-        def get_new_cluster_name(cluster_name: str = ""):
-            if cluster_name:
-                self.current_cluster = cluster_name
-                self.action_request_distro_cfg()
-
-        if button_id == "new-cluster-button":
-            self.app.push_screen(ClusterNameModalScreen(self.cluster_names),
-                                 get_new_cluster_name)
 
     @on(DataTable.RowSelected)
     def cluster_row_highlighted(self, event: DataTable.RowSelected) -> None:
@@ -241,6 +224,47 @@ class BaseApp(App):
         dump current self.cfg to user's smol-k8s-lab config.yaml
         """
         dump_to_file(self.cfg)
+
+
+class NewClusterInput(Static):
+    def compose(self) -> ComposeResult:
+        with Grid(id="new-cluster-button-container"):
+            input = Input(value="smol-k8s-lab",
+                          validators=[
+                              Length(minimum=2),
+                              CheckIfNameAlreadyInUse(self.app.cluster_names)
+                              ],
+                          placeholder="Name of your new cluster",
+                          id="cluster-name-input")
+            input.tooltip = "Name of your ✨ [i]new[/i] cluster"
+            yield input
+
+            new_button = Button("✨ New Cluster", id="new-cluster-button")
+            new_button.tooltip = "Add a new cluster managed by smol-k8s-lab"
+            yield new_button
+
+    @on(Input.Changed)
+    def input_validation(self, event: Input.Changed) -> None:
+        if event.validation_result.is_valid:
+            # if result is valid, enable the submit button
+            self.get_widget_by_id("new-cluster-button").disabled = False
+        else:
+            # if result is not valid, notify the user why
+            self.notify("\n".join(event.validation_result.failure_descriptions),
+                        timeout=8,
+                        severity="warning",
+                        title="⚠️ Input Validation Error\n")
+
+            # and disable the submit button
+            self.get_widget_by_id("new-cluster-button").disabled = True
+
+    @on(Button.Pressed)
+    def button_pressed(self, event: Button.Pressed) -> None:
+        """
+        get pressed button and act on it
+        """
+        self.current_cluster = self.get_widget_by_id("cluster-name-input").value
+        self.app.action_request_distro_cfg()
 
 
 if __name__ == "__main__":

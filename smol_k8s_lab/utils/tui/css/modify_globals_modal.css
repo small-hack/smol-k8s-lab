@@ -16,42 +16,43 @@ $navy: rgb(35,35,54);
 
 
 /* whole modal screen */
-#cluster-question-modal-screen {
+#question-modal-screen {
     width: 80%;
     align: center middle;
+    height: 24;
 }
 
-.modify-delete-size {
-    height: 14;
-}
-
-#cluster-modal-text {
-   color: $cornflower;
-}
-
-#cluster-question-box {
+#question-box {
     align: center middle;
     content-align: center middle;
     background: $navy 75%;
     border: round $cornflower;
     padding: 1;
+    border-subtitle-color: $light_pink;
+    grid-rows: 0.45fr 0.9fr 0.45fr;
 }
 
-#modal-button-box {
-    grid-size: 3;
+#scroll-container {
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-active: $sky_blue;
+   scrollbar-color-hover: $cornflower;
+   scrollbar-color: $light_cornflower;
+   align: center middle;
+}
+
+#new-row {
+    grid-size: 2;
     align: center middle;
-    height: auto;
+    margin-top: 1;
 }
 
-#cluster-modal-text {
+#modal-text {
     content-align: center middle;
     width: 100%;
     color: $sky_blue;
     padding-top: 1;
     padding-bottom: 1;
     background: $dark_gray 30%;
-}
-
-#cluster-name-input {
-    margin-bottom: 1;
 }

@@ -19,8 +19,9 @@ $navy: rgb(35,35,54);
    border: round $cornflower;
    border-title-color: $spacechalk_lime;
    background: rgb(35,35,54) 50%;
-   height: 100%;
    padding: 1;
+   grid-rows: 0.25fr 1fr;
+   margin-top: 1;
 }
 
 .kubelet-config-scroll {
@@ -35,7 +36,6 @@ $navy: rgb(35,35,54);
 
 /* kubelet config arg input row */
 .kubelet-arg-input-row {
-   layout: grid;
    grid-size: 3;
    width: 100%;
    height: auto;

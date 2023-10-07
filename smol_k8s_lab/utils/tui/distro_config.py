@@ -8,7 +8,7 @@ from smol_k8s_lab.utils.tui.distro_widgets.node_adjustment import NodeAdjustment
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Grid
+from textual.containers import Grid
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Label, Select
 
@@ -16,14 +16,14 @@ from textual.widgets import Footer, Header, Label, Select
 # the description of the k8s distro
 DISTRO_DESC = {
         "k3s": ("K3s, by Rancher Labs, is a minimal Kubernetes distro that fits in "
-                "about 70MB. (it's also optomized for ARM) Learn more at "
-                "[u][link=https://k3s.io]k3s.io[/][/]."),
+                "about 70MB. (it's also optomized for ARM) Learn more: "
+                "[steel_blue][u][link=https://k3s.io]k3s.io[/][/]."),
         "k3d": ("k3d is a lightweight wrapper to run k3s (Rancher Lab’s minimal "
-                "Kubernetes distribution) in Docker containers. Learn more at "
-                "[u][link=https://k3d.io]k3d.io[/][/]."),
-        "kind": ("kind runs k8s clusters using Docker containers as nodes. Was "
-                 " designed for testing k8s itself. Learn more at "
-                 "[u][link=https://kind.sigs.k8s.io/]kind.sigs.k8s.io[/][/]")
+                "Kubernetes distribution) in Docker containers. Learn more: "
+                "[steel_blue][u][link=https://k3d.io]k3d.io[/][/][/]."),
+        "kind": ("kind runs k8s clusters using Docker containers as nodes. "
+                 "Designed for testing k8s itself. Learn more: [steel_blue]"
+                 "[u][link=https://kind.sigs.k8s.io/]kind.sigs.k8s.io[/][/][/]")
         }
 
 
@@ -104,8 +104,8 @@ class DistroConfigScreen(Screen):
                 else:
                     display = False
 
-                distro_box = Container(classes=f"k8s-distro-config {distro}",
-                                       id=f"{distro}-box")
+                distro_box = Grid(classes=f"k8s-distro-config {distro}",
+                                  id=f"{distro}-box")
                 distro_box.display = display
 
                 with distro_box:
@@ -120,28 +120,19 @@ class DistroConfigScreen(Screen):
                         worker_nodes = "0"
 
                     # node input row
-                    adjust = NodeAdjustmentBox(distro, control_nodes, worker_nodes)
-                    yield Container(adjust, classes=f"{distro} nodes-box")
+                    yield NodeAdjustmentBox(distro, control_nodes, worker_nodes)
 
                     # kubelet config section
-                    extra_args = distro_metadata['kubelet_extra_args']
-                    kubelet_class = f"{distro} kubelet-config-container"
-                    yield Container(KubeletConfig(distro, extra_args),
-                                    classes=kubelet_class)
+                    yield KubeletConfig(distro,
+                                        distro_metadata['kubelet_extra_args'])
 
                     # take extra k3s args if distro is k3s or k3d
                     if distro == 'k3s' or distro == 'k3d':
-                        k3s_args = distro_metadata['extra_k3s_cli_args']
+                        yield K3sConfig(distro,
+                                        distro_metadata['extra_k3s_cli_args'])
 
-                        k3s_box_classes = f"{distro} k3s-config-container"
-
-                        yield Container(K3sConfig(distro, k3s_args),
-                                        classes=k3s_box_classes)
                     elif distro == 'kind':
-                        yield Container(
-                                KindNetworkingConfig(distro_metadata['networking_args']),
-                                id="kind-networking-container"
-                                )
+                        yield KindNetworkingConfig(distro_metadata['networking_args'])
 
     def on_mount(self) -> None:
         """
@@ -152,20 +143,6 @@ class DistroConfigScreen(Screen):
 
         select_distro_title = "🌱 Select a k8s distro to get started"
         self.get_widget_by_id("top-distro-row").border_title = select_distro_title
-
-        # kubelet config styling - middle
-        kubelet_title = "[gold3]Optional[/]: Extra Parameters for Kubelet"
-        kubelet_cfgs = self.query(".kubelet-config-container")
-        for box in kubelet_cfgs:
-            box.border_title = kubelet_title
-
-        # k3s arg config sytling - middle
-        k3s_title = "[gold3]Optional[/]: Extra Args for k3s install script"
-        self.query_one(".k3s-config-container").border_title = k3s_title
-
-        # kind networking arg config sytling - bottom
-        kind_title = "[gold3]Optional[/]: Extra Args for kind networking"
-        self.get_widget_by_id("kind-networking-container").border_title = kind_title
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:

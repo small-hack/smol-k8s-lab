@@ -30,48 +30,49 @@ class NodeAdjustmentBox(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        node_class = f"{self.distro} nodes-input"
+        with Grid(classes=f"{self.distro} nodes-box"):
+            node_class = f"{self.distro} nodes-input"
 
-        with Grid(id="nodes-input-row"):
-            if self.distro == 'k3s':
-                disabled = True
-            else:
-                disabled = False
+            with Grid(id="nodes-input-row"):
+                if self.distro == 'k3s':
+                    disabled = True
+                else:
+                    disabled = False
 
-            # control plane input row
-            with Grid(classes="node-input-column"):
-                label = Label("control plane:", classes=f"{node_class}-label")
-                label.tooltip = (
-                        "The control plane manages the worker nodes and the Pods in "
-                        "the cluster. You have to have at least one."
-                        )
-                yield label
+                # control plane input row
+                with Grid(classes="node-input-column"):
+                    label = Label("control plane:", classes=f"{node_class}-label")
+                    label.tooltip = (
+                            "The control plane manages the worker nodes and the "
+                            "Pods in the cluster. You have to have at least one."
+                            )
+                    yield label
 
-                control_input = Input(value=self.control_plane_nodes,
-                                      placeholder='1',
-                                      classes=f"{node_class}-control-input",
-                                      name="control_plane_nodes",
-                                      validators=[Number(minimum=1, maximum=50)],
-                                      disabled=disabled)
-                control_input.tooltip = "Press [gold3]↩ Enter[/] to save"
-                yield control_input
+                    control_input = Input(value=self.control_plane_nodes,
+                                          placeholder='1',
+                                          classes=f"{node_class}-control-input",
+                                          name="control_plane_nodes",
+                                          validators=[Number(minimum=1, maximum=50)],
+                                          disabled=disabled)
+                    control_input.tooltip = "Press [gold3]↩ Enter[/] to save"
+                    yield control_input
 
-            # workers input row
-            with Grid(classes="node-input-column worker-node-row"):
-                worker_label = Label("workers:", classes=f"{node_class}-label")
-                worker_label.tooltip = (
-                        "The worker node(s) host the Pods that are the components "
-                        "of the application workload. If workers is 0, the control "
-                        "plane acts as the worker as well."
-                        )
-                yield worker_label
+                # workers input row
+                with Grid(classes="node-input-column worker-node-row"):
+                    worker_label = Label("workers:", classes=f"{node_class}-label")
+                    worker_label.tooltip = (
+                            "The worker node(s) host the Pods that are the components "
+                            "of the application workload. If workers is 0, the "
+                            "control plane acts as the worker as well."
+                            )
+                    yield worker_label
 
-                yield Input(value=self.worker_nodes,
-                            placeholder='0',
-                            classes=f"{node_class}-worker-input",
-                            name="worker_nodes",
-                            validators=[Number(minimum=0, maximum=100)],
-                            disabled=disabled)
+                    yield Input(value=self.worker_nodes,
+                                placeholder='0',
+                                classes=f"{node_class}-worker-input",
+                                name="worker_nodes",
+                                validators=[Number(minimum=0, maximum=100)],
+                                disabled=disabled)
 
     def on_mount(self) -> None:
         """

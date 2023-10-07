@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 from textual import on
 from textual.app import ComposeResult, Widget
-from textual.containers import Container, VerticalScroll, Grid
+from textual.containers import VerticalScroll, Grid
 from textual.widgets import Input, Button, Label
 from textual.suggester import SuggestFromList
 
@@ -13,6 +13,12 @@ SUGGESTIONS = SuggestFromList((
        "--flannel-backend=wireguard-native",
        "--secrets-encryption",
        ))
+
+help_txt = (
+        "If [dim][green]metallb[/][/] is [i]enabled[/], we add --disabled-servicelb."
+        "\nIf [dim][green]cilium[/][/] is [i]enabled[/], we add --flannel-backend=none "
+        "--disable-network-policy."
+        )
 
 
 class K3sConfig(Widget):
@@ -26,32 +32,41 @@ class K3sConfig(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        txt = ("If [dim][green]metallb[/][/] is [i]enabled[/], we add "
-               "--disabled-servicelb.\nIf [dim][green]cilium[/][/] is [i]enabled[/],"
-               " we add --flannel-backend=none --disable-network-policy."
-               )
-        yield Label(txt, classes="k3s-help-label")
+        # main grid for the whole widget
+        with Grid(classes=f"{self.distro} k3s-config-container"):
 
-        with VerticalScroll(classes=f"{self.distro} k3s-arg-scroll"):
-            with Grid(classes="k3s-grid"):
-                if self.k3s_args:
-                    for arg in self.k3s_args:
-                        yield self.generate_half_row(arg)
+            # help text
+            yield Label(help_txt, classes="k3s-help-label")
 
-                    arg_len = len(self.k3s_args)
-                    # if there's only one arg or the arg count is uneven we add
-                    # an extra field just to make the row even
-                    if arg_len == 1 or arg_len % 2 != 0:
+            # actual input grid
+            with VerticalScroll(classes=f"{self.distro} k3s-arg-scroll"):
+                with Grid(classes="k3s-grid"):
+                    if self.k3s_args:
+                        for arg in self.k3s_args:
+                            yield self.generate_half_row(arg)
+
+                        arg_len = len(self.k3s_args)
+                        # if there's only one arg or the arg count is uneven we add
+                        # an extra field just to make the row even
+                        if arg_len == 1 or arg_len % 2 != 0:
+                            yield self.generate_half_row()
+
+                    # if there's no args we add *two* extra fields just to make
+                    # the row and container feel full
+                    else:
+                        yield self.generate_half_row()
                         yield self.generate_half_row()
 
-                # if there's no args we add *two* extra fields just to make
-                # the row and container feel full
-                else:
-                    yield self.generate_half_row()
-                    yield self.generate_half_row()
+                yield Button("➕ New Argument",
+                             classes=f"{self.distro} k3s-arg-add-button")
 
-            yield Button("➕ New Argument",
-                         classes=f"{self.distro} k3s-arg-add-button")
+    def on_mount(self) -> None:
+        """
+        box border styling
+        """
+        # k3s arg config styling
+        k3s_title = "[gold3]Optional[/]: Extra Args for k3s install script"
+        self.query_one(".k3s-config-container").border_title = k3s_title
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
@@ -91,7 +106,7 @@ class K3sConfig(Widget):
 
         event.input.ancestors[-1].write_yaml()
 
-    def generate_half_row(self, value: str = "") -> Container:
+    def generate_half_row(self, value: str = "") -> Grid:
         """
         create a new input row
         """
@@ -102,4 +117,4 @@ class K3sConfig(Widget):
             row_args["value"] = value
         button = Button("🚮", classes="k3s-arg-del-button")
         button.tooltip = "Delete the arg to the left of this button"
-        return Container(Input(**row_args), button, classes="k3s-arg-row")
+        return Grid(Input(**row_args), button, classes="k3s-arg-row")
