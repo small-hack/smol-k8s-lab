@@ -1,3 +1,7 @@
+from ..k8s_distros.k3d import delete_k3d_cluster
+from ..k8s_distros.k3s import uninstall_k3s
+from ..k8s_distros.kind import delete_kind_cluster
+
 from os import system
 from textual import on
 from textual.app import ComposeResult, NoMatches
@@ -5,9 +9,6 @@ from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.widgets import Button, Label
 from textual.widgets.data_table import RowKey
-from smol_k8s_lab.k8s_distros.k3d import delete_k3d_cluster
-from smol_k8s_lab.k8s_distros.k3s import uninstall_k3s
-from smol_k8s_lab.k8s_distros.kind import delete_kind_cluster
 
 
 class ClusterModalScreen(ModalScreen):

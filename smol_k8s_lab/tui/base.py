@@ -1,3 +1,15 @@
+from ..constants import INITIAL_USR_CONFIG
+from ..k8s_distros import check_all_contexts
+from ..utils.write_yaml import dump_to_file
+
+from .apps_config import AppsConfig
+from .base_cluster_modal import ClusterModalScreen
+from .confirm_selection import ConfirmConfig
+from .distro_config import DistroConfigScreen
+from .help import HelpScreen
+from .smol_k8s_config import SmolK8sLabConfig
+from .validators.already_exists import CheckIfNameAlreadyInUse
+
 from rich.text import Text
 from textual import on
 from textual.app import App, ComposeResult
@@ -5,16 +17,6 @@ from textual.binding import Binding
 from textual.containers import Grid
 from textual.validation import Length
 from textual.widgets import Footer, Header, Button, Label, DataTable, Input, Static
-from smol_k8s_lab.constants import INITIAL_USR_CONFIG
-from smol_k8s_lab.k8s_distros import check_all_contexts
-from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
-from smol_k8s_lab.tui.base_cluster_modal import ClusterModalScreen
-from smol_k8s_lab.tui.apps_config import AppsConfig
-from smol_k8s_lab.tui.confirm_selection import ConfirmConfig
-from smol_k8s_lab.tui.distro_config import DistroConfigScreen
-from smol_k8s_lab.tui.help import HelpScreen
-from smol_k8s_lab.tui.smol_k8s_config import SmolK8sLabConfig
-from smol_k8s_lab.utils.write_yaml import dump_to_file
 
 
 class BaseApp(App):
