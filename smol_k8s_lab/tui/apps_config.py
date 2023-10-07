@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.utils.tui.app_widgets.app_inputs_confg import (AppInputs,
-                                                                 AddAppInput)
-from smol_k8s_lab.utils.tui.app_widgets.modify_globals import ModifyAppGlobals
+from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs, AddAppInput
+from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding

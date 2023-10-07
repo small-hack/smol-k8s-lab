@@ -15,17 +15,18 @@ from sys import exit
 
 # custom libs and constants
 from .env_config import check_os_support, process_configs
+from .bitwarden.bw_cli import BwCLI
+from .bitwarden.tui.bitwarden_app import ReturnBitwardenObj
 from .constants import KUBECONFIG, HOME_DIR, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
-from .utils.bitwarden.bw_cli import BwCLI, check_env_for_credentials
+from .tui import launch_config_tui
+from .utils import check_env_for_credentials
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
-from .utils.tui import launch_config_tui
-from .utils.tui.bitwarden.bitwarden_app import ReturnBitwardenObj
 
 
 HELP = options_help()

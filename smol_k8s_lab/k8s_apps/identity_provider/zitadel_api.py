@@ -9,7 +9,7 @@ from json import dumps
 import jwt
 from requests import request
 from rich.prompt import Prompt
-from smol_k8s_lab.utils.bitwarden.bw_cli import BwCLI
+from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.utils.passwords import create_password
 
 

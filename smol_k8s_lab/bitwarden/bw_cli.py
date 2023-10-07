@@ -19,8 +19,8 @@ from rich.prompt import Prompt
 from shutil import which
 from sys import exit
 from os import environ as env
-from ..subproc import subproc
-from .bitwarden_dialog_app import AskUserForDuplicateStrategy
+from ..utils.subproc import subproc
+from smol_k8s_lab.bitwarden.tui.bitwarden_dialog_app import AskUserForDuplicateStrategy
 
 
 def create_custom_field(custom_field_name: str, value: str) -> dict:
@@ -332,14 +332,3 @@ class BwCLI():
                     env={"BW_SESSION": self.session,
                          "PATH": self.user_path,
                          "HOME": self.home})
-
-
-def check_env_for_credentials() -> list:
-    """
-    check if bitwarden credentials are in the environment already
-    """
-    password = env.get("BW_PASSWORD", None)
-    client_id = env.get("BW_CLIENTID", None)
-    client_secret = env.get("BW_CLIENTSECRET", None)
-
-    return password, client_id, client_secret
