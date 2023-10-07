@@ -1,4 +1,4 @@
-from smol_k8s_lab.utils.tui.bitwarden.bitwarden_modal_screen import BitwardenCredentials
+from smol_k8s_lab.bitwarden.tui.bitwarden_modal_screen import BitwardenCredentials
 from textual.app import App, ComposeResult
 from textual.widgets import Label
 

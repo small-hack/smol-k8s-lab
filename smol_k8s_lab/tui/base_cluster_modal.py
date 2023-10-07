@@ -1,3 +1,4 @@
+from os import system
 from textual import on
 from textual.app import ComposeResult, NoMatches
 from textual.containers import Grid
@@ -7,7 +8,6 @@ from textual.widgets.data_table import RowKey
 from smol_k8s_lab.k8s_distros.k3d import delete_k3d_cluster
 from smol_k8s_lab.k8s_distros.k3s import uninstall_k3s
 from smol_k8s_lab.k8s_distros.kind import delete_kind_cluster
-from smol_k8s_lab.utils.subproc import subproc
 
 
 class ClusterModalScreen(ModalScreen):
@@ -43,7 +43,7 @@ class ClusterModalScreen(ModalScreen):
     def button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "modify-cluster-button":
             # set the current context to this cluster
-            subproc([f"kubectl config use-context {self.cluster}"])
+            system(f"kubectl config use-context {self.cluster}")
             # call the apps page for this cluster
             self.app.action_request_apps_cfg()
 

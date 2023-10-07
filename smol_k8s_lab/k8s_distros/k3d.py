@@ -26,25 +26,31 @@ def install_k3d_cluster(cluster_name: str,
     # base config for k3s
     k3d_cfg = {"apiVersion": "k3d.io/v1alpha5",
                "kind": "Simple",
-               "metadata": {"name": cluster_name}
+               "metadata": {"name": cluster_name},
+               "options": {
+                   "kubeconfig": {
+                       "updateDefaultKubeconfig": True,
+                       "switchCurrentContext": True
+                       }
+                   }
                }
 
     # filter for which nodes to apply which k3s args to
     node_filters = []
 
-    # only specify server if there's more control_plane_nodes
+    k3d_cfg["servers"] = control_plane_nodes
+    # only specify server if there's control_plane_nodes
     if control_plane_nodes > 0:
-        k3d_cfg["servers"] = control_plane_nodes
         node_filters.append("server:*")
 
-    # only specify agents if there's more than one worker_node
+    k3d_cfg["agents"] = worker_nodes
+    # only specify agents if there's worker_node
     if worker_nodes > 0:
-        k3d_cfg["agents"] = worker_nodes
         node_filters.append("agent:*")
 
     # we attempt to append each kubelet-arg as an option
     if kubelet_args:
-        k3d_cfg['options'] = {'k3s': {"extraArgs": []}}
+        k3d_cfg['options']['k3s'] = {"extraArgs": []}
         for key, value in kubelet_args.items():
             cli_arg = f"--kubelet-arg={key}={value}"
             arg_dict = {"arg": f'"{cli_arg}"', "nodeFilters": node_filters.copy()}
@@ -53,8 +59,8 @@ def install_k3d_cluster(cluster_name: str,
 
     # these are the rest of the k3s specific arguments
     if k3s_cli_args:
-        if not k3d_cfg.get('k3s', None):
-            k3d_cfg['options'] = {'k3s': {"extraArgs": []}}
+        if not k3d_cfg['options'].get('k3s', None):
+            k3d_cfg['options']['k3s'] = {"extraArgs": []}
 
         for cli_arg in k3s_cli_args:
             arg_dict = {"arg": f'"{cli_arg}"', "nodeFilters": node_filters.copy()}
