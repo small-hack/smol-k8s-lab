@@ -179,6 +179,7 @@ def main(config: str = "",
                           cilium_enabled)
 
         argo_enabled = apps['argo_cd']['enabled']
+        zitadel_enabled = apps['zitadel']['enabled']
 
         k8s_obj = K8s()
 
@@ -214,8 +215,6 @@ def main(config: str = "",
                 api_tls_verify = False
             else:
                 api_tls_verify = True
-
-            zitadel_enabled = apps['zitadel']['enabled']
 
             setup_oidc_provider(k8s_obj,
                                 api_tls_verify,
