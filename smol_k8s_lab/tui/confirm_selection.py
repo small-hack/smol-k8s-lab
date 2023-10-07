@@ -1,7 +1,8 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.bitwarden.tui.bitwarden_app import BitwardenCredentials
-from smol_k8s_lab.utils.yaml_with_comments import syntax_highlighted_yaml
-from smol_k8s_lab.utils import check_env_for_credentials
+from ..bitwarden.tui.bitwarden_app import BitwardenCredentials
+from ..utils.yaml_with_comments import syntax_highlighted_yaml
+from ..utils import check_env_for_credentials
+
 from textual import on
 from textual.binding import Binding
 from textual.app import ComposeResult

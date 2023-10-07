@@ -1,10 +1,12 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
-from smol_k8s_lab.env_config import process_k8s_distros
-from smol_k8s_lab.tui.distro_widgets.k3s_config import K3sConfig
-from smol_k8s_lab.tui.distro_widgets.kind_networking import KindNetworkingConfig
-from smol_k8s_lab.tui.distro_widgets.kubelet_config import KubeletConfig
-from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
+from .distro_widgets.k3s_config import K3sConfig
+from .distro_widgets.kind_networking import KindNetworkingConfig
+from .distro_widgets.kubelet_config import KubeletConfig
+from .distro_widgets.node_adjustment import NodeAdjustmentBox
+
+from ..constants import DEFAULT_DISTRO_OPTIONS
+from ..env_config import process_k8s_distros
+
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
