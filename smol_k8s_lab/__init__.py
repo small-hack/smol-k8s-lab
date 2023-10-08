@@ -17,7 +17,7 @@ from sys import exit
 # custom libs and constants
 from .env_config import check_os_support, process_configs
 from .bitwarden.bw_cli import BwCLI
-from .tui.bitwarden.bitwarden_app import BitwardenCredentials
+from .bitwarden.tui.bitwarden_app import BitwardenCredentials
 from .constants import KUBECONFIG, HOME_DIR, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
