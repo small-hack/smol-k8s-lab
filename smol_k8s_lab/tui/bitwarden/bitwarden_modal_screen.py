@@ -13,7 +13,7 @@ HELP_TXT = ("To use Bitwarden to store sensitive data, we need your credentials.
             "BW_PASSWORD, BW_CLIENTID, and BW_CLIENTSECRET env vars ahead of time.")
 
 
-class BitwardenCredentials(ModalScreen):
+class BitwardenCredentialsScreen(ModalScreen):
     """
     modal screen to ask for bitwarden credentials
     """
@@ -34,12 +34,14 @@ class BitwardenCredentials(ModalScreen):
                     yield self.generate_credential_row(variable)
 
                 with Grid(id="bitwarden-button-box"):
+                    # submit button, to trigger returning the credentials/exiting
                     confirm_button = Button("submit", id="bitwarden-submit")
                     confirm_button.disabled = True
                     confirm_button.tooltip = ("submit your credentials, disabled"
                                               " until all fields are filled out.")
                     yield confirm_button
 
+                    # cancel button, to go back to the script or previous tui screen
                     back_button = Button("cancel", id="bitwarden-cancel")
                     back_button.tooltip = ("Exit Bitwarden credentials input screen "
                                            "without saving")
@@ -49,6 +51,7 @@ class BitwardenCredentials(ModalScreen):
         credentials_box = self.get_widget_by_id("credentials-box")
         credentials_box.border_title = "[green]🛡️ Enter Bitwarden Vault Credentials"
 
+        # we set this at the beginning, so we can still return empty if they cancel
         self.credentials = {}
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

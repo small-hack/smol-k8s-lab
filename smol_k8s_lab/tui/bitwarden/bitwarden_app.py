@@ -1,9 +1,9 @@
-from smol_k8s_lab.bitwarden.tui.bitwarden_modal_screen import BitwardenCredentials
+from .bitwarden_modal_screen import BitwardenCredentialsScreen
 from textual.app import App, ComposeResult
 from textual.widgets import Label
 
 
-class ReturnBitwardenObj(App[None]):
+class BitwardenCredentials(App[None]):
     CSS = """
         $bluish_white: rgb(189,216,255);
         $lavender: rgb(174,168,248);
@@ -64,8 +64,8 @@ class ReturnBitwardenObj(App[None]):
             else:
                 self.app.exit(None)
 
-        self.app.push_screen(BitwardenCredentials(), check_modal_output)
+        self.app.push_screen(BitwardenCredentialsScreen(), check_modal_output)
 
 if __name__ == "__main__":
-    app = ReturnBitwardenObj()
+    app = BitwardenCredentials()
     app.run()

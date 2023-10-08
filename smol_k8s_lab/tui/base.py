@@ -1,6 +1,5 @@
-from ..constants import INITIAL_USR_CONFIG
+from ..constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
 from ..k8s_distros import check_all_contexts
-from ..utils.write_yaml import dump_to_file
 
 from .apps_config import AppsConfig
 from .base_cluster_modal import ClusterModalScreen
@@ -11,6 +10,7 @@ from .smol_k8s_config import SmolK8sLabConfig
 from .validators.already_exists import CheckIfNameAlreadyInUse
 
 from rich.text import Text
+from ruamel.yaml import YAML
 from textual import on
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -100,8 +100,9 @@ class BaseApp(App):
         don't display the table and add text that says we found no clusters
         """
         self.get_widget_by_id("table-grid").display = False
-        self.get_widget_by_id("base-box-grid").remove_class("larger-grid")
-        self.get_widget_by_id("base-box-grid").add_class("smaller-grid")
+        base_box_grid = self.get_widget_by_id("base-box-grid")
+        base_box_grid.remove_class("larger-grid")
+        base_box_grid.add_class("smaller-grid")
         cluster_help = self.query_one("#clusters-text")
         cluster_help.update("No clusters found 🤷 We can fix that though!")
 
@@ -148,6 +149,8 @@ class BaseApp(App):
             cluster = response[0]
             row_key = response[1]
 
+            # make sure we actually got anything, because the user may have hit
+            # the cancel button
             if cluster and row_key:
                 data_table = self.query_one(DataTable)
                 data_table.remove_row(row_key)
@@ -168,6 +171,7 @@ class BaseApp(App):
         # set the current cluster name to return after we've done modifications
         self.current_cluster = cluster_name
 
+        # launch modal UI to ask if they'd like to modify or delete a cluster
         self.app.push_screen(ClusterModalScreen(cluster_name, distro, event.row_key),
                              check_if_cluster_deleted)
 
@@ -221,14 +225,21 @@ class BaseApp(App):
         else:
             footer.display = True
 
-    def write_yaml(self) -> None:
+    def write_yaml(self, config_file: str = XDG_CONFIG_FILE) -> None:
         """
         dump current self.cfg to user's smol-k8s-lab config.yaml
         """
-        dump_to_file(self.cfg)
+        yaml = YAML()
+
+        with open(config_file, 'w') as smol_k8s_config:
+            yaml.dump(self.cfg, smol_k8s_config)
 
 
 class NewClusterInput(Static):
+    """ 
+    small widget with an input and button that takes the names of a cluster,
+    and changes the 
+    """
     def compose(self) -> ComposeResult:
         with Grid(id="new-cluster-button-container"):
             input = Input(value="smol-k8s-lab",
@@ -246,10 +257,23 @@ class NewClusterInput(Static):
             yield new_button
 
     @on(Input.Changed)
-    def input_validation(self, event: Input.Changed) -> None:
+    @on(Input.Submitted)
+    def input_validation(self, event: Input.Changed | Input.Submitted) -> None:
+        """ 
+        Takes events matching Input.Changed and Input.Submitted events, and
+        checks if input is valid. If the user presses enter (Input.Submitted),
+        and the input is valid, we also press the button for them.
+        """
+        new_cluster_button = self.get_widget_by_id("new-cluster-button")
+
         if event.validation_result.is_valid:
             # if result is valid, enable the submit button
-            self.get_widget_by_id("new-cluster-button").disabled = False
+            new_cluster_button.disabled = False
+
+            # if the user pressed enter, we also press the submit button ✨
+            if isinstance(event, Input.Submitted):
+                new_cluster_button.action_press()
+
         else:
             # if result is not valid, notify the user why
             self.notify("\n".join(event.validation_result.failure_descriptions),
@@ -258,12 +282,13 @@ class NewClusterInput(Static):
                         title="⚠️ Input Validation Error\n")
 
             # and disable the submit button
-            self.get_widget_by_id("new-cluster-button").disabled = True
+            new_cluster_button.disabled = True
 
     @on(Button.Pressed)
     def button_pressed(self, event: Button.Pressed) -> None:
         """
-        get pressed button and act on it
+        get pressed button (Button.Pressed event) and change current screen to
+        the k8s distro config screen
         """
         self.current_cluster = self.get_widget_by_id("cluster-name-input").value
         self.app.action_request_distro_cfg()

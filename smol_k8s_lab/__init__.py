@@ -8,6 +8,7 @@
 
 from click import option, command
 import logging
+from os import environ as env
 from os import path
 from rich.logging import RichHandler
 from rich.panel import Panel
@@ -16,7 +17,7 @@ from sys import exit
 # custom libs and constants
 from .env_config import check_os_support, process_configs
 from .bitwarden.bw_cli import BwCLI
-from .bitwarden.tui.bitwarden_app import ReturnBitwardenObj
+from .tui.bitwarden.bitwarden_app import BitwardenCredentials
 from .constants import KUBECONFIG, HOME_DIR, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
@@ -24,7 +25,6 @@ from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd
 from .k8s_tools.k8s_lib import K8s
 from .tui import launch_config_tui
-from .utils import check_env_for_credentials
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
 
@@ -38,7 +38,7 @@ def process_log_config(log_dict: dict = {'level': 'warn', 'file': None}):
     Sets up rich logger for the entire project. (ᐢ._.ᐢ) <---- who is he? :3
     Returns logging.getLogger("rich")
     """
-    # determine logging level
+    # determine logging level and default to warning level
     level = log_dict.get('level', 'warn')
     log_level = getattr(logging, level.upper(), None)
 
@@ -66,13 +66,18 @@ def process_log_config(log_dict: dict = {'level': 'warn', 'file': None}):
 
         opts['handlers'] = [RichHandler(**rich_handler_opts)]
 
+    # this removes all former loggers, we hope
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+
     # this uses the opts dictionary as parameters to logging.basicConfig()
     logging.basicConfig(**opts)
 
-    if log_file:
-        return logging
-    else:
+    if not log_file:
         return logging.getLogger("rich")
+    # if the user requested logging to a file, we don't use rich logging
+    else:
+        return logging
 
 
 # an ugly list of decorators, but these are the opts/args for the whole script
@@ -127,11 +132,13 @@ def main(config: str = "",
 
         if using_bw_pw_manager or using_bweso:
             # get bitwarden credentials from the env if there are any
-            password, client_id, client_secret = check_env_for_credentials()
+            password = env.get("BW_PASSWORD", None)
+            client_id = env.get("BW_CLIENTID", None)
+            client_secret = env.get("BW_CLIENTSECRET", None)
 
             # if any of the credentials are missing from the env, launch the tui
             if not any([password, client_id, client_secret]):
-                bitwarden_credentials = ReturnBitwardenObj().run()
+                bitwarden_credentials = BitwardenCredentials().run()
                 if not bitwarden_credentials:
                     raise Exception("Exiting because no credentials were passed in "
                                     "but bitwarden is enabled")

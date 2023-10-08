@@ -10,10 +10,12 @@ from .constants import (OS,
                         DEFAULT_APPS,
                         DEFAULT_DISTRO_OPTIONS,
                         DEFAULT_DISTRO,
-                        INITIAL_USR_CONFIG)
+                        INITIAL_USR_CONFIG,
+                        XDG_CONFIG_FILE)
 from .utils.rich_cli.console_logging import print_panel, header, sub_header
-from .utils.write_yaml import dump_to_file
+
 from rich.prompt import Confirm, Prompt
+from ruamel.yaml import YAML
 
 
 def check_os_support(supported_os=('Linux', 'Darwin')):
@@ -89,6 +91,10 @@ def process_configs(config: dict = INITIAL_USR_CONFIG, delete: bool = False):
     if initialize or DEFAULT_CONFIG != config:
         sub_header("✏️ Writing out your newly updated config file")
         dump_to_file(config)
+        yaml = YAML()
+
+        with open(XDG_CONFIG_FILE, 'w') as smol_k8s_config:
+            yaml.dump(data, smol_k8s_config)
 
     return config, secrets
 
