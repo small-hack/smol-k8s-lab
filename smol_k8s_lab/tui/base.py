@@ -9,6 +9,7 @@ from .help import HelpScreen
 from .smol_k8s_config import SmolK8sLabConfig
 from .validators.already_exists import CheckIfNameAlreadyInUse
 
+import random
 from rich.text import Text
 from ruamel.yaml import YAML
 from textual import on
@@ -242,7 +243,14 @@ class NewClusterInput(Static):
     """
     def compose(self) -> ComposeResult:
         with Grid(id="new-cluster-button-container"):
-            input = Input(value="smol-k8s-lab",
+            # list of approved words for nouns
+            cute = ["bunnies", "hoglets", "puppies", "kittens", "knuffels",
+                    "friends", "vrienden", "egels", "hedgehogs", "vogels", "birds",
+                    "teddy-bears", "meerkoeten", "dogs", "cats", "turtles",
+                    "raccoons", "wasberen"]
+            random_name = random.choice(cute)
+
+            input = Input(value="cluster-4-" + random_name,
                           validators=[
                               Length(minimum=2),
                               CheckIfNameAlreadyInUse(self.app.cluster_names)
