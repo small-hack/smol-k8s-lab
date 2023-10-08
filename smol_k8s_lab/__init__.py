@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 """
            NAME: smol-k8s-lab
-    DESCRIPTION: Works with k3s and KinD (k3d is experimental)
+    DESCRIPTION: Works with k3s, KinD, and k3d
          AUTHOR: jessebot(AT)linux(d0t)com
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
@@ -35,7 +35,7 @@ HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 def process_log_config(log_dict: dict = {'level': 'warn', 'file': None}):
     """
-    Sets up rich logger for the entire project. (ᐢ._.ᐢ) <---- who is he? :3
+    Sets up rich logger for the entire project.
     Returns logging.getLogger("rich")
     """
     # determine logging level and default to warning level

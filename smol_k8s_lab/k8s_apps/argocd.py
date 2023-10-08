@@ -11,7 +11,7 @@ import yaml
 from ..constants import XDG_CACHE_DIR
 from ..k8s_tools.helm import Helm
 from ..k8s_tools.k8s_lib import K8s
-from ..utils.bitwarden.bw_cli import BwCLI
+from ..bitwarden.bw_cli import BwCLI
 from ..utils.subproc import subproc
 from ..utils.passwords import create_password
 from ..utils.rich_cli.console_logging import header, sub_header
@@ -103,6 +103,8 @@ def configure_argocd(k8s_obj: K8s,
 def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
     """
     configures the applicationset secret plugin generator
+
+    (._. ) <-- who are they?
     """
     msg = "🔌 Installing the ApplicationSet Secret Plugin Generator for Argo CD..."
     sub_header(msg)

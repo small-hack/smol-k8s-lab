@@ -121,9 +121,8 @@ class BaseApp(App):
         # first, update the header text to let user know we've found clusters
         cluster_help = self.query_one("#clusters-text")
         cluster_help.update(
-                "We found the following clusters. Select a row to modify the cluster's"
-                " apps or even delete the cluster. You can also create a new cluster "
-                "using button below.")
+                "Select a row to modify the cluster's apps or delete it. "
+                "You can also create a new cluster using button below.")
 
         # then fill in the cluster table
         data_table.add_column(Text("Cluster", justify="center"))
@@ -245,9 +244,8 @@ class NewClusterInput(Static):
         with Grid(id="new-cluster-button-container"):
             # list of approved words for nouns
             cute = ["bunnies", "hoglets", "puppies", "kittens", "knuffels",
-                    "friends", "vrienden", "egels", "hedgehogs", "vogels", "birds",
-                    "teddy-bears", "meerkoeten", "dogs", "cats", "turtles",
-                    "raccoons", "wasberen"]
+                    "friends", "egels", "hedgehogs", "vogels", "birds", "meerkoeten",
+                    "dogs", "cats", "turtles", "raccoons", "wasberen"]
             random_name = random.choice(cute)
 
             input = Input(value="cluster-4-" + random_name,
