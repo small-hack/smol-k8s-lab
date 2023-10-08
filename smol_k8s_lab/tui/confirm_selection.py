@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.11
-from .bitwarden.bitwarden_app import BitwardenCredentials
+from ..bitwarden.tui.bitwarden_app import BitwardenCredentials
 from ..utils.yaml_with_comments import syntax_highlighted_yaml
 
 from os import environ as env
