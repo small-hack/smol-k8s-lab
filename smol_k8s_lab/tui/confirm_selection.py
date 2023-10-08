@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.11
-from ..bitwarden.tui.bitwarden_app import BitwardenCredentials
+from .bitwarden.bitwarden_app import BitwardenCredentials
 from ..utils.yaml_with_comments import syntax_highlighted_yaml
-from ..utils import check_env_for_credentials
 
+from os import environ as env
 from textual import on
 from textual.binding import Binding
 from textual.app import ComposeResult
@@ -155,7 +155,9 @@ class ConfirmConfig(Screen):
                 self.notify(leaving_notification, timeout=8,
                             title="💡To avoid the credentials prompt in the future")
 
-        password, client_id, client_secret = check_env_for_credentials()
+        password = env.get("BW_PASSWORD", None)
+        client_id = env.get("BW_CLIENTID", None)
+        client_secret = env.get("BW_CLIENTSECRET", None)
         if not any([password, client_id, client_secret]):
             self.app.push_screen(BitwardenCredentials(), process_modal_output)
         else:

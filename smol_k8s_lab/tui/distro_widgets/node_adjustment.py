@@ -89,12 +89,12 @@ class NodeAdjustmentBox(Widget):
         only if input is valid, and the distro is not k3s
         """
         if event.validation_result.is_valid and self.distro != "k3s":
-            distro_cfg = self.ancestors[-1].cfg['k8s_distros'][self.distro]['nodes']
+            distro_cfg = self.app.cfg['k8s_distros'][self.distro]['nodes']
 
             if event.input.name == "worker_nodes":
                 distro_cfg['workers'] = int(event.input.value)
-                self.ancestors[-1].write_yaml()
+                self.app.write_yaml()
 
             if event.input.name == "control_plane_nodes":
                 distro_cfg['control_plane'] = int(event.input.value)
-                self.ancestors[-1].write_yaml()
+                self.app.write_yaml()
