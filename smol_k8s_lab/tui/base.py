@@ -290,7 +290,7 @@ class NewClusterInput(Static):
         get pressed button (Button.Pressed event) and change current screen to
         the k8s distro config screen
         """
-        self.current_cluster = self.get_widget_by_id("cluster-name-input").value
+        self.app.current_cluster = self.get_widget_by_id("cluster-name-input").value
         self.app.action_request_distro_cfg()
 
 
