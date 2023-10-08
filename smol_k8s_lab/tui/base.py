@@ -19,6 +19,11 @@ from textual.containers import Grid
 from textual.validation import Length
 from textual.widgets import Footer, Header, Button, Label, DataTable, Input, Static
 
+# list of approved words for nouns
+CUTE_NOUNS = ["bunnies", "hoglets", "puppies", "kittens", "knuffels", "friends",
+              "egels", "hedgehogs", "vogels", "birds", "meerkoeten", "dogs",
+              "cats", "turtles", "raccoons", "wasberen"]
+
 
 class BaseApp(App):
     BINDINGS = [Binding(key="?",
@@ -242,14 +247,7 @@ class NewClusterInput(Static):
     """
     def compose(self) -> ComposeResult:
         with Grid(id="new-cluster-button-container"):
-            # list of approved words for nouns
-            cute = ["bunnies", "hoglets", "puppies", "kittens", "knuffels",
-                    "friends", "egels", "hedgehogs", "vogels", "birds", "meerkoeten",
-                    "dogs", "cats", "turtles", "raccoons", "wasberen"]
-            random_name = random.choice(cute)
-
-            input = Input(value="cluster-4-" + random_name,
-                          validators=[
+            input = Input(validators=[
                               Length(minimum=2),
                               CheckIfNameAlreadyInUse(self.app.cluster_names)
                               ],
@@ -261,6 +259,11 @@ class NewClusterInput(Static):
             new_button = Button("✨ New Cluster", id="new-cluster-button")
             new_button.tooltip = "Add a new cluster managed by smol-k8s-lab"
             yield new_button
+
+    def on_mount(self) -> None:
+        input = self.get_widget_by_id("cluster-name-input")
+        input.value = "cluster-4-" + random.choice(CUTE_NOUNS)
+
 
     @on(Input.Changed)
     @on(Input.Submitted)
