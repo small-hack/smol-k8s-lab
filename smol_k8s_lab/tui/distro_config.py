@@ -144,8 +144,9 @@ class DistroConfigScreen(Screen):
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "k8s distro config"
 
-        select_distro_title = "🌱 Select a k8s distro to get started"
-        self.get_widget_by_id("top-distro-row").border_title = select_distro_title
+        top_row = self.get_widget_by_id("top-distro-row")
+        top_row.border_title = "🌱 Select a [#C1FF87]k8s distro[/]"
+        top_row.border_subtitle = "[i]All boxes below are optional"
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:

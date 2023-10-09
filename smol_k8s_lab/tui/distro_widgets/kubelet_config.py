@@ -52,7 +52,8 @@ class KubeletConfig(Widget):
         """
         # kubelet config styling
         kubelet_cfg = self.query_one(".kubelet-config-container")
-        kubelet_cfg.border_title = "[gold3]Optional[/]: Extra Parameters for Kubelet"
+        kubelet_cfg.border_title = ("[i]Add[/] [i]extra[/] parameters for "
+                                    "[#C1FF87]kubelet")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """

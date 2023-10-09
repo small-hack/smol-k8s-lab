@@ -95,7 +95,7 @@ class AppsConfig(Screen):
 
         # select-apps styling - select apps container - top left
         select_apps_widget = self.get_widget_by_id("select-add-apps")
-        select_apps_widget.border_title = "[magenta]♥ [/]Select apps"
+        select_apps_widget.border_title = "[#ffaff9]♥[/] [i]Select[/] [#C1FF87]apps"
 
         # select-apps styling - bottom
         app_desc = self.get_widget_by_id("app-description-container")
@@ -136,7 +136,7 @@ class AppsConfig(Screen):
 
         # styling for the select-apps - configure apps container - right
         app_title = highlighted_app.replace("_", "-")
-        app_cfg_title = f"🛠️ Configure Parameters for [steel_blue1]{app_title}"
+        app_cfg_title = f"🛠️ [i]Configure[/] parameters for [#C1FF87]{app_title}"
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
         if self.previous_app != "":

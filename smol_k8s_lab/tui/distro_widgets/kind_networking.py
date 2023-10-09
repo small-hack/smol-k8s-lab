@@ -31,7 +31,7 @@ class KindNetworkingConfig(Widget):
     def compose(self) -> ComposeResult:
         with Grid(id="kind-networking-container"):
             # kind networking config section
-            help = ("Add key value pairs to kind networking config. If [dim][green]"
+            help = ("Add key value pairs to kind networking config. If [dim][#C1FF87]"
                     "cilium[/][/] is enabled, we pass in disableDefaultCNI=true.")
             yield Label(help, classes="k3s-help-label")
 
@@ -49,7 +49,7 @@ class KindNetworkingConfig(Widget):
         box border styling
         """
         # kind networking arg config styling
-        kind_title = "[gold3]Optional[/]: Extra Args for kind networking"
+        kind_title = "[i]Add[/] [i]extra[/] args for [#C1FF87]kind networking"
         self.get_widget_by_id("kind-networking-container").border_title = kind_title
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

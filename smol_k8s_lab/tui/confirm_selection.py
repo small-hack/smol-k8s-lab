@@ -85,7 +85,7 @@ class ConfirmConfig(Screen):
 
         # confirm box title styling
         confirm_box = self.get_widget_by_id("pretty-yaml-scroll-container")
-        confirm_box.border_title = "Review [i]All[/i] Values"
+        confirm_box.border_title = "[i]Review[/] [i]All[/i] [#C1FF87]Values"
 
         # display the current user yaml
         rich_highlighted = syntax_highlighted_yaml(self.cfg)
@@ -136,7 +136,7 @@ class ConfirmConfig(Screen):
             label = Label(f"[yellow][@click='{app_link}']{app}[/]:",
                           classes="nope-label nope-link")
 
-            nopes = Label("[magenta]" + "[/], [magenta]".join(fields),
+            nopes = Label("[i]" + "[/], [i]".join(fields),
                           classes="nope-fields")
 
             nope_row = Grid(label, nopes, classes="nope-row")

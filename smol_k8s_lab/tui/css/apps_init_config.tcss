@@ -36,7 +36,7 @@ $navy: rgb(35,35,54);
    width: 100%;
    content-align: left middle;
    padding-left: 1;
-   color: $spacechalk_lime;
+   color: $light_cornflower;
 }
 
 /* switch label for each app */

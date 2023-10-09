@@ -156,32 +156,52 @@ Select .option-list--option-hover-highlighted {
    align: center middle;
    content-align: center middle;
    width: 90%;
+   height: 90%;
+   grid-rows: 0.3fr 1fr;
 }
 
-#base-box-grid {
-   grid-size: 1;
+#smol-k8s-lab-header {
+    color: $soft_green;
+    background: $navy 30%;
+    padding-top: 2;
+    width: 100%;
+    content-align: center middle;
+    align: center middle;
+}
+
+/* both with-cluster-table and no-cluster-table are classes for #cluster-boxes */
+.with-cluster-table {
+    grid-rows: 0.3fr 0.2fr;
+    grid-gutter: 2;
+}
+
+.no-cluster-table {
+    height: 25%;
+}
+
+#base-cluster-table-box-grid {
    padding-left: 1;
    padding-right: 1;
    background: $navy;
    align: center middle;
    content-align: center middle;
    border: round $cornflower;
-   border-title-color: $spacechalk_lime;
+   border-title-color: $sky_blue;
+   border-title-align: center;
 }
 
-.larger-grid {
-   grid-rows: 0.15fr 1fr 0.5fr;
-   height: 40%;
-}
-
-.smaller-grid {
-   grid-rows: 0.7fr 1fr;
-   height: 20%;
+#base-new-cluster-input-box-grid {
+   padding-top: 1;
+   background: $navy;
+   align: center middle;
+   content-align: center middle;
+   border: round $cornflower;
+   border-title-color: $sky_blue;
+   border-title-align: center;
 }
 
 /* grid around the clusters datatable */
 #table-grid {
-   margin-top: 1;
    align: center middle;
    content-align: center middle;
 }
@@ -233,19 +253,16 @@ DataTable {
     background: $blue_gray 20%;
 }
 
-/* this label just lets the user know if there's clusters or not */
-#clusters-text {
-   width: 100%;
-   padding-left: 1;
-   content-align: center middle;
-   color: gray;
-}
-
-/* button for new cluster */
-#new-cluster-button-container {
-   margin-top: 1;
-   grid-size: 2;
+/* the row containing the cluster input/button row */
+#cluster-input-row {
    align: center middle;
    content-align: center middle;
-   height: auto;
+}
+
+/* input and button widget container for new cluster */
+#new-cluster-button-container {
+   align: center middle;
+   content-align: center middle;
+   grid-size: 2;
+   grid-columns: 0.55fr 1fr;
 }

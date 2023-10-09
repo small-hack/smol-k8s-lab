@@ -31,8 +31,8 @@ class ModifyAppGlobalsScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         # base screen grid
-        question = ("Modify [i]globally[/] available Argo CD ApplicationSet"
-                    " [green]templating values[/].")
+        question = ("[#ffaff9]Modify[/] [i]globally[/] available Argo CD ApplicationSet"
+                    " [#C1FF87]templating values[/].")
 
         with Grid(id="question-modal-screen"):
             # grid for app question and buttons

@@ -18,7 +18,7 @@ $navy: rgb(35,35,54);
 #nodes-input-row {
    background: $navy 50%;
    border: round $cornflower;
-   border-title-color: $spacechalk_lime;
+   border-title-color: $sky_blue;
    grid-size: 2;
    align: center middle;
    padding: 1;

@@ -19,7 +19,7 @@ $navy: rgb(35,35,54);
    align: center middle;
    background: rgb(35,35,54) 50%;
    border: round $cornflower;
-   border-title-color: $spacechalk_lime;
+   border-title-color: $sky_blue;
    margin-top: 1;
    padding-top: 1;
    padding-left: 1;
