@@ -4,6 +4,7 @@ from smol_k8s_lab.tui.app_widgets import placeholder_grammar
 # external libraries
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Grid, VerticalScroll
 from textual.screen import ModalScreen
 from textual.validation import Length, Validator, ValidationResult
@@ -24,6 +25,10 @@ class ModifyAppGlobals(Static):
 
 class ModifyAppGlobalsScreen(ModalScreen):
     CSS_PATH = ["../css/modify_globals_modal.css"]
+    BINDINGS = [Binding(key="b,esc,q",
+                        key_display="b",
+                        action="app.pop_screen",
+                        description="Back")]
 
     def __init__(self) -> None:
         self.global_params = self.app.cfg["apps_global_config"]
