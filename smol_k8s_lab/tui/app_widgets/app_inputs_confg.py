@@ -156,7 +156,8 @@ class InitValues(Static):
 
     def generate_init_row(self, init_key: str, init_value: str) -> None:
         # create input
-        input_keys = {"placeholder": placeholder_grammar(init_key),
+        grammar = placeholder_grammar(init_key)
+        input_keys = {"placeholder": grammar,
                       "classes": f"app-init-input {self.app_name}",
                       "validators": [Length(minimum=2)],
                       "name": init_key}
@@ -167,9 +168,11 @@ class InitValues(Static):
         label_value = init_key.replace("_"," ") + ":"
         label = Label(label_value, classes=f"app-init-label {self.app_name}")
         label.tooltip = (
-                "Init value for special one-time setup of this app."
+                f"{grammar}. Init value for special one-time setup of this app."
                 " This value is [i]not[/i] stored in a secret for "
-                "later reference by Argo CD.")
+                "later reference by Argo CD."
+                )
+
 
         container_class = f"app-init-row {self.app_name}"
 
@@ -196,10 +199,8 @@ class InitValues(Static):
         input = event.input
         parent_app_yaml = self.app.cfg['apps'][self.app_name]
 
-        if not event.validation_result:
-            # if this is an init input
-            if "app-init-input" in input.classes:
-                parent_app_yaml['init']['values'][input.name] = input.value
+        if event.validation_result.is_valid:
+            parent_app_yaml['init']['values'][input.name] = input.value
 
         self.app.write_yaml()
 
