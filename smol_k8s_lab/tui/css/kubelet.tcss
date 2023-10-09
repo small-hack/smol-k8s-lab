@@ -21,7 +21,6 @@ $navy: rgb(35,35,54);
    background: rgb(35,35,54) 50%;
    padding: 1;
    grid-rows: 0.25fr 1fr;
-   margin-top: 1;
 }
 
 .kubelet-config-scroll {

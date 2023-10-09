@@ -20,7 +20,6 @@ $navy: rgb(35,35,54);
    background: rgb(35,35,54) 50%;
    border: round $cornflower;
    border-title-color: $sky_blue;
-   margin-top: 1;
    padding-top: 1;
    padding-left: 1;
    padding-right: 1;
