@@ -1,5 +1,6 @@
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.validation import Length
@@ -18,6 +19,10 @@ class BitwardenCredentialsScreen(ModalScreen):
     modal screen to ask for bitwarden credentials
     """
     CSS_PATH = "./bitwarden.css"
+    BINDINGS = [Binding(key="b,esc,q",
+                        key_display="b",
+                        action="press_cancel",
+                        description="Back")]
 
     def compose(self) -> ComposeResult:
 
@@ -53,6 +58,12 @@ class BitwardenCredentialsScreen(ModalScreen):
 
         # we set this at the beginning, so we can still return empty if they cancel
         self.credentials = {}
+
+    def action_press_cancel(self) -> None:
+        """
+        presses the cancel button
+        """
+        self.get_widget_by_id("bitwarden-cancel").action_press()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
