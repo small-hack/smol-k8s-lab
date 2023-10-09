@@ -78,7 +78,7 @@ def install_k3d_cluster(cluster_name: str,
     return True
 
 
-def delete_k3d_cluster(cluster_name: str = 'smol-k8s-lab-k3d') -> bool:
+def delete_k3d_cluster(cluster_name: str) -> bool:
     """
     delete k3d cluster by name
     """
