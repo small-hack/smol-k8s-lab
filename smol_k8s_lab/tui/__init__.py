@@ -1,4 +1,6 @@
 from smol_k8s_lab.tui.base import BaseApp
+from smol_k8s_lab.utils.rich_cli.console_logging import print_msg
+import sys
 
 
 def launch_config_tui():
@@ -6,6 +8,10 @@ def launch_config_tui():
     Run all the TUI screens
     """
     res = BaseApp().run()
+    if not res:
+        print_msg("[blue]♥[/] [cyan]Have a nice day[/] [blue]♥\n", style="italic")
+        sys.exit()
+
     cluster_name = res[0]
     config = res[1]
     bitwarden_credentials = res[2]
