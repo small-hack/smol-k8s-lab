@@ -1,6 +1,9 @@
 #!/usr/bin/env python3.11
-from . import placeholder_grammar
-from .new_app_modal import NewAppModalScreen
+# smol-k8s-lab libraries
+from smol_k8s_lab.tui.app_widgets import placeholder_grammar
+from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
+
+# external libraries
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, VerticalScroll, Grid
