@@ -20,9 +20,11 @@ from textual.validation import Length
 from textual.widgets import Footer, Header, Button, Label, DataTable, Input, Static
 
 # list of approved words for nouns
-CUTE_NOUNS = ["bunnies", "hoglets", "puppies", "kittens", "knuffels", "friends",
-              "egels", "hedgehogs", "vogels", "birds", "meerkoeten", "dogs",
-              "cats", "turtles", "raccoons", "wasberen"]
+CUTE_NOUNS = ["bunny", "hoglet", "puppy", "kitten", "knuffel", "friend",
+              "egel", "meerkoet", "raccoon", "wasbeertje"]
+
+CUTE_ADJECTIVE = ["lovely", "adorable", "cute", "friendly", "nice", "leuke",
+                  "mooie", "vriendelijke", "cool", "soft"]
 
 
 class BaseApp(App):
@@ -262,7 +264,7 @@ class NewClusterInput(Static):
 
     def on_mount(self) -> None:
         input = self.get_widget_by_id("cluster-name-input")
-        input.value = "cluster-4-" + random.choice(CUTE_NOUNS)
+        input.value = random.choice(CUTE_ADJECTIVE) + '-' + random.choice(CUTE_NOUNS)
 
 
     @on(Input.Changed)
