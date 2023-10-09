@@ -79,8 +79,8 @@ class NodeAdjustmentBox(Widget):
         styling for the border
         """
         node_row = self.get_widget_by_id("nodes-input-row")
-        node_row.border_title = ("[gold3]Optional[/]: Adjust how many of each "
-                                 "node type to deploy")
+        node_row.border_title = ("[i]Adjust[/] how many of each "
+                                 "[#C1FF87]node type[/] to deploy")
 
     @on(Input.Changed)
     def update_parent_yaml(self, event: Input.Changed):

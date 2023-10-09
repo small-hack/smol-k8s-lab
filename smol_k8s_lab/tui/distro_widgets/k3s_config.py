@@ -15,8 +15,8 @@ SUGGESTIONS = SuggestFromList((
        ))
 
 help_txt = (
-        "If [dim][green]metallb[/][/] is [i]enabled[/], we add --disabled-servicelb."
-        "\nIf [dim][green]cilium[/][/] is [i]enabled[/], we add --flannel-backend=none "
+        "If [dim][#C1FF87]metallb[/][/] is [i]enabled[/], we add --disabled-servicelb."
+        "\nIf [dim][#C1FF87]cilium[/][/] is [i]enabled[/], we add --flannel-backend=none "
         "--disable-network-policy."
         )
 
@@ -65,7 +65,8 @@ class K3sConfig(Widget):
         box border styling
         """
         # k3s arg config styling
-        k3s_title = "[gold3]Optional[/]: Extra Args for k3s install script"
+        k3s_title = ("[i]Add[/] [i]extra[/] arguments for [#C1FF87]k3s[/] "
+                     "install script")
         self.query_one(".k3s-config-container").border_title = k3s_title
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

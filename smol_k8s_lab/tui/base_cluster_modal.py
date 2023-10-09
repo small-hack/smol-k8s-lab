@@ -24,7 +24,7 @@ class ClusterModalScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         question = ('How would you like to proceed with cluster '
-                    f'"[green]{self.cluster}[/]"?')
+                    f'"[#C1FF87]{self.cluster}[/]"?')
         # base screen grid
         with Grid(id="cluster-question-modal-screen", classes="modify-delete-size"):
             # grid for cluster question and buttons
@@ -61,8 +61,8 @@ class ClusterModalScreen(ModalScreen):
             self.get_widget_by_id("modify-cluster-button").display = False
 
             # are you sure, the text
-            confirm_txt = ('Are you [b][i]sure[/][/] you want to [magenta]delete[/]'
-                           f' cluster "[green]{self.cluster}[/green]"?')
+            confirm_txt = ('Are you [b][i]sure[/][/] you want to [#ffaff9]delete[/]'
+                           f' cluster "[#C1FF87]{self.cluster}[/]"?')
             self.get_widget_by_id("cluster-modal-text").update(confirm_txt)
 
             # are you sure, the button

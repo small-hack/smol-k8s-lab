@@ -31,7 +31,7 @@ $navy: rgb(35,35,54);
     grid-columns: 0.5fr 1fr;
     grid-rows: 0.5fr 1fr;
     border: round $cornflower;
-    border-title-color: $orange;
+    border-title-color: $sky_blue;
     background: $navy 50%;
 }
 
@@ -117,6 +117,7 @@ $navy: rgb(35,35,54);
 #password-manager-config {
     padding: 1;
     border: round $cornflower;
+    border-title-color: $sky_blue;
     background: $navy 50%;
 }
 
@@ -124,7 +125,6 @@ $navy: rgb(35,35,54);
     grid-size: 2;
     padding-left: 1;
     align: left middle;
-    border-title-color: $sky_blue;
     grid-columns: 0.5fr 1fr;
 }
 
@@ -147,7 +147,7 @@ $navy: rgb(35,35,54);
     grid-rows: 0.4fr 0.55fr 0.4fr;
     margin-top: 2;
     border: round $cornflower;
-    border-title-color: $spacechalk_lime;
+    border-title-color: $sky_blue;
     background: $navy 50%;
     align: center middle;
 }

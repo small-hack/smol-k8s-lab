@@ -33,7 +33,7 @@ $navy: rgb(35,35,54);
 /* full user yaml with scroll bar */
 #pretty-yaml-scroll-container {
    border: round $cornflower;
-   border-title-color: $light_pink;
+   border-title-color: $sky_blue;
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;

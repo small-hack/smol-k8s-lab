@@ -30,7 +30,7 @@ $navy: rgb(35,35,54);
 /* matches only the left hand side of top half of screen */
 #select-add-apps {
    border: round $cornflower;
-   border-title-color: $spacechalk_lime;
+   border-title-color: $sky_blue;
    background: $navy 60%;
    align: center top;
    height: auto;
@@ -66,7 +66,7 @@ $navy: rgb(35,35,54);
 
 /* Matches the "Configure parameters for {app}" input list pane itself */
 #app-inputs-pane {
-   border-title-color: $spacechalk_lime;
+   border-title-color: $sky_blue;
    padding-top: 1;
    border: round $cornflower;
    background: $navy 50%;
@@ -111,7 +111,7 @@ $navy: rgb(35,35,54);
    content-align: left middle;
    padding-left: 1;
    background: $blue_gray 20%;
-   color: $soft_green 90%;
+   color: $light_cornflower;
    height: 3;
    margin-bottom: 1;
 }
@@ -141,7 +141,7 @@ $navy: rgb(35,35,54);
 
 /* divider between secret keys and the rest of the argo inputs */
 .secret-key-divider {
-   color: $soft_green 90%;
+   color: $light_cornflower;
    height: 3;
    padding-left: 1;
    width: 100%;
@@ -175,7 +175,7 @@ $navy: rgb(35,35,54);
    column-span: 2;
    background: $navy 25%;
    border: round $light_cornflower;
-   border-title-color: $cornflower;
+   border-title-color: $sky_blue;
    height: 100%;
    margin-top: 1;
    align: left middle;

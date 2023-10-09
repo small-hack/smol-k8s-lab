@@ -128,7 +128,7 @@ class TuiConfig(Widget):
         """
         box border styling
         """
-        tui_title = "🖥️ Terminal UI Config"
+        tui_title = "🖥️ [i]Configure[/] [#C1FF87]Terminal UI"
         self.get_widget_by_id("tui-config").border_title = tui_title
 
     @on(Switch.Changed)
@@ -205,7 +205,7 @@ class LoggingConfig(Widget):
         """
         box border styling
         """
-        log_title = "🪵Logging Config"
+        log_title = "🪵[i]Configure[/] [#C1FF87]Logging"
         self.get_widget_by_id("logging-config").border_title = log_title
 
     @on(Select.Changed)
@@ -263,7 +263,7 @@ class PasswordManagerConfig(Widget):
         """
         box border styling
         """
-        pass_title = "🔒Password Manager"
+        pass_title = "🔒[i]Configure[/] [#C1FF87]Password Manager"
         self.get_widget_by_id("password-manager-config").border_title = pass_title
 
     @on(Switch.Changed)

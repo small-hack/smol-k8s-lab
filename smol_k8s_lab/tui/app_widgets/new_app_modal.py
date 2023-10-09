@@ -16,8 +16,8 @@ class NewAppModalScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         # base screen grid
-        question = ("Please enter a [magenta]name[/] and [magenta]description[/]"
-                    " for your [green]Argo CD Application.")
+        question = ("Please enter a [i]name[/] and [i]description[/]"
+                    " for your [#C1FF87]Argo CD Application.")
 
         with Grid(id="question-modal-screen"):
             # grid for app question and buttons

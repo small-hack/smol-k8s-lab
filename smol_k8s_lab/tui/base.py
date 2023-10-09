@@ -1,14 +1,16 @@
-from ..constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
-from ..k8s_distros import check_all_contexts
+# smol-k8s-lab libraries
+from smol_k8s_lab.constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
+from smol_k8s_lab.k8s_distros import check_all_contexts
+from smol_k8s_lab.tui.apps_config import AppsConfig
+from smol_k8s_lab.tui.base_cluster_modal import ClusterModalScreen
+from smol_k8s_lab.tui.confirm_selection import ConfirmConfig
+from smol_k8s_lab.tui.distro_config import DistroConfigScreen
+from smol_k8s_lab.tui.help import HelpScreen
+from smol_k8s_lab.tui.smol_k8s_config import SmolK8sLabConfig
+from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
-from .apps_config import AppsConfig
-from .base_cluster_modal import ClusterModalScreen
-from .confirm_selection import ConfirmConfig
-from .distro_config import DistroConfigScreen
-from .help import HelpScreen
-from .smol_k8s_config import SmolK8sLabConfig
-from .validators.already_exists import CheckIfNameAlreadyInUse
-
+# external libraries
+from pyfiglet import Figlet
 import random
 from rich.text import Text
 from ruamel.yaml import YAML
@@ -17,7 +19,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid
 from textual.validation import Length
-from textual.widgets import Footer, Header, Button, Label, DataTable, Input, Static
+from textual.widgets import Footer, Button, DataTable, Input, Static, Label
 
 # list of approved words for nouns
 CUTE_NOUNS = ["bunny", "hoglet", "puppy", "kitten", "knuffel", "friend",
@@ -56,8 +58,6 @@ class BaseApp(App):
         """
         Compose app with screens
         """
-        yield Header()
-
         # Footer to show keys
         footer = Footer()
 
@@ -67,52 +67,31 @@ class BaseApp(App):
 
         # full screen container
         with Grid(id="base-screen-container"):
+            yield Label(Figlet(font="ogre").renderText("smol-k8s-lab"),
+                        id="smol-k8s-lab-header")
 
-            # the actual little box in the middle of screen
-            with Grid(id="base-box-grid"):
-
-                # help text that changes based on if we have clusters
-                yield Label(id="clusters-text")
-
-                # grid for the cluster data table
-                with Grid(id="table-grid"):
-                    yield DataTable(zebra_stripes=True,
-                                    id="clusters-data-table",
-                                    cursor_type="row")
-
-                # container for new cluster buton
-                yield NewClusterInput()
+            with Grid(id="cluster-boxes"):
+                # the actual little box in the middle of screen
+                with Grid(id="base-new-cluster-input-box-grid"):
+                    # container for new cluster buton
+                    with Grid(id="cluster-input-row"):
+                        yield NewClusterInput()
 
     def on_mount(self) -> None:
         """
         screen and box border styling
         """
-        # screen title
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        self.sub_title = "Getting Started"
-
         # main box title
-        grid_title = "Modify or Create clusters"
-        self.get_widget_by_id("base-box-grid").border_title = grid_title
+        title = "[#ffaff9]Create[/] a [i]new[/] [#C1FF87]cluster[/] with the name below"
+        self.get_widget_by_id("base-new-cluster-input-box-grid").border_title = title
 
         # get all clusters
         clusters = check_all_contexts()
 
-        if not clusters:
-            self.add_no_clusters_found_text()
-        else:
+        if clusters:
             self.generate_cluster_table(clusters)
-
-    def add_no_clusters_found_text(self,) -> None:
-        """ 
-        don't display the table and add text that says we found no clusters
-        """
-        self.get_widget_by_id("table-grid").display = False
-        base_box_grid = self.get_widget_by_id("base-box-grid")
-        base_box_grid.remove_class("larger-grid")
-        base_box_grid.add_class("smaller-grid")
-        cluster_help = self.query_one("#clusters-text")
-        cluster_help.update("No clusters found 🤷 We can fix that though!")
+        else:
+            self.get_widget_by_id("cluster-boxes").add_class("no-cluster-table")
 
     def generate_cluster_table(self, clusters: list) -> None:
         """ 
@@ -121,15 +100,9 @@ class BaseApp(App):
         Each row is has a height of 3 and is centered to make it easier to read
         for people with dyslexia
         """
-        self.get_widget_by_id("base-box-grid").add_class("larger-grid")
-
-        data_table = self.query_one(DataTable)
-
-        # first, update the header text to let user know we've found clusters
-        cluster_help = self.query_one("#clusters-text")
-        cluster_help.update(
-                "Select a row to modify the cluster's apps or delete it. "
-                "You can also create a new cluster using button below.")
+        data_table = DataTable(zebra_stripes=True,
+                               id="clusters-data-table",
+                               cursor_type="row")
 
         # then fill in the cluster table
         data_table.add_column(Text("Cluster", justify="center"))
@@ -143,6 +116,21 @@ class BaseApp(App):
             data_table.add_row(*styled_row, height=3, key=row[0])
 
             self.cluster_names.append(row[0])
+
+        # grid for the cluster data table
+        table_grid = Grid(data_table,
+                          id="table-grid")
+
+        # the actual little box in the middle of screen
+        main_grid = Grid(table_grid, id="base-cluster-table-box-grid")
+
+        # modify clusters box title
+        main_grid.border_title = "Select a row to [#ffaff9]modify[/] or [#ffaff9]delete[/] an [i]existing[/] [#C1FF87]cluster[/]"
+
+        screen_container = self.get_widget_by_id("cluster-boxes")
+        screen_container.add_class("with-cluster-table")
+        screen_container.mount(main_grid, before="#base-new-cluster-input-box-grid")
+
 
     @on(DataTable.RowSelected)
     def cluster_row_highlighted(self, event: DataTable.RowSelected) -> None:
@@ -166,7 +154,10 @@ class BaseApp(App):
                 self.current_cluster = ""
 
                 if data_table.row_count < 1:
-                    self.add_no_clusters_found_text()
+                    self.get_widget_by_id("base-cluster-table-box-grid").remove()
+                    screen = self.get_widget_by_id("cluster-boxes")
+                    screen.remove_class("with-cluster-table")
+                    screen.add_class("no-cluster-table")
 
         row_index = event.cursor_row
         row = event.data_table.get_row_at(row_index)
