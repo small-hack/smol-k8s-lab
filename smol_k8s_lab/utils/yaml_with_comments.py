@@ -9,4 +9,4 @@ def syntax_highlighted_yaml(yaml_dict: dict):
     return Syntax(yaml.dump_to_string(yaml_dict),
                   lexer="yaml",
                   theme="github-dark",
-                  background_color="grey15")
+                  background_color="#232336")
