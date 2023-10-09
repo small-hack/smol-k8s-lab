@@ -41,7 +41,8 @@ $navy: rgb(35,35,54);
    scrollbar-color-active: $sky_blue;
    scrollbar-color: $cornflower;
    padding-top: 1;
-   background: $navy 60%;
+   padding-left: 1;
+   background: $navy 75%;
    height: 90%;
    width: 90%;
 }
