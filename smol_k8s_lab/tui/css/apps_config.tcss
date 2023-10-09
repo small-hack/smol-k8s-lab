@@ -20,6 +20,7 @@ $navy: rgb(35,35,54);
    grid-size: 2;
    grid-columns: 0.5fr 1.2fr;
    grid-rows: 1.5fr 0.45fr;
+   grid-gutter: 1;
    width: 90%;
    height: 92%;
    align: center middle;
@@ -177,7 +178,6 @@ $navy: rgb(35,35,54);
    border: round $light_cornflower;
    border-title-color: $sky_blue;
    height: 100%;
-   margin-top: 1;
    align: left middle;
 }
 
