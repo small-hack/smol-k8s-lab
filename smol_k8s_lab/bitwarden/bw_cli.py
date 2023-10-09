@@ -205,18 +205,6 @@ class BwCLI():
         else:
             return response['data'], self.duplicate_strategy
 
-    def delete_item(self, item_id: str):
-        """
-        Delete Item
-            - item_name: str of name of item
-        """
-        command = f"{self.bw_path} delete item {item_id}"
-        subproc([command],
-                env={"BW_SESSION": self.session,
-                     "PATH": self.user_path,
-                     "HOME": self.home})
-        return
-
     def create_login(self,
                      name: str = "",
                      item_url: str = "",
@@ -243,13 +231,13 @@ class BwCLI():
         edit = False
 
         # go check for existing items
-        item = self.get_item(name)
-        item_id = item[0]['id']
+        item_res = self.get_item(name)
+        item = item_res[0]
 
         if not strategy:
-            strategy = item[1]
+            strategy = item_res[1]
 
-        if item[0]:
+        if item:
             if strategy == 'edit':
                 log.info("bitwarden.duplicate_strategy set to edit, so we will "
                          f"edit the existing item: {name}")
@@ -328,7 +316,7 @@ class BwCLI():
         else:
             log.info('Updating Bitwarden login item...')
 
-            subproc([f"{self.bw_path} edit item {item_id} {encodedStr}"],
+            subproc([f"{self.bw_path} edit item {item['id']} {encodedStr}"],
                     env={"BW_SESSION": self.session,
                          "PATH": self.user_path,
                          "HOME": self.home})
