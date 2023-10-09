@@ -4,7 +4,7 @@ smol_k8s_lab:
   interactive:
     # if this is set to true, we'll always launch smol-k8s-lab in interactive mode :)
     # else you need to pass in --interactive or -i to use the interactive Terminal UI
-    enabled: false
+    enabled: true
     # show bottom footer help bar
     show_footer: true
     # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
