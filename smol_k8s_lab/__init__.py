@@ -253,12 +253,12 @@ def main(config: str = "",
             # after argocd, keycloak, bweso, and vouch are up, we install all
             # apps as Argo CD Applications
             header("Installing the rest of the Argo CD apps")
-            for app_key, app in apps.items():
-                if app.get['enabled']:
-                    if not app['argo'].get('part_of_app_of_apps', False):
+            for app_key, app_meta in apps.items():
+                if app_meta['enabled']:
+                    if not app_meta['argo'].get('part_of_app_of_apps', False):
                         argo_app = app_key.replace('_', '-')
                         sub_header(f"Installing app: {argo_app}")
-                        install_with_argocd(k8s_obj, argo_app, app['argo'])
+                        install_with_argocd(k8s_obj, argo_app, app_meta['argo'])
 
             # lock the bitwarden vault on the way out, to be polite :3
             if bw:
