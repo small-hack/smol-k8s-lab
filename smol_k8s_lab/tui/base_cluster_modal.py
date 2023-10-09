@@ -1,7 +1,9 @@
-from ..k8s_distros.k3d import delete_k3d_cluster
-from ..k8s_distros.k3s import uninstall_k3s
-from ..k8s_distros.kind import delete_kind_cluster
+# smol-k8s-lab libraries
+from smol_k8s_lab.k8s_distros.k3d import delete_k3d_cluster
+from smol_k8s_lab.k8s_distros.k3s import uninstall_k3s
+from smol_k8s_lab.k8s_distros.kind import delete_kind_cluster
 
+# external libraries
 from os import system
 from textual import on
 from textual.app import ComposeResult, NoMatches

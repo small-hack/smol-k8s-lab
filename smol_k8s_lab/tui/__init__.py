@@ -1,4 +1,4 @@
-from .base import BaseApp
+from smol_k8s_lab.tui.base import BaseApp
 
 
 def launch_config_tui():
