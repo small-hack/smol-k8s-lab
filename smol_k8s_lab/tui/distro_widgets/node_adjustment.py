@@ -36,8 +36,10 @@ class NodeAdjustmentBox(Widget):
             with Grid(id="nodes-input-row"):
                 if self.distro == 'k3s':
                     disabled = True
+                    tooltip = "This field cannot be edited for k3s 😥"
                 else:
                     disabled = False
+                    tooltip = "Press [gold3]↩ Enter[/] to save"
 
                 # control plane input row
                 with Grid(classes="node-input-column"):
@@ -54,7 +56,7 @@ class NodeAdjustmentBox(Widget):
                                           name="control_plane_nodes",
                                           validators=[Number(minimum=1, maximum=50)],
                                           disabled=disabled)
-                    control_input.tooltip = "Press [gold3]↩ Enter[/] to save"
+                    control_input.tooltip = tooltip
                     yield control_input
 
                 # workers input row
@@ -67,12 +69,14 @@ class NodeAdjustmentBox(Widget):
                             )
                     yield worker_label
 
-                    yield Input(value=self.worker_nodes,
-                                placeholder='0',
-                                classes=f"{node_class}-worker-input",
-                                name="worker_nodes",
-                                validators=[Number(minimum=0, maximum=100)],
-                                disabled=disabled)
+                    worker_input = Input(value=self.worker_nodes,
+                                         placeholder='0',
+                                         classes=f"{node_class}-worker-input",
+                                         name="worker_nodes",
+                                         validators=[Number(minimum=0, maximum=100)],
+                                         disabled=disabled)
+                    worker_input.tooltip = tooltip
+                    yield worker_input
 
     def on_mount(self) -> None:
         """
