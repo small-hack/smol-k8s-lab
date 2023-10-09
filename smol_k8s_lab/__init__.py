@@ -15,6 +15,7 @@ from rich.panel import Panel
 from sys import exit
 
 # custom libs and constants
+from .constants import INITIAL_USR_CONFIG
 from .env_config import check_os_support, process_configs
 from .bitwarden.bw_cli import BwCLI
 from .bitwarden.tui.bitwarden_app import BitwardenCredentials
@@ -113,7 +114,7 @@ def main(config: str = "",
     # declaring the default name to be smol-k8s-lab
     cluster_name = "smol-k8s-lab"
 
-    if interactive:
+    if interactive or INITIAL_USR_CONFIG['smol_k8s_lab']['interactive']['enabled']:
         if not delete:
             cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
     else:
