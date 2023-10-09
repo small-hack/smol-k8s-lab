@@ -1,4 +1,5 @@
 from textual import on
+from textual.binding import Binding
 from textual.app import ComposeResult
 from textual.containers import Grid
 from textual.screen import ModalScreen
@@ -8,6 +9,10 @@ from textual.widgets import Button, Input, Label
 
 class NewAppModalScreen(ModalScreen):
     CSS_PATH = ["../css/new_app_modal.css"]
+    BINDINGS = [Binding(key="b,esc,q",
+                        key_display="b",
+                        action="press_cancel",
+                        description="Back")]
 
 
     def __init__(self, current_apps: list = []) -> None:
@@ -45,8 +50,14 @@ class NewAppModalScreen(ModalScreen):
                     yield submit 
 
                     cancel = Button("cancel", id="cancel")
-                    cancel.tooltip = "return to start page"
+                    cancel.tooltip = "return to apps config screen"
                     yield cancel 
+
+    def action_press_cancel(self) -> None:
+        """
+        presses the cancel button
+        """
+        self.get_widget_by_id("cancel").action_press()
 
     @on(Input.Changed)
     def input_validation(self, event: Input.Changed) -> None:

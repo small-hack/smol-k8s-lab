@@ -7,6 +7,7 @@ from smol_k8s_lab.k8s_distros.kind import delete_kind_cluster
 from os import system
 from textual import on
 from textual.app import ComposeResult, NoMatches
+from textual.binding import Binding
 from textual.containers import Grid
 from textual.screen import ModalScreen
 from textual.widgets import Button, Label
@@ -15,6 +16,10 @@ from textual.widgets.data_table import RowKey
 
 class ClusterModalScreen(ModalScreen):
     CSS_PATH = ["./css/cluster_modal.css"]
+    BINDINGS = [Binding(key="b,esc,q",
+                        key_display="b",
+                        action="press_cancel",
+                        description="Back")]
 
     def __init__(self, cluster: str, distro: str, row_key: RowKey) -> None:
         self.cluster = cluster
@@ -45,7 +50,14 @@ class ClusterModalScreen(ModalScreen):
                     yield delete_button
 
                     cancel = Button("🤷 Cancel", id="cancel")
+                    cancel.tooltip = "Return to previous screen"
                     yield cancel
+
+    def action_press_cancel(self) -> None:
+        """
+        presses the cancel button
+        """
+        self.get_widget_by_id("cancel").action_press()
 
     @on(Button.Pressed)
     def button_pressed(self, event: Button.Pressed) -> None:

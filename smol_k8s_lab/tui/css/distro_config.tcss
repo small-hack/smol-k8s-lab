@@ -20,6 +20,7 @@ $navy: rgb(35,35,54);
    height: 92%;
    width: 90%;
    grid-rows: 0.2fr 1.4fr;
+   grid-gutter: 1;
 }
 
 #top-distro-row {
@@ -55,5 +56,4 @@ $navy: rgb(35,35,54);
 /* bottom half k8s distro config area */
 .k8s-distro-config {
    grid-rows: 0.3fr 0.9fr 0.9fr;
-   margin-top: 1;
 }
