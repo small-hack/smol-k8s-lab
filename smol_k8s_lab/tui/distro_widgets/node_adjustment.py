@@ -36,7 +36,7 @@ class NodeAdjustmentBox(Widget):
             with Grid(id="nodes-input-row"):
                 if self.distro == 'k3s':
                     disabled = True
-                    tooltip = "This field cannot be edited for k3s 😥"
+                    tooltip = "Field cannot be edited for k3s 😥"
                 else:
                     disabled = False
                     tooltip = "Press [gold3]↩ Enter[/] to save"
