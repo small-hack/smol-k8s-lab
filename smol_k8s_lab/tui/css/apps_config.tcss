@@ -48,13 +48,14 @@ $navy: rgb(35,35,54);
 #left-apps-container {
    grid-rows: 1fr 0.68fr;
    align: center top;
+   grid-gutter: 1;
 }
 
 /* new app and modify globals buttons boxes below the app selection list */
 #left-button-box {
    grid-rows: 0.5fr 1fr;
    align: center top;
-   margin-top: 2;
+   margin-top: 1;
    width: 100%;
    height: 100%;
 }
@@ -164,7 +165,6 @@ $navy: rgb(35,35,54);
    height: auto;
    width: 100;
 }
-
 
 /* Matches App Description in Select k8s apps */
 #app-description-container {
