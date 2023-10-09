@@ -24,7 +24,7 @@ class ConfirmConfig(Screen):
     """
     CSS_PATH = ["./css/confirm.tcss"]
 
-    BINDINGS = [Binding(key="b,q,esc",
+    BINDINGS = [Binding(key="b,q,escape",
                         key_display="b",
                         action="app.pop_screen",
                         description="⬅️ Back")]

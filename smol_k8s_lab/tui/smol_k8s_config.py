@@ -34,7 +34,7 @@ class SmolK8sLabConfig(Screen):
     """
     CSS_PATH = ["./css/smol_k8s_cfg.tcss"]
 
-    BINDINGS = [Binding(key="b,q,esc",
+    BINDINGS = [Binding(key="b,q,escape",
                         key_display="b",
                         action="app.pop_screen",
                         description="Back"),
