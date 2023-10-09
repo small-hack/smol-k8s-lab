@@ -15,7 +15,7 @@ from rich.panel import Panel
 from sys import exit
 
 # custom libs and constants
-from .constants import INITIAL_USR_CONFIG
+from .constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
 from .env_config import check_os_support, process_configs
 from .bitwarden.bw_cli import BwCLI
 from .bitwarden.tui.bitwarden_app import BitwardenCredentials
@@ -83,13 +83,24 @@ def process_log_config(log_dict: dict = {'level': 'warn', 'file': None}):
 
 # an ugly list of decorators, but these are the opts/args for the whole script
 @command(cls=RichCommand, context_settings=HELP_SETTINGS)
-@option('--config', '-c', metavar="CONFIG_FILE", type=str,
-        default=path.join(HOME_DIR, '.config/smol-k8s-lab/config.yaml'),
+@option('--config', '-c',
+        metavar="CONFIG_FILE",
+        type=str,
+        default=XDG_CONFIG_FILE,
         help=HELP['config'])
-@option('--delete', '-D', is_flag=True, help=HELP['delete'])
-@option('--setup', '-s', is_flag=True, help=HELP['setup'])
-@option('--interactive', '-i', is_flag=True, help=HELP['interactive'])
-@option('--version', '-v', is_flag=True, help=HELP['version'])
+@option('--delete', '-D',
+        metavar="CLUSTER_NAME",
+        type=str,
+        help=HELP['delete'])
+@option('--setup', '-s',
+        is_flag=True,
+        help=HELP['setup'])
+@option('--interactive', '-i',
+        is_flag=True,
+        help=HELP['interactive'])
+@option('--version', '-v',
+        is_flag=True,
+        help=HELP['version'])
 def main(config: str = "",
          delete: bool = False,
          setup: bool = False,
@@ -159,7 +170,7 @@ def main(config: str = "",
         for distro, metadata in k8s_distros.items():
             if metadata.get('enabled', False):
                 # exits the script after deleting the cluster
-                delete_cluster(distro)
+                delete_cluster(delete, distro)
         exit()
 
     # if we have bitwarden credetials unlock the vault

@@ -38,7 +38,7 @@ def options_help():
         f'[light_steel_blue]{XDG_CONFIG_FILE}[/]',
 
         'delete':
-        'Delete the existing cluster.',
+        'Delete an existing cluster by name.',
 
         'setup':
         'Install/update extra tools such as argocd, cilium-cli, helm, k9s, krew, '
@@ -76,22 +76,19 @@ class RichCommand(click.Command):
                                        "skl_title": "cornflower_blue"}),
                           highlighter=highlighter, record=RECORD)
 
-        title = "☁️  [cornflower_blue][i]smol k8s lab[/] 🧸\n"
-        desc = (
-            "[steel_blue]Quickly install a lightweight Kubernetes distro + "
-            "plus all your apps onto it with Argo CD. Handles all the little"
-            " nuts and bolts for many common k8s apps, but also has a "
-            "comprehensive config file to help you add your own apps.\n")
+        title =" 🧸 [cornflower_blue]smol k8s lab[/]\n"
+        desc = ("\n[steel_blue][i]Install slim Kubernetes distros + plus all your "
+                "apps via Argo CD.\n")
 
         console.print(title + desc, justify="center")
 
         console.print("[steel_blue]Usage:[/] smol-k8s-lab [option][OPTIONS]\n")
 
         options_table = Table(highlight=True, box=None, show_header=False,
-                              row_styles=["dim", ""],
+                              row_styles=["", "dim"],
                               padding=(1, 1, 0, 0))
 
-        for param in self.get_params(ctx)[1:]:
+        for param in self.get_params(ctx):
 
             if len(param.opts) == 2:
                 opt1 = highlighter(param.opts[1])
@@ -121,8 +118,8 @@ class RichCommand(click.Command):
 
             options_table.add_row(opt1, opt2, highlighter(help))
 
-        url = ("♥ [link=https://github.com/smal-hack/smol-k8s-lab]"
-               "docs: github.com/small-hack/smol-k8s-lab[/link]")
+        url = ("♥ docs: [link=https://github.com/smal-hack/smol-k8s-lab]"
+               "github.com/small-hack/smol-k8s-lab[/link]")
         console.print(Panel(options_table,
                             border_style="light_steel_blue",
                             title="ʕ ᵔᴥᵔʔ Options",
