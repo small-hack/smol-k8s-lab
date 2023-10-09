@@ -46,11 +46,12 @@ def check_all_contexts() -> list:
     return return_contexts
 
 
-def check_contexts_for_distro(k8s_distro: str) -> dict:
+def check_contexts_for_cluster(cluster_name: str = "smol-k8s-lab",
+                               distro: str = "") -> dict:
     """
-    gets current context and if any have smol-k8s-lab-{distro} returns and
+    gets current context and if any have {cluster_name} and {distro} returns and
     dict of {"context": context_name, "cluster": cluster_name, "user": auto_info}
-    returns False if there's no clusters with smol-k8s-lab-{distro} as the context
+    returns False if there's no matching clusters as the context
     """
     contexts = subproc(["kubectl config get-contexts --no-headers"],
                        error_ok=True, quiet=True)
@@ -61,8 +62,8 @@ def check_contexts_for_distro(k8s_distro: str) -> dict:
             # split each context into fields
             fields = k8s_context.split()
 
-            # if smol-k8s-lab in 
-            if f'smol-k8s-lab-{k8s_distro}' in k8s_context:
+            # if clustername is anywhere in the context
+            if cluster_name in k8s_context and distro in k8s_context:
                 # 5 fields if there's a * denoting the current context
                 if len(fields) == 5:
                     return_dict = {"context": fields[1], "cluster": fields[2],
@@ -94,9 +95,10 @@ def create_k8s_distro(cluster_name: str,
     Returns True
     """
     header(f"Initializing your [green]{k8s_distro}[/] cluster", "💙")
-    contexts = check_contexts_for_distro(k8s_distro)
-    if contexts:
+    cluster = check_contexts_for_cluster(cluster_name, k8s_distro)
+    if cluster:
         sub_header(f'We already have a [green]{k8s_distro}[/] cluster ♡')
+        return True
 
     sub_header('This could take a min ʕ•́ _ •̀ʔっ♡ ', False)
     kubelet_args = distro_metadata.get('kubelet_extra_args', None)
@@ -143,23 +145,23 @@ def create_k8s_distro(cluster_name: str,
     return True
 
 
-def delete_cluster(k8s_distro: str) -> True:
+def delete_cluster(cluster_name: str, k8s_distro: str) -> True:
     """
     Delete a k3s, or KinD cluster entirely.
     """
-    contexts = check_contexts_for_distro(k8s_distro)
+    cluster = check_contexts_for_cluster(cluster_name, k8s_distro)
 
-    if not contexts:
+    if not cluster:
         return True
 
     if k8s_distro == 'k3s':
-        uninstall_k3s(contexts)
+        uninstall_k3s(cluster)
 
     if k8s_distro == 'k3d':
-        delete_k3d_cluster()
+        delete_k3d_cluster(cluster_name)
 
     elif k8s_distro == 'kind':
-        delete_kind_cluster()
+        delete_kind_cluster(cluster_name)
 
     else:
         # how did you even make it this far?
