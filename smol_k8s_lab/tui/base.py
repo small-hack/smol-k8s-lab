@@ -39,7 +39,7 @@ class BaseApp(App):
                         key_display="f",
                         action="toggle_footer",
                         description="toggle footer"),
-                Binding(key="q",
+                Binding(key="q,escape",
                         action="quit",
                         show=False)
                 ]

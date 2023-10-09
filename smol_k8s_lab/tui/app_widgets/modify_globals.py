@@ -25,7 +25,7 @@ class ModifyAppGlobals(Static):
 
 class ModifyAppGlobalsScreen(ModalScreen):
     CSS_PATH = ["../css/modify_globals_modal.css"]
-    BINDINGS = [Binding(key="b,esc,q",
+    BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="app.pop_screen",
                         description="Back")]

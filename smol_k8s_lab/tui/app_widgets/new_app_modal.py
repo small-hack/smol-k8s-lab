@@ -9,7 +9,7 @@ from textual.widgets import Button, Input, Label
 
 class NewAppModalScreen(ModalScreen):
     CSS_PATH = ["../css/new_app_modal.css"]
-    BINDINGS = [Binding(key="b,esc,q",
+    BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="press_cancel",
                         description="Back")]
