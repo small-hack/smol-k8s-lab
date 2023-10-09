@@ -43,7 +43,7 @@ $navy: rgb(35,35,54);
 .bitwarden-input-row {
     grid-size: 2;
     grid-columns: 0.75fr 1fr;
-    gutter: 1;
+    grid-gutter: 1;
 }
 
 /* bitwarden input label */
