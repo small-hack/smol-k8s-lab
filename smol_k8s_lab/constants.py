@@ -12,8 +12,6 @@ from ruamel.yaml import YAML
 from shutil import copyfile
 from xdg_base_dirs import xdg_cache_home, xdg_config_home
 
-yaml = YAML()
-
 # env
 SYSINFO = uname()
 # this will be something like ('Darwin', 'x86_64')
@@ -55,6 +53,7 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
         Path(XDG_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
         copyfile(DEFAULT_CONFIG_FILE, XDG_CONFIG_FILE)
 
+    yaml = YAML()
     # open the yaml config file and then return the dict
     with open(yaml_config_file, 'r') as yaml_file:
         return yaml.load(yaml_file)

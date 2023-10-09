@@ -213,11 +213,11 @@ class AppsetSecretValues(Static):
 
     def compose(self) -> ComposeResult:
         # secret keys
-        label =  Label("Template values to pass to Argo CD ApplicationSet ",
+        label =  Label("Template values for Argo CD ApplicationSet ",
                        classes="secret-key-divider",
                        id=f"{self.app_name}-secret-key-divider")
-        label.tooltip = ("🔒Added to k8s secret for the Argo CD "
-                         "ApplicationSet Secret Plugin Generator")
+        label.tooltip = ("🔒[i]optional[/]: Added to k8s secret for the Argo CD "
+                         "ApplicationSet Secret Plugin Generator.")
         yield label
 
         if self.secret_keys:

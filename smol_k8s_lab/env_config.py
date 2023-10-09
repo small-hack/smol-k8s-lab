@@ -90,11 +90,10 @@ def process_configs(config: dict = INITIAL_USR_CONFIG, delete: bool = False):
     # Write newly updated YAML data to config file
     if initialize or DEFAULT_CONFIG != config:
         sub_header("✏️ Writing out your newly updated config file")
-        dump_to_file(config)
         yaml = YAML()
 
         with open(XDG_CONFIG_FILE, 'w') as smol_k8s_config:
-            yaml.dump(data, smol_k8s_config)
+            yaml.dump(config, smol_k8s_config)
 
     return config, secrets
 
