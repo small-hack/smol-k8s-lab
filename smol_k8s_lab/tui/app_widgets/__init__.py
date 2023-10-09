@@ -18,6 +18,6 @@ def placeholder_grammar(key: str):
 
     # if this is plural
     if plural:
-        return f"enter comma seperated list of {key}"
+        return f"Please enter a comma seperated list of {key}"
     else:
-        return f"enter {article} {key}"
+        return f"Please enter {article} {key}"
