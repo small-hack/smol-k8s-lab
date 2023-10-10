@@ -173,6 +173,7 @@ Select .option-list--option-hover-highlighted {
 .with-cluster-table {
     grid-rows: 0.3fr 0.2fr;
     grid-gutter: 2;
+    height: 90%;
 }
 
 .no-cluster-table {
