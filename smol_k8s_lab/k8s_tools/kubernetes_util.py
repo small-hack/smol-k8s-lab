@@ -49,7 +49,7 @@ def apply_custom_resources(custom_resource_dict_list: dict):
     k_cmd = 'kubectl apply --wait -f '
     commands = {}
     log.debug(custom_resource_dict_list)
-    yaml = YAML(typ='safe')
+    yaml = YAML()
 
     # Write YAML data to f'{XDG_CACHE_DIR}/{resource_name}.yaml'.
     for custom_resource_dict in custom_resource_dict_list:
