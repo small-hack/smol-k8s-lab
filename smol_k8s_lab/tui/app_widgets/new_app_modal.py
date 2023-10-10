@@ -1,9 +1,11 @@
+from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
+
 from textual import on
 from textual.binding import Binding
 from textual.app import ComposeResult
 from textual.containers import Grid
 from textual.screen import ModalScreen
-from textual.validation import Length, Validator, ValidationResult
+from textual.validation import Length
 from textual.widgets import Button, Input, Label
 
 
@@ -82,18 +84,3 @@ class NewAppModalScreen(ModalScreen):
             self.dismiss([app_name, description])
         else:
             self.dismiss([None, None])
-
-
-# A custom validator to check if the name is already in use
-class CheckIfNameAlreadyInUse(Validator):
-
-    def __init__(self, app_names: list) -> None:
-        super().__init__()
-        self.app_names = app_names
-
-    def validate(self, value: str) -> ValidationResult:
-        """Check if a string is already in use as an app name."""
-        if value in self.app_names:
-            return self.failure("That app name is already in use 🫨")
-        else:
-            return self.success()

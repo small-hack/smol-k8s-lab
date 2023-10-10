@@ -7,13 +7,15 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid, VerticalScroll
 from textual.screen import ModalScreen
-from textual.validation import Length, Validator, ValidationResult
+from textual.validation import Length
 from textual.widgets import Button, Input, Label, Static
 
                     
 class ModifyAppGlobals(Static):
     """
-    tiny widget for modify globals button and modal screen launching
+    tiny widget with a "modify globals" button to launch a modal screen to modify
+    globally available templating parameters for argocd that are passed to
+    the argocd appset secrets plugin helm chart
     """
     def compose(self) -> ComposeResult:
         with Grid(classes="button-grid"):
@@ -24,6 +26,10 @@ class ModifyAppGlobals(Static):
 
 
 class ModifyAppGlobalsScreen(ModalScreen):
+    """
+    modal screen with inputs to modify globally available templating parameters 
+    for argocd that are passed to the argocd appset secrets plugin helm chart
+    """
     CSS_PATH = ["../css/modify_globals_modal.css"]
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
@@ -145,18 +151,3 @@ class ModifyAppGlobalsScreen(ModalScreen):
                 self.notify("\n".join(event.validation_result.failure_descriptions),
                             severity="warning",
                             title="⚠️ Input Validation Error\n")
-
-
-# A custom validator to check if the name is already in use
-class CheckIfNameAlreadyInUse(Validator):
-
-    def __init__(self, global_params: list) -> None:
-        super().__init__()
-        self.params = global_params
-
-    def validate(self, value: str) -> ValidationResult:
-        """Check if a string is already in use as an app name."""
-        if value in self.params:
-            return self.failure("That global name is already in use 🫨")
-        else:
-            return self.success()
