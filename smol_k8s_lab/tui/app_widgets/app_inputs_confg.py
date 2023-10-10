@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
-from smol_k8s_lab.tui.app_widgets import placeholder_grammar
+from smol_k8s_lab.tui.app_widgets import placeholder_grammar, create_sanitized_list
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
@@ -194,20 +194,26 @@ class InitValues(Static):
             app_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
             app_inputs.display = truthy_value
 
-        parent_app_yaml = event.switch.ancestors[-1].cfg['apps'][self.app_name]
+        parent_app_yaml = self.app.cfg['apps'][self.app_name]
         parent_app_yaml['init']['enabled'] = truthy_value
 
-        event.switch.ancestors[-1].write_yaml()
+        self.app.write_yaml()
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
+        """ 
+        if input is valid, write out to the base yaml
+        """
         input = event.input
-        parent_app_yaml = self.app.cfg['apps'][self.app_name]
+        parent_app_yaml = self.app.cfg['apps'][self.app_name]['init']['values']
 
         if event.validation_result.is_valid:
-            parent_app_yaml['init']['values'][input.name] = input.value
+            if self.app_name == "metallb":
+                parent_app_yaml[input.name] = create_sanitized_list(input.value)
+            else:
+                parent_app_yaml[input.name] = input.value
 
-        self.app.write_yaml()
+            self.app.write_yaml()
 
 
 class AppsetSecretValues(Static):
@@ -284,7 +290,6 @@ class AppsetSecretValues(Static):
     def update_base_yaml(self, event: Input.Changed) -> None:
         input = event.input
         parent_app_yaml = self.app.cfg['apps'][self.app_name]
-
         parent_app_yaml['argo']['secret_keys'][input.name] = input.value
 
         self.app.write_yaml()

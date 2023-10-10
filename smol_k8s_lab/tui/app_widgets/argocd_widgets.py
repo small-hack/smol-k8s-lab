@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.11
+from smol_k8s_lab.tui.app_widgets import create_sanitized_list
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal
@@ -110,21 +111,11 @@ class ArgoCDProjectConfig(Static):
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
+        """ 
+        if the input is valid, write the input as a list to the base yaml
+        """
         if event.validation_result.is_valid:
-            input_value = event.input.value
-            parent_app_yaml = self.app.cfg['apps'][self.app_name]
-
-            # split by , generating a list from a csv
-            if "," in input_value:
-                input_value = input_value.strip()
-                yaml_value = input_value.split(", ")
-            # split by spaces, generating a list from a space delimited list
-            elif "," not in input_value and " " in input_value:
-                yaml_value = input_value.split(" ")
-            # otherwise just use the value
-            else:
-                yaml_value = input_value
-
-            parent_app_yaml[event.input.name] = yaml_value
-
+            # sorts out any spaces or commas as delimeters to create a list
+            yaml_value = create_sanitized_list(event.input.value)
+            self.app.cfg['apps'][self.app_name][event.input.name] = yaml_value
             self.app.write_yaml()
