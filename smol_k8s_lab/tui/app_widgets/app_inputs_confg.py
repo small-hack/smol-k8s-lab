@@ -178,7 +178,6 @@ class InitValues(Static):
                 "later reference by Argo CD."
                 )
 
-
         container_class = f"app-init-row {self.app_name}"
 
         input = Input(**input_keys)
@@ -188,14 +187,16 @@ class InitValues(Static):
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
+        """
+        if user pressed the init switch, we hide the inputs
+        """
         truthy_value = event.value
 
         if self.init_values:
             app_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
             app_inputs.display = truthy_value
 
-        parent_app_yaml = self.app.cfg['apps'][self.app_name]
-        parent_app_yaml['init']['enabled'] = truthy_value
+        self.app.cfg['apps'][self.app_name]['init']['enabled'] = truthy_value
 
         self.app.write_yaml()
 

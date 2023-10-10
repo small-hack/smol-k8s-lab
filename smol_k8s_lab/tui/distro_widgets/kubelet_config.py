@@ -66,7 +66,7 @@ class KubeletConfig(Widget):
             parent_row = event.button.parent
             input_key = parent_row.children[0].value
             if input_key:
-                yaml = event.button.ancestors[-1].cfg['k8s_distros']
+                yaml = self.app.cfg['k8s_distros']
                 yaml[self.distro]['kubelet_extra_args'].pop(input_key)
             parent_row.remove()
 
@@ -87,7 +87,7 @@ class KubeletConfig(Widget):
             pass
 
         # grab the user's yaml file from the parent app
-        root_yaml = event.input.ancestors[-1].cfg['k8s_distros'][self.distro]
+        root_yaml = self.app.cfg['k8s_distros'][self.distro]
         extra_args = root_yaml['kubelet_extra_args']
 
         if "kubelet-arg-input-key" in event.input.classes:
@@ -103,7 +103,7 @@ class KubeletConfig(Widget):
             except ValueError:
                 extra_args[input_key] = event.input.value
 
-        event.input.ancestors[-1].write_yaml()
+        self.app.write_yaml()
 
     def generate_row(self, param: str = "", value: str = "") -> Grid:
         """

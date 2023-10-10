@@ -16,8 +16,8 @@ SUGGESTIONS = SuggestFromList((
 
 help_txt = (
         "If [dim][#C1FF87]metallb[/][/] is [i]enabled[/], we add --disabled-servicelb."
-        "\nIf [dim][#C1FF87]cilium[/][/] is [i]enabled[/], we add --flannel-backend=none "
-        "--disable-network-policy."
+        "\nIf [dim][#C1FF87]cilium[/][/] is [i]enabled[/], we add "
+        "--flannel-backend=none --disable-network-policy."
         )
 
 
@@ -82,7 +82,7 @@ class K3sConfig(Widget):
 
             # if the input field is not blank
             if input_key:
-                yaml = event.button.ancestors[-1].cfg['k8s_distros']
+                yaml = self.app.cfg['k8s_distros']
                 cli_args = yaml[self.distro]["extra_k3s_cli_args"]
                 if cli_args:
                     for idx, arg in enumerate(cli_args):
@@ -101,11 +101,11 @@ class K3sConfig(Widget):
     @on(Input.Submitted)
     def update_base_yaml(self, event: Input.Changed) -> None:
         input = event.input
-        yaml = input.ancestors[-1].cfg['k8s_distros'][self.distro]["extra_k3s_cli_args"]
+        yaml = self.app.cfg['k8s_distros'][self.distro]["extra_k3s_cli_args"]
         if input.value not in yaml:
             yaml.append(input.value)
 
-        event.input.ancestors[-1].write_yaml()
+        self.app.write_yaml()
 
     def generate_half_row(self, value: str = "") -> Grid:
         """

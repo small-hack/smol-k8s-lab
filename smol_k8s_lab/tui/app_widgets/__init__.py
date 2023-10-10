@@ -32,7 +32,7 @@ def create_sanitized_list(input_value: str) -> list:
     # split by , generating a list from a csv
     if "," in input_value:
         input_value = input_value.strip()
-        value = input_value.split(", ")
+        value = input_value.split(",")
 
     # split by spaces, generating a list from a space delimited list
     elif "," not in input_value and " " in input_value:

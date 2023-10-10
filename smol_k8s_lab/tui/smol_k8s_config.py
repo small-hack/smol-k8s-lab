@@ -139,7 +139,7 @@ class TuiConfig(Widget):
         truthy_value = event.value
         switch_name = event.switch.name
 
-        parent_cfg = event.switch.ancestors[-1].cfg['smol_k8s_lab']['interactive']
+        parent_cfg = self.app.cfg['smol_k8s_lab']['interactive']
 
         if "k9s" in switch_name:
             name = switch_name.replace("k9s-","")
@@ -149,7 +149,7 @@ class TuiConfig(Widget):
             self.cfg[switch_name] = truthy_value
             parent_cfg[switch_name] = truthy_value
 
-        self.ancestors[-1].write_yaml()
+        self.app.write_yaml()
 
     @on(Input.Changed)
     def update_parent_config_for_input(self, event: Input.Changed) -> None:
