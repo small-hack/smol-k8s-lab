@@ -132,8 +132,7 @@ def create_k8s_distro(cluster_name: str,
         if k8s_distro == "k3s":
             install_k3s_cluster(cluster_name,
                                 set(k3s_args),
-                                kubelet_args,
-                                distro_metadata['external_nodes'])
+                                kubelet_args)
 
         # curently unsupported - in alpha state
         if k8s_distro == "k3d":
