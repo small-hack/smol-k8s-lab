@@ -7,11 +7,10 @@ from textual.validation import Length
 from textual.widgets import Label, Input, Button
 
 
-HELP_TXT = ("To use Bitwarden to store sensitive data, we need your credentials."
-            " If you haven't set up a personal API credentials, please checkout "
-            "[u][link=https://bitwarden.com/help/personal-api-key/]Bitwarden's docs"
-            "[/][/] to generate them. To avoid these prompts in the future, export "
-            "BW_PASSWORD, BW_CLIENTID, and BW_CLIENTSECRET env vars ahead of time.")
+HELP_TXT = ("Requires [u][link=https://bitwarden.com/help/personal-api-key/]"
+            "personal API credentials[/][/]. To avoid this prompt, export the "
+            "following env vars before running smol-k8s-lab: "
+            "BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET")
 
 
 class BitwardenCredentialsScreen(ModalScreen):
@@ -19,7 +18,7 @@ class BitwardenCredentialsScreen(ModalScreen):
     modal screen to ask for bitwarden credentials
     """
     CSS_PATH = "./bitwarden.css"
-    BINDINGS = [Binding(key="b,esc,q",
+    BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="press_cancel",
                         description="Back")]
@@ -35,8 +34,9 @@ class BitwardenCredentialsScreen(ModalScreen):
                 # base help text to start us off
                 yield Label(HELP_TXT, id="bitwarden-help-text")
 
-                for variable in ['password', 'client_id', 'client_secret']:
-                    yield self.generate_credential_row(variable)
+                with Grid(id="all-bitwarden-inputs"):
+                    for variable in ['password', 'client_id', 'client_secret']:
+                        yield self.generate_credential_row(variable)
 
                 with Grid(id="bitwarden-button-box"):
                     # submit button, to trigger returning the credentials/exiting

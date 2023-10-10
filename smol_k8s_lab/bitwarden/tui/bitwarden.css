@@ -17,8 +17,8 @@ $navy: rgb(35,35,54);
 
 /* base container for the whole screen */
 #bitwarden-modal-container {
-    width: 80%;
-    height: 50%;
+    width: 90%;
+    height: 43%;
     align: center middle;
     background: $navy 50%;
 }
@@ -26,37 +26,48 @@ $navy: rgb(35,35,54);
 /* box with border and inputs and button */
 #credentials-box {
     align: center middle;
-    padding-top: 1;
-    padding-left: 1;
-    padding-right: 1;
+    content-align: center middle;
+    padding: 1;
     border: round $cornflower;
+    grid-gutter: 1;
+    grid-rows: 0.25fr 1fr 0.25fr;
 }
 
 /* help blurb */
 #bitwarden-help-text {
     color: $blue_gray;
     width: 100%;
-    margin-bottom: 2;
+    margin-left: 1;
+}
+
+#all-bitwarden-inputs {
+    align: center middle;
+    content-align: center middle;
+    grid-gutter: 1;
+    padding-left: 1;
 }
 
 /* bitwarden label and input row */
 .bitwarden-input-row {
     grid-size: 2;
-    grid-columns: 0.75fr 1fr;
-    grid-gutter: 1;
+    grid-columns: 0.42fr 1fr;
+    height: auto;
+    align: center middle;
+    content-align: center middle;
 }
 
 /* bitwarden input label */
 .bitwarden-label {
+    content-align: left middle;
     color: $light_cornflower 80%;
-    padding-left: 1;
-    padding-top: 1;
-    padding-bottom: 1;
     width: 100%;
+    height: 3;
 }
 
 /* bitwarden input */
 .bitwarden-inputs {
+    height: 100%;
+    content-align: left middle;
 }
 
 /* submit button */
