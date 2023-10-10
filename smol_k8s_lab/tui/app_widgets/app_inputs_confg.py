@@ -1,10 +1,11 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
-from smol_k8s_lab.tui import placeholder_grammar
 from smol_k8s_lab.tui.app_widgets import create_sanitized_list
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
+from smol_k8s_lab.tui.util import placeholder_grammar
+
 # external libraries
 from textual import on
 from textual.app import ComposeResult
