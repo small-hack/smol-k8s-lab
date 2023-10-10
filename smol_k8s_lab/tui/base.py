@@ -125,7 +125,8 @@ class BaseApp(App):
         main_grid = Grid(table_grid, id="base-cluster-table-box-grid")
 
         # modify clusters box title
-        main_grid.border_title = "Select a row to [#ffaff9]modify[/] or [#ffaff9]delete[/] an [i]existing[/] [#C1FF87]cluster[/]"
+        main_grid.border_title = ("Select a row to [#ffaff9]modify[/] or [#ffaff9]"
+                                  "delete[/] an [i]existing[/] [#C1FF87]cluster[/]")
 
         screen_container = self.get_widget_by_id("cluster-boxes")
         screen_container.add_class("with-cluster-table")
@@ -246,7 +247,9 @@ class NewClusterInput(Static):
                               ],
                           placeholder="Name of your new cluster",
                           id="cluster-name-input")
-            input.tooltip = "Name of your ✨ [i]new[/i] cluster"
+            input.tooltip = ("Name of your ✨ [i]new[/i] cluster. Note: The k8s distro"
+                             " (selected on the next screen) will be pre-pended to the "
+                             "name of the cluster by default.")
             yield input
 
             new_button = Button("✨ New Cluster", id="new-cluster-button")

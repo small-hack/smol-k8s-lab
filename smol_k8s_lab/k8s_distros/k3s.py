@@ -23,6 +23,10 @@ def install_k3s_cluster(cluster_name: str,
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
     """
+    # always prepend k3s- to the beginning of the cluster name
+    if not cluster_name.startswith("k3s-"):
+        cluster_name = "k3s-" + cluster_name
+
     # download the k3s installer if we don't have it here already
     url = requests.get("https://get.k3s.io")
     k3s_installer_file = open("./install.sh", "wb")
