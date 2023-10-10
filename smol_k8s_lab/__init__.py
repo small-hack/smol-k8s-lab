@@ -9,7 +9,6 @@
 from click import option, command
 import logging
 from os import environ as env
-from os import path
 from rich.logging import RichHandler
 from rich.panel import Panel
 from sys import exit
@@ -19,7 +18,7 @@ from .constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
 from .env_config import check_os_support, process_configs
 from .bitwarden.bw_cli import BwCLI
 from .bitwarden.tui.bitwarden_app import BitwardenCredentials
-from .constants import KUBECONFIG, HOME_DIR, VERSION
+from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_distros import create_k8s_distro, delete_cluster
@@ -199,7 +198,7 @@ def main(config: str = "",
                           cilium_enabled)
 
         argo_enabled = apps['argo_cd']['enabled']
-        zitadel_enabled = apps['zitadel']['enabled']
+        zitadel_enabled = apps['zitadel']['enabled'].copy()
 
         k8s_obj = K8s()
 
