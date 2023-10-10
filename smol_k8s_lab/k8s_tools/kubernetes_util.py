@@ -6,14 +6,17 @@ DESCRIPTION: generic kubernetes utilities
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 
-from base64 import b64decode as b64dec
-from base64 import standard_b64encode as b64enc
-from os import path
-from yaml import safe_dump, safe_load
-import logging as log
+# internal libraries
 from .k8s_lib import K8s
 from ..constants import XDG_CACHE_DIR
 from ..utils.subproc import subproc, simple_loading_bar
+
+# external libraries
+from base64 import b64decode as b64dec
+from base64 import standard_b64encode as b64enc
+import logging as log
+from os import path
+from ruamel.yaml import YAML
 
 
 def apply_manifests(manifest_file_name: str,
@@ -46,6 +49,7 @@ def apply_custom_resources(custom_resource_dict_list: dict):
     k_cmd = 'kubectl apply --wait -f '
     commands = {}
     log.debug(custom_resource_dict_list)
+    yaml = YAML(typ='safe')
 
     # Write YAML data to f'{XDG_CACHE_DIR}/{resource_name}.yaml'.
     for custom_resource_dict in custom_resource_dict_list:
@@ -54,7 +58,7 @@ def apply_custom_resources(custom_resource_dict_list: dict):
         yaml_file_name = path.join(XDG_CACHE_DIR, f'{resource_name}.yaml')
 
         with open(yaml_file_name, 'w') as cr_file:
-            safe_dump(custom_resource_dict, cr_file)
+            yaml.dump(custom_resource_dict, cr_file)
 
         commands[f'Installing {resource_name}'] = k_cmd + yaml_file_name
 
@@ -77,10 +81,11 @@ def update_secret_key(k8s_obj: K8s,
 
     # if this is a secret with a filename key and then inline yaml inside...
     if in_line_key_name:
+        yaml = YAML()
         file_key = secret_data[in_line_key_name]
         decoded_data  = b64dec(str.encode(file_key)).decode('utf8')
         # load the yaml as a python dictionary
-        in_line_yaml = safe_load(decoded_data)
+        in_line_yaml = yaml.load(decoded_data)
         # for each key, updated_value in updated_values_dict
         for key, updated_value in updated_values_dict.items():
            # update the in-line yaml
