@@ -93,9 +93,12 @@ def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s'):
 
     cluster_name: string - the name you'd like to give to the cluster and context
     """
-    yaml = YAML(typ='safe')
+    safe_yaml = YAML(typ='safe')
+    yaml = YAML()
+
     # Grab the kubeconfig and copy it locally
-    k3s_kubecfg = yaml.load(subproc(['sudo /bin/cat /etc/rancher/k3s/k3s.yaml']))
+    k3s_yml = subproc(['sudo /bin/cat /etc/rancher/k3s/k3s.yaml'])
+    k3s_kubecfg = safe_yaml.load(k3s_yml)
 
     # update name of cluster, user, and context from default to smol-k8s-lab-k3s
     k3s_kubecfg['clusters'][0]['name'] = cluster_name
@@ -108,7 +111,7 @@ def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s'):
     if path.exists(KUBECONFIG):
         log.info(f"Updating your {KUBECONFIG} ↑")
         with open(KUBECONFIG, 'r') as user_kubeconfig:
-            existing_config = yaml.load(user_kubeconfig)
+            existing_config = safe_yaml.load(user_kubeconfig)
 
         if existing_config:
             # append new cluster, user and context
