@@ -101,14 +101,14 @@ class TuiConfig(Widget):
                         )
 
                 yield bool_option(
-                        label="show footer:",
+                        label="footer:",
                         name="show_footer",
                         switch_value=self.cfg['show_footer'],
                         tooltip="show the footer at the bottom of the screen"
                         )
 
                 yield bool_option(
-                        label="k9s enabled:",
+                        label="k9s:",
                         name="k9s-enabled",
                         switch_value=self.cfg['k9s']['enabled'],
                         tooltip="launch k9s, a k8s TUI dashboard when cluster is up"
