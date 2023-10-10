@@ -106,6 +106,7 @@ def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s'):
     k3s_kubecfg['contexts'][0]['name'] = cluster_name
     k3s_kubecfg['contexts'][0]['context']['cluster'] = cluster_name
     k3s_kubecfg['contexts'][0]['context']['user'] = cluster_name
+    k3s_kubecfg['current-context'] = cluster_name
 
     # if the kubeconfig already exists and is not empty, we update it
     if path.exists(KUBECONFIG):
