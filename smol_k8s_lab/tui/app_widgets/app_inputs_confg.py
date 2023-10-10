@@ -105,7 +105,11 @@ class AppInputs(Static):
 
 
 class InitValues(Static):
+    """
+    widget to take special smol-k8s-lab init values
+    """
     CSS_PATH = "../css/apps_init_config.tcss"
+
     def __init__(self, app_name: str, init_dict: dict) -> None:
         self.app_name = app_name
         self.init = init_dict
@@ -219,6 +223,11 @@ class InitValues(Static):
 
 
 class AppsetSecretValues(Static):
+    """
+    widget to take secret key values to pass to argocd appset secret plugin helm
+    chart. These values are saved to the base yaml in:
+    self.app.cfg['apps'][app]['secret_keys']
+    """
     def __init__(self, app_name: str, secret_keys: dict = {}) -> None:
         self.app_name = app_name
         self.secret_keys = secret_keys
