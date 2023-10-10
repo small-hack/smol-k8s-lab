@@ -89,7 +89,12 @@ class AppInputs(Static):
 
             yield ArgoCDApplicationConfig(self.app_name, self.argo_params)
 
-            yield AppsetSecretValues(self.app_name, self.argo_params['secret_keys'])
+            secret_keys = self.argo_params.get('secret_keys', False)
+            if not secret_keys and isinstance(secret_keys, bool):
+                self.app.cfg['apps'][self.app_name]['secret_keys'] = {}
+                self.app.write_yaml()
+
+            yield AppsetSecretValues(self.app_name, secret_keys)
 
             # argocd project configuration
             yield Label("Advanced Argo CD Project Configuration",

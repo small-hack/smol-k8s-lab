@@ -160,6 +160,8 @@ apps:
     init:
       enabled: true
     argo:
+      # secrets keys to make available to ArgoCD ApplicationSet
+      secret_keys: {}
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
       part_of_app_of_apps: "argo_cd"
