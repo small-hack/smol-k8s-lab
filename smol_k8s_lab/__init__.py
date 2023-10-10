@@ -180,88 +180,91 @@ def main(config: str = "",
     else:
         bw = None
 
+    # this is a dict of all the apps we can install
+    apps = USR_CFG['apps']
+
+    # check immediately if metallb is enabled
+    metallb_enabled = apps['metallb']['enabled']
+    # check immediately if cilium is enabled
+    cilium_enabled = apps['cilium']['enabled']
+
     # iterate through each passed in k8s distro and create cluster + install apps
     for distro, metadata in k8s_distros.items():
         # if the cluster isn't enabled, just continue on
         if not k8s_distros[distro].get('enabled', False):
             continue
 
-        # this is a dict of all the apps we can install
-        apps = USR_CFG['apps']
-        # check immediately if metallb is enabled
-        metallb_enabled = apps['metallb']['enabled']
-        # check immediately if cilium is enabled
-        cilium_enabled = apps['cilium']['enabled']
-
         # install the actual KIND, k3s, or k3d cluster
         create_k8s_distro(cluster_name, distro, metadata, metallb_enabled,
                           cilium_enabled)
 
-        argo_enabled = apps['argo_cd']['enabled']
-        zitadel_enabled = apps['zitadel']['enabled'].copy()
-
         k8s_obj = K8s()
 
-        # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager
-        setup_base_apps(k8s_obj,
-                        distro,
-                        apps['cilium'],
-                        apps['metallb'],
-                        apps['ingress_nginx'],
-                        apps['cert_manager'],
-                        argo_enabled,
-                        apps['appset_secret_plugin']['enabled'])
+    # check if argo is enabled
+    argo_enabled = apps['argo_cd']['enabled']
+    # check if zitadel is enabled
+    zitadel_enabled = apps['zitadel']['enabled']
 
-        # 🦑 Install Argo CD: continuous deployment app for k8s
-        if argo_enabled:
-            # user can configure a special domain for argocd
-            argocd_fqdn = SECRETS['argo_cd_hostname']
-            from .k8s_apps.argocd import configure_argocd
-            configure_argocd(k8s_obj, argocd_fqdn, bw,
-                             apps['appset_secret_plugin']['enabled'],
-                             SECRETS)
+    # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager
+    setup_base_apps(k8s_obj,
+                    distro,
+                    apps['cilium'],
+                    apps['metallb'],
+                    apps['ingress_nginx'],
+                    apps['cert_manager'],
+                    argo_enabled,
+                    apps['appset_secret_plugin']['enabled'])
 
-            setup_k8s_secrets_management(k8s_obj,
-                                         distro,
-                                         apps.pop('external_secrets_operator'),
-                                         apps.pop('bitwarden_eso_provider'),
-                                         apps.pop('infisical'),
-                                         bw)
+    # 🦑 Install Argo CD: continuous deployment app for k8s
+    if argo_enabled:
+        # user can configure a special domain for argocd
+        argocd_fqdn = SECRETS['argo_cd_hostname']
+        from .k8s_apps.argocd import configure_argocd
+        configure_argocd(k8s_obj, argocd_fqdn, bw,
+                         apps['appset_secret_plugin']['enabled'],
+                         SECRETS)
 
-            # if the global cluster issuer is set to letsencrypt-staging don't
-            # verify TLS certs in requests to APIs
-            if 'staging' in SECRETS['global_cluster_issuer']:
-                api_tls_verify = False
-            else:
-                api_tls_verify = True
+        setup_k8s_secrets_management(k8s_obj,
+                                     distro,
+                                     apps.pop('external_secrets_operator'),
+                                     apps.pop('bitwarden_eso_provider'),
+                                     apps.pop('infisical'),
+                                     bw)
 
-            setup_oidc_provider(k8s_obj,
-                                api_tls_verify,
-                                apps.pop('keycloak'),
-                                apps.pop('zitadel'),
-                                apps.pop('vouch'),
-                                bw,
-                                argocd_fqdn)
+        # if the global cluster issuer is set to letsencrypt-staging don't
+        # verify TLS certs in requests to APIs
+        if 'staging' in SECRETS['global_cluster_issuer']:
+            api_tls_verify = False
+        else:
+            api_tls_verify = True
 
-            setup_federated_apps(k8s_obj,
-                                 apps.pop('nextcloud'),
-                                 apps.pop('mastodon'),
-                                 apps.pop('matrix'),
-                                 bw)
+        setup_oidc_provider(k8s_obj,
+                            api_tls_verify,
+                            apps.pop('keycloak'),
+                            apps.pop('zitadel'),
+                            apps.pop('vouch'),
+                            bw,
+                            argocd_fqdn)
 
-            # after argocd, keycloak, bweso, and vouch are up, we install all
-            # apps as Argo CD Applications
-            header("Installing the rest of the Argo CD apps")
-            for app_key, app_meta in apps.items():
-                if app_meta['enabled']:
-                    if not app_meta['argo'].get('part_of_app_of_apps', False):
-                        argo_app = app_key.replace('_', '-')
-                        sub_header(f"Installing app: {argo_app}")
-                        install_with_argocd(k8s_obj, argo_app, app_meta['argo'])
+        setup_federated_apps(k8s_obj,
+                             apps.pop('nextcloud'),
+                             apps.pop('mastodon'),
+                             apps.pop('matrix'),
+                             bw)
 
-            # lock the bitwarden vault on the way out, to be polite :3
-            if bw:
-                bw.lock()
+        # after argocd, keycloak, bweso, and vouch are up, we install all
+        # apps as Argo CD Applications
+        header("Installing the rest of the Argo CD apps")
+        for app_key, app_meta in apps.items():
+            if app_meta['enabled']:
+                if not app_meta['argo'].get('part_of_app_of_apps', False):
+                    argo_app = app_key.replace('_', '-')
+                    sub_header(f"Installing app: {argo_app}")
+                    install_with_argocd(k8s_obj, argo_app, app_meta['argo'])
+
+        # lock the bitwarden vault on the way out, to be polite :3
+        if bw:
+            bw.lock()
 
     # we're done :D
     print("")
