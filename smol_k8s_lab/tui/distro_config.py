@@ -167,9 +167,9 @@ class DistroConfigScreen(Screen):
         distro_description = DISTRO_DESC[distro]
         self.get_widget_by_id("distro-description").update(distro_description)
 
-        self.ancestors[-1].cfg['k8s_distros'][distro]['enabled'] = True
-        self.ancestors[-1].cfg['k8s_distros'][self.previous_distro]['enabled'] = False
-        self.ancestors[-1].write_yaml()
+        self.app.cfg['k8s_distros'][distro]['enabled'] = True
+        self.app.cfg['k8s_distros'][self.previous_distro]['enabled'] = False
+        self.app.write_yaml()
 
         self.previous_distro = distro
 
