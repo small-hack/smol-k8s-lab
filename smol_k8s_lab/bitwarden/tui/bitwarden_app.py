@@ -4,6 +4,9 @@ from textual.widgets import Label
 
 
 class BitwardenCredentials(App[None]):
+    """ 
+    small app to launch a modal screen for a bitwarden credentials prompt
+    """
     CSS = """
         $bluish_white: rgb(189,216,255);
         $lavender: rgb(174,168,248);
@@ -57,7 +60,10 @@ class BitwardenCredentials(App[None]):
         yield Label("")
         self.get_credentials()
 
-    def get_credentials(self,) -> None:
+    def get_credentials(self) -> None:
+        """
+        launch a modal screen wtih inputs for bitwarden credentials
+        """
         def check_modal_output(credentials: dict):
             if credentials:
                 self.app.exit(credentials)
