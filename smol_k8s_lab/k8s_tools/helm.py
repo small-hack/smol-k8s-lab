@@ -154,8 +154,8 @@ def add_default_repos(k8s_distro: str,
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
     if argo_secrets:
-        repos['appset-secret-plugin'] = ('https://jessebot.github.io/'
-                                         'argocd-appset-secret-plugin')
+        repos['appset-secret-plugin'] = ('https://small-hack.github.io/'
+                                         'appset-secret-plugin')
 
     # kind has a special install path
     if k8s_distro == 'kind':
