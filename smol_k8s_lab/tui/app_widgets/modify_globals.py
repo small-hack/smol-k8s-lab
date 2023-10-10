@@ -1,5 +1,5 @@
 # smol-k8s-lab libraries
-from smol_k8s_lab.tui.app_widgets import placeholder_grammar
+from smol_k8s_lab.tui import placeholder_grammar
 
 # external libraries
 from textual import on
