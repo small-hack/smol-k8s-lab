@@ -42,7 +42,7 @@ def install_k3s_cluster(cluster_name: str,
     chmod("./install.sh", stat.S_IRWXU)
 
     # for creating a config file for k3s
-    k3s_yaml_file = XDG_CACHE_DIR + 'k3s.yml'
+    k3s_yaml_file = XDG_CACHE_DIR + '/k3s.yml'
     # install command to create k3s cluster (just one server, control plane, node)
     install_cmd = f'./install.sh --config {k3s_yaml_file}'
 
@@ -95,7 +95,7 @@ def uninstall_k3s(context: dict = {}):
             f"kubectl config delete-context {context['context']}",
             f"kubectl config delete-user {context['user']}"]
 
-    subproc(cmds, spinner=False)
+    subproc(cmds, spinner=False, error_ok=True)
 
     return True
 
