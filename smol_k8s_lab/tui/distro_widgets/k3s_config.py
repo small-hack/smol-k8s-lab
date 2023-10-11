@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.11
 # internal library
+from smol_k8s_lab.constants import XDG_CACHE_DIR
 from smol_k8s_lab.tui.util import create_sanitized_list
 
 # external libraries
@@ -10,12 +11,28 @@ from textual.suggester import SuggestFromList
 from textual.validation import Length
 from textual.widgets import Input, Button, Label, Static
 
+CFG_FILE = XDG_CACHE_DIR + "/k3s.yaml"
+
 KEY_SUGGESTIONS = SuggestFromList((
        "disable",
        "disable-network-policy",
        "flannel-backend",
        "secrets-encryption",
-       "node-label"
+       "node-label",
+       "kubelet-arg",
+       "datastore-endpoint",
+       "etcd-s3",
+       "server",
+       "debug",
+       "cluster-domain"
+       "token",
+       "agent-token",
+       "bind-address",
+       "cluster-dns",
+       "https-listen-port",
+       "kube-proxy-arg",
+       "log",
+       "rootless"
        ))
 
 SUGGESTIONS = SuggestFromList((
@@ -24,6 +41,9 @@ SUGGESTIONS = SuggestFromList((
        "none",
        "wireguard-native",
        "true",
+       "max_pods=",
+       "podsPerCore=",
+       "featureGates=",
        ))
 
 help_txt = (
@@ -47,6 +67,13 @@ class K3sConfig(Static):
         # main grid for the whole widget
         with Grid(classes=f"{self.distro} k3s-config-container"):
 
+            yield Label(
+                    "Add extra [steel_blue][u][link=https://docs.k3s.io/cli/server]k3s "
+                    "options[/][/][/] to pass to the k3s install script via a "
+                    "[steel_blue][u][link=https://docs.k3s.io/installation/configuration#"
+                    f"configuration-file]config file[/][/][/] stored in {CFG_FILE}",
+                    id="k3s-help-text")
+
             # actual input grid
             with VerticalScroll(classes=f"{self.distro} k3s-arg-scroll"):
                 yield Grid(id="k3s-grid")
@@ -68,7 +95,7 @@ class K3sConfig(Static):
         box border styling
         """
         # k3s arg config styling
-        k3s_title = ("[i]Add[/] [i]extra[/] parameters for [#C1FF87]k3s[/] "
+        k3s_title = ("[i]Add[/] [i]extra[/] options for the [#C1FF87]k3s[/] "
                      "install script")
         k3s_container = self.query_one(".k3s-config-container")
         k3s_container.border_title = k3s_title
@@ -100,7 +127,9 @@ class K3sConfig(Static):
             event.button.parent.remove()
 
         elif event.button.id == "add-button":
-            self.action_generate_row(self.get_widget_by_id("new-k3s-option").value)
+            input = self.get_widget_by_id("new-k3s-option")
+            self.action_generate_row(input.value)
+            input.value = ""
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:

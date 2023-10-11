@@ -20,10 +20,14 @@ $navy: rgb(35,35,54);
    background: rgb(35,35,54) 50%;
    border: round $cornflower;
    border-title-color: $sky_blue;
-   padding-left: 1;
-   padding-right: 1;
-   padding-bottom: 1;
-   grid-rows: 1fr 0.2fr;
+   padding: 1;
+   grid-rows: 0.2fr 1fr 0.3fr;
+}
+
+#k3s-help-text {
+    color: gray;
+    width: 100%;
+    padding: 1;
 }
 
 /* k3s container itself */
@@ -41,7 +45,7 @@ $navy: rgb(35,35,54);
    height: auto;
    width: 100%;
    padding-right: 1;
-   padding-left: 1;
+   padding-left: 2;
    grid-gutter: 1;
 }
 
@@ -57,8 +61,8 @@ $navy: rgb(35,35,54);
 
 .input-label {
     width: 100%;
-    padding-bottom: 1;
-    padding-top: 1;
+    height: 3;
+    content-align: left middle;
 }
 
 .k3s-arg-input {
