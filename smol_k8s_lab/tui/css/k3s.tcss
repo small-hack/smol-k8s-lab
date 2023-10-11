@@ -21,7 +21,7 @@ $navy: rgb(35,35,54);
    border: round $cornflower;
    border-title-color: $sky_blue;
    padding: 1;
-   grid-rows: 0.2fr 1fr 0.3fr;
+   grid-rows: 0.25fr 1fr 0.3fr;
 }
 
 #k3s-help-text {
