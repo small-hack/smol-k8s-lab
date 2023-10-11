@@ -53,6 +53,7 @@ $navy: rgb(35,35,54);
     grid-gutter: 1;
     align: left middle;
     content-align: left middle;
+    grid-columns: 1fr 0.75fr;
 }
 
 .selection-row Label {
@@ -69,7 +70,7 @@ $navy: rgb(35,35,54);
 }
 
 #logging-config .selection-row {
-    grid-columns: 0.6fr 1.6fr;
+    grid-columns: 0.65fr 1.58fr;
     padding-left: 1;
     align: left middle;
 }
@@ -83,6 +84,18 @@ $navy: rgb(35,35,54);
     align: left middle;
     layout: grid;
     grid-size: 2;
+    grid-gutter: 1;
+    grid-columns: 0.82fr 1fr;
+}
+
+/* k9s enabled bool switch row */
+.k9s-enabled {
+   grid-columns: 0.35fr 1fr;
+}
+
+/* show footer bool switch row */
+.show-footer {
+   grid-columns: 0.65fr 1fr;
 }
 
 .bool-switch-row-label {
@@ -93,9 +106,11 @@ $navy: rgb(35,35,54);
     width: 100%;
 }
 
-/* k9s row of a switch and input field */
-.k9s-input-row {
+/* k9s input field */
+.k9s-input-row .input-row {
     align: left middle;
+    grid-size: 2;
+    grid-columns: 0.3fr 1fr;
 }
 
 /* any basic "label: input" row */
@@ -162,6 +177,7 @@ $navy: rgb(35,35,54);
 /* three bool-switch-rows side by side */
 .triple-switch-row {
     align: left middle;
+    content-align: left middle;
     grid-size: 3;
     grid-gutter: 1;
     padding-left: 1;

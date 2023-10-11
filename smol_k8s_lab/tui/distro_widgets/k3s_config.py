@@ -46,6 +46,8 @@ SUGGESTIONS = SuggestFromList((
        "featureGates=",
        ))
 
+LIST_KEYS = ["disable", "node-label", "kubelet-arg"]
+
 help_txt = (
         "If [dim][#C1FF87]metallb[/][/] is [i]enabled[/], we add servicelb to disabled."
         " If [dim][#C1FF87]cilium[/][/] is [i]enabled[/], we add "
@@ -151,7 +153,7 @@ class K3sConfig(Static):
                     yaml[input_name] = False
 
                 # if there's a comma, it's a list
-                elif ',' in input_value or input_name in ["disable", "node-label"]:
+                elif ',' in input_value or input_name in LIST_KEYS:
                     yaml[input_name] = create_sanitized_list(input_value)
 
                 # else it's a normal string and should be saved like one

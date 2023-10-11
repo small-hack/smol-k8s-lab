@@ -18,7 +18,7 @@ $navy: rgb(35,35,54);
 #apps-config-container {
    layout: grid;
    grid-size: 2;
-   grid-columns: 0.5fr 1.2fr;
+   grid-columns: 0.5fr 1fr;
    grid-rows: 1.5fr 0.45fr;
    grid-gutter: 1;
    width: 90%;
@@ -26,7 +26,7 @@ $navy: rgb(35,35,54);
    align: center middle;
 }
 
-/* LEFT TOP HALF OF SCREEN */
+/* --------- LEFT TOP HALF OF SCREEN ------------ */
 
 /* matches only the left hand side of top half of screen */
 #select-add-apps {

@@ -60,6 +60,7 @@ $navy: rgb(35,35,54);
 }
 
 .k8s-distro-config-k3s {
-   grid-rows: 0.25fr 1fr;
+   margin-top: 1;
+   grid-rows: 0.2fr 0.9fr;
    grid-gutter: 2;
 }

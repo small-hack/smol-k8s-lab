@@ -8,6 +8,7 @@ from textual.widgets import Footer, Header, Input, Label, Switch, Select
 from textual.widget import Widget
 from xdg_base_dirs import xdg_state_home
 
+
 XDG_STATE_HOME = str(xdg_state_home()) + "/smol-k8s-lab/smol.log"
 
 logging_tool_tip = (
@@ -27,6 +28,7 @@ duplicate_tool_tip = (
     "[on grey11][grey50]duplicate[/]: create an additional item with the same name[/]"
     "\n\n"
     "[grey50]no_action[/]: don't do anything, just continue on with the script")
+
 
 class SmolK8sLabConfig(Screen):
     """
@@ -293,8 +295,8 @@ def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Hori
     switch = Switch(value=switch_value,
                     classes="bool-switch-row-switch",
                     name=name)
-
-    return Horizontal(label, switch, classes="bool-switch-row")
+    extra_class = name.replace('_',"-")
+    return Horizontal(label, switch, classes=f"bool-switch-row {extra_class}")
 
 def input_field(label: str, initial_value: str, name: str, placeholder: str,
                 tooltip: str = "") -> Horizontal:
