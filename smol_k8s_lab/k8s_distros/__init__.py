@@ -82,7 +82,7 @@ def create_k8s_distro(cluster_name: str,
                       k8s_distro: str,
                       distro_metadata: dict = {},
                       metallb_enabled: bool = True,
-                      cilium_enabled: bool = False) -> True:
+                      cilium_enabled: bool = False) -> None:
     """
     Install a specific distro of k8s
     Arguments:
@@ -101,9 +101,9 @@ def create_k8s_distro(cluster_name: str,
         return True
 
     sub_header('This could take a min ʕ•́ _ •̀ʔっ♡ ', False)
-    kubelet_args = distro_metadata.get('kubelet_extra_args', None)
 
     if k8s_distro == "kind":
+        kubelet_args = distro_metadata.get('kubelet_extra_args', None)
         networking_args = distro_metadata['networking_args']
 
         # if cilium is enabled, we need to disable the default CNI
@@ -111,7 +111,6 @@ def create_k8s_distro(cluster_name: str,
             networking_args["disableDefaultCNI"] = True
 
         create_kind_cluster(cluster_name,
-                            kubelet_args,
                             networking_args,
                             distro_metadata['nodes']['control_plane'],
                             distro_metadata['nodes']['workers'])
@@ -141,10 +140,8 @@ def create_k8s_distro(cluster_name: str,
         if k8s_distro == "k3d":
             create_k3d_cluster(cluster_name,
                                k3s_args,
-                               kubelet_args,
                                distro_metadata['nodes']['control_plane'],
                                distro_metadata['nodes']['workers'])
-    return True
 
 
 def delete_cluster(cluster_name: str, k8s_distro: str) -> True:

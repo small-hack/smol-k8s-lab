@@ -107,35 +107,33 @@ class DistroConfigScreen(Screen):
                 else:
                     display = False
 
-                distro_box = Grid(classes=f"k8s-distro-config {distro}",
-                                  id=f"{distro}-box")
+                if distro == "kind":
+                    grid_class = f"{distro} k8s-distro-config-kind"
+                else:
+                    grid_class = f"{distro} k8s-distro-config-k3s"
+
+                distro_box = Grid(classes=grid_class, id=f"{distro}-box")
                 distro_box.display = display
 
                 with distro_box:
                     # take number of nodes from config and make string
                     nodes = distro_metadata.get('nodes', False)
-
-                    if nodes:
-                        control_nodes = str(nodes.get('control_plane', 1))
-                        worker_nodes = str(nodes.get('workers', 0))
-                    else:
-                        control_nodes = "1"
-                        worker_nodes = "0"
+                    control_nodes = str(nodes.get('control_plane', '1'))
+                    worker_nodes = str(nodes.get('workers', '0'))
 
                     # node input row
                     yield NodeAdjustmentBox(distro, control_nodes, worker_nodes)
 
-                    # kubelet config section
-                    yield KubeletConfig(distro,
-                                        distro_metadata['kubelet_extra_args'])
+                    if distro == 'kind':
+                        # kubelet config section for kind only
+                        yield KubeletConfig(distro,
+                                            distro_metadata['kubelet_extra_args'])
+
+                        yield KindNetworkingConfig(distro_metadata['networking_args'])
 
                     # take extra k3s args if distro is k3s or k3d
-                    if distro == 'k3s' or distro == 'k3d':
-                        yield K3sConfig(distro,
-                                        distro_metadata['k3s_yaml'])
-
-                    elif distro == 'kind':
-                        yield KindNetworkingConfig(distro_metadata['networking_args'])
+                    else:
+                        yield K3sConfig(distro, distro_metadata['k3s_yaml'])
 
     def on_mount(self) -> None:
         """
@@ -146,7 +144,7 @@ class DistroConfigScreen(Screen):
 
         top_row = self.get_widget_by_id("top-distro-row")
         top_row.border_title = "🌱 Select a [#C1FF87]k8s distro[/]"
-        top_row.border_subtitle = "[i]All boxes below are optional"
+        top_row.border_subtitle = "[i]Inputs below are optional"
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:

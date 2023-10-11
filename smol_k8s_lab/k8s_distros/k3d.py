@@ -18,7 +18,6 @@ K3D_CFG_FILENAME = f"{XDG_CACHE_DIR}/k3d-config.yaml"
 
 def create_k3d_cluster(cluster_name: str,
                         k3s_yaml: dict,
-                        kubelet_args: dict,
                         control_plane_nodes: int = 1,
                         worker_nodes: int = 0) -> None:
     """
@@ -28,7 +27,6 @@ def create_k3d_cluster(cluster_name: str,
 
     k3d_cfg = K3dConfig(cluster_name,
                         k3s_yaml,
-                        kubelet_args,
                         control_plane_nodes,
                         worker_nodes)
     k3d_cfg.write_yaml()
@@ -56,7 +54,6 @@ class K3dConfig():
     def __init__(self,
                  cluster_name: str,
                  k3s_yaml: dict,
-                 kubelet_args: dict,
                  control_plane_nodes: int = 1,
                  worker_nodes: int = 0) -> None:
 
@@ -85,12 +82,6 @@ class K3dConfig():
         if worker_nodes > 0:
             self.node_filters.append("agent:*")
 
-        # we attempt to append each kubelet-arg as an option
-        if kubelet_args:
-            self.k3d_cfg['options']['k3s'] = {"extraArgs": []}
-            for key, value in kubelet_args.items():
-                self.create_arg_dict(self.node_filters, f"kubelet-arg={key}", value)
-
         # these are the rest of the k3s specific arguments
         if k3s_yaml:
             if not self.k3d_cfg['options'].get('k3s', None):
@@ -104,8 +95,7 @@ class K3dConfig():
                     self.create_arg_dict(self.node_filters, arg, value)
 
                 elif isinstance(value, list):
-                    for item in value:
-                        self.create_arg_dict(self.node_filters, arg, item)
+                    self.create_arg_dict(self.node_filters, arg, ",".join(value))
 
     def create_arg_dict(self, node_filters: list, arg: str, value: str = "") -> None:
         """

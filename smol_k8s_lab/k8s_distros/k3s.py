@@ -12,7 +12,6 @@ from ..utils.subproc import subproc
 
 # external libraries
 import logging as log
-import json
 from os import chmod, remove, path
 import requests
 import stat
@@ -22,8 +21,8 @@ from ruamel.yaml import YAML
 def install_k3s_cluster(cluster_name: str,
                         extra_k3s_parameters: dict = {
                             "write-kubeconfig-mode": 700
-                            },
-                        kubelet_extra_args: dict = {}) -> None:
+                            }
+                        ) -> None:
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
@@ -47,28 +46,6 @@ def install_k3s_cluster(cluster_name: str,
     install_cmd = f'./install.sh --config {k3s_yaml_file}'
 
     config_dict = extra_k3s_parameters
-
-    # override the default kubelet config
-    if kubelet_extra_args:
-        # we'll edit this file before install: /etc/rancher/k3s/kubelet.config
-        # so that we can change the max number of pods on this node
-        kube_config = {'apiVersion': 'kubelet.config.k8s.io/v1beta1',
-                       'kind': 'KubeletConfiguration'}
-
-        kube_config = kube_config | kubelet_extra_args
-
-        kube_cache = XDG_CACHE_DIR + '/kubelet.config'
-        with open(kube_cache, 'w') as kubelet_cfg:
-            json.dump(kube_config, kubelet_cfg)
-
-        subproc(['sudo mkdir -p /etc/rancher/k3s',
-                 f'sudo mv {kube_cache} /etc/rancher/k3s/kubelet.config'])
-
-        kubelet_arg = config_dict.get('kubelet-arg', False)
-        if kubelet_arg:
-            kubelet_arg.append('config=/etc/rancher/k3s/kubelet.config')
-        else:
-            config_dict['kubelet-arg'] = ['config=/etc/rancher/k3s/kubelet.config']
 
     # write out the k3s config
     yaml = YAML()

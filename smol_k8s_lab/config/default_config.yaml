@@ -46,40 +46,38 @@ k8s_distros:
   k3s:
     # set to true to enable deploying a kubernetes cluster using k3s
     enabled: false
-    # change the kubelet config for this node in k3s, feel free to add more values
-    # we set the maximum pods per node via /etc/rancher/k3s/kubelet.config
-    # it's set high for beefy nodes, but you can set it lower if you'd like
-    kubelet_extra_args:
-      max_pods: 200
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. if you enable cilium, we
     # automatically pass in flannel-backend: none and disable-network-policy: true 
     k3s_yaml:
       # if you enable metallb, we automatically add servicelb to the disable list
-      # below disables traefik so we can enable ingress-nginx, remove if you're using traefik
-      disable:
-      - "traefik"
       # enables encryption at rest for kubernetes secrets
       secrets-encryption: true
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      disable:
+      - "traefik"
+      kubelet-arg:
+      - "max_pods=200"
+    # not yet adjustable on k3s at this time
+    nodes:
+      control_plane: 1
+      workers: 0
 
   k3d:
     # set to true to enable deploying a kubernetes cluster using k3d
     enabled: false
-    # change the kubelet config for all k3d nodes, feel free to add more values
-    # we set the maximum pods per node via /etc/rancher/k3s/kubelet.config
-    # it's set high for beefy nodes, but you can set it lower if you'd like
-    kubelet_extra_args:
-      max_pods: 200
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. if you enable cilium, we
     # automatically pass in flannel-backend: none and disable-network-policy: true 
     k3s_yaml:
       # if you enable metallb, we automatically add servicelb to the disable list
-      # below disables traefik so we can enable ingress-nginx, remove if you're using traefik
-      disable:
-      - "traefik"
       # enables encryption at rest for kubernetes secrets
       secrets-encryption: true
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      disable:
+      - "traefik"
+      kubelet-arg:
+      - "max_pods=200"
     # how many dockerized k3s nodes to deploy
     nodes:
       control_plane: 1
