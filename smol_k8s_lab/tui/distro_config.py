@@ -57,8 +57,8 @@ class DistroConfigScreen(Screen):
         config dict struct:
             {"distro":
                {"enabled": bool},
-               {"k3s_extra_args": []},
-               {"kubelet_extra_args": {}}
+               {"k3s_yaml": dict},
+               {"kubelet_extra_args": dict}
             }
         """
         self.cfg = config
@@ -132,7 +132,7 @@ class DistroConfigScreen(Screen):
                     # take extra k3s args if distro is k3s or k3d
                     if distro == 'k3s' or distro == 'k3d':
                         yield K3sConfig(distro,
-                                        distro_metadata['extra_k3s_cli_args'])
+                                        distro_metadata['k3s_yaml'])
 
                     elif distro == 'kind':
                         yield KindNetworkingConfig(distro_metadata['networking_args'])

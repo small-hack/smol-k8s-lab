@@ -1,10 +1,9 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
-from smol_k8s_lab.tui.app_widgets import create_sanitized_list
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
-from smol_k8s_lab.tui.util import placeholder_grammar
+from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
 # external libraries
 from textual import on
@@ -173,7 +172,10 @@ class InitValues(Static):
                       "validators": [Length(minimum=2)],
                       "name": init_key}
         if init_value:
-            input_keys['value'] = init_value
+            if isinstance(init_value, list):
+                input_keys['value'] = ", ".join(init_value)
+            else:
+                input_keys['value'] = init_value
 
         # create the input row
         label_value = init_key.replace("_"," ") + ":"

@@ -20,17 +20,10 @@ $navy: rgb(35,35,54);
    background: rgb(35,35,54) 50%;
    border: round $cornflower;
    border-title-color: $sky_blue;
-   padding-top: 1;
    padding-left: 1;
    padding-right: 1;
-   grid-rows: 0.25fr 1fr;
-}
-
-.k3s-help-label {
-   color: gray;
-   padding-top: 1;
-   padding-left: 1;
-   width: 100%;
+   padding-bottom: 1;
+   grid-rows: 1fr 0.2fr;
 }
 
 /* k3s container itself */
@@ -44,21 +37,28 @@ $navy: rgb(35,35,54);
    scrollbar-color: $light_cornflower;
 }
 
-.k3s-grid {
-   grid-size: 2;
+#k3s-grid {
    height: auto;
    width: 100%;
    padding-right: 1;
+   padding-left: 1;
+   grid-gutter: 1;
 }
 
 /* k3s arg row */
 .k3s-arg-row {
    align: center middle;
-   grid-columns: 1.3fr 0.22fr;
-   grid-size: 2;
+   grid-gutter: 1;
+   grid-columns: 0.3fr 0.9fr 0.15fr;
+   grid-size: 3;
    height: auto;
    width: 100%;
-   padding-top: 1;
+}
+
+.input-label {
+    width: 100%;
+    padding-bottom: 1;
+    padding-top: 1;
 }
 
 .k3s-arg-input {
@@ -70,6 +70,12 @@ $navy: rgb(35,35,54);
 }
 
 /* button to add another optional k3s extra arg */
+#new-k3s-option-grid {
+   grid-gutter: 1;
+   align: center middle;
+   grid-size: 2;
+}
+
 .k3s-arg-add-button {
    column-span: 2;
    width: 100%;

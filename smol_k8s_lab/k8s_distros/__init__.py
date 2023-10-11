@@ -1,5 +1,5 @@
-from .kind import install_kind_cluster, delete_kind_cluster
-from .k3d import install_k3d_cluster, delete_k3d_cluster
+from .kind import create_kind_cluster, delete_kind_cluster
+from .k3d import create_k3d_cluster, delete_k3d_cluster
 from .k3s import install_k3s_cluster, uninstall_k3s
 from ..utils.rich_cli.console_logging import sub_header, header
 from ..utils.subproc import subproc
@@ -110,37 +110,40 @@ def create_k8s_distro(cluster_name: str,
         if cilium_enabled:
             networking_args["disableDefaultCNI"] = True
 
-        install_kind_cluster(cluster_name,
-                             kubelet_args,
-                             networking_args,
-                             distro_metadata['nodes']['control_plane'],
-                             distro_metadata['nodes']['workers'])
+        create_kind_cluster(cluster_name,
+                            kubelet_args,
+                            networking_args,
+                            distro_metadata['nodes']['control_plane'],
+                            distro_metadata['nodes']['workers'])
 
     elif k8s_distro == "k3s" or k8s_distro == "k3d":
         # get any extra args the user has passed in
-        k3s_args = distro_metadata['extra_k3s_cli_args']
+        k3s_args = distro_metadata['k3s_yaml']
 
         # if metallb is enabled, we need to disable servicelb
         if metallb_enabled:
-            k3s_args.append('--disable=servicelb')
+            if not k3s_args.get('disable', None):
+                k3s_args['disable'] = ['servicelb']
+            else:
+                k3s_args['disable'].append('servicelb')
 
         # if cilium is enabled, we need to disable flannel and network-policy
         if cilium_enabled:
-            k3s_args.extend(['--flannel-backend=none',
-                             '--disable-network-policy'])
+            k3s_args['flannel-backend'] = 'none'
+            k3s_args['disable-network-policy'] = True
 
         if k8s_distro == "k3s":
             install_k3s_cluster(cluster_name,
-                                set(k3s_args),
+                                k3s_args,
                                 kubelet_args)
 
         # curently unsupported - in alpha state
         if k8s_distro == "k3d":
-            install_k3d_cluster(cluster_name,
-                                set(k3s_args),
-                                kubelet_args,
-                                distro_metadata['nodes']['control_plane'],
-                                distro_metadata['nodes']['workers'])
+            create_k3d_cluster(cluster_name,
+                               k3s_args,
+                               kubelet_args,
+                               distro_metadata['nodes']['control_plane'],
+                               distro_metadata['nodes']['workers'])
     return True
 
 

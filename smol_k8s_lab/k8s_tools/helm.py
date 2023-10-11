@@ -128,7 +128,7 @@ def add_default_repos(k8s_distro: str,
                       metallb: bool = False,
                       cilium: bool = False,
                       argo: bool = False,
-                      argo_secrets: bool = False) -> bool:
+                      argo_secrets: bool = False) -> None:
     """
     Add all the default helm chart repos:
     - metallb is for loadbalancing and assigning ips, on metal...
@@ -163,7 +163,6 @@ def add_default_repos(k8s_distro: str,
 
     # install and update any repos needed
     Helm.repo(repos).add()
-    return True
 
 
 def prepare_helm(k8s_distro: str,
