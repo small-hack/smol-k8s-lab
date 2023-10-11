@@ -12,75 +12,112 @@ import logging as log
 from yaml import dump
 
 
-def install_k3d_cluster(cluster_name: str,
-                        k3s_cli_args: list,
+# where we write this config
+K3D_CFG_FILENAME = f"{XDG_CACHE_DIR}/k3d-config.yaml"
+
+
+def create_k3d_cluster(cluster_name: str,
+                        k3s_yaml: dict,
                         kubelet_args: dict,
                         control_plane_nodes: int = 1,
-                        worker_nodes: int = 0) -> bool:
+                        worker_nodes: int = 0) -> None:
     """
     python installation for k3d
-    returns true if it worked
     """
     sub_header("Creating k3d cluster...")
 
-    # base config for k3s
-    k3d_cfg = {"apiVersion": "k3d.io/v1alpha5",
-               "kind": "Simple",
-               "metadata": {"name": cluster_name},
-               "options": {
-                   "kubeconfig": {
-                       "updateDefaultKubeconfig": True,
-                       "switchCurrentContext": True
-                       }
-                   }
-               }
-
-    # filter for which nodes to apply which k3s args to
-    node_filters = []
-
-    k3d_cfg["servers"] = control_plane_nodes
-    # only specify server if there's control_plane_nodes
-    if control_plane_nodes > 0:
-        node_filters.append("server:*")
-
-    k3d_cfg["agents"] = worker_nodes
-    # only specify agents if there's worker_node
-    if worker_nodes > 0:
-        node_filters.append("agent:*")
-
-    # we attempt to append each kubelet-arg as an option
-    if kubelet_args:
-        k3d_cfg['options']['k3s'] = {"extraArgs": []}
-        for key, value in kubelet_args.items():
-            cli_arg = f"--kubelet-arg={key}={value}"
-            arg_dict = {"arg": f'"{cli_arg}"', "nodeFilters": node_filters.copy()}
-
-            k3d_cfg['options']['k3s']['extraArgs'].append(arg_dict)
-
-    # these are the rest of the k3s specific arguments
-    if k3s_cli_args:
-        if not k3d_cfg['options'].get('k3s', None):
-            k3d_cfg['options']['k3s'] = {"extraArgs": []}
-
-        for cli_arg in k3s_cli_args:
-            arg_dict = {"arg": f'"{cli_arg}"', "nodeFilters": node_filters.copy()}
-            k3d_cfg['options']['k3s']['extraArgs'].append(arg_dict)
-
-    cfg_file = f"{XDG_CACHE_DIR}/k3d-config.yaml"
-
-    # write out the config file we just finished
-    with open(cfg_file, 'w') as k3d_cfg_file:
-        dump(k3d_cfg, k3d_cfg_file)
+    k3d_cfg = K3dConfig(cluster_name,
+                        k3s_yaml,
+                        kubelet_args,
+                        control_plane_nodes,
+                        worker_nodes)
+    k3d_cfg.write_yaml()
 
     # actually running the k3d command
-    res = subproc([f'k3d cluster create --config {cfg_file}'])
+    res = subproc([f'k3d cluster create --config {K3D_CFG_FILENAME}'])
     log.info(res)
-    return True
 
 
-def delete_k3d_cluster(cluster_name: str) -> bool:
+def delete_k3d_cluster(cluster_name: str) -> str:
     """
     delete k3d cluster by name
     """
-    subproc([f'k3d cluster delete {cluster_name}'])
-    return True
+    if cluster_name.startswith("k3d-"):
+        cluster_name = cluster_name.replace("k3d-", "")
+
+    res = subproc([f'k3d cluster delete {cluster_name}'])
+    return res
+
+
+class K3dConfig():
+    """
+    create and update a k3d config file
+    """
+    def __init__(self,
+                 cluster_name: str,
+                 k3s_yaml: dict,
+                 kubelet_args: dict,
+                 control_plane_nodes: int = 1,
+                 worker_nodes: int = 0) -> None:
+
+        # base config for k3s
+        self.k3d_cfg = {"apiVersion": "k3d.io/v1alpha5",
+                        "kind": "Simple",
+                        "metadata": {"name": cluster_name},
+                        "options": {
+                            "kubeconfig": {
+                                "updateDefaultKubeconfig": True,
+                                "switchCurrentContext": True
+                                }
+                            }
+                        }
+
+        # filter for which nodes to apply which k3s args to
+        self.node_filters = []
+
+        self.k3d_cfg["servers"] = control_plane_nodes
+        # only specify server if there's control_plane_nodes
+        if control_plane_nodes > 0:
+            self.node_filters.append("server:*")
+
+        self.k3d_cfg["agents"] = worker_nodes
+        # only specify agents if there's worker_node
+        if worker_nodes > 0:
+            self.node_filters.append("agent:*")
+
+        # we attempt to append each kubelet-arg as an option
+        if kubelet_args:
+            self.k3d_cfg['options']['k3s'] = {"extraArgs": []}
+            for key, value in kubelet_args.items():
+                self.create_arg_dict(self.node_filters, f"kubelet-arg={key}", value)
+
+        # these are the rest of the k3s specific arguments
+        if k3s_yaml:
+            if not self.k3d_cfg['options'].get('k3s', None):
+                self.k3d_cfg['options']['k3s'] = {"extraArgs": []}
+
+            for arg, value in k3s_yaml.items():
+                if isinstance(value, bool):
+                    self.create_arg_dict(self.node_filters, arg)
+
+                if isinstance(value, str):
+                    self.create_arg_dict(self.node_filters, arg, value)
+
+                elif isinstance(value, list):
+                    for item in value:
+                        self.create_arg_dict(self.node_filters, arg, item)
+
+    def create_arg_dict(self, node_filters: list, arg: str, value: str = "") -> None:
+        """
+        creates a small arg dict and writes it to the class's k3d_cfg variable
+        """
+        if value:
+            arg += f"={value}"
+
+        arg_dict = {"arg": f'"--{arg}"', "nodeFilters": self.node_filters.copy()}
+        self.k3d_cfg['options']['k3s']['extraArgs'].append(arg_dict)
+
+    def write_yaml(self) -> None:
+        # write out the config file we just finished
+        with open(K3D_CFG_FILENAME, 'w') as k3d_cfg_file:
+            dump(self.k3d_cfg, k3d_cfg_file)

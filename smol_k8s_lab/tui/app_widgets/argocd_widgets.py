@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.tui.app_widgets import create_sanitized_list
+from smol_k8s_lab.tui.util import create_sanitized_list
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal

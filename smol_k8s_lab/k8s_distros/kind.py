@@ -20,11 +20,11 @@ yaml = YAML()
 safe_yaml = YAML(typ=['rt', 'string'])
 
 
-def install_kind_cluster(cluster_name: str,
-                         kubelet_args: dict = {},
-                         networking_args: dict = {},
-                         control_plane_nodes: int = 1,
-                         worker_nodes: int = 1) -> True:
+def create_kind_cluster(cluster_name: str,
+                        kubelet_args: dict = {},
+                        networking_args: dict = {},
+                        control_plane_nodes: int = 1,
+                        worker_nodes: int = 1) -> True:
     """
     Run installation process for kind and create cluster
     returns True

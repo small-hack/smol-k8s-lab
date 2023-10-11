@@ -5,9 +5,12 @@ DESCRIPTION: install k3s :D not affiliated with rancher, suse, or k3s
      AUTHOR: @Jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
+# local libraries
 from ..constants import USER, KUBECONFIG
 from ..constants import XDG_CACHE_DIR
 from ..utils.subproc import subproc
+
+# external libraries
 import logging as log
 import json
 from os import chmod, remove, path
@@ -17,8 +20,10 @@ from ruamel.yaml import YAML
 
 
 def install_k3s_cluster(cluster_name: str,
-                        extra_k3s_cli_args: list = [],
-                        kubelet_extra_args: dict = {}):
+                        extra_k3s_parameters: dict = {
+                            "write-kubeconfig-mode": 700
+                            },
+                        kubelet_extra_args: dict = {}) -> None:
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
@@ -36,13 +41,12 @@ def install_k3s_cluster(cluster_name: str,
     # make sure we can actually execute the script
     chmod("./install.sh", stat.S_IRWXU)
 
-    # create the k3s cluster (just one server node)
-    install_cmd = './install.sh --write-kubeconfig-mode=700'
+    # for creating a config file for k3s
+    k3s_yaml_file = XDG_CACHE_DIR + 'k3s.yml'
+    # install command to create k3s cluster (just one server, control plane, node)
+    install_cmd = f'./install.sh --config {k3s_yaml_file}'
 
-    # add additional arguments to k3s if there are any
-    if extra_k3s_cli_args:
-        for argument in extra_k3s_cli_args:
-            install_cmd += f" {argument}"
+    config_dict = extra_k3s_parameters
 
     # override the default kubelet config
     if kubelet_extra_args:
@@ -60,7 +64,16 @@ def install_k3s_cluster(cluster_name: str,
         subproc(['sudo mkdir -p /etc/rancher/k3s',
                  f'sudo mv {kube_cache} /etc/rancher/k3s/kubelet.config'])
 
-        install_cmd += ' --kubelet-arg=config=/etc/rancher/k3s/kubelet.config'
+        kubelet_arg = config_dict.get('kubelet-arg', False)
+        if kubelet_arg:
+            kubelet_arg.append('config=/etc/rancher/k3s/kubelet.config')
+        else:
+            config_dict['kubelet-arg'] = ['config=/etc/rancher/k3s/kubelet.config']
+
+    # write out the k3s config
+    yaml = YAML()
+    with open(k3s_yaml_file, 'w') as k3s_cfg:
+        yaml.dump(config_dict, k3s_cfg)
 
     subproc([install_cmd], spinner=False)
 
@@ -69,8 +82,6 @@ def install_k3s_cluster(cluster_name: str,
 
     # remove the script after we're done
     remove('./install.sh')
-
-    return True
 
 
 def uninstall_k3s(context: dict = {}):
@@ -89,7 +100,7 @@ def uninstall_k3s(context: dict = {}):
     return True
 
 
-def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s'):
+def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
     """
     update the user's kubeconfig with the cluster, user, and context for the new 
     cluster by grabbing the k3s generated kubeconfig and using it to update your

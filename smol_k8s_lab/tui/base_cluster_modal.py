@@ -88,7 +88,14 @@ class ClusterModalScreen(ModalScreen):
                 uninstall_k3s()
 
             if self.distro == "k3d":
-                delete_k3d_cluster(self.cluster.replace("k3d-", ""))
+                res = delete_k3d_cluster(self.cluster)
+                if "Success" in res:
+                    self.app.notify("Sucessfully deleted cluster",
+                                    severity="information")
+                else:
+                    self.app.notify("Something went wrong with deleting the cluster!",
+                                    timeout=10,
+                                    severity="error")
 
             if self.distro == "kind":
                 delete_kind_cluster(self.cluster.replace("kind-", ""))
