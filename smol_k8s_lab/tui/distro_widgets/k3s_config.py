@@ -94,9 +94,13 @@ class K3sConfig(Static):
                 cli_args = self.app.cfg['k8s_distros'][self.distro]["k3s_yaml"]
                 if cli_args[input.name]:
                     cli_args.pop(input.name)
+                    self.app.write_yaml()
 
             # delete the whole row
             event.button.parent.remove()
+
+        elif event.button.id == "add-button":
+            self.action_generate_row(self.get_widget_by_id("new-k3s-option").value)
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
