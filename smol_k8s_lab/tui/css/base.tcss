@@ -162,7 +162,6 @@ Select .option-list--option-hover-highlighted {
 
 #smol-k8s-lab-header {
     color: $soft_green;
-    background: $navy 30%;
     padding-top: 2;
     width: 100%;
     content-align: center middle;
@@ -171,9 +170,9 @@ Select .option-list--option-hover-highlighted {
 
 /* both with-cluster-table and no-cluster-table are classes for #cluster-boxes */
 .with-cluster-table {
-    grid-rows: 0.3fr 0.2fr;
+    grid-rows: 0.5fr 0.2fr;
     grid-gutter: 2;
-    height: 90%;
+    height: 80%;
 }
 
 .no-cluster-table {

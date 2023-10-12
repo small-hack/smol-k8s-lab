@@ -20,14 +20,15 @@ $navy: rgb(35,35,54);
    background: rgb(35,35,54) 50%;
    border: round $cornflower;
    border-title-color: $sky_blue;
-   padding: 1;
-   grid-rows: 0.25fr 1fr 0.3fr;
+   padding: 2;
+   grid-rows: 0.25fr 1fr 0.35fr;
 }
 
 #k3s-help-text {
     color: gray;
     width: 100%;
-    padding: 1;
+    padding-left: 2;
+    padding-right: 1;
 }
 
 /* k3s container itself */
@@ -43,9 +44,7 @@ $navy: rgb(35,35,54);
 
 #k3s-grid {
    height: auto;
-   width: 100%;
-   padding-right: 1;
-   padding-left: 2;
+   width: 95%;
    grid-gutter: 1;
 }
 
@@ -76,7 +75,8 @@ $navy: rgb(35,35,54);
 /* button to add another optional k3s extra arg */
 #new-k3s-option-grid {
    grid-gutter: 1;
-   align: center middle;
+   align: left middle;
+   padding-right: 2;
    grid-size: 2;
 }
 
