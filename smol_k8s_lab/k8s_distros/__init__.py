@@ -1,8 +1,10 @@
+from ..k8s_tools.k8s_lib import K8s
+from ..utils.rich_cli.console_logging import sub_header, header
+from ..utils.subproc import subproc
+
 from .kind import create_kind_cluster, delete_kind_cluster
 from .k3d import create_k3d_cluster, delete_k3d_cluster
 from .k3s import install_k3s_cluster, uninstall_k3s
-from ..utils.rich_cli.console_logging import sub_header, header
-from ..utils.subproc import subproc
 
 
 def check_all_contexts() -> list:
@@ -82,17 +84,20 @@ def create_k8s_distro(cluster_name: str,
                       k8s_distro: str,
                       distro_metadata: dict = {},
                       metallb_enabled: bool = True,
-                      cilium_enabled: bool = False) -> None:
+                      cilium_enabled: bool = False) -> K8s:
     """
     Install a specific distro of k8s
+
     Arguments:
+        cluster_name:     the name to give the cluster in your kubeconfig
         k8s_distro:       options: 'k3s', 'k3d', 'kind'
         distro_metadata:  any extra data objects to be passed to the install funcs
         metallb_enabled:  if we're enabling metallb it requires we disable
                           servicelb for k3s
         cilium_enabled:   if we're enabling cilium it requires we disable flannel
                           for k3s and disable network-policy for all distros
-    Returns True
+
+    Returns K8s object with current context selected
     """
     header(f"Initializing your [green]{k8s_distro}[/] cluster", "💙")
     cluster = check_contexts_for_cluster(cluster_name, k8s_distro)
@@ -142,6 +147,8 @@ def create_k8s_distro(cluster_name: str,
                                k3s_args,
                                distro_metadata['nodes']['control_plane'],
                                distro_metadata['nodes']['workers'])
+
+    return K8s()
 
 
 def delete_cluster(cluster_name: str, k8s_distro: str) -> True:

@@ -23,7 +23,6 @@ from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd
-from .k8s_tools.k8s_lib import K8s
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
@@ -195,10 +194,8 @@ def main(config: str = "",
             continue
 
         # install the actual KIND, k3s, or k3d cluster
-        create_k8s_distro(cluster_name, distro, metadata, metallb_enabled,
-                          cilium_enabled)
-
-        k8s_obj = K8s()
+        k8s_obj = create_k8s_distro(cluster_name, distro, metadata,
+                                    metallb_enabled, cilium_enabled)
 
     # check if argo is enabled
     argo_enabled = apps['argo_cd']['enabled']
