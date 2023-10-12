@@ -9,7 +9,7 @@ from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.k8s_tools.kubernetes_util import apply_manifests
 
 
-def configure_ingress_nginx(k8s_distro: str):
+def configure_ingress_nginx(k8s_distro: str) -> None:
     """
     install nginx ingress controller from manifests for kind and helm for k3s
     """
@@ -26,4 +26,3 @@ def configure_ingress_nginx(k8s_distro: str):
                              chart_version='4.7.2',
                              namespace='ingress')
         release.install()
-    return
