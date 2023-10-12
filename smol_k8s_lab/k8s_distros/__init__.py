@@ -103,7 +103,7 @@ def create_k8s_distro(cluster_name: str,
     cluster = check_contexts_for_cluster(cluster_name, k8s_distro)
     if cluster:
         sub_header(f'We already have a [green]{k8s_distro}[/] cluster ♡')
-        return True
+        return K8s()
 
     sub_header('This could take a min ʕ•́ _ •̀ʔっ♡ ', False)
 
@@ -148,8 +148,7 @@ def create_k8s_distro(cluster_name: str,
                                distro_metadata['nodes']['control_plane'],
                                distro_metadata['nodes']['workers'])
 
-    k8s_obj = K8s()
-    return k8s_obj
+    return K8s()
 
 
 def delete_cluster(cluster_name: str, k8s_distro: str) -> True:
