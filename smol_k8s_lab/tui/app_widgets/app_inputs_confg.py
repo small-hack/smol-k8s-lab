@@ -180,11 +180,15 @@ class InitValues(Static):
         # create the input row
         label_value = init_key.replace("_"," ") + ":"
         label = Label(label_value, classes=f"app-init-label {self.app_name}")
-        label.tooltip = (
-                f"{grammar}. Init value for special one-time setup of this app."
-                " This value is [i]not[/i] stored in a secret for "
-                "later reference by Argo CD."
+        tooltip = (
+                f"{grammar}. Init value for special one-time setup of {self.app_name}."
+                " This value is [i]not[/i] stored in a secret for later reference"
+                " by Argo CD."
                 )
+        if self.app_name == "metallb":
+            tooltip += (" Be sure the ip addresses you enter already have DNS "
+                        "entries for any apps you'd like to deploy.")
+        label.tooltip = tooltip
 
         container_class = f"app-init-row {self.app_name}"
 
