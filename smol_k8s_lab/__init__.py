@@ -21,6 +21,7 @@ from .bitwarden.tui.bitwarden_app import BitwardenCredentials
 from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
+from .k8s_apps.argocd import configure_argocd
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd
 from .tui import launch_config_tui
@@ -190,12 +191,13 @@ def main(config: str = "",
     # iterate through each passed in k8s distro and create cluster + install apps
     for distro, metadata in k8s_distros.items():
         # if the cluster isn't enabled, just continue on
-        if not k8s_distros[distro].get('enabled', False):
-            continue
+        if k8s_distros[distro].get('enabled', False):
+            selected_distro = distro
+            break
 
-        # install the actual KIND, k3s, or k3d cluster
-        k8s_obj = create_k8s_distro(cluster_name, distro, metadata,
-                                    metallb_enabled, cilium_enabled)
+    # install the actual KIND, k3s, or k3d cluster
+    k8s_obj = create_k8s_distro(cluster_name, selected_distro, metadata,
+                                metallb_enabled, cilium_enabled)
 
     # check if argo is enabled
     argo_enabled = apps['argo_cd']['enabled']
@@ -216,7 +218,7 @@ def main(config: str = "",
     if argo_enabled:
         # user can configure a special domain for argocd
         argocd_fqdn = SECRETS['argo_cd_hostname']
-        from .k8s_apps.argocd import configure_argocd
+
         configure_argocd(k8s_obj, argocd_fqdn, bw,
                          apps['appset_secret_plugin']['enabled'],
                          SECRETS)

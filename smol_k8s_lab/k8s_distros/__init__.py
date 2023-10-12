@@ -148,7 +148,8 @@ def create_k8s_distro(cluster_name: str,
                                distro_metadata['nodes']['control_plane'],
                                distro_metadata['nodes']['workers'])
 
-    return K8s()
+    k8s_obj = K8s()
+    return k8s_obj
 
 
 def delete_cluster(cluster_name: str, k8s_distro: str) -> True:
