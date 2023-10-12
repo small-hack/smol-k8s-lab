@@ -189,10 +189,10 @@ class BwCLI():
             # make a list of each full item
             list_for_dialog = []
             for id in item_list:
-                list_for_dialog.append(self.get_item(id['id'], True)['data'])
+                list_for_dialog.append(self.get_item(id)[0])
 
             # ask the user what to do
-            user_response = AskUserForDuplicateStrategy(list_for_dialog)
+            user_response = AskUserForDuplicateStrategy(list_for_dialog).run()
 
             action = user_response[0]
             always_do_action = user_response[1]
