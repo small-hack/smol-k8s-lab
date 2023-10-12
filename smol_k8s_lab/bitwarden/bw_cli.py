@@ -175,12 +175,14 @@ class BwCLI():
                     )
                 )
 
+        message = response.get("message", "")
+
         # if there is no item, just return False
-        if response['message'] == 'Not found.':
+        if message == "Not found.":
             log.debug(response)
             return False, None
 
-        elif 'More than one result was found' in response['message']:
+        elif 'More than one result was found' in message:
             item_list = response['data']
             log.debug(f"found more than 1 entry for {item_name}: {item_list}")
 
