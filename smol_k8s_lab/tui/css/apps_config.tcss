@@ -45,8 +45,9 @@ $navy: rgb(35,35,54);
 
 /* matches the app selection list, the left button container */
 #left-apps-container {
-   grid-rows: 1fr 0.4fr;
+   grid-rows: 1fr 0.5fr;
    align: center top;
+   grid-gutter: 1;
 }
 
 /* new app and modify globals buttons boxes below the app selection list */
