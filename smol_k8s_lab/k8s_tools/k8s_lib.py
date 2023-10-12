@@ -1,10 +1,12 @@
+# external libraries
 from __future__ import print_function
 from json import loads
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import logging as log
 import yaml
-# local imports
+
+# internal libraries
 from ..utils.subproc import subproc
 
 
@@ -24,7 +26,8 @@ class K8s():
     """
     Class for the kubernetes python client
     """
-    def __init__(self,):
+
+    def __init__(self):
         """
         This is mostly for storing the k8s config
         """
@@ -37,7 +40,7 @@ class K8s():
                       namespace: str,
                       str_data: str,
                       inline_key: str = "",
-                      labels: dict = {}) -> bool:
+                      labels: dict = {}) -> None:
         """
         Create a Kubernetes secret
         """
@@ -78,14 +81,13 @@ class K8s():
         res = subproc([f"kubectl get secret -n {namespace} {name} -o json"])
         return loads(res)
 
-    def delete_secret(self, name: str, namespace: str) -> dict:
+    def delete_secret(self, name: str, namespace: str) -> None:
         """
         get an existing k8s secret
         """
         log.debug(f"Deleting secret: {name} in namespace: {namespace}")
 
         subproc([f"kubectl delete secret -n {namespace} {name}"])
-        return True
 
     def get_namespace(self, name: str) -> bool:
         """
@@ -96,10 +98,11 @@ class K8s():
         for nameSpace_obj in nameSpaceList.items:
             if nameSpace_obj.metadata.name == name:
                 return True
+
         log.debug(f"Namespace, {name}, does not exist yet")
         return False
 
-    def create_namespace(self, name: str) -> True:
+    def create_namespace(self, name: str) -> None:
         """
         Create namespace with name
         """
@@ -111,9 +114,8 @@ class K8s():
             self.core_v1_api.create_namespace(namespace)
         else:
             log.debug(f"Namespace, {name}, already exists")
-        return True
 
-    def reload_deployment(self, name: str, namespace: str) -> True:
+    def reload_deployment(self, name: str, namespace: str) -> None:
         """
         restart a deployment's pod scaling it up and then down again
         currently only works with one pod
