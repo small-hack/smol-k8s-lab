@@ -38,7 +38,7 @@ smol_k8s_lab:
     # edit: edit item, if there's one item found, ask if multiple found
     # duplicate: create an additional item with the same name
     # no_action: don't do anything, just continue on with the script
-    duplicate_strategy: edit
+    duplicate_strategy: ask
 
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind and k3d are available on macOS at this time
