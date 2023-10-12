@@ -61,20 +61,19 @@ def install_k3s_cluster(cluster_name: str,
     remove('./install.sh')
 
 
-def uninstall_k3s(context: dict = {}):
+def uninstall_k3s(cluster_name: str) ->  str:
     """
     uninstall k3s and cleans up your kubeconfig as well
     returns True
     """
     log.debug("Uninstalling k3s")
     cmds = ["k3s-uninstall.sh",
-            f"kubectl config delete-cluster {context['cluster']}",
-            f"kubectl config delete-context {context['context']}",
-            f"kubectl config delete-user {context['user']}"]
+            f"kubectl config delete-cluster {cluster_name}",
+            f"kubectl config delete-context {cluster_name}",
+            f"kubectl config delete-user {cluster_name}"]
 
-    subproc(cmds, spinner=False, error_ok=True)
-
-    return True
+    res = subproc(cmds, spinner=False, error_ok=True)
+    return res
 
 
 def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
@@ -98,6 +97,7 @@ def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
     k3s_kubecfg['contexts'][0]['name'] = cluster_name
     k3s_kubecfg['contexts'][0]['context']['cluster'] = cluster_name
     k3s_kubecfg['contexts'][0]['context']['user'] = cluster_name
+    # also make sure the current context is set to the same cluster name
     k3s_kubecfg['current-context'] = cluster_name
 
     # if the kubeconfig already exists and is not empty, we update it

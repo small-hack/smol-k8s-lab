@@ -85,7 +85,8 @@ class ClusterModalScreen(ModalScreen):
         # if the user really wants to delete a cluster, we do it
         elif event.button.id == "delete-button-second-try":
             if self.distro == "k3s":
-                uninstall_k3s()
+                res = uninstall_k3s(self.cluster)
+                self.app.notify(res)
 
             if self.distro == "k3d":
                 res = delete_k3d_cluster(self.cluster)
