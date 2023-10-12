@@ -21,7 +21,7 @@ def configure_argocd(k8s_obj: K8s,
                      argo_cd_domain: str = "",
                      bitwarden: BwCLI = None,
                      plugin_secret_creation: bool = False,
-                     secret_dict: dict = {}) -> True:
+                     secret_dict: dict = {}) -> None:
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
@@ -85,7 +85,7 @@ def configure_argocd(k8s_obj: K8s,
 
         release_dict['values_file'] = values_file_name
         release_dict['chart_name'] = 'argo-cd/argo-cd'
-        release_dict['chart_version'] = '5.46.0'
+        release_dict['chart_version'] = '5.46.8'
 
         release = Helm.chart(**release_dict)
         release.install(True)
@@ -96,8 +96,6 @@ def configure_argocd(k8s_obj: K8s,
     # setup Argo CD to talk directly to k8s
     subproc(['kubectl config set-context --current --namespace=argocd',
              f'argocd login {argo_cd_domain} --core'])
-
-    return True
 
 
 def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
