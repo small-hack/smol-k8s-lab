@@ -96,7 +96,7 @@ class AskUserForDuplicateStrategy(App[None]):
             self.app.exit(["no_action", self.always_do, item])
 
         if event.button.id == "edit-button":
-                self.app.exit(["edit", self.always_do, item])
+            self.app.exit(["edit", self.always_do, item])
 
         if event.button.id == "duplicate-button":
             self.app.exit(["duplicate", self.always_do, item])
