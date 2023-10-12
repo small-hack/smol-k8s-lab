@@ -253,7 +253,7 @@ class BwCLI():
                 log.warn(msg)
 
             elif strategy == "ask":
-                user_response = AskUserForDuplicateStrategy(item['data'])
+                user_response = AskUserForDuplicateStrategy(item)
 
                 # if the user set "always do this action"
                 if user_response[1] is True:
