@@ -271,8 +271,14 @@ def main(config: str = "",
                  f"\n[green]export KUBECONFIG={KUBECONFIG}[/green]\n")
 
     if zitadel_enabled:
-        final_msg += ("\nYou can log into Zitadel, your identity provider here:\n"
-                      f"[blue][link]https://{SECRETS['zitadel_hostname']}[/]\n")
+        if bw:
+            creds = " (credentials are in Bitwarden)"
+        else:
+            creds = ""
+        final_msg += (
+                f"\nYou can log into Zitadel, your identity provider here{creds}:\n"
+                f"[blue][link]https://{SECRETS['zitadel_hostname']}[/][/]\n"
+                 )
 
     if argo_enabled:
         final_msg += ("\nYou can checkout your k8s apps via Argo CD here:\n"
