@@ -111,6 +111,7 @@ def create_k8s_distro(cluster_name: str,
             networking_args["disableDefaultCNI"] = True
 
         create_kind_cluster(cluster_name,
+                            kubelet_args,
                             networking_args,
                             distro_metadata['nodes']['control_plane'],
                             distro_metadata['nodes']['workers'])
@@ -133,8 +134,7 @@ def create_k8s_distro(cluster_name: str,
 
         if k8s_distro == "k3s":
             install_k3s_cluster(cluster_name,
-                                k3s_args,
-                                kubelet_args)
+                                k3s_args)
 
         # curently unsupported - in alpha state
         if k8s_distro == "k3d":
