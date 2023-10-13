@@ -16,11 +16,11 @@ $navy: rgb(35,35,54);
 
 /* Matches the entire distro screen */
 #distro-config-screen {
-   align: center middle;
-   height: 92%;
-   width: 90%;
-   grid-rows: 0.25fr 1.33fr;
-   grid-gutter: 1;
+    align: center middle;
+    height: 92%;
+    width: 90%;
+    grid-rows: 0.25fr 1.33fr;
+    grid-gutter: 2;
 }
 
 #top-distro-row {
@@ -36,30 +36,37 @@ $navy: rgb(35,35,54);
 }
 
 #distro-select-box {
-   grid-size: 2;
-   grid-columns: 0.25fr 1fr;
+    grid-size: 2;
+    grid-columns: 0.25fr 1fr;
 }
 
 #distro-description {
-   content-align: center middle;
-   height: 3;
-   width: 100%;
-   padding-left: 1;
-   color: gray;
+    content-align: center middle;
+    height: 3;
+    width: 100%;
+    padding-left: 1;
+    color: gray;
 }
 
 #distro-drop-down {
-   content-align: center middle;
-   height: 3;
+    content-align: center middle;
+    height: 3;
 }
 
-/* bottom half k8s distro config area */
-.k8s-distro-config-kind {
-   grid-rows: 0.4fr 0.9fr 1fr;
-   grid-gutter: 1;
+.k8s-distro-config {
+    grid-rows: 0.25fr 0.8fr;
+    grid-gutter: 2;
 }
 
-.k8s-distro-config-k3s {
-   grid-rows: 0.25fr 0.8fr;
-   grid-gutter: 2;
+TabbedContent {
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    background: $navy 50%;
+    height: 100%;
+    width: 100%;
+}
+
+TabPane {
+    height: 20;
+    width: 100%;
 }

@@ -13,7 +13,7 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid
 from textual.screen import Screen
-from textual.widgets import Footer, Header, Label, Select
+from textual.widgets import Footer, Header, Label, Select, TabbedContent, TabPane
 
 
 # the description of the k8s distro
@@ -107,10 +107,7 @@ class DistroConfigScreen(Screen):
                 else:
                     display = False
 
-                if distro == "kind":
-                    grid_class = f"{distro} k8s-distro-config-kind"
-                else:
-                    grid_class = f"{distro} k8s-distro-config-k3s"
+                grid_class = f"{distro} k8s-distro-config"
 
                 distro_box = Grid(classes=grid_class, id=f"{distro}-box")
                 distro_box.display = display
@@ -125,11 +122,23 @@ class DistroConfigScreen(Screen):
                     yield NodeAdjustmentBox(distro, control_nodes, worker_nodes)
 
                     if distro == 'kind':
-                        # kubelet config section for kind only
-                        yield KubeletConfig(distro,
-                                            distro_metadata['kubelet_extra_args'])
+                        kubelet_args = distro_metadata['kubelet_extra_args']
+                        networking_args = distro_metadata['networking_args']
 
-                        yield KindNetworkingConfig(distro_metadata['networking_args'])
+                        # Add the TabbedContent widget for kind config
+                        with TabbedContent(initial="kind-networking-tab"):
+                            # tab 1 - networking options
+                            with TabPane("Networking options",
+                                         id="kind-networking-tab"):
+                                # kind networking section
+                                yield KindNetworkingConfig(networking_args)
+
+                            # tab 2 - kubelet options
+                            with TabPane("Kubelet Config Options",
+                                         id="kind-kubelet-tab"):
+                                # kubelet config section for kind only
+                                yield KubeletConfig(distro, kubelet_args)
+                                                    
 
                     # take extra k3s args if distro is k3s or k3d
                     else:
@@ -146,6 +155,11 @@ class DistroConfigScreen(Screen):
         top_row = self.get_widget_by_id("top-distro-row")
         top_row.border_title = "🌱 Select a [#C1FF87]k8s distro[/]"
         top_row.border_subtitle = "[i]Inputs below are optional"
+        self.query_one(TabbedContent).border_title = "kind config"
+
+    def action_show_tab(self, tab: str) -> None:
+        """Switch to a new tab."""
+        self.get_child_by_type(TabbedContent).active = tab
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:

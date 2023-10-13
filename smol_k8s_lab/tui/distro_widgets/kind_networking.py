@@ -33,7 +33,7 @@ class KindNetworkingConfig(Widget):
             # kind networking config section
             help = ("Add key value pairs to kind networking config. If [dim][#C1FF87]"
                     "cilium[/][/] is enabled, we pass in disableDefaultCNI=true.")
-            yield Label(help, classes="k3s-help-label")
+            yield Label(help, id="kind-help-label")
 
             with VerticalScroll(classes="kind-networking-config-scroll"):
                 if self.kind_neworking_params:
@@ -43,14 +43,6 @@ class KindNetworkingConfig(Widget):
                     yield self.generate_row()
 
                 yield Button("➕ Parameter", classes="kind-networking-add-button")
-
-    def on_mount(self) -> None:
-        """
-        box border styling
-        """
-        # kind networking arg config styling
-        kind_title = "[i]Add[/] [i]extra[/] args for [#C1FF87]kind networking"
-        self.get_widget_by_id("kind-networking-container").border_title = kind_title
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
