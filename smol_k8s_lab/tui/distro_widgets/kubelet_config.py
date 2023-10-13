@@ -18,7 +18,7 @@ kubelet_help = (
 
 class KubeletConfig(Widget):
     """
-    Widget to take Extra Args for Kubelet Config section
+    Widget to take Extra Args for kind Kubelet Config
     """
 
     def __init__(self, distro: str, kubelet_extra_args: list = []) -> None:
@@ -28,8 +28,7 @@ class KubeletConfig(Widget):
 
     def compose(self) -> ComposeResult:
         with Grid(id="kubelet-config-container"):
-            yield Label(kubelet_help,
-                        classes="help-text")
+            yield Label(kubelet_help, classes="help-text")
             yield VerticalScroll(id="kubelet-config-scroll")
 
     def on_mount(self) -> None:
@@ -70,15 +69,11 @@ class KubeletConfig(Widget):
         """
         generate a new input field set
         """
-        # base class for all the below object
-        row_class = f"{self.distro} kubelet-arg-input"
-
         # label for input field
         label = Label(param + ":", classes="input-label")
 
         # second input field
-        param_value_input_args = {"classes": f"{row_class}-value",
-                                  "placeholder": "kubelet parameter value",
+        param_value_input_args = {"placeholder": "kubelet parameter value",
                                   "suggester": VALUE_SUGGESTIONS,
                                   "validators": Length(minimum=1),
                                   "name": param}
@@ -87,10 +82,10 @@ class KubeletConfig(Widget):
         param_value_input = Input(**param_value_input_args)
 
         # delete button for each row
-        del_button = Button("🚮", classes=f"{row_class}-del-button")
+        del_button = Button("🚮")
         del_button.tooltip = "Delete this kubelet parameter"
 
-        self.get_widget_by_id("kubelet-config-container").mount(
+        self.get_widget_by_id("kubelet-config-scroll").mount(
                 Grid(label, param_value_input, del_button,
                      classes="label-input-delete-row")
                 )

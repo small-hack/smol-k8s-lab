@@ -16,22 +16,17 @@ $navy: rgb(35,35,54);
 
 /* kubelet config container */
 #kubelet-config-container {
-   padding: 1;
-   grid-rows: 0.25fr 1fr;
+    padding: 1;
+    grid-rows: 0.25fr 1fr;
+    align: center middle;
 }
 
 #kubelet-config-scroll {
-   align: center middle;
-   scrollbar-background: $dark_gray;
-   scrollbar-background-active: $dark_gray;
-   scrollbar-background-hover: $dark_gray;
-   scrollbar-color-active: $sky_blue;
-   scrollbar-color-hover: $cornflower;
-   scrollbar-color: $light_cornflower;
-}
-
-/* kubelet config arg value input field */
-.kubelet-arg-input-value {
-   height: auto;
-   width: 100%;
+    align: center top;
+    scrollbar-background: $dark_gray;
+    scrollbar-background-active: $dark_gray;
+    scrollbar-background-hover: $dark_gray;
+    scrollbar-color-active: $sky_blue;
+    scrollbar-color-hover: $cornflower;
+    scrollbar-color: $light_cornflower;
 }
