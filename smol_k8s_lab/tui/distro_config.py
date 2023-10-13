@@ -2,10 +2,11 @@
 # smol-k8s-lab libraries
 from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
 from smol_k8s_lab.env_config import process_k8s_distros
-from smol_k8s_lab.tui.distro_widgets.k3s_config import K3sConfig, NewK3sOptionModal
+from smol_k8s_lab.tui.distro_widgets.k3s_config import K3sConfig
 from smol_k8s_lab.tui.distro_widgets.kind_networking import KindNetworkingConfig
 from smol_k8s_lab.tui.distro_widgets.kubelet_config import KubeletConfig
 from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
+from smol_k8s_lab.tui.util import NewOptionModal
 
 # external libraries
 from textual import on
@@ -155,7 +156,16 @@ class DistroConfigScreen(Screen):
         top_row = self.get_widget_by_id("top-distro-row")
         top_row.border_title = "🌱 Select a [#C1FF87]k8s distro[/]"
         top_row.border_subtitle = "[i]Inputs below are optional"
-        self.query_one(TabbedContent).border_title = "kind config"
+
+        # update tabbed content box
+        tabbed_content = self.query_one(TabbedContent)
+
+        tabbed_content.border_title = ("Add [i]extra[/] options for "
+                                       "[#C1FF87]kind[/] config files")
+
+        subtitle = ("[@click=screen.launch_new_option_modal('kind')]"
+                    "➕ kind option[/] | [i]hotkey[/]: a")
+        tabbed_content.border_subtitle = subtitle
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
@@ -186,14 +196,18 @@ class DistroConfigScreen(Screen):
 
         self.previous_distro = distro
 
-    def action_launch_k3s_modal(self) -> None:
+    def action_launch_new_option_modal(self, trigger: str) -> None:
         def add_new_row(option: str):
-            if option:
+            if option and self.previous_distro != 'kind':
                 k3s_widget = self.get_widget_by_id(f"{self.previous_distro}-widget")
                 k3s_widget.generate_row(option)
-
-        existing_keys = self.cfg[self.previous_distro]['k3s_yaml']
-        self.app.push_screen(NewK3sOptionModal(existing_keys), add_new_row)
+            else:
+                return
+        if self.previous_distro != 'kind':
+            existing_keys = self.cfg[self.previous_distro]['k3s_yaml'].keys()
+        else:
+            existing_keys = self.cfg[self.previous_distro]['networking_args'].keys()
+        self.app.push_screen(NewOptionModal(trigger, existing_keys), add_new_row)
 
 
 def format_description(description: str = ""):

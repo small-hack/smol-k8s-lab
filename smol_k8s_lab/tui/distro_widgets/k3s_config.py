@@ -76,7 +76,7 @@ class K3sConfig(Static):
                     "k3s options[/][/][/] to pass to the k3s install script via a "
                     "[steel_blue][u][link=https://docs.k3s.io/installation/configuration#"
                     f"configuration-file]config file[/][/][/] stored in {CFG_FILE}",
-                    id="k3s-help-text"
+                    classes="help-text"
                     )
 
             # actual input grid
@@ -92,8 +92,8 @@ class K3sConfig(Static):
                      "install script")
         k3s_container = self.get_widget_by_id(f"{self.distro}-base-grid")
         k3s_container.border_title = k3s_title
-        subtitle = ("[@click=screen.launch_k3s_modal()]➕ k3s option[/] | "
-                    "[i]hotkey[/]: a")
+        subtitle = ("[@click=screen.launch_new_option_modal('k3s')]"
+                    "➕ k3s option[/] | [i]hotkey[/]: a")
         k3s_container.border_subtitle = subtitle
 
         # if we've been passed k3s args already, generate rows
@@ -195,7 +195,7 @@ class K3sConfig(Static):
         button = Button("🚮", classes="k3s-arg-del-button")
         button.tooltip = "Delete the arg to the left of this button"
         
-        grid = Grid(label, input, button, classes="k3s-arg-row")
+        grid = Grid(label, input, button, classes="label-input-delete-row")
         self.get_widget_by_id("k3s-grid").mount(grid)
 
 

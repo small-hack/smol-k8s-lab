@@ -16,14 +16,9 @@ $navy: rgb(35,35,54);
 
 /* kind-networking config container */
 #kind-networking-container {
-    background: $navy 50%;
     padding-left: 1;
     padding-right: 1;
     grid-rows: 0.2fr 1fr;
-}
-
-#kind-help-label {
-    width: 100%;
 }
 
 .kind-networking-config-scroll {
@@ -41,15 +36,11 @@ $navy: rgb(35,35,54);
     grid-size: 3;
     width: 100%;
     height: auto;
-    grid-columns: 0.75fr 0.74fr 0.12fr;
+    grid-columns: 0.25fr 0.75fr 0.12fr;
     padding-bottom: 1;
     padding-right: 1;
+    padding-left: 1;
     content-align: center middle;
-}
-
-/* kind-networking config arg key input field */
-.kind-networking-input-key{
-    width: 100%;
 }
 
 /* kind-networking config arg value input field */
@@ -61,12 +52,4 @@ $navy: rgb(35,35,54);
 .kind-networking-input-del-button {
     content-align: center middle;
     padding: 0;
-}
-
-/* kind-networking config arg row delete button */
-.kind-networking-add-button {
-    content-align: center middle;
-    width: 100%;
-    margin-right: 1;
-    margin-left: 1;
 }

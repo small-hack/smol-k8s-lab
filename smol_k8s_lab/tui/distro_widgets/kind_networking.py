@@ -33,7 +33,7 @@ class KindNetworkingConfig(Widget):
             # kind networking config section
             help = ("Add key value pairs to kind networking config. If [dim][#C1FF87]"
                     "cilium[/][/] is enabled, we pass in disableDefaultCNI=true.")
-            yield Label(help, id="kind-help-label")
+            yield Label(help, classes="help-text")
 
             with VerticalScroll(classes="kind-networking-config-scroll"):
                 if self.kind_neworking_params:
@@ -42,26 +42,15 @@ class KindNetworkingConfig(Widget):
                 else:
                     yield self.generate_row()
 
-                yield Button("➕ Parameter", classes="kind-networking-add-button")
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
         get pressed button add or delete button and act on it
         """
-        button_classes = event.button.classes
-
-        # lets you delete a kind networking-arg row
-        if "kind-networking-input-del-button" in button_classes:
-            parent_row = event.button.parent
-            input_key = parent_row.children[0].value
-            if input_key:
-                self.app.cfg['k8s_distros']['kind']['networking_args'].pop(input_key)
-            parent_row.remove()
-
-        # add a new row of kind networking arg inputs before the add button
-        if "kind-networking-add-button" in button_classes:
-            parent_container = event.button.parent
-            parent_container.mount(self.generate_row(), before=event.button)
+        parent_row = event.button.parent
+        input_key = parent_row.children[0].value
+        if input_key:
+            self.app.cfg['k8s_distros']['kind']['networking_args'].pop(input_key)
+        parent_row.remove()
 
     @on(Input.Submitted)
     def update_base_yaml(self, event: Input.Changed) -> None:
@@ -95,13 +84,8 @@ class KindNetworkingConfig(Widget):
         # base class for all the below object
         row_class = "kind-networking-input"
 
-        # first input field
-        param_input_args = {"placeholder": "optional kind networking param",
-                            "classes": f"{row_class}-key",
-                            "suggester": SUGGESTIONS}
-        if param:
-            param_input_args["value"] = param
-        param_input = Input(**param_input_args)
+        # label for input field
+        label = Label(param.replace("_", " ") + ":", classes="input-label")
 
         # second input field
         param_value_input_args = {"classes": f"{row_class}-value",
@@ -115,5 +99,5 @@ class KindNetworkingConfig(Widget):
         del_button = Button("🚮", classes=f"{row_class}-del-button")
         del_button.tooltip = "Delete this kind networking parameter"
 
-        return Grid(param_input, param_value_input, del_button,
-                    classes=f"{row_class}-row")
+        return Grid(label, param_value_input, del_button,
+                    classes="label-input-delete-row")

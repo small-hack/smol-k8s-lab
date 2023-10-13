@@ -93,7 +93,9 @@ k8s_distros:
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
       node-labels: "ingress-ready=true"
-    networking_args: {}
+    networking_args:
+      ipFamily: "ipv4"
+      disableDefaultCNI: False
     # how many dockerized kind nodes to deploy
     nodes:
       control_plane: 1
@@ -147,6 +149,7 @@ apps:
         destination:
           namespaces:
             - argocd
+            - prometheus
 
   appset_secret_plugin:
     enabled: true
