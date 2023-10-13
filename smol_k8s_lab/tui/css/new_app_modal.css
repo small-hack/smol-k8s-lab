@@ -16,7 +16,7 @@ $navy: rgb(35,35,54);
 
 
 /* whole modal screen */
-#question-modal-screen {
+#new-app-modal-screen {
     width: 80%;
     align: center middle;
     height: 27;
@@ -33,7 +33,6 @@ $navy: rgb(35,35,54);
 
 #modal-button-box {
     margin-top: 1;
-    grid-size: 3;
     align: center middle;
     height: auto;
 }
@@ -50,6 +49,7 @@ $navy: rgb(35,35,54);
 #app-name-input {
     margin-bottom: 1;
     margin-top: 1;
+    height: 3;
 }
 
 #description-input {
