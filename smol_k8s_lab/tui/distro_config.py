@@ -168,7 +168,7 @@ class DistroConfigScreen(Screen):
                                        "[#C1FF87]kind[/] config files")
 
         subtitle = ("[@click=screen.launch_new_option_modal()]"
-                    "➕ kind option[/] | [i]hotkey[/]: a")
+                    "➕ kind option[/]")
         tabbed_content.border_subtitle = subtitle
 
     def action_show_tab(self, tab: str) -> None:

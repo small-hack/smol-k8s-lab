@@ -87,7 +87,7 @@ class K3sConfig(Static):
         k3s_container = self.get_widget_by_id(f"{self.distro}-base-grid")
         k3s_container.border_title = k3s_title
         subtitle = ("[@click=screen.launch_new_option_modal()]"
-                    "➕ k3s option[/] | [i]hotkey[/]: a")
+                    "➕ k3s option[/]")
         k3s_container.border_subtitle = subtitle
 
         # if we've been passed k3s args already, generate rows
