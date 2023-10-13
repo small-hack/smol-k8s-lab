@@ -255,6 +255,13 @@ class NewK3sOptionModal(ModalScreen):
         if event.validation_result.is_valid:
             add_button.disabled = False
         else:
+            if "already in use" in event.validation_result.failure_descriptions[0]:
+                res = ("That option is already defined! If you want to add additional"
+                       f"options to {event.input.value}, you can use a comma "
+                       "seperated list.")
+                self.app.notify(res,
+                                title="Input Validation Error", severity="error",
+                                timeout=9)
             add_button.disabled = True
 
         # if button is currently enabled and the user presses enter, press button
