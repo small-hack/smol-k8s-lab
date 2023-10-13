@@ -261,6 +261,7 @@ apps:
         destination:
           namespaces:
             - argocd
+            - ingress
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by ArgoCD if you enable it below
@@ -387,6 +388,7 @@ apps:
         destination:
           namespaces:
             - argocd
+            - ingress
 
   k8tz:
     enabled: false
