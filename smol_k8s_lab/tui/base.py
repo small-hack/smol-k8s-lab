@@ -43,6 +43,7 @@ class BaseApp(App):
                         action="quit",
                         show=False),
                 Binding(key="n",
+                        key_display="n",
                         description="Submit New Cluster Name",
                         action="app.new_cluster",
                         show=True)
