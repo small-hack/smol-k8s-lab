@@ -43,8 +43,9 @@ class KubeletConfig(Widget):
         # lets you delete a kubelet-arg row
         parent_row = event.button.parent
         input_key = parent_row.children[1].name
-        if input_key:
-            self.app.cfg['k8s_distros'][self.distro]['kubelet_extra_args'].pop(input_key)
+        app_yaml = self.app.cfg['k8s_distros'][self.distro]['kubelet_extra_args']
+        if input_key and app_yaml[input_key]:
+            app_yaml.pop(input_key)
             self.app.write_yaml()
         parent_row.remove()
 
