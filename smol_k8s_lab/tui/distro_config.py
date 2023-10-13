@@ -205,6 +205,13 @@ class DistroConfigScreen(Screen):
             if option and self.previous_distro != 'kind':
                 k3s_widget = self.get_widget_by_id(f"{self.previous_distro}-widget")
                 k3s_widget.generate_row(option)
+            elif option and self.previous_distro == 'kind':
+                if self.query_one(TabbedContent).active == "kind-networking-tab":
+                    kind_widget = self.query_one(KindNetworkingConfig)
+                    kind_widget.generate_row(option)
+                else:
+                    kind_widget = self.query_one(KubeletConfig)
+                    kind_widget.generate_row(option)
             else:
                 return
 

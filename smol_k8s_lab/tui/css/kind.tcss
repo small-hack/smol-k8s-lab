@@ -21,7 +21,7 @@ $navy: rgb(35,35,54);
     grid-rows: 0.2fr 1fr;
 }
 
-.kind-networking-config-scroll {
+#kind-networking-config-scroll {
     align: center middle;
     scrollbar-background: $dark_gray;
     scrollbar-background-active: $dark_gray;
