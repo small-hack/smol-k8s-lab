@@ -171,6 +171,9 @@ class DistroConfigScreen(Screen):
                     "➕ kind option[/]")
         tabbed_content.border_subtitle = subtitle
 
+        self.query_one("Tab#kind-networking-tab").add_class('kind-networking-tab')
+        self.query_one("Tab#kind-kubelet-tab").add_class('kind-kubelet-tab')
+
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
         self.get_child_by_type(TabbedContent).active = tab

@@ -37,15 +37,6 @@ $navy: rgb(35,35,54);
     height: auto;
 }
 
-#modal-text {
-    content-align: center middle;
-    width: 100%;
-    color: $sky_blue;
-    padding-top: 1;
-    padding-bottom: 1;
-    background: $dark_gray 30%;
-}
-
 #app-name-input {
     margin-bottom: 1;
     margin-top: 1;

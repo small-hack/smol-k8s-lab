@@ -110,7 +110,7 @@ class NewOptionModal(ModalScreen):
                         action="app.pop_screen",
                         description="Cancel")]
 
-    CSS_PATH = ["./css/new_option_modal.css"]
+    CSS_PATH = ["./css/base_modal.tcss", "./css/new_option_modal.css"]
 
     def __init__(self, trigger: str, in_use_args: list = []) -> None:
         self.in_use_args = in_use_args
@@ -137,7 +137,7 @@ class NewOptionModal(ModalScreen):
         elif "kubelet" in self.trigger:
             suggestions = KUBELET_SUGGESTIONS
 
-        with Grid(id="question-modal-screen"):
+        with Grid(id="new-option-modal-screen"):
             # grid for app question and buttons
             with Grid(id="question-box"):
                 yield Label(question, id="modal-text")
