@@ -27,7 +27,10 @@ class ConfirmConfig(Screen):
     BINDINGS = [Binding(key="b,q,escape",
                         key_display="b",
                         action="app.pop_screen",
-                        description="⬅️ Back")]
+                        description="⬅️ Back"),
+                Binding(key="n",
+                        show=False,
+                        action="app.bell")]
 
     def __init__(self, config: dict) -> None:
         """
