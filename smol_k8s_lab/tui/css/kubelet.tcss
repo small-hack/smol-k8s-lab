@@ -22,7 +22,7 @@ $navy: rgb(35,35,54);
 }
 
 #kubelet-config-scroll {
-    align: center top;
+    align: center middle;
     scrollbar-background: $dark_gray;
     scrollbar-background-active: $dark_gray;
     scrollbar-background-hover: $dark_gray;
