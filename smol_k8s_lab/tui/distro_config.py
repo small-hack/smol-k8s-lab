@@ -207,12 +207,18 @@ class DistroConfigScreen(Screen):
                 k3s_widget.generate_row(option)
             else:
                 return
+
         if self.previous_distro != 'kind':
             existing_keys = self.cfg[self.previous_distro]['k3s_yaml'].keys()
             trigger = "k3s"
         else:
-            existing_keys = self.cfg[self.previous_distro]['networking_args'].keys()
-            trigger = "kind"
+            kind_cfg = self.cfg['kind']
+            if self.query_one(TabbedContent).active == "kind-networking-tab":
+                existing_keys = kind_cfg['networking_args'].keys()
+                trigger = "kind networking"
+            else:
+                existing_keys = kind_cfg['kubelet_extra_args'].keys()
+                trigger = "kind kubelet"
 
         self.app.push_screen(NewOptionModal(trigger, existing_keys), add_new_row)
 

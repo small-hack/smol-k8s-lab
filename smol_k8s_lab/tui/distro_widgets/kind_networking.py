@@ -50,6 +50,7 @@ class KindNetworkingConfig(Widget):
         input_key = parent_row.children[1].name
         if input_key:
             self.app.cfg['k8s_distros']['kind']['networking_args'].pop(input_key)
+            self.app.write_yaml()
         parent_row.remove()
 
     @on(Input.Submitted)
