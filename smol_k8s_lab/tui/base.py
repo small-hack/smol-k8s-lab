@@ -43,8 +43,9 @@ class BaseApp(App):
                         action="quit",
                         show=False),
                 Binding(key="n",
+                        description="Submit New Cluster Name",
                         action="app.new_cluster",
-                        show=False)
+                        show=True)
                 ]
 
     CSS_PATH = ["./css/base.tcss",
