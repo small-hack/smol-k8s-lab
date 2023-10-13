@@ -15,12 +15,12 @@ $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
 /* kubelet config container */
-.kubelet-config-container {
+#kubelet-config-container {
    padding: 1;
    grid-rows: 0.25fr 1fr;
 }
 
-.kubelet-config-scroll {
+#kubelet-config-scroll {
    align: center middle;
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
@@ -30,32 +30,8 @@ $navy: rgb(35,35,54);
    scrollbar-color: $light_cornflower;
 }
 
-/* kubelet config arg input row */
-.kubelet-arg-input-row {
-   grid-size: 3;
-   width: 100%;
-   height: auto;
-   grid-columns: 0.75fr 0.74fr 0.12fr;
-   padding-bottom: 1;
-   padding-right: 1;
-   content-align: center middle;
-}
-
-/* kubelet config arg key input field */
-.kubelet-arg-input-key{
-   height: auto;
-   width: 100%;
-}
-
 /* kubelet config arg value input field */
 .kubelet-arg-input-value {
    height: auto;
    width: 100%;
-}
-
-/* kubelet config arg row delete button */
-.kubelet-arg-input-del-button {
-   content-align: center middle;
-   height: auto;
-   padding: 0;
 }

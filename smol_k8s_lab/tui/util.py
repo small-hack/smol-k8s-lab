@@ -13,7 +13,26 @@ from textual.validation import Length
 from textual.widgets import Input, Button, Label
 
 
-KEY_SUGGESTIONS = SuggestFromList((
+KUBELET_SUGGESTIONS = SuggestFromList((
+        "podsPerCore",
+        "maxPods",
+        "node-labels",
+        "featureGates"
+        ))
+
+
+NETWORKING_SUGGESTIONS = SuggestFromList((
+        "apiServerPort",
+        "apiServerAddress",
+        "disableDefaultCNI",
+        "ipFamily",
+        "kubeProxyMode",
+        "podSubnet",
+        "serviceSubnet"
+        ))
+
+
+K3S_SUGGESTIONS = SuggestFromList((
        "disable",
        "disable-network-policy",
        "flannel-backend",
@@ -103,10 +122,20 @@ class NewOptionModal(ModalScreen):
         question = f"[#ffaff9]Add[/] [i]new[/] [#C1FF87]{self.trigger} option[/]."
         tooltip = (
                 "Start typing an option to show suggestions. Use the right arrow "
-                "key to complete the suggestion. Hit enter to submit. Note: If "
-                "[dim][#C1FF87]cilium[/][/] is [i]enabled[/], we add flannel-backend: "
-                "none and disable-network-policy: true."
+                "key to complete the suggestion. Hit enter to submit."
                 )
+        if self.trigger.startswith("k3"):
+            tooltip += (
+                    "Note: If [dim][#C1FF87]cilium[/][/] is [i]enabled[/], we "
+                    "add flannel-backend: none and disable-network-policy: true."
+                )
+            suggestions = K3S_SUGGESTIONS
+        elif "network" in self.trigger:
+            tooltip += ("Note: If [dim][#C1FF87]cilium[/][/] is [i]enabled[/],"
+                        "we pass in disableDefaultCNI=true.")
+            suggestions = NETWORKING_SUGGESTIONS
+        elif "kubelet" in self.trigger:
+            suggestions = KUBELET_SUGGESTIONS
 
         with Grid(id="question-modal-screen"):
             # grid for app question and buttons
@@ -116,7 +145,7 @@ class NewOptionModal(ModalScreen):
                 with Grid(id='new-option-grid'):
                     input = Input(id='new-option-input',
                                   placeholder=f"new {self.trigger} option",
-                                  suggester=KEY_SUGGESTIONS,
+                                  suggester=suggestions,
                                   validators=[
                                       Length(minimum=4),
                                       CheckIfNameAlreadyInUse(self.in_use_args)
