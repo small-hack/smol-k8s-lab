@@ -9,10 +9,10 @@ from textual.widgets import Input, Label, Static
 
 ARGO_TOOLTIPS = {'repo': 'URL to a git repository where you have k8s manifests ' + \
                          '(including Argo resources) to deploy',
-                 'path': 'path in repo to resources you want to deploy. ' +
+                 'path': 'Path in a git repo to resources you want to deploy. ' +
                          'Trailing slash is important.',
-                 'ref': 'branch or tag to point to in the repo',
-                 'namespace': 'k8s namespace to deploy the Argo CD App to'}
+                 'ref': 'Git branch or tag to point to in the repo.',
+                 'namespace': 'Kubernetes namespace to deploy the Argo CD App in.'}
 
 
 class ArgoCDApplicationConfig(Static):
