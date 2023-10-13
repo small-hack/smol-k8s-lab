@@ -20,14 +20,17 @@ $navy: rgb(35,35,54);
    background: rgb(35,35,54) 50%;
    border: round $cornflower;
    border-title-color: $sky_blue;
+   border-subtitle-color: $lavender;
+   link-hover-background: $navy;
+   link-hover-color: $orange;
    padding: 2;
-   grid-rows: 0.25fr 1fr 0.35fr;
+   grid-rows: 0.2fr 1fr;
 }
 
 #k3s-help-text {
     color: gray;
     width: 100%;
-    padding-left: 2;
+    padding-left: 1;
     padding-right: 1;
 }
 
@@ -44,17 +47,15 @@ $navy: rgb(35,35,54);
 
 #k3s-grid {
    height: auto;
-   width: 95%;
-   grid-gutter: 1;
+   padding-right: 1;
 }
 
 /* k3s arg row */
 .k3s-arg-row {
    align: center middle;
-   grid-gutter: 1;
+   padding-top: 1;
    grid-columns: 0.3fr 0.9fr 0.15fr;
    grid-size: 3;
-   height: auto;
    width: 100%;
 }
 

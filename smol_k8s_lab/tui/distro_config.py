@@ -2,7 +2,7 @@
 # smol-k8s-lab libraries
 from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
 from smol_k8s_lab.env_config import process_k8s_distros
-from smol_k8s_lab.tui.distro_widgets.k3s_config import K3sConfig
+from smol_k8s_lab.tui.distro_widgets.k3s_config import K3sConfig, NewK3sOptionModal
 from smol_k8s_lab.tui.distro_widgets.kind_networking import KindNetworkingConfig
 from smol_k8s_lab.tui.distro_widgets.kubelet_config import KubeletConfig
 from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
@@ -133,7 +133,8 @@ class DistroConfigScreen(Screen):
 
                     # take extra k3s args if distro is k3s or k3d
                     else:
-                        yield K3sConfig(distro, distro_metadata['k3s_yaml'])
+                        yield K3sConfig(distro, distro_metadata['k3s_yaml'],
+                                        id=f"{distro}-widget")
 
     def on_mount(self) -> None:
         """
@@ -170,6 +171,15 @@ class DistroConfigScreen(Screen):
         self.app.write_yaml()
 
         self.previous_distro = distro
+
+    def action_launch_k3s_modal(self) -> None:
+        def add_new_row(option: str):
+            if option:
+                k3s_widget = self.get_widget_by_id(f"{self.previous_distro}-widget")
+                k3s_widget.generate_row(option)
+
+        existing_keys = self.cfg[self.previous_distro]['k3s_yaml']
+        self.app.push_screen(NewK3sOptionModal(existing_keys), add_new_row)
 
 
 def format_description(description: str = ""):
