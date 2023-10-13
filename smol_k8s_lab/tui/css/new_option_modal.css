@@ -44,7 +44,8 @@ $navy: rgb(35,35,54);
 }
 
 /* button grid */
-#new-k3s-option-grid {
+#new-option-grid {
     content-align: center middle;
     align: center middle;
+    grid-size: 2;
 }

@@ -61,12 +61,31 @@ $navy: rgb(35,35,54);
 TabbedContent {
     border: round $cornflower;
     border-title-color: $sky_blue;
+    border-subtitle-color: $lavender;
     background: $navy 50%;
     height: 100%;
     width: 100%;
+    link-hover-background: $navy;
+    link-hover-color: $orange;
 }
 
 TabPane {
-    height: 20;
+    height: 25;
     width: 100%;
 }
+
+/* label: input row with delete button */
+.label-input-delete-row {
+    align: center top;
+    padding-top: 1;
+    grid-columns: 0.3fr 0.9fr 0.15fr;
+    grid-size: 3;
+    width: 100%;
+}
+
+.input-label {
+    width: 100%;
+    height: 3;
+    content-align: left middle;
+}
+

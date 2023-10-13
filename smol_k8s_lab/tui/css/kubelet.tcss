@@ -16,7 +16,6 @@ $navy: rgb(35,35,54);
 
 /* kubelet config container */
 .kubelet-config-container {
-   background: rgb(35,35,54) 50%;
    padding: 1;
    grid-rows: 0.25fr 1fr;
 }
@@ -59,13 +58,4 @@ $navy: rgb(35,35,54);
    content-align: center middle;
    height: auto;
    padding: 0;
-}
-
-/* kubelet config arg row delete button */
-.kubelet-arg-add-button {
-   content-align: center middle;
-   height: auto;
-   width: 100%;
-   margin-right: 1;
-   margin-left: 1;
 }

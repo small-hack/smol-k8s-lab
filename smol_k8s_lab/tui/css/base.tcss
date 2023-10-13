@@ -55,7 +55,7 @@ Input.-valid:focus {
    border: tall $spacechalk_lime 70%;
 }
 
-/* Matches the bottom footer help text on every page */
+/* Matches the bottom footer text on every page */
 Footer {
    background: $background 1%;
 }
@@ -265,4 +265,9 @@ DataTable {
    content-align: center middle;
    grid-size: 2;
    grid-columns: 0.55fr 1fr;
+}
+
+.help-text {
+    width: 100%;
+    color: gray;
 }

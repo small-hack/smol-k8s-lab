@@ -232,8 +232,10 @@ class BaseApp(App):
                 timeout=9,
                 title="Footer disabled"
             )
+            self.cfg['smol_k8s_lab']['interactive']['show_footer'] = False
         else:
             footer.display = True
+            self.cfg['smol_k8s_lab']['interactive']['show_footer'] = True
 
     def write_yaml(self, config_file: str = XDG_CONFIG_FILE) -> None:
         """
