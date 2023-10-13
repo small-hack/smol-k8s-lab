@@ -41,7 +41,7 @@ class KindNetworkingConfig(Widget):
         parent_row = event.button.parent
         input_key = parent_row.children[1].name
         parent_yaml = self.app.cfg['k8s_distros']['kind']['networking_args']
-        if input_key and parent_yaml[input_key]:
+        if input_key and parent_yaml.get(input_key, False):
             parent_yaml.pop(input_key)
             self.app.write_yaml()
         parent_row.remove()
