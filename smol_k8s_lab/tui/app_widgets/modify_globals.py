@@ -45,7 +45,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
         question = ("[#ffaff9]Modify[/] [i]globally[/] available Argo CD ApplicationSet"
                     " [#C1FF87]templating values[/].")
 
-        with Grid(id="question-modal-screen"):
+        with Grid(id="modify-globals-modal-screen"):
             # grid for app question and buttons
             with Grid(id="question-box"):
                 yield Label(question, id="modal-text")

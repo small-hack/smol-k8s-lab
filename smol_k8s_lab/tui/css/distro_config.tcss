@@ -92,3 +92,31 @@ TabPane {
     content-align: left middle;
 }
 
+Tab.kind-networking-tab {
+    color: $cornflower 50%;
+}
+
+Tab.kind-networking-tab.-active {
+    color: $cornflower;
+}
+
+Tab.kind-networking-tab.-focus {
+    color: $cornflower;
+}
+
+Tab.kind-kubelet-tab {
+    color: $cornflower 50%;
+}
+
+Tab.kind-kubelet-tab.-active {
+    color: $cornflower;
+}
+
+Tab.kind-kubelet-tab.-focus {
+    color: $cornflower;
+}
+
+Underline > .underline--bar {
+    color: $soft_green;
+    background: $blue_gray;
+}

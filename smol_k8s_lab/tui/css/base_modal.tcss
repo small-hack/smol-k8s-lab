@@ -14,38 +14,29 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-
-/* whole modal screen */
-#modify-globals-modal-screen {
-    width: 80%;
-    align: center middle;
-    height: 24;
-}
-
 #question-box {
     align: center middle;
     content-align: center middle;
     background: $navy 75%;
     border: round $cornflower;
-    link-hover-background: $navy;
-    link-hover-color: $orange;
     padding: 1;
     border-subtitle-color: $lavender;
-    grid-rows: 0.45fr 0.9fr 0.45fr;
+    link-hover-background: $navy;
+    link-hover-color: $orange;
+    grid-gutter: 1;
 }
 
-#scroll-container {
-   scrollbar-background: $dark_gray;
-   scrollbar-background-active: $dark_gray;
-   scrollbar-background-hover: $dark_gray;
-   scrollbar-color-active: $sky_blue;
-   scrollbar-color-hover: $cornflower;
-   scrollbar-color: $light_cornflower;
-   align: center middle;
+#modal-text {
+    content-align: center middle;
+    width: 100%;
+    color: $sky_blue;
+    height: 3;
+    background: $dark_gray 30%;
 }
 
-#new-row {
-    grid-size: 2;
+/* button grid */
+#new-option-grid {
+    content-align: center middle;
     align: center middle;
-    margin-top: 1;
+    grid-size: 2;
 }
