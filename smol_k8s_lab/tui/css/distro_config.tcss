@@ -77,10 +77,13 @@ TabPane {
 /* label: input row with delete button */
 .label-input-delete-row {
     align: center top;
-    padding-top: 1;
     grid-columns: 0.3fr 0.9fr 0.15fr;
     grid-size: 3;
+    grid-gutter: 1;
+    padding-bottom: 1;
+    padding-right: 1;
     width: 100%;
+    height: auto;
 }
 
 .input-label {
