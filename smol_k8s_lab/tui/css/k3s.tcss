@@ -24,7 +24,7 @@ $navy: rgb(35,35,54);
    link-hover-background: $navy;
    link-hover-color: $orange;
    padding: 2;
-   grid-rows: 0.2fr 1fr;
+   grid-rows: 0.25fr 1fr;
 }
 
 #k3s-help-text {
@@ -48,11 +48,12 @@ $navy: rgb(35,35,54);
 #k3s-grid {
    height: auto;
    padding-right: 1;
+   align: center top;
 }
 
 /* k3s arg row */
 .k3s-arg-row {
-   align: center middle;
+   align: center top;
    padding-top: 1;
    grid-columns: 0.3fr 0.9fr 0.15fr;
    grid-size: 3;
