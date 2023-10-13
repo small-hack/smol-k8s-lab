@@ -13,7 +13,7 @@ class NewAppModalScreen(ModalScreen):
     CSS_PATH = ["../css/new_app_modal.css"]
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
-                        action="press_cancel",
+                        action="app.pop_screen",
                         description="Back")]
 
 
@@ -26,7 +26,7 @@ class NewAppModalScreen(ModalScreen):
         question = ("Please enter a [i]name[/] and [i]description[/]"
                     " for your [#C1FF87]Argo CD Application.")
 
-        with Grid(id="question-modal-screen"):
+        with Grid(id="new-app-modal-screen"):
             # grid for app question and buttons
             with Grid(id="question-box"):
                 yield Label(question, id="modal-text")
@@ -51,15 +51,9 @@ class NewAppModalScreen(ModalScreen):
                     submit.disabled = True
                     yield submit 
 
-                    cancel = Button("cancel", id="cancel")
-                    cancel.tooltip = "return to apps config screen"
-                    yield cancel 
-
-    def action_press_cancel(self) -> None:
-        """
-        presses the cancel button
-        """
-        self.get_widget_by_id("cancel").action_press()
+    def on_mount(self) -> None:
+        box = self.get_widget_by_id("question-box")
+        box.border_subtitle = "[@click=app.pop_screen]cancel[/]"
 
     @on(Input.Changed)
     def input_validation(self, event: Input.Changed) -> None:
