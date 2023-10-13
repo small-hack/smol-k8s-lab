@@ -44,7 +44,7 @@ class KubeletConfig(Widget):
         parent_row = event.button.parent
         input_key = parent_row.children[1].name
         app_yaml = self.app.cfg['k8s_distros'][self.distro]['kubelet_extra_args']
-        if input_key and app_yaml[input_key]:
+        if input_key and app_yaml.get(input_key, False):
             app_yaml.pop(input_key)
             self.app.write_yaml()
         parent_row.remove()
