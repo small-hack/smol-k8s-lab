@@ -56,6 +56,8 @@ k8s_distros:
       # disables traefik so we can enable ingress-nginx, remove if you're using traefik
       disable:
       - "traefik"
+      node-label:
+      - "ingress-ready=true"
       kubelet-arg:
       - "max_pods=200"
     # not yet adjustable on k3s at this time
@@ -78,6 +80,8 @@ k8s_distros:
       - "traefik"
       kubelet-arg:
       - "max_pods=200"
+      node-label:
+      - "ingress-ready=true"
     # how many dockerized k3s nodes to deploy
     nodes:
       control_plane: 1
