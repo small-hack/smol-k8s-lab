@@ -7,7 +7,6 @@ from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 # external libraries
 from textual import on
 from textual.app import ComposeResult
-from textual.binding import Binding
 from textual.containers import VerticalScroll, Grid
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
@@ -57,11 +56,6 @@ class K3sConfig(Static):
     k3s args config
     """
 
-    BINDINGS = [Binding(key="a",
-                        key_display="a",
-                        action="screen.launch_k3s_modal",
-                        description="add new option")]
-
     def __init__(self, distro: str, k3s_args: list = [], id: str = "") -> None:
         self.k3s_args = k3s_args
         self.distro = distro
@@ -92,7 +86,7 @@ class K3sConfig(Static):
                      "install script")
         k3s_container = self.get_widget_by_id(f"{self.distro}-base-grid")
         k3s_container.border_title = k3s_title
-        subtitle = ("[@click=screen.launch_new_option_modal('k3s')]"
+        subtitle = ("[@click=screen.launch_new_option_modal()]"
                     "➕ k3s option[/] | [i]hotkey[/]: a")
         k3s_container.border_subtitle = subtitle
 
@@ -200,10 +194,6 @@ class K3sConfig(Static):
 
 
 class NewK3sOptionModal(ModalScreen):
-    BINDINGS = [Binding(key="b,q,escape",
-                        key_display="esc",
-                        action="app.pop_screen",
-                        description="Cancel")]
 
     CSS_PATH = ["../css/k3s_modal.css"]
 

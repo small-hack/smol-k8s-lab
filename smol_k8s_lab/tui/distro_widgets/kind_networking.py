@@ -47,7 +47,7 @@ class KindNetworkingConfig(Widget):
         get pressed button add or delete button and act on it
         """
         parent_row = event.button.parent
-        input_key = parent_row.children[0].value
+        input_key = parent_row.children[1].name
         if input_key:
             self.app.cfg['k8s_distros']['kind']['networking_args'].pop(input_key)
         parent_row.remove()
@@ -90,7 +90,8 @@ class KindNetworkingConfig(Widget):
         # second input field
         param_value_input_args = {"classes": f"{row_class}-value",
                                   "placeholder": "kind networking param value",
-                                  "suggester": VALUE_SUGGESTIONS}
+                                  "suggester": VALUE_SUGGESTIONS,
+                                  "name": param}
         if value:
             param_value_input_args["value"] = value
         param_value_input = Input(**param_value_input_args)

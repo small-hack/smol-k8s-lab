@@ -51,7 +51,11 @@ class DistroConfigScreen(Screen):
                 Binding(key="n",
                         key_display="n",
                         action="app.request_apps_cfg",
-                        description="Next")]
+                        description="Next"),
+                Binding(key="a",
+                        key_display="a",
+                        action="screen.launch_new_option_modal",
+                        description="add new option")]
 
     def __init__(self, config: dict) -> None:
         """
@@ -163,7 +167,7 @@ class DistroConfigScreen(Screen):
         tabbed_content.border_title = ("Add [i]extra[/] options for "
                                        "[#C1FF87]kind[/] config files")
 
-        subtitle = ("[@click=screen.launch_new_option_modal('kind')]"
+        subtitle = ("[@click=screen.launch_new_option_modal()]"
                     "➕ kind option[/] | [i]hotkey[/]: a")
         tabbed_content.border_subtitle = subtitle
 
@@ -196,7 +200,7 @@ class DistroConfigScreen(Screen):
 
         self.previous_distro = distro
 
-    def action_launch_new_option_modal(self, trigger: str) -> None:
+    def action_launch_new_option_modal(self) -> None:
         def add_new_row(option: str):
             if option and self.previous_distro != 'kind':
                 k3s_widget = self.get_widget_by_id(f"{self.previous_distro}-widget")
@@ -205,8 +209,11 @@ class DistroConfigScreen(Screen):
                 return
         if self.previous_distro != 'kind':
             existing_keys = self.cfg[self.previous_distro]['k3s_yaml'].keys()
+            trigger = "k3s"
         else:
             existing_keys = self.cfg[self.previous_distro]['networking_args'].keys()
+            trigger = "kind"
+
         self.app.push_screen(NewOptionModal(trigger, existing_keys), add_new_row)
 
 

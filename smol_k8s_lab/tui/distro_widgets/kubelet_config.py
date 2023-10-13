@@ -49,7 +49,7 @@ class KubeletConfig(Widget):
         """
         # lets you delete a kubelet-arg row
         parent_row = event.button.parent
-        input_key = parent_row.children[0].value
+        input_key = parent_row.children[1].name
         if input_key:
             yaml = self.app.cfg['k8s_distros']
             yaml[self.distro]['kubelet_extra_args'].pop(input_key)
@@ -98,7 +98,8 @@ class KubeletConfig(Widget):
         # second input field
         param_value_input_args = {"classes": f"{row_class}-value",
                                   "placeholder": "kubelet parameter value",
-                                  "suggester": VALUE_SUGGESTIONS}
+                                  "suggester": VALUE_SUGGESTIONS,
+                                  "name": param}
         if value:
             param_value_input_args["value"] = value
         param_value_input = Input(**param_value_input_args)
