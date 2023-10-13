@@ -41,6 +41,9 @@ class BaseApp(App):
                         description="toggle footer"),
                 Binding(key="q,escape",
                         action="quit",
+                        show=False),
+                Binding(key="n",
+                        action="app.new_cluster",
                         show=False)
                 ]
 
@@ -173,6 +176,14 @@ class BaseApp(App):
         # launch modal UI to ask if they'd like to modify or delete a cluster
         self.app.push_screen(ClusterModalScreen(cluster_name, distro, event.row_key),
                              check_if_cluster_deleted)
+
+    def action_new_cluster(self):
+        """
+        press button for new cluster
+        """
+        new_cluster_button = self.get_widget_by_id("new-cluster-button")
+        if not new_cluster_button.disabled:
+            new_cluster_button.action_press()
 
     def action_request_apps_cfg(self, app_to_highlight: str = "") -> None:
         """

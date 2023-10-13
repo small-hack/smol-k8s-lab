@@ -46,15 +46,6 @@ class KubeletConfig(Widget):
                 yield Button("➕ Parameter",
                              classes=f"{self.distro} kubelet-arg-add-button")
 
-    def on_mount(self) -> None:
-        """
-        box border styling
-        """
-        # kubelet config styling
-        kubelet_cfg = self.query_one(".kubelet-config-container")
-        kubelet_cfg.border_title = ("[i]Add[/] [i]extra[/] parameters for "
-                                    "[#C1FF87]kubelet")
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
         get pressed button add or delete button and act on it
