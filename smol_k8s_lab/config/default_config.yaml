@@ -541,7 +541,8 @@ apps:
       namespace: "kubevirt"
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
-        source_repos: []
+        source_repos: 
+          - "https://github.com/small-hack/argocd-apps"
         destination:
           namespaces:
             - argocd
