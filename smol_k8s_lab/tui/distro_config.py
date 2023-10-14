@@ -231,14 +231,12 @@ class KindConfigWidget(Static):
             # Add the TabbedContent widget for kind config
             with TabbedContent(initial="kind-networking-tab"):
                 # tab 1 - networking options
-                with TabPane("Networking options",
-                             id="kind-networking-tab"):
+                with TabPane("Networking options", id="kind-networking-tab"):
                     # kind networking section
                     yield KindNetworkingConfig(networking_args)
 
                 # tab 2 - kubelet options
-                with TabPane("Kubelet Config Options",
-                             id="kind-kubelet-tab"):
+                with TabPane("Kubelet Config Options", id="kind-kubelet-tab"):
                     # kubelet config section for kind only
                     yield KubeletConfig('kind', kubelet_args)
 
@@ -256,8 +254,8 @@ class KindConfigWidget(Static):
                     "➕ kind option[/][/]")
         tabbed_content.border_subtitle = subtitle
 
-        self.query_one("Tab#kind-networking-tab").add_class('kind-networking-tab')
-        self.query_one("Tab#kind-kubelet-tab").add_class('kind-kubelet-tab')
+        for tab in self.query("Tab"):
+            tab.add_class('header-tab')
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""

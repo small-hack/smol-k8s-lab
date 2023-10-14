@@ -70,22 +70,22 @@ class ConfirmConfig(Screen):
             # Add the TabbedContent widget different config sections
             with TabbedContent(initial="smol-k8s-lab-cfg", id="confirm-tabbed"):
                 # tab 1 - smol-k8s-lab
-                with TabPane("smol-k8s-lab config", id="smol-k8s-lab-cfg"):
+                with TabPane("Core Config", id="smol-k8s-lab-cfg"):
                     with VerticalScroll(classes="pretty-yaml-scroll-container"):
                         yield Label("", id="pretty-yaml-smol-k8s-lab")
 
                 # tab 2 - k8s_distros
-                with TabPane("k8s distro config", id="k8s-distro-cfg"):
+                with TabPane("K8s Distro Config", id="k8s-distro-cfg"):
                     with VerticalScroll(classes="pretty-yaml-scroll-container"):
                         yield Label("", id="pretty-yaml-k8s-distro")
 
                 # tab 3 - apps
-                with TabPane("apps config", id="apps-cfg"):
+                with TabPane("Apps Config", id="apps-cfg"):
                     with VerticalScroll(classes="pretty-yaml-scroll-container"):
                         yield Label("", id="pretty-yaml-apps")
 
                 # tab 3 - apps
-                with TabPane("global parameters config", id="global-apps-cfg"):
+                with TabPane("Global Parameters Config", id="global-apps-cfg"):
                     with VerticalScroll(classes="pretty-yaml-scroll-container"):
                         yield Label("", id="pretty-yaml-global-apps")
 
@@ -111,19 +111,21 @@ class ConfirmConfig(Screen):
         confirm_box.border_title = "[i]Review[/] [i]All[/i] [#C1FF87]Values"
 
         # display the current user yaml
-        smol_highlighted = syntax_highlighted_yaml(self.smol_k8s_cfg)
+        smol_highlighted = syntax_highlighted_yaml({'smol_k8s_lab': self.smol_k8s_cfg})
         self.get_widget_by_id("pretty-yaml-smol-k8s-lab").update(smol_highlighted)
 
         # display the current user yaml
-        distros_highlighted = syntax_highlighted_yaml(self.distros)
+        distros_highlighted = syntax_highlighted_yaml({'k8s_distros': self.distros})
         self.get_widget_by_id("pretty-yaml-k8s-distro").update(distros_highlighted)
 
         # display the current user yaml
-        apps_highlighted = syntax_highlighted_yaml(self.apps)
+        apps_highlighted = syntax_highlighted_yaml({'apps': self.apps})
         self.get_widget_by_id("pretty-yaml-apps").update(apps_highlighted)
 
         # display the current user yaml
-        g_apps_highlighted = syntax_highlighted_yaml(self.cfg['apps_global_config'])
+        g_apps_highlighted = syntax_highlighted_yaml({
+            'apps_global_config': self.cfg['apps_global_config']
+            })
         self.get_widget_by_id("pretty-yaml-global-apps").update(g_apps_highlighted)
 
         tabs = self.query("Tab")
