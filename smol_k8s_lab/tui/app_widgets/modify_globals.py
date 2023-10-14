@@ -30,7 +30,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
     modal screen with inputs to modify globally available templating parameters 
     for argocd that are passed to the argocd appset secrets plugin helm chart
     """
-    CSS_PATH = ["../css/modify_globals_modal.css"]
+    CSS_PATH = ["../css/modify_globals_modal.tcss"]
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="app.pop_screen",
