@@ -158,6 +158,7 @@ def initialize_zitadel(k8s_obj: K8s,
     if bitwarden:
         sub_header("Creating OIDC secret for Argo CD in Bitwarden")
         bitwarden.create_login(name='argocd-oidc-credentials',
+                               item_url=argocd_hostname,
                                user='argocd',
                                password=argocd_client['client_secret'])
     else:
