@@ -279,6 +279,8 @@ class BwCLI():
 
         if name:
             item_name = name
+            if item_url:
+                item_name += f" {item_url}"
         else:
             item_name = item_url
 
