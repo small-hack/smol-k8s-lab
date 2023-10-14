@@ -7,40 +7,68 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-#kind-networking-tab {
+KindNetworkingConfig {
     height: auto;
 }
 
-#kind-kubelet-tab {
+KubeletConfig {
     height: auto;
 }
 
+/* TabbedContent box for the kind widget */
 #kind-tabbed-content {
     border: round $cornflower;
     border-title-color: $sky_blue;
     border-subtitle-color: $lavender;
     background: $navy 50%;
-    height: 100%;
     width: 100%;
+    height: 100%;
     link-hover-background: $navy;
     link-hover-color: $orange;
 }
 
-/* kind-networking config container */
+/* tabpane 1 */
+#kind-networking-tab {
+    height: auto;
+}
+
+/* tabpane 2 */
+#kind-kubelet-tab {
+    height: auto;
+}
+
+/* kind-networking config container that contains the vertical scroll box */
 #kind-networking-container {
+    align: center middle;
     padding-top: 1;
     padding-left: 1;
     padding-right: 1;
     grid-rows: 0.2fr 1fr;
 }
 
+/* actual scrolling content for kind networking options */
 #kind-networking-config-scroll {
-    align: center middle;
-    grid-gutter: 1;
     scrollbar-background: $dark_gray;
     scrollbar-background-active: $dark_gray;
     scrollbar-background-hover: $dark_gray;
     scrollbar-color-active: $sky_blue;
     scrollbar-color-hover: $sky_blue;
+    scrollbar-color: $light_cornflower;
+}
+
+/* kubelet config container */
+#kubelet-config-container {
+    padding: 1;
+    grid-rows: 0.25fr 1fr;
+    align: center middle;
+}
+
+#kubelet-config-scroll {
+    align: center middle;
+    scrollbar-background: $dark_gray;
+    scrollbar-background-active: $dark_gray;
+    scrollbar-background-hover: $dark_gray;
+    scrollbar-color-active: $sky_blue;
+    scrollbar-color-hover: $cornflower;
     scrollbar-color: $light_cornflower;
 }

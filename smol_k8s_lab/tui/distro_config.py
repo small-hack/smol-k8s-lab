@@ -12,7 +12,7 @@ from smol_k8s_lab.tui.util import NewOptionModal
 from textual import on
 from textual.app import ComposeResult, NoMatches
 from textual.binding import Binding
-from textual.containers import Grid
+from textual.containers import Grid, VerticalScroll
 from textual.screen import Screen
 from textual.widgets import (Footer, Header, Label, Select, TabbedContent,
                              TabPane, Static)
@@ -42,7 +42,6 @@ class DistroConfigScreen(Screen):
     CSS_PATH = ["./css/distro_config.tcss",
                 "./css/node_inputs_widget.tcss",
                 "./css/k3s.tcss",
-                "./css/kubelet.tcss",
                 "./css/kind.tcss"]
 
     BINDINGS = [Binding(key="b,q,escape",
@@ -203,7 +202,6 @@ class DistroConfigScreen(Screen):
         self.app.push_screen(NewOptionModal(trigger, existing_keys), add_new_row)
 
 
-
 class KindConfigWidget(Static):
     """ 
     a widget representing the entire kind configuration
@@ -215,7 +213,7 @@ class KindConfigWidget(Static):
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
-        with Grid(classes="kind k8s-distro-config", id="kind-box"):
+        with Grid(classes="k8s-distro-config", id="kind-box"):
             # take number of nodes from config and make string
             nodes = self.metadata.get('nodes', {'control_plane': 1,
                                                 'workers': 0})
@@ -229,14 +227,17 @@ class KindConfigWidget(Static):
             networking_args = self.metadata['networking_args']
 
             # Add the TabbedContent widget for kind config
-            with TabbedContent(initial="kind-networking-tab", id="kind-tabbed-content"):
+            with TabbedContent(initial="kind-networking-tab",
+                               id="kind-tabbed-content"):
                 # tab 1 - networking options
-                with TabPane("Networking options", id="kind-networking-tab"):
+                with TabPane("Networking options",
+                             id="kind-networking-tab"):
                     # kind networking section
                     yield KindNetworkingConfig(networking_args)
 
                 # tab 2 - kubelet options
-                with TabPane("Kubelet Config Options", id="kind-kubelet-tab"):
+                with TabPane("Kubelet Config Options", 
+                             id="kind-kubelet-tab"):
                     # kubelet config section for kind only
                     yield KubeletConfig('kind', kubelet_args)
 
@@ -275,8 +276,7 @@ class K3ConfigWidget(Static):
         if not self.metadata:
             self.metadata = DEFAULT_DISTRO_OPTIONS[self.distro]
 
-        with Grid(classes=f"{self.distro} k8s-distro-config",
-                  id=f"{self.distro}-box"):
+        with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
 
             # take number of nodes from config and make string
             nodes = self.metadata.get('nodes', {'control_plane': 1,
