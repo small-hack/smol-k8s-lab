@@ -78,7 +78,6 @@ $navy: rgb(35,35,54);
 }
 
 /* INVALID APPS ROWS */
-
 .nope-row {
     grid-size: 2;
     grid-columns: 0.24fr 1fr;
