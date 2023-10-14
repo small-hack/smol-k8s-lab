@@ -26,6 +26,8 @@ HelpScreen {
    width: 80;
    height: 24;
    border: round $cornflower 80%;
+   border-title-color: $sky_blue;
+   border-subtitle-color: $sky_blue;
    background: $navy;
 }
 

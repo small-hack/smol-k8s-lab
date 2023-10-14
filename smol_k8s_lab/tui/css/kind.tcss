@@ -16,6 +16,7 @@ $navy: rgb(35,35,54);
 
 /* kind-networking config container */
 #kind-networking-container {
+    padding-top: 1;
     padding-left: 1;
     padding-right: 1;
     grid-rows: 0.2fr 1fr;

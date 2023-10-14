@@ -51,13 +51,15 @@ class HelpScreen(ModalScreen):
 
     def on_mount(self) -> None:
         # styling for the select-apps tab - select apps container - left
-        select_apps_title = ('[steel_blue1]Welcome to [u]'
+        select_apps_title = ('Welcome to [b][steel_blue]'
                              '[link=https://github.com/small-hack/smol-k8s-lab]'
-                             'smol-k8s-lab[/link]')
+                             'smol-k8s-lab[/][/][/]')
         help_container = self.get_widget_by_id("help-container")
         help_container.border_title = select_apps_title
-        help_container.border_subtitle = "made with 💙 + 🐍 + [u][link=https://github.com/Textualize/textual]textual[/u]"
-
+        help_container.border_subtitle = (
+                "made with 💙 + 🐍 + [steel_blue][b][link="
+                "https://github.com/Textualize/textual]textual[/][/][/]"
+                )
 
     def action_disable_help(self) -> None:
         """

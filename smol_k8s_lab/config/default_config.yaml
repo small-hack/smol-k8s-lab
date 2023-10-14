@@ -59,7 +59,7 @@ k8s_distros:
       node-label:
       - "ingress-ready=true"
       kubelet-arg:
-      - "max_pods=200"
+      - "max_pods=150"
     # not yet adjustable on k3s at this time
     nodes:
       control_plane: 1
@@ -79,7 +79,7 @@ k8s_distros:
       disable:
       - "traefik"
       kubelet-arg:
-      - "max_pods=200"
+      - "max_pods=150"
       node-label:
       - "ingress-ready=true"
     # how many dockerized k3s nodes to deploy
@@ -93,9 +93,14 @@ k8s_distros:
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
       node-labels: "ingress-ready=true"
+      maxPods: 110
+      podsPerCore: 0
+      resolvConf: "/etc/resolv.conf"
     networking_args:
       ipFamily: "ipv4"
       disableDefaultCNI: False
+      apiServerAddress: "127.0.0.1"
+      podSubnet: "10.244.0.0/16"
     # how many dockerized kind nodes to deploy
     nodes:
       control_plane: 1

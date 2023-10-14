@@ -10,10 +10,10 @@ from textual.widgets import Input, Button, Label
 VALUE_SUGGESTIONS = SuggestFromList(("ingress-ready=true"))
 
 kubelet_help = (
-        "Add key value pairs to pass to your [steel_blue][u][link=https://kubernetes.io/docs/"
-        "reference/command-line-tools-reference/kubelet/]kubelet[/link][/u][/]"
-        " [steel_blue][u][link=https://kubernetes.io/docs/reference/config-api/"
-        "kubelet-config.v1beta1/]configuration[/link][/u][/]."
+        "Add key value pairs to pass to your [steel_blue][b][link=https://kubernetes.io/docs/"
+        "reference/command-line-tools-reference/kubelet/]kubelet[/][/][/]"
+        " [steel_blue][b][link=https://kubernetes.io/docs/reference/config-api/"
+        "kubelet-config.v1beta1/]configuration[/][/][/]."
         )
 
 class KubeletConfig(Widget):

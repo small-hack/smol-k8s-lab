@@ -22,7 +22,7 @@ $navy: rgb(35,35,54);
     height: 24;
 }
 
-#question-box {
+#modify-globals-question-box {
     align: center middle;
     content-align: center middle;
     background: $navy 75%;
