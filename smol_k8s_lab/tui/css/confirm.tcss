@@ -42,23 +42,6 @@ $navy: rgb(35,35,54);
     height: 90%;
 }
 
-Tab.confirm-tab-header {
-    color: $cornflower 50%;
-}
-
-Tab.confirm-tab-header.-active {
-    color: $cornflower;
-}
-
-Tab.confirm-tab-header.-focus {
-    color: $cornflower;
-}
-
-Underline > .underline--bar {
-    color: $soft_green;
-    background: $blue_gray;
-}
-
 .pretty-yaml-scroll-container {
     scrollbar-background: $dark_gray;
     scrollbar-background-active: $dark_gray;

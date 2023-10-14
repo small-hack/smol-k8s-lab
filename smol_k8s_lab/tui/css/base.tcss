@@ -150,6 +150,24 @@ Select .option-list--option-hover-highlighted {
    color: $sky_blue;
 }
 
+/* the underline for tabs */
+Underline > .underline--bar {
+    color: $soft_green;
+    background: $blue_gray;
+}
+
+Tab.header-tab {
+    color: $cornflower 50%;
+}
+
+Tab.header-tab.-active {
+    color: $cornflower;
+}
+
+Tab.header-tab.-focus {
+    color: $cornflower;
+}
+
 #base-screen-container {
    grid-size: 1;
    align: center middle;

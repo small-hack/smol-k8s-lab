@@ -130,7 +130,7 @@ class ConfirmConfig(Screen):
 
         tabs = self.query("Tab")
         for tab in tabs:
-            tab.add_class("confirm-tab-header")
+            tab.add_class("header-tab")
 
         # invalid apps error title styling
         invalid_box = self.get_widget_by_id("invalid-apps")
