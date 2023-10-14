@@ -57,42 +57,6 @@ $navy: rgb(35,35,54);
     grid-gutter: 2;
 }
 
-TabbedContent {
-    border: round $cornflower;
-    border-title-color: $sky_blue;
-    border-subtitle-color: $lavender;
-    background: $navy 50%;
-    height: 100%;
-    width: 100%;
-    link-hover-background: $navy;
-    link-hover-color: $orange;
-}
-
-#kind-networking-tab {
-    height: auto;
-}
-
-#kind-kubelet-tab {
-    height: auto;
-}
-
-Tab.header-tab {
-    color: $cornflower 50%;
-}
-
-Tab.header-tab.-active {
-    color: $cornflower;
-}
-
-Tab.header-tab.-focus {
-    color: $cornflower;
-}
-
-Underline > .underline--bar {
-    color: $soft_green;
-    background: $blue_gray;
-}
-
 /* label: input row with delete button */
 .label-input-delete-row {
     align: center top;
@@ -111,4 +75,3 @@ Underline > .underline--bar {
     color: $bluish_white;
     content-align: left middle;
 }
-

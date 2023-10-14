@@ -229,7 +229,7 @@ class KindConfigWidget(Static):
             networking_args = self.metadata['networking_args']
 
             # Add the TabbedContent widget for kind config
-            with TabbedContent(initial="kind-networking-tab"):
+            with TabbedContent(initial="kind-networking-tab", id="kind-tabbed-content"):
                 # tab 1 - networking options
                 with TabPane("Networking options", id="kind-networking-tab"):
                     # kind networking section

@@ -1,8 +1,30 @@
+$lavender: rgb(174,168,248);
+$orange: rgb(253,205,54);
 $sky_blue: rgb(92,201,253);
 $cornflower: rgb(95,135,255);
 $light_cornflower: rgb(122,162,247);
 $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+#kind-networking-tab {
+    height: auto;
+}
+
+#kind-kubelet-tab {
+    height: auto;
+}
+
+#kind-tabbed-content {
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    border-subtitle-color: $lavender;
+    background: $navy 50%;
+    height: 100%;
+    width: 100%;
+    link-hover-background: $navy;
+    link-hover-color: $orange;
+}
 
 /* kind-networking config container */
 #kind-networking-container {
@@ -10,7 +32,6 @@ $dark_gray: rgb(58,58,58);
     padding-left: 1;
     padding-right: 1;
     grid-rows: 0.2fr 1fr;
-    height: 100%;
 }
 
 #kind-networking-config-scroll {
