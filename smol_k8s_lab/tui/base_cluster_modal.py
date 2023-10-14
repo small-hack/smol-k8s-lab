@@ -15,7 +15,7 @@ from textual.widgets.data_table import RowKey
 
 
 class ClusterModalScreen(ModalScreen):
-    CSS_PATH = ["./css/cluster_modal.css"]
+    CSS_PATH = ["./css/cluster_modal.tcss"]
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="press_cancel",

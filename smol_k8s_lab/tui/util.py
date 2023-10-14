@@ -112,7 +112,7 @@ class NewOptionModal(ModalScreen):
 
     CSS_PATH = [
             "./css/base_modal.tcss",
-            "./css/new_option_modal.css"
+            "./css/new_option_modal.tcss"
             ]
 
     def __init__(self, trigger: str, in_use_args: list = []) -> None:
