@@ -152,6 +152,7 @@ $navy: rgb(35,35,54);
 }
 
 #password-manager-options-grid .selection-row {
+    grid-gutter: 1;
 }
 
 /* this is the help-text at the top of each module */

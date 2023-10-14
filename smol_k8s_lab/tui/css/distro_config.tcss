@@ -28,7 +28,6 @@ $navy: rgb(35,35,54);
     content-align: center middle;
     border: round $cornflower;
     border-title-color: $sky_blue;
-    border-subtitle-color: $lavender;
     background: $navy 50%;
     padding-top: 1;
     padding-left: 1;
@@ -77,7 +76,7 @@ TabPane {
 /* label: input row with delete button */
 .label-input-delete-row {
     align: center top;
-    grid-columns: 0.3fr 0.9fr 0.15fr;
+    grid-columns: 0.35fr 0.9fr 0.15fr;
     grid-size: 3;
     grid-gutter: 1;
     padding-bottom: 1;
@@ -89,6 +88,7 @@ TabPane {
 .input-label {
     width: 100%;
     height: 3;
+    color: $bluish_white;
     content-align: left middle;
 }
 

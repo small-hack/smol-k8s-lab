@@ -11,7 +11,7 @@ from textual.binding import Binding
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll, Grid
 from textual.screen import Screen
-from textual.widgets import Button, Footer, Header, Label
+from textual.widgets import Button, Footer, Header, Label, TabbedContent, TabPane
 
 
 leaving_notification = ("\n- disable the bitwarden eso provider apps\n"
@@ -66,9 +66,22 @@ class ConfirmConfig(Screen):
             warning_box.display = False
             yield warning_box
 
-            # the actual yaml config in full
-            with VerticalScroll(id="pretty-yaml-scroll-container"):
-                yield Label("", id="pretty-yaml")
+            # Add the TabbedContent widget different config sections
+            with TabbedContent(initial="smol-k8s-lab-cfg", id="confirm-tabbed"):
+                # tab 1 - smol-k8s-lab
+                with TabPane("smol-k8s-lab config", id="smol-k8s-lab-cfg"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                        yield Label("", id="pretty-yaml-smol-k8s-lab")
+
+                # tab 2 - k8s_distros
+                with TabPane("k8s distro config", id="k8s-distro-cfg"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                        yield Label("", id="pretty-yaml-k8s-distro")
+
+                # tab 3 - apps
+                with TabPane("apps config", id="apps-cfg"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                        yield Label("", id="pretty-yaml-apps")
 
         # final confirmation button before running smol-k8s-lab
         with Grid(id="final-confirm-button-box"):
@@ -88,12 +101,24 @@ class ConfirmConfig(Screen):
         self.sub_title = "Review your configuration (last step!)"
 
         # confirm box title styling
-        confirm_box = self.get_widget_by_id("pretty-yaml-scroll-container")
+        confirm_box = self.query_one(TabbedContent)
         confirm_box.border_title = "[i]Review[/] [i]All[/i] [#C1FF87]Values"
 
         # display the current user yaml
-        rich_highlighted = syntax_highlighted_yaml(self.cfg)
-        self.get_widget_by_id("pretty-yaml").update(rich_highlighted)
+        smol_highlighted = syntax_highlighted_yaml(self.cfg['smol_k8s_lab'])
+        self.get_widget_by_id("pretty-yaml-smol-k8s-lab").update(smol_highlighted)
+
+        # display the current user yaml
+        distros_highlighted = syntax_highlighted_yaml(self.cfg['k8s_distros'])
+        self.get_widget_by_id("pretty-yaml-k8s-distro").update(distros_highlighted)
+
+        # display the current user yaml
+        apps_highlighted = syntax_highlighted_yaml(self.cfg['apps'])
+        self.get_widget_by_id("pretty-yaml-apps").update(apps_highlighted)
+
+        tabs = self.query("Tab")
+        for tab in tabs:
+            tab.add_class("confirm-tab-header")
 
         # invalid apps error title styling
         invalid_box = self.get_widget_by_id("invalid-apps")
@@ -108,14 +133,18 @@ class ConfirmConfig(Screen):
 
         if not at_least_one_missing_field:
             self.get_widget_by_id("invalid-apps").display = False
-            self.get_widget_by_id("pretty-yaml-scroll-container").display = True
+            self.query_one(TabbedContent).display = True
             self.get_widget_by_id("confirm-button").display = True
             self.get_widget_by_id("back-button").display = True
         else:
-            self.get_widget_by_id("pretty-yaml-scroll-container").display = False
+            self.query_one(TabbedContent).display = False
             self.get_widget_by_id("confirm-button").display = False
             self.get_widget_by_id("invalid-apps").display = True
             self.build_pretty_nope_table()
+
+    def action_show_tab(self, tab: str) -> None:
+        """Switch to a new tab."""
+        self.get_child_by_type(TabbedContent).active = tab
 
     def get_app_inputs(self) -> None:
         """

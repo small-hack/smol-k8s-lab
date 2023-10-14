@@ -110,7 +110,10 @@ class NewOptionModal(ModalScreen):
                         action="app.pop_screen",
                         description="Cancel")]
 
-    CSS_PATH = ["./css/base_modal.tcss", "./css/new_option_modal.css"]
+    CSS_PATH = [
+            "./css/base_modal.tcss",
+            "./css/new_option_modal.css"
+            ]
 
     def __init__(self, trigger: str, in_use_args: list = []) -> None:
         self.in_use_args = in_use_args
@@ -191,3 +194,17 @@ class NewOptionModal(ModalScreen):
         """
         input = self.get_widget_by_id("new-option-input")
         self.dismiss(input.value)
+
+
+def format_description(description: str = ""):
+    """
+    change description to dimmed colors
+    links are changed to steel_blue and not dimmed
+    """
+    if not description:
+        description = "No Description provided yet for this user defined application."
+
+    description = description.replace("[link", "[steel_blue][link")
+    description = description.replace("[/link]", "[/link][/steel_blue]")
+
+    return f"""{description}"""

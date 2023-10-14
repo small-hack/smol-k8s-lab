@@ -66,9 +66,9 @@ class K3sConfig(Static):
         with Grid(classes=f"{self.distro} k3s-config-container",
                   id=f"{self.distro}-base-grid"):
             yield Label(
-                    "Add extra [steel_blue][u][link=https://docs.k3s.io/cli/server]"
+                    "Add extra [steel_blue][b][link=https://docs.k3s.io/cli/server]"
                     "k3s options[/][/][/] to pass to the k3s install script via a "
-                    "[steel_blue][u][link=https://docs.k3s.io/installation/configuration#"
+                    "[steel_blue][b][link=https://docs.k3s.io/installation/configuration#"
                     f"configuration-file]config file[/][/][/] stored in {CFG_FILE}",
                     classes="help-text"
                     )
@@ -86,8 +86,8 @@ class K3sConfig(Static):
                      "install script")
         k3s_container = self.get_widget_by_id(f"{self.distro}-base-grid")
         k3s_container.border_title = k3s_title
-        subtitle = ("[@click=screen.launch_new_option_modal()]"
-                    "➕ k3s option[/]")
+        subtitle = ("[b][@click=screen.launch_new_option_modal()]"
+                    "➕ k3s option[/][/]")
         k3s_container.border_subtitle = subtitle
 
         # if we've been passed k3s args already, generate rows

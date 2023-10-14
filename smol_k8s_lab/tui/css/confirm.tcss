@@ -15,66 +15,82 @@ $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
 #confirm-container {
-   align: center middle;
-   height: 90%;
+    align: center middle;
+    height: 90%;
+    width: 90%;
+}
+
+#confirm-tabbed {
+    border: round $cornflower;
+    background: $navy 50%;
+    height: 90%;
+}
+
+Tab.confirm-tab-header {
+    color: $cornflower 50%;
+}
+
+Tab.confirm-tab-header.-active {
+    color: $cornflower;
+}
+
+Tab.confirm-tab-header.-focus {
+    color: $cornflower;
+}
+
+Underline > .underline--bar {
+    color: $soft_green;
+    background: $blue_gray;
+}
+
+.pretty-yaml-scroll-container {
+    scrollbar-background: $dark_gray;
+    scrollbar-background-active: $dark_gray;
+    scrollbar-background-hover: $dark_gray;
+    scrollbar-color-active: $sky_blue;
+    scrollbar-color-hover: $cornflower;
+    scrollbar-color: $light_cornflower;
 }
 
 /* warning with invalid inputs */
 #invalid-apps {
-  border: round $soft_yellow 60%;
-  border-title-color: $orange;
-  padding-left: 2;
-  padding-top: 2;
-  width: 90%;
-  height: 40%;
-  background: $navy 60%;
-}
-
-/* full user yaml with scroll bar */
-#pretty-yaml-scroll-container {
-   border: round $cornflower;
-   border-title-color: $sky_blue;
-   scrollbar-background: $dark_gray;
-   scrollbar-background-active: $dark_gray;
-   scrollbar-background-hover: $dark_gray;
-   scrollbar-color-hover: $light_cornflower;
-   scrollbar-color-active: $sky_blue;
-   scrollbar-color: $cornflower;
-   padding-top: 1;
-   padding-left: 1;
-   background: $navy 75%;
-   height: 90%;
-   width: 90%;
+    border: round $soft_yellow 60%;
+    border-title-color: $orange;
+    padding-left: 2;
+    padding-top: 2;
+    width: 90%;
+    height: 40%;
+    background: $navy 60%;
 }
 
 #final-confirm-button-box {
-  align: center middle;
-  grid-size: 2;
-  margin-bottom: 2;
-  width: 90%;
+    align: center middle;
+    grid-size: 2;
+    margin-bottom: 2;
+    width: 90%;
 }
 
 #confirm-button {
-  color: $soft_green 75%;
+    color: $soft_green 75%;
 }
 
 #back-button {
-  color: $light_pink 80%;
+    color: $light_pink 80%;
 }
 
 /* INVALID APPS ROWS */
 
 .nope-row {
-  grid-size: 2;
-  grid-columns: 0.24fr 1fr;
+    grid-size: 2;
+    grid-columns: 0.24fr 1fr;
 }
 
 .nope-label {
-  width: 100%;
+    width: 100%;
 }
 
 .nope-fields {
-  width: 100%;
+    width: 100%;
 }
 
 /* these are for app links: https://textual.textualize.io/styles/links/ */

@@ -22,15 +22,6 @@ $navy: rgb(35,35,54);
     height: 27;
 }
 
-#question-box {
-    align: center middle;
-    content-align: center middle;
-    background: $navy 75%;
-    border: round $cornflower;
-    padding: 1;
-    border-subtitle-color: $light_pink;
-}
-
 #modal-button-box {
     margin-top: 1;
     align: center middle;

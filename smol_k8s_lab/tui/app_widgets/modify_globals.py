@@ -47,7 +47,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
 
         with Grid(id="modify-globals-modal-screen"):
             # grid for app question and buttons
-            with Grid(id="question-box"):
+            with Grid(id="modify-globals-question-box"):
                 yield Label(question, id="modal-text")
 
                 yield VerticalScroll(id="scroll-container")
@@ -79,9 +79,8 @@ class ModifyAppGlobalsScreen(ModalScreen):
             for secret_key, value in self.global_params.items():
                 scroll_container.mount(self.generate_secret_key_row(secret_key, value))
 
-        close_link = "[@click=app.pop_screen]close[/]"
-        self.get_widget_by_id("question-box").border_subtitle = close_link
-
+        question_box = self.get_widget_by_id("modify-globals-question-box")
+        question_box.border_subtitle = "[@click=app.pop_screen]close[/]"
 
     def generate_secret_key_row(self,
                                 secret_key: str,

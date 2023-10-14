@@ -2,6 +2,7 @@
 # smol-k8s-lab libraries
 from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs, AddAppInput
 from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
+from smol_k8s_lab.tui.util import format_description
 
 # external libraries
 from textual import on
@@ -163,17 +164,3 @@ class AppsConfig(Screen):
             self.cfg[app]['enabled'] = True
         else:
             self.cfg[app]['enabled'] = False
-
-
-def format_description(description: str = ""):
-    """
-    change description to dimmed colors
-    links are changed to steel_blue and not dimmed
-    """
-    if not description:
-        description = "No Description provided yet for this user defined application."
-
-    description = description.replace("[link", "[steel_blue][link")
-    description = description.replace("[/link]", "[/link][/steel_blue]")
-
-    return f"""{description}"""
