@@ -7,12 +7,18 @@ from textual.validation import Length
 from textual.widget import Widget
 from textual.widgets import Input, Button, Label
 
+
 VALUE_SUGGESTIONS = SuggestFromList(("true", "ipv4", "ipv6"))
+HELP_TEXT = (
+        "Add key value pairs to [steel_blue][link="
+        "https://kind.sigs.k8s.io/docs/user/configuration/#networking]"
+        "kind networking config[/][/]."
+        )
 
 
 class KindNetworkingConfig(Widget):
     """
-    Extra Args for kind networking Config section
+    Container for extra args for kind networking configuration
     """
 
     def __init__(self, kind_neworking_params: list = []) -> None:
@@ -20,13 +26,8 @@ class KindNetworkingConfig(Widget):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        help = ("Add key value pairs to [steel_blue][link="
-                "https://kind.sigs.k8s.io/docs/user/configuration/#networking]"
-                "kind networking config[/][/].")
         with Grid(id="kind-networking-container"):
-            # kind networking config section
-            yield Label(help, classes="help-text")
-
+            yield Label(HELP_TEXT, classes="help-text")
             yield VerticalScroll(id="kind-networking-config-scroll")
 
     def on_mount(self) -> None:

@@ -68,9 +68,29 @@ TabbedContent {
     link-hover-color: $orange;
 }
 
-TabPane {
-    height: 25;
-    width: 100%;
+#kind-networking-tab {
+    height: auto;
+}
+
+#kind-kubelet-tab {
+    height: auto;
+}
+
+Tab.header-tab {
+    color: $cornflower 50%;
+}
+
+Tab.header-tab.-active {
+    color: $cornflower;
+}
+
+Tab.header-tab.-focus {
+    color: $cornflower;
+}
+
+Underline > .underline--bar {
+    color: $soft_green;
+    background: $blue_gray;
 }
 
 /* label: input row with delete button */
@@ -92,31 +112,3 @@ TabPane {
     content-align: left middle;
 }
 
-Tab.kind-networking-tab {
-    color: $cornflower 50%;
-}
-
-Tab.kind-networking-tab.-active {
-    color: $cornflower;
-}
-
-Tab.kind-networking-tab.-focus {
-    color: $cornflower;
-}
-
-Tab.kind-kubelet-tab {
-    color: $cornflower 50%;
-}
-
-Tab.kind-kubelet-tab.-active {
-    color: $cornflower;
-}
-
-Tab.kind-kubelet-tab.-focus {
-    color: $cornflower;
-}
-
-Underline > .underline--bar {
-    color: $soft_green;
-    background: $blue_gray;
-}

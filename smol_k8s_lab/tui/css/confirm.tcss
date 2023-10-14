@@ -20,6 +20,22 @@ $navy: rgb(35,35,54);
     width: 90%;
 }
 
+#smol-k8s-lab-cfg {
+    height: auto;
+}
+
+#k8s-distro-cfg {
+    height: auto;
+}
+
+#apps-cfg {
+    height: auto;
+}
+
+#global-apps-cfg {
+    height: auto;
+}
+
 #confirm-tabbed {
     border: round $cornflower;
     background: $navy 50%;
