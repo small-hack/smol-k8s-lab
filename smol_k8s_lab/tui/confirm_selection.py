@@ -39,6 +39,7 @@ class ConfirmConfig(Screen):
         self.cfg = config
         self.apps = self.cfg['apps']
         self.smol_k8s_cfg = self.cfg["smol_k8s_lab"]
+        self.distros = self.cfg["k8s_distros"]
         self.show_footer = self.smol_k8s_cfg['interactive']['show_footer']
         self.invalid_apps = {}
         super().__init__()
@@ -83,6 +84,11 @@ class ConfirmConfig(Screen):
                     with VerticalScroll(classes="pretty-yaml-scroll-container"):
                         yield Label("", id="pretty-yaml-apps")
 
+                # tab 3 - apps
+                with TabPane("global parameters config", id="global-apps-cfg"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                        yield Label("", id="pretty-yaml-global-apps")
+
         # final confirmation button before running smol-k8s-lab
         with Grid(id="final-confirm-button-box"):
             confirm = Button("🚊 Let's roll!", id="confirm-button")
@@ -105,16 +111,20 @@ class ConfirmConfig(Screen):
         confirm_box.border_title = "[i]Review[/] [i]All[/i] [#C1FF87]Values"
 
         # display the current user yaml
-        smol_highlighted = syntax_highlighted_yaml(self.cfg['smol_k8s_lab'])
+        smol_highlighted = syntax_highlighted_yaml(self.smol_k8s_cfg)
         self.get_widget_by_id("pretty-yaml-smol-k8s-lab").update(smol_highlighted)
 
         # display the current user yaml
-        distros_highlighted = syntax_highlighted_yaml(self.cfg['k8s_distros'])
+        distros_highlighted = syntax_highlighted_yaml(self.distros)
         self.get_widget_by_id("pretty-yaml-k8s-distro").update(distros_highlighted)
 
         # display the current user yaml
-        apps_highlighted = syntax_highlighted_yaml(self.cfg['apps'])
+        apps_highlighted = syntax_highlighted_yaml(self.apps)
         self.get_widget_by_id("pretty-yaml-apps").update(apps_highlighted)
+
+        # display the current user yaml
+        g_apps_highlighted = syntax_highlighted_yaml(self.cfg['apps_global_config'])
+        self.get_widget_by_id("pretty-yaml-global-apps").update(g_apps_highlighted)
 
         tabs = self.query("Tab")
         for tab in tabs:
