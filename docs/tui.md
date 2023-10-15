@@ -1,15 +1,12 @@
 ---
 layout: default
 parent: Intro
-title: TUI
+title: Using the TUI (Terminal User Interface)
 description: "smol-k8s-lab TUI (terminal user interface) guide"
 permalink: /tui
 ---
 
-# Using the TUI (Terminal User Interface)
-
 This will launch the TUI by default, which will guide you through how to proceed via a series of tooltips:
-
 
 ```bash
 smol-k8s-lab
