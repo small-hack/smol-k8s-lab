@@ -66,6 +66,7 @@ class NewAppModalScreen(ModalScreen):
                 self.notify("\n".join(event.validation_result.failure_descriptions),
                             severity="warning",
                             title="⚠️ Input Validation Error\n")
+                self.app.bell()
 
                 # and disable the submit button
                 self.get_widget_by_id("app-submit").disabled = True
