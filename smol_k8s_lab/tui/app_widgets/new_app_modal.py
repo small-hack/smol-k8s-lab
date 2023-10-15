@@ -10,7 +10,8 @@ from textual.widgets import Button, Input, Label
 
 
 class NewAppModalScreen(ModalScreen):
-    CSS_PATH = ["../css/new_app_modal.tcss"]
+    CSS_PATH = ["../css/base_modal.tcss",
+                "../css/new_app_modal.tcss"]
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="app.pop_screen",
