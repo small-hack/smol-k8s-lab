@@ -6,7 +6,6 @@ has_children: true
 permalink: /notes
 ---
 
-# Misc Notes
 Here's where I dump various notes on different apps you can host on k8s, as well as notes on various tools for kubernetes.
 
 ## Port Forwarding

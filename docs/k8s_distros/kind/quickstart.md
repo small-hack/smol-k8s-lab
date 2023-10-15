@@ -7,7 +7,6 @@ grand_parent: K8s Distros
 permalink: /distros/kind/quickstart
 ---
 
-## Installing a KinD using a pre-configured BASH script
 Best path for non-prod testing across linux and macOS
 
 ```bash

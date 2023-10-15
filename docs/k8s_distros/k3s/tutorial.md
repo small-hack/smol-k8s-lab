@@ -7,8 +7,6 @@ grand_parent: K8s Distros
 permalink: /distros/k3s/tutorial
 ---
 
-# Install K3s From Scratch
-
 ## create the k3s cluster (just one server node)
 ```bash
 # skip install of traefik & servicelb
