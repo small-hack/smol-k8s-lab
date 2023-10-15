@@ -1,0 +1,79 @@
+site_name: Smol k8s Lab
+site_url: https://smol-k8s.com
+theme:
+  name: material
+  font:
+    text: Lato
+    code: Inconsolata
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.indexes
+    - toc.integrate
+  palette:
+    - media: "(prefers-color-scheme: dark)"
+      scheme: spacechalk
+extra_css:
+  - stylesheets/extra.css
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+markdown_extensions:
+  - tables
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - meta
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight:
+      linenums: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - CLI: cli.md
+  - Supported Apps: 
+    - ArgoCD: k8s_apps/argocd.md
+    - Cert Manager: k8s_apps/cert_manager.md
+    - Core DNS: k8s_apps/core_dns.md
+    - K8up: k8s_apps/k8up.md
+    - MetalLB: k8s_apps/metallb.md
+    - Nextcloud: k8s_apps/nextcloud.md
+    - Prometheus: k8s_apps/prometheus.md
+  - Supported Distros:
+    - K3s: 
+      - About: k8s_distros/k3s/k3s.md
+      - QuickStart: k8s_distros/k3s/quickstart.md
+      - Tutorial: k8s_distros/k3s/tutorial.md
+    - Kind: 
+      - About: k8s_distros/kind/kind.md
+      - QuickStart: k8s_distros/kind/quickstart.md
+      - Tutorial: k8s_distros/kind/tutorial.md
+  - Tools: 
+    - About: k8s_toolbox/toolbox.md
+    - Helm: k8s_toolbox/helm.md
+    - K9s: k8s_toolbox/k9s.md
+    - Kubectl: k8s_toolbox/kubectl.md
