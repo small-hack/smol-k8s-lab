@@ -135,6 +135,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
             if event.validation_result.is_valid:
                 self.get_widget_by_id("new-secret-button").disabled = False
             else:
+                self.app.bell()
                 # if result is not valid, notify the user why
                 self.notify("\n".join(event.validation_result.failure_descriptions),
                             severity="warning",
@@ -146,6 +147,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
                 self.app.cfg['apps_global_config'][event.input.name] = event.input.value
                 self.app.write_yaml()
             else:
+                self.app.bell()
                 # if result is not valid, notify the user why
                 self.notify("\n".join(event.validation_result.failure_descriptions),
                             severity="warning",
