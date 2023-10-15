@@ -7,7 +7,7 @@ nav_order: 2
 permalink: /quickstart
 ---
 
-## Quickstart
+## QuickStart
 
 #### Prereqs
 
@@ -18,16 +18,10 @@ permalink: /quickstart
 
 ## Installation
 
+`pip` is probably the best way to install `smol-k8s-lab`, but you can also probably use `pipx`.
 ```bash
 # this will install smol-k8s-lab using python 3.11
 pip3.11 install smol-k8s-lab
-```
-
-Then you should be able to show the help text :)
-
-```bash
-# this will show the help text
-./smol-k8s-lab --help
 ```
 
 <details>
@@ -40,150 +34,190 @@ Then you should be able to show the help text :)
 </details>
 
 
-## Usage
+## CLI Usage
 
-### Install a distro of k8s
+
+### Help
+
+#### CLI (command line interface)
+
+```bash
+# this will show the help text
+smol-k8s-lab --help
+```
+
+### Install a k8s distro
+
+This will launch the TUI by default, which will guide you through how to proceed via a series of tooltips:
+
 ```bash
 smol-k8s-lab
 ```
 
-🎉 You're done!
+For a full guide on the tui
 
-### UnInstall a distro of k8s
+### Uninstall a distro of k8s
 
 ```bash
 # --delete can be replaced with -D
-smol-k8s-lab --delete
+smol-k8s-lab --delete $NAME_OF_YOUR_CLUSTER
 ```
-
-🎉 You're done! Again! 🎉
-
 
 ## Configuration
 
-smol-k8s-lab will walk you through an initial configuration, but you can also edit your config directly in `$XDG_CONFIG_DIR/smol-k8s-lab/config.yaml` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values.
+smol-k8s-lab will walk you through an initial configuration, but you can also edit your configuration directly in `$XDG_CONFIG_DIR/smol-k8s-lab/config.yaml` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values.
 
-You can checkout the full official current default config.yaml [here](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
+You can checkout the full official current default `config.yaml` [here](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
 
 ### Logging
 
 Logging defaults to `info` level, but you can you make it more verbose by changing it to `debug` or less verbose by changing it to `warn` or `error`.
 
-All logging is done directly to your console (stdout) aka standard out, unless you pass in `log.filename` in the config.
+All logging is done directly to your console (stdout) aka standard out, unless you pass in `log.filename` in the configuration.
 
-Example logging config:
+Example logging configuration:
 
 ```yaml
-# logging config for the smol-k8s-lab CLI
+# logging configuration for the smol-k8s-lab CLI
 log:
   # path of file to log to if console logging is NOT desired
-  # file: "./smol-k8s-log.log"
+  file: "./smol-k8s-log.log"
   # logging level, Options: debug, info, warn, error
   level: "debug"
 ```
 
 ### Kubernetes distros
 
-Each supported kubernetes distro is listed under `k8s_distros` in config.yaml. You can enable one by setting `k8s_distros.DISTRO.enabled` to `true`.
+Each supported Kubernetes distro is listed under `k8s_distros` in config.yaml. You can enable one by setting `k8s_distros.{distro}.enabled` to `true`.
 Currently you can only deploy one distro at a time. Here's an example of enabling k3s:
 
 ```yaml
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind is available on macOS at this time
 k8s_distros:
-  # k3s is a small Kubernetes distro maintained by Rancher, which is owned by Suse Linux
   k3s:
-    # set to true to enable deploying a kubernetes cluster using k3s
-    enabled: true
-    # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
-    # it's set high for beefy nodes, but you can set it lower if you'd like
-    max_pods: 200
-    # if k8s_distribution set to k3s, you can add an array of extra
-    # arguments to pass to the k3s install script
-    extra_args: []
+    # set to true to enable deploying a Kubernetes cluster using k3s
+    enabled: false
+    # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
+    # to the k3s install script as a k3s.yaml file. If you enable cilium, we
+    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    k3s_yaml:
+      # if you enable metallb, we automatically add servicelb to the disable list
+      # enables encryption at rest for Kubernetes secrets
+      secrets-encryption: true
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      disable:
+      - "traefik"
+      node-label:
+      - "ingress-ready=true"
+      kubelet-arg:
+      - "max_pods=150"
+    # not yet adjustable on k3s at this time
+    nodes:
+      control_plane: 1
+      workers: 0
+```
 
-  # NOTE: all of these are disabled by default
-  # WARNING: k3d is NOT tested yet. k3d is k3s in docker.
+k3d example:
+
+```yaml
+k8s_distros:
   k3d:
-    # set to true to enable deploying a kubernetes cluster using k3d
+    # set to true to enable deploying a Kubernetes cluster using k3d
     enabled: false
-  # KinD stands for Kubernetes in Docker, and is developed by the Kubernetes Project
+    # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
+    # to the k3s install script as a k3s.yaml file. If you enable cilium, we
+    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    k3s_yaml:
+      # if you enable metallb, we automatically add servicelb to the disable list
+      # enables encryption at rest for Kubernetes secrets
+      secrets-encryption: true
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      disable:
+      - "traefik"
+      kubelet-arg:
+      - "max_pods=150"
+      node-label:
+      - "ingress-ready=true"
+    # how many dockerized k3s nodes to deploy
+    nodes:
+      control_plane: 1
+      workers: 0
+```
+
+kind example:
+
+```yaml
   kind:
-    # set to true to enable deploying a kubernetes cluster using kind
+    # set to true to enable deploying a Kubernetes cluster using kind
     enabled: false
+    # change the kubelet config for this node in k3s, feel free to add more values
+    kubelet_extra_args:
+      # all these options are defaults
+      node-labels: "ingress-ready=true"
+      maxPods: 110
+      podsPerCore: 0
+      resolvConf: "/etc/resolv.conf"
+    networking_args:
+      # all these options are defaults
+      ipFamily: "ipv4"
+      disableDefaultCNI: False
+      apiServerAddress: "127.0.0.1"
+      podSubnet: "10.244.0.0/16"
+    # how many dockerized kind nodes to deploy
+    nodes:
+      control_plane: 1
+      workers: 0
 ```
 
 ### Password Management
-We support using Bitwarden to store and manage your kubernetes secrets. Enable this feature using `local_password_manager.enabled` set to `true`.
+We support using Bitwarden to store and manage your Kubernetes secrets. Enable this feature using `smol-k8s-lab.local_password_manager.enabled` set to `true`.
 
 ```yaml
-# store your password and tokens directly in your local password manager
-local_password_manager:
-  enabled: true
-  # enable the use of bitwarden as your password manager.
-  # To use Bitwarden, you must export the following environment variables:
-  # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
-  # If you're missing any of these, smol-k8s-lab will prompt for them
-  name: bitwarden
-  # if existing items are found in your password manager, give smol-k8s-lab
-  # permission to delete the old item and create a new one.
-  # If set to false, we attempt to create a second item
-  overwrite: false
+smol_k8s_lab:
+  # store your password and tokens directly in your local password manager
+  local_password_manager:
+    enabled: true
+    # enable the use of Bitwarden as your password manager.
+    # To use Bitwarden, you must export the following environment variables:
+    # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
+    # If you're missing any of these, smol-k8s-lab will prompt for them
+    name: bitwarden
+    # if existing items are found in your password manager, do one of:
+    #
+    # ask: (default in tui mode) display a dialog window asking you how to proceed
+    # edit: edit item, if there's one item found, ask if multiple found
+    # duplicate: create an additional item with the same name
+    # no_action: don't do anything, just continue on with the script
+    duplicate_strategy: ask
 ```
 
 ### Applications
 
-All applications are under the `apps` parameter in the config.yaml. You can even add your own. Here's an example application:
+All applications are under the `apps` parameter in the `config.yaml`. You can even add your own. Here's an example application:
 
 ```yaml
 apps:
   # name of the application to create with Argo CD
-  zitadel:
+  home_assistant:
     # if enabled is set to false, we will skip this app
     enabled: true
-    # Initialization of the app through smol-k8s-lab.
-    # In this case, Creates bitwarden and/or k8s secrets and also creates an
-    # initial OIDC application for Argo CD and Vouch, a human admin user, and 2
-    # groups for argo (users/admins) along with a groupsClaim action. Updates
-    # your values in the argo_cd_appset_secret_plugin secret and refreshes the pod
-    init:
-      # Switch to false if you don't want to create intial secrets or use a the
-      # API via a service acocunt to create the above described resources
-      # If you're using your own custom argo repo, setting this to false may make sense.
-      enabled: true
-      # these values are used for init and are only used once.
-      # there is no source of truth for these on the cluster
-      values:
-        username: ""
-        email: ""
-        first_name: ""
-        last_name: ""
-        # options: GENDER_UNSPECIFIED, GENDER_MALE, GENDER_FEMALE, GENDER_DIVERSE
-        # more coming soon, see: https://github.com/zitadel/zitadel/issues/6355
-        gender: "GENDER_UNSPECIFIED"
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
-        # FQDN to use for zitadel
-        hostname: ""
-        # type of database to use: postgresql or cockroachdb
-        database_type: "postgresql"
-      # repo to install the Argo CD app from
+        # FQDN to use for Zitadel
+        hostname: "ha.test.com"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      # if you want to use cockroachdb, change to zitadel/zitadel_and_cockroachdb
-      path: "zitadel/zitadel_and_postgresql"
-      # either the branch or tag to point at in the argo repo above
+      path: "alpha/home_assistant"
+      # git branch or tag to point at in the argo repo above
       ref: "main"
-      # namespace to install the k8s app in
+      # Kubernetes namespace to install the k8s app in
       namespace: "zitadel"
-      # source repos for Argo CD App Project (in addition to argo.repo)
+      # source git repos for Argo CD App Project (in addition to argo.repo)
       project_source_repos:
-        - "https://charts.zitadel.com"
-        - "https://zitadel.github.io/zitadel-charts"
-        - "https://charts.cockroachdb.com/"
         - "registry-1.docker.io"
 ```
 
-Note: Only applications with the `init` field in the [default_config.yaml](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by smol-k8s-lab with one time values created as a k8s secrets.
+Note: Only applications with the `init` field in the [`default_config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by `smol-k8s-lab`, therefore, you cannot use the `apps.{app}.init` parameter for custom apps. You can still use the appset secret plugin for Argo CD though :)
