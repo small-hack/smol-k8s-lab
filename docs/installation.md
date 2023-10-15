@@ -7,8 +7,6 @@ nav_order: 2
 permalink: /install
 ---
 
-# Installation
-
 Note: `smol-k8s-lab` is only tested Debian, Ubuntu, and macOS. It may run on other Linux distros and even WSL, but it is not tested on those systems. If you use another Linux distro or WSL, and find a bug, please open a GitHub issue and we'll try to help as best we can if you have the time to work together.
 
 ## Prerequisites

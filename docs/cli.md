@@ -1,12 +1,10 @@
 ---
 layout: default
 parent: Intro
-title: CLI
+title: Using the CLI (command line interface)
 description: "smol-k8s-lab cli (command line interface)"
 permalink: /cli
 ---
-
-# Using the CLI (command line interface)
 
 ## Help
 

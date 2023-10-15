@@ -6,8 +6,6 @@ description: "smol-k8s-lab config file"
 permalink: /config-file
 ---
 
-# Configuration File
-
 smol-k8s-lab will walk you through an initial configuration, but you can also edit your configuration file directly in `$XDG_CONFIG_DIR/smol-k8s-lab/config.yaml` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values.
 
 You can checkout the full official current default `config.yaml` [here](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
