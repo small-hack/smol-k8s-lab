@@ -72,7 +72,7 @@ class BaseApp(App):
 
         # full screen container
         with Grid(id="base-screen-container"):
-            yield Label(Figlet(font="ogre").renderText("smol-k8s-lab"),
+            yield Label(Figlet(font="standard").renderText("smol-k8s-lab"),
                         id="smol-k8s-lab-header")
 
             with Grid(id="cluster-boxes"):

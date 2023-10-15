@@ -23,7 +23,8 @@ Screen {
     scrollbar-color-active: $sky_blue;
     scrollbar-color-hover: $cornflower;
     scrollbar-color: $light_cornflower;
-
+    max-width: 90%;
+    min-width: 89;
 }
 
 Tooltip {
@@ -65,63 +66,63 @@ Footer .footer--description {
 }
 
 Footer .footer--key {
-   color: $navy;
-   background: $light_cornflower;
+    color: $navy;
+    background: $light_cornflower;
 }
 
 Footer .footer--highlight {
-   color: $orange;
-   background: $navy 50%;
+    color: $orange;
+    background: $navy 50%;
 }
 
 Footer .footer--highlight-key {
-  color: $navy;
-  background: $orange;
+    color: $navy;
+    background: $orange;
 }
 
 /* sets the init switch slider color only when it's on */
 Switch.-on > .switch--slider {
-   color: $spacechalk_lime 90%;
+    color: $spacechalk_lime 90%;
 }
 
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
-   background: $navy 40%;
-   color: $bluish_white;
-   width: 100%;
+    background: $navy 40%;
+    color: $bluish_white;
+    width: 100%;
 }
 
 /* Matches the "Select apps to install on k8s" Selection List highlighted option */
 SelectionList .option-list--option-highlighted {
-   background: $blue_gray 50%;
-   color: $sky_blue;
+    background: $blue_gray 50%;
+    color: $sky_blue;
 }
 
 SelectionList .option-list--option-hover-highlighted {
-   background: $blue_gray 90%;
-   color: $sky_blue;
+    background: $blue_gray 90%;
+    color: $sky_blue;
 }
 
 SelectionList .option-list--option-hover {
-   background: $blue_gray 70%;
-   color: $sky_blue;
+    background: $blue_gray 70%;
+    color: $sky_blue;
 }
 
 .selection-list--button {
-   background: $blue_gray 40%;
-   color: $navy;
+    background: $blue_gray 40%;
+    color: $navy;
 }
 
 /* changes color of filled in app selection button */
 .selection-list--button-selected {
-   color: $neon_magenta 90%;
-   background: $blue_gray 40%;
+    color: $neon_magenta 90%;
+    background: $blue_gray 40%;
 }
 
 /* changes color of filled in app selection button */
 .selection-list--button-highlighted {
     color: $neon_magenta 90%;
-   background: $blue_gray 40%;
+    background: $blue_gray 40%;
 }
 
 /* changes color of filled in app selection button when highlighted */
@@ -132,12 +133,12 @@ SelectionList .option-list--option-hover {
 
 /* drop down menus */
 Select .option-list--option {
-   background: $navy;
+    background: $navy;
 }
 
 Select .option-list--option-hover {
-   background: $blue_gray 70%;
-   color: $sky_blue;
+    background: $blue_gray 70%;
+    color: $sky_blue;
 }
 
 Select .option-list--option-highlighted {
@@ -150,7 +151,7 @@ Select .option-list--option-hover-highlighted {
    color: $sky_blue;
 }
 
-/* the underline for tabs */
+/* the underline for tabs when using tabbed content */
 Underline > .underline--bar {
     color: $soft_green;
     background: $blue_gray;
@@ -172,14 +173,15 @@ Tab.header-tab.-focus {
    grid-size: 1;
    align: center middle;
    content-align: center middle;
-   width: 90%;
    height: 90%;
-   grid-rows: 0.3fr 1fr;
+   width: 90%;
+   grid-rows: 0.25fr 0.75fr;
+   grid-gutter: 1;
 }
 
+/* this is the title banner for smol-k8s-lab start page */
 #smol-k8s-lab-header {
     color: $soft_green;
-    padding-top: 2;
     width: 100%;
     content-align: center middle;
     align: center middle;
@@ -187,9 +189,8 @@ Tab.header-tab.-focus {
 
 /* both with-cluster-table and no-cluster-table are classes for #cluster-boxes */
 .with-cluster-table {
-    grid-rows: 0.5fr 0.2fr;
+    grid-rows: 0.6fr 0.25fr;
     grid-gutter: 2;
-    height: 80%;
 }
 
 .no-cluster-table {

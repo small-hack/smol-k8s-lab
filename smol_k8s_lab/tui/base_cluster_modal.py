@@ -28,8 +28,8 @@ class ClusterModalScreen(ModalScreen):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        question = ('How would you like to proceed with cluster '
-                    f'"[#C1FF87]{self.cluster}[/]"?')
+        question = ('What would you like to do with '
+                    f'[#C1FF87]{self.cluster}[/]?')
         # base screen grid
         with Grid(id="cluster-question-modal-screen", classes="modify-delete-size"):
             # grid for cluster question and buttons
@@ -38,7 +38,7 @@ class ClusterModalScreen(ModalScreen):
 
                 with Grid(id="modal-button-box"):
                     # modify button allows user to change apps (and soon distro details)
-                    modify_button = Button("✏️ Modify", id="modify-cluster-button")
+                    modify_button = Button("✏️  Modify", id="modify-cluster-button")
                     modify_button.tooltip = "Modify the cluster's Applications"
                     yield modify_button
 
@@ -74,7 +74,7 @@ class ClusterModalScreen(ModalScreen):
 
             # are you sure, the text
             confirm_txt = ('Are you [b][i]sure[/][/] you want to [#ffaff9]delete[/]'
-                           f' cluster "[#C1FF87]{self.cluster}[/]"?')
+                           f' [#C1FF87]{self.cluster}[/]?')
             self.get_widget_by_id("cluster-modal-text").update(confirm_txt)
 
             # are you sure, the button
