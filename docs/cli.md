@@ -16,8 +16,8 @@ smol-k8s-lab --help
 <details>
   <summary>Help text example</summary>
 
-  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg">
-    <img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/images/screenshots/help_text.svg">
+    <img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
   </a>
 
 </details>
