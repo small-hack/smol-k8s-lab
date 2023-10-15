@@ -249,6 +249,7 @@ class NewK3sOptionModal(ModalScreen):
                 res = ("That option is already defined! If you want to add additional"
                        f"options to {event.input.value}, you can use a comma "
                        "seperated list.")
+                self.app.bell()
                 self.app.notify(res,
                                 title="Input Validation Error", severity="error",
                                 timeout=9)

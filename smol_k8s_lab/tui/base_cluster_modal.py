@@ -94,6 +94,7 @@ class ClusterModalScreen(ModalScreen):
                     self.app.notify("Sucessfully deleted cluster",
                                     severity="information")
                 else:
+                    self.app.bell()
                     self.app.notify("Something went wrong with deleting the cluster!",
                                     timeout=10,
                                     severity="error")
