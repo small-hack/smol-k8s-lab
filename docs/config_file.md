@@ -8,7 +8,7 @@ permalink: /config-file
 
 smol-k8s-lab will walk you through an initial configuration, but you can also edit your configuration file directly in `$XDG_CONFIG_DIR/smol-k8s-lab/config.yaml` (usually `~/.config/smol-k8s-lab/config.yaml`) to be your own values.
 
-You can checkout the full official current default `config.yaml` [here](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
+You can checkout the full official current [default `config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
 
 ## Logging
 
@@ -22,7 +22,7 @@ Example logging configuration:
 # logging configuration for the smol-k8s-lab CLI
 log:
   # path of file to log to if console logging is NOT desired
-  file: "./smol-k8s-log.log"
+  file: ""
   # logging level, Options: debug, info, warn, error
   level: "debug"
 ```
@@ -35,6 +35,11 @@ Currently you can only deploy one distro at a time.
 
 ### k3s
 
+For k3s, we use a [config file](https://docs.k3s.io/installation/configuration#configuration-file) for [all the options](https://docs.k3s.io/cli/server) that get passed to the k3s install script. We define them under `k8s_distros.k3s.k3s_yaml` in the `smol-k8s-lab` config file.
+
+!!! NOTE
+    You cannot adjust the node count at this time
+
 ```yaml
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind is available on macOS at this time
@@ -46,7 +51,7 @@ k8s_distros:
     # to the k3s install script as a k3s.yaml file. If you enable cilium, we
     # automatically pass in flannel-backend: none and disable-network-policy: true 
     k3s_yaml:
-      # if you enable metallb, we automatically add servicelb to the disable list
+      # if you enable MetalLB, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
       secrets-encryption: true
       # disables traefik so we can enable ingress-nginx, remove if you're using traefik
@@ -164,7 +169,8 @@ apps:
         - "registry-1.docker.io"
 ```
 
-Note: Only applications with the `init` field in the [`default_config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by `smol-k8s-lab`, therefore, you cannot use the `apps.{app}.init` parameter for custom apps. You can still use the appset secret plugin for Argo CD though :)
+!!! Note
+    Only applications with the `init` field in the [`default_config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by `smol-k8s-lab`, therefore, you cannot use the `apps.{app}.init` parameter for custom apps. You can still use the appset secret plugin for Argo CD though :)
 
 ### Globally Available Argo CD ApplicationSet 
 
