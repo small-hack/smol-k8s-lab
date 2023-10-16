@@ -68,7 +68,7 @@ class DistroConfigScreen(Screen):
         """
         self.cfg = config
         self.current_distro = process_k8s_distros(self.cfg, False)[1]
-        self.show_footer = self.app.cfg['smol_k8s_lab']['interactive']['show_footer']
+        self.show_footer = self.app.cfg['smol_k8s_lab']['tui']['show_footer']
         super().__init__()
 
     def compose(self) -> ComposeResult:

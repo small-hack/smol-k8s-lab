@@ -7,6 +7,7 @@ from smol_k8s_lab.tui.confirm_selection import ConfirmConfig
 from smol_k8s_lab.tui.distro_config import DistroConfigScreen
 from smol_k8s_lab.tui.help import HelpScreen
 from smol_k8s_lab.tui.smol_k8s_config import SmolK8sLabConfig
+from smol_k8s_lab.tui.tui_config import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
 # external libraries
@@ -35,6 +36,10 @@ class BaseApp(App):
                         action="request_help",
                         description="Help",
                         show=True),
+                Binding(key="c",
+                        key_display="c",
+                        action="request_config",
+                        description="TUI Config"),
                 Binding(key="f",
                         key_display="f",
                         action="toggle_footer",
@@ -54,7 +59,7 @@ class BaseApp(App):
 
     def __init__(self, user_config: dict = INITIAL_USR_CONFIG) -> None:
         self.cfg = user_config
-        self.show_footer = self.cfg['smol_k8s_lab']['interactive']['show_footer']
+        self.show_footer = self.cfg['smol_k8s_lab']['tui']['show_footer']
         self.cluster_names = []
         self.current_cluster = ""
         super().__init__()
@@ -221,6 +226,12 @@ class BaseApp(App):
         """
         self.push_screen(HelpScreen())
 
+    def action_request_config(self) -> None:
+        """ 
+        if the user pressed 'c', show the TUI config screen
+        """
+        self.push_screen(TuiConfigScreen(self.cfg['smol_k8s_lab']['tui']))
+
     def action_toggle_footer(self) -> None:
         """
         don't display the footer, or do 🤷
@@ -234,10 +245,10 @@ class BaseApp(App):
                 timeout=9,
                 title="Footer disabled"
             )
-            self.cfg['smol_k8s_lab']['interactive']['show_footer'] = False
+            self.cfg['smol_k8s_lab']['tui']['show_footer'] = False
         else:
             footer.display = True
-            self.cfg['smol_k8s_lab']['interactive']['show_footer'] = True
+            self.cfg['smol_k8s_lab']['tui']['show_footer'] = True
 
     def write_yaml(self, config_file: str = XDG_CONFIG_FILE) -> None:
         """

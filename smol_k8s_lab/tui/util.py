@@ -6,11 +6,11 @@ from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Grid
+from textual.containers import Grid, Horizontal
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.validation import Length
-from textual.widgets import Input, Button, Label
+from textual.widgets import Input, Button, Label, Switch
 
 
 KUBELET_SUGGESTIONS = SuggestFromList((
@@ -208,3 +208,35 @@ def format_description(description: str = ""):
     description = description.replace("[/link]", "[/link][/steel_blue]")
 
     return f"""{description}"""
+
+
+def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Horizontal:
+    """
+    returns a label and switch row in a Horizontal container
+    """
+    label = Label(label, classes="bool-switch-row-label")
+    label.tooltip = tooltip
+
+    switch = Switch(value=switch_value,
+                    classes="bool-switch-row-switch",
+                    name=name)
+    extra_class = name.replace('_',"-")
+    return Horizontal(label, switch, classes=f"bool-switch-row {extra_class}")
+
+def input_field(label: str, initial_value: str, name: str, placeholder: str,
+                tooltip: str = "") -> Horizontal:
+    """
+    returns an input label and field within a Horizontal container
+    """
+    label = Label(label, classes="input-row-label")
+    label.tooltip = tooltip
+
+    input_dict = {"placeholder": placeholder,
+                  "classes": "input-row-input",
+                  "name": name}
+    if initial_value:
+        input_dict["value"] = initial_value
+
+    input = Input(**input_dict)
+
+    return Horizontal(label, input, classes="input-row")
