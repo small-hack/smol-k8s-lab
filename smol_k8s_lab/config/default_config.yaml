@@ -1,7 +1,7 @@
 ---
 smol_k8s_lab:
   # this is useful for learning smol-k8s-lab or verifying your configuration
-  interactive:
+  tui:
     # if this is set to true, we'll always launch smol-k8s-lab in interactive mode :)
     # else you need to pass in --interactive or -i to use the interactive Terminal UI
     enabled: true

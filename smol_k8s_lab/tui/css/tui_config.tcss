@@ -24,61 +24,6 @@ $navy: rgb(35,35,54);
     height: 92%;
 }
 
-/* logging config box */
-#logging-config {
-    padding: 1;
-    margin-bottom: 2;
-    grid-rows: 0.5fr 1fr;
-    border: round $cornflower;
-    border-title-color: $sky_blue;
-    background: $navy 50%;
-    align: left middle;
-    content-align: left middle;
-}
-
-#logging-config-row-grid {
-    grid-size: 2;
-    align: left middle;
-    content-align: left middle;
-    grid-columns: 0.65fr 0.9fr;
-}
-
-#logging-config-row-grid .input-row {
-    grid-columns: 0.2fr 1fr;
-}
-
-.selection-row {
-    grid-size: 2;
-    align: left middle;
-    grid-gutter: 1;
-    align: left middle;
-    content-align: left middle;
-    grid-columns: 1fr 0.75fr;
-}
-
-.selection-row Label {
-    padding-top: 1;
-    padding-bottom: 1;
-    width: 100%;
-    color: $bluish_white;
-}
-
-.selection-row Select {
-    width: 90%;
-    align: left middle;
-    content-align: left middle;
-}
-
-#logging-config .selection-row {
-    grid-columns: 0.65fr 1.58fr;
-    padding-left: 1;
-    align: left middle;
-}
-
-#logging-config .soft-text {
-    align: left middle;
-}
-
 /* truthy value rows with switches */
 .bool-switch-row {
     align: left middle;
@@ -135,30 +80,40 @@ $navy: rgb(35,35,54);
     align: left middle;
 }
 
-/* password manager config box */
-#password-manager-config {
-    padding: 1;
-    border: round $cornflower;
-    border-title-color: $sky_blue;
-    background: $navy 50%;
-}
-
-#password-manager-options-grid {
-    grid-size: 2;
-    padding-left: 1;
-    align: left middle;
-    grid-columns: 0.5fr 1fr;
-    grid-gutter: 1;
-}
-
-#password-manager-options-grid .selection-row {
-    grid-gutter: 1;
-}
-
 /* this is the help-text at the top of each module */
 .soft-text {
     color: $bluish_white 60%;
     width: 100%;
     padding-left: 1;
     padding-top: 1;
+}
+
+/* TUI config box */
+#tui-config {
+    padding: 1;
+    grid-rows: 0.4fr 0.5fr 0.45fr;
+    margin-top: 2;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    background: $navy 50%;
+    align: center middle;
+    grid-gutter: 1;
+}
+
+/* three bool-switch-rows side by side */
+.triple-switch-row {
+    align: left middle;
+    content-align: left middle;
+    grid-size: 3;
+    grid-gutter: 1;
+    padding-left: 1;
+    height: 3;
+}
+
+#tui-config .input-row-label {
+    content-align: left middle;
+    height: 3;
+    padding-left: 1;
+    padding-right: 1;
+    color: $bluish_white;
 }

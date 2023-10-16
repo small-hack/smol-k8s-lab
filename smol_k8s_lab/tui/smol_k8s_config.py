@@ -1,8 +1,9 @@
 #!/usr/bin/env python3.11
+from smol_k8s_lab.tui.util import bool_option, input_field
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal, Grid
+from textual.containers import Container, Grid
 from textual.screen import Screen
 from textual.widgets import Footer, Header, Input, Label, Switch, Select
 from textual.widget import Widget
@@ -47,7 +48,7 @@ class SmolK8sLabConfig(Screen):
 
     def __init__(self, config: dict) -> None:
         self.cfg = config
-        self.show_footer = self.app.cfg['smol_k8s_lab']['interactive']['show_footer']
+        self.show_footer = self.app.cfg['smol_k8s_lab']['tui']['show_footer']
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -69,103 +70,12 @@ class SmolK8sLabConfig(Screen):
             # local password manager config for enabled, name, and duplicate strategy
             yield PasswordManagerConfig(self.cfg['local_password_manager'])
 
-            # interactive config for hide_footer, enabled, and k9s
-            yield TuiConfig(self.cfg['interactive'])
-
     def on_mount(self) -> None:
         """
         screen and box border styling
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         self.sub_title = "configure smol-k8s-lab itself"
-
-
-class TuiConfig(Widget):
-    def __init__(self, config: dict) -> None:
-        self.cfg = config
-        super().__init__()
-
-    def compose(self) -> ComposeResult:
-        """
-        Compose widget for configuring the interactive experience
-        """
-
-        with Grid(id="tui-config"):
-            yield Label("These parameters are all related to the TUI itself.",
-                        classes="soft-text")
-            with Grid(classes="triple-switch-row"):
-                yield bool_option(
-                        label="enabled:",
-                        name="enabled",
-                        switch_value=self.cfg['enabled'],
-                        tooltip=("Enable interactive mode (also known as TUI mode) by "
-                                 "default, otherwise you need to pass in -i each time")
-                        )
-
-                yield bool_option(
-                        label="footer:",
-                        name="show_footer",
-                        switch_value=self.cfg['show_footer'],
-                        tooltip="show the footer at the bottom of the screen"
-                        )
-
-                yield bool_option(
-                        label="k9s:",
-                        name="k9s-enabled",
-                        switch_value=self.cfg['k9s']['enabled'],
-                        tooltip="launch k9s, a k8s TUI dashboard when cluster is up"
-                        )
-
-
-            with Grid(classes="k9s-input-row"):
-                yield input_field(
-                        label="k9s command:",
-                        name="k9s-command",
-                        initial_value=self.cfg['k9s']['command'],
-                        placeholder="command to run when k9s starts",
-                        tooltip="if k9s is enabled, run this command when it starts"
-                        )
-
-    def on_mount(self) -> None:
-        """
-        box border styling
-        """
-        tui_title = "🖥️ [i]Configure[/] [#C1FF87]Terminal UI"
-        self.get_widget_by_id("tui-config").border_title = tui_title
-
-    @on(Switch.Changed)
-    def update_parent_config_for_switch(self, event: Switch.Changed) -> None:
-        """
-        update the parent app's config file yaml obj
-        """
-        truthy_value = event.value
-        switch_name = event.switch.name
-
-        parent_cfg = self.app.cfg['smol_k8s_lab']['interactive']
-
-        if "k9s" in switch_name:
-            name = switch_name.replace("k9s-","")
-            self.cfg['k9s'][name] = truthy_value
-            parent_cfg['k9s'][name] = truthy_value
-        else:
-            self.cfg[switch_name] = truthy_value
-            parent_cfg[switch_name] = truthy_value
-
-        self.app.write_yaml()
-
-    @on(Input.Changed)
-    def update_parent_config_for_input(self, event: Input.Changed) -> None:
-        input = event.input
-        input_name = event.input.name
-
-        if "k9s" in input_name:
-            name = input_name.replace("k9s-","")
-            self.cfg['k9s'][name] = input.value
-            self.app.cfg['smol_k8s_lab']['interactive']['k9s'][name] = input.value
-        else:
-            self.app.cfg['smol_k8s_lab']['interactive'][input.name] = input.value
-
-        self.app.write_yaml()
 
 
 class LoggingConfig(Widget):
@@ -283,35 +193,3 @@ class PasswordManagerConfig(Widget):
         password_cfg = self.app.cfg['smol_k8s_lab']['local_password_manager']
         password_cfg['duplicate_strategy'] = str(event.value)
         self.app.write_yaml()
-
-
-def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Horizontal:
-    """
-    returns a label and switch row in a Horizontal container
-    """
-    label = Label(label, classes="bool-switch-row-label")
-    label.tooltip = tooltip
-
-    switch = Switch(value=switch_value,
-                    classes="bool-switch-row-switch",
-                    name=name)
-    extra_class = name.replace('_',"-")
-    return Horizontal(label, switch, classes=f"bool-switch-row {extra_class}")
-
-def input_field(label: str, initial_value: str, name: str, placeholder: str,
-                tooltip: str = "") -> Horizontal:
-    """
-    returns an input label and field within a Horizontal container
-    """
-    label = Label(label, classes="input-row-label")
-    label.tooltip = tooltip
-
-    input_dict = {"placeholder": placeholder,
-                  "classes": "input-row-input",
-                  "name": name}
-    if initial_value:
-        input_dict["value"] = initial_value
-
-    input = Input(**input_dict)
-
-    return Horizontal(label, input, classes="input-row")

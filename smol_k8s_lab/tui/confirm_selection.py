@@ -40,7 +40,7 @@ class ConfirmConfig(Screen):
         self.apps = self.cfg['apps']
         self.smol_k8s_cfg = self.cfg["smol_k8s_lab"]
         self.distros = self.cfg["k8s_distros"]
-        self.show_footer = self.smol_k8s_cfg['interactive']['show_footer']
+        self.show_footer = self.smol_k8s_cfg['tui']['show_footer']
         self.invalid_apps = {}
         super().__init__()
 
