@@ -24,7 +24,8 @@ If you're using kind, you can modify both the networking and kubelet configurati
 
 To modify an option, just change the text in any of the input boxes (you can click them, or navigate them with the `tab`/`shift`+`tab` keys).
 
-Note: If you'd like to pass in multiple values for an option, use a comma separated list, e.g. disable: traefik, servicelb
+!!! Note
+    If you'd like to pass in multiple values for an option, use a comma separated list, e.g. disable: traefik, servicelb
 
 To delete an option, use click the 🚮 button next to the input field.
 
@@ -34,6 +35,10 @@ To add a new option, you can click the "➕ k3s option" link at the bottom of th
 
 ![terminal screenshot showing smol-k8s-lab "add new option" modal screen with a blue border. Header: Add *new* k3s option. The second row has an input field with placeholder text that says "new k3s option" with a button on the right hand side that says "➕ add option". The bottom border has a link that says cancel - which can be clicked or you can use the escape key](./images/screenshots/add_k3s_option_screen.svg)
 
-Enter the name of the new option you'd like to add. Note: if you try to input an option that already exists, it will throw an error and make a bell sound. If you want to add an option that is already there, consider instead adding the extra values as a comma separated list.
+Enter the name of the new option you'd like to add. 
 
-Note: To turn off bells, visit the [TUI config screen]
+!!! Note
+    If you try to input an option that already exists, it will throw an error and make a bell sound. If you want to add an option that is already there, consider instead adding the extra values as a comma separated list.
+
+!!! Tip
+    To turn off bells, visit the [TUI config screen]
