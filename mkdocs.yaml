@@ -57,8 +57,8 @@ nav:
   - CLI: cli.md
   - TUI:
     - Create and Modify Clusters: create_modify_screens.md
-    - Distros: distro_screen.md
-    - Apps: apps_screen.md
+    - K8s Distros: distro_screen.md
+    - K8s Apps: apps_screen.md
     - TUI Config: tui_config.md
   - Config File: config_file.md
   - Supported Apps: 
