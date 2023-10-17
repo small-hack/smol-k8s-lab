@@ -1,6 +1,6 @@
 :root {
     /* set global font */
-    --md-text-font: "Mononoki";
+    --md-text-font: "Firacode";
     --md-code-font: "Mononoki Mono";
 
     --gloabl-padding: .5%;
@@ -62,7 +62,7 @@
     --shadow: Black;
     
     
-    --text: white;
+    --text: #c0caf5;
     --border-radius: 10px;
     --border-style: solid;
     
@@ -126,13 +126,13 @@
     /*?*/
     --md-typeset-ins-color: rgba(255,25,255,1);
     /* this is for keyboard keys - the color of the text */
-    --md-typeset-kbd-color: rgb(189,216,255);
+    --md-typeset-kbd-color: #448;
     /* this is for keyboard keys - the color of the accent around the text */
-    --md-typeset-kbd-accent-color: rgb(122,162,247);
+    --md-typeset-kbd-accent-color: rgb(86,95,137);
     /* this is for keyboard keys - the buttom part of the keyboard button */
     --md-typeset-kbd-border-color: rgb(86,95,137);
-    /*?*/
-    --md-typeset-table-color: var(--primary);
+    /* color for table borders */
+    --md-typeset-table-color: rgb(86,95,137);
     /*?*/
     --md-admonition-fg-color: var(--text);
     /*?*/
@@ -169,11 +169,21 @@ strong, emp {
 	font-size: calc(var(--link-multiplier) * var(--font-size));
 	font-weight: var(--font-weight-link);
 	line-height: var(--title-line-height);
-	color: var(--header-contrast)!important;
+	color: #aea8f8!important;
 }
 
 .md-header, .md-header--lifted{
 	background-color: var(--header);
+}
+
+/* the logo on the left of the title */
+.md-header__button md-logo {
+    color: red;
+}
+
+/* for the site title next to the logo */
+.md-header__topic .md-ellipsis {
+    color: #5cc9fd;
 }
 
 .md-nav__link, a.md-button:active {
@@ -185,8 +195,9 @@ strong, emp {
 	scale: 70%;
 }
 
+/* ??? */
 .md-button--primary {
-	color: var(--header-contrast)!important;
+	color: red!important;
 	background-color: var(--header)!important;
 }
 
@@ -197,10 +208,12 @@ strong, emp {
 	padding-top: 2%;
 	padding-bottom: 2%;
 }
+
 .md-nav__list, .md-nav, .md-nav--primary, .md-nav--lifted, .md-nav--integrated{
 	background: var(--bg)!important;
 	padding: var(--global-padding);
 }
+
 .highlight {
 	background: rgba(0,0,0,1);
 }
@@ -216,6 +229,8 @@ strong, emp {
 
 h1, h2, h3, h4 {
 	line-height: var(--title-line-height)!important;
+        color: #7aa2f7;
+        font-family: Mononoki;
 }
 
 h1 {
@@ -226,7 +241,6 @@ h1 {
 h2 {
 	font-size: calc(var(--header2-multiplier) * var(--font-size));
 	font-weight: var(--font-weight-h2)!important;
-        color: #CAEAFF;
 }
 
 h3 {
@@ -288,11 +302,11 @@ blockquote {
 }
 
 .md-typeset .admonition.note {
-    border-color: rgb(122,162,247);
+    border-color: #3d59a1;
 }
 
 .md-typeset .note > .admonition-title {
-    background-color: rgb(122,162,247);
+    background-color: #414868;
 }
 
 .md-typeset :is(.example) > :is(.admonition-title, summary){
@@ -390,22 +404,11 @@ p {
 	font-size: var(--font-size)!important;
 }
 
-th, td {
-    border: .1px solid var(--bg);
-    border-spacing: 0px!important;
-    border-top: 0px!important;
-    border-left: 0px!important;
-    border-right: 0px!important;
-}
-
 .md-typeset__table table:not([class]) td,
 .md-typeset__table table:not([class]) th {
     padding: 9px;
 }
 
-.md-typeset__table table:not([class]) {
-    border-right: none;
-    border-left: none;
-    border-top: none;
-    border-bottom: none;
+.md-typeset__table th {
+    color: #448aff;
 }
