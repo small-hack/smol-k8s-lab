@@ -3,8 +3,8 @@ site_url: https://smol-k8s.com
 theme:
   name: material
   font:
-    text: ./docs/fonts/MononokiNerdFontMono-Regular.ttf
-    code: ./docs/fonts/MononokiNerdFontMono-Regular.ttf
+    text: /fonts/MononokiNerdFontMono-Regular.ttf
+    code: /fonts/MononokiNerdFontMono-Regular.ttf
   features:
     - navigation.tabs
     - navigation.tabs.sticky
@@ -15,6 +15,7 @@ theme:
       scheme: spacechalk
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/font.css
 extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
