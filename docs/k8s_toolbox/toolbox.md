@@ -1,19 +1,11 @@
----
-layout: default
-title: Toolbox
-description: "Notes on tools for interacting with k8s"
-has_children: true
-permalink: /toolbox
----
-
 ## Toolbox
 
 Notes on tools for interacting with k8s.
 
-### Install some kubectl plugins with krew
-Krew is a plugin manager for `kubectl` plugins. You can install it with `brew install krew` and update plugins with `kubectl krew update`
+### Install kubectl plugins with krew
+[Krew](https://krew.sigs.k8s.io/) is a plugin manager for `kubectl` plugins. You can install it with `brew` and update plugins with `kubectl krew update`
 
-These together make namespace switching better. Learn more about kubectx + kubens [here](https://github.com/ahmetb/kubectx).
+These together make namespace switching better. [Learn more about kubectx + kubens](https://github.com/ahmetb/kubectx).
 
 ```bash
 kubectl krew install ctx
@@ -56,7 +48,7 @@ To have the above file sourced every new shell, copy this into your `.bashrc` or
 
 ```bash
 # include external .bashrc_k8s if it exists
-if [ -f $HOME/.bashrc_k8s ]; then
+if [ -f "$HOME/.bashrc_k8s" ]; then
     . $HOME/.bashrc_k8s
 fi
 ```

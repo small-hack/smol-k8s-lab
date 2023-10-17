@@ -7,25 +7,27 @@ smol-k8s-lab
 !!! Note
     More [accessibility features are on the roadmap](https://textual.textualize.io/roadmap/#features) for [textual](https://textual.textualize.io/) down the line, but please drop us a line if you'd like us to help with anything on our end in the meantime.
 
-## Create, Modify, or Delete a Kubernetes Cluster
+
+## Create a New Cluster
+
+To create a new cluster, fill in the name of your cluster (or use the randomized pre-populated name) and either click the `submit` button, or if there is only one box on the screen, you can hit `enter`. If there are two boxes on the screen, and the input is not selected, you also use the `n` key (for new/next).
+
+That will bring you to the [distro configuration](/distro_screen) screen to begin your configuration journey.
+
+[<img src="/images/screenshots/start_screen.svg" alt="terminal screenshot of the smol-k8s-lab start screen. The screenshot shows smol-k8s-lab spelled out in block letters followed by one box containing two elements: an input field, pre-populated with a random cluster name, and a submit button for that input field.">](/images/screenshots/start_screen.svg)
+
+
+## Modify or Delete a Kubernetes Cluster
 
 The start screen will look like this:
 
 [<img src="/images/screenshots/start_screen_with_existing_clusters.svg" alt="terminal screenshot of the smol-k8s-lab start screen. The screen shows smol-k8s-lab spelled out in blocky letters followed by two boxes. The first box is for modifying or deleting an existing cluster with an example cluster in a table. The second box shows an input field for the name of a new cluster as well as a button next to it to submit the cluster name">](/images/screenshots/start_screen_with_existing_clusters.svg)
 
 
-The top section will only be present if you already have (a) Kubernetes cluster(s) in your [`$KUBECONFIG`](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable). If you do not have any existing clusters, you will see this instead:
-
-[<img src="/images/screenshots/start_screen.svg" alt="terminal screenshot of the smol-k8s-lab start screen. The screenshot shows smol-k8s-lab spelled out in block letters followed by one box containing two elements: an input field, pre-populated with a random cluster name, and a submit button for that input field.">](/images/screenshots/start_screen.svg)
-
-### Create a New Cluster
-
-To create a new cluster, fill in the name of your cluster (or use the randomized pre-populated name) and either click the `submit` button, or if there is only one box on the screen, you can hit `enter`. If there are two boxes on the screen, and the input is not selected, you also use the `n` key (for new/next).
-
-That will bring you to the [distro configuration](/distro_screen) screen to begin your configuration journey.
+The top section will only be present if you already have (a) Kubernetes cluster(s) in your [`$KUBECONFIG`](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable).
 
 
-### Modify or Delete an Existing Cluster
+### Modify an Existing Cluster
 
 To modify an existing cluster, select your cluster from the list of clusters (stored in a [DataTable](https://textual.textualize.io/widgets/data_table/)) in the top box. 
 
@@ -34,10 +36,10 @@ To modify an existing cluster, select your cluster from the list of clusters (st
 
 You can use the `tab` key to scroll down the list of clusters and `shift`+`tab` to scroll up the list and then the `enter` key to select a cluster. You can also use your mouse to click on a cluster. After you select a cluster, you should see this "modal" (AKA pop-up) screen:
 
-[<img src="/images/screenshots/modify_cluster_modal_screen.svg" alt="terminal screenshot showing smol-k8s-lab after selecting a cluster from the list. This shows the previous screen dimmed in the background with an overlaid modal screen featuring the text 'How would you like to proceed with $CLUSTER_NAME' and 3 buttons. Button 1: Modify, Button 2: Delete, Button 3: Cancel">](/images/screenshots/modify_cluster_modal_screen.svg)
+[<img src="/images/screenshots/modify_cluster_modal_screen.svg" alt="terminal screenshot showing smol-k8s-lab after selecting a cluster from the list. This shows the previous screen dimmed in the background with an overlaid modal screen featuring the text 'What would you like to do with $CLUSTER_NAME' and 3 buttons. Button 1: Modify, Button 2: Delete, Button 3: Cancel">](/images/screenshots/modify_cluster_modal_screen.svg)
 
 
-#### Delete a Cluster
+#### Delete an existing Cluster
 
 To delete a cluster, you can either click the `Delete` button, or use your `tab` key to select it and then the `enter` key to press the button. Then, you will get another modal screen asking you to confirm the deletion. If you select the `yes` button, which is the first button, smol-k8s-lab will attempt to delete the cluster if it is one of the following distros: k3s, k3d, or kind.
 
