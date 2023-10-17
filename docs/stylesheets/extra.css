@@ -1,7 +1,7 @@
 :root {
     /* set global font */
-    --md-text-font: "Mononoki"
-    --md-code-font: "Mononoki Mono"
+    --md-text-font: "Mononoki";
+    --md-code-font: "Mononoki Mono";
 
     --gloabl-padding: .5%;
     --header-padding: 0;
