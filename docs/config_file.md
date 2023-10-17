@@ -177,4 +177,8 @@ apps:
 You can also use the [appset secret plugin]() to store parameters that are available to _all_ Argo CD ApplicationSets. You can configure these via the configuration file like this:
 
 ```yaml
+apps_global_config:
+  # setting this changes all the below domains to use the following cluster_issuer
+  # change to letsencrypt-prod when you're ready to go live with your infra
+  cluster_issuer: "letsencrypt-staging"
 ```

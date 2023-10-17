@@ -12,6 +12,7 @@ theme:
     - navigation.indexes
     - tables
     - toc.integrate
+    - content.code.copy
   palette:
     - media: "(prefers-color-scheme: dark)"
       scheme: spacechalk
