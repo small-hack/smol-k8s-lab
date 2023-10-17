@@ -3,8 +3,8 @@ site_url: https://smol-k8s.com
 theme:
   name: material
   font:
-    text: Lato
-    code: Inconsolata
+    text: ./docs/fonts/MononokiNerdFontMono-Regular.ttf
+    code: ./docs/fonts/MononokiNerdFontMono-Regular.ttf
   features:
     - navigation.tabs
     - navigation.tabs.sticky
@@ -61,7 +61,7 @@ nav:
     - K8s Apps: apps_screen.md
     - TUI Config: tui_config.md
   - Config File: config_file.md
-  - Supported Apps: 
+  - Default Apps: 
     - ArgoCD: k8s_apps/argocd.md
     - Cert Manager: k8s_apps/cert_manager.md
     - Core DNS: k8s_apps/core_dns.md
