@@ -11,16 +11,19 @@ from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
 # external libraries
+from os import system
 from pyfiglet import Figlet
 import random
 from rich.text import Text
 from ruamel.yaml import YAML
 from textual import on
 from textual.app import App, ComposeResult
+from textual.events import DescendantFocus
 from textual.binding import Binding
 from textual.containers import Grid
 from textual.validation import Length
-from textual.widgets import Footer, Button, DataTable, Input, Static, Label
+from textual.widgets import Footer, Button, DataTable, Input, Static, Label, Switch, Select
+
 
 # list of approved words for nouns
 CUTE_NOUNS = ["bunny", "hoglet", "puppy", "kitten", "knuffel", "friend",
@@ -28,7 +31,6 @@ CUTE_NOUNS = ["bunny", "hoglet", "puppy", "kitten", "knuffel", "friend",
 
 CUTE_ADJECTIVE = ["lovely", "adorable", "cute", "friendly", "nice", "leuke",
                   "mooie", "vriendelijke", "cool", "soft"]
-
 
 class BaseApp(App):
     BINDINGS = [Binding(key="?",
@@ -60,6 +62,9 @@ class BaseApp(App):
     def __init__(self, user_config: dict = INITIAL_USR_CONFIG) -> None:
         self.cfg = user_config
         self.show_footer = self.cfg['smol_k8s_lab']['tui']['show_footer']
+        accessibility_opts = self.cfg['smol_k8s_lab']['tui']['accessibility']
+        self.speak = accessibility_opts['text_to_speech']['enabled']
+        self.speech_program = accessibility_opts['text_to_speech']['speech_program']
         self.cluster_names = []
         self.current_cluster = ""
         super().__init__()
@@ -259,6 +264,37 @@ class BaseApp(App):
         with open(config_file, 'w') as smol_k8s_config:
             yaml.dump(self.cfg, smol_k8s_config)
 
+    @on(DescendantFocus)
+    def on_focus(self, event: DescendantFocus) -> None:
+        """ 
+        on focus, say the id of each element and the value or label if possible
+        """
+        if self.speak:
+            id = event.widget.id
+            system(f"{self.speech_program} element is {id}")
+
+            # input fields
+            if isinstance(event.widget, Input):
+                content = event.widget.value
+                placeholder = event.widget.placeholder
+                if content:
+                    system(f"{self.speech_program} value is {content}")
+                elif placeholder:
+                    system(f"{self.speech_program} place holder text is {placeholder}")
+
+            # buttons
+            elif isinstance(event.widget, Button):
+                system(f"{self.speech_program} button text is {event.widget.label}")
+
+            # switches
+            elif isinstance(event.widget, Switch) or isinstance(event.widget, Select):
+                system(f"{self.speech_program} value is {event.widget.value}")
+
+            # also read the tooltip if there is one
+            tooltip = event.widget.tooltip
+            if tooltip:
+                tooltip = tooltip.replace(")","").replace("(", "").replace("[i]", "")
+                system(f"{self.speech_program} tooltip is {tooltip}")
 
 class NewClusterInput(Static):
     """ 
@@ -273,7 +309,7 @@ class NewClusterInput(Static):
                               ],
                           placeholder="Name of your new cluster",
                           id="cluster-name-input")
-            input.tooltip = ("Name of your ✨ [i]new[/i] cluster. Note: The k8s distro"
+            input.tooltip = ("Name of your ✨ [i]new[/] cluster. Note: The k8s distro"
                              " (selected on the next screen) will be pre-pended to the "
                              "name of the cluster by default.")
             yield input
@@ -285,7 +321,6 @@ class NewClusterInput(Static):
     def on_mount(self) -> None:
         input = self.get_widget_by_id("cluster-name-input")
         input.value = random.choice(CUTE_ADJECTIVE) + '-' + random.choice(CUTE_NOUNS)
-
 
     @on(Input.Changed)
     @on(Input.Submitted)

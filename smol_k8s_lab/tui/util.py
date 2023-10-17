@@ -214,29 +214,35 @@ def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Hori
     """
     returns a label and switch row in a Horizontal container
     """
-    label = Label(label, classes="bool-switch-row-label")
-    label.tooltip = tooltip
+    bool_label = Label(label, classes="bool-switch-row-label")
+    bool_label.tooltip = tooltip
 
     switch = Switch(value=switch_value,
                     classes="bool-switch-row-switch",
-                    name=name)
+                    name=name,
+                    id=label)
+
     extra_class = name.replace('_',"-")
-    return Horizontal(label, switch, classes=f"bool-switch-row {extra_class}")
+    return Horizontal(bool_label, switch, classes=f"bool-switch-row {extra_class}")
+
 
 def input_field(label: str, initial_value: str, name: str, placeholder: str,
                 tooltip: str = "") -> Horizontal:
     """
     returns an input label and field within a Horizontal container
     """
-    label = Label(label, classes="input-row-label")
-    label.tooltip = tooltip
+    input_label = Label(label, classes="input-row-label")
+    input_label.tooltip = tooltip
 
     input_dict = {"placeholder": placeholder,
                   "classes": "input-row-input",
+                  "id": label,
                   "name": name}
     if initial_value:
         input_dict["value"] = initial_value
+    else:
+        input_dict["value"] = ""
 
     input = Input(**input_dict)
 
-    return Horizontal(label, input, classes="input-row")
+    return Horizontal(input_label, input, classes="input-row")

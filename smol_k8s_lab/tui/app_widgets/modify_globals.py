@@ -19,7 +19,11 @@ class ModifyAppGlobals(Static):
     """
     def compose(self) -> ComposeResult:
         with Grid(classes="button-grid"):
-            yield Button("✏️ Modify Globals", id="modify-globals")
+            button = Button("✏️ Modify Globals", id="modify-globals")
+            button.tooltip = (
+                    "Modify globally available Argo CD ApplicationSet templating values"
+                    )
+            yield button
 
     def on_button_pressed(self):
         self.app.push_screen(ModifyAppGlobalsScreen())

@@ -9,10 +9,11 @@ from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
 from smol_k8s_lab.tui.util import NewOptionModal
 
 # external libraries
+from os import system
 from textual import on
 from textual.app import ComposeResult, NoMatches
 from textual.binding import Binding
-from textual.containers import Grid, VerticalScroll
+from textual.containers import Grid
 from textual.screen import Screen
 from textual.widgets import (Footer, Header, Label, Select, TabbedContent,
                              TabPane, Static)
@@ -261,6 +262,12 @@ class KindConfigWidget(Static):
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
         self.get_child_by_type(TabbedContent).active = tab
+
+
+    @on(TabbedContent.TabActivated)
+    def speak_when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
+        if self.app.speak:
+            system(f"{self.app.speech_program} Selected tab is {event.tab.id}")
 
 
 class K3ConfigWidget(Static):

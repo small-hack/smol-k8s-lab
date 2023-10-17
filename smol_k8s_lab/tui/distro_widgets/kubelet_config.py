@@ -77,13 +77,15 @@ class KubeletConfig(Widget):
         param_value_input_args = {"placeholder": "kubelet parameter value",
                                   "suggester": VALUE_SUGGESTIONS,
                                   "validators": Length(minimum=1),
+                                  "id": f"kind-kubelet-{param}-input",
                                   "name": param}
+
         if value:
             param_value_input_args["value"] = value
         param_value_input = Input(**param_value_input_args)
 
         # delete button for each row
-        del_button = Button("🚮")
+        del_button = Button("🚮", id=f"kind-kubelet-delete-{param}-button")
         del_button.tooltip = "Delete this kubelet parameter"
 
         self.get_widget_by_id("kubelet-config-scroll").mount(
