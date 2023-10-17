@@ -156,6 +156,7 @@ class K3sConfig(Static):
                     "classes": f"{self.distro} k3s-arg-input",
                     "suggester": SUGGESTIONS,
                     "name": key,
+                    "id": f"{self.distro}-{key}-input",
                     "validators": Length(minimum=4)}
         if value:
             # if this is a bool, turn it into a string for our current purposes
@@ -186,7 +187,9 @@ class K3sConfig(Static):
         input.tooltip = tooltip
 
         # button to delete the field entirely
-        button = Button("🚮", classes="k3s-arg-del-button")
+        button = Button("🚮",
+                        id=f"{self.distro}-{key}-delete-button",
+                        classes="k3s-arg-del-button")
         button.tooltip = "Delete the arg to the left of this button"
         
         grid = Grid(label, input, button, classes="label-input-delete-row")

@@ -88,6 +88,31 @@ class TuiConfig(Widget):
                         tooltip="launch k9s, a k8s TUI dashboard when cluster is up"
                         )
 
+            with Grid(classes="accessibility-row"):
+                accessibility = self.cfg['accessibility']
+                yield bool_option(
+                        label="bell:",
+                        name="bell-enabled",
+                        switch_value=accessibility['bell'],
+                        tooltip="enables the terminal bell when something goes wrong"
+                        )
+                yield bool_option(
+                        label="text to speech:",
+                        name="text-to-speech-enabled",
+                        switch_value=accessibility['text_to_speech']['enabled'],
+                        tooltip="enables text to speech to read aloud elements on "
+                                "each screen"
+                        )
+
+                yield input_field(
+                        label="speech program:",
+                        name="speech-program",
+                        initial_value=accessibility['text_to_speech']['speech_program'],
+                        placeholder="name of program for speech",
+                        tooltip="If text to speech is enabled, this is the name of"
+                                " the command line interface speech program."
+                        )
+
 
             with Grid(classes="k9s-input-row"):
                 yield input_field(

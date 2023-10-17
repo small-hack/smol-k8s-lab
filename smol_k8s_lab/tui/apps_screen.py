@@ -5,6 +5,7 @@ from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
 from smol_k8s_lab.tui.util import format_description
 
 # external libraries
+from os import system
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -130,6 +131,9 @@ class AppsConfig(Screen):
 
         # the actual highlighted app
         highlighted_app = selection_list.get_option_at_index(highlighted_idx).value
+
+        if self.app.speak:
+            system(f"{self.app.speech_program} highlighted app is {highlighted_app}")
 
         # update the bottom app description to the highlighted_app's description
         blurb = format_description(self.cfg[highlighted_app]['description'])

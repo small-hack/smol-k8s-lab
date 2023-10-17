@@ -79,13 +79,16 @@ class KindNetworkingConfig(Widget):
                                   "placeholder": "kind networking param value",
                                   "suggester": VALUE_SUGGESTIONS,
                                   "validators": Length(minimum=1),
+                                  "id": f"kind-networking-{param}-input",
                                   "name": param}
         if value:
             param_value_input_args["value"] = value
         param_value_input = Input(**param_value_input_args)
 
         # delete button for each row
-        del_button = Button("🚮", classes=f"{row_class}-del-button")
+        del_button = Button("🚮",
+                            id=f"kind-networking-{param}-delete-button",
+                            classes=f"{row_class}-del-button")
         del_button.tooltip = "Delete this kind networking parameter"
 
         self.get_widget_by_id("kind-networking-config-scroll").mount(

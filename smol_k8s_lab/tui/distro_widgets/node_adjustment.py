@@ -51,6 +51,7 @@ class NodeAdjustmentBox(Widget):
                     yield label
 
                     control_input = Input(value=self.control_plane_nodes,
+                                          id=f"{self.distro}-control-plane-nodes-input",
                                           placeholder='1',
                                           classes=f"{node_class}-control-input",
                                           name="control_plane_nodes",
@@ -73,6 +74,7 @@ class NodeAdjustmentBox(Widget):
                                          placeholder='0',
                                          classes=f"{node_class}-worker-input",
                                          name="worker_nodes",
+                                         id=f"{self.distro}-worker-nodes-input",
                                          validators=[Number(minimum=0, maximum=100)],
                                          disabled=disabled)
                     worker_input.tooltip = tooltip

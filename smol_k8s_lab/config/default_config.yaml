@@ -7,6 +7,18 @@ smol_k8s_lab:
     enabled: true
     # show bottom footer help bar
     show_footer: true
+    # accessibility options
+    accessibility:
+      # wether or not to ring the built in terminal bell when something is wrong
+      bell: true
+      text_to_speech: 
+        # enable text to speech
+        enabled: true
+        # use a specific program for text to speech - this needs to be a full path
+        # macOS default: say
+        # linux default: eSpeak
+        speech_program: say
+    # enable text to speech
     # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
     k9s:
       # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s
