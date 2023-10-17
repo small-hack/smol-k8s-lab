@@ -1,4 +1,11 @@
 @font-face {
   font-family: "Mononoki";
   src: "/fonts/MononokiNerdFontMono-Regular.ttf";
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "Mononoki Bold";
+  src: "/fonts/MononokiNerdFontMono-Bold.ttf";
+  font-weight: bold;
 }

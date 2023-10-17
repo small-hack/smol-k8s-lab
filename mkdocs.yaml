@@ -1,12 +1,16 @@
-site_name: Smol k8s Lab
+site_name: smol-k8s-lab
 site_url: https://smol-k8s.com
 theme:
+  icon:
+    logo: material/cloud
   name: material
   font: false
   features:
+    - navigation.path
     - navigation.tabs
     - navigation.tabs.sticky
     - navigation.indexes
+    - tables
     - toc.integrate
   palette:
     - media: "(prefers-color-scheme: dark)"

@@ -173,14 +173,12 @@ Tab.header-tab.-focus {
    grid-size: 1;
    align: center middle;
    content-align: center middle;
-   height: 90%;
-   width: 90%;
-   grid-rows: 0.25fr 0.75fr;
-   grid-gutter: 1;
+   width: 80%;
 }
 
 /* this is the title banner for smol-k8s-lab start page */
 #smol-k8s-lab-header {
+    margin-top: 1;
     color: $soft_green;
     width: 100%;
     content-align: center middle;
@@ -189,39 +187,47 @@ Tab.header-tab.-focus {
 
 /* both with-cluster-table and no-cluster-table are classes for #cluster-boxes */
 .with-cluster-table {
-    grid-rows: 0.6fr 0.25fr;
+    grid-rows: 0.3fr 0.9fr;
     grid-gutter: 2;
+    height: 90%;
 }
 
 .no-cluster-table {
-    height: 25%;
+    grid-rows: 0.5fr 0.6fr;
+    grid-gutter: 2;
+    height: 18;
+}
+
+#cluster-boxes {
+    grid-gutter: 2;
 }
 
 #base-cluster-table-box-grid {
-   padding-left: 1;
-   padding-right: 1;
-   background: $navy;
-   align: center middle;
-   content-align: center middle;
-   border: round $cornflower;
-   border-title-color: $sky_blue;
-   border-title-align: center;
+    padding-left: 1;
+    padding-right: 1;
+    background: $navy;
+    align: center middle;
+    content-align: center middle;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    border-title-align: center;
 }
 
 #base-new-cluster-input-box-grid {
-   padding-top: 1;
-   background: $navy;
-   align: center middle;
-   content-align: center middle;
-   border: round $cornflower;
-   border-title-color: $sky_blue;
-   border-title-align: center;
+    padding-top: 1;
+    height: 10;
+    background: $navy;
+    align: center middle;
+    content-align: center middle;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    border-title-align: center;
 }
 
 /* grid around the clusters datatable */
 #table-grid {
-   align: center middle;
-   content-align: center middle;
+    align: center middle;
+    content-align: center middle;
 }
 
 /* clusters datatable itself */

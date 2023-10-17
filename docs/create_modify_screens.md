@@ -27,7 +27,7 @@ That will bring you to the [distro configuration](/distro_screen) screen to begi
 
 ### Modify or Delete an Existing Cluster
 
-To modify an existing cluster, select your cluster from the list of clusters (stored in a [DataTable]) in the top box. 
+To modify an existing cluster, select your cluster from the list of clusters (stored in a [DataTable](https://textual.textualize.io/widgets/data_table/)) in the top box. 
 
 !!! Note
     If you don't see a box with your clusters, the cluster is either not available in your `$KUBECONFIG` or you do not have any at this time.

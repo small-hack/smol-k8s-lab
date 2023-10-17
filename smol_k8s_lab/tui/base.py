@@ -101,7 +101,7 @@ class BaseApp(App):
         if clusters:
             self.generate_cluster_table(clusters)
         else:
-            self.get_widget_by_id("cluster-boxes").add_class("no-cluster-table")
+            self.get_widget_by_id("base-screen-container").add_class("no-cluster-table")
 
     def generate_cluster_table(self, clusters: list) -> None:
         """ 
@@ -138,9 +138,9 @@ class BaseApp(App):
         main_grid.border_title = ("Select a row to [#ffaff9]modify[/] or [#ffaff9]"
                                   "delete[/] an [i]existing[/] [#C1FF87]cluster[/]")
 
-        screen_container = self.get_widget_by_id("cluster-boxes")
-        screen_container.add_class("with-cluster-table")
-        screen_container.mount(main_grid, before="#base-new-cluster-input-box-grid")
+        cluster_container = self.get_widget_by_id("cluster-boxes")
+        self.get_widget_by_id("base-screen-container").add_class("with-cluster-table")
+        cluster_container.mount(main_grid, before="#base-new-cluster-input-box-grid")
 
 
     @on(DataTable.RowSelected)
@@ -166,7 +166,7 @@ class BaseApp(App):
 
                 if data_table.row_count < 1:
                     self.get_widget_by_id("base-cluster-table-box-grid").remove()
-                    screen = self.get_widget_by_id("cluster-boxes")
+                    screen = self.get_widget_by_id("base-screen-container")
                     screen.remove_class("with-cluster-table")
                     screen.add_class("no-cluster-table")
 

@@ -1,11 +1,3 @@
----
-layout: default
-parent: Intro
-title: Using the CLI (command line interface)
-description: "smol-k8s-lab cli (command line interface)"
-permalink: /cli
----
-
 ## Help
 
 ```bash
@@ -22,17 +14,24 @@ smol-k8s-lab --help
 
 </details>
 
-If the help text shows up, you most likely are good to go :) Check out the respectively [CLI] and [TUI] sections to learn more!
+## Launching the TUI
 
-### Install a k8s distro
+```bash
+# you can also do smol-k8s-lab -i
+smol-k8s-lab --interactive
+```
 
-This command will launch the TUI by default, [unless you have it disabled]. If you have the TUI disabled, running this command will run everything via the CLI, unless something in the configuration file is missing or we run into conflicts:
+## Install a k8s distro
+
+This command will launch the TUI by default, [unless you have it disabled](http://localhost:8000/tui_config/#disabling-the-tui). If you have the TUI disabled, running this command will run everything via the CLI, unless something in the configuration file is missing or we run into conflicts:
 
 ```bash
 smol-k8s-lab
 ```
 
-### Uninstall a distro of k8s
+## Uninstall a distro of k8s
+
+This command assumes `$NAME_OF_YOUR_CLUSTER` is the name of a cluster in your `$KUBECONFIG`.
 
 ```bash
 # --delete can be replaced with -D
