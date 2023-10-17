@@ -135,11 +135,6 @@
     --md-admonition-bg-color: var(--header-contrast);
 }
 
-@font-face {
-  font-family: "MononokiNerdFontMono-Regular";
-  src: "../fonts/MononokiNerdFontMono-Regular.ttf";
-}
-
 a:active, a:link {
 	color: var(--text);
 	font-size: calc(var(--link-multiplier) * var(--font-size));
