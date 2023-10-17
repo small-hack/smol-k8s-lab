@@ -11,7 +11,8 @@ smol-k8s-lab
 
 The start screen will look like this:
 
-![terminal screenshot of the smol-k8s-lab start screen. The screen shows smol-k8s-lab spelled out in blocky letters followed by two boxes. The first box is for modifying or deleting an existing cluster with an example cluster in a table. The second box shows an input field for the name of a new cluster as well as a button next to it to submit the cluster name](./images/screenshots/start_screen_with_existing_clusters.svg)
+<img src="/images/screenshots/start_screen_with_existing_clusters.svg" alt="terminal screenshot of the smol-k8s-lab start screen. The screen shows smol-k8s-lab spelled out in blocky letters followed by two boxes. The first box is for modifying or deleting an existing cluster with an example cluster in a table. The second box shows an input field for the name of a new cluster as well as a button next to it to submit the cluster name" height="500">
+
 
 The top section will only be present if you already have (a) Kubernetes cluster(s) in your [`$KUBECONFIG`]. If you do not have any existing clusters, you will see this instead:
 
