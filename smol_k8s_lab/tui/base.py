@@ -1,13 +1,13 @@
 # smol-k8s-lab libraries
 from smol_k8s_lab.constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
 from smol_k8s_lab.k8s_distros import check_all_contexts
-from smol_k8s_lab.tui.apps_config import AppsConfig
+from smol_k8s_lab.tui.apps_screen import AppsConfig
 from smol_k8s_lab.tui.base_cluster_modal import ClusterModalScreen
-from smol_k8s_lab.tui.confirm_selection import ConfirmConfig
-from smol_k8s_lab.tui.distro_config import DistroConfigScreen
-from smol_k8s_lab.tui.help import HelpScreen
-from smol_k8s_lab.tui.smol_k8s_config import SmolK8sLabConfig
-from smol_k8s_lab.tui.tui_config import TuiConfigScreen
+from smol_k8s_lab.tui.confirm_screen import ConfirmConfig
+from smol_k8s_lab.tui.distro_screen import DistroConfigScreen
+from smol_k8s_lab.tui.help_screen import HelpScreen
+from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
+from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
 # external libraries
