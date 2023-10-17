@@ -124,7 +124,7 @@ def main(config: str = "",
     # declaring the default name to be smol-k8s-lab
     cluster_name = "smol-k8s-lab"
 
-    if interactive or INITIAL_USR_CONFIG['smol_k8s_lab']['interactive']['enabled']:
+    if interactive or INITIAL_USR_CONFIG['smol_k8s_lab']['tui']['enabled']:
         if not delete:
             cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
     else:
