@@ -36,10 +36,10 @@ apps:
       # API via a service account to create the above described resources
       enabled: true
       values:
-        username: ''
-        email: ''
-        first_name: ''
-        last_name: ''
+        username: 'certainlynotadog'
+        email: 'notadog@humans.com'
+        first_name: 'Dogsy'
+        last_name: 'Dogerton'
         # options: GENDER_UNSPECIFIED, GENDER_MALE, GENDER_FEMALE, GENDER_DIVERSE
         # more coming soon, see: https://github.com/zitadel/zitadel/issues/6355
         gender: GENDER_UNSPECIFIED
@@ -47,7 +47,7 @@ apps:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
         # FQDN to use for zitadel
-        hostname: ''
+        hostname: 'zitadel.gooddogs.com'
         # type of database to use: postgresql or cockroachdb
         database_type: postgresql
       # repo to install the Argo CD app from
