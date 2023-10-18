@@ -71,8 +71,10 @@ nav:
     - Appset Secret Plugin: k8s_apps/appset-secret-plugin.md
     - Bitwarden ESO Provider: k8s_apps/bitwarden_eso_provider.md
     - Cert Manager: k8s_apps/cert_manager.md
+    - Cilium: k8s_apps/cilium.md
     - Core DNS: k8s_apps/core_dns.md
     - K8up: k8s_apps/k8up.md
+    - Kepler: k8s_apps/kepler.md
     - MetalLB: k8s_apps/metallb.md
     - Nextcloud: k8s_apps/nextcloud.md
     - Prometheus: k8s_apps/prometheus.md
