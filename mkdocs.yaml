@@ -75,6 +75,7 @@ nav:
     - Core DNS: k8s_apps/core_dns.md
     - K8up: k8s_apps/k8up.md
     - Kepler: k8s_apps/kepler.md
+    - Kubevirt: k8s_apps/kubevirt.md
     - MetalLB: k8s_apps/metallb.md
     - Nextcloud: k8s_apps/nextcloud.md
     - Prometheus: k8s_apps/prometheus.md
