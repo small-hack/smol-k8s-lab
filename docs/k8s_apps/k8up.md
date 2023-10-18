@@ -1,6 +1,8 @@
 [K8up](https://k8up.io/) is a Kubernetes app that utilizes [Restic](https://restic.net/) to create backups of persistent volume claims to object stores like S3, MinIO, and Backblaze B2.
 
-`smol-k8s-lab` optionally installs K8up as one of it's supported Kubernetes applications using [Argo CD repo with K8up template](https://gitlab.com/small-hack/argocd-apps/blob/main/k8up)
+`smol-k8s-lab` optionally installs K8up as one of it's supported Kubernetes applications using [Argo CD repo with K8up template](https://gitlab.com/small-hack/argocd-apps/blob/main/k8up).
+
+One of the most important template values we require for our default Argo CD ApplicationSet is `timezone`, which should be a timezone from the [TZ database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List) (in the wikipedia list, you want the second column, TZ Identifier).
 
 
 ### API Docs
