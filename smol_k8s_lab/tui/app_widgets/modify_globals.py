@@ -87,6 +87,12 @@ class ModifyAppGlobalsScreen(ModalScreen):
         question_box = self.get_widget_by_id("modify-globals-question-box")
         question_box.border_subtitle = "[@click=app.pop_screen]close[/]"
 
+        if self.app.speak_screen_titles:
+            # if text to speech is on, read screen title
+            self.app.action_say("Screen title: Modify globally available Argo CD"
+                                " ApplicationSet templating values. You can press "
+                                "escape to close this modal screen.")
+
     def generate_secret_key_row(self,
                                 secret_key: str,
                                 value: str = "",

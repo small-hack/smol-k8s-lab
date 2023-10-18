@@ -51,17 +51,6 @@ $navy: rgb(35,35,54);
     scrollbar-color: $light_cornflower;
 }
 
-/* warning with invalid inputs */
-#invalid-apps {
-    border: round $soft_yellow 60%;
-    border-title-color: $orange;
-    padding-left: 2;
-    padding-top: 2;
-    width: 90%;
-    height: 40%;
-    background: $navy 60%;
-}
-
 #final-confirm-button-box {
     align: center middle;
     grid-size: 2;
@@ -75,26 +64,4 @@ $navy: rgb(35,35,54);
 
 #back-button {
     color: $light_pink 80%;
-}
-
-/* INVALID APPS ROWS */
-.nope-row {
-    grid-size: 2;
-    grid-columns: 0.24fr 1fr;
-}
-
-.nope-label {
-    width: 100%;
-}
-
-.nope-fields {
-    width: 100%;
-}
-
-/* these are for app links: https://textual.textualize.io/styles/links/ */
-.nope-link {
-    link-color: $soft_yellow 90%;
-    link-style: bold underline;
-    link-hover-color: $navy;
-    link-hover-background: $soft_yellow;
 }

@@ -1,53 +1,34 @@
 #!/usr/bin/env python3.11
+from rich.text import Text
 from textual.app import ComposeResult
-from textual.containers import Container, Grid
+from textual.containers import Grid
 from textual.binding import Binding
 from textual.screen import ModalScreen
-from textual.widgets import Label
+from textual.widgets import Label, DataTable
 
 
 class HelpScreen(ModalScreen):
     """
     dialog screen to show help text
     """
-    BINDINGS = [Binding(key="?,q,escape",
-                        key_display="h",
-                        action="disable_help",
-                        description="Exit Help Screen",
-                        show=True)
+    BINDINGS = [
+            Binding(key="?,q,escape",
+                    key_display="h",
+                    action="disable_help",
+                    description="Exit Help Screen",
+                    show=True),
+            Binding(key="n",
+                    show=False,
+                    action="app.bell")
                 ]
 
     def compose(self) -> ComposeResult:
-        link_help = ("open link; terminal dependent, so [gold3]meta[/gold3] can"
-                     " be shift, option, windowsKey, command, or control")
-
-        # tips for new/forgetful users (the maintainers are also forgetful <3)
-        help_dict = {
-                "→": "complete suggestion in input field",
-                "⬆/⬇": "navigate up and down the app selection list",
-                "tab": "go to next input field, switch, selection, or button",
-                "shift+tab": "go to previous input field, switch, selection, or button",
-                "↩ enter": "save input and/or press button",
-                "?": "toggle help screen",
-                "spacebar": "select selection option",
-                "meta+click": link_help,
-                "escape,q": "leave current screen and go home"
-                }
-
         welcome = ("Use your 🐁 to click anything in the UI ✨ Or use these "
                    "key bindings:")
 
-        with Container(id="help-container"):
+        with Grid(id="help-container"):
             yield Label(welcome, id="help-label")
-            with Container(id="help-options"):
-                # TODO: convert to data table widget
-                for help_option, help_text in help_dict.items():
-                    with Grid(classes="help-option-row"):
-                        key = help_option.replace("/", "[bright_white]/[/]")
-                        key = key.replace(",", "[bright_white],[/]")
-                        key = key.replace("+", "[bright_white]+[/]")
-                        yield Label(f"[gold3]{key}[/gold3]")
-                        yield Label(help_text, classes="help-text")
+            yield Grid(id="help-options")
 
     def on_mount(self) -> None:
         # styling for the select-apps tab - select apps container - left
@@ -60,6 +41,53 @@ class HelpScreen(ModalScreen):
                 "made with 💙 + 🐍 + [steel_blue][b][link="
                 "https://github.com/Textualize/textual]textual[/][/][/]"
                 )
+
+        if self.app.speak_screen_titles:
+            # if text to speech is on, read screen title
+            self.app.action_say("Screen title: Help Screen")
+
+        self.build_help_table()
+
+    def build_help_table(self) -> None:
+        data_table = DataTable(zebra_stripes=True,
+                               id="help-table",
+                               cursor_type="row")
+
+        # then fill in the cluster table
+        data_table.add_column(Text("Key Binding", justify="center"))
+        data_table.add_column(Text("Description"))
+
+        link_help = ("open link; terminal dependent, so meta can be shift,"
+                     "\n option, windowsKey, command, or control")
+
+        # tips for new/forgetful users (the maintainers are also forgetful <3)
+        help_dict = {
+                "→": "complete suggestion in input field",
+                "⬆/⬇": "navigate up and down the app selection list",
+                "tab": "focus next element",
+                "shift+tab": "focus previous element",
+                "↩ enter": "save input and/or press button",
+                "?": "toggle help screen",
+                "spacebar": "select selection option",
+                "meta+click": link_help,
+                "escape,q": "leave current screen and go home"
+                }
+
+
+        for key_binding, description in help_dict.items():
+            # we use an extra line to center the rows vertically 
+            styled_row = [
+                    Text(str("\n" + key_binding)),
+                    Text(str("\n" + description))
+                          ]
+
+            if key_binding == "meta+click":
+                data_table.add_row(*styled_row, height=4, key=key_binding)
+            else:
+                # we add extra height to make the rows more readable
+                data_table.add_row(*styled_row, height=3, key=key_binding)
+
+        self.get_widget_by_id("help-options").mount(data_table)
 
     def action_disable_help(self) -> None:
         """

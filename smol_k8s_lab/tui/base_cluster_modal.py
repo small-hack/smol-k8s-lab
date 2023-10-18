@@ -28,6 +28,7 @@ class ClusterModalScreen(ModalScreen):
         super().__init__()
 
     def compose(self) -> ComposeResult:
+
         question = ('What would you like to do with '
                     f'[#C1FF87]{self.cluster}[/]?')
         # base screen grid
@@ -53,6 +54,15 @@ class ClusterModalScreen(ModalScreen):
                     cancel.tooltip = "Return to previous screen"
                     yield cancel
 
+    def on_mount(self):
+        """ 
+        say the title if that self.app.speak_screen_titles is set to True
+        """
+        if self.app.speak_screen_titles:
+            self.app.action_say(
+                    f"Screen title: What would you like to do with {self.cluster}?"
+                    )
+
     def action_press_cancel(self) -> None:
         """
         presses the cancel button
@@ -76,6 +86,8 @@ class ClusterModalScreen(ModalScreen):
             confirm_txt = ('Are you [b][i]sure[/][/] you want to [#ffaff9]delete[/]'
                            f' [#C1FF87]{self.cluster}[/]?')
             self.get_widget_by_id("cluster-modal-text").update(confirm_txt)
+            if self.app.speak_screen_titles:
+                self.app.action_say(f"Are you sure you want to delete {self.cluster}?")
 
             # are you sure, the button
             sure_button = Button("🚮 Yes", id="delete-button-second-try")
@@ -94,7 +106,8 @@ class ClusterModalScreen(ModalScreen):
                     self.app.notify("Sucessfully deleted cluster",
                                     severity="information")
                 else:
-                    self.app.bell()
+                    if self.app.bell_on_error:
+                        self.app.bell()
                     self.app.notify("Something went wrong with deleting the cluster!",
                                     timeout=10,
                                     severity="error")
@@ -116,8 +129,12 @@ class ClusterModalScreen(ModalScreen):
                     delete_2nd_try.display = False
                 self.get_widget_by_id("modify-cluster-button").display = True
 
-                reset_text = f"How would you like to proceed with {self.cluster}?"
-                self.get_widget_by_id("cluster-modal-text").update(reset_text)
+                question = f'What would you like to do with [#C1FF87]{self.cluster}[/]?'
+                self.get_widget_by_id("cluster-modal-text").update(question)
+                if self.app.bell_on_error:
+                    self.app.action_say(
+                            f"What would you like to do with {self.cluster}?"
+                            )
 
                 self.get_widget_by_id("delete-cluster-first-try").display = True
             except NoMatches:

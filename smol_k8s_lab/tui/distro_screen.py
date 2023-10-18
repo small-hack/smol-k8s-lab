@@ -9,7 +9,6 @@ from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
 from smol_k8s_lab.tui.util import NewOptionModal
 
 # external libraries
-from os import system
 from textual import on
 from textual.app import ComposeResult, NoMatches
 from textual.binding import Binding
@@ -107,13 +106,18 @@ class DistroConfigScreen(Screen):
         screen and box border styling
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        self.sub_title = "k8s distro config"
+        sub_title = "Kubernetes distro config"
+        self.sub_title = sub_title
 
         top_row = self.get_widget_by_id("top-distro-row")
         top_row.border_title = "🌱 Select a [#C1FF87]k8s distro[/]"
         top_row.border_subtitle = "[i]Inputs below are optional"
 
         main_box = self.get_widget_by_id("distro-config-screen")
+
+        if self.app.speak_screen_titles:
+            # if text to speech is on, read screen title
+            self.app.action_say("Screen title: " + sub_title)
 
         if self.current_distro == 'kind':
             main_box.mount(
@@ -263,11 +267,10 @@ class KindConfigWidget(Static):
         """Switch to a new tab."""
         self.get_child_by_type(TabbedContent).active = tab
 
-
     @on(TabbedContent.TabActivated)
     def speak_when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
-        if self.app.speak:
-            system(f"{self.app.speech_program} Selected tab is {event.tab.id}")
+        if self.app.speak_on_focus:
+            self.app.action_say(f"Selected tab is {event.tab.id}")
 
 
 class K3ConfigWidget(Static):

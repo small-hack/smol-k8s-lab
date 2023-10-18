@@ -14,31 +14,21 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-/* help ModalScreen */
-HelpScreen {
-   align: center middle;
-}
-
-#help-container {
-   align: center middle;
-   padding-left: 1;
-   padding-top: 1;
-   width: 85;
-   height: 38;
-   border: round $cornflower 80%;
-   border-title-color: $sky_blue;
-   border-subtitle-color: $sky_blue;
-   background: $navy;
-   grid-rows: 0.1fr 1fr;
-}
-
-#help-label {
-    color: $soft_green;
-    align: center middle;
+/* warning with invalid inputs */
+#invalid-apps {
+    border: round $soft_yellow 60%;
+    border-title-color: $orange;
     padding-left: 1;
+    width: 90%;
+    height: 70%;
+    background: $navy 60%;
+    grid-gutter: 1;
+    grid-rows: 0.1fr 1fr;
+    align: center middle;
+    content-align: center middle;
 }
 
-#help-options {
-   align: center middle;
-   width: 100%;
+#invalid-apps-table-row {
+    align: center middle;
+    content-align: center middle;
 }
