@@ -75,7 +75,12 @@ class SmolK8sLabConfig(Screen):
         screen and box border styling
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        self.sub_title = "configure smol-k8s-lab itself"
+        sub_title = "Configure logging and password manager"
+        self.sub_title = sub_title
+
+        if self.app.speak_screen_titles:
+            # if text to speech is on, read screen title
+            self.app.action_say("Screen title: " + sub_title)
 
 
 class LoggingConfig(Widget):

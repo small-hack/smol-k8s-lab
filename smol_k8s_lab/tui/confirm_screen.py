@@ -11,7 +11,8 @@ from textual.binding import Binding
 from textual.app import ComposeResult
 from textual.containers import VerticalScroll, Grid
 from textual.screen import Screen
-from textual.widgets import Button, Footer, Header, Label, TabbedContent, TabPane
+from textual.widgets import (Button, Footer, Header, Label, TabbedContent,
+                             TabPane)
 
 
 leaving_notification = ("\n- disable the bitwarden eso provider apps\n"
@@ -41,7 +42,6 @@ class ConfirmConfig(Screen):
         self.smol_k8s_cfg = self.cfg["smol_k8s_lab"]
         self.distros = self.cfg["k8s_distros"]
         self.show_footer = self.smol_k8s_cfg['tui']['show_footer']
-        self.invalid_apps = {}
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -53,20 +53,11 @@ class ConfirmConfig(Screen):
 
         # Footer to show keys unless the footer is disabled globally
         footer = Footer()
-
         if not self.show_footer:
             footer.display = False
-
         yield footer
 
         with Grid(id="confirm-container"):
-            # warning label if there's invalid apps
-            warning_label = Label("Click the app links below to fix the errors.",
-                                  id="warning-help")
-            warning_box = Grid(warning_label, id="invalid-apps")
-            warning_box.display = False
-            yield warning_box
-
             # Add the TabbedContent widget different config sections
             with TabbedContent(initial="smol-k8s-lab-cfg", id="confirm-tabbed"):
                 # tab 1 - smol-k8s-lab
@@ -92,11 +83,9 @@ class ConfirmConfig(Screen):
         # final confirmation button before running smol-k8s-lab
         with Grid(id="final-confirm-button-box"):
             confirm = Button("🚊 Let's roll!", id="confirm-button")
-            confirm.display = False
             yield confirm
 
             back = Button("✋Go Back", id="back-button")
-            back.display = False
             yield back
 
     def on_mount(self) -> None:
@@ -104,7 +93,12 @@ class ConfirmConfig(Screen):
         screen and box border styling
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        self.sub_title = "Review your configuration (last step!)"
+        sub_title = "Review your configuration (last step!)"
+        self.sub_title = sub_title
+
+        if self.app.speak_screen_titles:
+            # if text to speech is on, read screen title
+            self.app.action_say("Screen title: Review your configuration last step")
 
         # confirm box title styling
         confirm_box = self.query_one(TabbedContent)
@@ -132,60 +126,9 @@ class ConfirmConfig(Screen):
         for tab in tabs:
             tab.add_class("header-tab")
 
-        # invalid apps error title styling
-        invalid_box = self.get_widget_by_id("invalid-apps")
-        invalid_box.border_title = "⚠️ The following app fields are empty"
-
-        # go check all the app inputs
-        self.get_app_inputs()
-
-        at_least_one_missing_field = False
-        if self.invalid_apps:
-            at_least_one_missing_field = True
-
-        if not at_least_one_missing_field:
-            self.get_widget_by_id("invalid-apps").display = False
-            self.query_one(TabbedContent).display = True
-            self.get_widget_by_id("confirm-button").display = True
-            self.get_widget_by_id("back-button").display = True
-        else:
-            self.query_one(TabbedContent).display = False
-            self.get_widget_by_id("confirm-button").display = False
-            self.get_widget_by_id("invalid-apps").display = True
-            self.build_pretty_nope_table()
-
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
         self.get_child_by_type(TabbedContent).active = tab
-
-    def get_app_inputs(self) -> None:
-        """
-        processes the entire apps config to check for empty fields
-        """
-        for app, metadata in self.apps.items():
-            empty_fields = check_for_invalid_inputs(metadata)
-            if empty_fields:
-                self.invalid_apps[app] = empty_fields
-
-    def build_pretty_nope_table(self) -> None:
-        """
-        No, but with flare ✨
-
-        This is just a grid of apps to update if a user leaves a field blank
-        """
-        nope_container = self.get_widget_by_id("invalid-apps")
-
-        for app, fields in self.invalid_apps.items():
-            app_link = f'app.request_apps_cfg("{app}")'
-
-            label = Label(f"[yellow][@click='{app_link}']{app}[/]:",
-                          classes="nope-label nope-link")
-
-            nopes = Label("[i]" + "[/], [i]".join(fields),
-                          classes="nope-fields")
-
-            nope_row = Grid(label, nopes, classes="nope-row")
-            nope_container.mount(nope_row)
 
     def get_bitwarden_credentials(self) -> None:
         """
@@ -246,30 +189,3 @@ class ConfirmConfig(Screen):
 
         if event.button.id == "back-button":
             self.app.pop_screen()
-
-
-def check_for_invalid_inputs(metadata) -> list:
-    """
-    check each app for any empty init or secret key fields
-    """
-    if not metadata['enabled']:
-        return []
-
-    empty_fields = []
-
-    # check for empty init fields (some apps don't support init at all)
-    if metadata.get('init', None):
-        init_values = metadata['init'].get('values')
-        if init_values:
-            for key, value in init_values.items():
-                if not value:
-                    empty_fields.append(key)
-
-    # check for empty secret key fields (some apps don't have secret keys)
-    secret_keys = metadata['argo'].get('secret_keys', None)
-    if secret_keys:
-        for key, value in secret_keys.items():
-            if not value:
-                empty_fields.append(key)
-
-    return empty_fields

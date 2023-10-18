@@ -221,6 +221,7 @@ def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Hori
                     classes="bool-switch-row-switch",
                     name=name,
                     id=label)
+    switch.tooltip = tooltip
 
     extra_class = name.replace('_',"-")
     return Horizontal(bool_label, switch, classes=f"bool-switch-row {extra_class}")
@@ -244,5 +245,40 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
         input_dict["value"] = ""
 
     input = Input(**input_dict)
+    input.tooltip = tooltip
 
     return Horizontal(input_label, input, classes="input-row")
+
+
+def check_for_invalid_inputs(apps_dict: dict = {}) -> list:
+    """
+    check each app for any empty init or secret key fields
+    """
+    invalid_apps = {}
+
+    if apps_dict:
+        for app, metadata in apps_dict.items():
+            if not metadata['enabled']:
+                continue
+
+            empty_fields = []
+
+            # check for empty init fields (some apps don't support init at all)
+            if metadata.get('init', None):
+                init_values = metadata['init'].get('values')
+                if init_values:
+                    for key, value in init_values.items():
+                        if not value:
+                            empty_fields.append(key)
+
+            # check for empty secret key fields (some apps don't have secret keys)
+            secret_keys = metadata['argo'].get('secret_keys', None)
+            if secret_keys:
+                for key, value in secret_keys.items():
+                    if not value:
+                        empty_fields.append(key)
+
+            if empty_fields:
+                invalid_apps[app] = empty_fields
+
+    return invalid_apps

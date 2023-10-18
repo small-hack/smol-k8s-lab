@@ -5,7 +5,6 @@ from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
 from smol_k8s_lab.tui.util import format_description
 
 # external libraries
-from os import system
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -93,7 +92,8 @@ class AppsConfig(Screen):
         screen and box border styling
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        self.sub_title = "k8s apps config (now with more 🦑)"
+        sub_title = "Apps Configuration (now with more 🦑)"
+        self.sub_title = sub_title
 
         # select-apps styling - select apps container - top left
         select_apps_widget = self.get_widget_by_id("select-add-apps")
@@ -102,6 +102,13 @@ class AppsConfig(Screen):
         # select-apps styling - bottom
         app_desc = self.get_widget_by_id("app-description-container")
         app_desc.border_title = "App Description"
+
+        if self.app.speak_screen_titles:
+            # if text to speech is on, read screen title
+            self.app.action_say(
+                    "Screen title: Apps Configuration, now with more squid. "
+                    "Here you can select and configure Argo CD directory-type apps."
+                    )
 
         # scroll down to specific app if requested
         if self.initial_app:
@@ -132,8 +139,8 @@ class AppsConfig(Screen):
         # the actual highlighted app
         highlighted_app = selection_list.get_option_at_index(highlighted_idx).value
 
-        if self.app.speak:
-            system(f"{self.app.speech_program} highlighted app is {highlighted_app}")
+        if self.app.speak_on_focus:
+            self.app.action_say(f"highlighted app is {highlighted_app}")
 
         # update the bottom app description to the highlighted_app's description
         blurb = format_description(self.cfg[highlighted_app]['description'])

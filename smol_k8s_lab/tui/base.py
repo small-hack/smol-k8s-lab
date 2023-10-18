@@ -6,9 +6,11 @@ from smol_k8s_lab.tui.base_cluster_modal import ClusterModalScreen
 from smol_k8s_lab.tui.confirm_screen import ConfirmConfig
 from smol_k8s_lab.tui.distro_screen import DistroConfigScreen
 from smol_k8s_lab.tui.help_screen import HelpScreen
+from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsScreen
 from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
 from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
+from smol_k8s_lab.tui.util import check_for_invalid_inputs
 
 # external libraries
 from os import system
@@ -22,7 +24,8 @@ from textual.events import DescendantFocus
 from textual.binding import Binding
 from textual.containers import Grid
 from textual.validation import Length
-from textual.widgets import Footer, Button, DataTable, Input, Static, Label, Switch, Select
+from textual.widgets import (Footer, Button, DataTable, Input, Static, Label,
+                             Switch, Select)
 
 
 # list of approved words for nouns
@@ -41,17 +44,22 @@ class BaseApp(App):
                 Binding(key="c",
                         key_display="c",
                         action="request_config",
-                        description="TUI Config"),
+                        description="Config"),
                 Binding(key="f",
                         key_display="f",
                         action="toggle_footer",
-                        description="toggle footer"),
+                        description="Toggle footer"),
                 Binding(key="q,escape",
                         action="quit",
                         show=False),
+                Binding(key="f5",
+                        key_display="f5",
+                        description="Speak",
+                        action="app.say",
+                        show=True),
                 Binding(key="n",
                         key_display="n",
-                        description="Submit New Cluster Name",
+                        description="New Cluster",
                         action="app.new_cluster",
                         show=True)
                 ]
@@ -62,11 +70,18 @@ class BaseApp(App):
     def __init__(self, user_config: dict = INITIAL_USR_CONFIG) -> None:
         self.cfg = user_config
         self.show_footer = self.cfg['smol_k8s_lab']['tui']['show_footer']
-        accessibility_opts = self.cfg['smol_k8s_lab']['tui']['accessibility']
-        self.speak = accessibility_opts['text_to_speech']['enabled']
-        self.speech_program = accessibility_opts['text_to_speech']['speech_program']
         self.cluster_names = []
         self.current_cluster = ""
+
+        # configure global accessibility
+        accessibility_opts = self.cfg['smol_k8s_lab']['tui']['accessibility']
+        tts = accessibility_opts['text_to_speech']
+        self.speak_on_focus = tts['on_focus']
+        self.speak_screen_titles = tts['screen_titles']
+        self.speak_on_key_press = tts['on_key_press']
+        self.speech_program = tts['speech_program']
+        self.bell_on_focus = accessibility_opts['bell']['on_focus']
+        self.bell_on_error = accessibility_opts['bell']['on_error']
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -107,6 +122,10 @@ class BaseApp(App):
             self.generate_cluster_table(clusters)
         else:
             self.get_widget_by_id("base-screen-container").add_class("no-cluster-table")
+
+        if self.speak_screen_titles:
+            self.action_say("Welcome to smol-k8s-lab. Press C to configure "
+                            "accessibility options.")
 
     def generate_cluster_table(self, clusters: list) -> None:
         """ 
@@ -149,45 +168,76 @@ class BaseApp(App):
 
 
     @on(DataTable.RowSelected)
-    def cluster_row_highlighted(self, event: DataTable.RowSelected) -> None:
+    def cluster_row_selected(self, event: DataTable.RowSelected) -> None:
         """
         check which row was selected to launch a modal screen
         """
-        def check_if_cluster_deleted(response: list = []):
-            """
-            check if cluster has been deleted
-            """
-            cluster = response[0]
-            row_key = response[1]
+        if event.data_table.id == "clusters-data-table":
+            def check_if_cluster_deleted(response: list = []):
+                """
+                check if cluster has been deleted
+                """
+                cluster = response[0]
+                row_key = response[1]
 
-            # make sure we actually got anything, because the user may have hit
-            # the cancel button
-            if cluster and row_key:
-                data_table = self.query_one(DataTable)
-                data_table.remove_row(row_key)
+                # make sure we actually got anything, because the user may have hit
+                # the cancel button
+                if cluster and row_key:
+                    data_table = self.query_one(DataTable)
+                    data_table.remove_row(row_key)
 
-                self.cluster_names.remove(cluster)
-                self.current_cluster = ""
+                    self.cluster_names.remove(cluster)
+                    self.current_cluster = ""
 
-                if data_table.row_count < 1:
-                    self.get_widget_by_id("base-cluster-table-box-grid").remove()
-                    screen = self.get_widget_by_id("base-screen-container")
-                    screen.remove_class("with-cluster-table")
-                    screen.add_class("no-cluster-table")
+                    if data_table.row_count < 1:
+                        self.get_widget_by_id("base-cluster-table-box-grid").remove()
+                        screen = self.get_widget_by_id("base-screen-container")
+                        screen.remove_class("with-cluster-table")
+                        screen.add_class("no-cluster-table")
+            row_index = event.cursor_row
+            row = event.data_table.get_row_at(row_index)
 
-        row_index = event.cursor_row
-        row = event.data_table.get_row_at(row_index)
+            # get the row's first column (the name of the cluster) and remove whitespace
+            cluster_name = row[0].plain.strip()
+            distro = row[1].plain.strip()
 
-        # get the row's first column (the name of the cluster) and remove whitespace
-        cluster_name = row[0].plain.strip()
-        distro = row[1].plain.strip()
+            # set the current cluster name to return after we've done modifications
+            self.current_cluster = cluster_name
 
-        # set the current cluster name to return after we've done modifications
-        self.current_cluster = cluster_name
+            # launch modal UI to ask if they'd like to modify or delete a cluster
+            self.app.push_screen(ClusterModalScreen(cluster_name,
+                                                    distro,
+                                                    event.row_key),
+                                 check_if_cluster_deleted)
 
-        # launch modal UI to ask if they'd like to modify or delete a cluster
-        self.app.push_screen(ClusterModalScreen(cluster_name, distro, event.row_key),
-                             check_if_cluster_deleted)
+    @on(DataTable.RowHighlighted)
+    def cluster_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
+        """
+        check which row was selected to launch a modal screen
+        """
+        if self.app.speak_on_focus:
+            row_index = event.cursor_row
+            row = event.data_table.get_row_at(row_index)
+            # get the row's first column (the name of the cluster) and remove whitespace
+            cluster_name = row[0].plain.strip()
+            distro = row[1].plain.strip()
+
+            if event.data_table.id == "clusters-data-table":
+                self.action_say(
+                        f"Selected cluster: name: {cluster_name}. distro: {distro}"
+                        )
+
+            elif event.data_table.id == "invalid-apps-table":
+                self.action_say(
+                        f"Selected app: name: {cluster_name}. invalid fields: {distro}"
+                        )
+
+            elif event.data_table.id == "help-table":
+                if cluster_name == "?":
+                    cluster_name = "question mark"
+                self.action_say(
+                        f'Selected keys: {cluster_name}. description: {distro}.'
+                        )
 
     def action_new_cluster(self):
         """
@@ -208,7 +258,7 @@ class BaseApp(App):
 
     def action_request_distro_cfg(self) -> None:
         """
-        launches the k8s disto (k3s,k3d,kind) config screen
+        launches the k8s distro (k3s,k3d,kind) config screen
         """
         self.app.push_screen(DistroConfigScreen(self.cfg['k8s_distros']))
 
@@ -217,7 +267,13 @@ class BaseApp(App):
         launches the smol-k8s-lab config for the program itself for things like
         the TUI, but also logging and password management
         """
-        self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
+        # go check all the app inputs
+        invalid_apps = check_for_invalid_inputs(self.cfg['apps'])
+        if invalid_apps:
+            self.app.push_screen(InvalidAppsScreen(invalid_apps))
+        else:
+            self.app.notify(str(invalid_apps))
+            self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
 
     def action_request_confirm(self) -> None:
         """
@@ -264,37 +320,55 @@ class BaseApp(App):
         with open(config_file, 'w') as smol_k8s_config:
             yaml.dump(self.cfg, smol_k8s_config)
 
+    def action_say(self, text_for_speech: str = "") -> None:
+        """ 
+        Use the configured speech program to read a string aloud. If no string
+        is passed in, and self.speak_on_key_press is True, we read the currently
+        focused element id
+        """
+        if text_for_speech:
+            text_for_speech = text_for_speech.replace("(", "").replace(")", "")
+            text_for_speech = text_for_speech.replace("[i]", "").replace("[/]", "")
+            system(f"{self.speech_program} {text_for_speech}")
+
+        elif not text_for_speech:
+            if self.speak_on_key_press:
+                system(f"{self.speech_program} element is {self.app.focused.id}")
+
     @on(DescendantFocus)
     def on_focus(self, event: DescendantFocus) -> None:
         """ 
         on focus, say the id of each element and the value or label if possible
         """
-        if self.speak:
+        if self.speak_on_focus:
             id = event.widget.id
-            system(f"{self.speech_program} element is {id}")
+            self.action_say(f"element is {id}")
 
             # input fields
             if isinstance(event.widget, Input):
                 content = event.widget.value
                 placeholder = event.widget.placeholder
                 if content:
-                    system(f"{self.speech_program} value is {content}")
+                    self.action_say(f"value is {content}")
                 elif placeholder:
-                    system(f"{self.speech_program} place holder text is {placeholder}")
+                    self.action_say(f"place holder text is {placeholder}")
 
             # buttons
             elif isinstance(event.widget, Button):
-                system(f"{self.speech_program} button text is {event.widget.label}")
+                self.action_say(f"button text is {event.widget.label}")
 
             # switches
             elif isinstance(event.widget, Switch) or isinstance(event.widget, Select):
-                system(f"{self.speech_program} value is {event.widget.value}")
+                self.action_say(f"value is {event.widget.value}")
 
             # also read the tooltip if there is one
             tooltip = event.widget.tooltip
             if tooltip:
-                tooltip = tooltip.replace(")","").replace("(", "").replace("[i]", "")
-                system(f"{self.speech_program} tooltip is {tooltip}")
+                self.action_say(f"tooltip is {tooltip}")
+
+        if self.bell_on_focus:
+            self.app.action_bell()
+
 
 class NewClusterInput(Static):
     """ 
