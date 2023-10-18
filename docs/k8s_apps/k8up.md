@@ -1,11 +1,7 @@
-[K8up](https://k8up.io/) is a kubernetes app that utilizes [Restic](https://restic.net/) to create backups of persistent volume claims to object stores like S3, MinIO, and Backblaze B2.
+[K8up](https://k8up.io/) is a Kubernetes app that utilizes [Restic](https://restic.net/) to create backups of persistent volume claims to object stores like S3, MinIO, and Backblaze B2.
 
-`smol-k8s-lab` optionally installs k8up as one of it's supported kubernetes applications [argocd repo with k8up template](https://gitlab.com/small-hack/argocd-apps/blob/main/k8up)
+`smol-k8s-lab` optionally installs K8up as one of it's supported Kubernetes applications using [Argo CD repo with K8up template](https://gitlab.com/small-hack/argocd-apps/blob/main/k8up)
 
-My work with k8up spans across a couple of repos. On github, I setup [k8s-backups-tutorial](https://github.com/jessebot/k8s-backups-tutorial), and I've also contributed a tiny bit to k8up directly in the form of [minor commits](https://github.com/jessebot/argo-example#argocd) to help with Backblaze B2 support.
-
-
-- [Nextcloud backup example](https://gitlab.com/vleermuis_tech/goobernetes/nextcloud/-/tree/main/deps/k8up_backups)
 
 ### API Docs
 
