@@ -76,6 +76,7 @@ nav:
     - MetalLB: k8s_apps/metallb.md
     - Nextcloud: k8s_apps/nextcloud.md
     - Prometheus: k8s_apps/prometheus.md
+    - Vouch: k8s_apps/vouch.md
   - Supported Distros:
     - K3s: 
       - About: k8s_distros/k3s/k3s.md
