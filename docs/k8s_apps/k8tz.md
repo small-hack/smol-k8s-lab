@@ -15,9 +15,9 @@ apps:
   k8tz:
     enabled: false
     description: |
-      k8tz is a kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs1.
+      k8tz is a kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs.
 
-      Containers do not inherit timezones from host machines and have only accessed to the clock from the kernel. The default timezone for most images is UTC, yet it is not guaranteed and may be different from container to container. With k8tz it is easy to standardize selected timezone across pods and namespaces automatically with minimal effort.
+      Containers do not inherit timezones from host machines and have only access to the clock from the kernel. The default timezone for most images is UTC, yet it is not guaranteed and may be different from container to container. With k8tz it is easy to standardize selected timezone across pods and namespaces automatically with minimal effort.
 
       You can find your timezone identifier here: [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]https://wikipedia.org/wiki/List_of_tz_database_time_zones[/link]
 
