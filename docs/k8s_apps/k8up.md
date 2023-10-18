@@ -12,3 +12,39 @@ The full API docs are [here](https://doc.crds.dev/github.com/k8up-io/k8up@v2.3.0
 - [One time Backups](https://doc.crds.dev/github.com/k8up-io/k8up/k8up.io/Backup/v1@v2.3.0)
 - [Scheduled Backups](https://doc.crds.dev/github.com/k8up-io/k8up/k8up.io/Schedule/v1@v2.3.0)
 - [Restores](https://doc.crds.dev/github.com/k8up-io/k8up/k8up.io/Backup/v1@v2.3.0)
+
+## Example config
+
+```yaml
+apps:
+  k8up:
+    enabled: true
+    description: |
+      K8up ([i]pronounced "ketchup?"[/]) is a Kubernetes Operator based on Restic for backups of Persistent Volumes in k8s into S3 compatible storage like MinIO. Backs up all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label. Can also perform "Application Aware" backups, containing the output of any tool capable of writing to stdout.
+
+      You can also perform individual, on-demand backups, and restores from the k8up CLI tool.
+      You can find your timezone identifier here: [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]https://wikipedia.org/wiki/List_of_tz_database_time_zones[/link]
+
+      Learn more: [link=https://k8up.io]https://k8up.io[/link]
+    init:
+      enabled: true
+    argo:
+      secret_keys:
+        timezone: "Europe/Amsterdam"
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "k8up/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "k8up"
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
+      project:
+        source_repos:
+          - "https://k8up-io.github.io/k8up"
+          - "https://github.com/k8up-io/k8up.git"
+        destination:
+          namespaces:
+            - argocd
+```
