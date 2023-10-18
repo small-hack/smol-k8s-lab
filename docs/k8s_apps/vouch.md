@@ -1,6 +1,11 @@
 [vouch-proxy](https://github.com/vouch/vouch-proxy) is an SSO solution for Nginx using the auth_request module. Vouch Proxy can protect all of your websites at once.
 
-`smol-k8s-lab` supports a custom initialization of vouch using [Zitadel](/k8s_apps/zitadel.md) (Keycloak is also supported but may be deprecated down the line).
+`smol-k8s-lab` supports a custom initialization of Vouch using [Zitadel](/k8s_apps/zitadel.md) (Keycloak is also supported but may be deprecated down the line).
+
+Learn more about our:
+
+- [Vouch helm chart fork](https://jessebot.github.io/vouch-helm-chart)
+- [Vouch Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/vouch-proxy)
 
 ## Required Init Values
 These values are required only if you're using the default smol-k8s-lab git repository for vouch.

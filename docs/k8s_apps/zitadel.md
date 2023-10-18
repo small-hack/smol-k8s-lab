@@ -72,3 +72,5 @@ apps:
           - argocd
           - zitadel
 ```
+
+You can learn more about our Zitadel Argo CD Application at [small-hack/argocd-apps/zitadel](https://github.com/small-hack/argocd-apps/tree/main/zitadel).
