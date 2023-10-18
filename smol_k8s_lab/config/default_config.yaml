@@ -154,7 +154,7 @@ apps:
       secret_keys:
         # FQDN hostname for accessing the ArgoCD web interface
         hostname: ""
-        # which oidc provider to use for argo cd: zitadel (or keycloak)
+        # which oidc provider to use for argo cd: defaults to zitadel
         oidc_provider: "zitadel"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -510,40 +510,39 @@ apps:
           namespaces:
             - argocd
 
-  keycloak:
-    enabled: false
-    description: |
-      keycloak is an IAM provider that you can use with ArgoCD for user/group management and oauth2
-
-      smol-k8s-lab initializes keycloak by creating an initial user & clients for ArgoCD and vouch this will also prompt you for input for creating an admin user. Switch to initialization to false if you want to use your own argo repo that does not not use the appset_secret_plugin or setup an initial user/clients
-    init:
-      enabled: true
-      values:
-        # first human user to setup
-        username: ""
-        first_name: ""
-        last_name: ""
-    argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
-      secret_keys:
-        hostname: ""
-        mail_hostname: ""
-        default_realm: "default"
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "keycloak/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "keycloak"
-      # source repos for Argo CD App Project (in addition to argo.repo)
-      project:
-        source_repos:
-          - "registry-1.docker.io"
-        destination:
-          namespaces:
-            - argocd
+  # keycloak:
+  #   enabled: false
+  #   description: |
+  #     keycloak is an IAM provider that you can use with ArgoCD for user/group management and oauth2
+  #     smol-k8s-lab initializes keycloak by creating an initial user & clients for ArgoCD and vouch this will also prompt you for input for creating an admin user. Switch to initialization to false if you want to use your own argo repo that does not not use the appset_secret_plugin or setup an initial user/clients
+  #   init:
+  #     enabled: true
+  #     values:
+  #       # first human user to setup
+  #       username: ""
+  #       first_name: ""
+  #       last_name: ""
+  #   argo:
+  #     # secrets keys to make available to ArgoCD ApplicationSets
+  #     secret_keys:
+  #       hostname: ""
+  #       mail_hostname: ""
+  #       default_realm: "default"
+  #     # git repo to install the Argo CD app from
+  #     repo: "https://github.com/small-hack/argocd-apps"
+  #     # path in the argo repo to point to. Trailing slash very important!
+  #     path: "keycloak/"
+  #     # either the branch or tag to point at in the argo repo above
+  #     ref: "main"
+  #     # namespace to install the k8s app in
+  #     namespace: "keycloak"
+  #     # source repos for Argo CD App Project (in addition to argo.repo)
+  #     project:
+  #       source_repos:
+  #         - "registry-1.docker.io"
+  #       destination:
+  #         namespaces:
+  #           - argocd
 
   kubevirt:
     description: |
@@ -810,7 +809,7 @@ apps:
     description: |
       vouch-proxy can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
 
-      smol-k8s-lab supports the initialization of vouch if you also enable zitadel or keycloak by creating OIDC applications and credentials and your vouch-proxy kubernetes secret.
+      smol-k8s-lab supports the initialization of vouch if you also enable zitadel by creating OIDC applications and credentials and your vouch-proxy kubernetes secret.
 
       Learn more: [link=https://github.com/vouch/vouch-proxy]https://github.com/vouch/vouch-proxy[/link]
     enabled: true
