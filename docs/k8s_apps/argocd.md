@@ -7,7 +7,7 @@ Argo CD is one of the most complex applications we deploy for you. We follow thi
 1. Install Argo CD first with helm using some bare minimum options that include setting up your initial admin password.
    The reason we set up a password for you instead of letting Argo CD generate it for you, is so that we can store it in your password manager for later use. 
 2. Deploy the [appset-secret-plugin](https://github.com/small-hack/appset-secret-plugin).
-3. Optionally deploy an OIDC provider (either [Keycloak] or [Zitadel](/zitadel))
+3. Optionally deploy an OIDC provider ([Zitadel](/k8s_apps/zitadel.md))
 4. Create an Argo CD Application for Argo to manage itself
 
 The final Application will be sourced from [small-hack/argocd-apps/argocd](https://github.com/small-hack/argocd-apps/tree/main/argocd), which you can learn more about its readme.

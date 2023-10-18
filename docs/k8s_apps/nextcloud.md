@@ -1,18 +1,22 @@
 [Nextcloud](https://nextcloud.com/) is an Open Source and self hosted personal cloud. We optionally deploy it for you to save you some time in testing.
 
 To use the default `smol-k8s-lab` Argo CD Application, you'll need to provide one time init values for:
+
 - `admin_user`
 - `smtp_user`
 
 And you'll also need to provide the following values to be templated for your personal installation:
+
 - `hostname`
 - `backup_method`
 
 After you select which backup method you want to use, you need to provide either:
+
 - `backup_s3_endpoint`
 - `backup_s3_bucket`
 
 Or:
+
 - `backup_mount_path`
 
 You can then remove the options unrelated to the backup method you chose by removing them from the yaml. Here's an example of a correctly filled out Nextcloud app section in the `smol-k8s-lab` yaml:

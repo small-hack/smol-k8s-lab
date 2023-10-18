@@ -25,7 +25,7 @@ permalink: /install
 ## Install via `pip`
 
 !!! Note 
-    `smol-k8s-lab` is only tested Debian, Ubuntu, and macOS. It may run on other Linux distros and even WSL, but it is not tested on those systems. 
+    `smol-k8s-lab` is only tested on Debian, Ubuntu, and macOS. It may run on other Linux distros and even WSL, but we're not sure.
 
 
 `pip` is probably the best way to install `smol-k8s-lab`, but you can also probably use `pipx`:

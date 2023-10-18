@@ -1,6 +1,6 @@
 [vouch-proxy](https://github.com/vouch/vouch-proxy) is an SSO solution for Nginx using the auth_request module. Vouch Proxy can protect all of your websites at once.
 
-`smol-k8s-lab` supports a custom initialization of Vouch using [Zitadel](/k8s_apps/zitadel.md) (Keycloak is also supported but may be deprecated down the line).
+`smol-k8s-lab` supports a custom initialization of Vouch using [Zitadel](/k8s_apps/zitadel.md).
 
 Learn more about our:
 
@@ -25,7 +25,7 @@ apps:
     description: |
       vouch-proxy can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
 
-      smol-k8s-lab supports the initialization of vouch if you also enable zitadel or keycloak by creating OIDC applications and credentials and your vouch-proxy kubernetes secret.
+      smol-k8s-lab supports the initialization of vouch if you also enable zitadel by creating OIDC applications and credentials and your vouch-proxy kubernetes secret.
 
       Learn more: [link=https://github.com/vouch/vouch-proxy]https://github.com/vouch/vouch-proxy[/link]
     enabled: true
