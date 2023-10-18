@@ -60,10 +60,11 @@ nav:
   - Installation: installation.md
   - CLI: cli.md
   - TUI:
-    - Create and Modify Clusters: create_modify_screens.md
-    - K8s Distros: distro_screen.md
-    - K8s Apps: apps_screen.md
-    - TUI Config: tui_config.md
+    - TUI Help: tui/help_screen.md
+    - Create and Modify Clusters: tui/create_modify_screens.md
+    - K8s Distros: tui/distro_screen.md
+    - K8s Apps: tui/apps_screen.md
+    - TUI Config: tui/tui_config.md
   - Config File: config_file.md
   - Default Apps: 
     - ArgoCD: k8s_apps/argocd.md
@@ -78,6 +79,8 @@ nav:
       - About: k8s_distros/k3s/k3s.md
       - QuickStart: k8s_distros/k3s/quickstart.md
       - Tutorial: k8s_distros/k3s/tutorial.md
+    - K3d: 
+      - About: k8s_distros/k3d/k3d.md
     - Kind: 
       - About: k8s_distros/kind/kind.md
       - QuickStart: k8s_distros/kind/quickstart.md

@@ -10,14 +10,21 @@ smol_k8s_lab:
     # accessibility options
     accessibility:
       # wether or not to ring the built in terminal bell when something is wrong
-      bell: true
+      bell:
+        on_focus: true
+        on_error: true
       text_to_speech: 
-        # enable text to speech
-        enabled: true
         # use a specific program for text to speech - this needs to be a full path
         # macOS default: say
         # linux default: eSpeak
         speech_program: say
+        # read the screen title and description
+        screen_titles: true
+        # read the element aloud each time you switch focus to a new element
+        on_focus: false
+        # press shift+s to read the element id and value/tooltip
+        on_key_press: true
+
     # enable text to speech
     # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
     k9s:
