@@ -1,3 +1,5 @@
+Coredns ships by default with k3s, so it gets installed, but not really by anything we do by default 😅
+
 ### Troubleshooting networking issues with coredns
 Can your pod not get out to the internet? Well, first verify that it isn't the entire cluster with this:
 ```bash
