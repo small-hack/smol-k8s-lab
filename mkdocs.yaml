@@ -60,11 +60,11 @@ nav:
   - Installation: installation.md
   - CLI: cli.md
   - TUI:
-    - TUI Help: tui/help_screen.md
     - Create and Modify Clusters: tui/create_modify_screens.md
     - K8s Distros: tui/distro_screen.md
     - K8s Apps: tui/apps_screen.md
-    - TUI Config: tui/tui_config.md
+    - Config: tui/tui_config.md
+    - Getting Help: tui/help_screen.md
   - Config File: config_file.md
   - Default Apps: 
     - ArgoCD: k8s_apps/argocd.md
