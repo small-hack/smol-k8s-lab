@@ -175,8 +175,8 @@ class AppsConfig(Screen):
         selection_list = self.query_one(SelectionList)
         app = selection_list.get_option_at_index(event.selection_index).value
         if app in selection_list.selected:
-            self.app.cfg[app]['enabled'] = True
+            self.app.cfg['apps'][app]['enabled'] = True
         else:
-            self.app.cfg[app]['enabled'] = False
+            self.app.cfg['apps'][app]['enabled'] = False
 
         self.app.write_yaml()
