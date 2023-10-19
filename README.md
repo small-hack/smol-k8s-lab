@@ -62,7 +62,7 @@ smol-k8s-lab
 </details>
 
 #### Creating a new config without running smol-k8s-lab
-This is helpful if you just want to take a look at the default configuration before installing any kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
+This is helpful if you just want to take a look at the default configuration before installing any Kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
 
 ```bash
 # create the needed directory if you haven't already, NOTE: this can also be in $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml
@@ -82,7 +82,7 @@ You can checkout the default config file [here](./smol_k8s_lab/config/default_co
 
 ### Adding custom Applications
 
-You can create any application you already have an Argo CD application repo for, by following a simple application yaml schema in `~/.config/smol-k8s-lab/config.yaml` like this:
+You can create any application you already have an Argo CD application repo for, by following a simple application YAML schema in `~/.config/smol-k8s-lab/config.yaml` like this:
 
 ```yaml
 apps:
@@ -115,10 +115,10 @@ apps:
 Note: the above application, cert-manager, is already included as a default application in smol-k8s-lab :)
 
 # Under the hood
-Note: this project is not officially afilliated with any of the below tooling or applications.
+Note: this project is not officially affiliated with any of the below tooling or applications.
 
 ### Supported k8s distributions
-We always install the latest version of kubernetes that is available from the distro's startup script.
+We always install the latest version of Kubernetes that is available from the distro's startup script.
 
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
@@ -151,7 +151,7 @@ Version is the helm chart version, or manifest version.
 
 <sub>1. ingress-nginx is the currently the only supported ingress-controller. traefik support is being worked on.</sub>
 
-<sub>2. Argo CD is optional, but if not installed, smol-k8s-lab will <i>only</i> install: metallb, nginx-ingress, and cert-manager</sub>
+<sub>2. Argo CD is optional, but if not installed, smol-k8s-lab will <i>only</i> install: MetalLB, nginx-ingress, and cert-manager</sub>
 
 
 ### Optionally Installed Applications
@@ -168,11 +168,11 @@ Version is the helm chart version, or manifest version.
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon] | Mastodon is a self hosted federated social media network  | Yes |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix] | Matrix is a self hosted chat platform  | Yes |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio] | Self hosted S3 Object Store operator | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for kubernetes | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for Kubernetes | Yes |
 
 
 ## Troubleshooting
-If you're stuck, checkout the [Notes](https://jessebot.github.io/smol-k8s-lab/notes) to see if we also got stuck on the same thing at some point :) Under each kubernetes distro or application, we'll have notes on how to learn more about it, as well as any errors we've already battled.
+If you're stuck, checkout the [Notes](https://jessebot.github.io/smol-k8s-lab/notes) to see if we also got stuck on the same thing at some point :) Under each Kubernetes distro or application, we'll have notes on how to learn more about it, as well as any errors we've already battled.
 
 
 # Status
