@@ -16,8 +16,8 @@ $navy: rgb(35,35,54);
 
 /* warning with invalid inputs */
 #invalid-apps {
-    border: round $soft_yellow 60%;
-    border-title-color: $orange;
+    border: round $orange 60%;
+    border-title-color: $soft_yellow;
     padding-left: 1;
     width: 90%;
     height: 70%;

@@ -27,7 +27,7 @@ class HelpScreen(ModalScreen):
                    "key bindings:")
 
         with Grid(id="help-container"):
-            yield Label(welcome, id="help-label")
+            yield Label(welcome, classes="help-text")
             yield Grid(id="help-options")
 
     def on_mount(self) -> None:

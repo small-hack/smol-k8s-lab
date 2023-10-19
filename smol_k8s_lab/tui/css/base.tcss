@@ -17,12 +17,6 @@ $navy: rgb(35,35,54);
 /* Matches the entire screen */
 Screen {
     align: center middle;
-    scrollbar-background: $dark_gray;
-    scrollbar-background-active: $dark_gray;
-    scrollbar-background-hover: $dark_gray;
-    scrollbar-color-active: $sky_blue;
-    scrollbar-color-hover: $cornflower;
-    scrollbar-color: $light_cornflower;
     max-width: 90%;
     min-width: 89;
 }
@@ -237,33 +231,33 @@ DataTable {
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;
-   scrollbar-color-active: $sky_blue;
-   scrollbar-color-hover: $cornflower;
-   scrollbar-color: $light_cornflower;
+   scrollbar-color-active: $bluish_white;
+   scrollbar-color-hover: $light_cornflower;
+   scrollbar-color: $cornflower;
 }
 
 /* just the table header */
 .datatable--header {
-   background: $dark_gray 70%;
-   color: $sky_blue;
+    background: $dark_gray 70%;
+    color: $bluish_white;
 }
 
 /* just the table header when hovering */
 .datatable--header-hover {
    background: $dark_gray 70%;
-   color: $sky_blue;
+   color: $bluish_white;
 }
 
 /* selected table cell or row */
 .datatable--cursor {
-   background: $light_cornflower 70%;
-   color: $navy;
+    background: $cornflower 30%;
+    color: $sky_blue;
 }
 
 /* row you're currently hovered over */
 .datatable--hover {
-   background: $cornflower 30%;
-   color: $bluish_white;
+    background: $cornflower 20%;
+    color: $bluish_white 80%;
 }
 
 /* individual table rows */
@@ -273,7 +267,7 @@ DataTable {
 }
 
 .datatable--odd-row {
-    color: $light_cornflower;
+    color: $cornflower;
     background: $blue_gray 20%;
 }
 

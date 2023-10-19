@@ -20,7 +20,7 @@ KubeletConfig {
     border: round $cornflower;
     border-title-color: $sky_blue;
     border-subtitle-color: $lavender;
-    background: $navy 50%;
+    background: $navy 60%;
     width: 100%;
     height: 100%;
     link-hover-background: $navy;
