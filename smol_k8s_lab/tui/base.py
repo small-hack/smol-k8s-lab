@@ -216,28 +216,7 @@ class BaseApp(App):
         check which row was selected to launch a modal screen
         """
         if self.app.speak_on_focus:
-            row_index = event.cursor_row
-            row = event.data_table.get_row_at(row_index)
-            # get the row's first column (the name of the cluster) and remove whitespace
-            cluster_name = row[0].plain.strip()
-            distro = row[1].plain.strip()
-
-            if event.data_table.id == "clusters-data-table":
-                self.action_say(
-                        f"Selected cluster: name: {cluster_name}. distro: {distro}"
-                        )
-
-            elif event.data_table.id == "invalid-apps-table":
-                self.action_say(
-                        f"Selected app: name: {cluster_name}. invalid fields: {distro}"
-                        )
-
-            elif event.data_table.id == "help-table":
-                if cluster_name == "?":
-                    cluster_name = "question mark"
-                self.action_say(
-                        f'Selected keys: {cluster_name}. description: {distro}.'
-                        )
+            self.say_row(event.data_table)
 
     def action_new_cluster(self):
         """
@@ -332,7 +311,33 @@ class BaseApp(App):
 
         elif not text_for_speech:
             if self.speak_on_key_press:
-                system(f"{self.speech_program} element is {self.app.focused.id}")
+                focused = self.app.focused
+                system(f"{self.speech_program} element is {focused.id}")
+
+                # if it's a data table, read out the row content
+                if isinstance(focused, DataTable):
+                    self.say_row(focused)
+
+    def say_row(self, data_table: DataTable) -> None:
+        """
+        get the column names and row content of a DataTable and read aloud
+        """
+        row_index = data_table.cursor_row
+        row = data_table.get_row_at(row_index)
+        # get the row's first column and remove whitespace
+        row_column1 = row[0].plain.strip()
+        # change ? to question mark so it reads aloud well
+        if row_column1 == "?":
+            row_column1 = "question mark"
+        row_column2 = row[1].plain.strip()
+
+        # get the column names
+        columns = list(data_table.columns.values())
+        column1 = columns[0].label
+        column2 = columns[1].label
+
+        system(f"{self.speech_program} Selected {column1}: {row_column1}."
+               f" {column2}: {row_column2}")
 
     @on(DescendantFocus)
     def on_focus(self, event: DescendantFocus) -> None:
