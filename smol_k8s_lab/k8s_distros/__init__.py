@@ -6,6 +6,8 @@ from .kind import create_kind_cluster, delete_kind_cluster
 from .k3d import create_k3d_cluster, delete_k3d_cluster
 from .k3s import install_k3s_cluster, uninstall_k3s
 
+from sys import exit
+
 
 def check_all_contexts() -> list:
     """
@@ -151,27 +153,20 @@ def create_k8s_distro(cluster_name: str,
     return K8s()
 
 
-def delete_cluster(cluster_name: str, k8s_distro: str) -> True:
+def delete_cluster(cluster_name: str, k8s_distro: str = "") -> True:
     """
     Delete a k3s, or KinD cluster entirely.
     """
-    cluster = check_contexts_for_cluster(cluster_name, k8s_distro)
+    if 'k3s' in cluster_name or k8s_distro == 'k3s':
+        uninstall_k3s(cluster_name)
 
-    if not cluster:
-        return True
-
-    if k8s_distro == 'k3s':
-        uninstall_k3s(cluster)
-
-    if k8s_distro == 'k3d':
+    if 'k3d' in cluster_name or k8s_distro == 'k3d':
         delete_k3d_cluster(cluster_name)
 
-    elif k8s_distro == 'kind':
+    elif 'kind' in cluster_name or k8s_distro == 'kind':
         delete_kind_cluster(cluster_name)
 
-    else:
-        # how did you even make it this far?
-        header(f"┌（・o・）┘≡З  Whoops. {k8s_distro} not YET supported.")
-
     sub_header("[grn]◝(ᵔᵕᵔ)◜ Success![/grn]")
-    return True
+
+    # exit after deletion
+    exit()
