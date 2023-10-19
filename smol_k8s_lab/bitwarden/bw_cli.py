@@ -317,7 +317,7 @@ class BwCLI():
             item['login']['username'] = user
             item['fields'] = fields
 
-            encodedBytes = base64.b64encode(item.encode("utf-8"))
+            encodedBytes = base64.b64encode(json.dumps(item).encode("utf-8"))
             encodedStr = str(encodedBytes, "utf-8")
 
             cmd = f"{self.bw_path} edit item {item['id']} {encodedStr}"
