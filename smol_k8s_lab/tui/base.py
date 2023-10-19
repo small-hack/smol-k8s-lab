@@ -8,6 +8,7 @@ from smol_k8s_lab.tui.distro_screen import DistroConfigScreen
 from smol_k8s_lab.tui.help_screen import HelpScreen
 from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsScreen
 from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
+from smol_k8s_lab.tui.sensitive_prompt import PromptForSensitiveInfoModalScreen
 from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 from smol_k8s_lab.tui.util import check_for_invalid_inputs
@@ -61,7 +62,12 @@ class BaseApp(App):
                         key_display="n",
                         description="New Cluster",
                         action="app.new_cluster",
-                        show=True)
+                        show=True),
+                Binding(key="s",
+                        key_display="s",
+                        description="sensitive test",
+                        action="request_sensitive_prompt",
+                        show=True),
                 ]
 
     CSS_PATH = ["./css/base.tcss",
@@ -240,6 +246,12 @@ class BaseApp(App):
         launches the k8s distro (k3s,k3d,kind) config screen
         """
         self.app.push_screen(DistroConfigScreen(self.cfg['k8s_distros']))
+
+    def action_request_sensitive_prompt(self) -> None:
+        """
+        launches the sensitive prompt window
+        """
+        self.app.push_screen(PromptForSensitiveInfoModalScreen())
 
     def action_request_smol_k8s_cfg(self) -> None:
         """
