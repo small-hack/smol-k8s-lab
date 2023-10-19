@@ -14,7 +14,7 @@ from ..k8s_tools.k8s_lib import K8s
 from ..utils.rich_cli.console_logging import header
 from .ingress.ingress_nginx_controller import configure_ingress_nginx
 from .ingress.cert_manager import configure_cert_manager
-from .identity_provider.keycloak import configure_keycloak
+# from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.vouch import configure_vouch
 from .networking.metallb import configure_metallb
@@ -61,25 +61,29 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
 
 def setup_oidc_provider(k8s_obj: K8s,
                         api_tls_verify: bool = False,
-                        keycloak_dict: dict = {},
                         zitadel_dict: dict = {},
                         vouch_dict: dict = {},
                         bw: BwCLI = None,
                         argocd_fqdn: str = "") -> True:
+    """
+    sets up oidc provider. only zitadel is supported right now
+    if we choose to add keycloak back, we'll be adding the following arg
+    keycloak_dict: dict = {}
+    """
     header("Setting up [green]OIDC[/]/[green]Oauth[/] Applications")
 
-    keycloak_enabled = keycloak_dict['enabled']
+    # keycloak_enabled = keycloak_dict['enabled']
     zitadel_enabled = zitadel_dict['enabled']
     vouch_enabled = False
     if vouch_dict:
         vouch_enabled = vouch_dict['enabled']
 
     # setup keycloak if we're using that for OIDC
-    if keycloak_enabled:
-        log.debug("Setting up keycloak")
-        configure_keycloak(k8s_obj, keycloak_dict, bw)
-        realm = keycloak_dict['argo']['secret_keys']['default_realm']
-        user = keycloak_dict['init']['values']['username']
+    # if keycloak_enabled:
+    #     log.debug("Setting up keycloak")
+    #     configure_keycloak(k8s_obj, keycloak_dict, bw)
+    #     realm = keycloak_dict['argo']['secret_keys']['default_realm']
+    #     user = keycloak_dict['init']['values']['username']
 
     # setup zitadel if we're using that for OIDC
     elif zitadel_enabled:
@@ -99,15 +103,17 @@ def setup_oidc_provider(k8s_obj: K8s,
 
     if vouch_enabled:
         log.debug("Setting up vouch")
-        if keycloak_enabled:
-            configure_vouch(k8s_obj=k8s_obj,
-                            vouch_config_dict=vouch_dict,
-                            oidc_provider_name='keycloak',
-                            oidc_provider_hostname=keycloak_dict['argo']['secret_keys']['hostname'],
-                            bitwarden=bw,
-                            users=[{'user': user}],
-                            realm=realm)
-        elif zitadel_enabled:
+        # if keycloak_enabled:
+        #     keycloak_host = keycloak_dict['argo']['secret_keys']['hostname']
+        #     configure_vouch(
+        #        k8s_obj=k8s_obj,
+        #        vouch_config_dict=vouch_dict,
+        #        oidc_provider_name='keycloak',
+        #        oidc_provider_hostname=keycloak_host,
+        #        bitwarden=bw,
+        #        users=[{'user': user}],
+        #        realm=realm)
+        if zitadel_enabled:
             configure_vouch(k8s_obj=k8s_obj,
                             vouch_config_dict=vouch_dict,
                             oidc_provider_name='zitadel',
