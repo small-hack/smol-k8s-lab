@@ -447,7 +447,7 @@ apps:
             - argocd
 
   k8up:
-    enabled: true
+    enabled: false
     description: |
       K8up ([i]pronounced "ketchup?"[/]) is a Kubernetes Operator based on Restic for backups of Persistent Volumes in k8s into S3 compatible storage like MinIO. Backs up all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label. Can also perform "Application Aware" backups, containing the output of any tool capable of writing to stdout.
 
@@ -734,7 +734,7 @@ apps:
 
       smol-k8s-lab supports initialization by setting up your ingress hostnames.
 
-    enabled: true
+    enabled: false
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
