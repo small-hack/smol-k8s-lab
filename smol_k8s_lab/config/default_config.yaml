@@ -595,7 +595,7 @@ apps:
 
       Learn more: [link=https://matrix.org/]https://matrix.org/[/link]
 
-      smol-k8s-lab supports initialization by setting up your create initial secrets for your hostnames, and credentials for: postgresql, admin user, SMTP
+      smol-k8s-lab supports initialization by creating initial secrets for your hostnames, and credentials for: postgresql, admin user, SMTP
     enabled: false
     init:
       enabled: true
