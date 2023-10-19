@@ -20,7 +20,7 @@ from shutil import which
 from sys import exit
 from os import environ as env
 from ..utils.subproc import subproc
-from smol_k8s_lab.bitwarden.tui.bitwarden_dialog_app import AskUserForDuplicateStrategy
+from .tui.bitwarden_dialog_app import AskUserForDuplicateStrategy
 
 
 def create_custom_field(custom_field_name: str, value: str) -> dict:
@@ -277,50 +277,55 @@ class BwCLI():
                     )
                 return
 
-        if name:
-            item_name = name
-            if item_url:
-                item_name += f" {item_url}"
-        else:
-            item_name = item_url
-
-        login_obj = json.dumps({
-            "organizationId": org,
-            "collectionIds": collection,
-            "folderId": None,
-            "type": 1,
-            "name": item_name,
-            "notes": None,
-            "favorite": False,
-            "fields": fields,
-            "login": {"uris": [{"match": 0,
-                                "uri": item_url}],
-                      "username": user,
-                      "password": password,
-                      "totp": None},
-            "secureNote": None,
-            "card": None,
-            "identity": None,
-            "reprompt": 0})
-
-        encodedBytes = base64.b64encode(login_obj.encode("utf-8"))
-        encodedStr = str(encodedBytes, "utf-8")
-
         # create new item
         if not edit:
-            log.info('Creating Bitwarden login item...')
+            if name:
+                item_name = name
+                if item_url:
+                    item_name += f" {item_url}"
+            else:
+                item_name = item_url
 
-            subproc([f"{self.bw_path} create item {encodedStr}"],
-                    env={"BW_SESSION": self.session,
-                         "PATH": self.user_path,
-                         "HOME": self.home})
-            log.info('Created bitwarden login item.')
+            login_obj = json.dumps({
+                "organizationId": org,
+                "collectionIds": collection,
+                "folderId": None,
+                "type": 1,
+                "name": item_name,
+                "notes": None,
+                "favorite": False,
+                "fields": fields,
+                "login": {"uris": [{"match": 0,
+                                    "uri": item_url}],
+                          "username": user,
+                          "password": password,
+                          "totp": None},
+                "secureNote": None,
+                "card": None,
+                "identity": None,
+                "reprompt": 0})
+
+            encodedBytes = base64.b64encode(login_obj.encode("utf-8"))
+            encodedStr = str(encodedBytes, "utf-8")
+
+            cmd = f"{self.bw_path} create item {encodedStr}"
+            log.info('Creating Bitwarden login item...')
 
         # edit existing item
         else:
-            log.info('Updating Bitwarden login item...')
+            item['login']['password'] = password
+            item['login']['username'] = user
+            item['fields'] = fields
 
-            subproc([f"{self.bw_path} edit item {item['id']} {encodedStr}"],
-                    env={"BW_SESSION": self.session,
-                         "PATH": self.user_path,
-                         "HOME": self.home})
+            encodedBytes = base64.b64encode(item.encode("utf-8"))
+            encodedStr = str(encodedBytes, "utf-8")
+
+            cmd = f"{self.bw_path} edit item {item['id']} {encodedStr}"
+            log.info('Updating existing Bitwarden login item...')
+
+
+        # edit OR create the item
+        subproc([cmd],
+                env={"BW_SESSION": self.session,
+                     "PATH": self.user_path,
+                     "HOME": self.home})
