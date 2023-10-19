@@ -117,6 +117,12 @@ def main(config: str = "",
     # make sure this OS is supported
     check_os_support()
 
+    # if we're just deleting a cluster, do that immediately
+    if delete:
+        logging.debug("Cluster deletion was requested")
+        # exits the script after deleting the cluster
+        delete_cluster(delete)
+
     # declaring bitwarden for the future in case user doesn't enable this
     bitwarden_credentials = None
 
@@ -160,12 +166,7 @@ def main(config: str = "",
     log = process_log_config(USR_CFG['smol_k8s_lab']['log'])
     log.debug("Logging configured.")
 
-    # if we're just deleting a cluster, do that immediately
     k8s_distros = USR_CFG['k8s_distros']
-    if delete:
-        logging.debug("Cluster deletion was requested")
-        # exits the script after deleting the cluster
-        delete_cluster(delete)
 
     # if we have bitwarden credetials unlock the vault
     if bitwarden_credentials:
