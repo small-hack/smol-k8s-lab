@@ -115,7 +115,14 @@ class ArgoCDProjectConfig(Static):
         if the input is valid, write the input as a list to the base yaml
         """
         if event.validation_result.is_valid:
+            # section of the yaml this widget updates
+            project_yml = self.app.cfg['apps'][self.app_name]['argo']['project']
+
             # sorts out any spaces or commas as delimeters to create a list
             yaml_value = create_sanitized_list(event.input.value)
-            self.app.cfg['apps'][self.app_name][event.input.name] = yaml_value
+
+            if event.input.name == 'namespaces':
+                project_yml['destination'][event.input.name] = yaml_value
+            else:
+                project_yml[event.input.name] = yaml_value
             self.app.write_yaml()
