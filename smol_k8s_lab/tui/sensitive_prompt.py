@@ -9,11 +9,46 @@ from textual.containers import Grid, VerticalScroll
 from textual.screen import ModalScreen
 from textual.validation import Length
 from textual.widgets import Button, Input, Label
+from os import environ
+
+
+env_vars = {
+        "nextcloud": ["NEXTCLOUD_SMTP_PASSWORD",
+                      "NEXTCLOUD_S3_ACCESS_KEY",
+                      "NEXTCLOUD_S3_ACCESS_ID",
+                      "NEXTCLOUD_RESTIC_REPO_PASSWORD"],
+        "mastodon": [
+            "MASTODON_SMTP_PASSWORD",
+            "MASTODON_S3_ACCESS_KEY",
+            "MASTODON_S3_ACCESS_ID",
+            "MASTODON_RESTIC_REPO_PASSWORD"],
+
+        "matrix": ["MATRIX_SMTP_PASSWORD"]
+        }
+
+
+def check_for_required_env_vars(env_var_list: list) -> None:
+    # keep track of a list of stuff to prompt for
+    prompt_values = []
+    # this is the stuff we already have in env vars
+    values = []
+
+    # iterate through list of env vars to check
+    for item in env_var_list:
+        value = environ.get(item, default="")
+
+        # append any missing to prompt_values
+        if not value:
+            prompt_values.append(value)
+        else:
+            values[item] = value
+
+    return values, prompt_values
 
                     
-class PromptForSensitiveInfo(ModalScreen):
+class PromptForSensitiveInfoModalScreen(ModalScreen):
     """
-    modal screen with inputs to modify globally available templating parameters 
+    modal screen with sensitive inputs
     for argocd that are passed to the argocd appset secrets plugin helm chart
     """
     CSS_PATH = ["../css/base_modal.tcss",
@@ -24,8 +59,9 @@ class PromptForSensitiveInfo(ModalScreen):
                         action="app.pop_screen",
                         description="Back")]
 
-    def __init__(self, app: str) -> None:
-        self.app = app
+    def __init__(self, sensitive_info_list: list) -> None:
+        self.sensitive_info_list = sensitive_info_list
+        self.return_dict = {}
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -40,39 +76,36 @@ class PromptForSensitiveInfo(ModalScreen):
                 yield Label(question, id="modal-text")
 
                 yield VerticalScroll(id="scroll-container")
+                yield Button('✔️ submit', id='submit-button')
 
     def on_mount(self,) -> None:
-        if self.global_params:
-            scroll_container = self.get_widget_by_id("scroll-container")
-            # iterate through the app's secret keys
-            for secret_key, value in self.global_params.items():
-                scroll_container.mount(self.generate_secret_key_row(secret_key, value))
+        scroll_container = self.get_widget_by_id("scroll-container")
+
+        # iterate through the things to prompt for
+        for key in self.sensitive_info_list:
+            self.return_dict[key] = ""
+            scroll_container.mount(self.generate_row(key))
 
         question_box = self.get_widget_by_id("modify-globals-question-box")
-        question_box.border_subtitle = "[@click=app.pop_screen]close[/]"
+        question_box.border_subtitle = "[@click=app.pop_screen]cancel[/]"
 
         if self.app.speak_screen_titles:
             # if text to speech is on, read screen title
             self.app.action_say(f"Screen title: Enter sensitive data for {self.app}")
 
-    def generate_secret_key_row(self,
-                                secret_key: str,
-                                value: str = "",
-                                new: bool = False) -> Grid:
+    def generate_row(self, key: str, value: str = "") -> Grid:
         """
         add a new row of secret keys to pass to an argocd app
         if new param is set to True, we also write it to the yaml
         """
-        if new:
-            self.app.cfg['apps_global_config'][secret_key] = value
-            self.app.write_yaml()
 
-        key_label = secret_key.replace("_", " ")
+        # make lower case, split by _, drop the first word, and join with spaces
+        key_label = " ".join(key.lower().split("_"))
 
         # create input
         input_keys = {"placeholder": placeholder_grammar(key_label),
                       "classes": "app-secret-key-input",
-                      "name": secret_key,
+                      "name": key,
                       "validators": [Length(minimum=2)]}
 
         if value:
@@ -90,23 +123,13 @@ class PromptForSensitiveInfo(ModalScreen):
         """
         add a new input row for secret stuff
         """
-        if event.button.id == "new-secret-button":
-            inputs_box = self.get_widget_by_id("scroll-container")
-            input = self.get_widget_by_id("new-secret")
-
-            # add new secret key row
-            inputs_box.mount(
-                    self.generate_secret_key_row(input.value, "", True)
-                    )
-            # clear the input field after we're created the new row and
-            # updated the yaml
-            input.value = ""
+        self.dismiss(self.return_dict)
 
     @on(Input.Changed)
     def input_validation(self, event: Input.Changed) -> None:
         if event.validation_result.is_valid:
-            self.app.cfg['apps_global_config'][event.input.name] = event.input.value
-            self.app.write_yaml()
+            self.return_dict[event.input.name] = event.input.value
+            self.query(Button).disabled = False
         else:
             if self.app.bell_on_error:
                 self.app.bell()
@@ -114,3 +137,5 @@ class PromptForSensitiveInfo(ModalScreen):
             self.notify("\n".join(event.validation_result.failure_descriptions),
                         severity="warning",
                         title="⚠️ Input Validation Error\n")
+
+            self.query(Button).disabled = True
