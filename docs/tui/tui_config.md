@@ -37,3 +37,8 @@ To re-enable the tui, set `smol_k8s_lab.tui.enabled` to `true`
 Please see the official [textual docs](https://textual.textualize.io/FAQ/#why-doesnt-textual-look-good-on-macos) for this, but the gist of it is:
 
 > You can (mostly) fix this by opening settings -> profiles > Text tab, and changing the font settings. We have found that Menlo Regular font, with a character spacing of 1 and line spacing of 0.805 produces reasonable results. If you want to use another font, you may have to tweak the line spacing until you get good results.
+
+
+### What terminal do you recommend for using the `smol-k8s-lab` TUI?
+
+We use [wezterm](https://wezfurlong.org/wezterm/index.html), because it works on both Linux and macOS. Before we used wezterm, on macOS, we used [iTerm2](https://iterm2.com/). Both are great terminals with a lot of love put into them.
