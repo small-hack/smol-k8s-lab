@@ -1,28 +1,29 @@
 ---
 smol_k8s_lab:
-  # this is useful for learning smol-k8s-lab or verifying your configuration
+  # Terminal User Interface with clickable buttons.
+  # Useful for learning smol-k8s-lab or verifying your configuration
   tui:
-    # if this is set to true, we'll always launch smol-k8s-lab in interactive mode :)
-    # else you need to pass in --interactive or -i to use the interactive Terminal UI
+    # if set to true, we'll always launch smol-k8s-lab in interactive mode :)
+    # else you need to pass in --interactive or -i to use the TUI
     enabled: true
     # show bottom footer help bar
     show_footer: true
-    # accessibility options
+    # accessibility options for users that benefit from TTS and Bell sounds
     accessibility:
-      # wether or not to ring the built in terminal bell when something is wrong
       bell:
+        # ring the built in terminal bell on focus to new elements on the screen
         on_focus: true
+        # ring the built in terminal bell when something is wrong
         on_error: true
       text_to_speech: 
-        # use a specific program for text to speech - this needs to be a full path
+        # use a specific program for text to speech - needs to be a full path
         # macOS default: say
-        # linux default: eSpeak
         speech_program: say
-        # read the screen title and description
+        # read aloud the screen title and description
         screen_titles: true
-        # read the element aloud each time you switch focus to a new element
+        # read aloud the element id, value, and tooltip each time you switch focus
         on_focus: false
-        # press shift+s to read the element id and value/tooltip
+        # press f5 to read the element id and selected row of datatables
         on_key_press: true
 
     # enable text to speech
