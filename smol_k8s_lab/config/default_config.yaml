@@ -705,6 +705,7 @@ apps:
       values:
         admin_user: ""
         smtp_user: ""
+        smtp_host: ""
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:

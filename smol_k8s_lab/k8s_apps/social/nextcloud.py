@@ -19,6 +19,8 @@ def configure_nextcloud(k8s_obj: K8s,
     """
     header("Setting up [green]Nextcloud[/], so you can self host your files",
            '🩵')
+
+    # if the user has chosen to use smol-k8s-lab initialization
     if config_dict['init']['enabled']:
         secrets = config_dict['argo']['secret_keys']
         nextcloud_hostname = secrets['hostname']
@@ -27,13 +29,20 @@ def configure_nextcloud(k8s_obj: K8s,
         init_values = config_dict['init'].get('values', None)
         if init_values:
             username = init_values.get('username', None)
+            mail_user = init_values.get('smtp_user', None)
+            mail_host = init_values.get('smtp_host', None)
+
         if not username:
             m = "[green]Please enter the name of the administrator user for nextcloud"
             username = Prompt.ask(m)
 
         # configure SMTP
-        mail_host = Prompt.ask("[green]Please enter the SMTP host for nextcoud")
-        mail_user = Prompt.ask("[green]Please enter the SMTP user for nextcloud")
+        if not mail_host:
+            mail_host = Prompt.ask("[green]Please enter the SMTP host for nextcoud")
+
+        if not mail_user:
+            mail_user = Prompt.ask("[green]Please enter the SMTP user for nextcloud")
+
         m = f"[green]Please enter the SMTP password of {mail_user} for nextcloud"
         mail_pass = Prompt.ask(m, password=True)
 
