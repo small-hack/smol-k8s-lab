@@ -29,3 +29,11 @@ smol_k8s_lab:
 ```
 
 To re-enable the tui, set `smol_k8s_lab.tui.enabled` to `true`
+
+## FAQ
+
+### Why does the `smol-k8s-lab` look weird in the default macOS terminal?
+
+Please see the official [textual docs](https://textual.textualize.io/FAQ/#why-doesnt-textual-look-good-on-macos) for this, but the gist of it is:
+
+> You can (mostly) fix this by opening settings -> profiles > Text tab, and changing the font settings. We have found that Menlo Regular font, with a character spacing of 1 and line spacing of 0.805 produces reasonable results. If you want to use another font, you may have to tweak the line spacing until you get good results.
