@@ -757,6 +757,7 @@ apps:
         destination:
           namespaces:
             - argocd
+            - nextcloud
 
   prometheus:
     description: |
