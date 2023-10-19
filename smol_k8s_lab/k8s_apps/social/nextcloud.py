@@ -25,39 +25,46 @@ def configure_nextcloud(k8s_obj: K8s,
         secrets = config_dict['argo']['secret_keys']
         nextcloud_hostname = secrets['hostname']
 
-        # configure the admin user credentials
+        # grab all possile init values
         init_values = config_dict['init'].get('values', None)
         if init_values:
-            username = init_values.get('username', None)
-            mail_user = init_values.get('smtp_user', None)
+            username = init_values.get('username', 'admin')
+            # stmp config values
             mail_host = init_values.get('smtp_host', None)
-
-        if not username:
-            m = "[green]Please enter the name of the administrator user for nextcloud"
-            username = Prompt.ask(m)
+            mail_user = init_values.get('smtp_user', None)
+            mail_pass = init_values.get('smtp_pass', None)
+            # backups values
+            access_id = init_values.get('backup_s3_access_id', None)
+            access_key = init_values.get('backup_s3_access_key', None)
+            restic_repo_pass = init_values.get('restic_password', None)
 
         # configure SMTP
         if not mail_host:
-            mail_host = Prompt.ask("[green]Please enter the SMTP host for nextcoud")
-
+            mail_host = Prompt.ask(
+                    "[green]Please enter the SMTP host for nextcoud"
+                    )
         if not mail_user:
-            mail_user = Prompt.ask("[green]Please enter the SMTP user for nextcloud")
-
-        m = f"[green]Please enter the SMTP password of {mail_user} for nextcloud"
-        mail_pass = Prompt.ask(m, password=True)
+            mail_user = Prompt.ask(
+                    f"[green]Please enter the SMTP user for nextcloud on {mail_host}"
+                    )
+        if not mail_pass:
+            m = f"[green]Please enter the SMTP password of {mail_user} for nextcloud"
+            mail_pass = Prompt.ask(m, password=True)
 
         # configure backups
         if secrets['backup_method'] == 'local':
             access_id = '""'
             access_key = '""'
         else:
-            access_id = Prompt.ask("[green]Please enter the access ID for s3 backups")
-            access_key = Prompt.ask("[green]Please enter the access key for s3 backups",
-                                    password=True)
-
-        if not Prompt.confirm("[green]Do you have an existing restic repo password?"):
-            m = "[green]Please enter the restic repo password"
-            restic_repo_pass = Prompt.ask(m, password=True)
+            if not access_id:
+                access_id = Prompt.ask(
+                        "[green]Please enter the access ID for s3 backups"
+                        )
+            if not access_key:
+                access_key = Prompt.ask(
+                        "[green]Please enter the access key for s3 backups",
+                        password=True
+                        )
 
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
