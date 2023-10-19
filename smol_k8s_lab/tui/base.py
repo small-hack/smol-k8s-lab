@@ -36,7 +36,7 @@ CUTE_ADJECTIVE = ["lovely", "adorable", "cute", "friendly", "nice", "leuke",
                   "mooie", "vriendelijke", "cool", "soft"]
 
 class BaseApp(App):
-    BINDINGS = [Binding(key="?",
+    BINDINGS = [Binding(key="?,h",
                         key_display="?",
                         action="request_help",
                         description="Help",
