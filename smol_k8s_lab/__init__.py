@@ -11,7 +11,6 @@ import logging
 from os import environ as env
 from rich.logging import RichHandler
 from rich.panel import Panel
-from sys import exit
 
 # custom libs and constants
 from .constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
@@ -125,8 +124,7 @@ def main(config: str = "",
     cluster_name = "smol-k8s-lab"
 
     if interactive or INITIAL_USR_CONFIG['smol_k8s_lab']['tui']['enabled']:
-        if not delete:
-            cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
+        cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
     else:
         if setup:
             # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
@@ -134,7 +132,7 @@ def main(config: str = "",
             do_setup()
 
         # process all of the config file, or create a new one and also grab secrets
-        USR_CFG, SECRETS = process_configs(delete=delete)
+        USR_CFG, SECRETS = process_configs()
 
         # if we're using bitwarden, unlock the vault
         pw_mngr = USR_CFG['smol_k8s_lab']['local_password_manager']
@@ -166,11 +164,8 @@ def main(config: str = "",
     k8s_distros = USR_CFG['k8s_distros']
     if delete:
         logging.debug("Cluster deletion was requested")
-        for distro, metadata in k8s_distros.items():
-            if metadata.get('enabled', False):
-                # exits the script after deleting the cluster
-                delete_cluster(delete, distro)
-        exit()
+        # exits the script after deleting the cluster
+        delete_cluster(delete)
 
     # if we have bitwarden credetials unlock the vault
     if bitwarden_credentials:

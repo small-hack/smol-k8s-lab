@@ -40,17 +40,13 @@ def check_os_support(supported_os=('Linux', 'Darwin')):
         return True
 
 
-def process_configs(config: dict = INITIAL_USR_CONFIG, delete: bool = False):
+def process_configs(config: dict = INITIAL_USR_CONFIG):
     """
     process the config in ~/.config/smol-k8s-lab/config.yaml and ensure each
     app has a secret if we're using our default Argo CD repo
     """
     k8s_distros = config.get('k8s_distros', None)
     config['k8s_distros'] = process_k8s_distros(k8s_distros)[0]
-
-    # just return this part if we're deleting the cluster
-    if delete:
-        return config, {}
 
     initialize = False
     # process just the app sections because they're the bulk of the config
