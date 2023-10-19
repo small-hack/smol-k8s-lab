@@ -23,13 +23,14 @@ HelpScreen {
    align: center middle;
    padding-left: 1;
    padding-top: 1;
-   width: 85;
-   height: 38;
+   width: 79;
+   height: 90%;
    border: round $cornflower 80%;
    border-title-color: $sky_blue;
    border-subtitle-color: $sky_blue;
    background: $navy;
    grid-rows: 0.1fr 1fr;
+   grid-gutter: 1;
 }
 
 #help-options {

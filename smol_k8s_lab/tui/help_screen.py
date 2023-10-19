@@ -13,7 +13,7 @@ class HelpScreen(ModalScreen):
     """
     BINDINGS = [
             Binding(key="?,q,escape",
-                    key_display="h",
+                    key_display="q",
                     action="disable_help",
                     description="Exit Help Screen",
                     show=True),
@@ -23,8 +23,9 @@ class HelpScreen(ModalScreen):
                 ]
 
     def compose(self) -> ComposeResult:
-        welcome = ("Use your 🐁 to click anything in the UI ✨ Or use these "
-                   "key bindings:")
+        welcome = ("Use your 🐁 to click anything in the UI ✨ Or use the "
+                   "following key bindings. For additional help, check out "
+                   "[steel_blue][link=https://smol-k8s.org]smol-k8s.org[/][/]")
 
         with Grid(id="help-container"):
             yield Label(welcome, classes="help-text")
@@ -62,17 +63,19 @@ class HelpScreen(ModalScreen):
 
         # tips for new/forgetful users (the maintainers are also forgetful <3)
         help_dict = {
-                "→": "complete suggestion in input field",
+                "➡ ": "complete suggestion in input field",
                 "⬆/⬇": "navigate up and down the app selection list",
                 "tab": "focus next element",
                 "shift+tab": "focus previous element",
                 "↩ enter": "save input and/or press button",
-                "?": "toggle help screen",
+                "?,h": "toggle help screen",
                 "spacebar": "select selection option",
                 "meta+click": link_help,
-                "escape,q": "leave current screen and go home"
+                "escape,q": "leave current screen and go home",
+                "c": "launch the config screen",
+                "f5": "read aloud current focused element id",
+                "f": "toggle showing the footer"
                 }
-
 
         for key_binding, description in help_dict.items():
             # we use an extra line to center the rows vertically 
