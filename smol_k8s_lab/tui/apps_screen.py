@@ -11,7 +11,7 @@ from textual.binding import Binding
 from textual.containers import VerticalScroll, Container, Grid
 from textual.css.query import NoMatches
 from textual.screen import Screen
-from textual.widgets import Footer, Header, Label, SelectionList, Button
+from textual.widgets import Footer, Header, Label, SelectionList
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 
@@ -169,9 +169,14 @@ class AppsConfig(Screen):
 
     @on(SelectionList.SelectionToggled)
     def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:
+        """ 
+        when a selection list item is checked or unchecked, update the base app yaml
+        """
         selection_list = self.query_one(SelectionList)
         app = selection_list.get_option_at_index(event.selection_index).value
         if app in selection_list.selected:
-            self.cfg[app]['enabled'] = True
+            self.app.cfg[app]['enabled'] = True
         else:
-            self.cfg[app]['enabled'] = False
+            self.app.cfg[app]['enabled'] = False
+
+        self.app.write_yaml()
