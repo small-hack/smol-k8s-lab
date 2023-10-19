@@ -51,32 +51,36 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
     modal screen with sensitive inputs
     for argocd that are passed to the argocd appset secrets plugin helm chart
     """
-    CSS_PATH = ["../css/base_modal.tcss",
-                "../css/prompt_for_sensitive_info.tcss"]
+    CSS_PATH = ["./css/base_modal.tcss",
+                "./css/prompt_for_sensitive_info.tcss"]
 
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="app.pop_screen",
                         description="Back")]
 
-    def __init__(self, sensitive_info_list: list) -> None:
+    def __init__(self,
+                 app_name: str = "nextcloud",
+                 sensitive_info_list: list = env_vars['nextcloud']) -> None:
+        self.app_name = app_name
         self.sensitive_info_list = sensitive_info_list
         self.return_dict = {}
         super().__init__()
 
     def compose(self) -> ComposeResult:
         # base screen grid
-        question = (
-                f"[#ffaff9]Enter[/] [i]sensitive[/] info for [#C1FF87]{self.app}[/]."
-                )
+        question = ("[#ffaff9]Enter[/] [i]sensitive[/] info for "
+                    f"[#C1FF87]{self.app_name}[/].")
 
-        with Grid(id="modify-globals-modal-screen"):
+        with Grid(id="sensitive-input-screen"):
             # grid for app question and buttons
             with Grid(id="modify-globals-question-box"):
                 yield Label(question, id="modal-text")
 
                 yield VerticalScroll(id="scroll-container")
-                yield Button('✔️ submit', id='submit-button')
+
+                with Grid(classes="submit-button-row"):
+                    yield Button('✔️ submit', id='submit-button')
 
     def on_mount(self,) -> None:
         scroll_container = self.get_widget_by_id("scroll-container")
@@ -91,20 +95,19 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
 
         if self.app.speak_screen_titles:
             # if text to speech is on, read screen title
-            self.app.action_say(f"Screen title: Enter sensitive data for {self.app}")
+            self.app.action_say(
+                    f"Screen title: Enter sensitive data for {self.app_name}")
 
     def generate_row(self, key: str, value: str = "") -> Grid:
         """
-        add a new row of secret keys to pass to an argocd app
-        if new param is set to True, we also write it to the yaml
+        add a new row of keys to pass to an argocd app
         """
 
         # make lower case, split by _, drop the first word, and join with spaces
-        key_label = " ".join(key.lower().split("_"))
+        key_label = " ".join(key.lower().split("_")[1:])
 
         # create input
         input_keys = {"placeholder": placeholder_grammar(key_label),
-                      "classes": "app-secret-key-input",
                       "name": key,
                       "validators": [Length(minimum=2)]}
 
@@ -115,9 +118,9 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
         input.validate(value)
 
         # create the input row
-        secret_label = Label(f"{key_label}:", classes="app-input-label")
+        secret_label = Label(f"{key_label}:", classes="input-label")
 
-        return Grid(secret_label, input, classes="app-input-row")
+        return Grid(secret_label, input, classes="sensitive-input-row")
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
