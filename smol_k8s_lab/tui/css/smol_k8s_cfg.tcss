@@ -31,7 +31,7 @@ $navy: rgb(35,35,54);
     grid-rows: 0.5fr 1fr;
     border: round $cornflower;
     border-title-color: $sky_blue;
-    background: $navy 50%;
+    background: $navy 60%;
     align: left middle;
     content-align: left middle;
 }
@@ -140,7 +140,7 @@ $navy: rgb(35,35,54);
     padding: 1;
     border: round $cornflower;
     border-title-color: $sky_blue;
-    background: $navy 50%;
+    background: $navy 60%;
 }
 
 #password-manager-options-grid {

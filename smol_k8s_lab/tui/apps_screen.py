@@ -11,7 +11,7 @@ from textual.binding import Binding
 from textual.containers import VerticalScroll, Container, Grid
 from textual.css.query import NoMatches
 from textual.screen import Screen
-from textual.widgets import Footer, Header, Label, SelectionList
+from textual.widgets import Footer, Header, Label, SelectionList, Button
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 
@@ -84,7 +84,7 @@ class AppsConfig(Screen):
             yield VerticalScroll(id='app-inputs-pane')
 
             # Bottom half of the screen for select-apps
-            with VerticalScroll(id="app-description-container"):
+            with VerticalScroll(id="app-notes-container"):
                 yield Label("", id="app-description")
 
     def on_mount(self) -> None:
@@ -97,11 +97,7 @@ class AppsConfig(Screen):
 
         # select-apps styling - select apps container - top left
         select_apps_widget = self.get_widget_by_id("select-add-apps")
-        select_apps_widget.border_title = "[#ffaff9]♥[/] [i]Select[/] [#C1FF87]apps"
-
-        # select-apps styling - bottom
-        app_desc = self.get_widget_by_id("app-description-container")
-        app_desc.border_title = "App Description"
+        select_apps_widget.border_title = "[#ffaff9]♥[/] [i]select[/] [#C1FF87]apps"
 
         if self.app.speak_screen_titles:
             # if text to speech is on, read screen title
@@ -147,8 +143,8 @@ class AppsConfig(Screen):
         self.get_widget_by_id('app-description').update(blurb)
 
         # styling for the select-apps - configure apps container - right
-        app_title = highlighted_app.replace("_", "-")
-        app_cfg_title = f"🛠️ [i]Configure[/] parameters for [#C1FF87]{app_title}"
+        app_title = highlighted_app.replace("_", " ").title()
+        app_cfg_title = f"🛠️ [i]configure[/] parameters for [#C1FF87]{app_title}"
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
         if self.previous_app != "":
@@ -164,6 +160,10 @@ class AppsConfig(Screen):
                                        id=f"{highlighted_app}-inputs",
                                        classes="single-app-inputs")
             self.get_widget_by_id("app-inputs-pane").mount(app_input)
+
+        # select-apps styling - bottom
+        app_desc = self.get_widget_by_id("app-notes-container")
+        app_desc.border_title = f"📓 {app_title} [i]notes[/i]"
 
         self.previous_app = highlighted_app
 

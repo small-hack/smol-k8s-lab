@@ -38,7 +38,7 @@ $navy: rgb(35,35,54);
 
 #confirm-tabbed {
     border: round $cornflower;
-    background: $navy 50%;
+    background: $navy 60%;
     height: 90%;
 }
 

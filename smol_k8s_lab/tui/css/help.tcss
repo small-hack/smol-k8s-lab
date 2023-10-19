@@ -32,12 +32,6 @@ HelpScreen {
    grid-rows: 0.1fr 1fr;
 }
 
-#help-label {
-    color: $soft_green;
-    align: center middle;
-    padding-left: 1;
-}
-
 #help-options {
    align: center middle;
    width: 100%;

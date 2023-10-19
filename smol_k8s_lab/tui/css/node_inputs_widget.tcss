@@ -16,7 +16,7 @@ $navy: rgb(35,35,54);
 
 /* number of nodes input row */
 #nodes-input-row {
-   background: $navy 50%;
+   background: $navy 60%;
    border: round $cornflower;
    border-title-color: $sky_blue;
    grid-size: 2;

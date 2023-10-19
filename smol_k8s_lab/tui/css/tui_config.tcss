@@ -96,7 +96,7 @@ $navy: rgb(35,35,54);
     margin-top: 2;
     border: round $cornflower;
     border-title-color: $sky_blue;
-    background: $navy 50%;
+    background: $navy 60%;
     align: center middle;
     grid-gutter: 1;
 }
@@ -126,7 +126,7 @@ $navy: rgb(35,35,54);
     grid-rows: 0.2fr 0.5fr 0.45fr 0.45fr;
     border: round $cornflower;
     border-title-color: $sky_blue;
-    background: $navy 50%;
+    background: $navy 60%;
     align: center middle;
     grid-gutter: 1;
 }

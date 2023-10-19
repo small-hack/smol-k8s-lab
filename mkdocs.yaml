@@ -1,6 +1,7 @@
 site_name: smol-k8s-lab
 site_url: https://smol-k8s.com
 theme:
+  favicon: images/cloud_favicon.png
   icon:
     logo: material/cloud
   name: material
