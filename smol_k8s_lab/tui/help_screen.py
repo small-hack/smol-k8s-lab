@@ -45,7 +45,11 @@ class HelpScreen(ModalScreen):
 
         if self.app.speak_screen_titles:
             # if text to speech is on, read screen title
-            self.app.action_say("Screen title: Help Screen")
+            self.app.action_say(
+                    "Screen title: Help Screen. Use your mouse to click anything"
+                    " in the UI ✨ Or use the following key bindings. For "
+                    "additional help, checkout smol dash k8s dot org."
+                    )
 
         self.build_help_table()
 
