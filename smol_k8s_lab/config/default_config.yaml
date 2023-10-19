@@ -23,7 +23,7 @@ smol_k8s_lab:
         screen_titles: true
         # read aloud the element id, value, and tooltip each time you switch focus
         on_focus: false
-        # press f5 to read the element id and selected row of datatables
+        # press f5 to read the element id and selected row of DataTables
         on_key_press: true
 
     # enable text to speech
@@ -32,7 +32,7 @@ smol_k8s_lab:
       # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s
       # immediately after the cluster is up and enabled apps have been installed
       enabled: false
-      # default command to run when k9s launches. defaults to application.argoproj.io
+      # default command to run when k9s launches. Defaults to application.argoproj.io
       # so that you can view the status of all of your argo apps immediately. This
       # default results in running: k9s --command applications.argoproj.io
       command: applications.argoproj.io
@@ -47,7 +47,7 @@ smol_k8s_lab:
   # store your password and tokens directly in your local password manager
   local_password_manager:
     enabled: false
-    # enable the use of bitwarden as your password manager.
+    # enable the use of Bitwarden as your password manager.
     # To use Bitwarden, you must export the following environment variables:
     # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
     # If you're missing any of these, smol-k8s-lab will prompt for them
@@ -64,14 +64,14 @@ smol_k8s_lab:
 # NOTE: only kind and k3d are available on macOS at this time
 k8s_distros:
   k3s:
-    # set to true to enable deploying a kubernetes cluster using k3s
+    # set to true to enable deploying a Kubernetes cluster using k3s
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. If you enable cilium, we
     # automatically pass in flannel-backend: none and disable-network-policy: true 
     k3s_yaml:
-      # if you enable metallb, we automatically add servicelb to the disable list
-      # enables encryption at rest for kubernetes secrets
+      # if you enable MetalLB, we automatically add servicelb to the disable list
+      # enables encryption at rest for Kubernetes secrets
       secrets-encryption: true
       # disables traefik so we can enable ingress-nginx, remove if you're using traefik
       disable:
@@ -86,14 +86,14 @@ k8s_distros:
       workers: 0
 
   k3d:
-    # set to true to enable deploying a kubernetes cluster using k3d
+    # set to true to enable deploying a Kubernetes cluster using k3d
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. if you enable cilium, we
     # automatically pass in flannel-backend: none and disable-network-policy: true 
     k3s_yaml:
-      # if you enable metallb, we automatically add servicelb to the disable list
-      # enables encryption at rest for kubernetes secrets
+      # if you enable MetalLB, we automatically add servicelb to the disable list
+      # enables encryption at rest for Kubernetes secrets
       secrets-encryption: true
       # disables traefik so we can enable ingress-nginx, remove if you're using traefik
       disable:
@@ -108,7 +108,7 @@ k8s_distros:
       workers: 0
 
   kind:
-    # set to true to enable deploying a kubernetes cluster using kind
+    # set to true to enable deploying a Kubernetes cluster using kind
     enabled: false
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
@@ -151,11 +151,11 @@ apps:
       # but then you can't use the default repo
       enabled: true
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        # FQDN hostname for accessing the ArgoCD web interface
+        # FQDN hostname for accessing the Argo CD web interface
         hostname: ""
-        # which oidc provider to use for argo cd: defaults to zitadel
+        # which oidc provider to use for Argo CD: defaults to Zitadel
         oidc_provider: "zitadel"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -179,7 +179,7 @@ apps:
   appset_secret_plugin:
     enabled: true
     description: |
-      Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [gold3]argo.repo[/gold3] and default enabled if ArgoCD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
+      Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [gold3]argo.repo[/gold3] and default enabled if Argo CD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside Argo CD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
 
       Switch to initialization off if you don't want to deploy a default secret with all keys in each apps.{app}.argo.secret_keys
 
@@ -187,7 +187,7 @@ apps:
     init:
       enabled: true
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSet
+      # secrets keys to make available to Argo CD ApplicationSet
       secret_keys: {}
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
@@ -210,16 +210,16 @@ apps:
   bitwarden_eso_provider:
     enabled: true
     description: |
-      bitwarden external secrets provider is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
+      Bitwarden external secrets provider is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
 
-      smol-k8s-lab support initialization by creating a kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
+      smol-k8s-lab support initialization by creating a Kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
 
       BITWARDEN_PASSWORD, BITWARDEN_CLIENTSECRET, BITWARDEN_CLIENTID
 
       Learn more: [link="https://github.com/jessebot/bitwarden-eso-provider/"]https://github.com/jessebot/bitwarden-eso-provider/[/link]
     init:
       # Switch to false if you don't want to be prompted for your Bitwarden
-      # API credentials to be created as a kubernetes secret.
+      # API credentials to be created as a Kubernetes secret.
       enabled: true
     argo:
       # skip installing this app b/c its part of another app of apps with this
@@ -233,7 +233,7 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
-      # optional secrets keys to pass to the argo cd appset secret plugin generator
+      # optional secrets keys to pass to the Argo CD Appset secret plugin generator
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
@@ -246,7 +246,7 @@ apps:
             - external-secrets
 
   # This app is installed with helm or manifests depending on what is recommended
-  # for your k8s distro. Becomes managed by ArgoCD if you enable it below
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
   cert_manager:
     # ! NOTE: you currently can't set this to false. It is necessary to deploy
     # most of our supported Argo CD apps since they often have TLS enabled either
@@ -289,7 +289,7 @@ apps:
             - ingress
 
   # This app is installed with helm or manifests depending on what is recommended
-  # for your k8s distro. Becomes managed by ArgoCD if you enable it below
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
   cilium:
     enabled: false
     description: |
@@ -334,14 +334,14 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       # change to external-secrets-operator/external-secrets-operator/ to deploy
       # ONLY the external-secrets-operator, so this will not use app of apps and
-      # therefore we will not deploy the bitwarden eso provider. Use if you want to use
+      # therefore we will not deploy the Bitwarden ESO provider. Use if you want to use
       # a different provider
       path: "external-secrets-operator/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
-      # secret keys to provide for the argocd secret plugin app, none by default
+      # secret keys to provide for the Argo CD Appset secret plugin, none by default
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
@@ -385,7 +385,7 @@ apps:
             - argocd
 
   # This app is installed with helm or manifests depending on what is recommended
-  # for your k8s distro. Becomes managed by ArgoCD if you enable it below
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
   ingress_nginx:
     enabled: true
     description: |
@@ -401,7 +401,7 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "ingress"
-      # secret keys to provide for the argocd secret plugin app, none by default
+      # secret keys to provide for the Argo CD Appset secret plugin, none by default
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
@@ -418,7 +418,7 @@ apps:
   k8tz:
     enabled: false
     description: |
-      k8tz is a kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs1.
+      k8tz is a Kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs1.
 
       Containers do not inherit timezones from host machines and have only accessed to the clock from the kernel. The default timezone for most images is UTC, yet it is not guaranteed and may be different from container to container. With k8tz it is easy to standardize selected timezone across pods and namespaces automatically with minimal effort.
 
@@ -567,7 +567,7 @@ apps:
     init:
       enabled: true
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
         mail_hostname: ""
@@ -600,7 +600,7 @@ apps:
     init:
       enabled: true
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
       # git repo to install the Argo CD app from
@@ -621,7 +621,7 @@ apps:
             - argocd
 
   # This app is installed with helm or manifests depending on what is recommended
-  # for your k8s distro. Becomes managed by ArgoCD if you enable it below
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
   metallb:
     enabled: true
     description: |
@@ -666,7 +666,7 @@ apps:
 
       learn more: [link=https://min.io/]https://min.io/[/link]
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
       # git repo to install the Argo CD app from
@@ -701,7 +701,7 @@ apps:
         admin_user: ""
         smtp_user: ""
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
         backup_method: ""
@@ -736,7 +736,7 @@ apps:
 
     enabled: true
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for Prometheus web interface
         hostname: ""
@@ -772,7 +772,7 @@ apps:
     description: |
       vouch-proxy can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
 
-      smol-k8s-lab supports the initialization of vouch if you also enable zitadel by creating OIDC applications and credentials and your vouch-proxy kubernetes secret.
+      smol-k8s-lab supports the initialization of vouch if you also enable zitadel by creating OIDC applications and credentials and your vouch-proxy Kubernetes Secret.
 
       Learn more: [link=https://github.com/vouch/vouch-proxy]https://github.com/vouch/vouch-proxy[/link]
     enabled: true
@@ -787,7 +787,7 @@ apps:
         emails: []
         # - beep@boop.com
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for vouch
         hostname: ""
@@ -835,7 +835,7 @@ apps:
         # more coming soon, see: https://github.com/zitadel/zitadel/issues/6355
         gender: "GENDER_UNSPECIFIED"
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for zitadel
         hostname: ""
