@@ -74,6 +74,7 @@ def setup_oidc_provider(k8s_obj: K8s,
 
     # keycloak_enabled = keycloak_dict['enabled']
     zitadel_enabled = zitadel_dict['enabled']
+
     vouch_enabled = False
     if vouch_dict:
         vouch_enabled = vouch_dict['enabled']
@@ -86,7 +87,7 @@ def setup_oidc_provider(k8s_obj: K8s,
     #     user = keycloak_dict['init']['values']['username']
 
     # setup zitadel if we're using that for OIDC
-    elif zitadel_enabled:
+    if zitadel_enabled:
         log.debug("Setting up zitadel")
         if zitadel_dict['init']['enabled']:
             vouch_hostname = ''
