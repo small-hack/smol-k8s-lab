@@ -239,7 +239,6 @@ def main(config: str = "",
 
         setup_oidc_provider(k8s_obj,
                             api_tls_verify,
-                            apps.pop('keycloak'),
                             apps.pop('zitadel'),
                             apps.pop('vouch'),
                             bw,
@@ -251,8 +250,8 @@ def main(config: str = "",
                              apps.pop('matrix'),
                              bw)
 
-        # after argocd, keycloak, bweso, and vouch are up, we install all
-        # apps as Argo CD Applications
+        # after argocd, zitadel, bweso, and vouch are up, we install all apps
+        # as Argo CD Applications
         header("Installing the rest of the Argo CD apps")
         for app_key, app_meta in apps.items():
             if app_meta['enabled']:
