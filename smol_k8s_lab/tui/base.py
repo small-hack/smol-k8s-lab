@@ -272,7 +272,6 @@ class BaseApp(App):
         if invalid_apps:
             self.app.push_screen(InvalidAppsScreen(invalid_apps))
         else:
-            self.app.notify(str(invalid_apps))
             self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
 
     def action_request_confirm(self) -> None:
