@@ -54,7 +54,7 @@ class NewAppModalScreen(ModalScreen):
 
     def on_mount(self) -> None:
         box = self.get_widget_by_id("question-box")
-        box.border_subtitle = "[@clck=app.pop_screen]cancel[/]"
+        box.border_subtitle = "[@click=app.pop_screen]cancel[/]"
 
         if self.app.speak_screen_titles:
             # if text to speech is on, read screen title
