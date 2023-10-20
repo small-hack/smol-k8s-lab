@@ -13,27 +13,33 @@ from os import environ
 
 
 ENV_VARS = {
-        "nextcloud": ["NEXTCLOUD_RESTIC_REPO_PASSWORD"],
+        "nextcloud": ["RESTIC_REPO_PASSWORD"],
 
-        "mastodon": ["MASTODON_S3_ACCESS_KEY",
-                     "MASTODON_S3_ACCESS_ID",
-                     "MASTODON_RESTIC_REPO_PASSWORD"],
+        "mastodon": ["S3_ACCESS_KEY",
+                     "S3_ACCESS_ID",
+                     "RESTIC_REPO_PASSWORD"],
 
         "matrix": []
         }
 
 
 def check_for_required_env_vars(app: str, app_cfg: dict = {}) -> list:
+    """ 
+    check for required env vars and return list of dict and set:
+        values found dict, set of values you need to prompt for 
+    """
     # keep track of a list of stuff to prompt for
     prompt_values = []
     # this is the stuff we already have in env vars
     values = {}
+    # default smtp env var
+    smtp_env_var = "SMTP_PASSWORD"
 
     env_vars = ENV_VARS.copy()
 
     if app == "nextcloud":
-        access_id_env_var = app.upper() + "_S3_ACCESS_ID"
-        access_key_env_var = app.upper() + "_S3_ACCESS_KEY"
+        access_id_env_var = "S3_ACCESS_ID"
+        access_key_env_var = "S3_ACCESS_KEY"
         if app_cfg['argo']['secret_keys']['backup_method'].lower() == 's3':
             # add prompts for s3 access key/id if backup method is s3
             env_vars[app].append(access_id_env_var)
@@ -46,28 +52,27 @@ def check_for_required_env_vars(app: str, app_cfg: dict = {}) -> list:
                 env_vars[app].remove(access_key_env_var)
 
     # only prompt for smtp credentials if mail is enabled
-    smtp_env_var = app.upper() + "_SMTP_PASSWORD"
     if 'change me' not in app_cfg['init']['values']['smtp_user']:
         # add prompts if mail is enabled
         env_vars[app].append(smtp_env_var)
     else:
         if smtp_env_var in env_vars[app]:
             env_vars[app].remove(smtp_env_var)
-
+        # HACK: not really sure what to do here and I'm short on time, so 🤷
         values[smtp_env_var] = "mail not enabled"
 
     if env_vars[app]:
         # iterate through list of env vars to check
         for item in env_vars[app]:
-            value = environ.get(item, default="")
+            value = environ.get("_".join([app.upper(), item]), default="")
 
             # append any missing to prompt_values
             if not value:
-                prompt_values.append(item)
+                prompt_values.append(item.lower())
             else:
-                values[item] = value
+                values[item.lower()] = value
 
-    return set(values), set(prompt_values)
+    return values, set(prompt_values)
 
                     
 class PromptForSensitiveInfoModalScreen(ModalScreen):
@@ -124,9 +129,7 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
         """
         add a new row of keys to pass to an argocd app
         """
-
-        # make lower case, split by _, drop the first word, and join with spaces
-        key_label = " ".join(key.lower().split("_")[1:])
+        key_label = key.replace("_", " ")
 
         # create input
         input_keys = {"placeholder": placeholder_grammar(key_label),
@@ -147,7 +150,7 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
         """
         add a new input row for secret stuff
         """
-        self.dismiss(self.return_dict)
+        self.dismiss(self.app_name, self.return_dict)
 
     @on(Input.Changed)
     def input_validation(self, event: Input.Changed) -> None:

@@ -250,12 +250,23 @@ class BaseApp(App):
         launches the smol-k8s-lab config for the program itself for things like
         the TUI, but also logging and password management
         """
+        # always check if we have sensitive values already
+        self.request_sensitive_values()
+
         # go check all the apps for empty inputs
         invalid_apps = check_for_invalid_inputs(self.cfg['apps'])
         if invalid_apps:
             self.app.push_screen(InvalidAppsScreen(invalid_apps))
         else:
             self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
+
+    def request_sensitive_values(self) -> None:
+        """
+        check for sensitive inputs and prompt for any if we need
+        """
+        def process_modal_output(app: str, new_values: dict):
+            if new_values:
+                self.sensitive_values[app] = self.sensitive_values[app] | new_values
 
         # check for sensitive inputs and prompt for any if we need
         for app in ['nextcloud', 'matrix', 'mastodon']:
