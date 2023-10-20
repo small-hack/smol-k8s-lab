@@ -721,10 +721,11 @@ apps:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
+        # this can be "s3" or "local"
         backup_method: ""
         backup_s3_endpoint: ""
         backup_s3_bucket: ""
-        backup_mount_path: ""
+        backup_mount_path: "None"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
