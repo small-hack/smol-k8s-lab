@@ -720,6 +720,7 @@ apps:
         backup_method: ""
         backup_s3_endpoint: ""
         backup_s3_bucket: ""
+        # change this if you set backup_method to local
         backup_mount_path: "None"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
