@@ -12,26 +12,34 @@ from textual.widgets import Button, Input, Label
 from os import environ
 
 
-env_vars = {
-        "nextcloud": ["NEXTCLOUD_SMTP_PASSWORD",
-                      "NEXTCLOUD_S3_ACCESS_KEY",
+ENV_VARS = {
+        "nextcloud": ["NEXTCLOUD_S3_ACCESS_KEY",
                       "NEXTCLOUD_S3_ACCESS_ID",
-                      "NEXTCLOUD_RESTIC_REPO_PASSWORD"],
-        "mastodon": [
-            "MASTODON_SMTP_PASSWORD",
-            "MASTODON_S3_ACCESS_KEY",
-            "MASTODON_S3_ACCESS_ID",
-            "MASTODON_RESTIC_REPO_PASSWORD"],
+                      "NEXTCLOUD_RESTIC_REPO_PASSWORD",
+                      "NEXTCLOUD_SMTP_PASSWORD"],
+
+        "mastodon": ["MASTODON_S3_ACCESS_KEY",
+                     "MASTODON_S3_ACCESS_ID",
+                     "MASTODON_RESTIC_REPO_PASSWORD",
+                     "MASTODON_SMTP_PASSWORD"],
 
         "matrix": ["MATRIX_SMTP_PASSWORD"]
         }
 
 
-def check_for_required_env_vars(app: str) -> None:
+def check_for_required_env_vars(app: str, app_cfg: dict = {}) -> None:
     # keep track of a list of stuff to prompt for
     prompt_values = []
     # this is the stuff we already have in env vars
-    values = []
+    values = {}
+
+    env_vars = ENV_VARS
+
+    if app == "nextcloud":
+        if app_cfg['argo']['secret_keys']['backup_method'].lower() != 's3':
+            # remove prompts for s3 access key/id if backup method not set to those
+            env_vars['nextcloud'].pop(0)
+            env_vars['nextcloud'].pop(0)
 
     # iterate through list of env vars to check
     for item in env_vars[app]:
@@ -39,7 +47,7 @@ def check_for_required_env_vars(app: str) -> None:
 
         # append any missing to prompt_values
         if not value:
-            prompt_values.append(value)
+            prompt_values.append(item)
         else:
             values[item] = value
 
@@ -59,9 +67,7 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
                         action="app.pop_screen",
                         description="Back")]
 
-    def __init__(self,
-                 app_name: str = "nextcloud",
-                 sensitive_info_list: list = env_vars['nextcloud']) -> None:
+    def __init__(self, app_name: str, sensitive_info_list: list) -> None:
         self.app_name = app_name
         self.sensitive_info_list = sensitive_info_list
         self.return_dict = {}
@@ -109,10 +115,8 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
         # create input
         input_keys = {"placeholder": placeholder_grammar(key_label),
                       "name": key,
+                      "password": True,
                       "validators": [Length(minimum=2)]}
-
-        if value:
-            input_keys['value'] = value
 
         input = Input(**input_keys)
         input.validate(value)
@@ -132,7 +136,7 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
     def input_validation(self, event: Input.Changed) -> None:
         if event.validation_result.is_valid:
             self.return_dict[event.input.name] = event.input.value
-            self.query(Button).disabled = False
+            self.query_one(Button).disabled = False
         else:
             if self.app.bell_on_error:
                 self.app.bell()
@@ -141,4 +145,4 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
                         severity="warning",
                         title="⚠️ Input Validation Error\n")
 
-            self.query(Button).disabled = True
+            self.query_one(Button).disabled = True

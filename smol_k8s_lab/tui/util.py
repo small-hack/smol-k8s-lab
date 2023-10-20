@@ -77,9 +77,9 @@ def placeholder_grammar(key: str) -> str:
 
     # if this is plural change the grammar accordingly
     if plural:
-        return f"Please enter a comma seperated list of {key}"
+        return f"Enter a comma seperated list of {key}"
     else:
-        return f"Please enter {article} {key}"
+        return f"Enter {article} {key}"
 
 
 def create_sanitized_list(input_value: str) -> list:

@@ -152,7 +152,7 @@ class K3sConfig(Static):
         label = Label(key_label, classes="input-label")
 
         # input values
-        row_args = {"placeholder": f"Please enter a value for {key} and press Enter",
+        row_args = {"placeholder": f"Enter a {key} and press Enter",
                     "classes": f"{self.distro} k3s-arg-input",
                     "suggester": SUGGESTIONS,
                     "name": key,
