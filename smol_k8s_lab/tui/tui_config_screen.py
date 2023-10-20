@@ -260,7 +260,7 @@ class AccessibilityWidget(Widget):
             parent_cfg['text_to_speech'][name] = truthy_value
         else:
             name = switch_name.replace("bell-", "")
-            parent_cfg['bell'][switch_name] = truthy_value
+            parent_cfg['bell'][name] = truthy_value
 
         self.app.write_yaml()
 
