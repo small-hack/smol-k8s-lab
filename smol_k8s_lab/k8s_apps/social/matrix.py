@@ -18,8 +18,17 @@ def configure_matrix(k8s_obj: K8s,
     if config_dict['init']['enabled']:
         secrets = config_dict['argo']['secret_keys']
         matrix_hostname = secrets['hostname']
+
+        # configure the smtp credentials
+        smtp_user = config_dict['init']['values']['smtp_user']
+        smtp_pass = config_dict['init']['values']['smtp_password']
+        smtp_host = config_dict['init']['values']['smtp_host']
+
+        # if the user has bitwarden enabled
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
+
+            # SMTP credentials
             matrix_pgsql_password = bitwarden.generate()
             postgres_hostname = create_custom_field("hostname",
                                                     'matrix-web-app-postgresql')
@@ -29,6 +38,16 @@ def configure_matrix(k8s_obj: K8s,
                     user='matrix',
                     password=matrix_pgsql_password,
                     fields=[postgres_hostname])
+
+            # SMTP credentials
+            matrix_smtp_host_obj = create_custom_field("smtpHostname", smtp_host)
+            bitwarden.create_login(name='mastodon-smtp-credentials',
+                                   item_url=matrix_hostname,
+                                   user=smtp_user,
+                                   password=smtp_pass,
+                                   fields=[matrix_smtp_host_obj])
+
+        # else create these as Kubernetes secrets
         else:
             matrix_pgsql_password = create_password()
             k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',

@@ -13,45 +13,61 @@ from os import environ
 
 
 ENV_VARS = {
-        "nextcloud": ["NEXTCLOUD_S3_ACCESS_KEY",
-                      "NEXTCLOUD_S3_ACCESS_ID",
-                      "NEXTCLOUD_RESTIC_REPO_PASSWORD",
-                      "NEXTCLOUD_SMTP_PASSWORD"],
+        "nextcloud": ["NEXTCLOUD_RESTIC_REPO_PASSWORD"],
 
         "mastodon": ["MASTODON_S3_ACCESS_KEY",
                      "MASTODON_S3_ACCESS_ID",
-                     "MASTODON_RESTIC_REPO_PASSWORD",
-                     "MASTODON_SMTP_PASSWORD"],
+                     "MASTODON_RESTIC_REPO_PASSWORD"],
 
-        "matrix": ["MATRIX_SMTP_PASSWORD"]
+        "matrix": []
         }
 
 
-def check_for_required_env_vars(app: str, app_cfg: dict = {}) -> None:
+def check_for_required_env_vars(app: str, app_cfg: dict = {}) -> list:
     # keep track of a list of stuff to prompt for
     prompt_values = []
     # this is the stuff we already have in env vars
     values = {}
 
-    env_vars = ENV_VARS
+    env_vars = ENV_VARS.copy()
 
     if app == "nextcloud":
-        if app_cfg['argo']['secret_keys']['backup_method'].lower() != 's3':
-            # remove prompts for s3 access key/id if backup method not set to those
-            env_vars['nextcloud'].pop(0)
-            env_vars['nextcloud'].pop(0)
-
-    # iterate through list of env vars to check
-    for item in env_vars[app]:
-        value = environ.get(item, default="")
-
-        # append any missing to prompt_values
-        if not value:
-            prompt_values.append(item)
+        access_id_env_var = app.upper() + "_S3_ACCESS_ID"
+        access_key_env_var = app.upper() + "_S3_ACCESS_KEY"
+        if app_cfg['argo']['secret_keys']['backup_method'].lower() == 's3':
+            # add prompts for s3 access key/id if backup method is s3
+            env_vars[app].append(access_id_env_var)
+            env_vars[app].append(access_key_env_var)
         else:
-            values[item] = value
+            # remove prompts for s3 access key/id
+            if access_id_env_var in env_vars[app]:
+                env_vars[app].remove(access_id_env_var)
+            if access_key_env_var in env_vars[app]:
+                env_vars[app].remove(access_key_env_var)
 
-    return values, prompt_values
+    # only prompt for smtp credentials if mail is enabled
+    smtp_env_var = app.upper() + "_SMTP_PASSWORD"
+    if 'change me' not in app_cfg['init']['values']['smtp_user']:
+        # add prompts if mail is enabled
+        env_vars[app].append(smtp_env_var)
+    else:
+        if smtp_env_var in env_vars[app]:
+            env_vars[app].remove(smtp_env_var)
+
+        values[smtp_env_var] = "mail not enabled"
+
+    if env_vars[app]:
+        # iterate through list of env vars to check
+        for item in env_vars[app]:
+            value = environ.get(item, default="")
+
+            # append any missing to prompt_values
+            if not value:
+                prompt_values.append(item)
+            else:
+                values[item] = value
+
+    return set(values), set(prompt_values)
 
                     
 class PromptForSensitiveInfoModalScreen(ModalScreen):
@@ -116,6 +132,7 @@ class PromptForSensitiveInfoModalScreen(ModalScreen):
         input_keys = {"placeholder": placeholder_grammar(key_label),
                       "name": key,
                       "password": True,
+                      "id": "-".join([self.app_name, key, "input"]),
                       "validators": [Length(minimum=2)]}
 
         input = Input(**input_keys)
