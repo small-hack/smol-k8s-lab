@@ -140,6 +140,7 @@ class ConfirmConfig(Screen):
             Exit with credentials
             """
             if credentials:
+                self.append_sensitive_values()
                 self.app.exit([self.app.current_cluster, self.cfg, credentials])
             else:
                 self.notify(leaving_notification, timeout=8,
@@ -151,11 +152,20 @@ class ConfirmConfig(Screen):
         if not any([password, client_id, client_secret]):
             self.app.push_screen(BitwardenCredentialsScreen(), process_modal_output)
         else:
+            self.append_sensitive_values()
             self.app.exit([self.app.current_cluster,
                            self.cfg,
                            {'password': password,
                             'client_id': client_id,
                             'client_secret': client_secret}])
+
+    def append_sensitive_values(self) -> None:
+        """ if this app has SENSITIVE values, append them before we dismiss """
+        if self.app.sensitive_values:
+            for app, values in self.app.sensitive_values:
+                if self.cfg[app]['enabled']:
+                    cfg_values = self.cfg[app]['init']['values']
+                    cfg_values = cfg_values | values 
 
     @on(Button.Pressed)
     def confirm_or_back_button(self, event: Button.Pressed) -> None:
@@ -185,6 +195,7 @@ class ConfirmConfig(Screen):
             if local_bitwarden or official_bweso:
                 self.get_bitwarden_credentials()
             else:
+                self.append_sensitive_values()
                 self.app.exit([self.app.current_cluster, self.cfg, None])
 
         if event.button.id == "back-button":
