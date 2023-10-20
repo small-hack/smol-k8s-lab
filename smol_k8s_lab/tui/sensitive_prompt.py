@@ -27,14 +27,14 @@ env_vars = {
         }
 
 
-def check_for_required_env_vars(env_var_list: list) -> None:
+def check_for_required_env_vars(app: str) -> None:
     # keep track of a list of stuff to prompt for
     prompt_values = []
     # this is the stuff we already have in env vars
     values = []
 
     # iterate through list of env vars to check
-    for item in env_var_list:
+    for item in env_vars[app]:
         value = environ.get(item, default="")
 
         # append any missing to prompt_values

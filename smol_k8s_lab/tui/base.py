@@ -8,7 +8,9 @@ from smol_k8s_lab.tui.distro_screen import DistroConfigScreen
 from smol_k8s_lab.tui.help_screen import HelpScreen
 from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsScreen
 from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
-from smol_k8s_lab.tui.sensitive_prompt import PromptForSensitiveInfoModalScreen
+from smol_k8s_lab.tui.sensitive_prompt import (
+        PromptForSensitiveInfoModalScreen, check_for_required_env_vars
+        )
 from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 from smol_k8s_lab.tui.util import check_for_invalid_inputs
@@ -78,6 +80,7 @@ class BaseApp(App):
         self.show_footer = self.cfg['smol_k8s_lab']['tui']['show_footer']
         self.cluster_names = []
         self.current_cluster = ""
+        self.sensitive_values = {}
 
         # configure global accessibility
         accessibility_opts = self.cfg['smol_k8s_lab']['tui']['accessibility']
@@ -258,12 +261,23 @@ class BaseApp(App):
         launches the smol-k8s-lab config for the program itself for things like
         the TUI, but also logging and password management
         """
-        # go check all the app inputs
+        # go check all the apps for empty inputs
         invalid_apps = check_for_invalid_inputs(self.cfg['apps'])
         if invalid_apps:
             self.app.push_screen(InvalidAppsScreen(invalid_apps))
         else:
             self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
+
+        # check for sensitive inputs and prompt for any if we need
+        for app in ['nextcloud', 'matrix', 'mastodon']:
+            if self.cfg['apps'][app]['enabled']:
+                sensitive_values, prompts = check_for_required_env_vars(app)
+                if prompts:
+                    self.app.push_screen(
+                            PromptForSensitiveInfoModalScreen(
+                                app,
+                                prompts)
+                            )
 
     def action_request_confirm(self) -> None:
         """
