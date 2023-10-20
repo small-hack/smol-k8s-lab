@@ -397,7 +397,7 @@ class BaseApp(App):
                 self.action_say(f"tooltip is {tooltip}")
 
         if self.bell_on_focus:
-            self.app.action_bell()
+            self.app.bell()
 
 
 class NewClusterInput(Static):
