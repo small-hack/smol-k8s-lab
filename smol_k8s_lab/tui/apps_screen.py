@@ -144,7 +144,7 @@ class AppsConfig(Screen):
 
         # styling for the select-apps - configure apps container - right
         app_title = highlighted_app.replace("_", " ").title()
-        app_cfg_title = f"🛠️ [i]configure[/] parameters for [#C1FF87]{app_title}"
+        app_cfg_title = f"🔧 [i]configure[/] parameters for [#C1FF87]{app_title}"
         self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
 
         if self.previous_app != "":

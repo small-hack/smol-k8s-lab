@@ -3,6 +3,7 @@
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
 # external libraries
+from os import environ
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -11,6 +12,17 @@ from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.validation import Length
 from textual.widgets import Input, Button, Label, Switch
+
+
+ENV_VARS = {
+        "nextcloud": ["RESTIC_REPO_PASSWORD"],
+
+        "mastodon": ["S3_ACCESS_KEY",
+                     "S3_ACCESS_ID",
+                     "RESTIC_REPO_PASSWORD"],
+
+        "matrix": []
+        }
 
 
 KUBELET_SUGGESTIONS = SuggestFromList((
@@ -271,6 +283,12 @@ def check_for_invalid_inputs(apps_dict: dict = {}) -> list:
                         if not value:
                             empty_fields.append(key)
 
+                if app in ['nextcloud', 'matrix', 'mastodon']:
+                    _, prompts = check_for_required_env_vars(app, metadata)
+                    if prompts:
+                        empty_fields.extend(prompts)
+
+
             # check for empty secret key fields (some apps don't have secret keys)
             secret_keys = metadata['argo'].get('secret_keys', None)
             if secret_keys:
@@ -282,3 +300,56 @@ def check_for_invalid_inputs(apps_dict: dict = {}) -> list:
                 invalid_apps[app] = empty_fields
 
     return invalid_apps
+
+
+def check_for_required_env_vars(app: str, app_cfg: dict = {}) -> list:
+    """
+    check for required env vars and return list of dict and set:
+        values found dict, set of values you need to prompt for
+    """
+    # keep track of a list of stuff to prompt for
+    prompt_values = []
+    # this is the stuff we already have in env vars
+    values = {}
+    # default smtp env var
+    smtp_env_var = "SMTP_PASSWORD"
+
+    env_vars = ENV_VARS.copy()
+
+    if app == "nextcloud":
+        access_id_env_var = "S3_ACCESS_ID"
+        access_key_env_var = "S3_ACCESS_KEY"
+        if app_cfg['argo']['secret_keys']['backup_method'].lower() == 's3':
+            # add prompts for s3 access key/id if backup method is s3
+            env_vars[app].append(access_id_env_var)
+            env_vars[app].append(access_key_env_var)
+        else:
+            # remove prompts for s3 access key/id
+            if access_id_env_var in env_vars[app]:
+                env_vars[app].remove(access_id_env_var)
+            if access_key_env_var in env_vars[app]:
+                env_vars[app].remove(access_key_env_var)
+
+    # only prompt for smtp credentials if mail is enabled
+    if 'change me' not in app_cfg['init']['values']['smtp_user']:
+        # add prompts if mail is enabled
+        env_vars[app].append(smtp_env_var)
+    else:
+        if smtp_env_var in env_vars[app]:
+            env_vars[app].remove(smtp_env_var)
+        # HACK: not really sure what to do here and I'm short on time, so 🤷
+        values[smtp_env_var] = "mail not enabled"
+
+    # provided there's actually any env vars to go get...
+    if env_vars[app]:
+        # iterate through list of env vars to check
+        for item in env_vars[app]:
+            value = environ.get("_".join([app.upper(), item]), default="")
+
+            if not value:
+                # append any missing values to prompt_values
+                prompt_values.append(item.lower())
+
+            values[item.lower()] = value
+
+    return values, set(prompt_values)
