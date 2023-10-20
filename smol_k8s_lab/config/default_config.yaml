@@ -145,11 +145,6 @@ apps:
       Learn more: [link=https://argo-cd.readthedocs.io/en/stable/]https://argo-cd.readthedocs.io/en/stable/[/link]
 
       smol-k8s-lab installs Argo CD with helm initially to support initial configuration of your admin user and disabling of dex. After your OIDC provider is configured, Argo CD begins managing itself using the below configured Argo CD repo.
-    # Initialization of the app through smol-k8s-lab
-    init:
-      # Switch to false if you don't want to use the appset_secret_plugin
-      # but then you can't use the default repo
-      enabled: true
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -190,9 +185,11 @@ apps:
 
       Learn more: [link=https://github.com/small-hack/appset-secret-plugin]https://github.com/small-hack/appset-secret-plugin[/link]
     init:
+      # switch to false if you don't want to create an initial secret of values
+      # to provide to other Argo CD ApplicationSets
       enabled: true
     argo:
-      # secrets keys to make available to Argo CD ApplicationSet
+      # secrets keys to make available to Argo CD ApplicationSet itself
       secret_keys: {}
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the repo, path, ref, and namespace
@@ -571,11 +568,15 @@ apps:
     enabled: false
     init:
       enabled: true
+      values:
+        admin_user: "tootadmin"
+        admin_email: ""
+        smtp_user: "change me to enable mail"
+        smtp_host: "change@me-to-enable.mail"
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
-        mail_hostname: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -600,14 +601,18 @@ apps:
 
       Learn more: [link=https://matrix.org/]https://matrix.org/[/link]
 
-      smol-k8s-lab supports initialization by creating initial secrets for your hostnames, and credentials for: postgresql, admin user, SMTP
+      smol-k8s-lab supports initialization by creating initial secrets for your hostnames, and credentials for: postgresql, admin user, and SMTP
     enabled: false
     init:
       enabled: true
+      values:
+        smtp_user: "change me to enable mail"
+        smtp_host: "change@me-to-enable.mail"
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
+        admin_email: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -674,6 +679,10 @@ apps:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
+        buckets:
+          - nextcloud
+          - "mastodon-assets"
+          - matrix
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -684,10 +693,12 @@ apps:
       namespace: "minio"
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
-        source_repos: []
+        source_repos:
+          - https://github.com/small-hack/argocd-apps
         destination:
           namespaces:
             - argocd
+            - minio
 
   nextcloud:
     enabled: false
@@ -704,8 +715,8 @@ apps:
       enabled: true
       values:
         admin_user: ""
-        smtp_user: ""
-        smtp_host: ""
+        smtp_user: "change me to enable mail"
+        smtp_host: "change@me-to-enable.mail"
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:

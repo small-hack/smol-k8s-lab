@@ -30,48 +30,30 @@ Or:
 
 - `backup_mount_path`
 
-You can then remove the options unrelated to the backup method you chose by removing them from the YAML config file. Here's an example of a correctly filled out Nextcloud `init` and `argo.secret_keys` section in the `smol-k8s-lab` config.yaml:
-
-```yaml
-apps:
-  nextcloud:
-    # initialize the app by setting up new k8s secrets and/or Bitwarden items
-    init:
-      enabled: true
-      values:
-        admin_user: 'mycooladminuser'
-        smtp_user: 'mycoolsmtpusername'
-        smtp_host: 'mail.cooldogs.net'
-    argo:
-      # secrets keys to make available to Argo CD ApplicationSets
-      # notice that backup_mount_path has been *removed*
-      secret_keys:
-        hostname: 'cloud.coolfilesfordogs.com'
-        backup_method: 's3'
-        backup_s3_endpoint: 'http://minio:9000'
-        backup_s3_bucket: "my-cool-backup-bucket"
-```
-
 ## Required Sensitive Values
 
 If you'd like to setup SMTP and backups, we need a bit more sensitive data. This includes your:
 
 - SMTP password
-- S3 access key
-- S3 access id
-- restic repo password. 
+- restic repo password
+- S3 access key (only if backup method is set to s3)
+- S3 access id (only if backup method is set to s3)
 
-You have two options. You can respond to a one-time prompt for these credentials, or you can export a environment variables.
+You have two options. You can:
+
+- respond to a one-time prompt for these credentials (one-time _per cluster_)
+- export environment variables
 
 ### Environment Variables
 
 You can export the following env vars and we'll use them for your sensitive data:
 
 - `NEXTCLOUD_SMTP_PASSWORD`
-- `NEXTCLOUD_S3_ACCESS_KEY`
-- `NEXTCLOUD_S3_ACCESS_ID`
 - `NEXTCLOUD_RESTIC_REPO_PASSWORD`
 
+Only required if backup_method is set to s3:
+- `NEXTCLOUD_S3_ACCESS_KEY`
+- `NEXTCLOUD_S3_ACCESS_ID`
 
 ## Official Repo
 
