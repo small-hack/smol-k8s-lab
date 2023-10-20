@@ -64,12 +64,7 @@ class BaseApp(App):
                         key_display="n",
                         description="New Cluster",
                         action="app.new_cluster",
-                        show=True),
-                Binding(key="s",
-                        key_display="s",
-                        description="sensitive test",
-                        action="request_sensitive_prompt",
-                        show=True),
+                        show=True)
                 ]
 
     CSS_PATH = ["./css/base.tcss",
@@ -250,12 +245,6 @@ class BaseApp(App):
         """
         self.app.push_screen(DistroConfigScreen(self.cfg['k8s_distros']))
 
-    def action_request_sensitive_prompt(self) -> None:
-        """
-        launches the sensitive prompt window
-        """
-        self.app.push_screen(PromptForSensitiveInfoModalScreen())
-
     def action_request_smol_k8s_cfg(self) -> None:
         """
         launches the smol-k8s-lab config for the program itself for things like
@@ -270,8 +259,9 @@ class BaseApp(App):
 
         # check for sensitive inputs and prompt for any if we need
         for app in ['nextcloud', 'matrix', 'mastodon']:
-            if self.cfg['apps'][app]['enabled']:
-                sensitive_values, prompts = check_for_required_env_vars(app)
+            app_cfg = self.cfg['apps'][app]
+            if app_cfg['enabled'] and app_cfg['init']['enabled']:
+                sensitive_values, prompts = check_for_required_env_vars(app, app_cfg)
                 if prompts:
                     self.app.push_screen(
                             PromptForSensitiveInfoModalScreen(

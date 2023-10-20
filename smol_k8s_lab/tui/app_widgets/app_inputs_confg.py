@@ -306,11 +306,13 @@ class AppsetSecretValues(Static):
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
-        input = event.input
-        parent_app_yaml = self.app.cfg['apps'][self.app_name]
-        parent_app_yaml['argo']['secret_keys'][input.name] = input.value
+        if event.validation_result.is_valid:
+            input = event.input
+            if input.id != f"{self.app_name}-new-secret":
+                parent_app_yaml = self.app.cfg['apps'][self.app_name]
+                parent_app_yaml['argo']['secret_keys'][input.name] = input.value
 
-        self.app.write_yaml()
+                self.app.write_yaml()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """

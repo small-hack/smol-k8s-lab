@@ -37,7 +37,7 @@ class ArgoCDApplicationConfig(Static):
         yield argo_app_label
 
         for key, value in ARGO_TOOLTIPS.items():
-            input = Input(placeholder=f"Please enter a {key}",
+            input = Input(placeholder=f"Enter a {key}",
                           value=self.argo_params[key],
                           name=key,
                           validators=[Length(minimum=2)],
@@ -103,7 +103,7 @@ class ArgoCDProjectConfig(Static):
             else:
                 value = ""
             classes = f"{self.app_name} argo-config-input argo-proj-repo"
-            yield Input(placeholder="Please enter source repos",
+            yield Input(placeholder="Enter comma seperated list of source repos",
                         value=value,
                         name="source_repos",
                         validators=Length(minimum=5),
