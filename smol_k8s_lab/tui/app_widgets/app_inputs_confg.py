@@ -3,7 +3,8 @@
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
-from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
+from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInputsWidget
+from smol_k8s_lab.tui.util import placeholder_grammar
 
 # external libraries
 from textual import on
@@ -68,6 +69,7 @@ class AddAppInput(Static):
         # scroll down to the new app
         apps.action_last()
 
+
 class AppInputs(Static):
     """
     Display inputs for given smol-k8s-lab supported application
@@ -84,8 +86,7 @@ class AppInputs(Static):
         with VerticalScroll(id=f"{self.app_name}-argo-config-container",
                             classes="argo-config-container"):
 
-            # this has to live here because it is awful
-            with Container(classes="init-widget"):
+            if self.init:
                 yield InitValues(self.app_name, self.init)
 
             yield ArgoCDApplicationConfig(self.app_name, self.argo_params)
@@ -112,23 +113,15 @@ class InitValues(Static):
 
     def __init__(self, app_name: str, init_dict: dict) -> None:
         self.app_name = app_name
-        self.init = init_dict
+        self.init_enabled = init_dict['enabled']
+        self.init_values = init_dict.get('values', None)
 
-        if self.init:
-            self.init_values = self.init.get('values', None)
-        else:
-            self.init_values = None
         super().__init__()
 
     def compose(self) -> ComposeResult:
         # container for all inputs associated with one app
-        app_inputs_class = f"{self.app_name} init-inputs-container"
-        inputs_container = Container(id=f"{self.app_name}-init-inputs",
-                                     classes=app_inputs_class)
-
         # make a pretty title with an init switch for the app to configure
-        s_class = f"app-init-switch-and-labels-row {self.app_name}"
-        with Container(classes=s_class):
+        with Container(classes=f"app-init-switch-and-labels-row {self.app_name}"):
             init_lbl = Label("Initialization", classes="initialization-label")
             init_lbl.tooltip = ("if supported, smol-k8s-lab will perform a "
                                 "one-time initial setup of this app")
@@ -136,66 +129,44 @@ class InitValues(Static):
 
             yield Label("Enabled: ", classes="app-init-switch-label")
 
-            if not self.init:
-                switch = Switch(value=False,
-                                id=f"{self.app_name}-init-switch",
-                                classes="app-init-switch")
-
-                switch.tooltip = (f"Initialization for {self.app_name} is [i]not[/]"
-                                  " supported by smol-k8s-lab at this time")
-                switch.disabled = True
-                switch.animate = False
-            else:
-                init_enabled = self.init.get('enabled', False)
-
-                switch = Switch(value=init_enabled,
-                                id=f"{self.app_name}-init-switch",
-                                classes="app-init-switch")
-
-                if self.init_values and not init_enabled:
-                    inputs_container.display = False
-
+            switch = Switch(value=self.init_enabled,
+                            id=f"{self.app_name}-init-switch",
+                            classes="app-init-switch")
             yield switch
 
-        if self.init_values:
-            # these are special values that are only set up via
-            # smol-k8s-lab and do not live in a secret on the k8s cluster
-            with inputs_container:
-                for init_key, init_value in self.init_values.items():
-                    yield self.generate_init_row(init_key, init_value)
-
-    def generate_init_row(self, init_key: str, init_value: str) -> None:
-        # create input
-        grammar = placeholder_grammar(init_key)
-        input_keys = {"placeholder": grammar,
-                      "classes": f"app-init-input {self.app_name}",
-                      "validators": [Length(minimum=2)],
-                      "name": init_key}
-        if init_value:
-            if isinstance(init_value, list):
-                input_keys['value'] = ", ".join(init_value)
-            else:
-                input_keys['value'] = init_value
-
-        # create the input row
-        label_value = init_key.replace("_"," ") + ":"
-        label = Label(label_value, classes=f"app-init-label {self.app_name}")
-        tooltip = (
-                f"{grammar}. Init value for special one-time setup of {self.app_name}."
-                " This value is [i]not[/i] stored in a secret for later reference"
-                " by Argo CD."
+        inputs_container = Container(
+                id=f"{self.app_name}-init-inputs",
+                classes=f"{self.app_name} init-inputs-container"
                 )
-        if self.app_name == "metallb":
-            tooltip += (" Be sure the ip addresses you enter already have DNS "
-                        "entries for any apps you'd like to deploy.")
-        label.tooltip = tooltip
+        if self.init_values and not self.init_enabled:
+            inputs_container.display = False
 
-        container_class = f"app-init-row {self.app_name}"
+        if self.init_values or self.app_name in self.app.sensitive_values:
+            with inputs_container:
+                if self.init_values:
+                    # these are special values that are only set up via
+                    # smol-k8s-lab and do not live in a secret on the k8s cluster
+                    yield SmolK8sLabCollapsibleInputsWidget(
+                            app_name=self.app_name,
+                            title="Init Values",
+                            widget_tooltip="Set of one time init values.",
+                            inputs=self.init_values,
+                            tooltips=(
+                                "Init value for special one-time setup of "
+                                f"{self.app_name}. This value is [i]not[/i] "
+                                "stored in a secret for later reference  by Argo CD."
+                                ),
+                            sensitive_inputs=False,
+                            check_env_for_input=False)
 
-        input = Input(**input_keys)
-        input.validate(init_value)
-
-        return Grid(label, input, classes=container_class)
+                if self.app_name in self.app.sensitive_values:
+                    yield SmolK8sLabCollapsibleInputsWidget(
+                            app_name=self.app_name,
+                            title="Sensitive Init Values",
+                            widget_tooltip=(
+                                "Set of one time [i]sensitive[/] init values."),
+                            sensitive_inputs=True,
+                            check_env_for_input=True)
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
@@ -205,28 +176,12 @@ class InitValues(Static):
         truthy_value = event.value
 
         if self.init_values:
-            app_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
-            app_inputs.display = truthy_value
+           app_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
+           app_inputs.display = truthy_value
 
         self.app.cfg['apps'][self.app_name]['init']['enabled'] = truthy_value
 
         self.app.write_yaml()
-
-    @on(Input.Changed)
-    def update_base_yaml(self, event: Input.Changed) -> None:
-        """ 
-        if input is valid, write out to the base yaml
-        """
-        input = event.input
-        parent_app_yaml = self.app.cfg['apps'][self.app_name]['init']['values']
-
-        if event.validation_result.is_valid:
-            if self.app_name == "metallb":
-                parent_app_yaml[input.name] = create_sanitized_list(input.value)
-            else:
-                parent_app_yaml[input.name] = input.value
-
-            self.app.write_yaml()
 
 
 class AppsetSecretValues(Static):

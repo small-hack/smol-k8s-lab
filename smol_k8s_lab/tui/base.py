@@ -8,9 +8,6 @@ from smol_k8s_lab.tui.distro_screen import DistroConfigScreen
 from smol_k8s_lab.tui.help_screen import HelpScreen
 from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsScreen
 from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
-from smol_k8s_lab.tui.sensitive_prompt import (
-        PromptForSensitiveInfoModalScreen, check_for_required_env_vars
-        )
 from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 from smol_k8s_lab.tui.util import check_for_invalid_inputs
@@ -39,33 +36,34 @@ CUTE_ADJECTIVE = ["lovely", "adorable", "cute", "friendly", "nice", "leuke",
                   "mooie", "vriendelijke", "cool", "soft"]
 
 class BaseApp(App):
-    BINDINGS = [Binding(key="?,h",
-                        key_display="?",
-                        action="request_help",
-                        description="Help",
-                        show=True),
-                Binding(key="c",
-                        key_display="c",
-                        action="request_config",
-                        description="Config"),
-                Binding(key="f",
-                        key_display="f",
-                        action="toggle_footer",
-                        description="Toggle footer"),
-                Binding(key="q,escape",
-                        action="quit",
-                        show=False),
-                Binding(key="f5",
-                        key_display="f5",
-                        description="Speak",
-                        action="app.say",
-                        show=True),
-                Binding(key="n",
-                        key_display="n",
-                        description="New Cluster",
-                        action="app.new_cluster",
-                        show=True)
-                ]
+    BINDINGS = [
+            Binding(key="?,h",
+                    key_display="?",
+                    action="request_help",
+                    description="Help",
+                    show=True),
+            Binding(key="c",
+                    key_display="c",
+                    action="request_config",
+                    description="Config"),
+            Binding(key="f",
+                    key_display="f",
+                    action="toggle_footer",
+                    description="Toggle footer"),
+            Binding(key="q,escape",
+                    action="quit",
+                    show=False),
+            Binding(key="f5",
+                    key_display="f5",
+                    description="Speak",
+                    action="app.say",
+                    show=True),
+            Binding(key="n",
+                    key_display="n",
+                    description="New Cluster",
+                    action="app.new_cluster",
+                    show=True)
+            ]
 
     CSS_PATH = ["./css/base.tcss",
                 "./css/help.tcss"]
@@ -75,7 +73,9 @@ class BaseApp(App):
         self.show_footer = self.cfg['smol_k8s_lab']['tui']['show_footer']
         self.cluster_names = []
         self.current_cluster = ""
-        self.sensitive_values = {}
+        self.sensitive_values = {'nextcloud': {},
+                                 'matrix': {},
+                                 'mastodon': {}}
 
         # configure global accessibility
         accessibility_opts = self.cfg['smol_k8s_lab']['tui']['accessibility']
@@ -250,35 +250,13 @@ class BaseApp(App):
         launches the smol-k8s-lab config for the program itself for things like
         the TUI, but also logging and password management
         """
-        # always check if we have sensitive values already
-        self.request_sensitive_values()
-
         # go check all the apps for empty inputs
         invalid_apps = check_for_invalid_inputs(self.cfg['apps'])
+
         if invalid_apps:
             self.app.push_screen(InvalidAppsScreen(invalid_apps))
         else:
             self.app.push_screen(SmolK8sLabConfig(self.cfg['smol_k8s_lab']))
-
-    def request_sensitive_values(self) -> None:
-        """
-        check for sensitive inputs and prompt for any if we need
-        """
-        def process_modal_output(app: str, new_values: dict):
-            if new_values:
-                self.sensitive_values[app] = self.sensitive_values[app] | new_values
-
-        # check for sensitive inputs and prompt for any if we need
-        for app in ['nextcloud', 'matrix', 'mastodon']:
-            app_cfg = self.cfg['apps'][app]
-            if app_cfg['enabled'] and app_cfg['init']['enabled']:
-                sensitive_values, prompts = check_for_required_env_vars(app, app_cfg)
-                if prompts:
-                    self.app.push_screen(
-                            PromptForSensitiveInfoModalScreen(
-                                app,
-                                prompts)
-                            )
 
     def action_request_confirm(self) -> None:
         """
