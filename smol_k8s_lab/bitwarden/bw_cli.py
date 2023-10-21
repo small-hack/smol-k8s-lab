@@ -285,6 +285,7 @@ class BwCLI():
 
         # create new item
         if not edit:
+            log.info("not editing Bitwarden item, because we were instructed not to")
             login_obj = json.dumps({
                 "organizationId": org,
                 "collectionIds": collection,
@@ -312,6 +313,7 @@ class BwCLI():
 
         # edit existing item
         else:
+            log.info("not editing Bitwarden item, because we were instructed not to")
             item['login']['password'] = password
             item['login']['username'] = user
             item['fields'] = fields
