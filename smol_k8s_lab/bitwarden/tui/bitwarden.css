@@ -14,11 +14,10 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-
 /* base container for the whole screen */
 #bitwarden-modal-container {
     width: 90%;
-    height: 43%;
+    height: 50%;
     align: center middle;
     background: $navy 50%;
 }
