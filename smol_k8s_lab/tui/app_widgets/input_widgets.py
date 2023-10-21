@@ -73,7 +73,8 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         key_label = key.replace("_", " ")
 
         # create input
-        input_keys = {"placeholder": placeholder_grammar(key_label),
+        placeholder_txt = placeholder_grammar(key_label)
+        input_keys = {"placeholder": placeholder_txt,
                       "name": key,
                       "password": self.sensitive,
                       "id": "-".join([self.app_name, key, "input"]),
@@ -103,9 +104,9 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         if not tooltip:
             if self.sensitive:
                 tooltip = (f"To avoid needing to fill {key} in manually, "
-                           "you can export an env var")
+                           "you can export an environment variable.")
             else:
-                tooltip = (f"Enter a {key} for {self.app_name}.")
+                tooltip = placeholder_txt + "."
 
         # special metallb tooltip
         if self.app_name == "metallb":
