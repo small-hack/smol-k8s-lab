@@ -267,17 +267,14 @@ apps:
       secret_keys:
         # Used for letsencrypt-staging, to generate certs
         email: ""
-      # skip installing this app b/c its part of another app of apps with this
-      # name. If equals "", we'll instead use the repo, path, ref, namespace
-      part_of_app_of_apps: "ingress"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "ingress/cert-manager/"
+      path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
-      namespace: "ingress"
+      namespace: "cert-manager"
       # source repos for cert-manager CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -285,7 +282,7 @@ apps:
         destination:
           namespaces:
             - argocd
-            - ingress
+            - cert-manager
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by Argo CD if you enable it below
@@ -389,11 +386,11 @@ apps:
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       # change to "ingress/ingress-nginx/" to not use app of apps
-      path: "ingress/"
+      path: "ingress-nginx/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
-      namespace: "ingress"
+      namespace: "ingress-nginx"
       # secret keys to provide for the Argo CD Appset secret plugin, none by default
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to argo.repo)
@@ -406,7 +403,7 @@ apps:
         destination:
           namespaces:
             - argocd
-            - ingress
+            - ingress-nginx
 
   k8tz:
     enabled: false
