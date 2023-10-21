@@ -46,10 +46,7 @@ class BwCLI():
 
         duplicate_strategy: str, must be one of: edit, ask, duplicate, no_action
         """
-        self.user_path = env.get("PATH")
-        self.home = env.get("HOME")
         self.bw_path = str(which("bw"))
-
         log.debug(f"self.bw_path is {self.bw_path}")
 
         if not self.bw_path:
@@ -61,55 +58,47 @@ class BwCLI():
         self.delete_session = True
 
         # make sure there's not a session token in the env vars already
-        self.session = env.get("BW_SESSION", default=None)
-
-        self.host = env.get("BW_HOST", default="https://bitwarden.com")
-        log.debug(f"Using {self.host} as $BW_HOST")
+        self.env = {"BW_SESSION": env.get("BW_SESSION", default=None),
+                    "PATH": env.get("PATH"),
+                    "HOME": env.get("HOME")}
 
         self.password = password
         self.client_id = client_id
         self.client_secret = client_secret
         self.duplicate_strategy = duplicate_strategy
 
-    def sync(self):
+    def sync(self) -> None:
         """
         syncs your bitwaren vault on initialize of this class
         """
-        res = subproc([f"{self.bw_path} sync"],
-                      env={"BW_SESSION": self.session,
-                           "PATH": self.user_path,
-                           "HOME": self.home})
+        res = subproc([f"{self.bw_path} sync"], env=self.env)
         log.info(res)
-        return True
 
-    def __get_credential__(self, credential: str):
+    def __get_credential__(self, credential: str) -> str:
         """
         prompts a user for a specific credential
         """
         cred_prompt = f"[cyan]🤫 Enter your Bitwarden vault {credential}"
-        credential = Prompt.ask(cred_prompt, password=True)
-        return credential
+        return Prompt.ask(cred_prompt, password=True)
 
-    def status(self):
+    def status(self) -> str:
         """
         generate a new password. Takes special_characters bool.
         """
         log.info('Checking if you are logged in...')
-        vault_status = json.loads(subproc(["bw status"]))['status']
+        return json.loads(subproc(["bw status"]))['status']
 
-        return vault_status
-
-    def unlock(self):
+    def unlock(self) -> None:
         """
         unlocks the local bitwarden vault, and returns session token
         """
-
-        if self.session:
+        if self.env['BW_SESSION']:
             log.info('Using session token from $BW_SESSION env variable')
             self.delete_session = False
-        else:
-            status = self.status()
 
+        status = self.status()
+
+        if status == "unauthenticated" or status == "locked":
             # verify we're even logged in :)
             if status == "unauthenticated":
                 log.info('Logging into the Bitwarden vault...')
@@ -118,30 +107,41 @@ class BwCLI():
                        "--apikey --raw")
             else:
                 log.info('Unlocking the Bitwarden vault...')
-                # default command is unlock
+                # set command to unlock if status is locked
                 cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
 
+            host = env.get("BW_HOST", default="https://bitwarden.com")
+            log.debug(f"Using {host} as $BW_HOST")
+
             # run either bw login or bw unlock depending on bw status
-            self.session = subproc([cmd], quiet=True,
-                                   env={"BW_PASSWORD": self.password,
-                                        "BW_CLIENTID": self.client_id,
-                                        "BW_CLIENTSECRET": self.client_secret,
-                                        "BW_HOST": self.host,
-                                        "PATH": self.user_path,
-                                        "HOME": self.home})
+            self.env['BW_SESSION'] = subproc([cmd], quiet=True,
+                                             env={"BW_PASSWORD": self.password,
+                                                  "BW_CLIENTID": self.client_id,
+                                                  "BW_CLIENTSECRET": self.client_secret,
+                                                  "BW_HOST": host,
+                                                  "PATH": self.env['PATH'],
+                                                  "HOME": self.env['HOME']})
             # log.debug(f"session is {self.session}")
             log.info('Unlocked the Bitwarden vault.')
+        else:
+            log.info(f"[green]bw status[/] returned '{status}', so we won't "
+                     "unlock the Bitwarden vault before starting.")
 
     def lock(self) -> None:
         """
-        lock bitwarden vault, only if the user didn't have a session env var
+        lock bitwarden vault, only if the user didn't have a session env var,
+        so that we don't clean up a session the user didn't intend for
         """
         if self.delete_session:
             log.info('Locking the Bitwarden vault...')
-            subproc([f"{self.bw_path} lock"], env={"BW_SESSION": self.session})
+            subproc([f"{self.bw_path} lock"], env=self.env["BW_SESSION"])
             log.info('Bitwarden vault locked.')
+        else:
+            log.debug("We didn't lock the Bitwarden vault when we were done, "
+                      "because we didn't set the BW_SESSION env var, so we don't"
+                      " want to be rude.")
 
-    def generate(self, special_characters: bool = False):
+    def generate(self, special_characters: bool = False) -> str:
         """
         generate a new password. Takes special_characters bool.
         """
@@ -158,6 +158,7 @@ class BwCLI():
     def get_item(self, item_name: str) -> list:
         """
         Get Item and return False if it does not exist else return the item ID
+
         Required Args:
             - item_name: str of name of item
         """
@@ -166,13 +167,10 @@ class BwCLI():
 
         # go get the actual item
         response = json.loads(
-                subproc(
-                    [f"{self.bw_path} get item {item_name} --response"],
-                    error_ok=True,
-                    env={"BW_SESSION": f"'{self.session}'",
-                         "PATH": f"'{self.user_path}'",
-                         "HOME": self.home}
-                    )
+                subproc([f"{self.bw_path} get item {item_name} --response"],
+                        error_ok=True,
+                        env=self.env
+                        )
                 )
 
         message = response.get("message", "")
@@ -326,7 +324,4 @@ class BwCLI():
 
 
         # edit OR create the item
-        subproc([cmd],
-                env={"BW_SESSION": self.session,
-                     "PATH": self.user_path,
-                     "HOME": self.home})
+        subproc([cmd], env=self.env)
