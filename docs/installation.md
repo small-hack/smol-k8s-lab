@@ -15,12 +15,14 @@ permalink: /install
 - [`pip`](https://pip.pypa.io/en/stable/installation/)
 - [`kubectl`](https://kubernetes.io/docs/tasks/tools/)
 - [`helm`](https://helm.sh/docs/intro/install/)
-- [`k3d`](https://k3d.io/v5.6.0/#installation) (only if you want to use `k3d`)
-- [`kind`](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) (only if you want to use `kind`)
 - Internet access
 
 ### Optional
-- [brew](https://brew.sh) - If installed, we can install `kubectl`, `k3d`, `kind`, and `helm` for you :)
+
+- [`k3d`](https://k3d.io/v5.6.0/#installation) (only if you want to use `k3d`)
+- [`kind`](https://kind.sigs.k8s.io/docs/user/quick-start/#installation) (only if you want to use `kind`)
+- [`bw`](https://bitwarden.com/help/cli/#download-and-install) (only if you want to use Bitwarden to store your passwords)
+- [brew](https://brew.sh) - If installed, we can install all prerequisites for you (except python/pip, because you need those to run `smol-k8s-lab`)
 
 ## Install via `pip`
 
