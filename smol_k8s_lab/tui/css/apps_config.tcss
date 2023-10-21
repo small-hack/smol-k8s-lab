@@ -108,6 +108,13 @@ CollapsibleTitle:focus {
     background: $blue_gray 20%;
 }
 
+/* this is the grid present in the SmolK8sLabCollapsibleInputs widget */
+.collapsible-updateable-grid {
+    grid-gutter: 1;
+    align: center top;
+    height: auto;
+}
+
 /* each app input label and input field row */
 .app-input-row {
    layout: grid;

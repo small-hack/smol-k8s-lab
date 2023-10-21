@@ -25,8 +25,7 @@ from textual.binding import Binding
 from textual.containers import Grid
 from textual.validation import Length
 from textual.widgets import (Footer, Button, DataTable, Input, Static, Label,
-                             Switch, Select, Collapsible)
-
+                             Switch, Select, _collapsible)
 
 # list of approved words for nouns
 CUTE_NOUNS = [
@@ -323,8 +322,8 @@ class BaseApp(App):
             # if the use pressed f5, the key to read the widget id aloud
             if self.speak_on_key_press:
                 focused = self.app.focused
-                if isinstance(focused, Collapsible):
-                    system(f"{say} element is Collapsible container called {focused.title}")
+                if isinstance(focused, _collapsible.CollapsibleTitle):
+                    system(f"{say} element is a Collapsible called {focused.label}.")
                 else:
                     system(f"{say} element is {focused.id}")
 
