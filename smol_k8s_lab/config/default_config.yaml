@@ -642,17 +642,11 @@ apps:
   minio:
     enabled: false
     description: |
-      [link=https://min.io/]MinIO®️[/link] is a high-performance, S3 compatible object store.
-
-      MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
+      [link=https://min.io/]MinIO®️[/link] is a high-performance, self hosted S3 compatible object store. MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
-        buckets:
-          - nextcloud
-          - "mastodon-assets"
-          - matrix
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
