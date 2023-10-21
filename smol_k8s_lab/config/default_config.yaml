@@ -131,6 +131,8 @@ apps_global_config:
   # setting this changes all the below domains to use the following cluster_issuer
   # change to letsencrypt-prod when you're ready to go live with your infra
   cluster_issuer: "letsencrypt-staging"
+  # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+  time_zone: "Europe/Amsterdam"
 
 # ---------------------------------------------------------------------------
 # Argo CD deployed and maintained Applications to run on Kubernetes
@@ -420,18 +422,13 @@ apps:
   k8tz:
     enabled: false
     description: |
-      k8tz is a Kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs1.
+      [link=https://github.com/k8tz/k8tz]k8tz[/link] is a Kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs. This solves the issue of the default timezone for most images being UTC, yet not being guaranteed from container to container.
 
-      Containers do not inherit timezones from host machines and have only accessed to the clock from the kernel. The default timezone for most images is UTC, yet it is not guaranteed and may be different from container to container. With k8tz it is easy to standardize selected timezone across pods and namespaces automatically with minimal effort.
-
-      You can find your timezone identifier here: [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]https://wikipedia.org/wiki/List_of_tz_database_time_zones[/link]
-
-      Learn more: [link=https://github.com/k8tz/k8tz]https://github.com/k8tz/k8tz[/link]
+      smol-k8s-lab will use your globally defined timezone to set k8tz's timezone. You can view and change the default value of Europe/Amsterdam by clicking the [cornflower_blue]Modify Globals[/] button above. You can find your timezone identifier on [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]this wikipedia list[/link].
     init:
       enabled: true
     argo:
-      secret_keys:
-        timezone: ""
+      secret_keys: []
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -451,18 +448,13 @@ apps:
   k8up:
     enabled: false
     description: |
-      K8up ([i]pronounced "ketchup?"[/]) is a Kubernetes Operator based on Restic for backups of Persistent Volumes in k8s into S3 compatible storage like MinIO. Backs up all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label. Can also perform "Application Aware" backups, containing the output of any tool capable of writing to stdout.
+      [link=https://k8up.io]K8up[/link] ([i]pronounced "ketchup?"[/]) is a Kubernetes Operator based on Restic for backups of Persistent Volumes in k8s into S3 compatible storage like MinIO. Backs up all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label. Can also perform "Application Aware" backups, containing the output of any tool capable of writing to stdout. You can also perform individual, on-demand backups, and restores from the k8up CLI tool.
 
-      You can also perform individual, on-demand backups, and restores from the k8up CLI tool.
-      You can find your timezone identifier here: [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]https://wikipedia.org/wiki/List_of_tz_database_time_zones[/link]
-
-      Learn more: [link=https://k8up.io]https://k8up.io[/link]
-
+      smol-k8s-lab will use your globally defined timezone to set k8up's timezone. You can view and change the default value of Europe/Amsterdam by clicking the [cornflower_blue]Modify Globals[/] button above. You can find your timezone identifier on [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]this wikipedia list[/link].
     init:
       enabled: true
     argo:
-      secret_keys:
-        timezone: ""
+      secret_keys: []
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -573,6 +565,10 @@ apps:
         admin_email: ""
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
+      sensitive_values:
+        - SMTP_PASSWORD
+        - S3_ACCESS_KEY
+        - S3_ACCESS_ID
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -608,6 +604,8 @@ apps:
       values:
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
+      sensitive_values:
+        - SMTP_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -717,6 +715,11 @@ apps:
         admin_user: ""
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
+      sensitive_values:
+        - SMTP_PASSWORD
+        - S3_ACCESS_KEY
+        - S3_ACCESS_ID
+        - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
