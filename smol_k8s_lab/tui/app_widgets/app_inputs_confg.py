@@ -143,13 +143,14 @@ class InitValues(Static):
 
         if self.init_values or self.app_name in self.app.sensitive_values:
             with inputs_container:
+                cid = f"{self.app_name}"
                 if self.init_values:
                     # these are special values that are only set up via
                     # smol-k8s-lab and do not live in a secret on the k8s cluster
                     yield SmolK8sLabCollapsibleInputsWidget(
                             app_name=self.app_name,
                             title="Init Values",
-                            widget_tooltip="Set of one time init values.",
+                            collapsible_id=f"{cid}-init-values-collapsible",
                             inputs=self.init_values,
                             tooltips=(
                                 "Init value for special one-time setup of "
@@ -163,8 +164,7 @@ class InitValues(Static):
                     yield SmolK8sLabCollapsibleInputsWidget(
                             app_name=self.app_name,
                             title="Sensitive Init Values",
-                            widget_tooltip=(
-                                "Set of one time [i]sensitive[/] init values."),
+                            collapsible_id=f"{cid}-sensitive-init-values-collapsible",
                             sensitive_inputs=True,
                             check_env_for_input=True)
 

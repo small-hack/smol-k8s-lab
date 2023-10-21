@@ -25,7 +25,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
     def __init__(self,
                  app_name: str,
                  title: str,
-                 widget_tooltip: str,
+                 collapsible_id: str,
                  inputs: dict = {},
                  tooltips: list = [],
                  sensitive_inputs: bool = False,
@@ -37,12 +37,12 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         self.sensitive = sensitive_inputs
         self.check_env_for_input = check_env_for_input
         self.tooltips = tooltips
+        self.collapsible_id = collapsible_id
 
-        # super().__init__(tooltip=widget_tooltip, id=title.replace(' ', '-'))
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        with Collapsible(collapsed=False, title=self.title):
+        with Collapsible(collapsed=False, title=self.title, id=self.collapsible_id):
             # iterate through the values to create inputs for sensitive values
             if self.sensitive and self.check_env_for_input:
                 self.sensitive_info_dict, _ = check_for_required_env_vars(
