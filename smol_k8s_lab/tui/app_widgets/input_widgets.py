@@ -1,7 +1,5 @@
 # smol-k8s-lab libraries
-from smol_k8s_lab.tui.util import (placeholder_grammar,
-                                   check_for_required_env_vars,
-                                   create_sanitized_list)
+from smol_k8s_lab.tui.util import (placeholder_grammar, create_sanitized_list)
 
 # external libraries
 from ruamel.yaml import CommentedSeq
@@ -30,20 +28,12 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
                  inputs: dict = {},
                  tooltips: dict = {},
                  sensitive_inputs: bool = False,
-                 check_env_for_input: bool = False,
                  add_fields_button: bool = False) -> None:
 
         self.app_name = app_name
         self.title = title
         self.inputs = inputs
         self.sensitive = sensitive_inputs
-        self.check_env_for_input = check_env_for_input
-        # iterate through the values to create inputs for sensitive values
-        if self.sensitive and self.check_env_for_input:
-            self.inputs, _ = check_for_required_env_vars(
-                    self.app_name,
-                    self.app.cfg['apps'][self.app_name]
-                    )
         self.tooltips = tooltips
         self.add_fields_button = add_fields_button
         self.collapsible_id = collapsible_id
@@ -127,7 +117,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
     def input_validation(self, event: Input.Changed) -> None:
         if event.validation_result.is_valid:
             input = event.input
-            if self.sensitive and self.check_env_for_input:
+            if self.sensitive:
                 self.app.sensitive_values[self.app_name][input.name] = input.value
             else:
                 parent_yaml = self.app.cfg['apps'][self.app_name]['init']['values']

@@ -10,10 +10,9 @@ from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsScreen
 from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
 from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
-from smol_k8s_lab.tui.util import check_for_invalid_inputs
 
 # external libraries
-from os import system
+from os import environ, system
 from pyfiglet import Figlet
 import random
 from rich.text import Text
@@ -254,7 +253,7 @@ class BaseApp(App):
         the TUI, but also logging and password management
         """
         # go check all the apps for empty inputs
-        invalid_apps = check_for_invalid_inputs(self.cfg['apps'])
+        invalid_apps = self.check_for_invalid_inputs(self.cfg['apps'])
 
         if invalid_apps:
             self.app.push_screen(InvalidAppsScreen(invalid_apps))
@@ -385,6 +384,106 @@ class BaseApp(App):
 
         if self.bell_on_focus:
             self.app.bell()
+
+    def check_for_invalid_inputs(self, apps_dict: dict = {}) -> list:
+        """
+        check each app for any empty init or secret key fields
+        """
+        invalid_apps = {}
+
+        if apps_dict:
+            for app, metadata in apps_dict.items():
+                if not metadata['enabled']:
+                    continue
+
+                empty_fields = []
+
+                # check for empty init fields (some apps don't support init at all)
+                init_dict = metadata.get('init', None)
+                if init_dict:
+                    # make sure init is enabled before checking
+                    if init_dict['enabled']:
+                        # regular yaml inputs
+                        init_values = init_dict.get('values', None)
+                        if init_values:
+                            for key, value in init_values.items():
+                                if not value:
+                                    empty_fields.append(key)
+
+                        # sensitive inputs
+                        init_sensitive_values = init_dict.get('sensitive_values', None)
+                        if init_sensitive_values:
+                            prompts = self.check_for_env_vars(app, metadata)
+                            if prompts:
+                                for value in prompts:
+                                    if not self.sensitive_values[app].get(value, ""):
+                                        empty_fields.append(value)
+
+                # check for empty secret key fields (some apps don't have secret keys)
+                secret_keys = metadata['argo'].get('secret_keys', None)
+                if secret_keys:
+                    for key, value in secret_keys.items():
+                        if not value:
+                            empty_fields.append(key)
+
+                if empty_fields:
+                    invalid_apps[app] = empty_fields
+
+        return invalid_apps
+
+    def check_for_env_vars(self, app: str, app_cfg: dict = {}) -> list:
+        """
+        check for required env vars and return list of dict and set:
+            values found dict, set of values you need to prompt for
+        """
+        # keep track of a list of stuff to prompt for
+        prompt_values = []
+        # default smtp env var
+        smtp_env_var = "SMTP_PASSWORD"
+
+        env_vars = app_cfg['init']['sensitive_values']
+
+        if app == "nextcloud":
+            access_id_env_var = "S3_ACCESS_ID"
+            access_key_env_var = "S3_ACCESS_KEY"
+
+            if app_cfg['argo']['secret_keys']['backup_method'].lower() == 's3':
+                # add prompts for s3 access key/id if backup method is s3
+                env_vars.append(access_id_env_var)
+                env_vars.append(access_key_env_var)
+            else:
+                # remove prompts for s3 access key/id
+                if access_id_env_var in env_vars:
+                    env_vars.remove(access_id_env_var)
+                if access_key_env_var in env_vars:
+                    env_vars.remove(access_key_env_var)
+
+        # only prompt for smtp credentials if mail is enabled
+        if 'change me' not in app_cfg['init']['values']['smtp_user']:
+            # add prompts if mail is enabled
+            env_vars.append(smtp_env_var)
+        else:
+            if smtp_env_var in env_vars:
+                env_vars.remove(smtp_env_var)
+            #HACK not really sure what to do here and I'm short on time, so 🤷
+            self.sensitive_values[app][smtp_env_var.lower()] = "mail not enabled"
+
+        # provided there's actually any env vars to go get...
+        if env_vars:
+            # iterate through list of env vars to check
+            for item in env_vars:
+                # check env and self.sensitive_values
+                value = environ.get(
+                        "_".join([app.upper(), item]),
+                        default=self.sensitive_values[app].get(item.lower(), ""))
+
+                if not value:
+                    # append any missing values to prompt_values
+                    prompt_values.append(item.lower())
+
+                self.sensitive_values[app][item.lower()] = value
+
+        return set(prompt_values)
 
 
 class NewClusterInput(Static):

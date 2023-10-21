@@ -115,6 +115,7 @@ class InitValues(Static):
         self.app_name = app_name
         self.init_enabled = init_dict['enabled']
         self.init_values = init_dict.get('values', None)
+        self.sensitive_values = init_dict.get('sensitive_values', None)
 
         super().__init__()
 
@@ -141,7 +142,7 @@ class InitValues(Static):
         if self.init_values and not self.init_enabled:
             inputs_container.display = False
 
-        if self.init_values or self.app_name in self.app.sensitive_values:
+        if self.init_values or self.sensitive_values:
             with inputs_container:
                 cid = f"{self.app_name}"
                 if self.init_values:
@@ -152,8 +153,8 @@ class InitValues(Static):
                             title="Init Values",
                             collapsible_id=f"{cid}-init-values-collapsible",
                             inputs=self.init_values,
-                            sensitive_inputs=False,
-                            check_env_for_input=False)
+                            sensitive_inputs=False)
+
                     init_vals.tooltip = (
                                 "Init values for special one-time setup of "
                                 f"{self.app_name}. These values are [i]not[/i] "
@@ -161,13 +162,15 @@ class InitValues(Static):
                                 )
                     yield init_vals
 
-                if self.app_name in self.app.sensitive_values:
+                if self.sensitive_values:
+                    self.app.check_for_env_vars(self.app_name,
+                                                self.app.cfg['apps'][self.app_name])
                     sensitive_init_vals = SmolK8sLabCollapsibleInputsWidget(
                             app_name=self.app_name,
                             title="Sensitive Init Values",
                             collapsible_id=f"{cid}-sensitive-init-values-collapsible",
-                            sensitive_inputs=True,
-                            check_env_for_input=True)
+                            inputs=self.app.sensitive_values[self.app_name],
+                            sensitive_inputs=True)
 
                     sensitive_init_vals.tooltip = (
                                 "Sensitive Init values for special one-time setup of "
