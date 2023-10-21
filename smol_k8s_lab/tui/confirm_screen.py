@@ -132,7 +132,7 @@ class ConfirmConfig(Screen):
 
     def get_bitwarden_credentials(self) -> None:
         """
-        check if we need to grab the password or not
+        check if we need to grab the bitwarden password & client_secret/id
         """
 
         def process_modal_output(credentials: dict):
@@ -160,12 +160,13 @@ class ConfirmConfig(Screen):
                             'client_secret': client_secret}])
 
     def append_sensitive_values(self) -> None:
-        """ if this app has SENSITIVE values, append them before we dismiss """
-        if self.app.sensitive_values:
-            for app, values in self.app.sensitive_values:
-                if self.cfg[app]['enabled']:
-                    cfg_values = self.cfg[app]['init']['values']
-                    cfg_values = cfg_values | values 
+        """
+        if this app has SENSITIVE values, append them before we dismiss
+        """
+        for app, values in self.app.sensitive_values.items():
+            if self.cfg['apps'][app]['enabled']:
+                cfg_values = self.cfg['apps'][app]['init']['values']
+                cfg_values = cfg_values | values 
 
     @on(Button.Pressed)
     def confirm_or_back_button(self, event: Button.Pressed) -> None:
