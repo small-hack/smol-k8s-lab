@@ -25,15 +25,19 @@ from textual.binding import Binding
 from textual.containers import Grid
 from textual.validation import Length
 from textual.widgets import (Footer, Button, DataTable, Input, Static, Label,
-                             Switch, Select)
+                             Switch, Select, Collapsible)
 
 
 # list of approved words for nouns
-CUTE_NOUNS = ["bunny", "hoglet", "puppy", "kitten", "knuffel", "friend",
-              "egel", "meerkoet", "raccoon", "wasbeertje"]
+CUTE_NOUNS = [
+        "bunny", "hoglet", "puppy", "kitten", "knuffel", "friend", "egel",
+        "meerkoet", "raccoon", "wasbeertje"
+        ]
 
-CUTE_ADJECTIVE = ["lovely", "adorable", "cute", "friendly", "nice", "leuke",
-                  "mooie", "vriendelijke", "cool", "soft"]
+CUTE_ADJECTIVE = [
+        "lovely", "adorable", "cute", "friendly", "nice", "leuke", "mooie", 
+        "vriendelijke", "cool", "soft", "smol", "small", "klein"
+        ]
 
 class BaseApp(App):
     BINDINGS = [
@@ -309,15 +313,20 @@ class BaseApp(App):
         is passed in, and self.speak_on_key_press is True, we read the currently
         focused element id
         """
+        say = self.speech_program
         if text_for_speech:
             text_for_speech = text_for_speech.replace("(", "").replace(")", "")
             text_for_speech = text_for_speech.replace("[i]", "").replace("[/]", "")
-            system(f"{self.speech_program} {text_for_speech}")
+            system(f"{say} {text_for_speech}")
 
         elif not text_for_speech:
+            # if the use pressed f5, the key to read the widget id aloud
             if self.speak_on_key_press:
                 focused = self.app.focused
-                system(f"{self.speech_program} element is {focused.id}")
+                if isinstance(focused, Collapsible):
+                    system(f"{say} element is Collapsible container called {focused.title}")
+                else:
+                    system(f"{say} element is {focused.id}")
 
                 # if it's a data table, read out the row content
                 if isinstance(focused, DataTable):
@@ -422,7 +431,6 @@ class NewClusterInput(Static):
             # if the user pressed enter, we also press the submit button ✨
             if isinstance(event, Input.Submitted):
                 new_cluster_button.action_press()
-
         else:
             # if result is not valid, notify the user why
             self.notify("\n".join(event.validation_result.failure_descriptions),
