@@ -7,6 +7,7 @@ from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInpu
 from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
 # external libraries
+from ruamel.yaml import CommentedSeq
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, VerticalScroll, Grid
@@ -258,7 +259,19 @@ class AppsetSecretValues(Static):
                       "validators": [Length(minimum=2)]}
 
         if value:
-            input_keys['value'] = value
+            # handle ruamel commented sequence (dict from yaml with comments)
+            if isinstance(value, CommentedSeq) or isinstance(value, list):
+                if isinstance(value[0], str):
+                    sequence_value = ", ".join(value)
+
+                elif isinstance(value[0], list):
+                    # we grab value[0] because ruamel.yaml's CommentedSeq is weird
+                    sequence_value = ", ".join(value[0])
+
+                # reassign value if this is a CommentedSeq for validation later on
+                value = sequence_value
+
+            input_keys["value"] = value
 
         input = Input(**input_keys)
         input.validate(value)
