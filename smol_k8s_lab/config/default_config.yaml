@@ -142,9 +142,7 @@ apps:
     # Set to false if you you just want a bare cluster with only the above apps"
     enabled: true
     description: |
-      Argo CD is a declarative, GitOps continuous delivery tool for Kubernetes.
-
-      Learn more: [link=https://argo-cd.readthedocs.io/en/stable/]https://argo-cd.readthedocs.io/en/stable/[/link]
+      [link=https://argo-cd.readthedocs.io/en/stable/]Argo CD[/link] is a declarative, GitOps continuous delivery tool for Kubernetes.
 
       smol-k8s-lab installs Argo CD with helm initially to support initial configuration of your admin user and disabling of dex. After your OIDC provider is configured, Argo CD begins managing itself using the below configured Argo CD repo.
     argo:
@@ -214,13 +212,11 @@ apps:
   bitwarden_eso_provider:
     enabled: true
     description: |
-      Bitwarden external secrets provider is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
+      The [link="https://github.com/jessebot/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
 
       smol-k8s-lab support initialization by creating a Kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
 
       BITWARDEN_PASSWORD, BITWARDEN_CLIENTSECRET, BITWARDEN_CLIENTID
-
-      Learn more: [link="https://github.com/jessebot/bitwarden-eso-provider/"]https://github.com/jessebot/bitwarden-eso-provider/[/link]
     init:
       # Switch to false if you don't want to be prompted for your Bitwarden
       # API credentials to be created as a Kubernetes secret.
@@ -257,11 +253,10 @@ apps:
     # for pod connectivity or ingress
     enabled: true
     description: |
-      Use LetsEncrypt to generate TLS certs for all your apps with ingress.
+      [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
 
-      smol-k8s-lab supports initialization by creating two ClusterIssuers for both staging and production using a provided email address as the account ID for acme.
+      smol-k8s-lab supports initialization by creating two [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] for both staging and production using a provided email address as the account ID for acme.
 
-      Learn more: [link=https://cert-manager.io/]https://cert-manager.io/[/link]
     # Initialize of the app through smol-k8s-lab
     init:
       # Deploys staging and prod ClusterIssuers and prompts you for
@@ -297,9 +292,7 @@ apps:
   cilium:
     enabled: false
     description: |
-      Cilium is an open source, cloud native solution for providing, securing, and observing network connectivity between workloads, fueled by the revolutionary Kernel technology eBPF.
-
-      Learn more: [link=https://cilium.io/]https://cilium.io/[/link]
+      [link=https://cilium.io/]Cilium[/link] is an open source, cloud native solution for providing, securing, and observing network connectivity between workloads, fueled by the revolutionary Kernel technology eBPF.
     # Initialize of the app through smol-k8s-lab
     init:
       enabled: true
@@ -326,9 +319,7 @@ apps:
   external_secrets_operator:
     enabled: true
     description: |
-      External Secrets Operator is a Kubernetes operator that integrates external secret management systems like HashiCorp Vault, CyberArk Conjur, Bitwarden, Gitlab, and many more. The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
-
-      Learn more: [link=https://external-secrets.io/latest/]https://external-secrets.io/latest/[/link]
+      [link=https://external-secrets.io/latest/]External Secrets Operator[/link] is a Kubernetes operator that integrates external secret management systems like HashiCorp Vault, CyberArk Conjur, Bitwarden, Gitlab, and many more. The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
     # Initialization of the app through smol-k8s-lab
     init:
       enabled: false
@@ -362,9 +353,7 @@ apps:
     description: |
       ⚠️ [magenta]Alpha Status[/magenta]
 
-      Infisical is an open-source, end-to-end encrypted secret management platform that enables teams to easily manage and sync their env vars.
-
-      Learn more: [link=https://infisical.com/]https://infisical.com/[/link]
+      [link=https://infisical.com/]Infisical[/link] is an open-source, end-to-end encrypted secret management platform that enables teams to easily manage and sync their env vars.
     # Initialization of the app through smol-k8s-lab
     init:
       enabled: true
@@ -393,7 +382,7 @@ apps:
   ingress_nginx:
     enabled: true
     description: |
-      deploy ingress-nginx and cert-manager as one argocd app of apps and project in the same namespace
+      Dedefault deploys [link=https://github.com/kubernetes/ingress-nginx]ingress-nginx[/link] and cert-manager as one argocd app of apps and project in the same namespace
       Ingress-nginx cannot be disabled unless you provide your own ingress controller app
     argo:
       # git repo to install the Argo CD app from
@@ -474,9 +463,7 @@ apps:
 
   kepler:
     description: |
-      Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics.
-
-      Learn more: [link=https://github.com/sustainable-computing-io/kepler]https://github.com/sustainable-computing-io/kepler[/link]
+      [link=https://github.com/sustainable-computing-io/kepler]Kepler[/link] (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics.
     enabled: false
     # Initialization of the app through smol-k8s-lab
     init:
@@ -502,9 +489,8 @@ apps:
 
   kubevirt:
     description: |
-      kubevirt lets you manage virtual machines via k8s
+      [link=https://kubevirt.io/]kubevirt[/link] lets you manage virtual machines via Kubernetes.
   
-      Learn more: [link=https://kubevirt.io/]https://kubevirt.io/[/link]
     # default disabled while a helm chart is being actively developed
     enabled: false
     argo:
@@ -528,9 +514,7 @@ apps:
 
   kyverno:
     description: |
-      Kyverno is a native policy manager for Kubernetes
-
-      learn more: [link=https://kyverno.io/]https://kyverno.io/[/link]
+      [link=https://kyverno.io/]Kyverno[/link] is a native policy manager for Kubernetes.
     enabled: false
     argo:
       # secret keys to provide for the argocd secret plugin app, none by default
@@ -552,9 +536,7 @@ apps:
 
   mastodon:
     description: |
-       mastodon is an open source self hosted social media network.
-
-       learn more: [link=https://joinmastodon.org/]https://joinmastodon.org/[/link]
+       [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
 
        smol-k8s-lab supports initializing mastodon, by setting up your hostname and SMTP credentials as well as your credentials for redis, postgresql, and an admin user
     enabled: false
@@ -592,10 +574,8 @@ apps:
 
   matrix:
     description: |
-      Matrix is an open protocol for decentralised, secure communications.
+      [link=https://matrix.org/]Matrix[/link] is an open protocol for decentralised, secure communications.
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
-
-      Learn more: [link=https://matrix.org/]https://matrix.org/[/link]
 
       smol-k8s-lab supports initialization by creating initial secrets for your hostnames, and credentials for: postgresql, admin user, and SMTP
     enabled: false
@@ -633,13 +613,12 @@ apps:
   metallb:
     enabled: true
     description: |
-      Helps expose IP addresses for loadbalancers on metal if you're on a vm or container where you can't get an IP.
+      [link=https://metallb.org/]MetalLB[/link] Helps expose IP addresses for loadbalancers on metal if you're on a vm or container where you can't get an IP.
+
+      smol-k8s-lab support initialization by deploying a default l2Advertisement and IPAddressPool.
 
       Cloud Compatibility: [link=https://metallb.org/installation/clouds/]https://metallb.org/installation/clouds/[/link]
 
-      Learn more: [link=https://metallb.org/]https://metallb.org/[/link]
-
-      smol-k8s-lab support initialization by deploying a default l2Advertisement  IPAddressPool.
     # Initialize of the app through smol-k8s-lab
     init:
       enabled: true
@@ -668,11 +647,9 @@ apps:
   minio:
     enabled: false
     description: |
-      MinIO®️ is a high-performance, S3 compatible object store.
+      [link=https://min.io/]MinIO®️[/link] is a high-performance, S3 compatible object store.
 
       MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
-
-      learn more: [link=https://min.io/]https://min.io/[/link]
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -701,9 +678,7 @@ apps:
   nextcloud:
     enabled: false
     description: |
-      Nextcloud Hub is the industry-leading, fully open-source, on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces
-
-      Learn more: [link=https://nextcloud.com/]https://nextcloud.com/[/link]
+      [link=https://nextcloud.com/]Nextcloud Hub[/link] is the industry-leading, fully open-source, on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces
 
       smol-k8s-lab supports initialization by setting up your admin username, password, and SMTP username and password, as well as your redis and postgresql credentials
 
@@ -750,9 +725,7 @@ apps:
 
   prometheus:
     description: |
-      Full monitoring stack with prometheus, grafana, loki, and alert manager.
-
-      Learn more: [link=https://prometheus.io/docs/introduction/overview/]https://prometheus.io/docs/introduction/overview/[/link]
+      Full monitoring stack with [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link], grafana, loki, and alert manager.
 
       smol-k8s-lab supports initialization by setting up your ingress hostnames.
 
@@ -792,11 +765,9 @@ apps:
 
   vouch:
     description: |
-      vouch-proxy can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
+      [link=https://github.com/vouch/vouch-proxy]vouch-proxy[/link] can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
 
       smol-k8s-lab supports the initialization of vouch if you also enable zitadel by creating OIDC applications and credentials and your vouch-proxy Kubernetes Secret.
-
-      Learn more: [link=https://github.com/vouch/vouch-proxy]https://github.com/vouch/vouch-proxy[/link]
     enabled: true
     # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
     init:
@@ -833,9 +804,7 @@ apps:
   zitadel:
     enabled: true
     description: |
-      ZITADEL is an open source self hosted IAM platform for the cloud era
-
-      Learn more: [link=https://zitadel.com/opensource]https://zitadel.com/opensource[/link]
+      [link=https://zitadel.com/opensource]ZITADEL[/link] is an open source self hosted IAM platform for the cloud era
 
       smol-k8s-lab supports initialization of:
       - an admin service account
