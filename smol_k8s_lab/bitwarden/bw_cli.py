@@ -232,8 +232,16 @@ class BwCLI():
         # don't edit anything by default
         edit = False
 
+        # fix naming for bitwarden items to inlude the url AND name
+        if name:
+            item_name = name
+            if item_url:
+                item_name += f" {item_url}"
+        else:
+            item_name = item_url
+
         # go check for existing items
-        item_res = self.get_item(name)
+        item_res = self.get_item(item_name)
         item = item_res[0]
 
         if not strategy:
@@ -279,13 +287,6 @@ class BwCLI():
 
         # create new item
         if not edit:
-            if name:
-                item_name = name
-                if item_url:
-                    item_name += f" {item_url}"
-            else:
-                item_name = item_url
-
             login_obj = json.dumps({
                 "organizationId": org,
                 "collectionIds": collection,
