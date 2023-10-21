@@ -19,7 +19,7 @@ $navy: rgb(35,35,54);
     layout: grid;
     grid-size: 2;
     grid-columns: 0.5fr 1fr;
-    grid-rows: 1.5fr 0.45fr;
+    grid-rows: 1.55fr 0.35fr;
     grid-gutter: 1;
     width: 90%;
     height: 92%;
