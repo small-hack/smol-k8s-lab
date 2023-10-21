@@ -147,26 +147,34 @@ class InitValues(Static):
                 if self.init_values:
                     # these are special values that are only set up via
                     # smol-k8s-lab and do not live in a secret on the k8s cluster
-                    yield SmolK8sLabCollapsibleInputsWidget(
+                    init_vals =  SmolK8sLabCollapsibleInputsWidget(
                             app_name=self.app_name,
                             title="Init Values",
                             collapsible_id=f"{cid}-init-values-collapsible",
                             inputs=self.init_values,
-                            tooltips=(
-                                "Init value for special one-time setup of "
-                                f"{self.app_name}. This value is [i]not[/i] "
-                                "stored in a secret for later reference  by Argo CD."
-                                ),
                             sensitive_inputs=False,
                             check_env_for_input=False)
+                    init_vals.tooltip = (
+                                "Init values for special one-time setup of "
+                                f"{self.app_name}. These values are [i]not[/i] "
+                                "stored in a secret for later reference  by Argo CD."
+                                )
+                    yield init_vals
 
                 if self.app_name in self.app.sensitive_values:
-                    yield SmolK8sLabCollapsibleInputsWidget(
+                    sensitive_init_vals = SmolK8sLabCollapsibleInputsWidget(
                             app_name=self.app_name,
                             title="Sensitive Init Values",
                             collapsible_id=f"{cid}-sensitive-init-values-collapsible",
                             sensitive_inputs=True,
                             check_env_for_input=True)
+
+                    sensitive_init_vals.tooltip = (
+                                "Sensitive Init values for special one-time setup of "
+                                f"{self.app_name}. These values can also be passed in"
+                                " via environment variables."
+                                )
+                    yield sensitive_init_vals
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
