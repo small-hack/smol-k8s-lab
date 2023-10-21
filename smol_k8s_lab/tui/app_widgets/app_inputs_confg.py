@@ -4,7 +4,7 @@ from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
 from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInputsWidget
-from smol_k8s_lab.tui.util import placeholder_grammar
+from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
 # external libraries
 from textual import on
@@ -275,8 +275,13 @@ class AppsetSecretValues(Static):
         if event.validation_result.is_valid:
             input = event.input
             if input.id != f"{self.app_name}-new-secret":
+                if "," in input.value or self.app_name == 'vouch':
+                    value = create_sanitized_list(input.value)
+                else:
+                    value = input.value
+
                 parent_app_yaml = self.app.cfg['apps'][self.app_name]
-                parent_app_yaml['argo']['secret_keys'][input.name] = input.value
+                parent_app_yaml['argo']['secret_keys'][input.name] = value
 
                 self.app.write_yaml()
 
