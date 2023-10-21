@@ -4,6 +4,7 @@ from smol_k8s_lab.tui.util import (placeholder_grammar,
                                    create_sanitized_list)
 
 # external libraries
+from ruamel.yaml import CommentedSeq
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -70,7 +71,10 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
                       "validators": [Length(minimum=2)]}
 
         if value:
-            input_keys["value"] = value
+            if isinstance(value, CommentedSeq):
+                input_keys["value"] = ", ".join(value)
+            else:
+                input_keys["value"] = value
 
         input = Input(**input_keys)
         if not tooltip:
@@ -85,7 +89,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
 
         input.tooltip = tooltip
 
-        input.validate(value)
+        input.validate(input.value)
 
         # create the input row
         secret_label = Label(f"{key_label}:", classes="input-label")
@@ -102,7 +106,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
                 parent_yaml = self.app.cfg['apps'][self.app_name]['init']['values']
 
                 if event.validation_result.is_valid:
-                    if self.app_name == "metallb":
+                    if self.app_name == "metallb" or "," in input.value:
                         parent_yaml[input.name] = create_sanitized_list(input.value)
                     else:
                         parent_yaml[input.name] = input.value
