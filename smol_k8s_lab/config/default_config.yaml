@@ -283,6 +283,7 @@ apps:
           namespaces:
             - argocd
             - cert-manager
+            - kube-system
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by Argo CD if you enable it below
