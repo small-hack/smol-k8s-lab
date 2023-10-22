@@ -30,36 +30,37 @@ class AskUserForDuplicateStrategy(App[None]):
                             button.BUTTON_INNER = "♥"
                             yield button
                 with VerticalScroll(id="pretty-scroll"):
-                    yield Pretty("Select an item on the left to preview")
+                    yield Pretty("Select an item above to preview")
 
-            yield Label("How would you like to proceed?")
-            check_box = Checkbox("Always perform this action",
-                                 id="always-checkbox")
-            yield check_box
 
-            with Grid(id="button-grid"):
-                edit_button = Button("✏️ Edit", id="edit-button")
-                edit_button.tooltip = "Edit the existing Vault item with new info"
-                yield edit_button
+            with Grid(id="question-box"):
+                yield Label("How would you like to proceed?")
+                check_box = Checkbox("Always perform this action",
+                                     id="always-checkbox")
+                yield check_box
 
-                duplicate_button = Button("👥 Duplicate", id="duplicate-button")
-                duplicate_button.tooltip = "Create an additional Vault item"
-                yield duplicate_button
+                with Grid(id="button-grid"):
+                    edit_button = Button("✏️ Edit", id="edit-button")
+                    edit_button.tooltip = "Edit the existing Vault item with new info"
+                    yield edit_button
 
-                no_action_button = Button("⛔️ No Action", id="no-action-button")
-                no_action_button.tooltip = "Use the existing Vault item"
-                yield no_action_button
+                    duplicate_button = Button("👥 Duplicate", id="duplicate-button")
+                    duplicate_button.tooltip = "Create an additional Vault item"
+                    yield duplicate_button
+
+                    no_action_button = Button("⛔️ No Action", id="no-action-button")
+                    no_action_button.tooltip = "Use the existing Vault item"
+                    yield no_action_button
 
     def on_mount(self) -> None:
         """
         border styling and enabling of the edit button
         """
         pretty_scroll = self.get_widget_by_id("pretty-scroll")
-        pretty_scroll.border_title = "Vault Item Preview"
+        pretty_scroll.border_title = "Bitarden Vault Item [#C1FF87]Preview[/]"
         if isinstance(self.duplicate_item, list):
-            box_title = (f'Searched "{self.item_searched}" and '
-                         'duplicate items were found in your '
-                         'Bitwarden vault')
+            box_title = ('[#ffaff9][i]duplicate[/i] items[/] found for '
+                         f'[#C2FF87]{self.item_searched}[/] in your vault')
 
             # disable the edit button till a user has selected an item
             edit_button = self.get_widget_by_id("edit-button")
@@ -67,11 +68,14 @@ class AskUserForDuplicateStrategy(App[None]):
             edit_button.tooltip = ("Select an item above to have smol-k8s-lab "
                                    "edit the existing item in your Vault.")
 
-            self.query_one(RadioSet).border_title = "Select an item to view/edit"
+            self.query_one(RadioSet).border_title = (
+                    "[#ffaff9]♥[/] [i]select[/] an item to view/edit")
         else:
             self.query_one(Pretty).update(self.duplicate_item)
-            box_title = (f"Searched {self.item_searched} and found an "
-                         "existing item was found in your Bitwarden Vault")
+            box_title = (
+                    "An [#ffaff9][i]existing[/i] item[/] for "
+                    f"[#C1FF87]{self.item_searched}[/] found in your vault"
+                    )
 
         self.get_widget_by_id("main-screen-grid").border_title = box_title
 
@@ -160,5 +164,6 @@ if __name__ == "__main__":
                 "passwordRevisionDate": None}
             }
                  ]
-    app = AskUserForDuplicateStrategy(item_list)
+    app = AskUserForDuplicateStrategy(item,
+                                      "argocd-admin-credentials-argo.test.com")
     app.run()

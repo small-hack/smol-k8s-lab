@@ -20,26 +20,27 @@ Screen {
 }
 
 Tooltip {
-  background: $navy 50%;
-  color: $bluish_white 75%;
-  border: dashed gray 80%;
-  padding-bottom: 0;
-  padding-left: 1;
-  padding-right: 1;
+    background: $navy 50%;
+    color: $bluish_white 75%;
+    border: dashed gray 80%;
+    padding-bottom: 0;
+    padding-left: 1;
+    padding-right: 1;
 }
 
 Button {
-  color: $light_cornflower;
-  background: $lavender 10%;
-  border-top: tall $blue_gray 60%;
-  border-bottom: tall $dark_gray 50%;
+    color: $light_cornflower;
+    background: $lavender 10%;
+    border-top: tall $blue_gray 60%;
+    border-bottom: tall $dark_gray 50%;
 }
 
 Label {
-  color: $lavender;
-  width: 100%;
-  content-align: center middle;
-  margin-top: 2;
+    color: $lavender;
+    width: 100%;
+    content-align: center middle;
+    margin-top: 2;
+    height: 3;
 }
 
 /* select an item to view/edit radioset */
@@ -53,18 +54,18 @@ RadioSet {
     color: $bluish_white;
     margin-bottom: 1;
     border: solid $light_cornflower;
-    border-title-color: $light_pink;
+    border-title-color: $sky_blue;
     background: $navy;
 }
 
 /* whole screen grid */
 #main-screen-grid {
     border: solid $cornflower;
-    border-title-color: $spacechalk_lime;
-    width: 90%;
-    height: 90%;
+    border-title-color: $sky_blue;
+    width: 80%;
+    height: 85%;
     padding: 1;
-    grid-rows: 0.8fr 0.2fr 0.15fr 0.22fr;
+    grid-rows: 0.8fr 0.6fr 0.15fr;
     align: center middle;
     background: $navy 50%;
 }
@@ -78,7 +79,7 @@ RadioSet {
 /* the vault item preview */
 #pretty-scroll {
    border: solid $blue_gray;
-   border-title-color: $light_pink;
+   border-title-color: $sky_blue;
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;
@@ -87,10 +88,17 @@ RadioSet {
    scrollbar-color: $light_cornflower;
 }
 
+#question-box {
+    grid-gutter: 1;
+    grid-rows: 0.25fr 0.25fr 0.5fr;
+}
+
+/* just the three option buttons */
 #button-grid {
-  grid-size: 3;
-  align: center middle;
-  content-align: center middle;
+    height: 5;
+    grid-size: 3;
+    align: center middle;
+    content-align: center middle;
 }
 
 #always-checkbox {
