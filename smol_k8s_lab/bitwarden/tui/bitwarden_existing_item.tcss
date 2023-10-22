@@ -51,7 +51,7 @@ RadioSet {
 #main-screen-grid {
    border: solid $cornflower;
    width: 90%;
-   height: 65%;
+   height: 75%;
    padding-left: 1;
    padding-right: 1;
    padding-top: 2;
@@ -64,7 +64,7 @@ RadioSet {
 #all-duplicates-view {
   grid-size: 2;
   align: center middle;
-  grid-columns: 0.9fr 1.2fr;
+  grid-columns: 0.8fr 1.2fr;
   padding-left: 1;
 }
 

@@ -4,7 +4,7 @@ from textual.widgets import Label, Pretty, Checkbox, Button, RadioSet, RadioButt
 
 
 class AskUserForDuplicateStrategy(App[None]):
-    CSS_PATH = ["./bitwarden_dialog_app.tcss"]
+    CSS_PATH = ["./bitwarden_existing_item.tcss"]
 
     def __init__(self, duplicate_item: dict | list) -> None:
         self.duplicate_item = duplicate_item

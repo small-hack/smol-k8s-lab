@@ -16,7 +16,7 @@ from rich.panel import Panel
 from .constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
 from .env_config import check_os_support, process_configs
 from .bitwarden.bw_cli import BwCLI
-from .bitwarden.tui.bitwarden_app import BitwardenCredentials
+from .bitwarden.tui.bitwarden_app import BitwardenCredentialsApp
 from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
@@ -153,7 +153,7 @@ def main(config: str = "",
 
             # if any of the credentials are missing from the env, launch the tui
             if not any([password, client_id, client_secret]):
-                bitwarden_credentials = BitwardenCredentials().run()
+                bitwarden_credentials = BitwardenCredentialsApp().run()
                 if not bitwarden_credentials:
                     raise Exception("Exiting because no credentials were passed in "
                                     "but bitwarden is enabled")

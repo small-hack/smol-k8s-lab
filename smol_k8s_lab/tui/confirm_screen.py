@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
-from smol_k8s_lab.bitwarden.tui.bitwarden_modal_screen import (
+from smol_k8s_lab.bitwarden.tui.bitwarden_credentials_modal_screen import (
         BitwardenCredentialsScreen)
 from smol_k8s_lab.utils.yaml_with_comments import syntax_highlighted_yaml
 
