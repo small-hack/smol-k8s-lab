@@ -4,10 +4,15 @@ from textual.widgets import Label, Pretty, Checkbox, Button, RadioSet, RadioButt
 
 
 class AskUserForDuplicateStrategy(App[None]):
+    """ 
+    ask user how to handle creating an item when duplicate[s] found
+    """
+
     CSS_PATH = ["./bitwarden_existing_item.tcss"]
 
-    def __init__(self, duplicate_item: dict | list) -> None:
+    def __init__(self, duplicate_item: dict | list, item_searched: str) -> None:
         self.duplicate_item = duplicate_item
+        self.item_searched = item_searched
         self.always_do = False
         super().__init__()
 
@@ -52,7 +57,9 @@ class AskUserForDuplicateStrategy(App[None]):
         pretty_scroll = self.get_widget_by_id("pretty-scroll")
         pretty_scroll.border_title = "Vault Item Preview"
         if isinstance(self.duplicate_item, list):
-            box_title = "Duplicate items were found in your Bitwarden vault"
+            box_title = (f'Searched "{self.item_searched}" and '
+                         'duplicate items were found in your '
+                         'Bitwarden vault')
 
             # disable the edit button till a user has selected an item
             edit_button = self.get_widget_by_id("edit-button")
@@ -63,7 +70,8 @@ class AskUserForDuplicateStrategy(App[None]):
             self.query_one(RadioSet).border_title = "Select an item to view/edit"
         else:
             self.query_one(Pretty).update(self.duplicate_item)
-            box_title = "[green]An existing item was found in your Vault"
+            box_title = (f"Searched {self.item_searched} and found an "
+                         "existing item was found in your Bitwarden Vault")
 
         self.get_widget_by_id("main-screen-grid").border_title = box_title
 
