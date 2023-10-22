@@ -45,21 +45,29 @@ def configure_zitadel(k8s_obj: K8s,
         if bitwarden:
             # create zitadel core key
             new_key = bitwarden.generate()
-            bitwarden.create_login(name="zitadel-core-key",
-                                   user="admin-service-account",
-                                   item_url=zitadel_domain,
-                                   password=new_key)
+            core_id = bitwarden.create_login(name="zitadel-core-key",
+                                             user="admin-service-account",
+                                             item_url=zitadel_domain,
+                                             password=new_key)
 
             # create db credentials password dict
             password = bitwarden.generate()
             admin_password = bitwarden.generate()
             admin_user_obj = create_custom_field("adminUser", admin_user)
             admin_pass_obj = create_custom_field("adminPassword", admin_password)
-            bitwarden.create_login(name="zitadel-db-credentials",
-                                   user="zitadel",
-                                   item_url=zitadel_domain,
-                                   password=password,
-                                   fields=[admin_user_obj, admin_pass_obj])
+            db_id = bitwarden.create_login(name="zitadel-db-credentials",
+                                           user="zitadel",
+                                           item_url=zitadel_domain,
+                                           password=password,
+                                           fields=[admin_user_obj,
+                                                   admin_pass_obj])
+
+            # update the zitadel values for the argocd appset
+            fields = {'zitadel_core_bitwarden_id': core_id,
+                      'zitadel_db_bitwarden_id': db_id}
+            update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
+                              'secret_vars.yaml')
+            k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
         else:
             new_key = create_password()
             secret_dict = {'masterkey': new_key}
@@ -146,21 +154,12 @@ def initialize_zitadel(k8s_obj: K8s,
                         "argocd_administrators")
     zitadel.create_role("argocd_users", "Argo CD Users", "argocd_users")
 
-    # update existing appset-secret-vars secret with issuer, client_id, logout_url
-    logout_url = f"https://{zitadel_hostname}/oidc/v1/end_session"
-    fields = {'argo_cd_oidc_client_id': argocd_client['client_id'],
-              'argo_cd_oidc_issuer': f"https://{zitadel_hostname}",
-              'argo_cd_oidc_logout_url': logout_url}
-    update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
-                      'secret_vars.yaml')
-    k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-
     if bitwarden:
         sub_header("Creating OIDC secret for Argo CD in Bitwarden")
-        bitwarden.create_login(name='argocd-oidc-credentials',
-                               item_url=argocd_hostname,
-                               user='argocd',
-                               password=argocd_client['client_secret'])
+        id = bitwarden.create_login(name='argocd-oidc-credentials',
+                                    item_url=argocd_hostname,
+                                    user='argocd',
+                                    password=argocd_client['client_secret'])
     else:
         # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
         k8s_obj.create_secret('argocd-oidc-credentials',
@@ -168,6 +167,18 @@ def initialize_zitadel(k8s_obj: K8s,
                               {'user': 'argocd',
                                'password': argocd_client['client_secret']},
                               labels={'app.kubernetes.io/part-of': 'argocd'})
+
+    # update existing appset-secret-vars secret with issuer, client_id, logout_url
+    logout_url = f"https://{zitadel_hostname}/oidc/v1/end_session"
+    fields = {'argo_cd_oidc_client_id': argocd_client['client_id'],
+              'argo_cd_oidc_issuer': f"https://{zitadel_hostname}",
+              'argo_cd_oidc_logout_url': logout_url}
+    if bitwarden:
+        fields['argo_cd_bitwarden_id'] = id
+    update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
+                      'secret_vars.yaml')
+    k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+
 
     # create zitadel admin user and grants now that the clients are setup
     header("Creating a Zitadel user...")

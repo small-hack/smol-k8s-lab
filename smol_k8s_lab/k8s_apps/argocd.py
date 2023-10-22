@@ -64,7 +64,7 @@ def configure_argocd(k8s_obj: K8s,
             sub_header(":lock: Creating a new password in BitWarden.")
             # if we're using bitwarden...
             argo_password = bitwarden.generate()
-            bitwarden.create_login(name=argo_cd_domain,
+            bitwarden.create_login(name="argo-cd-admin-credentials",
                                    item_url=argo_cd_domain,
                                    user="admin",
                                    password=argo_password)

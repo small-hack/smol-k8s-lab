@@ -57,6 +57,11 @@ class BwCLI():
         # if we clean up the session when we're done or not
         self.delete_session = True
 
+        # this is used for bweso and logins
+        self.host = env.get("BW_HOST", default="https://bitwarden.com")
+        log.debug(f"Using {self.host} as $BW_HOST")
+
+
         # make sure there's not a session token in the env vars already
         self.env = {"BW_SESSION": env.get("BW_SESSION", default=None),
                     "PATH": env.get("PATH"),
@@ -110,15 +115,12 @@ class BwCLI():
                 # set command to unlock if status is locked
                 cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
 
-            host = env.get("BW_HOST", default="https://bitwarden.com")
-            log.debug(f"Using {host} as $BW_HOST")
-
             # run either bw login or bw unlock depending on bw status
             self.env['BW_SESSION'] = subproc([cmd], quiet=True,
                                              env={"BW_PASSWORD": self.password,
                                                   "BW_CLIENTID": self.client_id,
                                                   "BW_CLIENTSECRET": self.client_secret,
-                                                  "BW_HOST": host,
+                                                  "BW_HOST": self.host,
                                                   "PATH": self.env['PATH'],
                                                   "HOME": self.env['HOME']})
             # log.debug(f"session is {self.session}")
@@ -134,7 +136,7 @@ class BwCLI():
         """
         if self.delete_session:
             log.info('Locking the Bitwarden vault...')
-            subproc([f"{self.bw_path} lock"], env=self.env["BW_SESSION"])
+            subproc([f"{self.bw_path} lock"], env=self.env)
             log.info('Bitwarden vault locked.')
         else:
             log.debug("We didn't lock the Bitwarden vault when we were done, "
@@ -167,7 +169,7 @@ class BwCLI():
 
         # go get the actual item
         response = json.loads(
-                subproc([f"{self.bw_path} get item {item_name} --response"],
+                subproc([f'{self.bw_path} get item {item_name} --response'],
                         error_ok=True,
                         env=self.env
                         )
@@ -213,7 +215,7 @@ class BwCLI():
                      fields: list = [],
                      org: str = None,
                      collection: str = None,
-                     strategy: str = None) -> None:
+                     strategy: str = None) -> str:
         """
         Create login item to store a set of credentials for one site.
         Required Args:
@@ -226,6 +228,8 @@ class BwCLI():
             - collection:  str collection inside organization to user
             - fields:      list of {key: value} dicts for custom fields
             - strategy:    str that defaults to self.duplicate_strategy
+
+        Returns string of the item id created or updated
         """
         # don't edit anything by default
         edit = False
@@ -234,7 +238,7 @@ class BwCLI():
         if name:
             item_name = name
             if item_url:
-                item_name += f" {item_url}"
+                item_name += f"-{item_url}"
         else:
             item_name = item_url
 
@@ -246,6 +250,15 @@ class BwCLI():
             strategy = item_res[1]
 
         if item:
+            if strategy == "ask":
+                user_response = AskUserForDuplicateStrategy(item).run()
+                strategy = user_response[0]
+
+                # if the user set "always do this action"
+                if user_response[1] is True:
+                   # NOTE: we still always ask if there's more than 1 entry returned
+                   self.duplicate_strategy = strategy
+
             if strategy == 'edit':
                 log.info("bitwarden.duplicate_strategy set to edit, so we will "
                          f"edit the existing item: {name}")
@@ -257,22 +270,6 @@ class BwCLI():
                        " We will create the item anyway, but the Bitwarden ESO "
                        "Provider may have trouble finding it :(")
                 log.warn(msg)
-
-            elif strategy == "ask":
-                user_response = AskUserForDuplicateStrategy(item).run()
-
-                # if the user set "always do this action"
-                if user_response[1] is True:
-                   # NOTE: we still always ask if there's more than 1 entry returned
-                   self.duplicate_strategy = user_response[0]
-
-                self.create_login(name=name,
-                                  item_url=item_url,
-                                  user=user,
-                                  password=password,
-                                  org=org,
-                                  collection=collection,
-                                  strategy=user_response[0])
 
             elif strategy == "no_action":
                 log.info(
@@ -313,7 +310,6 @@ class BwCLI():
 
         # edit existing item
         else:
-            log.info("not editing Bitwarden item, because we were instructed not to")
             item['login']['password'] = password
             item['login']['username'] = user
             item['fields'] = fields
@@ -326,4 +322,10 @@ class BwCLI():
 
 
         # edit OR create the item
-        subproc([cmd], env=self.env)
+        bitwarden_return_item = subproc([cmd + " --response"], env=self.env)
+        log.info(bitwarden_return_item)
+
+        if edit:
+            return item['id']
+        else:
+            return json.loads(bitwarden_return_item)['data']['id']
