@@ -1,9 +1,10 @@
-from smol_k8s_lab.bitwarden.tui.bitwarden_modal_screen import BitwardenCredentialsScreen
+from smol_k8s_lab.bitwarden.tui.bitwarden_credentials_modal_screen import (
+        BitwardenCredentialsScreen)
 from textual.app import App, ComposeResult
 from textual.widgets import Label
 
 
-class BitwardenCredentials(App[None]):
+class BitwardenCredentialsApp(App[None]):
     """ 
     small app to launch a modal screen for a bitwarden credentials prompt
     """
@@ -73,5 +74,5 @@ class BitwardenCredentials(App[None]):
         self.app.push_screen(BitwardenCredentialsScreen(), check_modal_output)
 
 if __name__ == "__main__":
-    app = BitwardenCredentials()
+    app = BitwardenCredentialsApp()
     app.run()

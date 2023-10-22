@@ -20,7 +20,7 @@ from shutil import which
 from sys import exit
 from os import environ as env
 from ..utils.subproc import subproc
-from .tui.bitwarden_dialog_app import AskUserForDuplicateStrategy
+from .tui.bitwarden_existing_item_app import AskUserForDuplicateStrategy
 
 
 def create_custom_field(custom_field_name: str, value: str) -> dict:
