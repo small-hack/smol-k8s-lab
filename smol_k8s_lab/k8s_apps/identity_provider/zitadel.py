@@ -67,7 +67,27 @@ def configure_zitadel(k8s_obj: K8s,
                       'zitadel_db_bitwarden_id': db_id}
             update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
                               'secret_vars.yaml')
-            k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+
+            # reload the argocd appset secret plugin
+            try:
+                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+            except Exception as e:
+                log.error(
+                        "Couldn't scale down the "
+                        "[magenta]argocd-appset-secret-plugin[/]"
+                        "deployment in [green]argocd[/] namespace. Recieved: "
+                        f"{e}"
+                        )
+
+            # reload the bitwarden ESO provider
+            try:
+                k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+            except Exception as e:
+                log.error(
+                        "Couldn't scale down the [magenta]bitwarden-eso-provider[/]"
+                        "deployment in [green]external-secrets[/] namespace. Recieved: "
+                        f"{e}"
+                        )
         else:
             new_key = create_password()
             secret_dict = {'masterkey': new_key}
