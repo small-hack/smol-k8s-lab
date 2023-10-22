@@ -33,31 +33,31 @@ def configure_argocd(k8s_obj: K8s,
     """
     header("Installing [green]Argo CD[/green] for managing your Kubernetes apps",
            "🦑")
-    release_dict = {'release_name': 'argo-cd', 'namespace': 'argocd'}
+    release_dict = {"release_name": "argo-cd", "namespace": "argocd"}
 
     release = Helm.chart(**release_dict)
     already_installed = release.check_existing()
     if not already_installed:
         # this is the base python dict for the values.yaml that is created below
-        val = {'fullnameOverride': 'argo-cd',
-               'dex': {'enabled': False},
-               'configs': {
-                   'secret': {'argocdServerAdminPassword': ""}
+        val = {"fullnameOverride": "argo-cd",
+               "dex": {"enabled": False},
+               "configs": {
+                   "secret": {"argocdServerAdminPassword": ""}
                    },
-               'server': {
-                   'ingress': {
-                       'enabled': True,
-                       'hosts': [argo_cd_domain],
-                       'annotations': {
-                           "kubernetes.io/ingress.class": "nginx",
+               "server": {
+                   "ingress": {
+                       "enabled": True,
+                       "hosts": [argo_cd_domain],
+                       "annotations": {
                            "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
                            "cert-manager.io/cluster-issuer": "letsencrypt-staging",
                            "kubernetes.io/tls-acme": True,
                            "nginx.ingress.kubernetes.io/ssl-passthrough": True,
                        },
-                       'https': True,
-                       'tls':  [{'secretName': 'argocd-secret',
-                                 'hosts': [argo_cd_domain]}]}}}
+                       "ingressClassName": "nginx",
+                       "https": True,
+                       "tls":  [{"secretName": "argocd-secret",
+                                 "hosts": [argo_cd_domain]}]}}}
 
         # if we're using bitwarden, generate a password & save it
         if bitwarden:
