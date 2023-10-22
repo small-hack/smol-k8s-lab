@@ -192,7 +192,8 @@ class BwCLI():
                 list_for_dialog.append(self.get_item(id)[0])
 
             # ask the user what to do
-            user_response = AskUserForDuplicateStrategy(list_for_dialog).run()
+            user_response = AskUserForDuplicateStrategy(list_for_dialog,
+                                                        item_name).run()
 
             action = user_response[0]
             always_do_action = user_response[1]
@@ -251,7 +252,8 @@ class BwCLI():
 
         if item:
             if strategy == "ask":
-                user_response = AskUserForDuplicateStrategy(item).run()
+                user_response = AskUserForDuplicateStrategy(item,
+                                                            item_name).run()
                 strategy = user_response[0]
 
                 # if the user set "always do this action"
