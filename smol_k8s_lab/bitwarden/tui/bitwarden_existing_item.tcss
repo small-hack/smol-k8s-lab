@@ -36,51 +36,55 @@ Button {
 }
 
 Label {
-  color: $light_cornflower;
+  color: $lavender;
   width: 100%;
   content-align: center middle;
   margin-top: 2;
 }
 
+/* select an item to view/edit radioset */
 RadioSet {
-   height: 100%;
-   align: center middle;
-   border: solid $light_cornflower;
+    height: auto;
+    padding-top: 1;
+    padding-bottom: 1;
+    align: center middle;
+    content-align: center middle;
+    width: 100%;
+    color: $bluish_white;
+    margin-bottom: 1;
+    border: solid $light_cornflower;
+    border-title-color: $light_pink;
+    background: $navy;
 }
 
+/* whole screen grid */
 #main-screen-grid {
-   border: solid $cornflower;
-   width: 90%;
-   height: 75%;
-   padding-left: 1;
-   padding-right: 1;
-   padding-top: 2;
-   padding-bottom: 1;
-   grid-rows: 0.8fr 0.2fr 0.15fr 0.22fr;
-   align: center middle;
-   background: $navy 50%;
+    border: solid $cornflower;
+    border-title-color: $spacechalk_lime;
+    width: 90%;
+    height: 90%;
+    padding: 1;
+    grid-rows: 0.8fr 0.2fr 0.15fr 0.22fr;
+    align: center middle;
+    background: $navy 50%;
 }
 
+/* includes both the selection list, if exists, and the actual vault item */
 #all-duplicates-view {
-  grid-size: 2;
-  align: center middle;
-  grid-columns: 0.8fr 1.2fr;
-  padding-left: 1;
+    align: center middle;
+    padding-top: 1;
 }
 
+/* the vault item preview */
 #pretty-scroll {
    border: solid $blue_gray;
-   background: $navy;
+   border-title-color: $light_pink;
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;
    scrollbar-color-active: $sky_blue;
    scrollbar-color-hover: $cornflower;
    scrollbar-color: $light_cornflower;
-}
-
-.pretty-scroll-only-one {
-  column-span: 2;
 }
 
 #button-grid {
@@ -90,7 +94,8 @@ RadioSet {
 }
 
 #always-checkbox {
-  width: 100%;
-  content-align: center middle;
-  background: $navy 1%;
+    width: 100%;
+    content-align: center middle;
+    background: $navy 1%;
+    color: $bluish_white;
 }

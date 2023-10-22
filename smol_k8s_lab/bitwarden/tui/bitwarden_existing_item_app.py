@@ -1,5 +1,5 @@
 from textual.app import App, ComposeResult
-from textual.containers import Grid, VerticalScroll
+from textual.containers import Grid, VerticalScroll, Container
 from textual.widgets import Label, Pretty, Checkbox, Button, RadioSet, RadioButton
 
 
@@ -16,7 +16,7 @@ class AskUserForDuplicateStrategy(App[None]):
         check if we need to grab the password or not
         """
         with Grid(id="main-screen-grid"):
-            with Grid(id="all-duplicates-view"):
+            with Container(id="all-duplicates-view"):
                 if isinstance(self.duplicate_item, list):
                     with RadioSet():
                         for item in self.duplicate_item:
@@ -50,9 +50,9 @@ class AskUserForDuplicateStrategy(App[None]):
         border styling and enabling of the edit button
         """
         pretty_scroll = self.get_widget_by_id("pretty-scroll")
-        pretty_scroll.border_title = "[magenta]Vault Item Preview"
+        pretty_scroll.border_title = "Vault Item Preview"
         if isinstance(self.duplicate_item, list):
-            box_title = "[green]Duplicate items were found in your Bitwarden vault"
+            box_title = "Duplicate items were found in your Bitwarden vault"
 
             # disable the edit button till a user has selected an item
             edit_button = self.get_widget_by_id("edit-button")
@@ -64,7 +64,6 @@ class AskUserForDuplicateStrategy(App[None]):
         else:
             self.query_one(Pretty).update(self.duplicate_item)
             box_title = "[green]An existing item was found in your Vault"
-            pretty_scroll.add_class("pretty-scroll-only-one")
 
         self.get_widget_by_id("main-screen-grid").border_title = box_title
 
