@@ -460,8 +460,9 @@ class BaseApp(App):
 
         # only prompt for smtp credentials if mail is enabled
         if 'change me' not in app_cfg['init']['values']['smtp_user']:
-            # add prompts if mail is enabled
-            env_vars.append(smtp_env_var)
+            if smtp_env_var not in env_vars:
+                # add prompts if mail is enabled
+                env_vars.append(smtp_env_var)
         else:
             if smtp_env_var in env_vars:
                 env_vars.remove(smtp_env_var)
