@@ -2,8 +2,11 @@ from rich.prompt import Prompt
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
+
+import logging as log
 
 
 def configure_nextcloud(k8s_obj: K8s,
@@ -68,46 +71,94 @@ def configure_nextcloud(k8s_obj: K8s,
 
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
+
+            # admin credentials + metrics server info token
             token = bitwarden.generate()
             password = bitwarden.generate()
             serverinfo_token_obj = create_custom_field("serverInfoToken", token)
+            admin_id = bitwarden.create_login(
+                    name='nextcloud-admin-credentials',
+                    item_url=nextcloud_hostname,
+                    user=username,
+                    password=password,
+                    fields=[serverinfo_token_obj]
+                    )
+
+            # smtp credentials
             smtpUsername = create_custom_field("smtpUsername", mail_user)
             smtpPassword = create_custom_field("smtpPassword", mail_pass)
             smtpHost = create_custom_field("smtpHost", mail_host)
-            bitwarden.create_login(name='nextcloud-admin-credentials',
-                                   item_url=nextcloud_hostname,
-                                   user=username,
-                                   password=password,
-                                   fields=[serverinfo_token_obj,
-                                           smtpHost,
-                                           smtpUsername,
-                                           smtpPassword])
+            smtp_id = bitwarden.create_login(
+                    name='nextcloud-smtp-credentials',
+                    item_url=nextcloud_hostname,
+                    user=smtpUsername,
+                    password=smtpPassword,
+                    fields=[smtpHost]
+                    )
 
             # postgres db credentials creation
             pgsql_admin_password = create_custom_field('postgresAdminPassword',
                                                        bitwarden.generate())
-            bitwarden.create_login(name='nextcloud-pgsql-credentials',
-                                   item_url=nextcloud_hostname,
-                                   user='nextcloud',
-                                   password='none',
-                                   fields=[pgsql_admin_password])
+            db_id = bitwarden.create_login(
+                    name='nextcloud-pgsql-credentials',
+                    item_url=nextcloud_hostname,
+                    user='nextcloud',
+                    password='none',
+                    fields=[pgsql_admin_password]
+                    )
 
             # redis credentials creation
             nextcloud_redis_password = bitwarden.generate()
-            bitwarden.create_login(name='nextcloud-redis-credentials',
-                                   item_url=nextcloud_hostname,
-                                   user='nextcloud',
-                                   password=nextcloud_redis_password)
+            redis_id = bitwarden.create_login(
+                    name='nextcloud-redis-credentials',
+                    item_url=nextcloud_hostname,
+                    user='nextcloud',
+                    password=nextcloud_redis_password
+                    )
 
             # backups s3 credentials creation
             if not restic_repo_pass:
                 restic_repo_pass = bitwarden.generate()
-            bitwarden.create_login(name='nextcloud-backups-credentials',
-                                   item_url=nextcloud_hostname,
-                                   user=access_id,
-                                   password=access_key,
-                                   fields=[create_custom_field('resticRepoPassword',
-                                                               restic_repo_pass)])
+            backup_id = bitwarden.create_login(
+                    name='nextcloud-backups-credentials',
+                    item_url=nextcloud_hostname,
+                    user=access_id,
+                    password=access_key,
+                    fields=[create_custom_field('resticRepoPassword',
+                                                restic_repo_pass)]
+                    )
+
+            # update the zitadel values for the argocd appset
+            fields = {
+                    'nextcloud_admin_credentials_bitwarden_id': admin_id,
+                    'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
+                    'nextcloud_postgres_credentials_bitwarden_id': db_id,
+                    'nextcloud_redis_bitwarden_id': redis_id,
+                    'nextcloud_backups_credentials_bitwarden_id': backup_id,
+                    }
+            update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
+                              'secret_vars.yaml')
+
+            # reload the argocd appset secret plugin
+            try:
+                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+            except Exception as e:
+                log.error(
+                        "Couldn't scale down the "
+                        "[magenta]argocd-appset-secret-plugin[/]"
+                        "deployment in [green]argocd[/] namespace. Recieved: "
+                        f"{e}"
+                        )
+
+            # reload the bitwarden ESO provider
+            try:
+                k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+            except Exception as e:
+                log.error(
+                        "Couldn't scale down the [magenta]bitwarden-eso-provider[/]"
+                        "deployment in [green]external-secrets[/] namespace. Recieved: "
+                        f"{e}"
+                        )
         else:
             # these are standard k8s secrets
             token = create_password()
