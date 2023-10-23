@@ -111,9 +111,8 @@ def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
     k8s_obj.create_secret('appset-secret-vars', 'argocd', secret_dict,
                           'secret_vars.yaml')
 
-    token = create_password()
-
     # creates only the token for authentication
+    token = create_password()
     k8s_obj.create_secret('appset-secret-token', 'argocd', {'token': token})
 
     # this creates a values.yaml from this dict

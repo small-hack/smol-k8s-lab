@@ -72,16 +72,11 @@ def process_configs(config: dict = INITIAL_USR_CONFIG):
 
     # make sure we have a globally set lets-encrypt cluster issuer
     default_issuer = DEFAULT_CONFIG['apps_global_config']['cluster_issuer']
-    if not config.get('apps_global_config', None):
-        secrets['global_cluster_issuer'] = default_issuer
-        config['apps_global_config'] = {'cluster_issuer': default_issuer}
-    else:
-        apps_global_cfg = config['apps_global_config']
-        secrets['global_cluster_issuer'] = apps_global_cfg.get('cluster_issuer',
-                                                               default_issuer)
-        config['apps_global_config'] = {
-                'cluster_issuer': secrets['global_cluster_issuer']
-                }
+    apps_global_cfg = config.get('apps_global_config',
+                                 {'cluster_issuer': default_issuer,
+                                  'external_secrets': 'true'})
+    for secret_key, value in apps_global_cfg.items():
+        secrets[f'global_{secret_key}'] = value
 
     # Write newly updated YAML data to config file
     if initialize or DEFAULT_CONFIG != config:
