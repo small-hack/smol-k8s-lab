@@ -31,7 +31,7 @@ def configure_nextcloud(k8s_obj: K8s,
         # grab all possile init values
         init_values = config_dict['init'].get('values', None)
         if init_values:
-            username = init_values.get('username', 'admin')
+            admin_user = init_values.get('admin_user', 'admin')
             # stmp config values
             mail_host = init_values.get('smtp_host', None)
             mail_user = init_values.get('smtp_user', None)
@@ -74,13 +74,13 @@ def configure_nextcloud(k8s_obj: K8s,
 
             # admin credentials + metrics server info token
             token = bitwarden.generate()
-            password = bitwarden.generate()
+            admin_password = bitwarden.generate()
             serverinfo_token_obj = create_custom_field("serverInfoToken", token)
             admin_id = bitwarden.create_login(
                     name='nextcloud-admin-credentials',
                     item_url=nextcloud_hostname,
-                    user=username,
-                    password=password,
+                    user=admin_user,
+                    password=admin_password,
                     fields=[serverinfo_token_obj]
                     )
 
