@@ -349,6 +349,8 @@ apps:
       ⚠️ [magenta]Alpha Status[/magenta]
 
       [link=https://infisical.com/]Infisical[/link] is an open-source, end-to-end encrypted secret management platform that enables teams to easily manage and sync their env vars.
+
+      This app will remain in alpha status till there is a way to create an initial user easily.
     # Initialization of the app through smol-k8s-lab
     init:
       enabled: true
@@ -358,7 +360,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "infisical/"
+      path: "alpha/infisical/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
@@ -643,6 +645,8 @@ apps:
     enabled: false
     description: |
       [link=https://min.io/]MinIO®️[/link] is a high-performance, self hosted S3 compatible object store. MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
+
+      smol-k8s-lab deploys the MinIO API and Operator (admin) Console.
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -650,7 +654,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/minio/"
+      path: "minio/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
