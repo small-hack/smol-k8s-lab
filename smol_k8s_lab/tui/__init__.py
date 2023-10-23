@@ -29,8 +29,10 @@ def launch_config_tui():
                     for key, value in secret_keys.items():
                         secrets[f"{app}_{key}"] = value
 
-        # this is to set the cluster issuer for all applications
-        global_cluster_issuer = config['apps_global_config']['cluster_issuer']
-        secrets['global_cluster_issuer'] = global_cluster_issuer
+        # this is to set global secret keys for all applications
+        global_secrets = config['apps_global_config']
+        if global_secrets:
+            for secret_key, value in global_secrets.items():
+                secrets[f'global_{secret_key}'] = value
 
     return cluster_name, config, secrets, bitwarden_credentials
