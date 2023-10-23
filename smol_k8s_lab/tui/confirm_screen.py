@@ -164,9 +164,10 @@ class ConfirmConfig(Screen):
         if this app has SENSITIVE values, append them before we dismiss
         """
         for app, values in self.app.sensitive_values.items():
-            if self.cfg['apps'][app]['enabled']:
-                cfg_values = self.cfg['apps'][app]['init']['values']
-                cfg_values = cfg_values | values 
+            if values:
+                if self.cfg['apps'][app]['enabled']:
+                    for key, value in values.items():
+                        self.cfg['apps'][app]['init']['values'][key] = value
 
     @on(Button.Pressed)
     def confirm_or_back_button(self, event: Button.Pressed) -> None:

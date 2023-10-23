@@ -35,7 +35,7 @@ def configure_nextcloud(k8s_obj: K8s,
             # stmp config values
             mail_host = init_values.get('smtp_host', None)
             mail_user = init_values.get('smtp_user', None)
-            mail_pass = init_values.get('smtp_pass', None)
+            mail_pass = init_values.get('smtp_password', None)
             # backups values
             access_id = init_values.get('backup_s3_access_id', None)
             access_key = init_values.get('backup_s3_access_key', None)
