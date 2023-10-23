@@ -19,7 +19,7 @@ def configure_external_secrets(k8s_obj: K8s,
                                eso_dict: dict,
                                bweso_dict: dict = {},
                                distro: str = "",
-                               bitwarden: BwCLI = None) -> True:
+                               bitwarden: BwCLI = None) -> None:
     """
     configure external secrets and provider. (and optionally bweso)
     """
@@ -28,13 +28,12 @@ def configure_external_secrets(k8s_obj: K8s,
 
     if bweso_dict['enabled']:
         setup_bweso(k8s_obj, distro, bweso_dict['argo'], bitwarden)
-    return True
 
 
 def setup_bweso(k8s_obj: K8s,
                 distro: str,
                 bweso_argo_dict: dict = {},
-                bitwarden: BwCLI = None):
+                bitwarden: BwCLI = None) -> None:
     """
     Creates an initial secret for use with the bitwarden provider for ESO
     """
@@ -59,10 +58,11 @@ def setup_bweso(k8s_obj: K8s,
         return True
 
     install_with_argocd(k8s_obj, 'bitwarden-eso-provider', bweso_argo_dict)
-    return True
+    # wait for bitwarden external secrets provider to be up
+    wait_for_argocd_app('bitwarden-eso-provider')
 
 
-def setup_gitlab_provider(external_secrets_config: dict):
+def setup_gitlab_provider(external_secrets_config: dict) -> None:
     """
     setup the gitlab external secrets operator config
     Accepts dict as arg:
