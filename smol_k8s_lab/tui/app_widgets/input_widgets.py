@@ -55,7 +55,6 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
             self.query_one(".collapsible-updateable-grid").mount(
                     Button("➕ new field"))
 
-
     def generate_row(self, key: str, value: str = "") -> Grid:
         """
         add a new row of keys to pass to an argocd app
