@@ -133,6 +133,8 @@ apps_global_config:
   cluster_issuer: "letsencrypt-staging"
   # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
   time_zone: "Europe/Amsterdam"
+  # always deploy external secrets. *Must be a string of "true" or "false"*
+  external_secrets: "true"
 
 # ---------------------------------------------------------------------------
 # Argo CD deployed and maintained Applications to run on Kubernetes

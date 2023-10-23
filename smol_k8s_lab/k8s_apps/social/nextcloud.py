@@ -128,7 +128,7 @@ def configure_nextcloud(k8s_obj: K8s,
                                                 restic_repo_pass)]
                     )
 
-            # update the zitadel values for the argocd appset
+            # update the nextcloud values for the argocd appset
             fields = {
                     'nextcloud_admin_credentials_bitwarden_id': admin_id,
                     'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
@@ -145,9 +145,8 @@ def configure_nextcloud(k8s_obj: K8s,
             except Exception as e:
                 log.error(
                         "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/]"
-                        "deployment in [green]argocd[/] namespace. Recieved: "
-                        f"{e}"
+                        "[magenta]argocd-appset-secret-plugin[/] deployment "
+                        f"in [green]argocd[/] namespace. Recieved: {e}"
                         )
 
             # reload the bitwarden ESO provider
@@ -155,9 +154,9 @@ def configure_nextcloud(k8s_obj: K8s,
                 k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
             except Exception as e:
                 log.error(
-                        "Couldn't scale down the [magenta]bitwarden-eso-provider[/]"
-                        "deployment in [green]external-secrets[/] namespace. Recieved: "
-                        f"{e}"
+                        "Couldn't scale down the [magenta]"
+                        "bitwarden-eso-provider[/] deployment in [green]"
+                        f"external-secrets[/] namespace. Recieved: {e}"
                         )
         else:
             # these are standard k8s secrets
