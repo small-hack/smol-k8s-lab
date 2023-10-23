@@ -120,7 +120,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
         input.validate(value)
 
         # create the input row
-        secret_label = Label(f"{key_label}:", classes="app-input-label")
+        secret_label = Label(f"{key_label}:", classes="input-label")
 
         return Grid(secret_label, input, classes="app-input-row")
 
