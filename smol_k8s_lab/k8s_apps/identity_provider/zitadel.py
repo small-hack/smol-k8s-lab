@@ -199,7 +199,6 @@ def initialize_zitadel(k8s_obj: K8s,
                       'secret_vars.yaml')
     k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
 
-
     # create zitadel admin user and grants now that the clients are setup
     header("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
