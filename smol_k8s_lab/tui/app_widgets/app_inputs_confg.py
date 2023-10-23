@@ -278,7 +278,7 @@ class AppsetSecretValues(Static):
 
         # create the input row
         secret_label = Label(f"{key_label}:",
-                             classes=f"app-input-label {self.app_name}")
+                             classes=f"input-label {self.app_name}")
 
         return Horizontal(secret_label, input,
                           classes=f"app-input-row {self.app_name}")

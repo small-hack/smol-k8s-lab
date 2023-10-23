@@ -289,3 +289,11 @@ DataTable {
     width: 100%;
     color: gray;
 }
+
+/* all labels to the left of the an input */
+.input-label {
+    width: 100%;
+    height: 3;
+    color: $bluish_white;
+    content-align: left middle;
+}

@@ -126,14 +126,6 @@ CollapsibleTitle:focus {
    padding-right: 1;
 }
 
-/* each app input label */
-.app-input-label {
-   height: 3;
-   width: 100%;
-   content-align: left middle;
-   color: $bluish_white 90%;
-}
-
 /* argo cd config param section */
 .argo-config-container {
    align: left top;
