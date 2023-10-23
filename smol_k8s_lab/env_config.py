@@ -70,11 +70,11 @@ def process_configs(config: dict = INITIAL_USR_CONFIG):
     if not config['smol_k8s_lab'].get('log', None):
         config['smol_k8s_lab']['log'] = DEFAULT_CONFIG["log"]
 
-    # make sure we have a globally set lets-encrypt cluster issuer
-    default_issuer = DEFAULT_CONFIG['apps_global_config']['cluster_issuer']
+    # set global lets-encrypt clusterIssuer, timezone, and external secrets
     apps_global_cfg = config.get('apps_global_config',
-                                 {'cluster_issuer': default_issuer,
-                                  'external_secrets': 'true'})
+                                 {'cluster_issuer': 'letsencrypt-staging',
+                                  'external_secrets': 'true',
+                                  'timezone': "Europe/Amsterdam"})
     for secret_key, value in apps_global_cfg.items():
         secrets[f'global_{secret_key}'] = value
 
