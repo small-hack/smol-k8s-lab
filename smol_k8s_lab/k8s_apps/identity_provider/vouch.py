@@ -3,6 +3,7 @@ from rich.prompt import Prompt
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.passwords import create_password
 from .keycloak import Keycloak
@@ -85,20 +86,53 @@ def configure_vouch(k8s_obj: K8s,
                 ]
             log.info(f"vouch oauth fields are {fields}")
             # create oauth OIDC bitwarden item
-            bitwarden.create_login(name='vouch-oauth-config',
-                                   user=auth_dict['client_id'],
-                                   password=auth_dict['client_secret'],
-                                   fields=fields)
+            oauth_id = bitwarden.create_login(
+                name='vouch-oauth-config',
+                user=auth_dict['client_id'],
+                password=auth_dict['client_secret'],
+                fields=fields
+                )
 
+            # vouch config
             domains_obj = create_custom_field("domains", domains)
             emails_obj = create_custom_field("allowList", emails)
             jwt_secret_obj = create_custom_field("jwtSecret", jwt_secret)
             log.debug(f"emails_obj is {emails_obj} and domains_obj is {domains_obj}")
             # create vouch config bitwarden item
-            bitwarden.create_login(name='vouch-config',
-                                   user='vouch',
-                                   password='none',
-                                   fields=[domains_obj, emails_obj, jwt_secret_obj])
+            vouch_id = bitwarden.create_login(
+                    name='vouch-config',
+                    user='vouch',
+                    password='none',
+                    fields=[domains_obj, emails_obj, jwt_secret_obj]
+                    )
+
+            # update the vouch values for the argocd appset
+            fields = {'vouch_oauth_bitwarden_id': oauth_id,
+                      'vouch_config_bitwarden_id': vouch_id}
+            update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
+                              'secret_vars.yaml')
+
+            # reload the argocd appset secret plugin
+            try:
+                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+            except Exception as e:
+                log.error(
+                        "Couldn't scale down the "
+                        "[magenta]argocd-appset-secret-plugin[/]"
+                        "deployment in [green]argocd[/] namespace. Recieved: "
+                        f"{e}"
+                        )
+
+            # reload the bitwarden ESO provider
+            try:
+                k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+            except Exception as e:
+                log.error(
+                        "Couldn't scale down the [magenta]bitwarden-eso-provider[/]"
+                        "deployment in [green]external-secrets[/] namespace. Recieved: "
+                        f"{e}"
+                        )
+
         # create vouch k8s secrets if we're not using bitwarden
         else:
             # create oauth OIDC k8s secret
