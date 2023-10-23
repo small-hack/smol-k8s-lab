@@ -659,6 +659,7 @@ apps:
       project:
         source_repos:
           - https://github.com/small-hack/argocd-apps
+          - https://operator.min.io/
         destination:
           namespaces:
             - argocd
