@@ -30,10 +30,9 @@ def configure_minio(k8s_obj: K8s,
         secret_key = create_password()
         minio_hostname = minio_config['argo']['secret_keys']['api_hostname']
 
-        credentials_exports = (
-        f'export MINIO_ROOT_USER="{access_key}"\n'
-        f'export MINIO_ROOT_PASSWORD="{secret_key}"'
-        )
+        credentials_exports = f"""MINIO_ROOT_USER="{access_key}"
+        MINIO_ROOT_PASSWORD="{secret_key}"
+        """
 
         # the namespace probably doesn't exist yet, so we try to create it
         k8s_obj.create_namespace('minio')
