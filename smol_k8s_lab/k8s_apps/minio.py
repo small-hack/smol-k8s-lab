@@ -28,7 +28,7 @@ def configure_minio(k8s_obj: K8s,
     if minio_init_enabled:
         access_key = minio_config['init']['values']['root_user']
         secret_key = create_password()
-        minio_hostname = minio_config['argo']['secret_keys']['minio_api_hostname']
+        minio_hostname = minio_config['argo']['secret_keys']['api_hostname']
 
         credentials_exports = (
         f'export MINIO_ROOT_USER="{access_key}"\n'
