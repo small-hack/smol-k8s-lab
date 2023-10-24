@@ -2,6 +2,20 @@ from minio import Minio
 import logging as log
 
 
+def create_access_credentials(hostname: str, access_key: str, secret_key: str) -> dict:
+    """
+    given a hostname and access credentials with user creation capabilities,
+    create minio access credentials
+    """
+    # Create a client with the MinIO hostname, its access key and secret key.
+    client = Minio(hostname, access_key=access_key, secret_key=secret_key)
+
+    # TODO: figure out how to do this part
+    credentials = {}
+    # make the credentials
+    return credentials
+
+
 def create_bucket(hostname: str, access_key: str, secret_key: str,
                   bucket_name: str) -> None:
     """
