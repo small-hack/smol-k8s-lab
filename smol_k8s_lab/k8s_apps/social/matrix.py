@@ -1,4 +1,5 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.k8s_apps.minio import create_bucket, create_access_credentials
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
@@ -20,16 +21,43 @@ def configure_matrix(k8s_obj: K8s,
     # initial secrets to deploy this app from scratch
     if config_dict['init']['enabled']:
         secrets = config_dict['argo']['secret_keys']
+        init_values = config_dict['init']['values']
+
+        # main important value
         matrix_hostname = secrets['hostname']
 
+        # configure s3 credentials if they're in use
+        s3_access_id = init_values.get('s3_access_id', 'matrix')
+        s3_access_key = init_values.get('s3_access_key', '')
+        s3_endpoint = secrets.get('s3_endpoint', "minio")
+        s3_bucket = secrets.get('s3_bucket', "matrix")
+
         # configure the smtp credentials
-        smtp_user = config_dict['init']['values']['smtp_user']
-        smtp_pass = config_dict['init']['values']['smtp_password']
-        smtp_host = config_dict['init']['values']['smtp_host']
+        smtp_user = init_values['smtp_user']
+        smtp_pass = init_values['smtp_password']
+        smtp_host = init_values['smtp_host']
+
+        # create the bucket if the user is using minio
+        if minio_credentials and s3_endpoint == "minio":
+            s3_endpoint = minio_credentials['hostname']
+            s3_access_key = create_access_credentials(s3_endpoint, s3_access_id)
+            create_bucket(s3_endpoint, s3_access_id, s3_access_key, s3_bucket)
 
         # if the user has bitwarden enabled
         if bitwarden:
-            sub_header("Creating secrets in Bitwarden")
+            sub_header("Creating matrix secrets in Bitwarden")
+
+            # S3 credentials
+            matrix_s3_host_obj = create_custom_field("s3Endpoint", s3_endpoint)
+            matrix_s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
+            bitwarden.create_login(
+                    name='matrix-s3-credentials',
+                    item_url=matrix_hostname,
+                    user=s3_access_id,
+                    password=s3_access_key,
+                    fields=[matrix_s3_host_obj,
+                            matrix_s3_bucket_obj]
+                    )
 
             # postgresql credentials
             matrix_pgsql_password = bitwarden.generate()
