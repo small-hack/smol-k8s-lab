@@ -1,4 +1,5 @@
 from rich.prompt import Prompt
+from smol_k8s_lab.k8s_apps.minio import create_access_credentials, create_bucket
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -37,10 +38,15 @@ def configure_nextcloud(k8s_obj: K8s,
             mail_host = init_values.get('smtp_host', None)
             mail_user = init_values.get('smtp_user', None)
             mail_pass = init_values.get('smtp_password', None)
+
             # backups values
-            access_id = init_values.get('backup_s3_access_id', None)
+            access_id = init_values.get('backup_s3_access_id', "nextcloud")
             access_key = init_values.get('backup_s3_access_key', None)
             restic_repo_pass = init_values.get('restic_password', None)
+
+        if secrets:
+            s3_endpoint = secrets.get('backup_s3_endpoint', None)
+            s3_bucket = secrets.get('backup_s3_bucket', 'nextcloud')
 
         # configure SMTP
         if not mail_host:
@@ -60,15 +66,20 @@ def configure_nextcloud(k8s_obj: K8s,
             access_id = '""'
             access_key = '""'
         else:
-            if not access_id:
-                access_id = Prompt.ask(
-                        "[green]Please enter the access ID for s3 backups"
-                        )
-            if not access_key:
-                access_key = Prompt.ask(
-                        "[green]Please enter the access key for s3 backups",
-                        password=True
-                        )
+            if minio_credentials and s3_endpoint == "minio":
+                s3_endpoint = minio_credentials['hostname']
+                access_key = create_access_credentials(s3_endpoint, access_id)
+                create_bucket(s3_endpoint, access_id, access_key, s3_bucket)
+            else:
+                if not access_id:
+                    access_id = Prompt.ask(
+                            "[green]Please enter the access ID for s3 backups"
+                            )
+                if not access_key:
+                    access_key = Prompt.ask(
+                            "[green]Please enter the access key for s3 backups",
+                            password=True
+                            )
 
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
@@ -118,13 +129,14 @@ def configure_nextcloud(k8s_obj: K8s,
             # backups s3 credentials creation
             if not restic_repo_pass:
                 restic_repo_pass = bitwarden.generate()
+            restic_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
+            bucket_obj = create_custom_field('bucket', s3_bucket)
             backup_id = bitwarden.create_login(
-                    name='nextcloud-backups-credentials',
-                    item_url=nextcloud_hostname,
+                    name='nextcloud-backups-s3-credentials',
+                    item_url=s3_endpoint,
                     user=access_id,
                     password=access_key,
-                    fields=[create_custom_field('resticRepoPassword',
-                                                restic_repo_pass)]
+                    fields=[restic_obj, bucket_obj]
                     )
 
             # update the nextcloud values for the argocd appset
@@ -160,11 +172,11 @@ def configure_nextcloud(k8s_obj: K8s,
         else:
             # these are standard k8s secrets
             token = create_password()
-            password = create_password()
+            admin_password = create_password()
             # nextcloud admin credentials
             k8s_obj.create_secret('nextcloud-admin-credentials', 'nextcloud',
-                                  {"username": username,
-                                   "password": password,
+                                  {"username": admin_user,
+                                   "password": admin_password,
                                    "serverInfoToken": token,
                                    "smtpHost": mail_host,
                                    "smtpUsername": mail_user,
