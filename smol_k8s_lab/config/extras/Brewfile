@@ -24,3 +24,6 @@ brew "bitwarden-cli"
 
 # this is for managing cilium
 brew "cilium-cli"
+
+# this is for managing minio clients
+brew "minio-mc"
