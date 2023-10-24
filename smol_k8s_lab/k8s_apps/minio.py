@@ -68,15 +68,17 @@ def configure_minio(k8s_obj: K8s,
 
         # if the user hasn't chosen a config location, we use XDG spec, maybe
         # xdg_minio_config_file = xdg_config_home() + "/minio/config.json"
-        minio_config_file = HOME_DIR + ".mc/config.json"
+        minio_config_dir = HOME_DIR + ".mc/"
+        minio_config_file = minio_config_dir + "config.json"
 
         # create the dir if it doesn't exist
         if not exists(minio_config_file):
-            makedirs(minio_config_file, exist_ok=True)
-
-        # open the default minio cli config to take a peek
-        with open(minio_config_file, 'r') as minio_config_contents:
-            minio_cfg_obj = load(minio_config_contents)
+            makedirs(minio_config_dir, exist_ok=True)
+            minio_cfg_obj = {}
+        else:
+            # open the default minio cli config to take a peek
+            with open(minio_config_file, 'r') as minio_config_contents:
+                minio_cfg_obj = load(minio_config_contents)
 
         # reconfigure the file for our new alias
         if not minio_cfg_obj:
