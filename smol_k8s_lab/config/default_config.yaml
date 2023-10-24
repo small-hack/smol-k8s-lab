@@ -698,7 +698,7 @@ apps:
       values:
         admin_user: ""
         smtp_user: "change me to enable mail"
-        smtp_host: "change@me-to-enable.mail"
+        smtp_host: "change-me-to-real-email@to-enable.mail"
         # if set to just minio, we'll attempt to create this bucket ourselves
         backup_s3_endpoint: "minio"
         backup_s3_bucket: "nextcloud"
