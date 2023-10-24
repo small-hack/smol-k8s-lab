@@ -655,7 +655,9 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        hostname: ""
+        api_hostname: ""
+        user_console_hostname: ""
+        admin_console_hostname: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -688,6 +690,9 @@ apps:
         admin_user: ""
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
+        # if set to just minio, we'll attempt to create this bucket ourselves
+        backup_s3_endpoint: "minio"
+        backup_s3_bucket: "nextcloud"
       sensitive_values:
         - SMTP_PASSWORD
         - S3_ACCESS_KEY
