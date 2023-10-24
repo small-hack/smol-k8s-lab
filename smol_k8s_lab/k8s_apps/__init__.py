@@ -17,6 +17,7 @@ from .ingress.cert_manager import configure_cert_manager
 # from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.vouch import configure_vouch
+from .minio import configure_minio
 from .networking.metallb import configure_metallb
 from .networking.cilium import configure_cilium
 from .secrets_management.external_secrets_operator import configure_external_secrets
@@ -186,21 +187,22 @@ def setup_base_apps(k8s_obj: K8s,
 
 
 def setup_federated_apps(k8s_obj: K8s,
+                         minio_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
                          matrix_dict: dict = {},
-                         bw: BwCLI = None) -> True:
+                         bw: BwCLI = None) -> None:
     """
-    Setup any federated apps with initialization supported
-    returns True when done
+    Setup MinIO and then any federated apps with initialization supported
     """
+    if minio_dict['enabled']:
+        minio_credentials = configure_minio(k8s_obj, minio_dict, bw)
+
     if nextcloud_dict['enabled']:
-        configure_nextcloud(k8s_obj, nextcloud_dict, bw)
+        configure_nextcloud(k8s_obj, nextcloud_dict, bw, minio_credentials)
 
     if mastodon_dict['enabled']:
-        configure_mastodon(k8s_obj, mastodon_dict, bw)
+        configure_mastodon(k8s_obj, mastodon_dict, bw, minio_credentials)
 
     if matrix_dict['enabled']:
-        configure_matrix(k8s_obj, matrix_dict, bw)
-
-    return True
+        configure_matrix(k8s_obj, matrix_dict, bw, minio_credentials)

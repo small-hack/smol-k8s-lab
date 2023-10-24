@@ -9,7 +9,8 @@ import logging as log
 
 def configure_matrix(k8s_obj: K8s,
                      config_dict: dict,
-                     bitwarden: BwCLI = None) -> bool:
+                     bitwarden: BwCLI = None,
+                     minio_credentials: dict = {}) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
     """

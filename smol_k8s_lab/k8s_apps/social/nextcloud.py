@@ -11,7 +11,8 @@ import logging as log
 
 def configure_nextcloud(k8s_obj: K8s,
                         config_dict: dict,
-                        bitwarden: BwCLI = None) -> bool:
+                        bitwarden: BwCLI = None,
+                        minio_credentials: dict = {}) -> bool:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
     required:

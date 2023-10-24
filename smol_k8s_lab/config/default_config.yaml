@@ -647,6 +647,11 @@ apps:
       [link=https://min.io/]MinIO®️[/link] is a high-performance, self hosted S3 compatible object store. MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
 
       smol-k8s-lab deploys the MinIO API and Operator (admin) Console.
+    init:
+      enabled: true
+      values:
+        # this is the admin user for the tenant
+        admin_user: "minio-admin"
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -790,7 +795,7 @@ apps:
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
-      namespace: "ingress"
+      namespace: "vouch"
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -798,6 +803,7 @@ apps:
         destination:
           namespaces:
             - argocd
+            - vouch
 
   zitadel:
     enabled: true
