@@ -661,7 +661,7 @@ apps:
       enabled: true
       values:
         # this is the admin user for the tenant
-        admin_user: "minio-admin"
+        root_user: "minio-admin"
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
