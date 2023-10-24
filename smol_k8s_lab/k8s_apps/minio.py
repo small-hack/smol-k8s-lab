@@ -30,15 +30,15 @@ def configure_minio(k8s_obj: K8s,
         secret_key = create_password()
         minio_hostname = minio_config['argo']['secret_keys']['api_hostname']
 
-        credentials_exports = f"""MINIO_ROOT_USER={access_key}
-        MINIO_ROOT_PASSWORD={secret_key}"""
+        credentials_exports = {'config.env': f"""MINIO_ROOT_USER={access_key}
+        MINIO_ROOT_PASSWORD={secret_key}"""}
 
         # the namespace probably doesn't exist yet, so we try to create it
         k8s_obj.create_namespace('minio')
 
         # creates the initial root credentials secret for the minio tenant
         k8s_obj.create_secret('default-tenant-env-config', 'minio',
-                              credentials_exports, 'config.env')
+                              credentials_exports)
 
         if bitwarden:
             log.info("Creating MinIO root credentials in Bitwarden")
