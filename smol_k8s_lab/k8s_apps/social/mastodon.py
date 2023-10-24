@@ -1,4 +1,4 @@
-from rich.prompt import Prompt
+from smol_k8s_lab.k8s_apps.minio import create_bucket, create_access_credentials
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -19,23 +19,31 @@ def configure_mastodon(k8s_obj: K8s,
     header("Setting up [green]Mastodon[/green], so you can self host your social media"
            '🐘')
     if config_dict['init']['enabled']:
+        # declare custom values for mastodon
+        secrets = config_dict['argo']['secret_keys']
+        init_values = config_dict['init']['values']
+
         # configure the admin user credentials
-        username = config_dict['init']['values']['admin_user']
-        email = config_dict['init']['values']['admin_email']
-        s3_endpoint = config_dict['init']['values']['s3_endpoint']
-        s3_bucket = config_dict['init']['values']['s3_bucket']
+        mastodon_hostname = secrets['hostname']
+        username = ['admin_user']
+        email = init_values['admin_email']
 
         # configure the smtp credentials
-        smtp_user = config_dict['init']['values']['smtp_user']
-        smtp_pass = config_dict['init']['values']['smtp_password']
-        smtp_host = config_dict['init']['values']['smtp_host']
+        smtp_user = init_values['smtp_user']
+        smtp_pass = init_values['smtp_password']
+        smtp_host = init_values['smtp_host']
 
         # configure s3 credentials if they're in use
-        s3_access_id = config_dict['init']['values']['s3_access_id']
-        s3_access_key = config_dict['init']['values']['s3_access_key']
+        s3_access_id = init_values.get('s3_access_id', 'mastodon')
+        s3_access_key = init_values.get('s3_access_key', '')
+        s3_endpoint = secrets.get('s3_endpoint', "minio")
+        s3_bucket = secrets.get('s3_bucket', "mastodon")
 
-        secrets = config_dict['argo']['secret_keys']
-        mastodon_hostname = secrets['hostname']
+        # create the bucket if the user is using minio
+        if minio_credentials and s3_endpoint == "minio":
+            s3_endpoint = minio_credentials['hostname']
+            s3_access_key = create_access_credentials(s3_endpoint, s3_access_id)
+            create_bucket(s3_endpoint, s3_access_id, s3_access_key, s3_bucket)
 
         if bitwarden:
             # admin credentials
