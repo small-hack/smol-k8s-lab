@@ -1,7 +1,12 @@
+from json import load, dump
 import logging as log
+from os.path import exists
+from os import makedirs
 from minio import Minio, MinioAdmin
 from shutil import which
+# from xdg_base_dirs import xdg_config_home
 
+from smol_k8s_lab.constants import HOME_DIR
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -48,6 +53,43 @@ def configure_minio(k8s_obj: K8s,
                     user=access_key,
                     password=secret_key
                     )
+
+        # we create a config file so users can easily use minio from the cli
+        new_minio_alias = {"url": f"{minio_hostname}:9000",
+                           "accessKey": access_key,
+                           "secretKey": secret_key,
+                           "api": "S3v4",
+                           "path": "auto"}
+
+        # if the user hasn't chosen a config location, we use XDG spec, maybe
+        # xdg_minio_config_file = xdg_config_home() + "/minio/config.json"
+        minio_config_file = HOME_DIR + "/.mc/config.json"
+
+        # create the dir if it doesn't exist
+        if not exists(minio_config_file):
+            makedirs(HOME_DIR + "/.mc", exist_ok=True)
+
+        # open the default minio cli config to take a peek
+        with open(minio_config_file, 'r') as minio_config_contents:
+            minio_cfg_obj = load(minio_config_contents)
+
+        # reconfigure the file for our new alias
+        if not minio_cfg_obj:
+            # if there's not a config object, make one
+            minio_cfg_obj = {"version": "10",
+                             "aliases": {"minio-root": new_minio_alias}}
+        else:
+            aliases = minio_cfg_obj.get("aliases", None)
+            # if there is an aliases section with minio-root, update it
+            if aliases:
+                minio_cfg_obj['aliases']['minio-root'] = new_minio_alias
+            # if there is not an aliases section with minio-root, create one
+            else:
+                minio_cfg_obj['aliases'] = {"minio-root": new_minio_alias}
+
+        # write out the config file when we're done
+        with open(minio_config_file, 'w') as minio_config_contents:
+            dump(minio_cfg_obj, minio_config_contents)
 
     # actual installation of the minio app
     install_with_argocd(k8s_obj, 'minio', minio_config['argo'])
