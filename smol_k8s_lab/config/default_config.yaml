@@ -552,6 +552,10 @@ apps:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
+        # if set to just minio, we'll attempt to create this bucket ourselves
+        s3_endpoint: "minio"
+        # this bucket is for your images and other assets
+        s3_bucket: "mastodon"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
