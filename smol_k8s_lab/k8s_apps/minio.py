@@ -54,6 +54,11 @@ def configure_minio(k8s_obj: K8s,
                     password=secret_key
                     )
 
+    # actual installation of the minio app
+    install_with_argocd(k8s_obj, 'minio', minio_config['argo'])
+
+    # while we wait for the app to come up, update the config file
+    if minio_init_enabled:
         # we create a config file so users can easily use minio from the cli
         new_minio_alias = {"url": f"{minio_hostname}:9000",
                            "accessKey": access_key,
@@ -91,8 +96,7 @@ def configure_minio(k8s_obj: K8s,
         with open(minio_config_file, 'w') as minio_config_contents:
             dump(minio_cfg_obj, minio_config_contents)
 
-    # actual installation of the minio app
-    install_with_argocd(k8s_obj, 'minio', minio_config['argo'])
+    # make sure the app is up before returning
     wait_for_argocd_app('minio')
 
     if minio_init_enabled:
