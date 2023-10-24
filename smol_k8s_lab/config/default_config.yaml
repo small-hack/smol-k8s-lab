@@ -673,6 +673,7 @@ apps:
         api_hostname: ""
         user_console_hostname: ""
         admin_console_hostname: ""
+        tenant_name: "myminio"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
