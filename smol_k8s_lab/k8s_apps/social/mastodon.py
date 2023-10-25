@@ -1,4 +1,4 @@
-from smol_k8s_lab.k8s_apps.minio import create_bucket, create_access_credentials
+from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -12,7 +12,7 @@ import logging as log
 def configure_mastodon(k8s_obj: K8s,
                        config_dict: dict,
                        bitwarden: BwCLI = None,
-                       minio_credentials: dict = {}) -> bool:
+                       minio_obj: BetterMinio = {}) -> bool:
     """
     creates a mastodon app and initializes it with secrets if you'd like :)
     """
@@ -40,10 +40,9 @@ def configure_mastodon(k8s_obj: K8s,
         s3_bucket = secrets.get('s3_bucket', "mastodon")
 
         # create the bucket if the user is using minio
-        if minio_credentials and s3_endpoint == "minio":
-            s3_endpoint = minio_credentials['hostname']
-            s3_access_key = create_access_credentials(s3_endpoint, s3_access_id)
-            create_bucket(s3_endpoint, s3_access_id, s3_access_key, s3_bucket)
+        if minio_obj and s3_endpoint == "minio":
+            s3_access_key = minio_obj.create_access_credentials(s3_access_id)
+            minio_obj.create_bucket(s3_bucket, s3_access_id)
 
         if bitwarden:
             # admin credentials
