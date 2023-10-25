@@ -1,7 +1,8 @@
 from rich.prompt import Prompt
 from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
+                                                check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
@@ -13,7 +14,7 @@ import logging as log
 def configure_nextcloud(k8s_obj: K8s,
                         config_dict: dict,
                         bitwarden: BwCLI = None,
-                        minio_obj: BetterMinio = {}) -> bool:
+                        minio_obj: BetterMinio = {}) -> None:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
     required:
@@ -21,12 +22,15 @@ def configure_nextcloud(k8s_obj: K8s,
         config_dict - dictionary with at least argocd key and init key
     optional:
         bitwarden   - BwCLI() object with session token
+        minio_obj   - BetterMinio() object with minio credentials
     """
-    header("Setting up [green]Nextcloud[/], so you can self host your files",
-           '🩵')
+    app_installed = check_if_argocd_app_exists('nextcloud')
 
     # if the user has chosen to use smol-k8s-lab initialization
-    if config_dict['init']['enabled']:
+    if config_dict['init']['enabled'] and not app_installed:
+        header("Setting up [green]Nextcloud[/], to self host your files",
+               '🩵')
+
         secrets = config_dict['argo']['secret_keys']
         nextcloud_hostname = secrets['hostname']
 
@@ -202,5 +206,5 @@ def configure_nextcloud(k8s_obj: K8s,
                                    "applicationKey": access_key,
                                    "resticRepoPassword": restic_repo_pass})
 
-    install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
-    return True
+    if not app_installed:
+        install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
