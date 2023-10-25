@@ -1,7 +1,10 @@
 #!/usr/bin/env python3.11
 """
            NAME: smol-k8s-lab
-    DESCRIPTION: Works with k3s, KinD, and k3d
+    DESCRIPTION: package, cli, and tui for setting up k8s on metal with
+                 k3s, KinD, and k3d, as well as installing our or your own
+                 Argo CD Apps, ApplicationSets, and Projects.
+                 
          AUTHOR: jessebot(AT)linux(d0t)com
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
@@ -29,31 +32,35 @@ from .utils.rich_cli.help_text import RichCommand, options_help
 
 
 HELP = options_help()
-HELP_SETTINGS = dict(help_option_names=['-h', '--help'])
+HELP_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
-def process_log_config(log_dict: dict = {'level': 'warn', 'file': None}):
+def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
     """
     Sets up rich logger for the entire project.
     Returns logging.getLogger("rich")
+
+    TODO: change this to always add file logger
+
     """
+
     # determine logging level and default to warning level
-    level = log_dict.get('level', 'warn')
+    level = log_dict.get("level", "warn")
     log_level = getattr(logging, level.upper(), None)
 
     # these are params to be passed into logging.basicConfig
-    opts = {'level': log_level, 'format': "%(message)s", 'datefmt': "[%X]"}
+    opts = {"level": log_level, "format": "%(message)s", "datefmt": "[%X]"}
 
     # we only log to a file if one was passed into config.yaml
     # determine logging level
-    log_file = log_dict.get('file', None)
+    log_file = log_dict.get("file", None)
 
     # rich typically handles much of this but we don't use rich with files
     if log_file:
         opts['filename'] = log_file
         opts['format'] = "%(asctime)s %(levelname)s %(funcName)s: %(message)s"
     else:
-        rich_handler_opts = {'rich_tracebacks': True}
+        rich_handler_opts = {"rich_tracebacks": True}
         # 10 is the DEBUG logging level int value
         if log_level == 10:
             # log the name of the function if we're in debug mode :)
@@ -81,22 +88,22 @@ def process_log_config(log_dict: dict = {'level': 'warn', 'file': None}):
 
 # an ugly list of decorators, but these are the opts/args for the whole script
 @command(cls=RichCommand, context_settings=HELP_SETTINGS)
-@option('--config', '-c',
+@option("--config", "-c",
         metavar="CONFIG_FILE",
         type=str,
         default=XDG_CONFIG_FILE,
         help=HELP['config'])
-@option('--delete', '-D',
+@option("--delete", "-D",
         metavar="CLUSTER_NAME",
         type=str,
         help=HELP['delete'])
-@option('--setup', '-s',
+@option("--setup", "-s",
         is_flag=True,
         help=HELP['setup'])
-@option('--interactive', '-i',
+@option("--interactive", "-i",
         is_flag=True,
         help=HELP['interactive'])
-@option('--version', '-v',
+@option("--version", "-v",
         is_flag=True,
         help=HELP['version'])
 def main(config: str = "",
@@ -111,7 +118,7 @@ def main(config: str = "",
     """
     # only return the version if --version was passed in
     if version:
-        print(f'\n🎉 v{VERSION}\n')
+        print(f"\n🎉 v{VERSION}\n")
         return True
 
     # make sure this OS is supported
