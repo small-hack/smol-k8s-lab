@@ -81,7 +81,7 @@ def configure_minio(k8s_obj: K8s,
         if secure:
             protocal = "https"
         # we create a config file so users can easily use minio from the cli
-        new_minio_alias = {"url": f"{protocal}://{minio_hostname}:9000",
+        new_minio_alias = {"url": f"{protocal}://{minio_hostname}",
                            "accessKey": access_key,
                            "secretKey": secret_key,
                            "api": "S3v4",
