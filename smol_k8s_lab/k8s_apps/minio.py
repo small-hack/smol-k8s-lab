@@ -119,9 +119,10 @@ def configure_minio(k8s_obj: K8s,
         return return_dict
 
 
-def create_access_credentials(hostname: str, access_key: str) -> str:
+def create_access_credentials(minio_alias: str, access_key: str) -> str:
     """
-    given a hostname, create minio access credentials using the mc admin client
+    given a minio alias and access key name, we create minio access credentials
+    using the mc admin client
     return secret_key
     """
     if which("brew") and not which("mc"):
@@ -129,7 +130,7 @@ def create_access_credentials(hostname: str, access_key: str) -> str:
         subproc("brew install minio-mc")
 
     # Create a client with the MinIO hostname, its access key and secret key.
-    admin_client = MinioAdmin(hostname)
+    admin_client = MinioAdmin(minio_alias)
 
     # similar to mc admin user add
     secret_key = create_password()
