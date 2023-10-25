@@ -96,8 +96,10 @@ def configure_mastodon(k8s_obj: K8s,
                     item_url=mastodon_hostname,
                     user=s3_access_id,
                     password=s3_access_key,
-                    fields=[mastodon_s3_host_obj,
-                    mastodon_s3_bucket_obj]
+                    fields=[
+                        mastodon_s3_host_obj,
+                        mastodon_s3_bucket_obj
+                        ]
                     )
 
             # update the mastodon values for the argocd appset
