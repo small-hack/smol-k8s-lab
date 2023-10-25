@@ -6,7 +6,7 @@ from minio import Minio, MinioAdmin
 from shutil import which
 # from xdg_base_dirs import xdg_config_home
 
-from smol_k8s_lab.constants import HOME_DIR
+from smol_k8s_lab.constants import HOME_DIR, XDG_CACHE_DIR
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.argocd_util import (
         install_with_argocd, wait_for_argocd_app, check_if_argocd_app_exists)
@@ -171,6 +171,40 @@ class BetterMinio:
 
             # policy for bucket
             log.info(f"Adding a readwrite policy for bucket, {bucket_name}")
-            self.admin_client.policy_set('readwrite', access_key)
+            policy_name = self.create_bucket_policy(bucket_name)
+            self.admin_client.policy_set(policy_name, access_key)
         else:
             log.info(f'Bucket "{bucket_name}" already exists')
+
+    def create_bucket_policy(self, bucket: str) -> str:
+        """ 
+        creates a readwrite policy for a given bucket and returns the policy name
+        """
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:GetBucketLocation",
+                        "s3:GetObject",
+                        "s3:ListBucket"
+                    ],
+                    "Resource": [
+                        f"arn:aws:s3:::{bucket}",
+                        f"arn:aws:s3:::{bucket}/*"
+                    ]
+                }
+            ]
+        }
+
+        # we write out the policy, because minio admin client requires it
+        policy_file_name = XDG_CACHE_DIR + f'minio_{bucket}_policy.json'
+        with open(policy_file_name, 'w') as policy_file:
+            dump(policy, policy_file)
+
+        # actually create the policy
+        policy_name = f'{bucket}BucketReadWrite'
+        self.admin_client.policy_add(policy_name, policy_file_name)
+
+        return policy_name
