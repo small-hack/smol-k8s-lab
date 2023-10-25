@@ -137,27 +137,35 @@ def create_access_credentials(minio_alias: str, access_key: str) -> str:
         subproc("brew install minio-mc")
 
     # Create a client with the MinIO hostname, its access key and secret key.
+    log.info(f"About to create the minio credentials for user {access_key}")
     admin_client = MinioAdmin(minio_alias)
 
     # similar to mc admin user add
     secret_key = create_password()
     admin_client.user_add(access_key, secret_key)
 
-    # make the credentials
+    log.info(f"Creation of minio credentials for user {access_key} completed.")
     return secret_key
 
 
-def create_bucket(hostname: str, access_key: str, secret_key: str,
-                  bucket_name: str) -> None:
+def create_bucket(minio_alias: str, minio_hostname: str, bucket_name: str,
+                  access_key: str) -> None:
     """
     Takes credentials and a bucket_name and creates a bucket via the minio sdk
     """
     # Create a client with the MinIO hostname, its access key and secret key.
-    client = Minio(hostname, access_key=access_key, secret_key=secret_key)
+    admin_client = MinioAdmin(minio_alias)
+    client = Minio(minio_hostname)
     
     # Make bucket if it does not exist already
+    log.info(f'Check for bucket "{bucket_name}"...')
     found = client.bucket_exists(bucket_name)
     if not found:
-        client.make_bucket(bucket_name)
+        log.info(f'Creating bucket "{bucket_name}"...')
+        admin_client.make_bucket(bucket_name)
+
+        # policy for bucket
+        log.info(f"Adding a readwrite policy for bucket, {bucket_name}")
+        admin_client.policy_set('readwrite', access_key)
     else:
         log.info(f'Bucket "{bucket_name}" already exists')

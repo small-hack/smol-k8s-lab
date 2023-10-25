@@ -22,7 +22,7 @@ from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_apps.argocd import configure_argocd
 from .k8s_distros import create_k8s_distro, delete_cluster
-from .k8s_tools.argocd_util import install_with_argocd
+from .k8s_tools.argocd_util import install_with_argocd, check_if_argocd_app_exists
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
@@ -253,7 +253,9 @@ def main(config: str = "",
         header("Installing the rest of the Argo CD apps")
         for app_key, app_meta in apps.items():
             if app_meta['enabled']:
-                if not app_meta['argo'].get('part_of_app_of_apps', False):
+                app_of_apps = app_meta['argo'].get('part_of_app_of_apps', False)
+                app_installed = check_if_argocd_app_exists(app_key)
+                if not app_of_apps and not app_installed:
                     argo_app = app_key.replace('_', '-')
                     sub_header(f"Installing app: {argo_app}")
                     install_with_argocd(k8s_obj, argo_app, app_meta['argo'])
