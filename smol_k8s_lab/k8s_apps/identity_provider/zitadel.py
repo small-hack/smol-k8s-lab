@@ -5,7 +5,9 @@ from .zitadel_api import Zitadel
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
+from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
+                                                wait_for_argocd_app,
+                                                check_if_argocd_app_exists)
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 
@@ -15,7 +17,7 @@ def configure_zitadel(k8s_obj: K8s,
                       api_tls_verify: bool = False,
                       argocd_hostname: str = "",
                       vouch_hostname: str = "",
-                      bitwarden: BwCLI = None):
+                      bitwarden: BwCLI = None) -> dict | None:
     """
     Installs zitadel as a Argo CD Applications. If config_dict['init']['enabled']
     is True, it also configures Argo CD as OIDC Clients.
@@ -36,7 +38,9 @@ def configure_zitadel(k8s_obj: K8s,
     zitadel_domain = config_dict['argo']['secret_keys']['hostname']
     database_type = config_dict['argo']['secret_keys']['database_type']
 
-    if config_dict['init']['enabled']:
+    app_installed = check_if_argocd_app_exists('zitadel')
+
+    if config_dict['init']['enabled'] and not app_installed:
         log.debug("Creating core key and DB credenitals for zitadel...")
         if database_type in ["postgres", "psql", "pgsql", "postgresql"]:
             admin_user = "postgres"
@@ -106,25 +110,24 @@ def configure_zitadel(k8s_obj: K8s,
                                   str_data=secret_dict)
 
     # install Zitadel using ArgoCD
-    install_with_argocd(k8s_obj, 'zitadel', config_dict['argo'])
+    if not app_installed:
+        install_with_argocd(k8s_obj, 'zitadel', config_dict['argo'])
 
-    # only continue through the rest of the function if we're initializes a
-    # user and argocd client in zitadel
-    if not config_dict['init']['enabled']:
-        return True
-    else:
-        initial_user_dict = config_dict['init']['values']
-        # Before initialization, we need to wait for zitadel's API to be up
-        wait_for_argocd_app('zitadel')
-        wait_for_argocd_app('zitadel-web-app')
-        vouch_dict = initialize_zitadel(k8s_obj=k8s_obj,
-                                        zitadel_hostname=zitadel_domain,
-                                        api_tls_verify=api_tls_verify,
-                                        user_dict=initial_user_dict,
-                                        argocd_hostname=argocd_hostname,
-                                        vouch_hostname=vouch_hostname,
-                                        bitwarden=bitwarden)
-        return vouch_dict
+        # only continue through the rest of the function if we're initializes a
+        # user and argocd client in zitadel
+        if config_dict['init']['enabled']:
+            initial_user_dict = config_dict['init']['values']
+            # Before initialization, we need to wait for zitadel's API to be up
+            wait_for_argocd_app('zitadel')
+            wait_for_argocd_app('zitadel-web-app')
+            vouch_dict = initialize_zitadel(k8s_obj=k8s_obj,
+                                            zitadel_hostname=zitadel_domain,
+                                            api_tls_verify=api_tls_verify,
+                                            user_dict=initial_user_dict,
+                                            argocd_hostname=argocd_hostname,
+                                            vouch_hostname=vouch_hostname,
+                                            bitwarden=bitwarden)
+            return vouch_dict
 
 
 def initialize_zitadel(k8s_obj: K8s,
