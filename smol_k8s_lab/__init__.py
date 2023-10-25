@@ -241,6 +241,7 @@ def main(config: str = "",
                             argocd_fqdn)
 
         setup_federated_apps(k8s_obj,
+                             api_tls_verify,
                              apps.pop('minio'),
                              apps.pop('nextcloud'),
                              apps.pop('mastodon'),

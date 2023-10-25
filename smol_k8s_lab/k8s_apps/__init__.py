@@ -187,6 +187,7 @@ def setup_base_apps(k8s_obj: K8s,
 
 
 def setup_federated_apps(k8s_obj: K8s,
+                         api_tls_verify: bool = False,
                          minio_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
@@ -196,7 +197,8 @@ def setup_federated_apps(k8s_obj: K8s,
     Setup MinIO and then any federated apps with initialization supported
     """
     if minio_dict['enabled']:
-        minio_credentials = configure_minio(k8s_obj, minio_dict, bw)
+        minio_credentials = configure_minio(k8s_obj, minio_dict, api_tls_verify,
+                                            bw)
 
     if nextcloud_dict['enabled']:
         configure_nextcloud(k8s_obj, nextcloud_dict, bw, minio_credentials)
