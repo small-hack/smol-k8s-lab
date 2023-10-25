@@ -16,7 +16,7 @@ from smol_k8s_lab.utils.subproc import subproc
 
 def configure_minio(k8s_obj: K8s,
                     minio_config: dict,
-                    bitwarden: BwCLI = None) -> None | list:
+                    bitwarden: BwCLI = None) -> None | dict:
     """
     minio installation and configuration
 
@@ -99,7 +99,9 @@ def configure_minio(k8s_obj: K8s,
     wait_for_argocd_app('minio')
 
     if minio_init_enabled:
-        return [minio_hostname, access_key, secret_key]
+        return {"hostname": minio_hostname,
+                "access_key": access_key,
+                "secret_key": secret_key}
 
 
 def create_access_credentials(hostname: str, access_key: str) -> str:
