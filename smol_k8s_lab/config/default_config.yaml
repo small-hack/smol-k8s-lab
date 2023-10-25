@@ -584,6 +584,7 @@ apps:
         destination:
           namespaces:
             - argocd
+            - mastodon
 
   matrix:
     description: |
