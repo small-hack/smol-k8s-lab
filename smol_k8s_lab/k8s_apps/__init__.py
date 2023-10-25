@@ -197,14 +197,14 @@ def setup_federated_apps(k8s_obj: K8s,
     Setup MinIO and then any federated apps with initialization supported
     """
     if minio_dict['enabled']:
-        minio_credentials = configure_minio(k8s_obj, minio_dict, api_tls_verify,
-                                            bw)
+        # returns a BetterMinio obj with a client and admin client ready to go
+        minio_obj = configure_minio(k8s_obj, minio_dict, api_tls_verify, bw)
 
     if nextcloud_dict['enabled']:
-        configure_nextcloud(k8s_obj, nextcloud_dict, bw, minio_credentials)
+        configure_nextcloud(k8s_obj, nextcloud_dict, bw, minio_obj)
 
     if mastodon_dict['enabled']:
-        configure_mastodon(k8s_obj, mastodon_dict, bw, minio_credentials)
+        configure_mastodon(k8s_obj, mastodon_dict, bw, minio_obj)
 
     if matrix_dict['enabled']:
-        configure_matrix(k8s_obj, matrix_dict, bw, minio_credentials)
+        configure_matrix(k8s_obj, matrix_dict, bw, minio_obj)
