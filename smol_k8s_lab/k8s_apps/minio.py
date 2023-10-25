@@ -8,7 +8,8 @@ from shutil import which
 
 from smol_k8s_lab.constants import HOME_DIR
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
-from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
+from smol_k8s_lab.k8s_tools.argocd_util import (
+        install_with_argocd, wait_for_argocd_app, check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.subproc import subproc
@@ -23,20 +24,36 @@ def configure_minio(k8s_obj: K8s,
     if minio init is enabled, we also return the hostname and root credentials
     """
     minio_init_enabled = minio_config['init']['enabled']
+    argo_app_exists = check_if_argocd_app_exists('minio')
 
     # if the user has enabled smol_k8s_lab init, we create an initial user
     if minio_init_enabled:
         access_key = minio_config['init']['values']['root_user']
-        secret_key = create_password()
         minio_hostname = minio_config['argo']['secret_keys']['api_hostname']
 
-        credentials_exports = {'config.env': f"""MINIO_ROOT_USER={access_key}
-        MINIO_ROOT_PASSWORD={secret_key}"""}
+        return_dict = {"hostname": minio_hostname,
+                       "access_key": access_key,
+                       "secret_key": ""}
 
+        # if the app already exists and bitwarden is enabled return the credentials
+        if argo_app_exists:
+            if bitwarden:
+                res = bitwarden.get_item(
+                        f'minio-tenant-root-credentials-{minio_hostname}')
+                secret_key = res[0]['login']['password']
+                return_dict['secret_key'] = secret_key
+                return return_dict
+            # if app already exists but bitwarden is not enabled, return None
+            return
+
+        secret_key = create_password()
+        return_dict['secret_key'] = secret_key
         # the namespace probably doesn't exist yet, so we try to create it
         k8s_obj.create_namespace('minio')
 
         # creates the initial root credentials secret for the minio tenant
+        credentials_exports = {'config.env': f"""MINIO_ROOT_USER={access_key}
+        MINIO_ROOT_PASSWORD={secret_key}"""}
         k8s_obj.create_secret('default-tenant-env-config', 'minio',
                               credentials_exports)
 
@@ -99,9 +116,7 @@ def configure_minio(k8s_obj: K8s,
     wait_for_argocd_app('minio')
 
     if minio_init_enabled:
-        return {"hostname": minio_hostname,
-                "access_key": access_key,
-                "secret_key": secret_key}
+        return return_dict
 
 
 def create_access_credentials(hostname: str, access_key: str) -> str:
