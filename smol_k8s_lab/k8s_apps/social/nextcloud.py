@@ -1,5 +1,5 @@
 from rich.prompt import Prompt
-from smol_k8s_lab.k8s_apps.minio import create_access_credentials, create_bucket
+from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -13,7 +13,7 @@ import logging as log
 def configure_nextcloud(k8s_obj: K8s,
                         config_dict: dict,
                         bitwarden: BwCLI = None,
-                        minio_credentials: dict = {}) -> bool:
+                        minio_obj: BetterMinio = {}) -> bool:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
     required:
@@ -66,10 +66,9 @@ def configure_nextcloud(k8s_obj: K8s,
             access_id = '""'
             access_key = '""'
         else:
-            if minio_credentials and s3_endpoint == "minio":
-                s3_endpoint = minio_credentials['hostname']
-                access_key = create_access_credentials('minio-root', access_id)
-                create_bucket('minio-root', s3_endpoint, s3_bucket, access_id)
+            if minio_obj and s3_endpoint == "minio":
+                access_key = minio_obj.create_access_credentials(access_id)
+                minio_obj.create_bucket(s3_bucket, access_id)
             else:
                 if not access_id:
                     access_id = Prompt.ask(

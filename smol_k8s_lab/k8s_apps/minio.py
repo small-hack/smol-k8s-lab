@@ -18,7 +18,7 @@ from smol_k8s_lab.utils.subproc import subproc
 def configure_minio(k8s_obj: K8s,
                     minio_config: dict,
                     secure: bool = True,
-                    bitwarden: BwCLI = None) -> None | dict:
+                    bitwarden: BwCLI = None):
     """
     minio installation and configuration
 
@@ -35,23 +35,17 @@ def configure_minio(k8s_obj: K8s,
         access_key = minio_config['init']['values']['root_user']
         minio_hostname = minio_config['argo']['secret_keys']['api_hostname']
 
-        return_dict = {"hostname": minio_hostname,
-                       "access_key": access_key,
-                       "secret_key": ""}
-
         # if the app already exists and bitwarden is enabled return the credentials
         if argo_app_exists:
             if bitwarden:
                 res = bitwarden.get_item(
                         f'minio-tenant-root-credentials-{minio_hostname}')
                 secret_key = res[0]['login']['password']
-                return_dict['secret_key'] = secret_key
-                return return_dict
+                return BetterMinio('minio-root', minio_hostname, access_key, secret_key)
             # if app already exists but bitwarden is not enabled, return None
             return
 
         secret_key = create_password()
-        return_dict['secret_key'] = secret_key
         # the namespace probably doesn't exist yet, so we try to create it
         k8s_obj.create_namespace('minio')
 
@@ -123,49 +117,60 @@ def configure_minio(k8s_obj: K8s,
     wait_for_argocd_app('minio')
 
     if minio_init_enabled:
-        return return_dict
+        return BetterMinio('minio-root', minio_hostname, access_key, secret_key)
 
 
-def create_access_credentials(minio_alias: str, access_key: str) -> str:
+class BetterMinio:
+    """ 
+    a wrapper around the two seperate Minio and MinioAdmin clients to create
+    users and buckets with basic policies
     """
-    given a minio alias and access key name, we create minio access credentials
-    using the mc admin client
-    return secret_key
-    """
-    if which("brew") and not which("mc"):
-        # try to install minio-mc with brew
-        subproc("brew install minio-mc")
 
-    # Create a client with the MinIO hostname, its access key and secret key.
-    log.info(f"About to create the minio credentials for user {access_key}")
-    admin_client = MinioAdmin(minio_alias)
+    def __init__(self,
+                 minio_alias: str,
+                 api_hostname: str,
+                 access_key: str,
+                 secret_key: str) -> None:
+        self.root_user = access_key
+        self.root_password = secret_key
+        self.admin_client = MinioAdmin(minio_alias)
+        self.client = Minio(api_hostname, access_key, secret_key)
 
-    # similar to mc admin user add
-    secret_key = create_password()
-    admin_client.user_add(access_key, secret_key)
+    def create_access_credentials(self, access_key: str) -> str:
+        """
+        given an access key name, we create minio access credentials
+        using the mc admin client
+        return secret_key
+        """
+        if which("brew") and not which("mc"):
+            # try to install minio-mc with brew
+            subproc("brew install minio-mc")
 
-    log.info(f"Creation of minio credentials for user {access_key} completed.")
-    return secret_key
+        # Create a client with the MinIO hostname, its access key and secret key.
+        log.info(f"About to create the minio credentials for user {access_key}")
 
+        # similar to mc admin user add
+        secret_key = create_password()
+        self.admin_client.user_add(access_key, secret_key)
 
-def create_bucket(minio_alias: str, minio_hostname: str, bucket_name: str,
-                  access_key: str) -> None:
-    """
-    Takes credentials and a bucket_name and creates a bucket via the minio sdk
-    """
-    # Create a client with the MinIO hostname, its access key and secret key.
-    admin_client = MinioAdmin(minio_alias)
-    client = Minio(minio_hostname)
-    
-    # Make bucket if it does not exist already
-    log.info(f'Check for bucket "{bucket_name}"...')
-    found = client.bucket_exists(bucket_name)
-    if not found:
-        log.info(f'Creating bucket "{bucket_name}"...')
-        admin_client.make_bucket(bucket_name)
+        log.info(f"Creation of minio credentials for user {access_key} completed.")
+        return secret_key
 
-        # policy for bucket
-        log.info(f"Adding a readwrite policy for bucket, {bucket_name}")
-        admin_client.policy_set('readwrite', access_key)
-    else:
-        log.info(f'Bucket "{bucket_name}" already exists')
+    def create_bucket(self, bucket_name: str, access_key: str) -> None:
+        """
+        Takes bucket_name and access_key of user to assign bucket to
+        creates a bucket via the minio sdk
+        """
+        # Make bucket if it does not exist already
+        log.info(f'Check for bucket "{bucket_name}"...')
+        found = self.client.bucket_exists(bucket_name)
+
+        if not found:
+            log.info(f'Creating bucket "{bucket_name}"...')
+            self.client.make_bucket(bucket_name)
+
+            # policy for bucket
+            log.info(f"Adding a readwrite policy for bucket, {bucket_name}")
+            self.admin_client.policy_set('readwrite', access_key)
+        else:
+            log.info(f'Bucket "{bucket_name}" already exists')
