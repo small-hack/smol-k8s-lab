@@ -17,11 +17,15 @@ from smol_k8s_lab.utils.subproc import subproc
 
 def configure_minio(k8s_obj: K8s,
                     minio_config: dict,
+                    secure: bool = True,
                     bitwarden: BwCLI = None) -> None | dict:
     """
     minio installation and configuration
 
     if minio init is enabled, we also return the hostname and root credentials
+
+    if secure is set to True, we write a config with https:// prefixing the
+    hostname, else we use http://
     """
     minio_init_enabled = minio_config['init']['enabled']
     argo_app_exists = check_if_argocd_app_exists('minio')
@@ -73,8 +77,11 @@ def configure_minio(k8s_obj: K8s,
 
     # while we wait for the app to come up, update the config file
     if minio_init_enabled:
+        protocal = "http"
+        if secure:
+            protocal = "https"
         # we create a config file so users can easily use minio from the cli
-        new_minio_alias = {"url": f"{minio_hostname}:9000",
+        new_minio_alias = {"url": f"{protocal}://{minio_hostname}:9000",
                            "accessKey": access_key,
                            "secretKey": secret_key,
                            "api": "S3v4",
