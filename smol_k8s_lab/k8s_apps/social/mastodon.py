@@ -25,7 +25,7 @@ def configure_mastodon(k8s_obj: K8s,
 
         # configure the admin user credentials
         mastodon_hostname = secrets['hostname']
-        username = ['admin_user']
+        username = init_values['admin_user']
         email = init_values['admin_email']
 
         # configure the smtp credentials

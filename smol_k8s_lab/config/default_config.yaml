@@ -562,6 +562,7 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
         # if set to "minio", we'll attempt to create credentials and bucket
