@@ -68,7 +68,7 @@ def configure_nextcloud(k8s_obj: K8s,
         else:
             if minio_credentials and s3_endpoint == "minio":
                 s3_endpoint = minio_credentials['hostname']
-                access_key = create_access_credentials(s3_endpoint, access_id)
+                access_key = create_access_credentials('minio-root', access_id)
                 create_bucket(s3_endpoint, access_id, access_key, s3_bucket)
             else:
                 if not access_id:
