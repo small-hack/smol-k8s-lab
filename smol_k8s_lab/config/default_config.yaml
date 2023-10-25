@@ -535,18 +535,21 @@ apps:
     description: |
        [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
 
-       smol-k8s-lab supports initializing mastodon, by setting up your hostname and SMTP credentials as well as your credentials for redis, postgresql, and an admin user
+       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, redis credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
+
+       smol-k8s-lab can also create your S3 bucket and credential if you enable the minio app and set minio s3 endpoint to "minio"
     enabled: false
     init:
       enabled: true
       values:
+        # admin user
         admin_user: "tootadmin"
+        # admin user's email
         admin_email: ""
-        smtp_user: "change me to enable mail"
+        # mail server to send verification and notification emails
         smtp_host: "change@me-to-enable.mail"
-        # if set to just minio, we'll attempt to create this bucket ourselves
-        s3_endpoint: "minio"
-        s3_bucket: "mastodon"
+        # mail user for smtp host
+        smtp_user: "change me to enable mail"
       sensitive_values:
         - SMTP_PASSWORD
         - S3_ACCESS_KEY
@@ -554,10 +557,11 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        # hostname that users go to in the browser
         hostname: ""
-        # if set to just minio, we'll attempt to create this bucket ourselves
+        # if set to "minio", we'll attempt to create credentials and bucket
         s3_endpoint: "minio"
-        # this bucket is for your images and other assets
+        # bucket is for your images and other assets
         s3_bucket: "mastodon"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
