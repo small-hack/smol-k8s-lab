@@ -50,15 +50,11 @@ def configure_matrix(k8s_obj: K8s,
             sub_header("Creating matrix secrets in Bitwarden")
 
             # S3 credentials
-            matrix_s3_host_obj = create_custom_field("s3Endpoint", s3_endpoint)
-            matrix_s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
-            bitwarden.create_login(
+            s3_id = bitwarden.create_login(
                     name='matrix-s3-credentials',
                     item_url=matrix_hostname,
                     user=s3_access_id,
-                    password=s3_access_key,
-                    fields=[matrix_s3_host_obj,
-                            matrix_s3_bucket_obj]
+                    password=s3_access_key
                     )
 
             # postgresql credentials
@@ -97,6 +93,7 @@ def configure_matrix(k8s_obj: K8s,
                     'matrix_oidc_credentials_bitwarden_id': "not-set-yet",
                     'matrix_registration_credentials_bitwarden_id': reg_id,
                     'matrix_smtp_credentials_bitwarden_id': smtp_id,
+                    'matrix_s3_credentials_bitwarden_id': s3_id,
                     'matrix_postgres_credentials_bitwarden_id': db_id,
                     }
             update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
@@ -128,6 +125,7 @@ def configure_matrix(k8s_obj: K8s,
             matrix_pgsql_password = create_password()
             k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',
                                   {"password": matrix_pgsql_password})
+
             matrix_registration_key = create_password()
             k8s_obj.create_secret('matrix-registration', 'matrix',
                                   {"registrationSharedSecret": matrix_registration_key})
