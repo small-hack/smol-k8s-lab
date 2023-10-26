@@ -288,7 +288,7 @@ class AppsetSecretValues(Static):
         if event.validation_result.is_valid:
             input = event.input
             if input.id != f"{self.app_name}-new-secret":
-                if "," in input.value or self.app_name == 'vouch':
+                if "," in input.value:
                     value = create_sanitized_list(input.value)
                 else:
                     value = input.value
