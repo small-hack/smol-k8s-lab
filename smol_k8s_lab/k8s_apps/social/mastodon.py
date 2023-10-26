@@ -1,12 +1,14 @@
+# internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.minio import BetterMinio
+from smol_k8s_lab.k8s_apps.social.mastodon_rake import generate_rake_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
-from smol_k8s_lab.utils.subproc import subproc
 
+# external libraries
 import logging as log
 
 
@@ -124,7 +126,7 @@ def configure_mastodon(k8s_obj: K8s,
                     )
 
             secrets_id = bitwarden.create_login(
-                    name='mastodon-server-credentials',
+                    name='mastodon-server-secrets',
                     item_url=mastodon_hostname,
                     user="mastodon",
                     password="none",
@@ -193,45 +195,3 @@ def configure_mastodon(k8s_obj: K8s,
                                   rake_secrets)
 
     install_with_argocd(k8s_obj, 'mastodon', config_dict['argo'])
-
-
-def generate_rake_secrets() -> dict:
-    """
-    uses the mastodon tootsuite container and returns dict with the following:
-
-    SECRET_KEY_BASE Generate with rake secret.
-                    Changing it will break all active browser sessions.
-
-    OTP_SECRET      Generate with rake secret.
-                    Changing it will break two-factor authentication.
-
-    VAPID_PRIVATE_KEY Generate with rake mastodon:webpush:generate_vapid_key.
-                      Changing it will break push notifications.
-
-    VAPID_PUBLIC_KEY  Generate with rake mastodon:webpush:generate_vapid_key.
-                      Changing it will break push notifications.
-
-    These are required for mastodon. See ref:
-        https://docs.joinmastodon.org/admin/config/#secrets
-    """
-    final_dict = {"SECRET_KEY_BASE": "",
-                  "OTP_SECRET": "",
-                  "VAPID_PRIVATE_KEY": "",
-                  "VAPID_PUBLIC_KEY": ""}
-
-    # we use docker to generate all of these
-    base_cmd = "docker run docker.io/tootsuite/mastodon:latest rake"
-
-    # this is for the SECRET_KEY_BASE and OTP_SECRET values
-    secret_cmd = base_cmd + " secret"
-    final_dict['SECRET_KEY_BASE'] = subproc([secret_cmd]).split()[0]
-    final_dict['OTP_SECRET'] = subproc([secret_cmd]).split()[0]
-
-    # this is for the vapid keys
-    vapid_cmd = base_cmd + " mastodon:webpush:generate_vapid_key"
-    vapid_keys = subproc([vapid_cmd]).split()
-
-    final_dict['VAPID_PRIVATE_KEY'] = vapid_keys[0].split("=")[1]
-    final_dict['VAPID_PUBLIC_KEY'] = vapid_keys[1].split("=")[1]
-
-    return final_dict
