@@ -59,7 +59,7 @@ def configure_mastodon(k8s_obj: K8s,
 
             # PostgreSQL credentials
             mastodon_pgsql_password = bitwarden.generate()
-            postrges_pass_obj = create_custom_field("postrgesPassword",
+            postrges_pass_obj = create_custom_field("postgresPassword",
                                                     mastodon_pgsql_password)
             db_id = bitwarden.create_login(
                     name='mastodon-pgsql-credentials',
