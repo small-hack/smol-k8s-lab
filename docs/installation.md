@@ -25,6 +25,7 @@ permalink: /install
 All of these are not Required for core functionality of `smol-k8s-lab`, but they greatly enhance the experience, so they are still recommended.
 
 - [brew](https://brew.sh) - If installed, we can install all prerequisites for you (except python/pip, because you need those to run `smol-k8s-lab`)
+- [`docker`](https://docs.docker.com/engine/install/) - needed for k3d, kind, and installing the mastodon app
 - [`bw`](https://bitwarden.com/help/cli/#download-and-install) (only if you want to use Bitwarden to store your passwords)
 - [`k3d`](https://k3d.io/v5.6.0/#installation) (only if you want to use `k3d`)
 - [`k9s`](https://k9s.io) - only if you want a k8s TUI for viewing an already installed cluster
