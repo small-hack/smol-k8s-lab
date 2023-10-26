@@ -208,3 +208,5 @@ def configure_nextcloud(k8s_obj: K8s,
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
+    else:
+        log.info("nextcloud already installed 🎉")

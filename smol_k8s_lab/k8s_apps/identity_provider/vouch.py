@@ -1,7 +1,8 @@
 import logging as log
 from rich.prompt import Prompt
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
+                                                check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.utils.rich_cli.console_logging import header
@@ -36,7 +37,9 @@ def configure_vouch(k8s_obj: K8s,
     """
     header("Setting up [green]Vouch[/] to use Oauth for insecure frontends", "🗝️")
 
-    if vouch_config_dict['init']['enabled']:
+    app_installed = check_if_argocd_app_exists("vouch")
+
+    if vouch_config_dict['init']['enabled'] and not app_installed:
         # this handles the vouch-oauth-config secret data
         secrets = vouch_config_dict['argo']['secret_keys']
         vouch_hostname = secrets['hostname']
@@ -153,8 +156,10 @@ def configure_vouch(k8s_obj: K8s,
                                    'allowList': emails,
                                    'jwtSecret': jwt_secret})
 
-    install_with_argocd(k8s_obj, 'vouch', vouch_config_dict['argo'])
-    return True
+    if not app_installed:
+        install_with_argocd(k8s_obj, 'vouch', vouch_config_dict['argo'])
+    else:
+        log.info("vouch-proxy already installed 🎉")
 
 
 def create_vouch_app(provider: str,
