@@ -18,11 +18,15 @@ def configure_ingress_nginx(k8s_distro: str) -> None:
 
     if k8s_distro == 'kind':
         # this is to wait for the deployment to come up
-        apply_manifests(url, "ingress-nginx", "ingress-nginx-controller",
-                        "app.kubernetes.io/component=controller")
+        apply_manifests(
+                url,
+                "ingress-nginx",
+                "ingress-nginx-controller",
+                "app.kubernetes.io/component=controller"
+                )
     else:
         release = Helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
-                             chart_version='4.8.1',
+                             chart_version='4.8.3',
                              namespace='ingress-nginx')
         release.install()
