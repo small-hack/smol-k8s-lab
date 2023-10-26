@@ -594,16 +594,19 @@ apps:
       values:
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
-        # if set to just minio, we'll attempt to create this bucket ourselves
-        s3_endpoint: "minio"
-        s3_bucket: "matrix"
       sensitive_values:
         - SMTP_PASSWORD
+        - S3_ACCESS_KEY
+        - S3_ACCESS_ID
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
         admin_email: ""
+        # if set to just minio, we'll attempt to create this bucket ourselves
+        # endpoint and bucket both get saved as secret keys
+        s3_endpoint: "minio"
+        s3_bucket: "matrix"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
