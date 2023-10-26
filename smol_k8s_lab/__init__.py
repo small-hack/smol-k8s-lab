@@ -274,15 +274,13 @@ def main(config: str = "",
     # we're done :D
     print("")
     final_msg = ("\nSmol K8s Lab completed!\n\nMake sure you run:"
-                 f"\n[green]export KUBECONFIG={KUBECONFIG}[/green]\n")
+                 f"\n[gold3]export[/gold3] [green]KUBECONFIG={KUBECONFIG}[/green]\n")
+    if bw:
+        final_msg += "\n[i]All credentials are in Bitwarden[/i]"
 
     if zitadel_enabled:
-        if bw:
-            creds = " (credentials are in Bitwarden)"
-        else:
-            creds = ""
         final_msg += (
-                f"\nYou can log into Zitadel, your identity provider here{creds}:\n"
+                f"\nYou can log into Zitadel, your identity provider here:\n"
                 f"[blue][link]https://{SECRETS['zitadel_hostname']}[/][/]\n"
                  )
 
