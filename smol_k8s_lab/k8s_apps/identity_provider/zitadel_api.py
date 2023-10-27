@@ -45,6 +45,7 @@ class Zitadel():
         }
 
         self.user_id = ""
+        self.resource_owner = ""
 
     def check_api_health(self,) -> True:
         """
@@ -354,7 +355,7 @@ class Zitadel():
 
         log.info(response.text)
 
-    def get_user_id(self, user: str) -> None:
+    def set_user_by_login_name(self, user: str) -> None:
         """ 
         get the user's ID by their login name
         """
@@ -367,4 +368,38 @@ class Zitadel():
 
         log.info(response.text)
 
-        return response.json()['user']['id']
+        self.user_id = response.json()['user']['id']
+        self.resource_owner = response.json()['details']['resourceOwner']
+
+    def set_project_by_name(self, project_name: str) -> str:
+        """ 
+        project_name: str - name of the project to use for future app creation
+
+        sets the current self.project_id after searching for the project by name
+        """
+        url = f"{self.api_url}projects/_search"
+
+        payload = dumps({
+          "query": {
+            "offset": "0",
+            "limit": 100,
+            "asc": True
+          },
+          "queries": [
+            {
+              "nameQuery": {
+                "name": project_name,
+                "method": "TEXT_QUERY_METHOD_EQUALS"
+              },
+              "projectResourceOwnerQuery": {
+                "resourceOwner": self.resouce_owner
+              }
+            }
+          ]
+        })
+
+        response = request("GET", url, headers=self.headers, data=payload,
+                           verify=self.verify)
+        log.info(response.text)
+
+        self.project_id = response.json()['result']['id']
