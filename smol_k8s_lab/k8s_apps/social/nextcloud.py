@@ -116,7 +116,7 @@ def configure_nextcloud(k8s_obj: K8s,
                     name='nextcloud-pgsql-credentials',
                     item_url=nextcloud_hostname,
                     user='nextcloud',
-                    password='none',
+                    password='same as the postgresAdminPassword',
                     fields=[pgsql_admin_password]
                     )
 
