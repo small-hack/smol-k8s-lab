@@ -298,7 +298,7 @@ def initialize_zitadel(k8s_obj: K8s,
                                         item_url=matrix_hostname,
                                         user=matrix_dict['client_id'],
                                         password=matrix_dict['client_secret'])
-            fields['matrix_oidc_bitwarden_id'] = id
+            fields['matrix_oidc_credentials_bitwarden_id'] = id
         else:
             # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
             k8s_obj.create_secret('matrix-oidc-credentials',
