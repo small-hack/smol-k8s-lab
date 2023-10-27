@@ -291,11 +291,10 @@ class Zitadel():
                 "client_id": json_res['clientId'],
                 "client_secret": json_res['clientSecret']}
 
-
-    def create_action(self, name: str = "") -> bool:
+    def create_action(self, name: str = "") -> None:
         """
         create an action for zitadel. Currently only creates one kind of action,
-        a group mapper action. Returns True on success.
+        a group mapper action.
         """
         log.info("Creating action...")
 
@@ -330,7 +329,6 @@ class Zitadel():
                                data=action_payload,
                                verify=self.verify)
             log.debug(f"flows response is {response.text}")
-        return True
 
     def create_role(self,
                     role_key: str = "",
@@ -398,8 +396,12 @@ class Zitadel():
           ]
         })
 
+        log.debug("set_project_by_name payload ...")
+        log.debug(payload)
+
         response = request("GET", url, headers=self.headers, data=payload,
                            verify=self.verify)
-        log.info(response.text)
+        log.info(f"response from project {project_name} search: {response.text}")
 
         self.project_id = response.json()['result']['id']
+        log.debug(f"zitadel api: set project id to {self.project_id}")
