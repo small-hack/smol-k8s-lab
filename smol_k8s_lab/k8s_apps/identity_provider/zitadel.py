@@ -203,6 +203,10 @@ def configure_zitadel(k8s_obj: K8s,
                 zitadel.set_user_by_login_name(
                         config_dict['init']['values']['username']
                         )
+            except Exception as e:
+                log.error(e)
+
+            try:
                 zitadel.set_project_by_name(
                         config_dict['init']['values']['project']
                         )
