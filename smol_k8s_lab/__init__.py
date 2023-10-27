@@ -250,8 +250,6 @@ def main(config: str = "",
                 api_tls_verify,
                 apps.pop('zitadel'),
                 apps.pop('vouch'),
-                matrix_hostname,
-                minio_hostname,
                 bw,
                 argocd_fqdn
                 )
