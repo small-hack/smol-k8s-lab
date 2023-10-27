@@ -38,11 +38,12 @@ def configure_vouch(k8s_obj: K8s,
 
     # make sure vouch isn't already installed
     app_installed = check_if_argocd_app_exists("vouch")
+    # this handles the vouch-oauth-config secret data
+    secrets = vouch_config_dict['argo']['secret_keys']
+    if secrets:
+        vouch_hostname = secrets['hostname']
 
     if vouch_config_dict['init']['enabled'] and not app_installed:
-        # this handles the vouch-oauth-config secret data
-        secrets = vouch_config_dict['argo']['secret_keys']
-        vouch_hostname = secrets['hostname']
         if not isinstance(vouch_client_creds, dict) and not realm:
             log.error("we don't have zitadel or keycloak info to continue :(")
         auth_dict = create_vouch_app(provider=oidc_provider_name,
