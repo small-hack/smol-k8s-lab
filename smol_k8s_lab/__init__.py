@@ -222,9 +222,10 @@ def main(config: str = "",
         # user can configure special domains that we print at the end
         argocd_fqdn = SECRETS['argo_cd_hostname']
         matrix_hostname = SECRETS.get('matrix_hostname', "")
+        minio_hostname = SECRETS.get('user_console_hostname', "")
         mastodon_hostname = SECRETS.get('mastodon_hostname', "")
         nextcloud_hostname = SECRETS.get('nextcloud_hostname', "")
-
+        zitadel_hostname = SECRETS.get('zitadel_hostname', "")
 
         configure_argocd(k8s_obj, argocd_fqdn, bw,
                          apps['appset_secret_plugin']['enabled'],
@@ -249,6 +250,7 @@ def main(config: str = "",
                             apps.pop('zitadel'),
                             apps.pop('vouch'),
                             matrix_hostname,
+                            minio_hostname,
                             bw,
                             argocd_fqdn)
 
@@ -258,6 +260,7 @@ def main(config: str = "",
                              apps.pop('nextcloud'),
                              apps.pop('mastodon'),
                              apps.pop('matrix'),
+                             zitadel_hostname,
                              bw)
 
         # after argocd, zitadel, bweso, and vouch are up, we install all apps
@@ -281,28 +284,32 @@ def main(config: str = "",
     final_msg = ("\nMake sure you run the following to pick up your k8s configuration:"
                  f"\n[gold3]export[/gold3] [green]KUBECONFIG={KUBECONFIG}[/green]\n")
     if bw:
-        final_msg += "\nℹ️ [i]All credentials are in Bitwarden[/i]\n"
+        final_msg += "\n[i]All credentials are in Bitwarden[/i]\n"
 
     if zitadel_enabled:
         final_msg += (
-                f"\nYou can log into Zitadel, your identity provider here:\n"
+                f"\n🔑 Zitadel, your identity provider:\n"
                 f"[blue][link]https://{SECRETS['zitadel_hostname']}[/][/]\n"
                  )
 
     if argo_enabled:
-        final_msg += ("\nYou can checkout your k8s apps via Argo CD here:\n"
+        final_msg += ("\n🦑 Argo CD, your k8s apps console:\n"
                       f"[blue][link]https://{argocd_fqdn}[/]\n")
 
+    if minio_hostname:
+        final_msg += ("\n🦩 Minio tenant (user) console, for your s3 storage:\n"
+                      f"[blue][link]https://{minio_hostname}[/]\n")
+
     if nextcloud_hostname:
-        final_msg += ("\nYou can checkout your Nextcloud here:\n"
+        final_msg += ("\n☁️ Nextcloud, for your worksuite:\n"
                       f"[blue][link]https://{nextcloud_hostname}[/]\n")
 
     if mastodon_hostname:
-        final_msg += ("\nYou can checkout your Mastodon here:\n"
+        final_msg += ("\n🐘 Mastodon, for your social media:\n"
                       f"[blue][link]https://{mastodon_hostname}[/]\n")
 
     if matrix_hostname:
-        final_msg += ("\nYou can checkout your Matrix here:\n"
+        final_msg += ("\n🗣️ Matrix, for your chat:\n"
                       f"[blue][link]https://{matrix_hostname}[/]\n")
 
     CONSOLE.print(Panel(final_msg,

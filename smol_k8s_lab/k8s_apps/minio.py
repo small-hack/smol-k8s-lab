@@ -18,6 +18,7 @@ from smol_k8s_lab.utils.subproc import subproc
 def configure_minio(k8s_obj: K8s,
                     minio_config: dict,
                     secure: bool = True,
+                    zitadel_hostname: str = "",
                     bitwarden: BwCLI = None):
     """
     minio installation and configuration
@@ -31,7 +32,7 @@ def configure_minio(k8s_obj: K8s,
     argo_app_exists = check_if_argocd_app_exists('minio')
 
     # if the user has enabled smol_k8s_lab init, we create an initial user
-    if minio_init_enabled:
+    if minio_init_enabled and not argo_app_exists:
         access_key = minio_config['init']['values']['root_user']
         minio_hostname = minio_config['argo']['secret_keys']['api_hostname']
 
@@ -49,9 +50,23 @@ def configure_minio(k8s_obj: K8s,
         # the namespace probably doesn't exist yet, so we try to create it
         k8s_obj.create_namespace('minio')
 
+        if bitwarden:
+            minio_oidc = bitwarden.get_item("minio-oidc-credentials")[0]['login']
+        else:
+            minio_oidc = {'username': 'odicnotsetup', 'password': 'oidcnotsetup'}
+
         # creates the initial root credentials secret for the minio tenant
+        # not sure we need it but there's also MINIO_IDENTITY_OPENID_CLAIM_PREFIX
         credentials_exports = {'config.env': f"""MINIO_ROOT_USER={access_key}
-        MINIO_ROOT_PASSWORD={secret_key}"""}
+        MINIO_ROOT_PASSWORD={secret_key}
+        MINIO_IDENTITY_OPENID_CONFIG_URL="https://{zitadel_hostname}/.well-known/openid-configuration"
+        MINIO_IDENTITY_OPENID_REDIRECT_URI="https://{minio_hostname}/auth/callback"
+        MINIO_IDENTITY_OPENID_CLIENT_ID="{minio_oidc['username']}"
+        MINIO_IDENTITY_OPENID_CLIENT_SECRET="{minio_oidc['password']}"
+        MINIO_IDENTITY_OPENID_CLAIM_NAME="groups"
+        MINIO_IDENTITY_OPENID_SCOPES="openid,email,groups"
+        MINIO_IDENTITY_OPENID_COMMENT="zitadel magic"
+                               """}
         k8s_obj.create_secret('default-tenant-env-config', 'minio',
                               credentials_exports)
 
@@ -66,11 +81,12 @@ def configure_minio(k8s_obj: K8s,
                     password=secret_key
                     )
 
-    # actual installation of the minio app
-    install_with_argocd(k8s_obj, 'minio', minio_config['argo'])
+    if not argo_app_exists:
+        # actual installation of the minio app
+        install_with_argocd(k8s_obj, 'minio', minio_config['argo'])
 
     # while we wait for the app to come up, update the config file
-    if minio_init_enabled:
+    if not argo_app_exists and minio_init_enabled:
         protocal = "http"
         if secure:
             protocal = "https"

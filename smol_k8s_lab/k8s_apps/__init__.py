@@ -65,6 +65,7 @@ def setup_oidc_provider(k8s_obj: K8s,
                         zitadel_dict: dict = {},
                         vouch_dict: dict = {},
                         matrix_hostname: str = "",
+                        minio_hostname: str = "",
                         bw: BwCLI = None,
                         argocd_fqdn: str = "") -> True:
     """
@@ -101,6 +102,7 @@ def setup_oidc_provider(k8s_obj: K8s,
                     api_tls_verify=api_tls_verify,
                     argocd_hostname=argocd_fqdn,
                     matrix_hostname=matrix_hostname,
+                    minio_hostname=minio_hostname,
                     vouch_hostname=vouch_hostname,
                     bitwarden=bw
                     )
@@ -196,13 +198,18 @@ def setup_federated_apps(k8s_obj: K8s,
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
                          matrix_dict: dict = {},
+                         zitadel_hostname: str = "",
                          bw: BwCLI = None) -> None:
     """
     Setup MinIO and then any federated apps with initialization supported
     """
     if minio_dict['enabled']:
         # returns a BetterMinio obj with a client and admin client ready to go
-        minio_obj = configure_minio(k8s_obj, minio_dict, api_tls_verify, bw)
+        minio_obj = configure_minio(k8s_obj,
+                                    minio_dict,
+                                    api_tls_verify,
+                                    zitadel_hostname,
+                                    bw)
 
     if nextcloud_dict['enabled']:
         configure_nextcloud(k8s_obj, nextcloud_dict, bw, minio_obj)

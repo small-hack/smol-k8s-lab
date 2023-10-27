@@ -200,6 +200,7 @@ def initialize_zitadel(k8s_obj: K8s,
                        argocd_hostname: str = "",
                        vouch_hostname: str = "",
                        matrix_hostname: str = "",
+                       minio_hostname: str = "",
                        bitwarden: BwCLI = None) -> dict | None:
     """
     Sets up initial zitadel user, Argo CD client
@@ -211,6 +212,7 @@ def initialize_zitadel(k8s_obj: K8s,
       argocd_hostname:   str, the hostname of Argo CD for oidc app
       vouch_hostname:    str, the hostname to use for vouch app
       matrix_hostname:   str, the hostname to use for matrix app
+      minio_hostname:   str, the hostname to use for minio app
       bitwarden:         BwCLI obj, [optional] session to use for bitwarden
 
     returns vouch oidc credentials
@@ -282,6 +284,31 @@ def initialize_zitadel(k8s_obj: K8s,
         vouch_dict = zitadel.create_application("vouch", redirect_uris, logout_uris)
         zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
         roles_for_user_grant.append('vouch_users')
+
+    if minio_hostname:
+        # create minio OIDC Application
+        log.info("Creating a minio application...")
+        redirect_uris = f"https://{minio_hostname}/auth"
+        logout_uris = [f"https://{minio_hostname}"]
+        minio_dict = zitadel.create_application("minio",
+                                                redirect_uris,
+                                                logout_uris)
+        zitadel.create_role("minio_users", "minio Users", "minio_users")
+        roles_for_user_grant.append('minio_users')
+        # if bitwarden is enabled, we store the minio odic secret there
+        if bitwarden:
+            sub_header("Creating OIDC secret for minio in Bitwarden")
+            id = bitwarden.create_login(name='minio-oidc-credentials',
+                                        item_url=minio_hostname,
+                                        user=minio_dict['client_id'],
+                                        password=minio_dict['client_secret'])
+            fields['minio_oidc_credentials_bitwarden_id'] = id
+        else:
+            # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
+            k8s_obj.create_secret('minio-oidc-credentials',
+                                  'minio',
+                                  {'user': minio_dict['client_id'],
+                                   'password': minio_dict['client_secret']})
 
     if matrix_hostname:
         # create Matrix OIDC Application
