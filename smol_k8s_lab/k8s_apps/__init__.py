@@ -64,6 +64,7 @@ def setup_oidc_provider(k8s_obj: K8s,
                         api_tls_verify: bool = False,
                         zitadel_dict: dict = {},
                         vouch_dict: dict = {},
+                        matrix_hostname: str = "",
                         bw: BwCLI = None,
                         argocd_fqdn: str = "") -> True:
     """
@@ -94,12 +95,15 @@ def setup_oidc_provider(k8s_obj: K8s,
             vouch_hostname = ''
             if vouch_enabled:
                 vouch_hostname = vouch_dict['argo']['secret_keys']['hostname']
-            vouch_credentials = configure_zitadel(k8s_obj=k8s_obj,
-                                                  config_dict=zitadel_dict,
-                                                  api_tls_verify=api_tls_verify,
-                                                  argocd_hostname=argocd_fqdn,
-                                                  vouch_hostname=vouch_hostname,
-                                                  bitwarden=bw)
+            vouch_credentials = configure_zitadel(
+                    k8s_obj=k8s_obj,
+                    config_dict=zitadel_dict,
+                    api_tls_verify=api_tls_verify,
+                    argocd_hostname=argocd_fqdn,
+                    matrix_hostname=matrix_hostname,
+                    vouch_hostname=vouch_hostname,
+                    bitwarden=bw
+                    )
         else:
             configure_zitadel(k8s_obj, zitadel_dict)
 

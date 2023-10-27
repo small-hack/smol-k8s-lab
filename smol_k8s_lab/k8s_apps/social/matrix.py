@@ -38,6 +38,9 @@ def configure_matrix(k8s_obj: K8s,
         smtp_pass = init_values['smtp_password']
         smtp_host = init_values['smtp_host']
 
+        # configure oidc
+        oidc = init_values['oidc_enabled']
+
         # create the bucket if the user is using minio
         if minio_obj and s3_endpoint == "minio":
             s3_access_key = minio_obj.create_access_credentials(s3_access_id)
@@ -89,6 +92,10 @@ def configure_matrix(k8s_obj: K8s,
                     user="admin",
                     password=matrix_registration_key
                     )
+
+            # Open ID Connect setup for SSO
+            if oidc:
+
 
             # update the matrix values for the argocd appset
             fields = {

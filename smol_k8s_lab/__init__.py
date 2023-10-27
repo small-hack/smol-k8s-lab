@@ -219,8 +219,12 @@ def main(config: str = "",
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
-        # user can configure a special domain for argocd
+        # user can configure special domains that we print at the end
         argocd_fqdn = SECRETS['argo_cd_hostname']
+        matrix_hostname = SECRETS.get('matrix_hostname', "")
+        mastodon_hostname = SECRETS.get('mastodon_hostname', "")
+        nextcloud_hostname = SECRETS.get('nextcloud_hostname', "")
+
 
         configure_argocd(k8s_obj, argocd_fqdn, bw,
                          apps['appset_secret_plugin']['enabled'],
@@ -244,6 +248,7 @@ def main(config: str = "",
                             api_tls_verify,
                             apps.pop('zitadel'),
                             apps.pop('vouch'),
+                            matrix_hostname,
                             bw,
                             argocd_fqdn)
 
@@ -287,6 +292,18 @@ def main(config: str = "",
     if argo_enabled:
         final_msg += ("\nYou can checkout your k8s apps via Argo CD here:\n"
                       f"[blue][link]https://{argocd_fqdn}[/]\n")
+
+    if nextcloud_hostname:
+        final_msg += ("\nYou can checkout your Nextcloud here:\n"
+                      f"[blue][link]https://{nextcloud_hostname}[/]\n")
+
+    if mastodon_hostname:
+        final_msg += ("\nYou can checkout your Mastodon here:\n"
+                      f"[blue][link]https://{mastodon_hostname}[/]\n")
+
+    if matrix_hostname:
+        final_msg += ("\nYou can checkout your Matrix here:\n"
+                      f"[blue][link]https://{matrix_hostname}[/]\n")
 
     CONSOLE.print(Panel(final_msg,
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
