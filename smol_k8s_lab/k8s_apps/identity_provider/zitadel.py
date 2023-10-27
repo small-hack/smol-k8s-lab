@@ -184,8 +184,8 @@ def configure_zitadel(k8s_obj: K8s,
                         f"{e}"
                         )
 
-            sync_argocd_app('zitadel')
-            sync_argocd_app('argo-cd')
+            # sync_argocd_app('zitadel')
+            # sync_argocd_app('argo-cd')
 
             # get the zitadel service account private key json for generating a jwt
             adm_secret_file = k8s_obj.get_secret(
@@ -199,12 +199,13 @@ def configure_zitadel(k8s_obj: K8s,
                     loads(b64dec(str.encode(adm_secret_file)).decode('utf8')),
                     api_tls_verify
                     )
-
             try:
                 id = zitadel.get_user_id(config_dict['init']['values']['username'])
                 zitadel.user_id = id
             except Exception as e:
                 log.error(e)
+
+            return zitadel
 
 
 def initialize_zitadel(k8s_obj: K8s,
