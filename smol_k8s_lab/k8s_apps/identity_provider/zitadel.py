@@ -213,7 +213,9 @@ def initialize_zitadel(k8s_obj: K8s,
       matrix_hostname:   str, the hostname to use for matrix app
       bitwarden:         BwCLI obj, [optional] session to use for bitwarden
 
-    returns zitadel object
+    returns vouch oidc credentials
+
+    TODO: this whole function is too massive. we should split it up
     """
 
     sub_header("Configuring zitadel as your OIDC SSO for Argo CD")
