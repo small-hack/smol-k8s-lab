@@ -273,10 +273,10 @@ def main(config: str = "",
 
     # we're done :D
     print("")
-    final_msg = ("\nSmol K8s Lab completed!\n\nMake sure you run:"
+    final_msg = ("\nMake sure you run the following to pick up your k8s configuration:"
                  f"\n[gold3]export[/gold3] [green]KUBECONFIG={KUBECONFIG}[/green]\n")
     if bw:
-        final_msg += "\n[i]All credentials are in Bitwarden[/i]"
+        final_msg += "\nℹ️ [i]All credentials are in Bitwarden[/i]\n"
 
     if zitadel_enabled:
         final_msg += (
