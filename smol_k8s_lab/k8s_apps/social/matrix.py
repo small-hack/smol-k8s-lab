@@ -3,7 +3,6 @@ from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
@@ -96,8 +95,10 @@ def configure_matrix(k8s_obj: K8s,
                     'matrix_s3_credentials_bitwarden_id': s3_id,
                     'matrix_postgres_credentials_bitwarden_id': db_id,
                     }
-            update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
-                              'secret_vars.yaml')
+            k8s_obj.update_secret_key('appset-secret-vars',
+                                      'argocd',
+                                      fields,
+                                      'secret_vars.yaml')
 
             # reload the argocd appset secret plugin
             try:

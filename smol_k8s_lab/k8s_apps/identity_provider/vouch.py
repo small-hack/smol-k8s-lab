@@ -4,7 +4,6 @@ from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.passwords import create_password
 from .keycloak import Keycloak
@@ -37,6 +36,7 @@ def configure_vouch(k8s_obj: K8s,
     """
     header("Setting up [green]Vouch[/] to use Oauth for insecure frontends", "🗝️")
 
+    # make sure vouch isn't already installed
     app_installed = check_if_argocd_app_exists("vouch")
 
     if vouch_config_dict['init']['enabled'] and not app_installed:
@@ -92,6 +92,7 @@ def configure_vouch(k8s_obj: K8s,
             oauth_id = bitwarden.create_login(
                 name='vouch-oauth-config',
                 user=auth_dict['client_id'],
+                item_url=vouch_hostname,
                 password=auth_dict['client_secret'],
                 fields=fields
                 )
@@ -105,6 +106,7 @@ def configure_vouch(k8s_obj: K8s,
             vouch_id = bitwarden.create_login(
                     name='vouch-config',
                     user='vouch',
+                    item_url=vouch_hostname,
                     password='none',
                     fields=[domains_obj, emails_obj, jwt_secret_obj]
                     )
@@ -112,8 +114,13 @@ def configure_vouch(k8s_obj: K8s,
             # update the vouch values for the argocd appset
             fields = {'vouch_oauth_bitwarden_id': oauth_id,
                       'vouch_config_bitwarden_id': vouch_id}
-            update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
-                              'secret_vars.yaml')
+
+            k8s_obj.update_secret_key(
+                    'appset-secret-vars',
+                    'argocd',
+                    fields,
+                    'secret_vars.yaml'
+                    )
 
             # reload the argocd appset secret plugin
             try:
@@ -160,6 +167,39 @@ def configure_vouch(k8s_obj: K8s,
         install_with_argocd(k8s_obj, 'vouch', vouch_config_dict['argo'])
     else:
         log.info("vouch-proxy already installed 🎉")
+
+        # we need to still update the bitwarden IDs if bitwarden and init is enabled
+        if vouch_config_dict['init']['enabled'] and bitwarden:
+            log.debug("Updating vouch bitwarden IDs in the appset secret")
+            oauth_id = bitwarden.get_item(
+                    f"vouch-oauth-config-{vouch_hostname}"
+                    )[0]['id']
+
+            vouch_id = bitwarden.get_item(
+                    f"vouch-config-{vouch_hostname}"
+                    )[0]['id']
+
+            # update the vouch values for the argocd appset
+            fields = {'vouch_oauth_bitwarden_id': oauth_id,
+                      'vouch_config_bitwarden_id': vouch_id}
+
+            k8s_obj.update_secret_key(
+                    'appset-secret-vars',
+                    'argocd',
+                    fields,
+                    'secret_vars.yaml'
+                    )
+
+            # reload the argocd appset secret plugin
+            try:
+                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+            except Exception as e:
+                log.error(
+                        "Couldn't scale down the "
+                        "[magenta]argocd-appset-secret-plugin[/]"
+                        "deployment in [green]argocd[/] namespace. Recieved: "
+                        f"{e}"
+                        )
 
 
 def create_vouch_app(provider: str,

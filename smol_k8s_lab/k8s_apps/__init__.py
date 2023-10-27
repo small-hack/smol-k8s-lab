@@ -163,14 +163,14 @@ def setup_base_apps(k8s_obj: K8s,
                 m = "[green]Please enter a comma seperated list of IPs or CIDRs"
                 cidr = Prompt.ask(m).split(',')
 
-            configure_metallb(cidr)
+            configure_metallb(k8s_obj, cidr)
 
     # ingress controller: so we can accept traffic from outside the cluster
     if ingress_dict["enabled"]:
         # nginx just because that's most supported, treafik support may be added later
         header("Installing [green]ingress-nginx-controller[/green] to access web"
                " apps outside the cluster", "🌐")
-        configure_ingress_nginx(k8s_distro)
+        configure_ingress_nginx(k8s_obj, k8s_distro)
 
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [green]cert-manager[/green] for TLS certificates...", '📜')

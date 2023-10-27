@@ -6,11 +6,10 @@ DESCRIPTION: configures metallb
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 import logging as log
-from smol_k8s_lab.k8s_tools.kubernetes_util import (apply_custom_resources,
-                                                    apply_manifests)
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 
 
-def configure_metallb(address_pool: list = []):
+def configure_metallb(k8s_obj: K8s, address_pool: list = []) -> None:
     """
     installs metallb from the manifests in their official repo
 
@@ -22,8 +21,10 @@ def configure_metallb(address_pool: list = []):
            "manifests/metallb-native.yaml")
 
     # install manifest and wait
-    apply_manifests(url, "metallb-system", "controller",
-                    "component=controller")
+    k8s_obj.apply_manifests(url,
+                            "metallb-system",
+                            "controller",
+                            "component=controller")
 
     if address_pool:
         # metallb requires a address pool configured and a layer 2 advertisement CR
@@ -40,6 +41,4 @@ def configure_metallb(address_pool: list = []):
                         'metadata': {'name': 'default',
                                      'namespace': 'metallb-system'}}
 
-        apply_custom_resources([ip_pool_cr, l2_advert_cr])
-
-    return True
+        k8s_obj.apply_custom_resources([ip_pool_cr, l2_advert_cr])

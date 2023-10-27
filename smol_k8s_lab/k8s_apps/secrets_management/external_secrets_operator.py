@@ -10,7 +10,6 @@ import logging as log
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header
 from smol_k8s_lab.utils.subproc import subproc
 
@@ -62,7 +61,7 @@ def setup_bweso(k8s_obj: K8s,
     wait_for_argocd_app('bitwarden-eso-provider')
 
 
-def setup_gitlab_provider(external_secrets_config: dict) -> None:
+def setup_gitlab_provider(k8s_obj: K8s, external_secrets_config: dict) -> None:
     """
     setup the gitlab external secrets operator config
     Accepts dict as arg:
@@ -83,4 +82,4 @@ def setup_gitlab_provider(external_secrets_config: dict) -> None:
                      'type': 'Opaque',
                      'stringData': {'token': gitlab_access_token}}
 
-    apply_custom_resources([gitlab_secret])
+    k8s_obj.apply_custom_resources([gitlab_secret])

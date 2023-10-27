@@ -5,7 +5,6 @@ from smol_k8s_lab.k8s_apps.social.mastodon_rake import generate_rake_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.kubernetes_util import update_secret_key
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 
@@ -23,14 +22,15 @@ def configure_mastodon(k8s_obj: K8s,
     header("Setting up [green]Mastodon[/green], so you can self host your social media"
            '🐘')
     app_installed = check_if_argocd_app_exists('mastodon')
+    secrets = config_dict['argo']['secret_keys']
+    if secrets:
+        mastodon_hostname = secrets['hostname']
 
     if config_dict['init']['enabled'] and not app_installed:
         # declare custom values for mastodon
-        secrets = config_dict['argo']['secret_keys']
         init_values = config_dict['init']['values']
 
         # configure the admin user credentials
-        mastodon_hostname = secrets['hostname']
         username = init_values['admin_user']
         email = init_values['admin_email']
 
@@ -150,8 +150,10 @@ def configure_mastodon(k8s_obj: K8s,
                     'mastodon_s3_credentials_bitwarden_id': s3_id,
                     'mastodon_server_secrets_bitwarden_id': secrets_id
                     }
-            update_secret_key(k8s_obj, 'appset-secret-vars', 'argocd', fields,
-                              'secret_vars.yaml')
+            k8s_obj.update_secret_key('appset-secret-vars',
+                                      'argocd',
+                                      fields,
+                                      'secret_vars.yaml')
 
             # reload the argocd appset secret plugin
             try:
@@ -201,3 +203,57 @@ def configure_mastodon(k8s_obj: K8s,
         install_with_argocd(k8s_obj, 'mastodon', config_dict['argo'])
     else:
         log.info("mastodon already installed 🎉")
+
+        # if mastodon already installed, but bitwarden and init are enabled
+        # still populate the bitwarden IDs in the appset secret plugin secret
+        if bitwarden and config_dict['init']['enabled']:
+            log.debug("Making sure mastodon Bitwarden item IDs are in appset "
+                      "secret plugin secret")
+
+            admin_id = bitwarden.get_item(
+                    f"mastodon-admin-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
+            db_id = bitwarden.get_item(
+                    f"mastodon-pgsql-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
+            redis_id = bitwarden.get_item(
+                    f"mastodon-redis-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
+            smtp_id = bitwarden.get_item(
+                    f"mastodon-smtp-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
+            s3_id = bitwarden.get_item(
+                    f"mastodon-s3-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
+            secrets_id = bitwarden.get_item(
+                    f"mastodon-server-secrets-{mastodon_hostname}"
+                    )[0]['id']
+
+            fields = {
+                    'mastodon_admin_credentials_bitwarden_id': admin_id,
+                    'mastodon_postgres_credentials_bitwarden_id': db_id,
+                    'mastodon_smtp_credentials_bitwarden_id': smtp_id,
+                    'mastodon_redis_bitwarden_id': redis_id,
+                    'mastodon_s3_credentials_bitwarden_id': s3_id,
+                    'mastodon_server_secrets_bitwarden_id': secrets_id
+                    }
+
+            k8s_obj.update_secret_key('appset-secret-vars',
+                                      'argocd',
+                                      fields,
+                                      'secret_vars.yaml')
+
+            # reload the argocd appset secret plugin
+            try:
+                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+            except Exception as e:
+                log.error(
+                        "Couldn't scale down the "
+                        "[magenta]argocd-appset-secret-plugin[/] deployment "
+                        f"in [green]argocd[/] namespace. Recieved: {e}"
+                        )

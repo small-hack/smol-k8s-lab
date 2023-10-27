@@ -218,7 +218,6 @@ class Zitadel():
 
         return response.json()['userGrantId']
 
-
     def create_iam_membership(self, user_id: str, role: str):
         """
         iam membership assignment
