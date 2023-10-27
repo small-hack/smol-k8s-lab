@@ -19,14 +19,13 @@ def configure_matrix(k8s_obj: K8s,
            '🔢')
 
     app_installed = check_if_argocd_app_exists('matrix')
+    secrets = config_dict['argo']['secret_keys']
+    if secrets:
+        matrix_hostname = secrets['hostname']
 
     # initial secrets to deploy this app from scratch
     if config_dict['init']['enabled'] and not app_installed:
-        secrets = config_dict['argo']['secret_keys']
         init_values = config_dict['init']['values']
-
-        # main important value
-        matrix_hostname = secrets['hostname']
 
         # configure s3 credentials if they're in use
         s3_access_id = init_values.get('s3_access_id', 'matrix')
@@ -71,7 +70,7 @@ def configure_matrix(k8s_obj: K8s,
             # SMTP credentials
             matrix_smtp_host_obj = create_custom_field("smtpHostname", smtp_host)
             smtp_id = bitwarden.create_login(
-                    name='mastodon-smtp-credentials',
+                    name='matrix-smtp-credentials',
                     item_url=matrix_hostname,
                     user=smtp_user,
                     password=smtp_pass,
@@ -81,7 +80,7 @@ def configure_matrix(k8s_obj: K8s,
             # registration key
             matrix_registration_key = bitwarden.generate()
             reg_id = bitwarden.create_login(
-                    name='mastodon-registration-key',
+                    name='matrix-registration-key',
                     item_url=matrix_hostname,
                     user="admin",
                     password=matrix_registration_key
@@ -135,3 +134,31 @@ def configure_matrix(k8s_obj: K8s,
         install_with_argocd(k8s_obj, 'matrix', config_dict['argo'])
     else:
         log.info("matrix already installed 🎉")
+        # update the matrix values for the argocd appset
+        if bitwarden and config_dict['init']['enabled']:
+            log.debug("making sure matrix bitwarden IDs are present in appset "
+                      "secret plugin")
+            reg_id = bitwarden.get_item(
+                    f"matrix-registration-key-{matrix_hostname}"
+                    )[0]['id']
+            smtp_id = bitwarden.get_item(
+                    f"matrix-smtp-credentials-{matrix_hostname}"
+                    )[0]['id']
+            s3_id = bitwarden.get_item(
+                    f"matrix-s3-credentials-{matrix_hostname}"
+                    )[0]['id']
+            db_id = bitwarden.get_item(
+                    f"matrix-pgsql-credentials-{matrix_hostname}"
+                    )[0]['id']
+
+            fields = {
+                    'matrix_oidc_credentials_bitwarden_id': "not-set-yet",
+                    'matrix_registration_credentials_bitwarden_id': reg_id,
+                    'matrix_smtp_credentials_bitwarden_id': smtp_id,
+                    'matrix_s3_credentials_bitwarden_id': s3_id,
+                    'matrix_postgres_credentials_bitwarden_id': db_id,
+                    }
+            k8s_obj.update_secret_key('appset-secret-vars',
+                                      'argocd',
+                                      fields,
+                                      'secret_vars.yaml')
