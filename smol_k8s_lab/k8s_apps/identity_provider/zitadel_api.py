@@ -387,7 +387,7 @@ class Zitadel():
                 "method": "TEXT_QUERY_METHOD_EQUALS"
               },
               "projectResourceOwnerQuery": {
-                "resourceOwner": self.resouce_owner
+                "resourceOwner": self.resource_owner
               }
             }
           ]
