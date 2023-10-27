@@ -204,7 +204,7 @@ def configure_zitadel(k8s_obj: K8s,
                         config_dict['init']['values']['username']
                         )
                 zitadel.set_project_by_name(
-                        config_dict['init']['values']['project_name']
+                        config_dict['init']['values']['project']
                         )
             except Exception as e:
                 log.error(e)
@@ -242,7 +242,7 @@ def initialize_zitadel(k8s_obj: K8s,
     zitadel =  Zitadel(zitadel_hostname, private_key_obj, api_tls_verify)
 
     # create our first project
-    project_name = user_dict.pop('project_name')
+    project_name = user_dict.pop('project')
     zitadel.create_project(project_name)
 
     log.info("Creating a groups Zitadel Action (sends group info to Argo CD)")
