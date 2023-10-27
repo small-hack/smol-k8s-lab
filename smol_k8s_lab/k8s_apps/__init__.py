@@ -101,8 +101,8 @@ def setup_oidc_provider(k8s_obj: K8s,
                     config_dict=zitadel_dict,
                     api_tls_verify=api_tls_verify,
                     argocd_hostname=argocd_fqdn,
-                    matrix_hostname=matrix_hostname,
                     minio_hostname=minio_hostname,
+                    matrix_hostname=matrix_hostname,
                     vouch_hostname=vouch_hostname,
                     bitwarden=bw
                     )

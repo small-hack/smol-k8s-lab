@@ -16,6 +16,7 @@ def configure_zitadel(k8s_obj: K8s,
                       config_dict: dict,
                       api_tls_verify: bool = False,
                       argocd_hostname: str = "",
+                      minio_hostname: str = "",
                       matrix_hostname: str = "",
                       vouch_hostname: str = "",
                       bitwarden: BwCLI = None) -> dict | None:
@@ -138,6 +139,7 @@ def configure_zitadel(k8s_obj: K8s,
                                             user_dict=initial_user_dict,
                                             argocd_hostname=argocd_hostname,
                                             vouch_hostname=vouch_hostname,
+                                            minio_hostname=minio_hostname,
                                             matrix_hostname=matrix_hostname,
                                             bitwarden=bitwarden)
             return vouch_dict
@@ -199,8 +201,8 @@ def initialize_zitadel(k8s_obj: K8s,
                        user_dict: dict = {},
                        argocd_hostname: str = "",
                        vouch_hostname: str = "",
-                       matrix_hostname: str = "",
                        minio_hostname: str = "",
+                       matrix_hostname: str = "",
                        bitwarden: BwCLI = None) -> dict | None:
     """
     Sets up initial zitadel user, Argo CD client
