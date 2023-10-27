@@ -56,14 +56,11 @@ def configure_minio(k8s_obj: K8s,
             minio_oidc = {'username': 'odicnotsetup', 'password': 'oidcnotsetup'}
 
         # creates the initial root credentials secret for the minio tenant
-        # not sure we need it but there's also MINIO_IDENTITY_OPENID_CLAIM_PREFIX
         credentials_exports = {'config.env': f"""MINIO_ROOT_USER={access_key}
         MINIO_ROOT_PASSWORD={secret_key}
         MINIO_IDENTITY_OPENID_CONFIG_URL="https://{zitadel_hostname}/.well-known/openid-configuration"
-        MINIO_IDENTITY_OPENID_REDIRECT_URI="https://{minio_hostname}/auth/callback"
         MINIO_IDENTITY_OPENID_CLIENT_ID="{minio_oidc['username']}"
         MINIO_IDENTITY_OPENID_CLIENT_SECRET="{minio_oidc['password']}"
-        MINIO_IDENTITY_OPENID_CLAIM_NAME="groups"
         MINIO_IDENTITY_OPENID_SCOPES="openid,email,groups"
         MINIO_IDENTITY_OPENID_COMMENT="zitadel magic"
                                """}
