@@ -6,10 +6,10 @@ DESCRIPTION: install the nginx ingress controller
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 from smol_k8s_lab.k8s_tools.helm import Helm
-from smol_k8s_lab.k8s_tools.kubernetes_util import apply_manifests
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 
 
-def configure_ingress_nginx(k8s_distro: str) -> None:
+def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str) -> None:
     """
     install nginx ingress controller from manifests for kind and helm for k3s
     """
@@ -18,7 +18,7 @@ def configure_ingress_nginx(k8s_distro: str) -> None:
 
     if k8s_distro == 'kind':
         # this is to wait for the deployment to come up
-        apply_manifests(
+        k8s_obj.apply_manifests(
                 url,
                 "ingress-nginx",
                 "ingress-nginx-controller",

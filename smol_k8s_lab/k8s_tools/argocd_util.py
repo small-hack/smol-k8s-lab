@@ -1,7 +1,6 @@
 # it was only a matter of time before I had to query argocd directly
 import logging as log
 from .k8s_lib import K8s
-from .kubernetes_util import apply_custom_resources
 from ..utils.subproc import subproc
 
 
@@ -40,7 +39,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
     extra_source_repos = argo_dict["project"].get('source_repos', [])
     if extra_source_repos:
         source_repos.extend(extra_source_repos)
-    create_argocd_project(app, app, set(proj_namespaces), source_repos)
+    create_argocd_project(k8s_obj, app, app, set(proj_namespaces), source_repos)
 
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
@@ -66,7 +65,8 @@ def wait_for_argocd_app(app: str):
     return True
 
 
-def create_argocd_project(project_name: str,
+def create_argocd_project(k8s_obj: K8s,
+                          project_name: str,
                           app: str,
                           namespaces: str,
                           source_repos: list) -> True:
@@ -115,4 +115,4 @@ def create_argocd_project(project_name: str,
                 }
         argocd_proj['spec']['destinations'].append(extra_namespace)
 
-    apply_custom_resources([argocd_proj])
+    k8s_obj.apply_custom_resources([argocd_proj])

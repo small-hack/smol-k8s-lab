@@ -7,11 +7,10 @@ DESCRIPTION: helm install, and optionally configure, cert manager
 """
 from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
 import logging as log
 
 
-def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
+def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> None:
     """
     Installs cert-manager helm chart and optionally creates letsencrypt acme
     ClusterIssuers for both staging and production if email_addr is passed in
@@ -57,6 +56,4 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
             #                                   manifest_dict=issuers_dict)
 
             # backup plan till above issue is resolved
-            apply_custom_resources([issuers_dict])
-
-    return True
+            k8s_obj.apply_custom_resources([issuers_dict])
