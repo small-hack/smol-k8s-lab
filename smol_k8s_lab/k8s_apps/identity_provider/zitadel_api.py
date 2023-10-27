@@ -115,13 +115,13 @@ class Zitadel():
 
         return(access_token)
 
-    def create_project(self,) -> list[str]:
+    def create_project(self, project_name: str) -> None:
         """
         Creates a new project and returns the project id and resource owner
         """
         log.info("Creating a new project called [green]Core[/]")
         payload = dumps({
-              "name": "Core",
+              "name": project_name,
               "projectRoleAssertion": True,
               "projectRoleCheck": True,
               "hasProjectCheck": True,
