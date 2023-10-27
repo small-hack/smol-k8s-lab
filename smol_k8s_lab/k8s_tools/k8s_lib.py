@@ -127,7 +127,7 @@ class K8s():
             f"kubectl scale deploy -n {namespace} {name} --replicas=0",
             "sleep 3",
             f"kubectl scale deploy -n {namespace} {name} --replicas=1",
-            "sleep 3"
+            f"kubectl rollout status deployment -n {namespace} {name}"
                  ])
 
     # def create_from_manifest_dict(self,
