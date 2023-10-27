@@ -153,7 +153,7 @@ def configure_zitadel(k8s_obj: K8s,
                     )[0]['id']
 
             argo_oidc_item = bitwarden.get_item(
-                    f"zitadel-core-key-{zitadel_hostname}"
+                    f"argocd-oidc-credentials-{argocd_hostname}"
                     )[0]
 
             argo_client_id = argo_oidc_item['login']['username']
