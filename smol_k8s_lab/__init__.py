@@ -245,23 +245,28 @@ def main(config: str = "",
         else:
             api_tls_verify = True
 
-        setup_oidc_provider(k8s_obj,
-                            api_tls_verify,
-                            apps.pop('zitadel'),
-                            apps.pop('vouch'),
-                            matrix_hostname,
-                            minio_hostname,
-                            bw,
-                            argocd_fqdn)
+        oidc_obj = setup_oidc_provider(
+                k8s_obj,
+                api_tls_verify,
+                apps.pop('zitadel'),
+                apps.pop('vouch'),
+                matrix_hostname,
+                minio_hostname,
+                bw,
+                argocd_fqdn
+                )
 
-        setup_federated_apps(k8s_obj,
-                             api_tls_verify,
-                             apps.pop('minio'),
-                             apps.pop('nextcloud'),
-                             apps.pop('mastodon'),
-                             apps.pop('matrix'),
-                             zitadel_hostname,
-                             bw)
+        setup_federated_apps(
+                k8s_obj,
+                api_tls_verify,
+                apps.pop('minio'),
+                apps.pop('nextcloud'),
+                apps.pop('mastodon'),
+                apps.pop('matrix'),
+                zitadel_hostname,
+                oidc_obj,
+                bw
+                )
 
         # after argocd, zitadel, bweso, and vouch are up, we install all apps
         # as Argo CD Applications

@@ -1,6 +1,7 @@
 import logging as log
 from rich.prompt import Prompt
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -16,7 +17,7 @@ def configure_vouch(k8s_obj: K8s,
                     bitwarden: BwCLI = None,
                     users: list = [],
                     realm: str = "",
-                    vouch_client_creds: dict = {}) -> bool:
+                    zitadel: Zitadel = None) -> None:
     """
     Installs vouch-proxy as an Argo CD application on Kubernetes
 
@@ -30,9 +31,7 @@ def configure_vouch(k8s_obj: K8s,
       bitwarden:              BwCLI, to store k8s secrets in bitwarden
       users:                  list of user to give access to vouch app
       realm:                  str keycloak realm to use
-      vouch_config_dict       dict of vouch client_id and client_secret
-
-    returns True if successful
+      zitadel:                Zitadel api object 
     """
     header("Setting up [green]Vouch[/] to use Oauth for insecure frontends", "🗝️")
 
@@ -44,14 +43,12 @@ def configure_vouch(k8s_obj: K8s,
         vouch_hostname = secrets['hostname']
 
     if vouch_config_dict['init']['enabled'] and not app_installed:
-        if not isinstance(vouch_client_creds, dict) and not realm:
-            log.error("we don't have zitadel or keycloak info to continue :(")
         auth_dict = create_vouch_app(provider=oidc_provider_name,
                                      provider_hostname=oidc_provider_hostname,
                                      vouch_hostname=vouch_hostname,
                                      users=users,
                                      realm=realm,
-                                     vouch_client_creds=vouch_client_creds)
+                                     zitadel=Zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
         # trying to create a string of ""
         preferred_domain = '\"\"'
@@ -207,23 +204,33 @@ def create_vouch_app(provider: str,
                      provider_hostname: str,
                      vouch_hostname: str = "",
                      users: list = [],
-                     realm: str = "default",
-                     vouch_client_creds: dict = {}) -> list:
+                     zitadel: Zitadel = None,
+                     realm: str = "default") -> list:
     """
     Creates an OIDC application, for vouch-proxy, in either Keycloak or Zitadel
 
     Arguments:
-      provider           - either 'keycloak' or 'vouch'
-      provider_hostname  - hostname of keycloak or vouch
-      vouch_hostname     - hostname of vouch
-      realm              - realm to use for keycloak if using keycloak
-      vouch_client_creds - vouch client credentials dictionary
+      provider          - either 'keycloak' or 'vouch'
+      provider_hostname - hostname of keycloak or vouch
+      vouch_hostname    - hostname of vouch
+      zitadel           - Zitadel api object 
+      realm             - realm to use for keycloak if using keycloak
 
     returns [url, client_id, client_secret]
     """
+    # create Vouch OIDC Application
     if provider == 'zitadel':
-        client_id = vouch_client_creds['client_id']
-        client_secret = vouch_client_creds['client_secret']
+        log.info("Creating an OIDC application for Vouch via Zitadel...")
+        vouch_dict = zitadel.create_application(
+                "vouch", 
+                f"https://{vouch_hostname}/auth",
+                [f"https://{vouch_hostname}"]
+                )
+        zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
+        zitadel.create_user_grant(['vouch_users'])
+
+        client_id = vouch_dict['client_id']
+        client_secret = vouch_dict['client_secret']
         auth_url = f'https://{provider_hostname}/oauth/v2/authorize'
         token_url = f'https://{provider_hostname}/oauth/v2/token'
         user_info_url = f'https://{provider_hostname}/oidc/v1/userinfo'

@@ -16,9 +16,6 @@ def configure_zitadel(k8s_obj: K8s,
                       config_dict: dict,
                       api_tls_verify: bool = False,
                       argocd_hostname: str = "",
-                      minio_hostname: str = "",
-                      matrix_hostname: str = "",
-                      vouch_hostname: str = "",
                       bitwarden: BwCLI = None) -> dict | None:
     """
     Installs zitadel as a Argo CD Applications. If config_dict['init']['enabled']
@@ -30,7 +27,6 @@ def configure_zitadel(k8s_obj: K8s,
 
     Optional Arguments:
         argocd_hostname:  str, the hostname of Argo CD
-        vouch_hostname:   str, the hostname of vouch
         bitwarden:        BwCLI obj, [optional] contains bitwarden session
 
     If no init: Returns True if successful.
@@ -138,9 +134,6 @@ def configure_zitadel(k8s_obj: K8s,
                                             api_tls_verify=api_tls_verify,
                                             user_dict=initial_user_dict,
                                             argocd_hostname=argocd_hostname,
-                                            vouch_hostname=vouch_hostname,
-                                            minio_hostname=minio_hostname,
-                                            matrix_hostname=matrix_hostname,
                                             bitwarden=bitwarden)
             return vouch_dict
     else:
@@ -194,15 +187,31 @@ def configure_zitadel(k8s_obj: K8s,
             sync_argocd_app('zitadel')
             sync_argocd_app('argo-cd')
 
+            # get the zitadel service account private key json for generating a jwt
+            adm_secret_file = k8s_obj.get_secret(
+                    'zitadel-admin-sa',
+                    'zitadel'
+                    )['data']['zitadel-admin-sa.json']
+
+            # setup and return the zitadel python api wrapper
+            zitadel = Zitadel(
+                    zitadel_hostname,
+                    loads(b64dec(str.encode(adm_secret_file)).decode('utf8')),
+                    api_tls_verify
+                    )
+
+            try:
+                id = zitadel.get_user_id(config_dict['init']['values']['username'])
+                zitadel.user_id = id
+            except Exception as e:
+                log.error(e)
+
 
 def initialize_zitadel(k8s_obj: K8s,
                        zitadel_hostname: str,
                        api_tls_verify: bool = False,
                        user_dict: dict = {},
                        argocd_hostname: str = "",
-                       vouch_hostname: str = "",
-                       minio_hostname: str = "",
-                       matrix_hostname: str = "",
                        bitwarden: BwCLI = None) -> dict | None:
     """
     Sets up initial zitadel user, Argo CD client
@@ -212,14 +221,9 @@ def initialize_zitadel(k8s_obj: K8s,
       api_tls_verify:    bool, whether or not to verify the TLS cert on request to api
       user_dict:         dict of initial username, email, first name, last name, gender
       argocd_hostname:   str, the hostname of Argo CD for oidc app
-      vouch_hostname:    str, the hostname to use for vouch app
-      matrix_hostname:   str, the hostname to use for matrix app
-      minio_hostname:   str, the hostname to use for minio app
       bitwarden:         BwCLI obj, [optional] session to use for bitwarden
 
-    returns vouch oidc credentials
-
-    TODO: this whole function is too massive. we should split it up
+    returns Zitadel() with admin user/admin service account created with session token
     """
 
     sub_header("Configuring zitadel as your OIDC SSO for Argo CD")
@@ -273,71 +277,11 @@ def initialize_zitadel(k8s_obj: K8s,
                                'password': argocd_client['client_secret']},
                               labels={'app.kubernetes.io/part-of': 'argocd'})
 
-    # create zitadel admin user and grants now that the clients are setup
+    # create zitadel admin user that the project is setup
     header("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
-    roles_for_user_grant = ['argocd_administrators']
-
-    if vouch_hostname:
-        # create Vouch OIDC Application
-        log.info("Creating a Vouch application...")
-        redirect_uris = f"https://{vouch_hostname}/auth"
-        logout_uris = [f"https://{vouch_hostname}"]
-        vouch_dict = zitadel.create_application("vouch", redirect_uris, logout_uris)
-        zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
-        roles_for_user_grant.append('vouch_users')
-
-    if minio_hostname:
-        # create minio OIDC Application
-        log.info("Creating a minio application...")
-        redirect_uris = f"https://{minio_hostname}/auth"
-        logout_uris = [f"https://{minio_hostname}"]
-        minio_dict = zitadel.create_application("minio",
-                                                redirect_uris,
-                                                logout_uris)
-        zitadel.create_role("minio_users", "minio Users", "minio_users")
-        roles_for_user_grant.append('minio_users')
-        # if bitwarden is enabled, we store the minio odic secret there
-        if bitwarden:
-            sub_header("Creating OIDC secret for minio in Bitwarden")
-            id = bitwarden.create_login(name='minio-oidc-credentials',
-                                        item_url=minio_hostname,
-                                        user=minio_dict['client_id'],
-                                        password=minio_dict['client_secret'])
-            fields['minio_oidc_credentials_bitwarden_id'] = id
-        else:
-            # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
-            k8s_obj.create_secret('minio-oidc-credentials',
-                                  'minio',
-                                  {'user': minio_dict['client_id'],
-                                   'password': minio_dict['client_secret']})
-
-    if matrix_hostname:
-        # create Matrix OIDC Application
-        log.info("Creating a Matrix application...")
-        redirect_uris = f"https://{matrix_hostname}/auth"
-        logout_uris = [f"https://{matrix_hostname}"]
-        matrix_dict = zitadel.create_application("matrix",
-                                                 redirect_uris,
-                                                 logout_uris)
-        zitadel.create_role("matrix_users", "Matrix Users", "matrix_users")
-        roles_for_user_grant.append('matrix_users')
-        # if bitwarden is enabled, we store the matrix odic secret there
-        if bitwarden:
-            sub_header("Creating OIDC secret for Matrix in Bitwarden")
-            id = bitwarden.create_login(name='matrix-oidc-credentials',
-                                        item_url=matrix_hostname,
-                                        user=matrix_dict['client_id'],
-                                        password=matrix_dict['client_secret'])
-            fields['matrix_oidc_credentials_bitwarden_id'] = id
-        else:
-            # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
-            k8s_obj.create_secret('matrix-oidc-credentials',
-                                  'matrix',
-                                  {'user': matrix_dict['client_id'],
-                                   'password': matrix_dict['client_secret']})
-
-    zitadel.create_user_grant(user_id, roles_for_user_grant)
+    zitadel.user_id = user_id
+    zitadel.create_user_grant(['argocd_administrators'])
 
     # grant admin access to first user
     sub_header("creating user IAM membership with IAM_OWNER")
@@ -350,7 +294,4 @@ def initialize_zitadel(k8s_obj: K8s,
                               'secret_vars.yaml')
     k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
 
-    if vouch_hostname:
-        return vouch_dict
-
-    return None
+    return zitadel
