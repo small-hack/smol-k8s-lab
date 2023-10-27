@@ -1,5 +1,6 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.minio import BetterMinio
+from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -8,8 +9,10 @@ from smol_k8s_lab.utils.passwords import create_password
 
 import logging as log
 
+
 def configure_matrix(k8s_obj: K8s,
                      config_dict: dict,
+                     zitadel: Zitadel,
                      bitwarden: BwCLI = None,
                      minio_obj: BetterMinio = {}) -> bool:
     """
@@ -42,6 +45,16 @@ def configure_matrix(k8s_obj: K8s,
         if minio_obj and s3_endpoint == "minio":
             s3_access_key = minio_obj.create_access_credentials(s3_access_id)
             minio_obj.create_bucket(s3_bucket, s3_access_id)
+
+        # create Matrix OIDC Application
+        log.debug("Creating a Matrix OIDC application in Zitadel...")
+        redirect_uris = f"https://{matrix_hostname}/auth"
+        logout_uris = [f"https://{matrix_hostname}"]
+        matrix_dict = zitadel.create_application("matrix",
+                                                 redirect_uris,
+                                                 logout_uris)
+        zitadel.create_role("matrix_users", "Matrix Users", "matrix_users")
+        zitadel.create_user_grant(['matrix_users'])
 
         # if the user has bitwarden enabled
         if bitwarden:
@@ -90,12 +103,21 @@ def configure_matrix(k8s_obj: K8s,
                     password=matrix_registration_key
                     )
 
+            log.info("Creating OIDC credentials for Matrix in Bitwarden")
+            oidc_id = bitwarden.create_login(
+                    name='matrix-oidc-credentials',
+                    item_url=matrix_hostname,
+                    user=matrix_dict['client_id'],
+                    password=matrix_dict['client_secret']
+                    )
+
             # update the matrix values for the argocd appset
             fields = {
                     'matrix_registration_credentials_bitwarden_id': reg_id,
                     'matrix_smtp_credentials_bitwarden_id': smtp_id,
                     'matrix_s3_credentials_bitwarden_id': s3_id,
                     'matrix_postgres_credentials_bitwarden_id': db_id,
+                    'matrix_oidc_credentials_bitwarden_id': oidc_id
                     }
             k8s_obj.update_secret_key('appset-secret-vars',
                                       'argocd',
@@ -125,13 +147,22 @@ def configure_matrix(k8s_obj: K8s,
 
         # else create these as Kubernetes secrets
         else:
+            # postgresql credentials
             matrix_pgsql_password = create_password()
             k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',
                                   {"password": matrix_pgsql_password})
 
+            # registation key
             matrix_registration_key = create_password()
             k8s_obj.create_secret('matrix-registration', 'matrix',
                                   {"registrationSharedSecret": matrix_registration_key})
+
+            # oidc secret
+            k8s_obj.create_secret('matrix-oidc-credentials',
+                                  'matrix',
+                                  {'user': matrix_dict['client_id'],
+                                   'password': matrix_dict['client_secret']})
+
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'matrix', config_dict['argo'])

@@ -44,6 +44,8 @@ class Zitadel():
           'Authorization': f'Bearer {self.api_token}'
         }
 
+        self.user_id = ""
+
     def check_api_health(self,) -> True:
         """
         Loops and checks https://{self.api_url}healthz for an HTTP status.
@@ -191,14 +193,17 @@ class Zitadel():
         log.info(response.text)
         return response.json()['userId']
 
-    def create_user_grant(self, user_id: str, role_keys: list) -> str:
+    def create_user_grant(self, role_keys: list, user_id: str = "") -> str:
         """
         Grants a role to non-admin a user.
 
         Arguments:
-            user_id:    ID of the user we're grants a role to
             role_key:   key of the role to assign to the user
+            user_id:    ID of the user we're grants a role to
         """
+        if not user_id:
+            user_id = self.user_id
+
         log.debug(f"Assiging user_id, {user_id} the role(s) of "
                   f"[green]{role_keys}[/] in {self.project_id}")
 
@@ -326,18 +331,15 @@ class Zitadel():
             log.debug(f"flows response is {response.text}")
         return True
 
-
     def create_role(self,
                     role_key: str = "",
                     display_name: str = "",
-                    group: str = "") -> bool:
+                    group: str = "") -> None:
         """
         create a role in zitadel from given:
             role_key:     name of the role - no spaces allowed!
             display_name: human readable name of the role
             group:        group that this role applies to
-
-        Returns True on success.
         """
         payload = dumps({
           "roleKey": role_key,
@@ -351,4 +353,18 @@ class Zitadel():
                            verify=self.verify)
 
         log.info(response.text)
-        return True
+
+    def get_user_id(self, user: str) -> None:
+        """ 
+        get the user's ID by their login name
+        """
+        url = f"{self.api_url}global/users/_by_login_name?loginName={user}"
+
+        payload={}
+
+        response = request("GET", url, headers=self.headers, data=payload,
+                           verify=self.verify)
+
+        log.info(response.text)
+
+        return response.json()['user']['id']

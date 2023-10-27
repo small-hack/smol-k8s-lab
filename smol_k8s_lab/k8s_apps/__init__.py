@@ -16,6 +16,7 @@ from .ingress.ingress_nginx_controller import configure_ingress_nginx
 from .ingress.cert_manager import configure_cert_manager
 # from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
+from .identity_provider.zitadel_api import Zitadel
 from .identity_provider.vouch import configure_vouch
 from .minio import configure_minio
 from .networking.metallb import configure_metallb
@@ -32,7 +33,7 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
                                  eso_dict: dict = {},
                                  bitwarden_eso_provider_dict: dict = {},
                                  infisical_dict: dict = {},
-                                 bitwarden: BwCLI = None) -> True:
+                                 bitwarden: BwCLI = None) -> None:
     """
     sets up k8s secrets management tooling
     """
@@ -57,17 +58,13 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
         header(header_msg, '🤫')
         configure_infisical(k8s_obj, infisical_dict)
 
-    return True
-
 
 def setup_oidc_provider(k8s_obj: K8s,
                         api_tls_verify: bool = False,
                         zitadel_dict: dict = {},
                         vouch_dict: dict = {},
-                        matrix_hostname: str = "",
-                        minio_hostname: str = "",
                         bw: BwCLI = None,
-                        argocd_fqdn: str = "") -> True:
+                        argocd_fqdn: str = "") -> Zitadel | None:
     """
     sets up oidc provider. only zitadel is supported right now
     if we choose to add keycloak back, we'll be adding the following arg
@@ -91,23 +88,20 @@ def setup_oidc_provider(k8s_obj: K8s,
 
     # setup zitadel if we're using that for OIDC
     if zitadel_enabled:
+        zitadel_init_enabled = zitadel_dict['init']['enabled']
         log.debug("Setting up zitadel")
-        if zitadel_dict['init']['enabled']:
-            vouch_hostname = ''
-            if vouch_enabled:
-                vouch_hostname = vouch_dict['argo']['secret_keys']['hostname']
-            vouch_credentials = configure_zitadel(
+        if zitadel_init_enabled:
+            zitadel_obj = configure_zitadel(
                     k8s_obj=k8s_obj,
                     config_dict=zitadel_dict,
                     api_tls_verify=api_tls_verify,
                     argocd_hostname=argocd_fqdn,
-                    minio_hostname=minio_hostname,
-                    matrix_hostname=matrix_hostname,
-                    vouch_hostname=vouch_hostname,
                     bitwarden=bw
                     )
         else:
-            configure_zitadel(k8s_obj, zitadel_dict)
+            configure_zitadel(k8s_obj=k8s_obj,
+                              config_dict=zitadel_dict,
+                              bitwarden=bw)
 
     if vouch_enabled:
         log.debug("Setting up vouch")
@@ -129,10 +123,12 @@ def setup_oidc_provider(k8s_obj: K8s,
                             bitwarden=bw,
                             users=[],
                             realm="",
-                            vouch_client_creds=vouch_credentials)
+                            zitadel=zitadel_obj)
         else:
             configure_vouch(k8s_obj, vouch_dict, '', '', bw)
-    return True
+
+    if zitadel_enabled and zitadel_init_enabled:
+        return zitadel_obj
 
 
 def setup_base_apps(k8s_obj: K8s,
@@ -142,7 +138,7 @@ def setup_base_apps(k8s_obj: K8s,
                     ingress_dict: dict = {},
                     cert_manager_dict: dict = {},
                     argo_enabled: bool = False,
-                    argo_secrets_plugin_enabled: bool = False) -> bool:
+                    argo_secrets_plugin_enabled: bool = False) -> None:
     """ 
     Uses Helm to install all base apps that need to be running being argo cd:
         cilium, metallb, ingess-nginx, cert-manager, argo cd, argocd secrets plugin
@@ -188,9 +184,6 @@ def setup_base_apps(k8s_obj: K8s,
             email = ""
         configure_cert_manager(k8s_obj, email)
 
-    # success!
-    return True
-
 
 def setup_federated_apps(k8s_obj: K8s,
                          api_tls_verify: bool = False,
@@ -199,6 +192,7 @@ def setup_federated_apps(k8s_obj: K8s,
                          mastodon_dict: dict = {},
                          matrix_dict: dict = {},
                          zitadel_hostname: str = "",
+                         zitadel_obj: Zitadel = None,
                          bw: BwCLI = None) -> None:
     """
     Setup MinIO and then any federated apps with initialization supported
@@ -209,6 +203,7 @@ def setup_federated_apps(k8s_obj: K8s,
                                     minio_dict,
                                     api_tls_verify,
                                     zitadel_hostname,
+                                    zitadel_obj,
                                     bw)
 
     if nextcloud_dict['enabled']:
@@ -218,4 +213,4 @@ def setup_federated_apps(k8s_obj: K8s,
         configure_mastodon(k8s_obj, mastodon_dict, bw, minio_obj)
 
     if matrix_dict['enabled']:
-        configure_matrix(k8s_obj, matrix_dict, bw, minio_obj)
+        configure_matrix(k8s_obj, matrix_dict, zitadel_obj, bw, minio_obj)

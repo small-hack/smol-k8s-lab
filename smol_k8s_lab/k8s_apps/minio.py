@@ -4,10 +4,10 @@ from os.path import exists
 from os import makedirs
 from minio import Minio, MinioAdmin
 from shutil import which
-# from xdg_base_dirs import xdg_config_home
 
 from smol_k8s_lab.constants import HOME_DIR, XDG_CACHE_DIR
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
+from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (
         install_with_argocd, wait_for_argocd_app, check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -19,6 +19,7 @@ def configure_minio(k8s_obj: K8s,
                     minio_config: dict,
                     secure: bool = True,
                     zitadel_hostname: str = "",
+                    zitadel: Zitadel = None,
                     bitwarden: BwCLI = None):
     """
     minio installation and configuration
@@ -50,18 +51,24 @@ def configure_minio(k8s_obj: K8s,
         # the namespace probably doesn't exist yet, so we try to create it
         k8s_obj.create_namespace('minio')
 
-        if bitwarden:
-            minio_oidc = bitwarden.get_item("minio-oidc-credentials")[0]['login']
-        else:
-            minio_oidc = {'username': 'odicnotsetup', 'password': 'oidcnotsetup'}
+        # create minio OIDC Application
+        log.info("Creating a MinIO OIDC application via Zitadel...")
+        redirect_uris = f"https://{minio_hostname}/auth"
+        logout_uris = [f"https://{minio_hostname}"]
+        minio_dict = zitadel.create_application("minio",
+                                                redirect_uris,
+                                                logout_uris)
+        zitadel.create_role("minio_users", "minio Users", "minio_users")
+        zitadel.create_user_grant(['minio_users'])
 
         # creates the initial root credentials secret for the minio tenant
-        credentials_exports = {'config.env': f"""MINIO_ROOT_USER={access_key}
+        credentials_exports = {
+                'config.env': f"""MINIO_ROOT_USER={access_key}
         MINIO_ROOT_PASSWORD={secret_key}
-        MINIO_IDENTITY_OPENID_CONFIG_URL="https://{zitadel_hostname}/.well-known/openid-configuration"
-        MINIO_IDENTITY_OPENID_CLIENT_ID="{minio_oidc['username']}"
-        MINIO_IDENTITY_OPENID_CLIENT_SECRET="{minio_oidc['password']}"
-        MINIO_IDENTITY_OPENID_SCOPES="openid,email,groups"
+        MINIO_IDENTITY_OPENID_CONFIG_URL=https://{zitadel_hostname}/.well-known/openid-configuration
+        MINIO_IDENTITY_OPENID_CLIENT_ID={minio_dict['client_id']}
+        MINIO_IDENTITY_OPENID_CLIENT_SECRET={minio_dict['client_secret']}
+        MINIO_IDENTITY_OPENID_SCOPES=openid,email,groups
         MINIO_IDENTITY_OPENID_COMMENT="zitadel magic"
                                """}
         k8s_obj.create_secret('default-tenant-env-config', 'minio',
@@ -69,7 +76,6 @@ def configure_minio(k8s_obj: K8s,
 
         if bitwarden:
             log.info("Creating MinIO root credentials in Bitwarden")
-
             # admin credentials + metrics server info token
             bitwarden.create_login(
                     name='minio-tenant-root-credentials',
