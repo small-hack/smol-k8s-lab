@@ -57,14 +57,18 @@ def configure_matrix(k8s_obj: K8s,
 
             # postgresql credentials
             matrix_pgsql_password = bitwarden.generate()
-            postgres_hostname = create_custom_field("hostname",
-                                                    'matrix-web-app-postgresql')
+            db_hostname_obj = create_custom_field("hostname",
+                                                  'matrix-web-app-postgresql')
+            db_pass_obj = create_custom_field("postgresPassword",
+                                              matrix_pgsql_password)
+            # the database name
+            db_obj = create_custom_field("database", "matrix")
             db_id = bitwarden.create_login(
                     name='matrix-pgsql-credentials',
                     item_url=matrix_hostname,
                     user='matrix',
                     password=matrix_pgsql_password,
-                    fields=[postgres_hostname]
+                    fields=[db_hostname_obj, db_pass_obj, db_obj]
                     )
 
             # SMTP credentials
