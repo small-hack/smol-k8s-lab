@@ -359,15 +359,12 @@ class Zitadel():
         """
         url = f"{self.api_url}global/users/_by_login_name?loginName={user}"
 
-        payload={}
+        response = request("GET", url, headers=self.headers, data={},
+                           verify=self.verify).json()
+        log.info(response)
 
-        response = request("GET", url, headers=self.headers, data=payload,
-                           verify=self.verify)
-
-        log.info(response.text)
-
-        self.user_id = response.json()['user']['id']
-        self.resource_owner = response.json()['details']['resourceOwner']
+        self.user_id = response['user']['id']
+        self.resource_owner = response['user']['details']['resourceOwner']
 
     def set_project_by_name(self, project_name: str) -> str:
         """ 
