@@ -122,7 +122,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
                 parent_yaml = self.app.cfg['apps'][self.app_name]['init']['values']
 
                 if event.validation_result.is_valid:
-                    if self.app_name == "metallb" or "," in input.value:
+                    if self.app_name in ["metallb", "vouch"] or "," in input.value:
                         parent_yaml[input.name] = create_sanitized_list(input.value)
                     else:
                         parent_yaml[input.name] = input.value
