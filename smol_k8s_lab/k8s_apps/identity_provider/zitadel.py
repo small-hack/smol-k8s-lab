@@ -200,8 +200,12 @@ def configure_zitadel(k8s_obj: K8s,
                     api_tls_verify
                     )
             try:
-                id = zitadel.get_user_id(config_dict['init']['values']['username'])
-                zitadel.user_id = id
+                zitadel.set_user_by_login_name(
+                        config_dict['init']['values']['username']
+                        )
+                zitadel.set_project_by_name(
+                        config_dict['init']['values']['project_name']
+                        )
             except Exception as e:
                 log.error(e)
 
@@ -220,7 +224,8 @@ def initialize_zitadel(k8s_obj: K8s,
       k8s_obj:           K8s(), kubrenetes client for creating secrets
       zitadel_hostname:  str, the hostname of Zitadel
       api_tls_verify:    bool, whether or not to verify the TLS cert on request to api
-      user_dict:         dict of initial username, email, first name, last name, gender
+      user_dict:         dict of initial username, email, first name, last name
+                         gender, and project to create
       argocd_hostname:   str, the hostname of Argo CD for oidc app
       bitwarden:         BwCLI obj, [optional] session to use for bitwarden
 
@@ -237,7 +242,8 @@ def initialize_zitadel(k8s_obj: K8s,
     zitadel =  Zitadel(zitadel_hostname, private_key_obj, api_tls_verify)
 
     # create our first project
-    zitadel.create_project()
+    project_name = user_dict.pop('project_name')
+    zitadel.create_project(project_name)
 
     log.info("Creating a groups Zitadel Action (sends group info to Argo CD)")
     zitadel.create_action("groupsClaim")
@@ -281,7 +287,7 @@ def initialize_zitadel(k8s_obj: K8s,
     # create zitadel admin user that the project is setup
     header("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
-    zitadel.user_id = user_id
+    zitadel.set_user_by_login_name(user_dict['username'])
     zitadel.create_user_grant(['argocd_administrators'])
 
     # grant admin access to first user
