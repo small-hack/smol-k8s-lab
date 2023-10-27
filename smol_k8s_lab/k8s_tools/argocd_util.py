@@ -15,6 +15,13 @@ def check_if_argocd_app_exists(app: str) -> bool:
         return False
 
 
+def sync_argocd_app(app: str) -> None:
+    """
+    syncs an argocd app
+    """
+    subproc([f"argocd app sync {app}"])
+
+
 def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
     """
     create and Argo CD app directly from the command line using passed in
