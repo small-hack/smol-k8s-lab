@@ -593,6 +593,8 @@ apps:
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
 
       smol-k8s-lab supports initialization by creating initial secrets for your hostnames, and credentials for: postgresql, admin user, and SMTP
+
+      smol-k8s-lab also supports setting up an OIDC application via Zitadel.
     enabled: false
     init:
       enabled: true
@@ -606,7 +608,11 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        # hostname of the synapse matrix server
         hostname: ""
+        # the hostname of the element web interface
+        element_hostname: ""
+        # email for of the admin user
         admin_email: ""
         # if set to just minio, we'll attempt to create this bucket ourselves
         # endpoint and bucket both get saved as secret keys
