@@ -3,7 +3,8 @@ from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.k8s_apps.social.mastodon_rake import generate_rake_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists)
+                                                check_if_argocd_app_exists,
+                                                sync_argocd_app)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
@@ -22,11 +23,12 @@ def configure_mastodon(k8s_obj: K8s,
     header("Setting up [green]Mastodon[/green], so you can self host your social media"
            '🐘')
     app_installed = check_if_argocd_app_exists('mastodon')
+    init_enabled = config_dict['init']['enabled']
     secrets = config_dict['argo']['secret_keys']
     if secrets:
         mastodon_hostname = secrets['hostname']
 
-    if config_dict['init']['enabled'] and not app_installed:
+    if init_enabled and not app_installed:
         # declare custom values for mastodon
         init_values = config_dict['init']['values']
 
@@ -201,6 +203,9 @@ def configure_mastodon(k8s_obj: K8s,
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'mastodon', config_dict['argo'])
+        if init_enabled:
+            # this is because the mastodon chart is weird...
+            sync_argocd_app('mastodon-web-app')
     else:
         log.info("mastodon already installed 🎉")
 
