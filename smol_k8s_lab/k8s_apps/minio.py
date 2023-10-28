@@ -55,7 +55,7 @@ def configure_minio(k8s_obj: K8s,
 
         # create minio OIDC Application
         log.info("Creating a MinIO OIDC application via Zitadel...")
-        redirect_uris = f"https://{minio_hostname}/auth"
+        redirect_uris = f"https://{minio_hostname}/oauth_callback"
         logout_uris = [f"https://{minio_hostname}"]
         minio_dict = zitadel.create_application("minio",
                                                 redirect_uris,
