@@ -61,8 +61,9 @@ def configure_minio(k8s_obj: K8s,
         minio_dict = zitadel.create_application("minio",
                                                 redirect_uris,
                                                 logout_uris)
-        zitadel.create_role("minio_users", "minio Users", "minio_users")
-        zitadel.update_user_grant(['minio_users'])
+        zitadel.create_role("minio_users", "MinIO Users", "minio_users")
+        zitadel.create_role("minio_admins", "MinIO Administrators", "minio_admins")
+        zitadel.update_user_grant(['minio_users', 'minio_admins'])
 
         # creates the initial root credentials secret for the minio tenant
         credentials_exports = {
@@ -71,8 +72,10 @@ def configure_minio(k8s_obj: K8s,
         MINIO_IDENTITY_OPENID_CONFIG_URL=https://{zitadel_hostname}/.well-known/openid-configuration
         MINIO_IDENTITY_OPENID_CLIENT_ID={minio_dict['client_id']}
         MINIO_IDENTITY_OPENID_CLIENT_SECRET={minio_dict['client_secret']}
-        MINIO_IDENTITY_OPENID_SCOPES=openid,email,groups
         MINIO_IDENTITY_OPENID_DISPLAY_NAME=zitadel
+        MINIO_IDENTITY_OPENID_COMMENT="zitadelOIDC"
+        MINIO_IDENTITY_OPENID_SCOPES="openid,email,groups"
+        MINIO_IDENTITY_OPENID_CLAIM_NAME=groups
         MINIO_IDENTITY_OPENID_REDIRECT_URI={redirect_uris[0]}
                                """}
         k8s_obj.create_secret('default-tenant-env-config', 'minio',
@@ -92,8 +95,7 @@ def configure_minio(k8s_obj: K8s,
         # actual installation of the minio app
         install_with_argocd(k8s_obj, 'minio', minio_config['argo'])
 
-    # while we wait for the app to come up, update the config file
-    if not argo_app_exists:
+        # while we wait for the app to come up, update the config file
         if minio_init_enabled:
             protocal = "http"
             if secure:
@@ -140,14 +142,21 @@ def configure_minio(k8s_obj: K8s,
         # make sure the app is up before returning
         wait_for_argocd_app('minio')
 
-    if minio_init_enabled:
-        if argo_app_exists and bitwarden:
-            creds = bitwarden.get_item(
-                    f'minio-tenant-root-credentials-{minio_hostname}'
-                    )[0]['login']
-            access_key = creds['username']
-            secret_key = creds['password']
-        return BetterMinio('minio-root', minio_hostname, access_key, secret_key)
+        # immediately create an admin and readonly policy
+        minio_obj = BetterMinio('minio-root', minio_hostname, access_key, secret_key)
+        # so that zitadel groups names match up with minio policy names
+        minio_obj.create_admin_group_policy()
+        minio_obj.create_read_user_group_policy()
+
+    else:
+        if minio_init_enabled:
+            if argo_app_exists and bitwarden:
+                creds = bitwarden.get_item(
+                        f'minio-tenant-root-credentials-{minio_hostname}'
+                        )[0]['login']
+                access_key = creds['username']
+                secret_key = creds['password']
+            return BetterMinio('minio-root', minio_hostname, access_key, secret_key)
 
 
 class BetterMinio:
@@ -207,7 +216,7 @@ class BetterMinio:
             log.info(f'Bucket "{bucket_name}" already exists')
 
     def create_bucket_policy(self, bucket: str) -> str:
-        """ 
+        """
         creates a readwrite policy for a given bucket and returns the policy name
         """
         policy = {
@@ -238,3 +247,72 @@ class BetterMinio:
         self.admin_client.policy_add(policy_name, policy_file_name)
 
         return policy_name
+
+    def create_admin_group_policy(self) -> None:
+        """
+        creates an admin policy for OIDC called minio_admins
+        """
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "admin:*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "kms:*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:*"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::*"
+                    ]
+                }
+            ]
+        }
+
+        # we write out the policy, because minio admin client requires it
+        policy_file_name = XDG_CACHE_DIR + 'minio_oidc_admin_policy.json'
+        with open(policy_file_name, 'w') as policy_file:
+            dump(policy, policy_file)
+
+        # actually create the policy
+        self.admin_client.policy_add('minio_admins', policy_file_name)
+        log.info("Created minio_admin policy for use with OIDC")
+
+    def create_read_user_group_policy(self) -> None:
+        """
+        creates a readonly policy for OIDC called minio_read_users
+        """
+        policy = {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": [
+                            "s3:GetBucketLocation",
+                            "s3:GetObject"
+                            ],
+                        "Resource": [
+                            "arn:aws:s3:::*"
+                            ]
+                        }
+                    ]
+                }
+
+        # we write out the policy, because minio admin client requires it
+        policy_file_name = XDG_CACHE_DIR + 'minio_oidc_user_readonly_policy.json'
+        with open(policy_file_name, 'w') as policy_file:
+            dump(policy, policy_file)
+
+        # actually create the policy
+        self.admin_client.policy_add('minio_read_users', policy_file_name)
+        log.info("Created minio_read only user policy for use with OIDC")
