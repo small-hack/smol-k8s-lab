@@ -162,11 +162,13 @@ def configure_matrix(k8s_obj: K8s,
                                   {"registrationSharedSecret": matrix_registration_key})
 
             # oidc secret
-            k8s_obj.create_secret('matrix-oidc-credentials',
-                                  'matrix',
-                                  {'user': matrix_dict['client_id'],
-                                   'password': matrix_dict['client_secret']})
-
+            k8s_obj.create_secret(
+                    'matrix-oidc-credentials',
+                    'matrix',
+                    {'user': matrix_dict['client_id'],
+                     'password': matrix_dict['client_secret'],
+                     'issuer': zitadel.api.replace("/management/v1/", "")}
+                    )
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'matrix', config_dict['argo'])
