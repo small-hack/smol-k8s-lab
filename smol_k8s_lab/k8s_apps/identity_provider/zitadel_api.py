@@ -327,9 +327,12 @@ class Zitadel():
         log.info(response.text)
         json_res = response.json()
 
-        return {"application_id": json_res['appId'],
-                "client_id": json_res['clientId'],
-                "client_secret": json_res['clientSecret']}
+        try:
+            return {"application_id": json_res['appId'],
+                    "client_id": json_res['clientId'],
+                    "client_secret": json_res['clientSecret']}
+        except KeyError:
+            log.info(f"zitadel app, {app_name}, already exists")
 
     def create_action(self, name: str = "") -> None:
         """
