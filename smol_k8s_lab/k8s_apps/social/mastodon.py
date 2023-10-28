@@ -50,7 +50,7 @@ def configure_mastodon(k8s_obj: K8s,
             s3_access_key = minio_obj.create_access_credentials(s3_access_id)
             minio_obj.create_bucket(s3_bucket, s3_access_id)
 
-        rake_secrets = generate_rake_secrets(bitwarden)
+        rake_secrets = generate_rake_secrets()
 
         if bitwarden:
             # admin credentials
