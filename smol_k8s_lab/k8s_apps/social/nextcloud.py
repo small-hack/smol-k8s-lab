@@ -59,16 +59,12 @@ def configure_nextcloud(k8s_obj: K8s,
                     )
 
         if not mail_user:
-            mail_user = environ.get('NEXTCLOUD_SMTP_USER')
-            if not mail_user:
-                m = f"[green]Please enter an SMTP user for Nextcloud on server, {mail_host}"
-                mail_user = Prompt.ask(m)
+            m = f"[green]Please enter an SMTP user for Nextcloud on server, {mail_host}"
+            mail_user = Prompt.ask(m)
 
         if not mail_pass:
-            mail_pass = environ.get('NEXTCLOUD_SMTP_PASSWORD')
-            if not mail_pass:
-                m = f"[green]Please enter the SMTP password of {mail_user} on {mail_host}"
-                mail_pass = Prompt.ask(m, password=True)
+            m = f"[green]Please enter the SMTP password of {mail_user} on {mail_host}"
+            mail_pass = Prompt.ask(m, password=True)
 
         # configure backups
         if secrets['backup_method'] == 'local':
