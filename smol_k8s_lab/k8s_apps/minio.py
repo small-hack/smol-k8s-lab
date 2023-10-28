@@ -31,11 +31,13 @@ def configure_minio(k8s_obj: K8s,
     """
     minio_init_enabled = minio_config['init']['enabled']
     argo_app_exists = check_if_argocd_app_exists('minio')
+    secrets = minio_config['argo']['secret_keys']
+    if secrets:
+        minio_hostname = secrets['api_hostname']
 
     # if the user has enabled smol_k8s_lab init, we create an initial user
     if minio_init_enabled and not argo_app_exists:
         access_key = minio_config['init']['values']['root_user']
-        minio_hostname = minio_config['argo']['secret_keys']['api_hostname']
 
         # if the app already exists and bitwarden is enabled return the credentials
         if argo_app_exists:
@@ -89,53 +91,60 @@ def configure_minio(k8s_obj: K8s,
         install_with_argocd(k8s_obj, 'minio', minio_config['argo'])
 
     # while we wait for the app to come up, update the config file
-    if not argo_app_exists and minio_init_enabled:
-        protocal = "http"
-        if secure:
-            protocal = "https"
-        # we create a config file so users can easily use minio from the cli
-        new_minio_alias = {"url": f"{protocal}://{minio_hostname}",
-                           "accessKey": access_key,
-                           "secretKey": secret_key,
-                           "api": "S3v4",
-                           "path": "auto"}
+    if not argo_app_exists:
+        if minio_init_enabled:
+            protocal = "http"
+            if secure:
+                protocal = "https"
+            # we create a config file so users can easily use minio from the cli
+            new_minio_alias = {"url": f"{protocal}://{minio_hostname}",
+                               "accessKey": access_key,
+                               "secretKey": secret_key,
+                               "api": "S3v4",
+                               "path": "auto"}
 
-        # if the user hasn't chosen a config location, we use XDG spec, maybe
-        # xdg_minio_config_file = xdg_config_home() + "/minio/config.json"
-        minio_config_dir = HOME_DIR + ".mc/"
-        minio_config_file = minio_config_dir + "config.json"
+            # if the user hasn't chosen a config location, we use XDG spec, maybe
+            # xdg_minio_config_file = xdg_config_home() + "/minio/config.json"
+            minio_config_dir = HOME_DIR + ".mc/"
+            minio_config_file = minio_config_dir + "config.json"
 
-        # create the dir if it doesn't exist
-        if not exists(minio_config_file):
-            makedirs(minio_config_dir, exist_ok=True)
-            minio_cfg_obj = {}
-        else:
-            # open the default minio cli config to take a peek
-            with open(minio_config_file, 'r') as minio_config_contents:
-                minio_cfg_obj = load(minio_config_contents)
-
-        # reconfigure the file for our new alias
-        if not minio_cfg_obj:
-            # if there's not a config object, make one
-            minio_cfg_obj = {"version": "10",
-                             "aliases": {"minio-root": new_minio_alias}}
-        else:
-            aliases = minio_cfg_obj.get("aliases", None)
-            # if there is an aliases section with minio-root, update it
-            if aliases:
-                minio_cfg_obj['aliases']['minio-root'] = new_minio_alias
-            # if there is not an aliases section with minio-root, create one
+            # create the dir if it doesn't exist
+            if not exists(minio_config_file):
+                makedirs(minio_config_dir, exist_ok=True)
+                minio_cfg_obj = {}
             else:
-                minio_cfg_obj['aliases'] = {"minio-root": new_minio_alias}
+                # open the default minio cli config to take a peek
+                with open(minio_config_file, 'r') as minio_config_contents:
+                    minio_cfg_obj = load(minio_config_contents)
 
-        # write out the config file when we're done
-        with open(minio_config_file, 'w') as minio_config_contents:
-            dump(minio_cfg_obj, minio_config_contents)
+            # reconfigure the file for our new alias
+            if not minio_cfg_obj:
+                # if there's not a config object, make one
+                minio_cfg_obj = {"version": "10",
+                                 "aliases": {"minio-root": new_minio_alias}}
+            else:
+                aliases = minio_cfg_obj.get("aliases", None)
+                # if there is an aliases section with minio-root, update it
+                if aliases:
+                    minio_cfg_obj['aliases']['minio-root'] = new_minio_alias
+                # if there is not an aliases section with minio-root, create one
+                else:
+                    minio_cfg_obj['aliases'] = {"minio-root": new_minio_alias}
 
-    # make sure the app is up before returning
-    wait_for_argocd_app('minio')
+            # write out the config file when we're done
+            with open(minio_config_file, 'w') as minio_config_contents:
+                dump(minio_cfg_obj, minio_config_contents)
+
+        # make sure the app is up before returning
+        wait_for_argocd_app('minio')
 
     if minio_init_enabled:
+        if argo_app_exists and bitwarden:
+            creds = bitwarden.get_item(
+                    f'minio-tenant-root-credentials-{minio_hostname}'
+                    )[0]['login']
+            access_key = creds['username']
+            secret_key = creds['password']
         return BetterMinio('minio-root', minio_hostname, access_key, secret_key)
 
 

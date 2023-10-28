@@ -3,7 +3,7 @@
 NAME: env_config.py
 DESC: everything to do with initial configuration of a new environment via the cli
 """
-
+# internal libraries and variables
 from .constants import (OS,
                         VERSION,
                         DEFAULT_CONFIG,
@@ -14,6 +14,8 @@ from .constants import (OS,
                         XDG_CONFIG_FILE)
 from .utils.rich_cli.console_logging import print_panel, header, sub_header
 
+# external libraries and variables
+from os import environ
 from rich.prompt import Confirm, Prompt
 from ruamel.yaml import YAML
 
@@ -86,7 +88,9 @@ def process_configs(config: dict = INITIAL_USR_CONFIG):
         with open(XDG_CONFIG_FILE, 'w') as smol_k8s_config:
             yaml.dump(config, smol_k8s_config)
 
-    return config, secrets
+    final_config = add_all_possible_env_vars(config)
+
+    return final_config, secrets
 
 
 def process_app_configs(apps: dict = {}) -> list:
@@ -284,3 +288,23 @@ def process_k8s_distros(k8s_distros: dict = {}, prompt: bool = True):
             default = DEFAULT_DISTRO
 
     return k8s_distros, default
+
+
+def add_all_possible_env_vars(config: dict):
+    """
+    populate all possible env vars from the sensitive values for special apps,
+    namely: nextcloud, mastodon, and matrix
+
+    returns updated config dict
+    """
+    for app in ["nextcloud", "mastodon", "matrix"]:
+        init_dict = config['apps'][app]['init']
+        if init_dict['enabled']:
+            sensitive_values = init_dict['sensitive_values']
+            if sensitive_values:
+                for value in sensitive_values:
+                    env_var = environ.get("_".join([app.upper(), value.upper()]))
+                    if env_var:
+                        config['apps'][app]['init']['values'][value.lower()] = env_var
+
+    return config
