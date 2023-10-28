@@ -612,6 +612,8 @@ apps:
         hostname: ""
         # the hostname of the element web interface
         element_hostname: ""
+        # hostname for federation, that others can see you on the fediverse
+        federation_hostname: ""
         # email for of the admin user
         admin_email: ""
         # if set to just minio, we'll attempt to create this bucket ourselves
