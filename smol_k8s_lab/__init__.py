@@ -222,7 +222,7 @@ def main(config: str = "",
         # user can configure special domains that we print at the end
         argocd_fqdn = SECRETS['argo_cd_hostname']
         matrix_hostname = SECRETS.get('matrix_hostname', "")
-        minio_hostname = SECRETS.get('user_console_hostname', "")
+        minio_hostname = SECRETS.get('minio_user_console_hostname', "")
         mastodon_hostname = SECRETS.get('mastodon_hostname', "")
         nextcloud_hostname = SECRETS.get('nextcloud_hostname', "")
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
@@ -297,23 +297,23 @@ def main(config: str = "",
 
     if argo_enabled:
         final_msg += ("\n🦑 Argo CD, your k8s apps console:\n"
-                      f"[blue][link]https://{argocd_fqdn}[/]\n")
+                      f"[blue][link]https://{argocd_fqdn}[/][/]\n")
 
     if minio_hostname:
         final_msg += ("\n🦩 Minio tenant (user) console, for your s3 storage:\n"
-                      f"[blue][link]https://{minio_hostname}[/]\n")
+                      f"[blue][link]https://{minio_hostname}[/][/]\n")
 
     if nextcloud_hostname:
         final_msg += ("\n☁️ Nextcloud, for your worksuite:\n"
-                      f"[blue][link]https://{nextcloud_hostname}[/]\n")
+                      f"[blue][link]https://{nextcloud_hostname}[/][/]\n")
 
     if mastodon_hostname:
         final_msg += ("\n🐘 Mastodon, for your social media:\n"
-                      f"[blue][link]https://{mastodon_hostname}[/]\n")
+                      f"[blue][link]https://{mastodon_hostname}[/][/]\n")
 
     if matrix_hostname:
         final_msg += ("\n🗣️ Matrix, for your chat:\n"
-                      f"[blue][link]https://{matrix_hostname}[/]\n")
+                      f"[blue][link]https://{matrix_hostname}[/][/]\n")
 
     CONSOLE.print(Panel(final_msg,
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',

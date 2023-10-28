@@ -104,11 +104,15 @@ def configure_matrix(k8s_obj: K8s,
                     )
 
             log.info("Creating OIDC credentials for Matrix in Bitwarden")
+            issuer = zitadel.api_url
+            issuer_obj = create_custom_field("issuer",
+                                             issuer.replace("/management/v1/", ""))
             oidc_id = bitwarden.create_login(
                     name='matrix-oidc-credentials',
                     item_url=matrix_hostname,
                     user=matrix_dict['client_id'],
-                    password=matrix_dict['client_secret']
+                    password=matrix_dict['client_secret'],
+                    fields=[issuer_obj]
                     )
 
             # update the matrix values for the argocd appset
