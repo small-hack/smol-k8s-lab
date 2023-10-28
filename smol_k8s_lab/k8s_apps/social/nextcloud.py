@@ -8,6 +8,7 @@ from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 import logging as log
+from os import environ
 
 
 def configure_nextcloud(k8s_obj: K8s,
@@ -56,13 +57,18 @@ def configure_nextcloud(k8s_obj: K8s,
             mail_host = Prompt.ask(
                     "[green]Please enter the SMTP host for nextcoud"
                     )
+
         if not mail_user:
-            mail_user = Prompt.ask(
-                    f"[green]Please enter the SMTP user for nextcloud on {mail_host}"
-                    )
+            mail_user = environ.get('NEXTCLOUD_SMTP_USER')
+            if not mail_user:
+                m = f"[green]Please enter an SMTP user for Nextcloud on server, {mail_host}"
+                mail_user = Prompt.ask(m)
+
         if not mail_pass:
-            m = f"[green]Please enter the SMTP password of {mail_user} for nextcloud"
-            mail_pass = Prompt.ask(m, password=True)
+            mail_pass = environ.get('NEXTCLOUD_SMTP_PASSWORD')
+            if not mail_pass:
+                m = f"[green]Please enter the SMTP password of {mail_user} on {mail_host}"
+                mail_pass = Prompt.ask(m, password=True)
 
         # configure backups
         if secrets['backup_method'] == 'local':
