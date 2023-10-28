@@ -34,6 +34,7 @@ def configure_minio(k8s_obj: K8s,
     secrets = minio_config['argo']['secret_keys']
     if secrets:
         minio_hostname = secrets['api_hostname']
+        minio_user_console_hostname = secrets['user_console_hostname']
 
     # if the user has enabled smol_k8s_lab init, we create an initial user
     if minio_init_enabled and not argo_app_exists:
@@ -55,8 +56,8 @@ def configure_minio(k8s_obj: K8s,
 
         # create minio OIDC Application
         log.info("Creating a MinIO OIDC application via Zitadel...")
-        redirect_uris = f"https://{minio_hostname}/oauth_callback"
-        logout_uris = [f"https://{minio_hostname}"]
+        redirect_uris = f"https://{minio_user_console_hostname}/oauth_callback"
+        logout_uris = [f"https://{minio_user_console_hostname}/login"]
         minio_dict = zitadel.create_application("minio",
                                                 redirect_uris,
                                                 logout_uris)
