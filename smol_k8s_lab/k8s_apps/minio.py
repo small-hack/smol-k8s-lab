@@ -71,7 +71,7 @@ def configure_minio(k8s_obj: K8s,
         MINIO_IDENTITY_OPENID_CLIENT_ID={minio_dict['client_id']}
         MINIO_IDENTITY_OPENID_CLIENT_SECRET={minio_dict['client_secret']}
         MINIO_IDENTITY_OPENID_SCOPES=openid,email,groups
-        MINIO_IDENTITY_OPENID_COMMENT="zitadel magic"
+        MINIO_IDENTITY_OPENID_DISPLAY_NAME=zitadel
                                """}
         k8s_obj.create_secret('default-tenant-env-config', 'minio',
                               credentials_exports)
