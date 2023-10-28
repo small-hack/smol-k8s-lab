@@ -227,7 +227,7 @@ def create_vouch_app(provider: str,
                 [f"https://{vouch_hostname}"]
                 )
         zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
-        zitadel.create_user_grant(['vouch_users'])
+        zitadel.update_user_grant(['vouch_users'])
 
         client_id = vouch_dict['client_id']
         client_secret = vouch_dict['client_secret']

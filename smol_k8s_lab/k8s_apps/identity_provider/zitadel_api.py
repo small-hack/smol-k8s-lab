@@ -38,8 +38,9 @@ class Zitadel():
         # then get the token
         self.api_token = self.generate_token(hostname, service_account_key_obj)
 
+        # 'Content-Type': 'application/x-www-form-urlencoded',
         self.headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': f'Bearer {self.api_token}'
         }
@@ -224,6 +225,45 @@ class Zitadel():
 
         return response.json()['userGrantId']
 
+    def update_user_grant(self, role_keys: list, user_id: str = "") -> str:
+        """
+        updates a user's existing grants.
+
+        Arguments:
+            role_key:   key of the role to assign to the user
+            user_id:    ID of the user we're grants a role to, if not provided,
+                        we use self.user_id
+        """
+        if not user_id:
+            user_id = self.user_id
+
+        url = f"{self.api_url}users/grants/_search"
+
+        payload = dumps({
+                  "userIdQuery": {
+                    "userId": user_id
+                  }
+            })
+
+        response = request("POST", url, headers=self.headers, data=payload,
+                           verify=self.verify)
+        log.info(response.text)
+        user_roles = response.json()['result'][0]['roleKeys']
+        grant_id = response.json()['result'][0]['id']
+        log.info(f"{user_id} has grant id {grant_id} with roles: {user_roles}")
+
+        # now we can update the user's roles
+        role_keys.extend(user_roles)
+        log.debug(f"Assiging user_id, {user_id} the roles of "
+                  f"[green]{role_keys}[/] in {self.project_id}")
+
+        url = f"{self.api_url}users/{user_id}/grants/{grant_id}"
+
+        payload = dumps({"roleKeys": role_keys})
+
+        response = request("PUT", url, headers=self.headers, data=payload,
+                           verify=self.verify)
+
     def create_iam_membership(self, user_id: str, role: str):
         """
         iam membership assignment
@@ -385,20 +425,20 @@ class Zitadel():
               "nameQuery": {
                 "name": project_name,
                 "method": "TEXT_QUERY_METHOD_EQUALS"
-              },
-              "projectResourceOwnerQuery": {
-                "resourceOwner": self.resource_owner
               }
             }
           ]
         })
-
-        log.debug("set_project_by_name payload ...")
+        log.debug("set_project_by_name _search payload ...")
         log.debug(payload)
 
-        response = request("GET", url, headers=self.headers, data=payload,
-                           verify=self.verify)
-        log.info(f"response from project {project_name} search: {response.text}")
+        self.headers['Content-Type'] = 'application/json'
 
-        self.project_id = response.json()['result']['id']
+        response = request("POST", url, headers=self.headers, data=payload,
+                           verify=self.verify)
+
+        log.info(f'response from set_project_by_name for "{project_name}" '
+                 f'_search: {response.text}')
+
+        self.project_id = response.json()['result'][0]['id']
         log.debug(f"zitadel api: set project id to {self.project_id}")

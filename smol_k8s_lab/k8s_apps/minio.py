@@ -59,7 +59,7 @@ def configure_minio(k8s_obj: K8s,
                                                 redirect_uris,
                                                 logout_uris)
         zitadel.create_role("minio_users", "minio Users", "minio_users")
-        zitadel.create_user_grant(['minio_users'])
+        zitadel.update_user_grant(['minio_users'])
 
         # creates the initial root credentials secret for the minio tenant
         credentials_exports = {

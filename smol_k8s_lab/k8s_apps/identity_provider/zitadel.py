@@ -139,9 +139,35 @@ def configure_zitadel(k8s_obj: K8s,
     else:
         log.info("Zitadel is already installed 🎉")
 
-        # makes sure we update the appset secret with bitwarden IDs regardless
         if bitwarden and config_dict['init']['enabled']:
+            # get the zitadel service account private key json for generating a jwt
+            adm_secret_file = k8s_obj.get_secret(
+                    'zitadel-admin-sa',
+                    'zitadel'
+                    )['data']['zitadel-admin-sa.json']
 
+            # setup and return the zitadel python api wrapper
+            zitadel = Zitadel(
+                    zitadel_hostname,
+                    loads(b64dec(str.encode(adm_secret_file)).decode('utf8')),
+                    api_tls_verify
+                    )
+            try:
+                zitadel.set_user_by_login_name(
+                        config_dict['init']['values']['username']
+                        )
+            except Exception as e:
+                log.error(e)
+
+            try:
+                zitadel.set_project_by_name(
+                        config_dict['init']['values']['project']
+                        )
+            except Exception as e:
+                log.error(e)
+                raise Exception(e)
+
+            # makes sure we update the appset secret with bitwarden IDs regardless
             db_id = bitwarden.get_item(
                     f"zitadel-db-credentials-{zitadel_hostname}"
                     )[0]['id']
@@ -187,31 +213,6 @@ def configure_zitadel(k8s_obj: K8s,
             # sync_argocd_app('zitadel')
             # sync_argocd_app('argo-cd')
 
-            # get the zitadel service account private key json for generating a jwt
-            adm_secret_file = k8s_obj.get_secret(
-                    'zitadel-admin-sa',
-                    'zitadel'
-                    )['data']['zitadel-admin-sa.json']
-
-            # setup and return the zitadel python api wrapper
-            zitadel = Zitadel(
-                    zitadel_hostname,
-                    loads(b64dec(str.encode(adm_secret_file)).decode('utf8')),
-                    api_tls_verify
-                    )
-            try:
-                zitadel.set_user_by_login_name(
-                        config_dict['init']['values']['username']
-                        )
-            except Exception as e:
-                log.error(e)
-
-            try:
-                zitadel.set_project_by_name(
-                        config_dict['init']['values']['project']
-                        )
-            except Exception as e:
-                log.error(e)
 
             return zitadel
 
@@ -292,7 +293,11 @@ def initialize_zitadel(k8s_obj: K8s,
     header("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
     zitadel.set_user_by_login_name(user_dict['username'])
-    zitadel.create_user_grant(['argocd_administrators'])
+    try:
+        zitadel.create_user_grant(['argocd_administrators'])
+    except Exception as e:
+        log.error(e)
+        zitadel.update_user_grant(['argocd_administrators'])
 
     # grant admin access to first user
     sub_header("creating user IAM membership with IAM_OWNER")

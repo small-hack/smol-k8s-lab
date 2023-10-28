@@ -54,7 +54,7 @@ def configure_matrix(k8s_obj: K8s,
                                                  redirect_uris,
                                                  logout_uris)
         zitadel.create_role("matrix_users", "Matrix Users", "matrix_users")
-        zitadel.create_user_grant(['matrix_users'])
+        zitadel.update_user_grant(['matrix_users'])
 
         # if the user has bitwarden enabled
         if bitwarden:
