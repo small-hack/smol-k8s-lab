@@ -48,7 +48,7 @@ def configure_matrix(k8s_obj: K8s,
 
         # create Matrix OIDC Application
         log.debug("Creating a Matrix OIDC application in Zitadel...")
-        redirect_uris = f"https://{matrix_hostname}/auth"
+        redirect_uris = f"https://{matrix_hostname}/_synapse/client/oidc/callback"
         logout_uris = [f"https://{matrix_hostname}"]
         matrix_dict = zitadel.create_application("matrix",
                                                  redirect_uris,
