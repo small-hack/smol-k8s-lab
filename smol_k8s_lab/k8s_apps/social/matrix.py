@@ -47,14 +47,17 @@ def configure_matrix(k8s_obj: K8s,
             minio_obj.create_bucket(s3_bucket, s3_access_id)
 
         # create Matrix OIDC Application
-        log.debug("Creating a Matrix OIDC application in Zitadel...")
-        redirect_uris = f"https://{matrix_hostname}/_synapse/client/oidc/callback"
-        logout_uris = [f"https://{matrix_hostname}"]
-        matrix_dict = zitadel.create_application("matrix",
-                                                 redirect_uris,
-                                                 logout_uris)
-        zitadel.create_role("matrix_users", "Matrix Users", "matrix_users")
-        zitadel.update_user_grant(['matrix_users'])
+        if zitadel:
+            log.debug("Creating a Matrix OIDC application in Zitadel...")
+            idp_id = "zitadel"
+            idp_name = "Zitadel Auth"
+            redirect_uris = f"https://{matrix_hostname}/_synapse/client/oidc/callback"
+            logout_uris = [f"https://{matrix_hostname}"]
+            matrix_dict = zitadel.create_application("matrix",
+                                                     redirect_uris,
+                                                     logout_uris)
+            zitadel.create_role("matrix_users", "Matrix Users", "matrix_users")
+            zitadel.update_user_grant(['matrix_users'])
 
         # if the user has bitwarden enabled
         if bitwarden:
@@ -103,29 +106,35 @@ def configure_matrix(k8s_obj: K8s,
                     password=matrix_registration_key
                     )
 
+            # OIDC credentials
             log.info("Creating OIDC credentials for Matrix in Bitwarden")
-            issuer = zitadel.api_url
-            issuer_obj = create_custom_field("issuer",
-                                             issuer.replace("/management/v1/", ""))
-            oidc_id = bitwarden.create_login(
-                    name='matrix-oidc-credentials',
-                    item_url=matrix_hostname,
-                    user=matrix_dict['client_id'],
-                    password=matrix_dict['client_secret'],
-                    fields=[issuer_obj]
-                    )
+            if zitadel:
+                issuer = zitadel.api_url
+                issuer_obj = create_custom_field("issuer",
+                                                 issuer.replace("/management/v1/", ""))
+                idp_id_obj = create_custom_field("idp_id", idp_id)
+                idp_name_obj = create_custom_field("idp_name", idp_name)
+                oidc_id = bitwarden.create_login(
+                        name='matrix-oidc-credentials',
+                        item_url=matrix_hostname,
+                        user=matrix_dict['client_id'],
+                        password=matrix_dict['client_secret'],
+                        fields=[issuer_obj, idp_id_obj, idp_name_obj]
+                        )
 
             # update the matrix values for the argocd appset
-            fields = {
+            secret_plugin_fields = {
                     'matrix_registration_credentials_bitwarden_id': reg_id,
                     'matrix_smtp_credentials_bitwarden_id': smtp_id,
                     'matrix_s3_credentials_bitwarden_id': s3_id,
                     'matrix_postgres_credentials_bitwarden_id': db_id,
-                    'matrix_oidc_credentials_bitwarden_id': oidc_id
+                    'matrix_oidc_credentials_bitwarden_id': oidc_id,
+                    'matrix_idp_name': idp_name,
+                    'matrix_idp_id': idp_id
                     }
             k8s_obj.update_secret_key('appset-secret-vars',
                                       'argocd',
-                                      fields,
+                                      secret_plugin_fields,
                                       'secret_vars.yaml')
 
             # reload the argocd appset secret plugin
@@ -190,9 +199,21 @@ def configure_matrix(k8s_obj: K8s,
             db_id = bitwarden.get_item(
                     f"matrix-pgsql-credentials-{matrix_hostname}"
                     )[0]['id']
+            oidc_id = bitwarden.get_item(
+                    f"matrix-oidc-credentials-{matrix_hostname}"
+                    )[0]
+
+            # identity provider name and id are nested in the oidc item fields
+            for field in oidc_id['fields']:
+                if field['name'] == 'idp_id':
+                    idp_id = field['value']
+                if field['name'] == 'idp_name':
+                    idp_name = field['value']
 
             fields = {
-                    'matrix_oidc_credentials_bitwarden_id': "not-set-yet",
+                    'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
+                    'matrix_idp_name': idp_name,
+                    'matrix_idp_id': idp_id,
                     'matrix_registration_credentials_bitwarden_id': reg_id,
                     'matrix_smtp_credentials_bitwarden_id': smtp_id,
                     'matrix_s3_credentials_bitwarden_id': s3_id,
