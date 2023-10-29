@@ -587,7 +587,9 @@ apps:
       [link=https://matrix.org/]Matrix[/link] is an open protocol for decentralised, secure communications.
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
 
-      smol-k8s-lab supports initialization by creating initial secrets for your hostnames, and credentials for: postgresql, admin user, and SMTP
+      smol-k8s-lab supports initialization by creating initial secrets for your:
+      - matrix, element, and federation hostnames, 
+      - credentials for: postgresql, admin user, S3 storage, and SMTP
 
       smol-k8s-lab also supports setting up an OIDC application via Zitadel.
     enabled: false
