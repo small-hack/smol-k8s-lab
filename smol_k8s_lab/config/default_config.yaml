@@ -590,7 +590,8 @@ apps:
         s3_endpoint: "minio"
         # bucket is for your images and other assets
         s3_bucket: "mastodon"
-        # to create an isolated minio tenant for mastodon
+        # to create an isolated minio tenant for mastodon set this to the hostname
+        # you'd like to use
         isolated_minio_tenant_hostname: "optional"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -759,7 +760,7 @@ apps:
         # if set to just minio, we'll attempt to create this bucket ourselves
         backup_s3_endpoint: "minio"
         backup_s3_bucket: "nextcloud"
-        # additional apps to install
+        # additional Nextcloud apps to install via the nextcloud admin cli
         nextcloud_apps:
           # this allows you to login with other OIDC providers such as zitadel
           - social_login
