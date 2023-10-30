@@ -103,7 +103,10 @@ def run_subprocess(command: str, **kwargs):
     error_ok = kwargs.pop('error_ok', False)
 
     try:
-        p = Popen(command.split(), stdout=PIPE, stderr=PIPE, **kwargs)
+        if kwargs.get('universal_newlines', None):
+            p = Popen(command, stdout=PIPE, stderr=PIPE, **kwargs)
+        else:
+            p = Popen(command.split(), stdout=PIPE, stderr=PIPE, **kwargs)
         res = p.communicate()
         return_code = p.returncode
     except Exception as e:
@@ -113,7 +116,10 @@ def run_subprocess(command: str, **kwargs):
         else:
             raise Exception(e)
 
-    res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
+    if kwargs.get('universal_newlines', None):
+        res_stdout, res_stderr = res[0], res[1]
+    else:
+        res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
 
     # if quiet = True, or res_stdout is empty, we hide this
     if res_stdout and not quiet:
