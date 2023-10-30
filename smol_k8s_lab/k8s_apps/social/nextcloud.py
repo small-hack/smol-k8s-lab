@@ -1,4 +1,5 @@
 # internal libraries
+from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
@@ -17,22 +18,27 @@ from rich.prompt import Prompt
 def configure_nextcloud(k8s_obj: K8s,
                         config_dict: dict,
                         bitwarden: BwCLI = None,
-                        minio_obj: BetterMinio = {}) -> None:
+                        minio_obj: BetterMinio = None,
+                        zitadel: Zitadel = None) -> None:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
+
     required:
         k8s_obj     - K8s() object with cluster credentials
         config_dict - dictionary with at least argocd key and init key
+
     optional:
         bitwarden   - BwCLI() object with session token
         minio_obj   - BetterMinio() object with minio credentials
     """
     # check immediately if this app is installed
     app_installed = check_if_argocd_app_exists('nextcloud')
+
     # get any secret keys passed in
     secrets = config_dict['argo']['secret_keys']
     if secrets:
         nextcloud_hostname = secrets['hostname']
+
     # verify if initialization is enabled
     init_enabled = config_dict['init']['enabled']
 
@@ -92,9 +98,31 @@ def configure_nextcloud(k8s_obj: K8s,
                             password=True
                             )
 
+        # configure OIDC
+        if zitadel:
+            log.debug("Creating a Nextcloud OIDC application in Zitadel...")
+            redirect_uris = f"https://{nextcloud_hostname}/callback"
+            logout_uris = [f"https://{nextcloud_hostname}"]
+            nextcloud_oidc_creds = zitadel.create_application(
+                    "nextcloud",
+                    redirect_uris,
+                    logout_uris
+                    )
+            zitadel.create_role("nextcloud_users", "Nextcloud Users", "nextcloud_users")
+            zitadel.create_role("nextcloud_admins", "Nextcloud Admins", "nextcloud_admins")
+            zitadel.update_user_grant(['nextcloud_admins'])
+
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden:
             sub_header("Creating secrets in Bitwarden")
+
+            # create oidc credentials
+            bitwarden.create_login(
+                    name='nextcloud-oidc-credentials',
+                    item_url=nextcloud_hostname,
+                    user=nextcloud_oidc_creds['client_id'],
+                    password=nextcloud_oidc_creds['client_secret']
+                    )
 
             # admin credentials + metrics server info token
             token = bitwarden.generate()
