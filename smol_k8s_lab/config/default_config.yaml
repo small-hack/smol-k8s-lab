@@ -595,18 +595,19 @@ apps:
         s3_endpoint: "minio"
         # bucket is for your images and other assets
         s3_bucket: "mastodon"
-        # to create an isolated minio tenant for mastodon set this to the hostname
-        # you'd like to use
+        # to create an isolated minio tenant for mastodon, using the minio operator,
+        # set this to the hostname you'd like to use for the exclusive minio api
         isolated_minio_tenant_hostname: "optional"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "mastodon/"
+      path: "mastodon/mastodon_app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
       namespace: "mastodon"
-      # recurse directories in the argocd repo
+      # recurse directories in the git repo - set to True to use the minio
+      # operator to create an isolated S3 tenant for mastodon
       directory_recursion: True
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
