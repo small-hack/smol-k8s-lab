@@ -13,9 +13,14 @@ class Nextcloud():
         """
         # namespace where nextcloud is installed
         self.namespace = namespace
-        # TODO: name of the nextcloud pod to run the commands on
-        pod = ""
-        self.occ_cmd = (f'kubectl exec {pod} -- su -s /bin/sh www-data -c '
+        pod_cmd = (
+                f"kubectl get pods -n {self.namespace} -l "
+                "app.kubernetes.io/instance=nextcloud-web-app,"
+                "app.kubernetes.io/component=app "
+                "--no-headers "
+                "-o custom-columns=NAME:.metadata.name")
+        self.pod = subproc([pod_cmd])
+        self.occ_cmd = (f'kubectl exec {self.pod} -- su -s /bin/sh www-data -c '
                         '"php occ')
 
     def install_apps(self, apps: list) -> None:
