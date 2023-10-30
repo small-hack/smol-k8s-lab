@@ -163,6 +163,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "argocd"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project:
         source_repos:
@@ -204,6 +206,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "argocd"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       project:
         source_repos:
           - https://small-hack.github.io/appset-secret-plugin
@@ -235,6 +239,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # optional secrets keys to pass to the Argo CD Appset secret plugin generator
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
@@ -277,6 +283,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "cert-manager"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for cert-manager CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -307,6 +315,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "cilium"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD cilium Project
       project:
         source_repos:
@@ -336,6 +346,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "external-secrets"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # secret keys to provide for the Argo CD Appset secret plugin, none by default
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
@@ -370,6 +382,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "infisical"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
         source_repos:
@@ -396,6 +410,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "ingress-nginx"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # secret keys to provide for the Argo CD Appset secret plugin, none by default
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to argo.repo)
@@ -428,6 +444,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "k8tz"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
         source_repos:
@@ -454,6 +472,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "k8up"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
         source_repos:
@@ -481,6 +501,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "kepler"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -506,6 +528,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "kubevirt"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos: 
@@ -529,6 +553,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "kyvero"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos: []
@@ -569,6 +595,8 @@ apps:
         s3_endpoint: "minio"
         # bucket is for your images and other assets
         s3_bucket: "mastodon"
+        # to create an isolated minio tenant for mastodon
+        isolated_minio_tenant_hostname: "optional"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -577,6 +605,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "mastodon"
+      # recurse directories in the argocd repo
+      directory_recursion: True
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -630,6 +660,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "matrix"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -666,6 +698,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "metallb-system"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD metallb Project (in addition to metallb.argo.repo)
       project:
         source_repos:
@@ -702,6 +736,8 @@ apps:
       # namespace to install the k8s app in
       namespace: "minio"
       # source repos for Argo CD App Project (in addition to argo.repo)
+      # recurse directories in the provided git repo
+      directory_recursion: False
       project:
         source_repos:
           - https://operator.min.io/
@@ -728,6 +764,18 @@ apps:
         # if set to just minio, we'll attempt to create this bucket ourselves
         backup_s3_endpoint: "minio"
         backup_s3_bucket: "nextcloud"
+        # additional apps to install
+        nextcloud_apps:
+          # this allows you to login with other OIDC providers such as zitadel
+          - social_login
+          # kanban board
+          - deck
+          # notes management with markdown
+          - notes
+          # bookmarks syncing
+          - bookmarks
+          # fail2ban
+          - brute-force_settings
       sensitive_values:
         - SMTP_PASSWORD
         - S3_ACCESS_KEY
@@ -751,6 +799,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "nextcloud"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -789,6 +839,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "prometheus"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -831,6 +883,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "vouch"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
@@ -888,6 +942,8 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "zitadel"
+      # recurse directories in the provided git repo
+      directory_recursion: False
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:

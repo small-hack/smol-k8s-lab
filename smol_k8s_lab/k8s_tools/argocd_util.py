@@ -22,7 +22,7 @@ def sync_argocd_app(app: str) -> None:
     subproc([f"argocd app sync {app}"])
 
 
-def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
+def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     """
     create and Argo CD app directly from the command line using passed in
     app and argo_dict which should have str keys for repo, path, and namespace
@@ -58,10 +58,11 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> True:
            f"--dest-namespace {app_namespace} "
            "--dest-server https://kubernetes.default.svc")
 
+    if argo_dict['directory_recursion']:
+        cmd += " --directory-recurse"
+
     response = subproc([cmd])
     log.debug(response)
-
-    return True
 
 
 def wait_for_argocd_app(app: str):
