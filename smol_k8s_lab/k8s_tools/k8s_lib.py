@@ -178,7 +178,6 @@ class K8s():
         subproc(cmds)
         return True
 
-
     def apply_custom_resources(self, custom_resource_dict_list: dict):
         """
         Does a kube apply on a custom resource dict, and retries if it fails
@@ -202,7 +201,6 @@ class K8s():
 
         # loops with progress bar until this succeeds
         simple_loading_bar(commands)
-
 
     def update_secret_key(self,
                           secret_name: str,
@@ -240,3 +238,19 @@ class K8s():
                secret_data[key] = b64enc(bytes(updated_value))
             self.delete_secret(secret_name, secret_namespace)
             self.create_secret(secret_name, secret_namespace, secret_data)
+
+    def run_k8s_cmd(self, pod_name: str, namespace: str, command: str,
+                    container: str = "") -> str:
+        """ 
+        run a given command for a given pod in a given namespace and return the result
+        """
+        print(f"Running: '{command}' on pod: {pod_name} in container {container}"
+              f" in namespace: {namespace}")
+
+        run_dict = {'name': pod_name,
+                    'namespace': namespace,
+                    'command': command}
+        if container:
+            run_dict['container'] = container
+
+        return self.core_v1_api.connect_get_namespaced_pod_exec(**run_dict)

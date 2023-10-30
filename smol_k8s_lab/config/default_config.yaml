@@ -769,7 +769,7 @@ apps:
         # additional Nextcloud apps to install via the nextcloud admin cli
         nextcloud_apps:
           # this allows you to login with other OIDC providers such as zitadel
-          - social_login
+          - sociallogin
           # kanban board
           - deck
           # notes management with markdown
