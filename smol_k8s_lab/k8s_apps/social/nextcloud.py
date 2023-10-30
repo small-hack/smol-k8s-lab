@@ -1,14 +1,17 @@
-from rich.prompt import Prompt
+# internal libraries
 from smol_k8s_lab.k8s_apps.minio import BetterMinio
+from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists)
+                                                check_if_argocd_app_exists,
+                                                wait_for_argocd_app)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
+# external libraries
 import logging as log
-from os import environ
+from rich.prompt import Prompt
 
 
 def configure_nextcloud(k8s_obj: K8s,
@@ -24,13 +27,17 @@ def configure_nextcloud(k8s_obj: K8s,
         bitwarden   - BwCLI() object with session token
         minio_obj   - BetterMinio() object with minio credentials
     """
+    # check immediately if this app is installed
     app_installed = check_if_argocd_app_exists('nextcloud')
+    # get any secret keys passed in
     secrets = config_dict['argo']['secret_keys']
     if secrets:
         nextcloud_hostname = secrets['hostname']
+    # verify if initialization is enabled
+    init_enabled = config_dict['init']['enabled']
 
     # if the user has chosen to use smol-k8s-lab initialization
-    if config_dict['init']['enabled'] and not app_installed:
+    if not app_installed and init_enabled:
         header("Setting up [green]Nextcloud[/], to self host your files",
                '🩵')
 
@@ -214,12 +221,22 @@ def configure_nextcloud(k8s_obj: K8s,
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
+
+        # optional nextcloud apps to install
+        nextcloud_apps = config_dict['init']['values']['nextcloud_apps']
+
+        if init_enabled and nextcloud_apps:
+            # make sure the web app is completely up first
+            wait_for_argocd_app("nextcloud-web-app")
+            # install any apps the user would like to install
+            nextcloud = Nextcloud(config_dict['argo']['namespace'])
+            nextcloud.install_apps(nextcloud_apps)
     else:
         log.info("nextcloud already installed 🎉")
 
         # if bitwarden and init are enabled, make sure we populate appset secret
         # plugin secret with bitwarden item IDs
-        if bitwarden and config_dict['init']['enabled']:
+        if bitwarden and init_enabled:
             log.debug("Making sure nextcloud Bitwarden item IDs are in appset "
                       "secret plugin secret")
             admin_id = bitwarden.get_item(
