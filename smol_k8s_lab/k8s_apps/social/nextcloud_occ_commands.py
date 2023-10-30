@@ -5,7 +5,8 @@ import logging as log
 
 class Nextcloud():
     """
-    nextcloud object for running common occ commands
+    nextcloud object for running common occ commands. occ ref:
+    https://docs.nextcloud.com/server/20/admin_manual/configuration_server/occ_command.html
     """
 
     def __init__(self, namespace: str = "nextcloud") -> None:
