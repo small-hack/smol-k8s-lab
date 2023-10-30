@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.tui.util import create_sanitized_list
+from smol_k8s_lab.tui.util import create_sanitized_list, bool_option
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal
@@ -12,7 +12,8 @@ ARGO_TOOLTIPS = {'repo': 'URL to a git repository where you have k8s manifests '
                  'path': 'Path in a git repo to resources you want to deploy. ' +
                          'Trailing slash is important.',
                  'ref': 'Git branch or tag to point to in the repo.',
-                 'namespace': 'Kubernetes namespace to deploy the Argo CD App in.'}
+                 'namespace': 'Kubernetes namespace to deploy the Argo CD App in.',
+                 'directory_recursion': 'Recurse each directory of the git repo'}
 
 
 class ArgoCDApplicationConfig(Static):
@@ -36,6 +37,8 @@ class ArgoCDApplicationConfig(Static):
                 "more info.")
         yield argo_app_label
 
+        directory_recursion_value = ARGO_TOOLTIPS.pop('directory_recursion')
+
         for key, value in ARGO_TOOLTIPS.items():
             input = Input(placeholder=f"Enter a {key}",
                           value=self.argo_params[key],
@@ -51,6 +54,11 @@ class ArgoCDApplicationConfig(Static):
 
             yield Horizontal(argo_label, input,
                              classes=f"{self.app_name} argo-config-row")
+
+        yield bool_option("directory_recursion",
+                          self.argo_params['directory_recursion'],
+                          "directory_recursion",
+                          directory_recursion_value)
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
