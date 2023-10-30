@@ -54,6 +54,14 @@ def configure_mastodon(k8s_obj: K8s,
 
         rake_secrets = generate_rake_secrets()
 
+        # creates the initial root credentials secret for the minio tenant
+        if secrets.get('isolated_minio_tenant_hostname', 'optional') != 'optional':
+            credentials_exports = {
+                    'config.env': f"""MINIO_ROOT_USER={s3_access_id}
+            MINIO_ROOT_PASSWORD={s3_access_key}"""}
+            k8s_obj.create_secret('default-tenant-env-config', 'mastodon',
+                                  credentials_exports)
+
         if bitwarden:
             # admin credentials
             email_obj = create_custom_field("email", email)
