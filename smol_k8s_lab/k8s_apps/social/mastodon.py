@@ -41,7 +41,7 @@ def configure_mastodon(k8s_obj: K8s,
         smtp_pass = init_values['smtp_password']
         smtp_host = init_values['smtp_host']
 
-        # configure s3 credentials if they're in use
+        # configure s3 and credentials if in use
         s3_access_id = init_values.get('s3_access_id', 'mastodon')
         s3_access_key = init_values.get('s3_access_key', '')
         s3_endpoint = secrets.get('s3_endpoint', "minio")
@@ -202,7 +202,10 @@ def configure_mastodon(k8s_obj: K8s,
                                   rake_secrets)
 
     if not app_installed:
-        install_with_argocd(k8s_obj, 'mastodon', config_dict['argo'])
+        install_with_argocd(k8s_obj=k8s_obj,
+                            app='mastodon',
+                            argo_dict=config_dict['argo']
+                            )
         if init_enabled:
             # this is because the mastodon chart is weird...
             sync_argocd_app('mastodon-web-app')
