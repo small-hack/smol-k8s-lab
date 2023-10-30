@@ -157,6 +157,16 @@ CollapsibleTitle:focus {
    padding-right: 1;
 }
 
+.argo-switch-row {
+   layout: grid;
+   height: 5;
+   grid-size: 2;
+   grid-columns: 0.5fr 1.5fr;
+   padding-bottom: 1;
+   padding-left: 2;
+   padding-right: 1;
+}
+
 .argo-config-label {
    height: 3;
    width: auto;

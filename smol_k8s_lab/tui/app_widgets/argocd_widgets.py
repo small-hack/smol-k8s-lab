@@ -1,19 +1,22 @@
 #!/usr/bin/env python3.11
-from smol_k8s_lab.tui.util import create_sanitized_list, bool_option
+from smol_k8s_lab.tui.util import create_sanitized_list
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal
 from textual.validation import Length
-from textual.widgets import Input, Label, Static
+from textual.widgets import Input, Label, Static, Switch
 
 
-ARGO_TOOLTIPS = {'repo': 'URL to a git repository where you have k8s manifests ' + \
-                         '(including Argo resources) to deploy',
-                 'path': 'Path in a git repo to resources you want to deploy. ' +
-                         'Trailing slash is important.',
-                 'ref': 'Git branch or tag to point to in the repo.',
-                 'namespace': 'Kubernetes namespace to deploy the Argo CD App in.',
-                 'directory_recursion': 'Recurse each directory of the git repo'}
+ARGO_TOOLTIPS = {
+        'repo': 'URL to a git repository where you have k8s manifests ' +
+                '(including Argo resources) to deploy',
+        'path': 'Path in a git repo to resources you want to deploy. Trailing' +
+                ' slash is important.',
+        'ref': 'Git branch or tag to point to in the repo.',
+        'namespace': 'Kubernetes namespace to deploy the Argo CD App in.',
+        'directory_recursion': 'Recurse [i]all[/i] directories of the git repo to ' +
+                               'apply any k8s manifests found in each directory.'
+        }
 
 
 class ArgoCDApplicationConfig(Static):
@@ -37,35 +40,50 @@ class ArgoCDApplicationConfig(Static):
                 "more info.")
         yield argo_app_label
 
-        directory_recursion_value = ARGO_TOOLTIPS.pop('directory_recursion')
-
+        # create a label and input row for each argo value, excedpt directory_recursion
         for key, value in ARGO_TOOLTIPS.items():
-            input = Input(placeholder=f"Enter a {key}",
-                          value=self.argo_params[key],
-                          name=key,
-                          validators=[Length(minimum=2)],
-                          id=f"{self.app_name}-{key}",
-                          classes=f"{self.app_name} argo-config-input")
-            input.validate(self.argo_params[key])
+            if key != "directory_recursion":
+                input = Input(placeholder=f"Enter a {key}",
+                              value=self.argo_params[key],
+                              name=key,
+                              validators=[Length(minimum=2)],
+                              id=f"{self.app_name}-{key}",
+                              classes=f"{self.app_name} argo-config-input")
+                input.validate(self.argo_params[key])
 
-            argo_label = Label(f"{key}:",
-                               classes=f"{self.app_name} argo-config-label")
-            argo_label.tooltip = value
+                argo_label = Label(f"{key}:", classes="argo-config-label")
+                argo_label.tooltip = value
 
-            yield Horizontal(argo_label, input,
-                             classes=f"{self.app_name} argo-config-row")
+                yield Horizontal(argo_label, input, classes="argo-config-row")
 
-        yield bool_option("directory_recursion",
-                          self.argo_params['directory_recursion'],
-                          "directory_recursion",
-                          directory_recursion_value)
+        # directory_recursion is a boolean, so we have a seperate process for it
+        bool_label = Label("directory recursion:", classes="argo-config-label")
+        bool_label.tooltip = ARGO_TOOLTIPS['directory_recursion']
+
+        switch = Switch(value=self.argo_params['directory_recursion'],
+                        classes="bool-switch-row-switch",
+                        name="directory_recursion",
+                        id=f"{self.app_name}-directory_recursion")
+        switch.tooltip = ARGO_TOOLTIPS['directory_recursion']
+
+        yield Horizontal(bool_label, switch, classes="argo-switch-row")
 
     @on(Input.Changed)
-    def update_base_yaml(self, event: Input.Changed) -> None:
+    def update_base_yaml_for_input(self, event: Input.Changed) -> None:
         input = event.input
         parent_app_yaml = self.app.cfg
 
         parent_app_yaml['apps'][self.app_name]['argo'][input.name] = input.value
+
+        self.app.write_yaml()
+
+    @on(Switch.Changed)
+    def update_base_yaml_for_switch(self, event: Switch.Changed) -> None:
+        """
+        if user changes the directory recursion value, we write that out
+        """
+        truthy = event.value
+        self.app.cfg['apps'][self.app_name]['argo']['directory_recursion'] = truthy
 
         self.app.write_yaml()
 
