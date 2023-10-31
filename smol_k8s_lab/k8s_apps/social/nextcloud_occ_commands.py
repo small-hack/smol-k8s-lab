@@ -65,7 +65,7 @@ class Nextcloud():
         # make sure the appropriate groups already exist
         self.creat_oidc_groups()
 
-        print("Configuring nextcloud Social Login app")
+        log.info("Configuring nextcloud Social Login app")
         # this is the blob used to configure the Nextcloud Social Login App
         oidc_json = dumps({
                 "custom_oidc": [{
@@ -73,7 +73,7 @@ class Nextcloud():
                     "title": "ZITADEL",
                     "authorizeUrl": f"https://{zitadel_host}/oauth/v2/authorize",
                     "tokenUrl": f"https://{zitadel_host}/oauth/v2/token",
-                    "userInfoUrl": f"https://{zitadel_host}/oauth/v2/userinfo",
+                    "userInfoUrl": f"https://{zitadel_host}/oidc/v1/userinfo",
                     "logoutUrl": "", 
                     "clientId": client_id,
                     "clientSecret": client_secret,
@@ -82,14 +82,15 @@ class Nextcloud():
                     "style": "zitadel",
                     "defaultGroup": "nextcloud_users"
                     }]
-                })
+                }).replace('"', '\\"')
 
         cmd = f" config:app:set sociallogin custom_providers --value='{oidc_json}'"
-        print(cmd)
-        res = subproc([self.occ_cmd + cmd + '"'],
+        final_command = self.occ_cmd + cmd + '"'
+        log.info(final_command)
+        res = subproc([final_command],
                       shell=True,
                       universal_newlines=True)
-        print(res)
+        log.info(res)
 
 
 # this is just for testing the above class and methods
@@ -100,5 +101,5 @@ if __name__ == '__main__':
     # nc.install_apps(apps)
     nc.configure_zitadel_social_login(
             "zitadel.buildstars.online",
-            "238520454095110175@core238520454095110175@core",
+            "238520454095110175@core",
             "gZ8JS3veB87PjfHs6dYkWAFr6PjDWu27PvNjzWPYVb1aA5hysqZV3iHhhfhuGLzY")
