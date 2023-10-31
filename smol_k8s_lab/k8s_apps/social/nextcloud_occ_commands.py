@@ -100,6 +100,6 @@ if __name__ == '__main__':
     apps = ["notes", "deck"]
     # nc.install_apps(apps)
     nc.configure_zitadel_social_login(
-            "zitadel.buildstars.online",
-            "238520454095110175@core",
-            "gZ8JS3veB87PjfHs6dYkWAFr6PjDWu27PvNjzWPYVb1aA5hysqZV3iHhhfhuGLzY")
+            "zitadel.yourdomain.com",
+            "your-app@your-project",
+            "change me to something real")
