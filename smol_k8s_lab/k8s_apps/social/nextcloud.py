@@ -101,7 +101,7 @@ def configure_nextcloud(k8s_obj: K8s,
         # configure OIDC
         if zitadel:
             log.debug("Creating a Nextcloud OIDC application in Zitadel...")
-            redirect_uris = f"https://{nextcloud_hostname}/callback"
+            redirect_uris = f"https://{nextcloud_hostname}/apps/sociallogin/custom_oidc/ZITADEL"
             logout_uris = [f"https://{nextcloud_hostname}"]
             oidc_creds = zitadel.create_application(
                     "nextcloud",
