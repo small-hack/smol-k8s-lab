@@ -716,7 +716,7 @@ apps:
     description: |
       [link=https://min.io/]MinIO®️[/link] is a high-performance, self hosted S3 compatible object store. MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
 
-      smol-k8s-lab deploys the MinIO API and Operator (admin) Console.
+      smol-k8s-lab deploys the MinIO API and Operator (admin) Console. If you set directory recursion to true, we'll also deploy a default MinIO tenant api endpoint and user console with OIDC provided by Zitadel. The api_hostname, and user_console_hostname are optional and only required if you're using the default smol-k8s-lab Argo CD apps repo to deploy the default tenant and enable directory recursion.
     init:
       enabled: true
       values:
@@ -725,8 +725,8 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        api_hostname: ""
-        user_console_hostname: ""
+        api_hostname: "optional"
+        user_console_hostname: "optional"
         admin_console_hostname: ""
         tenant_name: "myminio"
       # git repo to install the Argo CD app from
@@ -737,9 +737,9 @@ apps:
       ref: "main"
       # namespace to install the k8s app in
       namespace: "minio"
+      # recurse directories in the provided git repo to also deploy a tenant
+      directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
-      # recurse directories in the provided git repo
-      directory_recursion: False
       project:
         source_repos:
           - https://operator.min.io/
