@@ -42,14 +42,13 @@ class Nextcloud():
 
             log.info(res)
 
-    def creat_oidc_groups(self) -> None:
+    def creat_oidc_group(self) -> None:
         """
         create base nextcloud groups for use with oidc
         """
         log.info("Creating nextcloud groups: nextcloud_admins, nextcloud_users")
 
-        res = subproc([f'{self.occ_cmd} group:add nextcloud_admins"',
-                       f'{self.occ_cmd} group:add nextcloud_users"'],
+        res = subproc([f'{self.occ_cmd} group:add nextcloud_users"'],
                       shell=True,
                       universal_newlines=True)
         log.info(res)
@@ -63,24 +62,30 @@ class Nextcloud():
         ref: https://zitadel.com/blog/zitadel-as-sso-provider-for-selfhosting
         """
         # make sure the appropriate groups already exist
-        self.creat_oidc_groups()
+        self.creat_oidc_group()
 
         log.info("Configuring nextcloud Social Login app")
         # this is the blob used to configure the Nextcloud Social Login App
+
         oidc_json = dumps({
                 "custom_oidc": [{
                     "name": "ZITADEL",
                     "title": "ZITADEL",
                     "authorizeUrl": f"https://{zitadel_host}/oauth/v2/authorize",
                     "tokenUrl": f"https://{zitadel_host}/oauth/v2/token",
+                    "displayNameClaim": "preferred_username",
                     "userInfoUrl": f"https://{zitadel_host}/oidc/v1/userinfo",
                     "logoutUrl": "", 
                     "clientId": client_id,
                     "clientSecret": client_secret,
-                    "scope": "openid",
+                    "scope": "openid email profile",
                     "groupsClaim": "groups",
                     "style": "zitadel",
-                    "defaultGroup": "nextcloud_users"
+                    "defaultGroup": "",
+                    "groupMapping": {
+                        "nextcloud_admins": "admin",
+                        "nextgcloud_users": "nextcloud_users"
+                      }
                     }]
                 }).replace('"', '\\"')
 
