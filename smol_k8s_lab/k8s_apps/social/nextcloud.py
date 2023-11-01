@@ -101,7 +101,7 @@ def configure_nextcloud(k8s_obj: K8s,
         # configure OIDC
         if zitadel:
             log.debug("Creating a Nextcloud OIDC application in Zitadel...")
-            redirect_uris = f"https://{nextcloud_hostname}/apps/sociallogin/custom_oidc/ZITADEL"
+            redirect_uris = f"https://{nextcloud_hostname}/apps/oidc_login/oidc"
             logout_uris = [f"https://{nextcloud_hostname}"]
             oidc_creds = zitadel.create_application(
                     "nextcloud",
@@ -117,11 +117,16 @@ def configure_nextcloud(k8s_obj: K8s,
             sub_header("Creating secrets in Bitwarden")
 
             # create oidc credentials
-            bitwarden.create_login(
+            issuer_obj = create_custom_field("issuer",
+                                             zitadel.api_url.replace("/management/v1/",
+                                                                     "")
+                                             )
+            oidc_id = bitwarden.create_login(
                     name='nextcloud-oidc-credentials',
                     item_url=nextcloud_hostname,
                     user=oidc_creds['client_id'],
-                    password=oidc_creds['client_secret']
+                    password=oidc_creds['client_secret'],
+                    fields=[issuer_obj]
                     )
 
             # admin credentials + metrics server info token
@@ -182,6 +187,7 @@ def configure_nextcloud(k8s_obj: K8s,
             # update the nextcloud values for the argocd appset
             fields = {
                     'nextcloud_admin_credentials_bitwarden_id': admin_id,
+                    'nextcloud_oidc_credentials_bitwarden_id': oidc_id,
                     'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
                     'nextcloud_postgres_credentials_bitwarden_id': db_id,
                     'nextcloud_redis_bitwarden_id': redis_id,
@@ -257,15 +263,9 @@ def configure_nextcloud(k8s_obj: K8s,
             # make sure the web app is completely up first
             wait_for_argocd_app("nextcloud-web-app")
 
-            # install any apps the user would like to install
+            # install any apps the user passed in as an init value
             nextcloud = Nextcloud(config_dict['argo']['namespace'])
             nextcloud.install_apps(nextcloud_apps)
-
-            # configure nextcloud social login app to work with zitadel
-            zitadel_hostname = zitadel.api_url.replace("/management/v1/", "")
-            nextcloud.configure_zitadel_social_login(zitadel_hostname,
-                                                     oidc_creds['client_id'],
-                                                     oidc_creds['client_secret'])
     else:
         log.info("nextcloud already installed 🎉")
 
@@ -274,6 +274,9 @@ def configure_nextcloud(k8s_obj: K8s,
         if bitwarden and init_enabled:
             log.debug("Making sure nextcloud Bitwarden item IDs are in appset "
                       "secret plugin secret")
+            oidc_id = bitwarden.get_item(
+                    f"nextcloud-oidc-credentials-{nextcloud_hostname}"
+                    )[0]['id']
             admin_id = bitwarden.get_item(
                     f"nextcloud-admin-credentials-{nextcloud_hostname}"
                     )[0]['id']
@@ -292,6 +295,7 @@ def configure_nextcloud(k8s_obj: K8s,
 
             fields = {
                     'nextcloud_admin_credentials_bitwarden_id': admin_id,
+                    'nextcloud_oidc_credentials_bitwarden_id': oidc_id,
                     'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
                     'nextcloud_postgres_credentials_bitwarden_id': db_id,
                     'nextcloud_redis_bitwarden_id': redis_id,

@@ -334,7 +334,7 @@ class Zitadel():
         except KeyError:
             log.info(f"zitadel app, {app_name}, already exists")
 
-    def create_action(self, name: str = "") -> None:
+    def create_groups_claim_action(self, name: str = "") -> None:
         """
         create an action for zitadel. Currently only creates one kind of action,
         a group mapper action.
@@ -348,10 +348,61 @@ class Zitadel():
           "allowedToFail": True
         })
 
+        self.create_claim_action(payload)
+
+    def create_is_admin_claim(self, claim_name: str, admin_role_key: str, user_role_key: str) -> None:
+        """
+        create an action that returns claim_name based on a if a user is has either
+        an admin role key or a user role key in zitadel. We only send the claim
+        name if the user is in one of those groups
+
+        this is to return a claim name like: nextcloud_admin=True
+
+        Example generated action script:
+
+        function nextcloudAdminClaim(ctx, api) {
+          if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {
+            return;
+          }
+
+          ctx.v1.user.grants.grants.forEach(claim => {
+            if (claim.roles.includes('nextcloud_admins') {
+                api.v1.claims.setClaim('nextcloud_admin', true)
+                return;
+                }
+
+            if (claim.roles.includes('nextcloud_users') {
+                api.v1.claims.setClaim('nextcloud_admin', false)
+                return;
+                }
+            }
+        }
+        """
+        no_underscore_claim = claim_name.replace("_", "")
+        log.info(
+            f"Creating Zitadel action, {no_underscore_claim}, to return in OIDC"
+            f" responses {claim_name}=true if the user has the role "
+            f"{admin_role_key}, and {claim_name}=false if the user has the role "
+            f"{user_role_key}."
+            )
+
+        payload = dumps({
+          "name": f"{no_underscore_claim}Claim",
+          "script": "function " + no_underscore_claim + "Claim(ctx, api) {\n  if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {\n    return;\n  }\n\n  ctx.v1.user.grants.grants.forEach(claim => {\n    if (claim.roles.includes('" + admin_role_key + "') {\n        api.v1.claims.setClaim('" + claim_name + "', true)\n        return;\n        }\n\n    if (claim.roles.includes('" + user_role_key + "') {\n        api.v1.claims.setClaim('" + claim_name + "', false)\n        return;\n        }\n    }\n}\n",
+          "timeout": "10s",
+          "allowedToFail": True
+        })
+        self.create_claim_action(payload)
+
+    def create_claim_action(self, script: str = "") -> None:
+        """
+        create an action for zitadel to run before sending user info or
+        giving access token
+        """
         response = request("POST",
                            self.api_url + "actions",
                            headers=self.headers,
-                           data=payload,
+                           data=script,
                            verify=self.verify)
         log.debug(response.text)
 
