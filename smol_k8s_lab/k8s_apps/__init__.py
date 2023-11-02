@@ -207,10 +207,10 @@ def setup_federated_apps(k8s_obj: K8s,
                                     bw)
 
     if nextcloud_dict['enabled']:
-        configure_nextcloud(k8s_obj, nextcloud_dict, bw, minio_obj)
+        configure_nextcloud(k8s_obj, nextcloud_dict, bw)
 
     if mastodon_dict['enabled']:
-        configure_mastodon(k8s_obj, mastodon_dict, bw, minio_obj)
+        configure_mastodon(k8s_obj, mastodon_dict, bw)
 
     if matrix_dict['enabled']:
-        configure_matrix(k8s_obj, matrix_dict, zitadel_obj, bw, minio_obj)
+        configure_matrix(k8s_obj, matrix_dict, zitadel_obj, bw)
