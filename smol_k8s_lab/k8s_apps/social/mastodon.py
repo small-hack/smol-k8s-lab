@@ -4,7 +4,8 @@ from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.k8s_apps.social.mastodon_rake import generate_rake_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
-                                                sync_argocd_app)
+                                                sync_argocd_app,
+                                                update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
@@ -43,19 +44,21 @@ def configure_mastodon(k8s_obj: K8s,
 
         # configure s3 and credentials if in use
         s3_access_id = init_values.get('s3_access_id', 'mastodon')
-        s3_access_key = init_values.get('s3_access_key', '')
-        s3_endpoint = secrets.get('s3_endpoint', "minio")
+        s3_access_key = init_values.get('s3_access_key', create_password())
+        s3_endpoint = secrets.get('s3_endpoint', "")
         s3_bucket = secrets.get('s3_bucket', "mastodon")
+        if config_dict['argo']['directory_recursion']:
+            default_minio = True
+        else:
+            default_minio = False
+        create_minio_tenant = init_values.get('create_minio_tenant',
+                                              default_minio)
 
-        # create the bucket if the user is using minio
-        if minio_obj and s3_endpoint == "minio":
-            s3_access_key = minio_obj.create_access_credentials(s3_access_id)
-            minio_obj.create_bucket(s3_bucket, s3_access_id)
-
+        # main mastodon rake secrets
         rake_secrets = generate_rake_secrets()
 
         # creates the initial root credentials secret for the minio tenant
-        if secrets.get('isolated_minio_tenant_hostname', 'optional') != 'optional':
+        if create_minio_tenant:
             credentials_exports = {
                     'config.env': f"""MINIO_ROOT_USER={s3_access_id}
             MINIO_ROOT_PASSWORD={s3_access_key}"""}
@@ -152,28 +155,14 @@ def configure_mastodon(k8s_obj: K8s,
                     )
             
             # update the mastodon values for the argocd appset
-            fields = {
-                    'mastodon_admin_credentials_bitwarden_id': admin_id,
-                    'mastodon_smtp_credentials_bitwarden_id': smtp_id,
-                    'mastodon_postgres_credentials_bitwarden_id': db_id,
-                    'mastodon_redis_bitwarden_id': redis_id,
-                    'mastodon_s3_credentials_bitwarden_id': s3_id,
-                    'mastodon_server_secrets_bitwarden_id': secrets_id
-                    }
-            k8s_obj.update_secret_key('appset-secret-vars',
-                                      'argocd',
-                                      fields,
-                                      'secret_vars.yaml')
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/] deployment "
-                        f"in [green]argocd[/] namespace. Recieved: {e}"
-                        )
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'mastodon_admin_credentials_bitwarden_id': admin_id,
+                     'mastodon_smtp_credentials_bitwarden_id': smtp_id,
+                     'mastodon_postgres_credentials_bitwarden_id': db_id,
+                     'mastodon_redis_bitwarden_id': redis_id,
+                     'mastodon_s3_credentials_bitwarden_id': s3_id,
+                     'mastodon_server_secrets_bitwarden_id': secrets_id})
 
             # reload the bitwarden ESO provider
             try:
@@ -250,26 +239,11 @@ def configure_mastodon(k8s_obj: K8s,
                     f"mastodon-server-secrets-{mastodon_hostname}"
                     )[0]['id']
 
-            fields = {
-                    'mastodon_admin_credentials_bitwarden_id': admin_id,
-                    'mastodon_postgres_credentials_bitwarden_id': db_id,
-                    'mastodon_smtp_credentials_bitwarden_id': smtp_id,
-                    'mastodon_redis_bitwarden_id': redis_id,
-                    'mastodon_s3_credentials_bitwarden_id': s3_id,
-                    'mastodon_server_secrets_bitwarden_id': secrets_id
-                    }
-
-            k8s_obj.update_secret_key('appset-secret-vars',
-                                      'argocd',
-                                      fields,
-                                      'secret_vars.yaml')
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/] deployment "
-                        f"in [green]argocd[/] namespace. Recieved: {e}"
-                        )
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'mastodon_admin_credentials_bitwarden_id': admin_id,
+                     'mastodon_smtp_credentials_bitwarden_id': smtp_id,
+                     'mastodon_postgres_credentials_bitwarden_id': db_id,
+                     'mastodon_redis_bitwarden_id': redis_id,
+                     'mastodon_s3_credentials_bitwarden_id': s3_id,
+                     'mastodon_server_secrets_bitwarden_id': secrets_id})

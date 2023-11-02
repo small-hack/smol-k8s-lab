@@ -2,7 +2,8 @@ from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists)
+                                                check_if_argocd_app_exists,
+                                                update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
@@ -33,18 +34,27 @@ def configure_matrix(k8s_obj: K8s,
         # configure s3 credentials if they're in use
         s3_access_id = init_values.get('s3_access_id', 'matrix')
         s3_access_key = init_values.get('s3_access_key', '')
-        s3_endpoint = secrets.get('s3_endpoint', "minio")
+        s3_endpoint = secrets.get('s3_endpoint', "")
         s3_bucket = secrets.get('s3_bucket', "matrix")
+        if config_dict['argo']['directory_recursion']:
+            default_minio = True
+        else:
+            default_minio = False
+        create_minio_tenant = init_values.get('create_minio_tenant',
+                                              default_minio)
 
         # configure the smtp credentials
         smtp_user = init_values['smtp_user']
         smtp_pass = init_values['smtp_password']
         smtp_host = init_values['smtp_host']
 
-        # create the bucket if the user is using minio
-        if minio_obj and s3_endpoint == "minio":
-            s3_access_key = minio_obj.create_access_credentials(s3_access_id)
-            minio_obj.create_bucket(s3_bucket, s3_access_id)
+        # creates the initial root credentials secret for the minio tenant
+        if create_minio_tenant:
+            credentials_exports = {
+                    'config.env': f"""MINIO_ROOT_USER={s3_access_id}
+            MINIO_ROOT_PASSWORD={s3_access_key}"""}
+            k8s_obj.create_secret('default-tenant-env-config', 'mastodon',
+                                  credentials_exports)
 
         # create Matrix OIDC Application
         if zitadel:
@@ -64,11 +74,14 @@ def configure_matrix(k8s_obj: K8s,
             sub_header("Creating matrix secrets in Bitwarden")
 
             # S3 credentials
+            s3_host_obj = create_custom_field("s3Endpoint", s3_endpoint)
+            s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
             s3_id = bitwarden.create_login(
                     name='matrix-s3-credentials',
                     item_url=matrix_hostname,
                     user=s3_access_id,
-                    password=s3_access_key
+                    password=s3_access_key,
+                    fields=[s3_host_obj, s3_bucket_obj]
                     )
 
             # postgresql credentials
@@ -123,30 +136,15 @@ def configure_matrix(k8s_obj: K8s,
                         )
 
             # update the matrix values for the argocd appset
-            secret_plugin_fields = {
-                    'matrix_registration_credentials_bitwarden_id': reg_id,
-                    'matrix_smtp_credentials_bitwarden_id': smtp_id,
-                    'matrix_s3_credentials_bitwarden_id': s3_id,
-                    'matrix_postgres_credentials_bitwarden_id': db_id,
-                    'matrix_oidc_credentials_bitwarden_id': oidc_id,
-                    'matrix_idp_name': idp_name,
-                    'matrix_idp_id': idp_id
-                    }
-            k8s_obj.update_secret_key('appset-secret-vars',
-                                      'argocd',
-                                      secret_plugin_fields,
-                                      'secret_vars.yaml')
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/]"
-                        "deployment in [green]argocd[/] namespace. Recieved: "
-                        f"{e}"
-                        )
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'matrix_registration_credentials_bitwarden_id': reg_id,
+                     'matrix_smtp_credentials_bitwarden_id': smtp_id,
+                     'matrix_s3_credentials_bitwarden_id': s3_id,
+                     'matrix_postgres_credentials_bitwarden_id': db_id,
+                     'matrix_oidc_credentials_bitwarden_id': oidc_id,
+                     'matrix_idp_name': idp_name,
+                     'matrix_idp_id': idp_id})
 
             # reload the bitwarden ESO provider
             try:
@@ -210,16 +208,12 @@ def configure_matrix(k8s_obj: K8s,
                 if field['name'] == 'idp_name':
                     idp_name = field['value']
 
-            fields = {
-                    'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
-                    'matrix_idp_name': idp_name,
-                    'matrix_idp_id': idp_id,
-                    'matrix_registration_credentials_bitwarden_id': reg_id,
-                    'matrix_smtp_credentials_bitwarden_id': smtp_id,
-                    'matrix_s3_credentials_bitwarden_id': s3_id,
-                    'matrix_postgres_credentials_bitwarden_id': db_id,
-                    }
-            k8s_obj.update_secret_key('appset-secret-vars',
-                                      'argocd',
-                                      fields,
-                                      'secret_vars.yaml')
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'matrix_registration_credentials_bitwarden_id': reg_id,
+                     'matrix_smtp_credentials_bitwarden_id': smtp_id,
+                     'matrix_s3_credentials_bitwarden_id': s3_id,
+                     'matrix_postgres_credentials_bitwarden_id': db_id,
+                     'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
+                     'matrix_idp_name': idp_name,
+                     'matrix_idp_id': idp_id})

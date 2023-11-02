@@ -446,22 +446,10 @@ class BaseApp(App):
         if app in ["nextcloud", "mastodon", "matrix"]:
             access_id_env_var = "S3_ACCESS_ID"
             access_key_env_var = "S3_ACCESS_KEY"
+            use_local_minio = app_cfg['init']['values']['use_local_minio']
 
-            # currently nextcloud only supports s3 for backups
-            if app == "nextcloud":
-                backup_method = app_cfg['argo']['secret_keys']['backup_method'].lower()
-                s3_endpoint = app_cfg['argo']['secret_keys']['backup_s3_endpoint']
-                if backup_method == 's3':
-                    # add prompts for s3 access key/id if backup method is s3
-                    if access_id_env_var not in env_vars:
-                        env_vars.append(access_id_env_var)
-                    if access_key_env_var not in env_vars:
-                        env_vars.append(access_key_env_var)
-            else:
-                s3_endpoint = app_cfg['argo']['secret_keys']['s3_endpoint']
-
-            # if the endpoint is set to minio, we'll create the keys for them
-            if s3_endpoint != 'minio':
+            # if the endpoint is set to use minio, we'll create the keys for them
+            if not use_local_minio:
                 # add prompts for s3 access key/id if backup method is s3
                 if access_id_env_var not in env_vars:
                     env_vars.append(access_id_env_var)
