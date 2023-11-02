@@ -124,3 +124,34 @@ def create_argocd_project(k8s_obj: K8s,
         argocd_proj['spec']['destinations'].append(extra_namespace)
 
     k8s_obj.apply_custom_resources([argocd_proj])
+
+
+def update_argocd_appset_secret(k8s_obj: K8s, fields: dict) -> None:
+    """ 
+    pass in k8s context and dict of fields to add to the argocd appset secret
+    and reload the deployment
+    """
+    k8s_obj.update_secret_key('appset-secret-vars',
+                              'argocd',
+                              fields,
+                              'secret_vars.yaml')
+
+    # reload the argocd appset secret plugin
+    try:
+        k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+    except Exception as e:
+        log.error(
+                "Couldn't scale down the "
+                "[magenta]argocd-appset-secret-plugin[/] deployment "
+                f"in [green]argocd[/] namespace. Recieved: {e}"
+                )
+
+    # reload the bitwarden ESO provider
+    try:
+        k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+    except Exception as e:
+        log.error(
+                "Couldn't scale down the [magenta]"
+                "bitwarden-eso-provider[/] deployment in [green]"
+                f"external-secrets[/] namespace. Recieved: {e}"
+                )

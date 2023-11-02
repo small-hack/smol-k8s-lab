@@ -6,9 +6,9 @@ from ruamel.yaml import CommentedSeq
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Grid
+from textual.containers import Grid, Horizontal
 from textual.validation import Length
-from textual.widgets import Input, Label, Static, Collapsible, Button
+from textual.widgets import Input, Label, Static, Collapsible, Button, Switch
 
 
 class SmolK8sLabCollapsibleInputsWidget(Static):
@@ -55,7 +55,26 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
             self.query_one(".collapsible-updateable-grid").mount(
                     Button("➕ new field"))
 
-    def generate_row(self, key: str, value: str = "") -> Grid:
+    def generate_row(self, key: str, value: str | bool) -> Grid:
+        if key == 'create_minio_tenant':
+            return self.generate_switch_row(key, value)
+        else:
+            return self.generate_input_row(key, value)
+
+    def generate_switch_row(self, key: str, value: bool) -> Horizontal:
+        tooltip = "enable the use of a local minio tenant using the minio operator"
+        switch = Switch(value=value,
+                        classes="bool-switch-row-switch",
+                        name=key,
+                        id=f"{self.app_name}-minio-tenant")
+        switch.tooltip = tooltip
+
+        bool_label = Label("Create MinIO tenant:", classes="argo-config-label")
+        bool_label.tooltip = tooltip
+
+        yield Horizontal(bool_label, switch, classes="argo-switch-row")
+
+    def generate_input_row(self, key: str, value: str = "") -> Grid:
         """
         add a new row of keys to pass to an argocd app
         """
@@ -135,3 +154,16 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
             self.notify("\n".join(event.validation_result.failure_descriptions),
                         severity="warning",
                         title="⚠️ Input Validation Error\n")
+
+    @on(Switch.Changed)
+    def update_base_yaml_for_switch(self, event: Switch.Changed) -> None:
+        """
+        if user changes a boolean init value, we write that out
+        """
+        truthy = event.value
+        self.app.cfg['apps'][self.app_name]['init'][event.name] = truthy
+
+        if truthy and event.name == "create_minio_tenant":
+            self.app.notify("💡Make sure Argo CD directory recursion is switched on.")
+
+        self.app.write_yaml()
