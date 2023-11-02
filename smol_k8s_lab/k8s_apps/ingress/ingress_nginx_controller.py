@@ -27,6 +27,5 @@ def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str) -> None:
     else:
         release = Helm.chart(release_name='ingress-nginx',
                              chart_name='ingress-nginx/ingress-nginx',
-                             chart_version='4.8.3',
                              namespace='ingress-nginx')
         release.install()

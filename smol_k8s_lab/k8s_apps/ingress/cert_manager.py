@@ -19,7 +19,6 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> None:
     # install chart and wait
     release = Helm.chart(release_name='cert-manager',
                          chart_name='jetstack/cert-manager',
-                         chart_version="1.13.1",
                          namespace='cert-manager',
                          set_options={'installCRDs': 'true'})
     release.install(True)
