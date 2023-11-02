@@ -55,7 +55,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
             self.query_one(".collapsible-updateable-grid").mount(
                     Button("➕ new field"))
 
-    def generate_row(self, key: str, value: str | bool) -> Grid:
+    def generate_row(self, key: str, value: str | bool) -> Grid | Horizontal:
         if key == 'create_minio_tenant':
             return self.generate_switch_row(key, value)
         else:
@@ -72,7 +72,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         bool_label = Label("Create MinIO tenant:", classes="argo-config-label")
         bool_label.tooltip = tooltip
 
-        yield Horizontal(bool_label, switch, classes="argo-switch-row")
+        return Horizontal(bool_label, switch, classes="argo-switch-row")
 
     def generate_input_row(self, key: str, value: str = "") -> Grid:
         """
@@ -162,8 +162,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         """
         truthy = event.value
         self.app.cfg['apps'][self.app_name]['init'][event.name] = truthy
+        self.app.write_yaml()
 
         if truthy and event.name == "create_minio_tenant":
             self.app.notify("💡Make sure Argo CD directory recursion is switched on.")
-
-        self.app.write_yaml()
