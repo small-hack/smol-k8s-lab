@@ -161,8 +161,8 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         if user changes a boolean init value, we write that out
         """
         truthy = event.value
-        self.app.cfg['apps'][self.app_name]['init'][event.name] = truthy
+        self.app.cfg['apps'][self.app_name]['init'][event.switch.name] = truthy
         self.app.write_yaml()
 
-        if truthy and event.name == "create_minio_tenant":
+        if truthy and event.switch.name == "create_minio_tenant":
             self.app.notify("💡Make sure Argo CD directory recursion is switched on.")
