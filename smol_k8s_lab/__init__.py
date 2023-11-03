@@ -249,7 +249,7 @@ def main(config: str = "",
 
         # minio, our local s3 provider, is essential for creating buckets
         minio_operator = apps.get('minio_operator', {})
-        if minio_operator:
+        if minio_operator and minio_operator.get('enabled', False):
             configure_minio_operator(k8s_obj, minio_operator)
 
         oidc_obj = setup_oidc_provider(
@@ -263,7 +263,7 @@ def main(config: str = "",
 
         # we support creating a default minio tenant with oidc enabled
         minio_tenant = apps.get('minio_tenant', {})
-        if minio_tenant:
+        if minio_tenant and minio_tenant.get('enabled', False):
             configure_minio_tenant(k8s_obj,
                                    minio_tenant,
                                    api_tls_verify,
