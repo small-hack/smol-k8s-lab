@@ -219,7 +219,7 @@ def initialize_zitadel(k8s_obj: K8s,
     zitadel.create_project(project_name)
 
     log.info("Creating a groups Zitadel Action (sends group info to Argo CD)")
-    zitadel.create_action("groupsClaim")
+    zitadel.create_groups_claim_action()
 
     # create Argo CD OIDC Application
     log.info("Creating an Argo CD application...")

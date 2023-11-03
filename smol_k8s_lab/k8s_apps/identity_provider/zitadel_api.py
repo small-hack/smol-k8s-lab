@@ -334,7 +334,7 @@ class Zitadel():
         except KeyError:
             log.info(f"zitadel app, {app_name}, already exists")
 
-    def create_groups_claim_action(self, name: str = "") -> None:
+    def create_groups_claim_action(self) -> None:
         """
         create an action for zitadel. Currently only creates one kind of action,
         a group mapper action.
