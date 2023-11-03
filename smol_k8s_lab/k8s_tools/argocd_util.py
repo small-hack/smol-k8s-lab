@@ -29,7 +29,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     """
     repo = argo_dict['repo']
     path = argo_dict['path']
-    ref = argo_dict['ref']
+    revision = argo_dict['revision']
     app_namespace = argo_dict['namespace']
     proj_namespaces = argo_dict['project']['destination']['namespaces']
     proj_namespaces.append(app_namespace)
@@ -51,7 +51,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
            f"--path {path} "
-           f"--revision {ref} "
+           f"--revision {revision} "
            "--sync-policy automated "
            "--sync-option ApplyOutOfSyncOnly=true "
            "--self-heal "

@@ -51,7 +51,7 @@ class AddAppInput(Static):
                 "secret_keys": {},
                 "repo": "",
                 "path": "",
-                "ref": "",
+                "revision": "",
                 "namespace": "",
                 "project": {
                     "source_repos": [""],
