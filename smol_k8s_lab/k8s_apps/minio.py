@@ -357,6 +357,6 @@ def configure_minio_operator(k8s_obj: K8s,
     if not check_if_argocd_app_exists('minio-operator'):
         # actual installation of the minio app
         install_with_argocd(k8s_obj,
-                            minio_config['argo']['namespace'],
+                            'minio',
                             minio_config['argo'])
         wait_for_argocd_app('minio-operator')
