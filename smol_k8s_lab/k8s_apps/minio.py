@@ -33,63 +33,65 @@ def configure_minio(k8s_obj: K8s,
     argo_app_exists = check_if_argocd_app_exists('minio')
     secrets = minio_config['argo']['secret_keys']
     if secrets:
-        minio_hostname = secrets['api_hostname']
-        minio_user_console_hostname = secrets['user_console_hostname']
+        minio_hostname = secrets.get('api_hostname', "")
+        minio_user_console_hostname = secrets.get('user_console_hostname', "")
+
+    # if the app already exists and bitwarden is enabled return the credentials
+    if minio_init_enabled and argo_app_exists:
+        if bitwarden:
+            res = bitwarden.get_item(
+                    f'minio-tenant-root-credentials-{minio_hostname}')
+            access_key = minio_config['init']['values']['root_user']
+            secret_key = res[0]['login']['password']
+            return BetterMinio('minio-root', minio_hostname, access_key, secret_key)
+        # if app already exists but bitwarden is not enabled, return None
+        return
 
     # if the user has enabled smol_k8s_lab init, we create an initial user
     if minio_init_enabled and not argo_app_exists:
-        access_key = minio_config['init']['values']['root_user']
-
-        # if the app already exists and bitwarden is enabled return the credentials
-        if argo_app_exists:
-            if bitwarden:
-                res = bitwarden.get_item(
-                        f'minio-tenant-root-credentials-{minio_hostname}')
-                secret_key = res[0]['login']['password']
-                return BetterMinio('minio-root', minio_hostname, access_key, secret_key)
-            # if app already exists but bitwarden is not enabled, return None
-            return
-
-        secret_key = create_password()
         # the namespace probably doesn't exist yet, so we try to create it
         k8s_obj.create_namespace('minio')
 
         # create minio OIDC Application
-        log.info("Creating a MinIO OIDC application via Zitadel...")
-        redirect_uris = f"https://{minio_user_console_hostname}/oauth_callback"
-        logout_uris = [f"https://{minio_user_console_hostname}/login"]
-        minio_dict = zitadel.create_application("minio",
-                                                redirect_uris,
-                                                logout_uris)
-        zitadel.create_role("minio_users", "MinIO Users", "minio_users")
-        zitadel.create_role("minio_admins", "MinIO Administrators", "minio_admins")
-        zitadel.update_user_grant(['minio_users', 'minio_admins'])
+        if zitadel and minio_config['argo']['directory_recursion']:
+            access_key = minio_config['init']['values']['root_user']
+            secret_key = create_password()
 
-        # creates the initial root credentials secret for the minio tenant
-        credentials_exports = {
-                'config.env': f"""MINIO_ROOT_USER={access_key}
-        MINIO_ROOT_PASSWORD={secret_key}
-        MINIO_IDENTITY_OPENID_CONFIG_URL=https://{zitadel_hostname}/.well-known/openid-configuration
-        MINIO_IDENTITY_OPENID_CLIENT_ID={minio_dict['client_id']}
-        MINIO_IDENTITY_OPENID_CLIENT_SECRET={minio_dict['client_secret']}
-        MINIO_IDENTITY_OPENID_DISPLAY_NAME=zitadel
-        MINIO_IDENTITY_OPENID_COMMENT="zitadelOIDC"
-        MINIO_IDENTITY_OPENID_SCOPES="openid,email,groups"
-        MINIO_IDENTITY_OPENID_CLAIM_NAME=groups
-        MINIO_IDENTITY_OPENID_REDIRECT_URI={redirect_uris[0]}
-                               """}
-        k8s_obj.create_secret('default-tenant-env-config', 'minio',
-                              credentials_exports)
+            log.info("Creating a MinIO OIDC application via Zitadel...")
+            redirect_uris = f"https://{minio_user_console_hostname}/oauth_callback"
+            logout_uris = [f"https://{minio_user_console_hostname}/login"]
+            minio_dict = zitadel.create_application("minio",
+                                                    redirect_uris,
+                                                    logout_uris)
+            zitadel.create_role("minio_users", "MinIO Users", "minio_users")
+            zitadel.create_role("minio_admins", "MinIO Administrators", "minio_admins")
+            zitadel.update_user_grant(['minio_users', 'minio_admins'])
 
-        if bitwarden:
-            log.info("Creating MinIO root credentials in Bitwarden")
-            # admin credentials + metrics server info token
-            bitwarden.create_login(
-                    name='minio-tenant-root-credentials',
-                    item_url=minio_hostname,
-                    user=access_key,
-                    password=secret_key
-                    )
+            # creates the initial root credentials secret for the minio tenant
+            credentials_exports = {
+                    'config.env': f"""MINIO_ROOT_USER={access_key}
+            MINIO_ROOT_PASSWORD={secret_key}
+            MINIO_IDENTITY_OPENID_CONFIG_URL=https://{zitadel_hostname}/.well-known/openid-configuration
+            MINIO_IDENTITY_OPENID_CLIENT_ID={minio_dict['client_id']}
+            MINIO_IDENTITY_OPENID_CLIENT_SECRET={minio_dict['client_secret']}
+            MINIO_IDENTITY_OPENID_DISPLAY_NAME=zitadel
+            MINIO_IDENTITY_OPENID_COMMENT="zitadelOIDC"
+            MINIO_IDENTITY_OPENID_SCOPES="openid,email,groups"
+            MINIO_IDENTITY_OPENID_CLAIM_NAME=groups
+            MINIO_IDENTITY_OPENID_REDIRECT_URI={redirect_uris[0]}
+                                   """}
+            k8s_obj.create_secret('default-tenant-env-config', 'minio',
+                                  credentials_exports)
+
+            if bitwarden:
+                log.info("Creating MinIO root credentials in Bitwarden")
+                # admin credentials + metrics server info token
+                bitwarden.create_login(
+                        name='minio-tenant-root-credentials',
+                        item_url=minio_hostname,
+                        user=access_key,
+                        password=secret_key
+                        )
 
     if not argo_app_exists:
         # actual installation of the minio app
@@ -142,11 +144,13 @@ def configure_minio(k8s_obj: K8s,
         # make sure the app is up before returning
         wait_for_argocd_app('minio')
 
-        # immediately create an admin and readonly policy
-        minio_obj = BetterMinio('minio-root', minio_hostname, access_key, secret_key)
-        # so that zitadel groups names match up with minio policy names
-        minio_obj.create_admin_group_policy()
-        minio_obj.create_read_user_group_policy()
+        if minio_init_enabled:
+            # immediately create an admin and readonly policy
+            minio_obj = BetterMinio('minio-root', minio_hostname,
+                                    access_key, secret_key)
+            # so that zitadel groups names match up with minio policy names
+            minio_obj.create_admin_group_policy()
+            minio_obj.create_read_user_group_policy()
 
     else:
         if minio_init_enabled:
