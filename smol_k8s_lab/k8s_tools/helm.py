@@ -18,7 +18,7 @@ from shutil import which
 # these are the URLs of each manually installed helm chart, so that the appset matches
 APPSET_URLS = {
         "argo-cd": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/argocd/argocd_argocd_appset.yaml",
-        "argocd-appset-secret-plugin": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/argocd/appset_secret_plugin_generator_argocd_app.yaml",
+        "argocd-appset-secret-plugin": "https://raw.githubusercontent.com/small-hack/argocd-apps/eso-helm-chart-test/argocd/appset_secret_plugin_generator_argocd_app.yaml",
         "cert-manager": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/cert-manager/cert-manager_argocd_app.yaml",
         "ingress-nginx": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/ingress-nginx/ingress-nginx_argocd_app.yaml",
         "cilium": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/alpha/cilium/cilium_argocd_appset.yaml"
@@ -138,9 +138,20 @@ class Helm:
             """
             go get the version of the helm chart installed by the live appset
             """
+            # get the contents of the remote url
+            res = requests.get(APPSET_URLS[self.release_name]).text
+
+            # use the ruamel.yaml library to load the yaml
             yaml = YAML()
-            obj = yaml.load(requests.get(APPSET_URLS[self.release_name]))
-            return obj['spec']['template']['spec']['source']['targetRevision']
+            obj = yaml.load(res)
+
+            # this is an app
+            if obj['Kind'] == "Application":
+                return obj['spec']['source']['targetRevision']
+            # this is an appset
+            else:
+                # return the current version of the app
+                return obj['spec']['template']['spec']['source']['targetRevision']
 
         def uninstall(self):
             """
