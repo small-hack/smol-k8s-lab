@@ -42,6 +42,7 @@ def configure_nextcloud(k8s_obj: K8s,
 
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
+        k8s_obj.create_namespace(config_dict['argo']['namespace'])
         header("Setting up [green]Nextcloud[/], to self host your files",
                '🩵')
 
@@ -88,7 +89,8 @@ def configure_nextcloud(k8s_obj: K8s,
             credentials_exports = {
                     'config.env': f"""MINIO_ROOT_USER={s3_access_id}
             MINIO_ROOT_PASSWORD={s3_access_key}"""}
-            k8s_obj.create_secret('default-tenant-env-config', 'nextcloud',
+            k8s_obj.create_secret('default-tenant-env-config',
+                                  config_dict['argo']['namespace'],
                                   credentials_exports)
 
         # configure OIDC
