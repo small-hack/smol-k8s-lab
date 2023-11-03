@@ -166,12 +166,13 @@ def configure_nextcloud(k8s_obj: K8s,
 
             # s3 credentials creation
             bucket_obj = create_custom_field('bucket', s3_bucket)
+            encryption_obj = create_custom_field('encryption_key', create_password)
             s3_id = bitwarden.create_login(
                     name='nextcloud-s3-credentials',
                     item_url=s3_endpoint,
                     user=s3_access_id,
                     password=s3_access_key,
-                    fields=[bucket_obj]
+                    fields=[bucket_obj, encryption_obj]
                     )
 
             # update the nextcloud values for the argocd appset
@@ -212,9 +213,11 @@ def configure_nextcloud(k8s_obj: K8s,
                                   {"password": nextcloud_redis_password})
 
             # s3 credentials creation
+            encryption_key = create_password()
             k8s_obj.create_secret('nextcloud-s3-credentials', 'nextcloud',
-                                  {"username": s3_access_id,
-                                   "password": s3_access_key})
+                                  {"S3_USER": s3_access_id,
+                                   "S3_PASSWORD": s3_access_key,
+                                   "S3_ENCRYPTION_KEY": encryption_key})
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
