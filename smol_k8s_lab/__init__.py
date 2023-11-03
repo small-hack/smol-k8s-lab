@@ -299,21 +299,21 @@ def main(config: str = "",
         final_msg += ("\n🦑 Argo CD, your k8s apps console:\n"
                       f"[blue][link]https://{argocd_fqdn}[/][/]\n")
 
-    if minio_hostname:
-        final_msg += ("\n🦩 Minio tenant (user) console, for your s3 storage:\n"
-                      f"[blue][link]https://{minio_hostname}[/][/]\n")
+        if minio_hostname:
+            final_msg += ("\n🦩 Minio tenant (user) console, for your s3 storage:"
+                          f"\n[blue][link]https://{minio_hostname}[/][/]\n")
 
-    if nextcloud_hostname:
-        final_msg += ("\n☁️ Nextcloud, for your worksuite:\n"
-                      f"[blue][link]https://{nextcloud_hostname}[/][/]\n")
+        if nextcloud_hostname:
+            final_msg += ("\n☁️ Nextcloud, for your worksuite:\n"
+                          f"[blue][link]https://{nextcloud_hostname}[/][/]\n")
 
-    if mastodon_hostname:
-        final_msg += ("\n🐘 Mastodon, for your social media:\n"
-                      f"[blue][link]https://{mastodon_hostname}[/][/]\n")
+        if mastodon_hostname:
+            final_msg += ("\n🐘 Mastodon, for your social media:\n"
+                          f"[blue][link]https://{mastodon_hostname}[/][/]\n")
 
-    if matrix_hostname:
-        final_msg += ("\n🗣️ Matrix, for your chat:\n"
-                      f"[blue][link]https://{matrix_hostname}[/][/]\n")
+        if matrix_hostname:
+            final_msg += ("\n🗣️ Matrix, for your chat:\n"
+                          f"[blue][link]https://{matrix_hostname}[/][/]\n")
 
     CONSOLE.print(Panel(final_msg,
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
