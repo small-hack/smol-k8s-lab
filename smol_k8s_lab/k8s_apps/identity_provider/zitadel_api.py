@@ -38,7 +38,6 @@ class Zitadel():
         # then get the token
         self.api_token = self.generate_token(hostname, service_account_key_obj)
 
-        # 'Content-Type': 'application/x-www-form-urlencoded',
         self.headers = {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -56,11 +55,13 @@ class Zitadel():
         while True:
             log.debug("checking if api is up by querying the healthz endpoint")
             res = request("GET", f"{self.api_url}healthz", verify=self.verify)
+
             if res.status_code == 200:
                 log.info("Zitadel API is up now :)")
                 break
             else:
                 log.debug("Zitadel API is not yet up")
+
         return True
 
     def generate_token(self, hostname: str = "", secret_blob: dict = {}) -> str:
@@ -94,11 +95,15 @@ class Zitadel():
 
         # actual creation of API token
         log.info("Requesting an API token from zitadel...")
+
         scopes = 'openid profile email urn:zitadel:iam:org:project:id:zitadel:aud'
+
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
         payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                    'scope': scopes,
                    'assertion': encoded}
+
         res = request("POST", f"https://{hostname}/oauth/v2/token",
                       headers=headers, data=payload, verify=self.verify)
         log.debug(f"res is {res}")
@@ -129,9 +134,15 @@ class Zitadel():
               "privateLabelingSetting": "PRIVATE_LABELING_SETTING_UNSPECIFIED"
             })
 
-        response = request("POST", self.api_url + "projects",
-                           headers=self.headers, data=payload, verify=self.verify)
+        response = request(
+                "POST",
+                self.api_url + "projects",
+                headers=self.headers,
+                data=payload,
+                verify=self.verify
+                )
         log.info(response.text)
+
         json_blob = response.json()
         self.project_id = json_blob['id']
         self.resource_owner = json_blob['details']['resourceOwner']
@@ -339,8 +350,6 @@ class Zitadel():
         create an action for zitadel. Currently only creates one kind of action,
         a group mapper action.
         """
-        log.info("Creating action...")
-
         payload = dumps({
           "name": "groupsClaim",
           "script": "function groupsClaim(ctx, api) {\n  if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {\n    return;\n  }\n  let grants = [];\n  ctx.v1.user.grants.grants.forEach(claim => {\n    claim.roles.forEach(role => {\n      grants.push(role)\n    })\n  })\n  api.v1.claims.setClaim('groups', grants)\n}",
@@ -399,6 +408,7 @@ class Zitadel():
         create an action for zitadel to run before sending user info or
         giving access token
         """
+        log.info("Creating action...")
         response = request("POST",
                            self.api_url + "actions",
                            headers=self.headers,
