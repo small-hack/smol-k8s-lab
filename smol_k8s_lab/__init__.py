@@ -24,7 +24,8 @@ from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_apps.argocd import configure_argocd
-from .k8s_apps.minio import configure_minio_operator, configure_minio_tenant
+from .k8s_apps.minio import configure_minio_tenant
+from .k8s_apps.operators import setup_operators
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd, check_if_argocd_app_exists
 from .tui import launch_config_tui
@@ -247,11 +248,13 @@ def main(config: str = "",
         else:
             api_tls_verify = True
 
-        # minio, our local s3 provider, is essential for creating buckets
-        minio_operator = apps.get('minio_operator', {})
-        if minio_operator and minio_operator.get('enabled', False):
-            configure_minio_operator(k8s_obj, minio_operator)
+        # Setup minio, our local s3 provider, is essential for creating buckets
+        # and cnpg operator, our postgresql operator for creating postgres clusters
+        setup_operators(k8s_obj,
+                        apps.pop('minio_operator'),
+                        apps.pop('cnpg_operator'))
 
+        # setup OIDC for securing all endpoints with SSO
         oidc_obj = setup_oidc_provider(
                 k8s_obj,
                 api_tls_verify,

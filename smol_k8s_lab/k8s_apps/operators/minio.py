@@ -346,9 +346,7 @@ def configure_minio_tenant(k8s_obj: K8s,
                                secret_key)
 
 
-def configure_minio_operator(k8s_obj: K8s,
-                             minio_config: dict,
-                             secure: bool = True) -> None:
+def configure_minio_operator(k8s_obj: K8s, minio_config: dict) -> None:
     """
     setup the MinIO operator as an Argo CD Application
     """
