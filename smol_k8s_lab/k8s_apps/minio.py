@@ -174,7 +174,6 @@ class BetterMinio:
         log.info("Created minio_read only user policy for use with OIDC")
 
 
-
 def configure_minio_tenant(k8s_obj: K8s,
                            minio_config: dict,
                            secure: bool = True,
