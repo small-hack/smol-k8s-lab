@@ -24,8 +24,8 @@ from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_apps.argocd import configure_argocd
-from .k8s_apps.minio import configure_minio_tenant
 from .k8s_apps.operators import setup_operators
+from .k8s_apps.operators.minio import configure_minio_tenant
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd, check_if_argocd_app_exists
 from .tui import launch_config_tui
@@ -264,16 +264,6 @@ def main(config: str = "",
                 argocd_fqdn
                 )
 
-        # we support creating a default minio tenant with oidc enabled
-        minio_tenant = apps.get('minio_tenant', {})
-        if minio_tenant and minio_tenant.get('enabled', False):
-            configure_minio_tenant(k8s_obj,
-                                   minio_tenant,
-                                   api_tls_verify,
-                                   zitadel_hostname,
-                                   oidc_obj,
-                                   bw)
-
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
@@ -284,6 +274,17 @@ def main(config: str = "",
                 oidc_obj,
                 bw
                 )
+
+        # we support creating a default minio tenant with oidc enabled
+        # we set it up here in case other apps rely on it
+        minio_tenant_config = apps.pop('minio_tenant')
+        if minio_tenant_config and minio_tenant_config.get('enabled', False):
+            configure_minio_tenant(k8s_obj,
+                                   minio_tenant_config,
+                                   api_tls_verify,
+                                   zitadel_hostname,
+                                   oidc_obj,
+                                   bw)
 
         # after argocd, zitadel, bweso, and vouch are up, we install all apps
         # as Argo CD Applications
