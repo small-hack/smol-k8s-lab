@@ -340,7 +340,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: postgres/operators/cloud-native-postgres/
       # either the branch or tag to point at in the argo repo above
-      ref: main
+      revision: main
       # namespace to install the k8s app in
       namespace: cnpg-system
       # recurse directories in the provided git repo
