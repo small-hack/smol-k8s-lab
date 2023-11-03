@@ -132,4 +132,4 @@ def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
         release.install(True)
     else:
         log.info("Reloading deployment for Argo CD Appset Secret Plugin")
-        k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+        k8s_obj.reload_deployment('appset-secret-plugin', 'argocd')
