@@ -326,7 +326,7 @@ apps:
             - argocd
             - cilium
 
-  cnpg-operator:
+  cnpg_operator:
     description: |
       CloudNative PostgeSQL Operator for Kubernetes. This lets you create an
       manage many clusters of postgresql, including backups to s3.
@@ -982,9 +982,9 @@ apps:
         last_name: ""
         # options: GENDER_UNSPECIFIED, GENDER_MALE, GENDER_FEMALE, GENDER_DIVERSE
         # more coming soon, see: https://github.com/zitadel/zitadel/issues/6355
-        gender: "GENDER_UNSPECIFIED"
+        gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
-        project: "core"
+        project: core
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -1007,10 +1007,10 @@ apps:
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
-          - "https://charts.zitadel.com"
-          - "https://zitadel.github.io/zitadel-charts"
-          - "https://charts.cockroachdb.com/"
-          - "registry-1.docker.io"
+          - https://charts.zitadel.com
+          - https://zitadel.github.io/zitadel-charts
+          - https://charts.cockroachdb.com/
+          - registry-1.docker.io
           - https://cloudnative-pg.github.io/charts
         destination:
           namespaces:
