@@ -326,6 +326,34 @@ apps:
             - argocd
             - cilium
 
+  cnpg-operator:
+    description: |
+      CloudNative PostgeSQL Operator for Kubernetes. This lets you create an
+      manage many clusters of postgresql, including backups to s3.
+    # default disabled while a helm chart is being actively developed
+    enabled: true
+    argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: postgres/operators/cloud-native-postgres/
+      # either the branch or tag to point at in the argo repo above
+      ref: main
+      # namespace to install the k8s app in
+      namespace: cnpg-system
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+        - https://github.com/small-hack/argocd-apps
+        - https://cloudnative-pg.github.io/charts
+        destination:
+          namespaces:
+          - argocd
+
   external_secrets_operator:
     enabled: true
     description: |
@@ -598,21 +626,23 @@ apps:
         # bucket is for your images and other assets
         s3_bucket: "mastodon"
       # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
+      repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: "mastodon/app_of_apps/"
+      path: mastodon/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
-      namespace: "mastodon"
+      namespace: mastodon
       # recurse directories in the git repo - set to true to use the minio
       # operator to create an isolated S3 tenant for mastodon
       directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
-          - "registry-1.docker.io"
-          - "https://jessebot.github.io/mastodon-helm-chart"
+          - registry-1.docker.io
+          - https://jessebot.github.io/mastodon-helm-chart
+          - https://operator.min.io/
+          - https://cloudnative-pg.github.io/charts
         destination:
           namespaces:
             - argocd
@@ -669,6 +699,7 @@ apps:
         source_repos:
           - "registry-1.docker.io"
           - "https://jessebot.github.io/matrix-chart"
+          - https://operator.min.io/
         destination:
           namespaces:
             - argocd
@@ -834,6 +865,7 @@ apps:
           - registry-1.docker.io
           - https://nextcloud.github.io/helm
           - https://operator.min.io/
+          - https://cloudnative-pg.github.io/charts
         destination:
           namespaces:
             - argocd
@@ -979,6 +1011,7 @@ apps:
           - "https://zitadel.github.io/zitadel-charts"
           - "https://charts.cockroachdb.com/"
           - "registry-1.docker.io"
+          - https://cloudnative-pg.github.io/charts
         destination:
           namespaces:
             - argocd
