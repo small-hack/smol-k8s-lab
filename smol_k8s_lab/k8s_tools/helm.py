@@ -146,7 +146,7 @@ class Helm:
             obj = yaml.load(res)
 
             # this is an app
-            if obj['Kind'] == "Application":
+            if obj['kind'] == "Application":
                 return obj['spec']['source']['targetRevision']
             # this is an appset
             else:
