@@ -24,10 +24,15 @@ def configure_metallb(k8s_obj: K8s, address_pool: list = []) -> None:
     an IPaddressPool and L2Advertisement. If address_pool is not passed in or
     is "", then we don't create IPaddressPool or L2Advertisement
     """
-    yaml = YAML()
+    # get live metallb version to use
     appset_url = ("https://raw.githubusercontent.com/small-hack/argocd-apps"
-                  "/main/argocd/metallb/metallb_argocd_app.yaml")
-    obj = yaml.load(requests.get(appset_url))
+                  "/main/metallb/metallb_argocd_app.yaml")
+    res = requests.get(appset_url).text
+
+    # load the yaml file we just downloaded into memory as a dict object
+    yaml = YAML()
+    obj = yaml.load(res)
+
     # version of metallb to install
     version =  obj['spec']['source']['targetRevision']
 
