@@ -147,14 +147,14 @@ class BwCLI():
         """
         generate a new password. Takes special_characters bool.
         """
-        log.info('Generating a new password...')
+        log.debug('Generating a new password...')
 
         command = "bw generate --length 32 --uppercase --lowercase --number"
         if special_characters:
             command += " --special"
 
         password = subproc([command], quiet=True)
-        log.info('New password generated.')
+        log.debug('New password generated.')
         return password
 
     def get_item(self, item_name: str) -> list:
