@@ -321,7 +321,7 @@ def configure_minio_tenant(k8s_obj: K8s,
                 dump(minio_cfg_obj, minio_config_contents)
 
         # make sure the app is up before returning
-        wait_for_argocd_app('minio')
+        wait_for_argocd_app('minio-tenant')
 
         if minio_init_enabled:
             # immediately create an admin and readonly policy
@@ -354,9 +354,9 @@ def configure_minio_operator(k8s_obj: K8s,
     setup the MinIO operator as an Argo CD Application
     """
     # check if minio is using smol_k8s_lab init and if already present in Argo CD
-    if not check_if_argocd_app_exists('minio'):
+    if not check_if_argocd_app_exists('minio-operator'):
         # actual installation of the minio app
         install_with_argocd(k8s_obj,
                             minio_config['argo']['namespace'],
                             minio_config['argo'])
-        wait_for_argocd_app('minio')
+        wait_for_argocd_app('minio-operator')
