@@ -24,6 +24,7 @@ from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_apps.argocd import configure_argocd
+from .k8s_apps.minio import configure_minio_operator, configure_minio_tenant
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .k8s_tools.argocd_util import install_with_argocd, check_if_argocd_app_exists
 from .tui import launch_config_tui
@@ -222,7 +223,8 @@ def main(config: str = "",
         # user can configure special domains that we print at the end
         argocd_fqdn = SECRETS['argo_cd_hostname']
         matrix_hostname = SECRETS.get('matrix_hostname', "")
-        minio_hostname = SECRETS.get('minio_user_console_hostname', "")
+        minio_admin_hostname = SECRETS.get('minio_admin_console_hostname', "")
+        minio_tenant_hostname = SECRETS.get('minio_user_console_hostname', "")
         mastodon_hostname = SECRETS.get('mastodon_hostname', "")
         nextcloud_hostname = SECRETS.get('nextcloud_hostname', "")
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
@@ -245,6 +247,11 @@ def main(config: str = "",
         else:
             api_tls_verify = True
 
+        # minio, our local s3 provider, is essential for creating buckets
+        minio_operator = apps.get('minio_operator', {})
+        if minio_operator:
+            configure_minio_operator(k8s_obj, minio_operator)
+
         oidc_obj = setup_oidc_provider(
                 k8s_obj,
                 api_tls_verify,
@@ -254,10 +261,19 @@ def main(config: str = "",
                 argocd_fqdn
                 )
 
+        # we support creating a default minio tenant with oidc enabled
+        minio_tenant = apps.get('minio_tenant', {})
+        if minio_tenant:
+            configure_minio_tenant(k8s_obj,
+                                   minio_tenant,
+                                   api_tls_verify,
+                                   zitadel_hostname,
+                                   oidc_obj,
+                                   bw)
+
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
-                apps.pop('minio'),
                 apps.pop('nextcloud'),
                 apps.pop('mastodon'),
                 apps.pop('matrix'),
@@ -299,9 +315,13 @@ def main(config: str = "",
         final_msg += ("\n🦑 Argo CD, your k8s apps console:\n"
                       f"[blue][link]https://{argocd_fqdn}[/][/]\n")
 
-        if minio_hostname:
-            final_msg += ("\n🦩 Minio tenant (user) console, for your s3 storage:"
-                          f"\n[blue][link]https://{minio_hostname}[/][/]\n")
+        if minio_admin_hostname:
+            final_msg += ("\n🦩 Minio operator admin console, for your s3 storage:"
+                          f"\n[blue][link]https://{minio_admin_hostname}[/][/]\n")
+
+        if minio_tenant_hostname:
+            final_msg += ("\n🪿 Minio user console, for your s3 storage:"
+                          f"\n[blue][link]https://{minio_tenant_hostname}[/][/]\n")
 
         if nextcloud_hostname:
             final_msg += ("\n☁️ Nextcloud, for your worksuite:\n"

@@ -18,7 +18,6 @@ from .ingress.cert_manager import configure_cert_manager
 from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.zitadel_api import Zitadel
 from .identity_provider.vouch import configure_vouch
-from .minio import configure_minio
 from .networking.metallb import configure_metallb
 from .networking.cilium import configure_cilium
 from .secrets_management.external_secrets_operator import configure_external_secrets
@@ -187,7 +186,6 @@ def setup_base_apps(k8s_obj: K8s,
 
 def setup_federated_apps(k8s_obj: K8s,
                          api_tls_verify: bool = False,
-                         minio_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
                          matrix_dict: dict = {},
@@ -195,17 +193,8 @@ def setup_federated_apps(k8s_obj: K8s,
                          zitadel_obj: Zitadel = None,
                          bw: BwCLI = None) -> None:
     """
-    Setup MinIO and then any federated apps with initialization supported
+    Setup any federated apps with initialization supported
     """
-    if minio_dict['enabled']:
-        # returns a BetterMinio obj with a client and admin client ready to go
-        minio_obj = configure_minio(k8s_obj,
-                                    minio_dict,
-                                    api_tls_verify,
-                                    zitadel_hostname,
-                                    zitadel_obj,
-                                    bw)
-
     if nextcloud_dict['enabled']:
         configure_nextcloud(k8s_obj, nextcloud_dict, bw)
 
