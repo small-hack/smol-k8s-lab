@@ -168,7 +168,7 @@ def configure_nextcloud(k8s_obj: K8s,
 
             # s3 credentials creation
             bucket_obj = create_custom_field('bucket', s3_bucket)
-            encryption_obj = create_custom_field('encryption_key', create_password)
+            encryption_obj = create_custom_field('encryption_key', create_password())
             s3_id = bitwarden.create_login(
                     name='nextcloud-s3-credentials',
                     item_url=s3_endpoint,
