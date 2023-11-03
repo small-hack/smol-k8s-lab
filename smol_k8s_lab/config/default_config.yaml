@@ -720,10 +720,12 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        admin_console_hostname: ""
+        # the following three parameters are only needed if you use
+        # directory_recursion: true which will deploy a default minio tenant
+        tenant_name: "myminiotenant"
         api_hostname: "optional"
         user_console_hostname: "optional"
-        admin_console_hostname: ""
-        tenant_name: "myminio"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
