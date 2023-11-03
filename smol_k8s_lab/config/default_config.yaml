@@ -160,7 +160,7 @@ apps:
       # change to argocd/argocd to not use app of apps with secret plugin
       path: "argocd/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "argocd"
       # recurse directories in the provided git repo
@@ -203,7 +203,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "argocd/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "argocd"
       # recurse directories in the provided git repo
@@ -236,7 +236,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "external-secrets-operator/bitwarden"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "external-secrets"
       # recurse directories in the provided git repo
@@ -280,7 +280,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "cert-manager"
       # recurse directories in the provided git repo
@@ -312,7 +312,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "alpha/cilium/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "cilium"
       # recurse directories in the provided git repo
@@ -343,7 +343,7 @@ apps:
       # a different provider
       path: "external-secrets-operator/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "external-secrets"
       # recurse directories in the provided git repo
@@ -379,7 +379,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "alpha/infisical/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "infisical"
       # recurse directories in the provided git repo
@@ -407,7 +407,7 @@ apps:
       # change to "ingress/ingress-nginx/" to not use app of apps
       path: "ingress-nginx/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "ingress-nginx"
       # recurse directories in the provided git repo
@@ -441,7 +441,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "alpha/k8tz/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "k8tz"
       # recurse directories in the provided git repo
@@ -469,7 +469,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "k8up/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "k8up"
       # recurse directories in the provided git repo
@@ -498,7 +498,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "alpha/kepler/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "kepler"
       # recurse directories in the provided git repo
@@ -525,7 +525,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "kubevirt/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "kubevirt"
       # recurse directories in the provided git repo
@@ -550,7 +550,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "kyverno/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "kyvero"
       # recurse directories in the provided git repo
@@ -602,7 +602,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "mastodon/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "mastodon"
       # recurse directories in the git repo - set to true to use the minio
@@ -659,7 +659,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "matrix/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "matrix"
       # recurse directories in the provided git repo
@@ -697,7 +697,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "metallb/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "metallb-system"
       # recurse directories in the provided git repo
@@ -728,7 +728,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "minio/operator/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "minio"
       # recurse directories in the provided git repo
@@ -764,7 +764,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "minio/tenant/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "minio"
       # recurse directories in the provided git repo
@@ -817,22 +817,23 @@ apps:
         hostname: ""
         # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
-        s3_bucket: "nextcloud"
+        s3_bucket: nextcloud
       # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
+      repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: "nextcloud/app_of_apps/"
+      path: nextcloud/app_of_apps/
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
-      namespace: "nextcloud"
+      namespace: nextcloud
       # recurse directories in the provided git repo
       directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
-          - "registry-1.docker.io"
-          - "https://nextcloud.github.io/helm"
+          - registry-1.docker.io
+          - https://nextcloud.github.io/helm
+          - https://operator.min.io/
         destination:
           namespaces:
             - argocd
@@ -857,13 +858,13 @@ apps:
         # FQDN to use for the prometheus push gateway
         push_gateway_hostname: ""
       # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
+      repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important! This
       # is an app of apps. Change to "monitoring/kube-prometheus-stack/" to
       # only install kube-prometheus-stack (foregoing loki and push gateway)
-      path: "prometheus/"
+      path: prometheus/
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "prometheus"
       # recurse directories in the provided git repo
@@ -907,7 +908,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "vouch-proxy/"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "vouch"
       # recurse directories in the provided git repo
@@ -966,7 +967,7 @@ apps:
       # if you want to use cockroachdb, change to zitadel/zitadel_and_cockroachdb
       path: "zitadel/zitadel_and_postgresql"
       # either the branch or tag to point at in the argo repo above
-      revision: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "zitadel"
       # recurse directories in the provided git repo
