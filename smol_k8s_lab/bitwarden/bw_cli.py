@@ -284,7 +284,12 @@ class BwCLI():
 
         # create new item
         if not edit:
-            log.info("not editing Bitwarden item, because we were instructed not to")
+            if item:
+                log.info(f'Not editing Bitwarden item "{item_name}", because we '
+                         'were instructed to create a duplicate.')
+            else:
+                log.info(f'Creating Bitwarden login item "{item_name}"')
+
             login_obj = json.dumps({
                 "organizationId": org,
                 "collectionIds": collection,
@@ -308,10 +313,10 @@ class BwCLI():
             encodedStr = str(encodedBytes, "utf-8")
 
             cmd = f"{self.bw_path} create item {encodedStr}"
-            log.info('Creating Bitwarden login item...')
 
         # edit existing item
         else:
+            log.info(f'Updating existing Bitwarden login item "{item_name}"...')
             item['login']['password'] = password
             item['login']['username'] = user
             item['fields'] = fields
@@ -320,7 +325,6 @@ class BwCLI():
             encodedStr = str(encodedBytes, "utf-8")
 
             cmd = f"{self.bw_path} edit item {item['id']} {encodedStr}"
-            log.info('Updating existing Bitwarden login item...')
 
 
         # edit OR create the item
