@@ -359,4 +359,4 @@ def configure_minio_operator(k8s_obj: K8s,
         install_with_argocd(k8s_obj,
                             'minio',
                             minio_config['argo'])
-        wait_for_argocd_app('minio-operator')
+        wait_for_argocd_app('minio')
