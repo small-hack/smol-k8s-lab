@@ -3,7 +3,8 @@ from rich.prompt import Prompt
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists)
+                                                check_if_argocd_app_exists,
+                                                update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.passwords import create_password
@@ -113,23 +114,7 @@ def configure_vouch(k8s_obj: K8s,
             fields = {'vouch_oauth_bitwarden_id': oauth_id,
                       'vouch_config_bitwarden_id': vouch_id}
 
-            k8s_obj.update_secret_key(
-                    'appset-secret-vars',
-                    'argocd',
-                    fields,
-                    'secret_vars.yaml'
-                    )
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/]"
-                        "deployment in [green]argocd[/] namespace. Recieved: "
-                        f"{e}"
-                        )
+            update_argocd_appset_secret(k8s_obj, fields)
 
             # reload the bitwarden ESO provider
             try:
@@ -181,23 +166,7 @@ def configure_vouch(k8s_obj: K8s,
             fields = {'vouch_oauth_bitwarden_id': oauth_id,
                       'vouch_config_bitwarden_id': vouch_id}
 
-            k8s_obj.update_secret_key(
-                    'appset-secret-vars',
-                    'argocd',
-                    fields,
-                    'secret_vars.yaml'
-                    )
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/]"
-                        "deployment in [green]argocd[/] namespace. Recieved: "
-                        f"{e}"
-                        )
+            update_argocd_appset_secret(k8s_obj, fields)
 
 
 def create_vouch_app(provider: str,

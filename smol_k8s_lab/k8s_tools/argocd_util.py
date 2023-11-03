@@ -138,7 +138,7 @@ def update_argocd_appset_secret(k8s_obj: K8s, fields: dict) -> None:
 
     # reload the argocd appset secret plugin
     try:
-        k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+        k8s_obj.reload_deployment('appset-secret-plugin', 'argocd')
     except Exception as e:
         log.error(
                 "Couldn't scale down the "
