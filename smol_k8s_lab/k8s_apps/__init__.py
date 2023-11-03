@@ -196,7 +196,7 @@ def setup_federated_apps(k8s_obj: K8s,
     Setup any federated apps with initialization supported
     """
     if nextcloud_dict['enabled']:
-        configure_nextcloud(k8s_obj, nextcloud_dict, bw)
+        configure_nextcloud(k8s_obj, nextcloud_dict, bw, zitadel_obj)
 
     if mastodon_dict['enabled']:
         configure_mastodon(k8s_obj, mastodon_dict, bw)
