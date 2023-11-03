@@ -642,7 +642,7 @@ apps:
           - registry-1.docker.io
           - https://jessebot.github.io/mastodon-helm-chart
           - https://operator.min.io/
-          - https://cloudnative-pg.github.io/charts
+          - https://small-hack.github.io/cloudnative-pg-tenant-chart 
         destination:
           namespaces:
             - argocd
@@ -865,7 +865,7 @@ apps:
           - registry-1.docker.io
           - https://nextcloud.github.io/helm
           - https://operator.min.io/
-          - https://cloudnative-pg.github.io/charts
+          - https://small-hack.github.io/cloudnative-pg-tenant-chart 
         destination:
           namespaces:
             - argocd
@@ -1011,7 +1011,7 @@ apps:
           - https://zitadel.github.io/zitadel-charts
           - https://charts.cockroachdb.com/
           - registry-1.docker.io
-          - https://cloudnative-pg.github.io/charts
+          - https://small-hack.github.io/cloudnative-pg-tenant-chart 
         destination:
           namespaces:
             - argocd
