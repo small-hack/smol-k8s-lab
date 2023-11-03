@@ -123,7 +123,10 @@ def create_argocd_project(k8s_obj: K8s,
                 }
         argocd_proj['spec']['destinations'].append(extra_namespace)
 
-    k8s_obj.apply_custom_resources([argocd_proj])
+    try:
+        k8s_obj.apply_custom_resources([argocd_proj])
+    except Exception as e:
+        log.warn(e)
 
 
 def update_argocd_appset_secret(k8s_obj: K8s, fields: dict) -> None:
