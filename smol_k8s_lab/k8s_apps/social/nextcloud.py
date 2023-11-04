@@ -137,7 +137,7 @@ def configure_nextcloud(k8s_obj: K8s,
                     )
 
             # smtp credentials
-            smtpHost = create_custom_field("smtpHost", mail_host)
+            smtpHost = create_custom_field("hostname", mail_host)
             smtp_id = bitwarden.create_login(
                     name='nextcloud-smtp-credentials',
                     item_url=nextcloud_hostname,
