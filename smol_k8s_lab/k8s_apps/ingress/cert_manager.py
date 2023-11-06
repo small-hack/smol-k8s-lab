@@ -27,9 +27,11 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> None:
         log.info("Creating ClusterIssuers for staging and production.")
         # we create a ClusterIssuer for both staging and prod
         acme_staging = "https://acme-staging-v02.api.letsencrypt.org/directory"
+        private_key_ref = "letsencrypt-staging"
         for issuer in ['letsencrypt-staging', 'letsencrypt-prod']:
             if issuer == "letsencrypt-prod":
                 acme_staging = acme_staging.replace("staging-", "")
+                private_key_ref = private_key_ref.replace("-staging", "-prod")
             issuers_dict = {
                 'apiVersion': "cert-manager.io/v1",
                 'kind': 'ClusterIssuer',
