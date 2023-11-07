@@ -224,7 +224,9 @@ def configure_nextcloud(k8s_obj: K8s,
         nextcloud_apps = config_dict['init']['values']['nextcloud_apps']
 
         if init_enabled and nextcloud_apps:
-            # make sure the web app is completely up first
+            # wait first on the Nextcloud app of apps
+            wait_for_argocd_app("nextcloud")
+            # then make sure the web app is completely up before init actions
             wait_for_argocd_app("nextcloud-web-app")
 
             # install any apps the user passed in as an init value
