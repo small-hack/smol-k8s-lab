@@ -34,12 +34,15 @@ def configure_argocd(k8s_obj: K8s,
     """
     header("Installing [green]Argo CD[/green] for managing your Kubernetes apps",
            "🦑")
-    release_dict = {"release_name": "argo-cd", "namespace": "argocd"}
 
+    # this is needed for helm but also setting argo to use the current k8s context
+    argo_cd_domain = secret_dict['argo_cd_hostname']
+
+    # immediately start building helm object to check if helm release exists
+    release_dict = {"release_name": "argo-cd", "namespace": "argocd"}
     release = Helm.chart(**release_dict)
-    already_installed = release.check_existing()
-    if not already_installed:
-        argo_cd_domain = secret_dict['argo_cd_hostname']
+
+    if not release.check_existing():
         # this is the base python dict for the values.yaml that is created below
         val = {"fullnameOverride": "argo-cd",
                "dex": {"enabled": False},
