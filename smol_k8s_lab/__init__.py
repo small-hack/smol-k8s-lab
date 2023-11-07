@@ -23,7 +23,6 @@ from .bitwarden.tui.bitwarden_app import BitwardenCredentialsApp
 from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
-from .k8s_apps.argocd import configure_argocd
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
 from .k8s_distros import create_k8s_distro, delete_cluster
@@ -209,31 +208,20 @@ def main(config: str = "",
     # check if zitadel is enabled
     zitadel_enabled = apps['zitadel']['enabled']
 
-    # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager
+    # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager, and argocd
     setup_base_apps(k8s_obj,
                     distro,
                     apps['cilium'],
                     apps['metallb'],
-                    apps['ingress_nginx'],
+                    apps.pop('ingress_nginx'),
                     apps['cert_manager'],
                     argo_enabled,
-                    apps['appset_secret_plugin']['enabled'])
+                    apps['appset_secret_plugin']['enabled'],
+                    SECRETS,
+                    bw)
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
-        # user can configure special domains that we print at the end
-        argocd_fqdn = SECRETS['argo_cd_hostname']
-        matrix_hostname = SECRETS.get('matrix_hostname', "")
-        minio_admin_hostname = SECRETS.get('minio_admin_console_hostname', "")
-        minio_tenant_hostname = SECRETS.get('minio_user_console_hostname', "")
-        mastodon_hostname = SECRETS.get('mastodon_hostname', "")
-        nextcloud_hostname = SECRETS.get('nextcloud_hostname', "")
-        zitadel_hostname = SECRETS.get('zitadel_hostname', "")
-
-        configure_argocd(k8s_obj, argocd_fqdn, bw,
-                         apps['appset_secret_plugin']['enabled'],
-                         SECRETS)
-
         setup_k8s_secrets_management(k8s_obj,
                                      distro,
                                      apps.pop('external_secrets_operator'),
@@ -261,9 +249,10 @@ def main(config: str = "",
                 apps.pop('zitadel'),
                 apps.pop('vouch'),
                 bw,
-                argocd_fqdn
+                SECRETS['argo_cd_hostname']
                 )
 
+        zitadel_hostname = SECRETS.get('zitadel_hostname', "")
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
@@ -309,32 +298,37 @@ def main(config: str = "",
     if bw:
         final_msg += "\n[i]All credentials are in Bitwarden[/i]\n"
 
-    if zitadel_enabled:
-        final_msg += (
-                f"\n🔑 Zitadel, your identity provider:\n"
-                f"[blue][link]https://{SECRETS['zitadel_hostname']}[/][/]\n"
-                 )
-
     if argo_enabled:
-        final_msg += ("\n🦑 Argo CD, your k8s apps console:\n"
-                      f"[blue][link]https://{argocd_fqdn}[/][/]\n")
+        if zitadel_enabled:
+            final_msg += (
+                    f"\n🔑 Zitadel, your identity provider:\n"
+                    f"[blue][link]https://{SECRETS['zitadel_hostname']}[/][/]\n"
+                     )
 
+        final_msg += ("\n🦑 Argo CD, your k8s apps console:\n"
+                      f"[blue][link]https://{SECRETS['argo_cd_hostname']}[/][/]\n")
+
+        minio_admin_hostname = SECRETS.get('minio_admin_console_hostname', "")
         if minio_admin_hostname:
             final_msg += ("\n🦩 Minio operator admin console, for your s3 storage:"
                           f"\n[blue][link]https://{minio_admin_hostname}[/][/]\n")
 
+        minio_tenant_hostname = SECRETS.get('minio_user_console_hostname', "")
         if minio_tenant_hostname:
             final_msg += ("\n🪿 Minio user console, for your s3 storage:"
                           f"\n[blue][link]https://{minio_tenant_hostname}[/][/]\n")
 
+        nextcloud_hostname = SECRETS.get('nextcloud_hostname', "")
         if nextcloud_hostname:
             final_msg += ("\n☁️ Nextcloud, for your worksuite:\n"
                           f"[blue][link]https://{nextcloud_hostname}[/][/]\n")
 
+        mastodon_hostname = SECRETS.get('mastodon_hostname', "")
         if mastodon_hostname:
             final_msg += ("\n🐘 Mastodon, for your social media:\n"
                           f"[blue][link]https://{mastodon_hostname}[/][/]\n")
 
+        matrix_hostname = SECRETS.get('matrix_hostname', "")
         if matrix_hostname:
             final_msg += ("\n🗣️ Matrix, for your chat:\n"
                           f"[blue][link]https://{matrix_hostname}[/][/]\n")

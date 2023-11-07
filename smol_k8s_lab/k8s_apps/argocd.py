@@ -20,7 +20,6 @@ from ..utils.rich_cli.console_logging import header, sub_header
 
 
 def configure_argocd(k8s_obj: K8s,
-                     argo_cd_domain: str = "",
                      bitwarden: BwCLI = None,
                      plugin_secret_creation: bool = False,
                      secret_dict: dict = {}) -> None:
@@ -28,10 +27,10 @@ def configure_argocd(k8s_obj: K8s,
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
     arg:
-      argo_cd_domain:          fqdn for argocd
-      bitwarden:               BwCLI() object, defaults to None
-      plugin_secret_creation:  boolean for creating the plugin secret generator
-      secret_dict:             set of secrets to create for secret plugin
+      k8s_obj:                K8s() object with the kubernetes context
+      bitwarden:              BwCLI() object, defaults to None
+      plugin_secret_creation: boolean for creating the plugin secret generator
+      secret_dict:            set of secrets to create for secret plugin
     """
     header("Installing [green]Argo CD[/green] for managing your Kubernetes apps",
            "🦑")
@@ -40,6 +39,7 @@ def configure_argocd(k8s_obj: K8s,
     release = Helm.chart(**release_dict)
     already_installed = release.check_existing()
     if not already_installed:
+        argo_cd_domain = secret_dict['argo_cd_hostname']
         # this is the base python dict for the values.yaml that is created below
         val = {"fullnameOverride": "argo-cd",
                "dex": {"enabled": False},

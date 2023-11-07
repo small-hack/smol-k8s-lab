@@ -330,8 +330,14 @@ class Zitadel():
         })
         log.debug(payload)
 
+        log.info(self.api_url)
+        log.info(self.project_id)
+
+        url = self.api_url + f'projects/{self.project_id}/apps/oidc'
+        log.info(url)
+
         response = request("POST",
-                           f'{self.api_url}projects/{self.project_id}/apps/oidc',
+                           url,
                            headers=self.headers,
                            data=payload,
                            verify=self.verify)
