@@ -48,8 +48,8 @@ def configure_vouch(k8s_obj: K8s,
                                      provider_hostname=oidc_provider_hostname,
                                      vouch_hostname=vouch_hostname,
                                      users=users,
-                                     realm=realm,
-                                     zitadel=Zitadel)
+                                     zitadel=zitadel,
+                                     realm=realm)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
         # trying to create a string of ""
         preferred_domain = '\"\"'
