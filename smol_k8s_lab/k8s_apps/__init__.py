@@ -12,7 +12,8 @@ from ..bitwarden.bw_cli import BwCLI
 from ..k8s_tools.helm import prepare_helm
 from ..k8s_tools.k8s_lib import K8s
 from ..utils.rich_cli.console_logging import header
-from .ingress.ingress_nginx_controller import configure_ingress_nginx
+from .argocd import configure_argocd
+from .ingress.ingress_nginx_controller import configure_ingress_nginx, install_ingress_nginx_argocd_app
 from .ingress.cert_manager import configure_cert_manager
 # from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
@@ -137,7 +138,9 @@ def setup_base_apps(k8s_obj: K8s,
                     ingress_dict: dict = {},
                     cert_manager_dict: dict = {},
                     argo_enabled: bool = False,
-                    argo_secrets_plugin_enabled: bool = False) -> None:
+                    argo_secrets_plugin_enabled: bool = False,
+                    plugin_secrets: dict = {},
+                    bw: BwCLI = None) -> None:
     """ 
     Uses Helm to install all base apps that need to be running being argo cd:
         cilium, metallb, ingess-nginx, cert-manager, argo cd, argocd secrets plugin
@@ -145,6 +148,7 @@ def setup_base_apps(k8s_obj: K8s,
     """
     metallb_enabled = metallb_dict['enabled']
     cilium_enabled = cilium_dict['enabled']
+    ingress_nginx_enabled = ingress_dict["enabled"]
     # make sure helm is installed and the repos are up to date
     prepare_helm(k8s_distro, metallb_enabled, cilium_enabled, argo_enabled,
                  argo_secrets_plugin_enabled)
@@ -167,7 +171,7 @@ def setup_base_apps(k8s_obj: K8s,
             configure_metallb(k8s_obj, cidr)
 
     # ingress controller: so we can accept traffic from outside the cluster
-    if ingress_dict["enabled"]:
+    if ingress_nginx_enabled:
         # nginx just because that's most supported, treafik support may be added later
         header("Installing [green]ingress-nginx-controller[/green] to access web"
                " apps outside the cluster", "🌐")
@@ -182,6 +186,16 @@ def setup_base_apps(k8s_obj: K8s,
         else:
             email = ""
         configure_cert_manager(k8s_obj, email)
+
+    # then we install argo cd if it's enabled
+    if argo_enabled:
+        configure_argocd(k8s_obj,
+                         bw, 
+                         argo_secrets_plugin_enabled,
+                         plugin_secrets)
+
+    if ingress_nginx_enabled and argo_enabled:
+        install_ingress_nginx_argocd_app(k8s_obj, ingress_dict)
 
 
 def setup_federated_apps(k8s_obj: K8s,

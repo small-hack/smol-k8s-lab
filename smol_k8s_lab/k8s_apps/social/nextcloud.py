@@ -112,10 +112,7 @@ def configure_nextcloud(k8s_obj: K8s,
             sub_header("Creating secrets in Bitwarden")
 
             # create oidc credentials
-            issuer_obj = create_custom_field("issuer",
-                                             zitadel.api_url.replace("/management/v1/",
-                                                                     "")
-                                             )
+            issuer_obj = create_custom_field("issuer", zitadel.hostname)
             oidc_id = bitwarden.create_login(
                     name='nextcloud-oidc-credentials',
                     item_url=nextcloud_hostname,
