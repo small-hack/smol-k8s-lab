@@ -109,17 +109,19 @@ def configure_nextcloud(k8s_obj: K8s,
 
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden:
-            sub_header("Creating secrets in Bitwarden")
+            sub_header("Creating Nextcloud items in Bitwarden")
 
-            # create oidc credentials
-            issuer_obj = create_custom_field("issuer", zitadel.hostname)
-            oidc_id = bitwarden.create_login(
-                    name='nextcloud-oidc-credentials',
-                    item_url=nextcloud_hostname,
-                    user=oidc_creds['client_id'],
-                    password=oidc_creds['client_secret'],
-                    fields=[issuer_obj]
-                    )
+            # oidc credentials if they were given, else they're probably already there
+            if oidc_creds:
+                log.debug("Creating OIDC credentials for Nextcloud in Bitwarden...")
+                issuer_obj = create_custom_field("issuer", zitadel.hostname)
+                oidc_id = bitwarden.create_login(
+                        name='nextcloud-oidc-credentials',
+                        item_url=nextcloud_hostname,
+                        user=oidc_creds['client_id'],
+                        password=oidc_creds['client_secret'],
+                        fields=[issuer_obj]
+                        )
 
             # admin credentials + metrics server info token
             token = bitwarden.generate()
