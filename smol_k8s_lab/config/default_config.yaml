@@ -844,6 +844,7 @@ apps:
         # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
         s3_bucket: nextcloud
+        s3_region: eu-west-1
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
