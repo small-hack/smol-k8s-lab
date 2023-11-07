@@ -11,6 +11,7 @@ from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 # external libraries
+from base64 import standard_b64encode as b64enc
 import logging as log
 from rich.prompt import Prompt
 
@@ -164,7 +165,8 @@ def configure_nextcloud(k8s_obj: K8s,
 
             # s3 credentials creation
             bucket_obj = create_custom_field('bucket', s3_bucket)
-            encryption_obj = create_custom_field('encryption_key', create_password())
+            encryption_key = b64enc(bytes(create_password()))
+            encryption_obj = create_custom_field('encryption_key', encryption_key)
             endpoint_obj = create_custom_field('endpoint', s3_endpoint)
             s3_id = bitwarden.create_login(
                     name='nextcloud-s3-credentials',
