@@ -724,9 +724,10 @@ apps:
         user_console_hostname: ""
         admin_console_hostname: ""
         tenant_name: "myminio"
-        backup_method: ""
-        backup_s3_endpoint: ""
-        backup_s3_bucket: ""
+        # if you'd like to use a local mount or a s3 bucket for backups
+        backup_method: "local"
+        backup_s3_endpoint: "none"
+        backup_s3_bucket: "set me to your bucket name"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
