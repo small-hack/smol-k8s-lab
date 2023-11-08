@@ -792,6 +792,10 @@ apps:
         tenant_name: ""
         api_hostname: ""
         user_console_hostname: ""
+        # options: "local" or "s3". local is for a local filesystem mount. s3 is for using an s3 bucket
+        backup_method: "local"
+        backup_s3_endpoint: "none"
+        backup_s3_bucket: "set me to your bucket name"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
