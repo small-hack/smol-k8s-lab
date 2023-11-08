@@ -29,7 +29,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     """
     repo = argo_dict['repo']
     path = argo_dict['path']
-    ref = argo_dict['ref']
+    revision = argo_dict['revision']
     app_namespace = argo_dict['namespace']
     proj_namespaces = argo_dict['project']['destination']['namespaces']
     proj_namespaces.append(app_namespace)
@@ -51,7 +51,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
            f"--path {path} "
-           f"--revision {ref} "
+           f"--revision {revision} "
            "--sync-policy automated "
            "--sync-option ApplyOutOfSyncOnly=true "
            "--self-heal "
@@ -123,4 +123,38 @@ def create_argocd_project(k8s_obj: K8s,
                 }
         argocd_proj['spec']['destinations'].append(extra_namespace)
 
-    k8s_obj.apply_custom_resources([argocd_proj])
+    try:
+        k8s_obj.apply_custom_resources([argocd_proj])
+    except Exception as e:
+        log.warn(e)
+
+
+def update_argocd_appset_secret(k8s_obj: K8s, fields: dict) -> None:
+    """ 
+    pass in k8s context and dict of fields to add to the argocd appset secret
+    and reload the deployment
+    """
+    k8s_obj.update_secret_key('appset-secret-vars',
+                              'argocd',
+                              fields,
+                              'secret_vars.yaml')
+
+    # reload the argocd appset secret plugin
+    try:
+        k8s_obj.reload_deployment('appset-secret-plugin', 'argocd')
+    except Exception as e:
+        log.error(
+                "Couldn't scale down the "
+                "[magenta]argocd-appset-secret-plugin[/] deployment "
+                f"in [green]argocd[/] namespace. Recieved: {e}"
+                )
+
+    # reload the bitwarden ESO provider
+    try:
+        k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+    except Exception as e:
+        log.error(
+                "Couldn't scale down the [magenta]"
+                "bitwarden-eso-provider[/] deployment in [green]"
+                f"external-secrets[/] namespace. Recieved: {e}"
+                )

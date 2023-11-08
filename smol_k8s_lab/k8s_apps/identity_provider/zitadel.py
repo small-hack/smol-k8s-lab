@@ -7,7 +7,7 @@ from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 wait_for_argocd_app,
                                                 check_if_argocd_app_exists,
-                                                sync_argocd_app)
+                                                update_argocd_appset_secret)
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 
@@ -72,23 +72,7 @@ def configure_zitadel(k8s_obj: K8s,
             # update the zitadel values for the argocd appset
             fields = {'zitadel_core_bitwarden_id': core_id,
                       'zitadel_db_bitwarden_id': db_id}
-            k8s_obj.update_secret_key(
-                    'appset-secret-vars',
-                    'argocd',
-                    fields,
-                    'secret_vars.yaml'
-                    )
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/]"
-                        "deployment in [green]argocd[/] namespace. Recieved: "
-                        f"{e}"
-                        )
+            update_argocd_appset_secret(k8s_obj, fields)
 
             # reload the bitwarden ESO provider
             try:
@@ -192,23 +176,7 @@ def configure_zitadel(k8s_obj: K8s,
                     'argo_cd_oidc_bitwarden_id': argo_oidc_item['id']
                     }
 
-            k8s_obj.update_secret_key(
-                    'appset-secret-vars',
-                    'argocd',
-                    fields,
-                    'secret_vars.yaml'
-                    )
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/]"
-                        "deployment in [green]argocd[/] namespace. Recieved: "
-                        f"{e}"
-                        )
+            update_argocd_appset_secret(k8s_obj, fields)
 
             # sync_argocd_app('zitadel')
             # sync_argocd_app('argo-cd')
@@ -251,7 +219,7 @@ def initialize_zitadel(k8s_obj: K8s,
     zitadel.create_project(project_name)
 
     log.info("Creating a groups Zitadel Action (sends group info to Argo CD)")
-    zitadel.create_action("groupsClaim")
+    zitadel.create_groups_claim_action()
 
     # create Argo CD OIDC Application
     log.info("Creating an Argo CD application...")
@@ -304,10 +272,6 @@ def initialize_zitadel(k8s_obj: K8s,
     zitadel.create_iam_membership(user_id, 'IAM_OWNER')
 
     # update appset-secret-vars secret with issuer, client_id, logout_url
-    k8s_obj.update_secret_key('appset-secret-vars',
-                              'argocd',
-                              fields,
-                              'secret_vars.yaml')
-    k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+    update_argocd_appset_secret(k8s_obj, fields)
 
     return zitadel

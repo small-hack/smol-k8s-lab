@@ -51,7 +51,7 @@ class AddAppInput(Static):
                 "secret_keys": {},
                 "repo": "",
                 "path": "",
-                "ref": "",
+                "revision": "",
                 "namespace": "",
                 "project": {
                     "source_repos": [""],
@@ -187,13 +187,12 @@ class InitValues(Static):
         """
         truthy_value = event.value
 
-        if self.init_values:
+        if self.init_values and event.switch.id == f"{self.app_name}-init-switch":
            app_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
            app_inputs.display = truthy_value
 
-        self.app.cfg['apps'][self.app_name]['init']['enabled'] = truthy_value
-
-        self.app.write_yaml()
+           self.app.cfg['apps'][self.app_name]['init']['enabled'] = truthy_value
+           self.app.write_yaml()
 
 
 class AppsetSecretValues(Static):

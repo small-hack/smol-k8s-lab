@@ -20,7 +20,6 @@ from ..utils.rich_cli.console_logging import header, sub_header
 
 
 def configure_argocd(k8s_obj: K8s,
-                     argo_cd_domain: str = "",
                      bitwarden: BwCLI = None,
                      plugin_secret_creation: bool = False,
                      secret_dict: dict = {}) -> None:
@@ -28,18 +27,22 @@ def configure_argocd(k8s_obj: K8s,
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
     arg:
-      argo_cd_domain:          fqdn for argocd
-      bitwarden:               BwCLI() object, defaults to None
-      plugin_secret_creation:  boolean for creating the plugin secret generator
-      secret_dict:             set of secrets to create for secret plugin
+      k8s_obj:                K8s() object with the kubernetes context
+      bitwarden:              BwCLI() object, defaults to None
+      plugin_secret_creation: boolean for creating the plugin secret generator
+      secret_dict:            set of secrets to create for secret plugin
     """
     header("Installing [green]Argo CD[/green] for managing your Kubernetes apps",
            "🦑")
-    release_dict = {"release_name": "argo-cd", "namespace": "argocd"}
 
+    # this is needed for helm but also setting argo to use the current k8s context
+    argo_cd_domain = secret_dict['argo_cd_hostname']
+
+    # immediately start building helm object to check if helm release exists
+    release_dict = {"release_name": "argo-cd", "namespace": "argocd"}
     release = Helm.chart(**release_dict)
-    already_installed = release.check_existing()
-    if not already_installed:
+
+    if not release.check_existing():
         # this is the base python dict for the values.yaml that is created below
         val = {"fullnameOverride": "argo-cd",
                "dex": {"enabled": False},
@@ -87,7 +90,6 @@ def configure_argocd(k8s_obj: K8s,
 
         release_dict['values_file'] = values_file_name
         release_dict['chart_name'] = 'argo-cd/argo-cd'
-        release_dict['chart_version'] = '5.46.8'
 
         release = Helm.chart(**release_dict)
         release.install(True)
@@ -123,13 +125,13 @@ def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
                     'token.existingSecret': 'appset-secret-token'}
 
         # install the helm chart :)
-        chart_name = 'appset-secret-plugin/argocd-appset-secret-plugin'
-        release = Helm.chart(release_name='argocd-appset-secret-plugin',
-                             chart_name=chart_name,
-                             chart_version='0.4.0',
-                             namespace='argocd',
-                             set_options=set_opts)
+        release = Helm.chart(
+                release_name='appset-secret-plugin',
+                chart_name='appset-secret-plugin/appset-secret-plugin',
+                namespace='argocd',
+                set_options=set_opts
+                )
         release.install(True)
     else:
         log.info("Reloading deployment for Argo CD Appset Secret Plugin")
-        k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
+        k8s_obj.reload_deployment('appset-secret-plugin', 'argocd')

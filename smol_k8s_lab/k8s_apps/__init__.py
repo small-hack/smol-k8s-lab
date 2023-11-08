@@ -12,13 +12,13 @@ from ..bitwarden.bw_cli import BwCLI
 from ..k8s_tools.helm import prepare_helm
 from ..k8s_tools.k8s_lib import K8s
 from ..utils.rich_cli.console_logging import header
-from .ingress.ingress_nginx_controller import configure_ingress_nginx
+from .argocd import configure_argocd
+from .ingress.ingress_nginx_controller import configure_ingress_nginx, install_ingress_nginx_argocd_app
 from .ingress.cert_manager import configure_cert_manager
 # from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.zitadel_api import Zitadel
 from .identity_provider.vouch import configure_vouch
-from .minio import configure_minio
 from .networking.metallb import configure_metallb
 from .networking.cilium import configure_cilium
 from .secrets_management.external_secrets_operator import configure_external_secrets
@@ -138,7 +138,9 @@ def setup_base_apps(k8s_obj: K8s,
                     ingress_dict: dict = {},
                     cert_manager_dict: dict = {},
                     argo_enabled: bool = False,
-                    argo_secrets_plugin_enabled: bool = False) -> None:
+                    argo_secrets_plugin_enabled: bool = False,
+                    plugin_secrets: dict = {},
+                    bw: BwCLI = None) -> None:
     """ 
     Uses Helm to install all base apps that need to be running being argo cd:
         cilium, metallb, ingess-nginx, cert-manager, argo cd, argocd secrets plugin
@@ -146,6 +148,7 @@ def setup_base_apps(k8s_obj: K8s,
     """
     metallb_enabled = metallb_dict['enabled']
     cilium_enabled = cilium_dict['enabled']
+    ingress_nginx_enabled = ingress_dict["enabled"]
     # make sure helm is installed and the repos are up to date
     prepare_helm(k8s_distro, metallb_enabled, cilium_enabled, argo_enabled,
                  argo_secrets_plugin_enabled)
@@ -168,7 +171,7 @@ def setup_base_apps(k8s_obj: K8s,
             configure_metallb(k8s_obj, cidr)
 
     # ingress controller: so we can accept traffic from outside the cluster
-    if ingress_dict["enabled"]:
+    if ingress_nginx_enabled:
         # nginx just because that's most supported, treafik support may be added later
         header("Installing [green]ingress-nginx-controller[/green] to access web"
                " apps outside the cluster", "🌐")
@@ -184,10 +187,19 @@ def setup_base_apps(k8s_obj: K8s,
             email = ""
         configure_cert_manager(k8s_obj, email)
 
+    # then we install argo cd if it's enabled
+    if argo_enabled:
+        configure_argocd(k8s_obj,
+                         bw, 
+                         argo_secrets_plugin_enabled,
+                         plugin_secrets)
+
+    if ingress_nginx_enabled and argo_enabled:
+        install_ingress_nginx_argocd_app(k8s_obj, ingress_dict)
+
 
 def setup_federated_apps(k8s_obj: K8s,
                          api_tls_verify: bool = False,
-                         minio_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
                          matrix_dict: dict = {},
@@ -195,22 +207,13 @@ def setup_federated_apps(k8s_obj: K8s,
                          zitadel_obj: Zitadel = None,
                          bw: BwCLI = None) -> None:
     """
-    Setup MinIO and then any federated apps with initialization supported
+    Setup any federated apps with initialization supported
     """
-    if minio_dict['enabled']:
-        # returns a BetterMinio obj with a client and admin client ready to go
-        minio_obj = configure_minio(k8s_obj,
-                                    minio_dict,
-                                    api_tls_verify,
-                                    zitadel_hostname,
-                                    zitadel_obj,
-                                    bw)
-
     if nextcloud_dict['enabled']:
-        configure_nextcloud(k8s_obj, nextcloud_dict, bw, minio_obj)
+        configure_nextcloud(k8s_obj, nextcloud_dict, bw, zitadel_obj)
 
     if mastodon_dict['enabled']:
-        configure_mastodon(k8s_obj, mastodon_dict, bw, minio_obj)
+        configure_mastodon(k8s_obj, mastodon_dict, bw)
 
     if matrix_dict['enabled']:
-        configure_matrix(k8s_obj, matrix_dict, zitadel_obj, bw, minio_obj)
+        configure_matrix(k8s_obj, matrix_dict, zitadel_obj, bw)

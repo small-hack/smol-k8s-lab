@@ -38,7 +38,6 @@ class Zitadel():
         # then get the token
         self.api_token = self.generate_token(hostname, service_account_key_obj)
 
-        # 'Content-Type': 'application/x-www-form-urlencoded',
         self.headers = {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
@@ -56,11 +55,13 @@ class Zitadel():
         while True:
             log.debug("checking if api is up by querying the healthz endpoint")
             res = request("GET", f"{self.api_url}healthz", verify=self.verify)
+
             if res.status_code == 200:
                 log.info("Zitadel API is up now :)")
                 break
             else:
                 log.debug("Zitadel API is not yet up")
+
         return True
 
     def generate_token(self, hostname: str = "", secret_blob: dict = {}) -> str:
@@ -94,11 +95,15 @@ class Zitadel():
 
         # actual creation of API token
         log.info("Requesting an API token from zitadel...")
+
         scopes = 'openid profile email urn:zitadel:iam:org:project:id:zitadel:aud'
+
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
         payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                    'scope': scopes,
                    'assertion': encoded}
+
         res = request("POST", f"https://{hostname}/oauth/v2/token",
                       headers=headers, data=payload, verify=self.verify)
         log.debug(f"res is {res}")
@@ -129,9 +134,15 @@ class Zitadel():
               "privateLabelingSetting": "PRIVATE_LABELING_SETTING_UNSPECIFIED"
             })
 
-        response = request("POST", self.api_url + "projects",
-                           headers=self.headers, data=payload, verify=self.verify)
+        response = request(
+                "POST",
+                self.api_url + "projects",
+                headers=self.headers,
+                data=payload,
+                verify=self.verify
+                )
         log.info(response.text)
+
         json_blob = response.json()
         self.project_id = json_blob['id']
         self.resource_owner = json_blob['details']['resourceOwner']
@@ -319,8 +330,14 @@ class Zitadel():
         })
         log.debug(payload)
 
+        log.info(self.api_url)
+        log.info(self.project_id)
+
+        url = self.api_url + f'projects/{self.project_id}/apps/oidc'
+        log.info(url)
+
         response = request("POST",
-                           f'{self.api_url}projects/{self.project_id}/apps/oidc',
+                           url,
                            headers=self.headers,
                            data=payload,
                            verify=self.verify)
@@ -334,13 +351,11 @@ class Zitadel():
         except KeyError:
             log.info(f"zitadel app, {app_name}, already exists")
 
-    def create_action(self, name: str = "") -> None:
+    def create_groups_claim_action(self) -> None:
         """
         create an action for zitadel. Currently only creates one kind of action,
         a group mapper action.
         """
-        log.info("Creating action...")
-
         payload = dumps({
           "name": "groupsClaim",
           "script": "function groupsClaim(ctx, api) {\n  if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {\n    return;\n  }\n  let grants = [];\n  ctx.v1.user.grants.grants.forEach(claim => {\n    claim.roles.forEach(role => {\n      grants.push(role)\n    })\n  })\n  api.v1.claims.setClaim('groups', grants)\n}",
@@ -348,10 +363,62 @@ class Zitadel():
           "allowedToFail": True
         })
 
+        self.create_claim_action(payload)
+
+    def create_is_admin_claim(self, claim_name: str, admin_role_key: str, user_role_key: str) -> None:
+        """
+        create an action that returns claim_name based on a if a user is has either
+        an admin role key or a user role key in zitadel. We only send the claim
+        name if the user is in one of those groups
+
+        this is to return a claim name like: nextcloud_admin=True
+
+        Example generated action script:
+
+        function nextcloudAdminClaim(ctx, api) {
+          if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {
+            return;
+          }
+
+          ctx.v1.user.grants.grants.forEach(claim => {
+            if (claim.roles.includes('nextcloud_admins') {
+                api.v1.claims.setClaim('nextcloud_admin', true)
+                return;
+                }
+
+            if (claim.roles.includes('nextcloud_users') {
+                api.v1.claims.setClaim('nextcloud_admin', false)
+                return;
+                }
+            }
+        }
+        """
+        no_underscore_claim = claim_name.replace("_", "")
+        log.info(
+            f"Creating Zitadel action, {no_underscore_claim}, to return in OIDC"
+            f" responses {claim_name}=true if the user has the role "
+            f"{admin_role_key}, and {claim_name}=false if the user has the role "
+            f"{user_role_key}."
+            )
+
+        payload = dumps({
+          "name": f"{no_underscore_claim}Claim",
+          "script": "function " + no_underscore_claim + "Claim(ctx, api) {\n  if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {\n    return;\n  }\n\n  ctx.v1.user.grants.grants.forEach(claim => {\n    if (claim.roles.includes('" + admin_role_key + "') {\n        api.v1.claims.setClaim('" + claim_name + "', true)\n        return;\n        }\n\n    if (claim.roles.includes('" + user_role_key + "') {\n        api.v1.claims.setClaim('" + claim_name + "', false)\n        return;\n        }\n    }\n}\n",
+          "timeout": "10s",
+          "allowedToFail": True
+        })
+        self.create_claim_action(payload)
+
+    def create_claim_action(self, script: str = "") -> None:
+        """
+        create an action for zitadel to run before sending user info or
+        giving access token
+        """
+        log.info("Creating action...")
         response = request("POST",
                            self.api_url + "actions",
                            headers=self.headers,
-                           data=payload,
+                           data=script,
                            verify=self.verify)
         log.debug(response.text)
 

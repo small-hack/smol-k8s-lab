@@ -12,7 +12,7 @@ ARGO_TOOLTIPS = {
                 '(including Argo resources) to deploy',
         'path': 'Path in a git repo to resources you want to deploy. Trailing' +
                 ' slash is important.',
-        'ref': 'Git branch or tag to point to in the repo.',
+        'revision': 'Git branch or tag to point to in the repo.',
         'namespace': 'Kubernetes namespace to deploy the Argo CD App in.',
         'directory_recursion': 'Recurse [i]all[/i] directories of the git repo to ' +
                                'apply any k8s manifests found in each directory.'

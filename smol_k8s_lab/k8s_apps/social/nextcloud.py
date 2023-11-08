@@ -1,16 +1,17 @@
 # internal libraries
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
-from smol_k8s_lab.k8s_apps.minio import BetterMinio
 from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
-                                                wait_for_argocd_app)
+                                                wait_for_argocd_app,
+                                                update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 # external libraries
+from base64 import standard_b64encode as b64enc
 import logging as log
 from rich.prompt import Prompt
 
@@ -18,7 +19,6 @@ from rich.prompt import Prompt
 def configure_nextcloud(k8s_obj: K8s,
                         config_dict: dict,
                         bitwarden: BwCLI = None,
-                        minio_obj: BetterMinio = None,
                         zitadel: Zitadel = None) -> None:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
@@ -29,7 +29,6 @@ def configure_nextcloud(k8s_obj: K8s,
 
     optional:
         bitwarden   - BwCLI() object with session token
-        minio_obj   - BetterMinio() object with minio credentials
     """
     # check immediately if this app is installed
     app_installed = check_if_argocd_app_exists('nextcloud')
@@ -44,6 +43,7 @@ def configure_nextcloud(k8s_obj: K8s,
 
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
+        k8s_obj.create_namespace(config_dict['argo']['namespace'])
         header("Setting up [green]Nextcloud[/], to self host your files",
                '🩵')
 
@@ -56,14 +56,19 @@ def configure_nextcloud(k8s_obj: K8s,
             mail_user = init_values.get('smtp_user', None)
             mail_pass = init_values.get('smtp_password', None)
 
-            # backups values
-            access_id = init_values.get('backup_s3_access_id', "nextcloud")
-            access_key = init_values.get('backup_s3_access_key', None)
-            restic_repo_pass = init_values.get('restic_password', None)
+            # s3 values
+            s3_access_id = init_values.get('s3_access_id', "nextcloud")
+            s3_access_key = init_values.get('s3_access_key', create_password())
+            if config_dict['argo']['directory_recursion']:
+                default_minio = True
+            else:
+                default_minio = False
+            create_minio_tenant = init_values.get('create_minio_tenant',
+                                                  default_minio)
 
         if secrets:
-            s3_endpoint = secrets.get('backup_s3_endpoint', None)
-            s3_bucket = secrets.get('backup_s3_bucket', 'nextcloud')
+            s3_endpoint = secrets.get('s3_endpoint', "")
+            s3_bucket = secrets.get('s3_bucket', 'nextcloud')
 
         # configure SMTP
         if not mail_host:
@@ -79,29 +84,20 @@ def configure_nextcloud(k8s_obj: K8s,
             m = f"[green]Please enter the SMTP password of {mail_user} on {mail_host}"
             mail_pass = Prompt.ask(m, password=True)
 
-        # configure backups
-        if secrets['backup_method'] == 'local':
-            access_id = '""'
-            access_key = '""'
-        else:
-            if minio_obj and s3_endpoint == "minio":
-                access_key = minio_obj.create_access_credentials(access_id)
-                minio_obj.create_bucket(s3_bucket, access_id)
-            else:
-                if not access_id:
-                    access_id = Prompt.ask(
-                            "[green]Please enter the access ID for s3 backups"
-                            )
-                if not access_key:
-                    access_key = Prompt.ask(
-                            "[green]Please enter the access key for s3 backups",
-                            password=True
-                            )
+        # configure s3 storage
+        # creates the initial root credentials secret for the minio tenant
+        if create_minio_tenant:
+            credentials_exports = {
+                    'config.env': f"""MINIO_ROOT_USER={s3_access_id}
+            MINIO_ROOT_PASSWORD={s3_access_key}"""}
+            k8s_obj.create_secret('default-tenant-env-config',
+                                  config_dict['argo']['namespace'],
+                                  credentials_exports)
 
         # configure OIDC
         if zitadel:
             log.debug("Creating a Nextcloud OIDC application in Zitadel...")
-            redirect_uris = f"https://{nextcloud_hostname}/callback"
+            redirect_uris = f"https://{nextcloud_hostname}/apps/oidc_login/oidc"
             logout_uris = [f"https://{nextcloud_hostname}"]
             oidc_creds = zitadel.create_application(
                     "nextcloud",
@@ -114,15 +110,19 @@ def configure_nextcloud(k8s_obj: K8s,
 
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden:
-            sub_header("Creating secrets in Bitwarden")
+            sub_header("Creating Nextcloud items in Bitwarden")
 
-            # create oidc credentials
-            bitwarden.create_login(
-                    name='nextcloud-oidc-credentials',
-                    item_url=nextcloud_hostname,
-                    user=oidc_creds['client_id'],
-                    password=oidc_creds['client_secret']
-                    )
+            # oidc credentials if they were given, else they're probably already there
+            if oidc_creds:
+                log.debug("Creating OIDC credentials for Nextcloud in Bitwarden...")
+                issuer_obj = create_custom_field("issuer", zitadel.hostname)
+                oidc_id = bitwarden.create_login(
+                        name='nextcloud-oidc-credentials',
+                        item_url=nextcloud_hostname,
+                        user=oidc_creds['client_id'],
+                        password=oidc_creds['client_secret'],
+                        fields=[issuer_obj]
+                        )
 
             # admin credentials + metrics server info token
             token = bitwarden.generate()
@@ -137,7 +137,7 @@ def configure_nextcloud(k8s_obj: K8s,
                     )
 
             # smtp credentials
-            smtpHost = create_custom_field("smtpHost", mail_host)
+            smtpHost = create_custom_field("hostname", mail_host)
             smtp_id = bitwarden.create_login(
                     name='nextcloud-smtp-credentials',
                     item_url=nextcloud_hostname,
@@ -147,14 +147,11 @@ def configure_nextcloud(k8s_obj: K8s,
                     )
 
             # postgres db credentials creation
-            pgsql_admin_password = create_custom_field('postgresAdminPassword',
-                                                       bitwarden.generate())
             db_id = bitwarden.create_login(
                     name='nextcloud-pgsql-credentials',
                     item_url=nextcloud_hostname,
                     user='nextcloud',
-                    password='same as the postgresAdminPassword',
-                    fields=[pgsql_admin_password]
+                    password=bitwarden.generate()
                     )
 
             # redis credentials creation
@@ -166,52 +163,29 @@ def configure_nextcloud(k8s_obj: K8s,
                     password=nextcloud_redis_password
                     )
 
-            # backups s3 credentials creation
-            if not restic_repo_pass:
-                restic_repo_pass = bitwarden.generate()
-            restic_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
+            # s3 credentials creation
             bucket_obj = create_custom_field('bucket', s3_bucket)
-            backup_id = bitwarden.create_login(
-                    name='nextcloud-backups-s3-credentials',
-                    item_url=s3_endpoint,
-                    user=access_id,
-                    password=access_key,
-                    fields=[restic_obj, bucket_obj]
+            encryption_key = b64enc(bytes(create_password()))
+            encryption_obj = create_custom_field('encryption_key', encryption_key)
+            endpoint_obj = create_custom_field('endpoint', s3_endpoint)
+            s3_id = bitwarden.create_login(
+                    name='nextcloud-s3-credentials',
+                    item_url=nextcloud_hostname,
+                    user=s3_access_id,
+                    password=s3_access_key,
+                    fields=[bucket_obj, encryption_obj, endpoint_obj]
                     )
 
             # update the nextcloud values for the argocd appset
-            fields = {
-                    'nextcloud_admin_credentials_bitwarden_id': admin_id,
-                    'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
-                    'nextcloud_postgres_credentials_bitwarden_id': db_id,
-                    'nextcloud_redis_bitwarden_id': redis_id,
-                    'nextcloud_backups_credentials_bitwarden_id': backup_id,
-                    }
-
-            k8s_obj.update_secret_key('appset-secret-vars',
-                                      'argocd',
-                                      fields,
-                                      'secret_vars.yaml')
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/] deployment "
-                        f"in [green]argocd[/] namespace. Recieved: {e}"
-                        )
-
-            # reload the bitwarden ESO provider
-            try:
-                k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the [magenta]"
-                        "bitwarden-eso-provider[/] deployment in [green]"
-                        f"external-secrets[/] namespace. Recieved: {e}"
-                        )
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'nextcloud_admin_credentials_bitwarden_id': admin_id,
+                     'nextcloud_oidc_credentials_bitwarden_id': oidc_id,
+                     'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
+                     'nextcloud_postgres_credentials_bitwarden_id': db_id,
+                     'nextcloud_redis_bitwarden_id': redis_id,
+                     'nextcloud_s3_credentials_bitwarden_id': s3_id}
+                    )
 
         # these are standard k8s secrets
         else:
@@ -228,24 +202,22 @@ def configure_nextcloud(k8s_obj: K8s,
 
             # postgres db credentials creation
             pgsql_nextcloud_password = create_password()
-            pgsql_admin_password = create_password()
             k8s_obj.create_secret('nextcloud-pgsql-credentials', 'nextcloud',
-                                  {"nextcloudUsername": 'nextcloud',
-                                   "nextcloudPassword": pgsql_nextcloud_password,
-                                   "postgresPassword": pgsql_admin_password})
+                                  {"username": 'nextcloud',
+                                   "password": pgsql_nextcloud_password})
 
             # redis credentials creation
             nextcloud_redis_password = create_password()
             k8s_obj.create_secret('nextcloud-redis-credentials', 'nextcloud',
                                   {"password": nextcloud_redis_password})
 
-            # backups s3 credentials creation
-            if not restic_repo_pass:
-                restic_repo_pass = create_password()
-            k8s_obj.create_secret('nextcloud-backups-credentials', 'nextcloud',
-                                  {"applicationKeyId": access_id,
-                                   "applicationKey": access_key,
-                                   "resticRepoPassword": restic_repo_pass})
+            # s3 credentials creation
+            encryption_key = create_password()
+            k8s_obj.create_secret('nextcloud-s3-credentials', 'nextcloud',
+                                  {"S3_USER": s3_access_id,
+                                   "S3_PASSWORD": s3_access_key,
+                                   "S3_ENCRYPTION_KEY": encryption_key,
+                                   "S3_ENDPOINT": s3_endpoint})
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
@@ -254,18 +226,14 @@ def configure_nextcloud(k8s_obj: K8s,
         nextcloud_apps = config_dict['init']['values']['nextcloud_apps']
 
         if init_enabled and nextcloud_apps:
-            # make sure the web app is completely up first
+            # wait first on the Nextcloud app of apps
+            wait_for_argocd_app("nextcloud")
+            # then make sure the web app is completely up before init actions
             wait_for_argocd_app("nextcloud-web-app")
 
-            # install any apps the user would like to install
+            # install any apps the user passed in as an init value
             nextcloud = Nextcloud(config_dict['argo']['namespace'])
             nextcloud.install_apps(nextcloud_apps)
-
-            # configure nextcloud social login app to work with zitadel
-            zitadel_hostname = zitadel.api_url.replace("/management/v1/", "")
-            nextcloud.configure_zitadel_social_login(zitadel_hostname,
-                                                     oidc_creds['client_id'],
-                                                     oidc_creds['client_secret'])
     else:
         log.info("nextcloud already installed 🎉")
 
@@ -274,6 +242,9 @@ def configure_nextcloud(k8s_obj: K8s,
         if bitwarden and init_enabled:
             log.debug("Making sure nextcloud Bitwarden item IDs are in appset "
                       "secret plugin secret")
+            oidc_id = bitwarden.get_item(
+                    f"nextcloud-oidc-credentials-{nextcloud_hostname}"
+                    )[0]['id']
             admin_id = bitwarden.get_item(
                     f"nextcloud-admin-credentials-{nextcloud_hostname}"
                     )[0]['id']
@@ -286,29 +257,16 @@ def configure_nextcloud(k8s_obj: K8s,
             redis_id = bitwarden.get_item(
                     f"nextcloud-redis-credentials-{nextcloud_hostname}"
                     )[0]['id']
-            backup_id = bitwarden.get_item(
-                    f"nextcloud-backups-credentials-{nextcloud_hostname}"
+            s3_id = bitwarden.get_item(
+                    f"nextcloud-s3-credentials-{nextcloud_hostname}"
                     )[0]['id']
 
-            fields = {
-                    'nextcloud_admin_credentials_bitwarden_id': admin_id,
-                    'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
-                    'nextcloud_postgres_credentials_bitwarden_id': db_id,
-                    'nextcloud_redis_bitwarden_id': redis_id,
-                    'nextcloud_backups_credentials_bitwarden_id': backup_id,
-                    }
-
-            k8s_obj.update_secret_key('appset-secret-vars',
-                                      'argocd',
-                                      fields,
-                                      'secret_vars.yaml')
-
-            # reload the argocd appset secret plugin
-            try:
-                k8s_obj.reload_deployment('argocd-appset-secret-plugin', 'argocd')
-            except Exception as e:
-                log.error(
-                        "Couldn't scale down the "
-                        "[magenta]argocd-appset-secret-plugin[/] deployment "
-                        f"in [green]argocd[/] namespace. Recieved: {e}"
-                        )
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'nextcloud_admin_credentials_bitwarden_id': admin_id,
+                     'nextcloud_oidc_credentials_bitwarden_id': oidc_id,
+                     'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
+                     'nextcloud_postgres_credentials_bitwarden_id': db_id,
+                     'nextcloud_redis_bitwarden_id': redis_id,
+                     'nextcloud_s3_credentials_bitwarden_id': s3_id,
+                    })
