@@ -230,15 +230,15 @@ apps:
     argo:
       # skip installing this app b/c its part of another app of apps with this
       # name. If equals "" we'll instead use the below repo, path, revision, and namespace
-      part_of_app_of_apps: "external_secrets_operator"
+      part_of_app_of_apps: external_secrets_operator
       # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
+      repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: "external-secrets-operator/bitwarden"
+      path: external-secrets-operator/bitwarden
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
-      namespace: "external-secrets"
+      namespace: external-secrets
       # recurse directories in the provided git repo
       directory_recursion: false
       # optional secrets keys to pass to the Argo CD Appset secret plugin generator
@@ -247,7 +247,7 @@ apps:
       project:
         # where the helm chart lives. Go here for more info
         source_repos:
-          - "https://jessebot.github.io/bitwarden-eso-provider"
+          - https://small-hack.github.io/bitwarden-eso-provider
         destination:
           namespaces:
             - argocd
@@ -363,17 +363,17 @@ apps:
       enabled: false
     argo:
       # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
+      repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
       # change to external-secrets-operator/external-secrets-operator/ to deploy
       # ONLY the external-secrets-operator, so this will not use app of apps and
       # therefore we will not deploy the Bitwarden ESO provider. Use if you want to use
       # a different provider
-      path: "external-secrets-operator/"
+      path: external-secrets-operator/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
-      namespace: "external-secrets"
+      namespace: external-secrets
       # recurse directories in the provided git repo
       directory_recursion: false
       # secret keys to provide for the Argo CD Appset secret plugin, none by default
@@ -381,9 +381,9 @@ apps:
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
         source_repos:
-          - "https://charts.external-secrets.io"
+          - https://charts.external-secrets.io
           # you can remove this one if you're not using bitwarden to store your k8s secrets
-          - "https://jessebot.github.io/bitwarden-eso-provider"
+          - https://small-hack.github.io/bitwarden-eso-provider
         destination:
           namespaces:
             - argocd
@@ -609,7 +609,7 @@ apps:
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
         smtp_user: "change me to enable mail"
-        # if true, we'll use the minio operator to create a minio tenant just for matrix
+        # if true, we'll use the minio operator to create a minio tenant just for mastodon
         create_minio_tenant: true
       sensitive_values:
         - SMTP_PASSWORD
@@ -624,7 +624,8 @@ apps:
         # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
         # bucket is for your images and other assets
-        s3_bucket: "mastodon"
+        s3_bucket: mastodon
+        s3_region: eu-west-1
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -683,22 +684,23 @@ apps:
         admin_email: ""
         # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
-        s3_bucket: "matrix"
+        s3_bucket: matrix
+        s3_region: eu-west-1
       # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
+      repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: "matrix/app_of_apps/"
+      path: matrix/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
-      namespace: "matrix"
+      namespace: matrix
       # recurse directories in the provided git repo
       directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
-          - "registry-1.docker.io"
-          - "https://jessebot.github.io/matrix-chart"
+          - registry-1.docker.io
+          - https://small-hack.github.io/matrix-chart
           - https://operator.min.io/
         destination:
           namespaces:
