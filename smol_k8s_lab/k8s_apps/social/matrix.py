@@ -86,8 +86,10 @@ def configure_matrix(k8s_obj: K8s,
 
             # postgresql credentials
             matrix_pgsql_password = bitwarden.generate()
-            db_hostname_obj = create_custom_field("hostname",
-                                                  'matrix-web-app-postgresql')
+            db_hostname_obj = create_custom_field(
+                    "hostname",
+                    f"matrix-postgres-rw.{config_dict['argo']['namespace']}.svc"
+                    )
             db_pass_obj = create_custom_field("postgresPassword",
                                               matrix_pgsql_password)
             # the database name
