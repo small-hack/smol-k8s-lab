@@ -53,7 +53,7 @@ def configure_matrix(k8s_obj: K8s,
             credentials_exports = {
                     'config.env': f"""MINIO_ROOT_USER={s3_access_id}
             MINIO_ROOT_PASSWORD={s3_access_key}"""}
-            k8s_obj.create_secret('default-tenant-env-config', 'mastodon',
+            k8s_obj.create_secret('default-tenant-env-config', config_dict['argo']['namespace'],
                                   credentials_exports)
 
         # create Matrix OIDC Application
