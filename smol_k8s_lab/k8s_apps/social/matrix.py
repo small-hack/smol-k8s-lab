@@ -124,7 +124,7 @@ def configure_matrix(k8s_obj: K8s,
             # OIDC credentials
             log.info("Creating OIDC credentials for Matrix in Bitwarden")
             if zitadel:
-                issuer_obj = create_custom_field("issuer", zitadel.hostname)
+                issuer_obj = create_custom_field("issuer", "https://" + zitadel.hostname)
                 idp_id_obj = create_custom_field("idp_id", idp_id)
                 idp_name_obj = create_custom_field("idp_name", idp_name)
                 oidc_id = bitwarden.create_login(
