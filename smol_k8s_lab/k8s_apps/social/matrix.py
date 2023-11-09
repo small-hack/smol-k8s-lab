@@ -1,5 +1,4 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_apps.operators.minio import BetterMinio
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
@@ -14,8 +13,7 @@ import logging as log
 def configure_matrix(k8s_obj: K8s,
                      config_dict: dict,
                      zitadel: Zitadel,
-                     bitwarden: BwCLI = None,
-                     minio_obj: BetterMinio = {}) -> bool:
+                     bitwarden: BwCLI = None) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
     """
@@ -122,9 +120,7 @@ def configure_matrix(k8s_obj: K8s,
             # OIDC credentials
             log.info("Creating OIDC credentials for Matrix in Bitwarden")
             if zitadel:
-                issuer = zitadel.hostname
-                issuer_obj = create_custom_field("issuer",
-                                                 issuer.replace("/management/v1/", ""))
+                issuer_obj = create_custom_field("issuer", zitadel.hostname)
                 idp_id_obj = create_custom_field("idp_id", idp_id)
                 idp_name_obj = create_custom_field("idp_name", idp_name)
                 oidc_id = bitwarden.create_login(
@@ -174,7 +170,7 @@ def configure_matrix(k8s_obj: K8s,
                     'matrix',
                     {'user': matrix_dict['client_id'],
                      'password': matrix_dict['client_secret'],
-                     'issuer': zitadel.api.replace("/management/v1/", "")}
+                     'issuer': zitadel.hostname}
                     )
 
     if not app_installed:
