@@ -50,6 +50,7 @@ def configure_matrix(k8s_obj: K8s,
         if create_minio_tenant:
             if not s3_access_key:
                 s3_access_key = create_password()
+
             credentials_exports = {
                     'config.env': f"""MINIO_ROOT_USER={s3_access_id}
             MINIO_ROOT_PASSWORD={s3_access_key}"""}
