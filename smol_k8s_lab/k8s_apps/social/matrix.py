@@ -75,6 +75,8 @@ def configure_matrix(k8s_obj: K8s,
             sub_header("Creating matrix secrets in Bitwarden")
 
             # S3 credentials
+            if "http" not in s3_endpoint:
+                s3_endpoint = "https://" + s3_endpoint
             s3_host_obj = create_custom_field("s3Endpoint", s3_endpoint)
             s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
             s3_id = bitwarden.create_login(
