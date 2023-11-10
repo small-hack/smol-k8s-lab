@@ -637,9 +637,10 @@ apps:
       project:
         source_repos:
           - registry-1.docker.io
-          - https://jessebot.github.io/mastodon-helm-chart
           - https://operator.min.io/
-          - https://small-hack.github.io/cloudnative-pg-tenant-chart 
+          - https://small-hack.github.io/cloudnative-pg-tenant-chart
+          - https://small-hack.github.io/mastodon-helm-chart
+          - https://github.com/small-hack/mastodon-helm-chart
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
