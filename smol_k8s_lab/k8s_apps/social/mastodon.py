@@ -4,6 +4,7 @@ from smol_k8s_lab.k8s_apps.operators.minio import BetterMinio
 from smol_k8s_lab.k8s_apps.social.mastodon_rake import generate_rake_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
+                                                wait_for_argocd_app,
                                                 sync_argocd_app,
                                                 update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
@@ -204,7 +205,8 @@ def configure_mastodon(k8s_obj: K8s,
                             argo_dict=config_dict['argo']
                             )
         if init_enabled:
-            # this is because the mastodon chart is weird...
+            wait_for_argocd_app('mastodon')
+            # this is because the official mastodon chart is weird...
             sync_argocd_app('mastodon-web-app')
     else:
         log.info("mastodon already installed 🎉")
