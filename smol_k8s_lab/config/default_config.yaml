@@ -171,8 +171,8 @@ apps:
           - https://argoproj.github.io/argo-helm
           - https://small-hack.github.io/appset-secret-plugin
         destination:
+          # automatically includes the app's namespace and argocd's namespace
           namespaces:
-            - argocd
             - prometheus
 
   appset_secret_plugin:
@@ -212,8 +212,8 @@ apps:
         source_repos:
           - https://small-hack.github.io/appset-secret-plugin
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   bitwarden_eso_provider:
     enabled: true
@@ -249,9 +249,8 @@ apps:
         source_repos:
           - https://small-hack.github.io/bitwarden-eso-provider
         destination:
-          namespaces:
-            - argocd
-            - external-secrets
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by Argo CD if you enable it below
@@ -290,9 +289,8 @@ apps:
         source_repos:
           - https://charts.jetstack.io
         destination:
+          # automatically includes the app's namespace and argocd's namespace
           namespaces:
-            - argocd
-            - cert-manager
             - kube-system
 
   # This app is installed with helm or manifests depending on what is recommended
@@ -322,9 +320,8 @@ apps:
         source_repos:
           - "https://helm.cilium.io/"
         destination:
-          namespaces:
-            - argocd
-            - cilium
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   cnpg_operator:
     description: |
@@ -351,8 +348,8 @@ apps:
         - https://github.com/small-hack/argocd-apps
         - https://cloudnative-pg.github.io/charts
         destination:
-          namespaces:
-          - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   external_secrets_operator:
     enabled: true
@@ -385,8 +382,8 @@ apps:
           # you can remove this one if you're not using bitwarden to store your k8s secrets
           - https://small-hack.github.io/bitwarden-eso-provider
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   infisical:
     enabled: false
@@ -418,8 +415,8 @@ apps:
           - "registry-1.docker.io"
           - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by Argo CD if you enable it below
@@ -450,9 +447,8 @@ apps:
           - "https://jessebot.github.io/vouch-helm-chart"
           - "https://github.com/kubernetes/ingress-nginx"
         destination:
-          namespaces:
-            - argocd
-            - ingress-nginx
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   k8tz:
     enabled: false
@@ -479,8 +475,8 @@ apps:
         source_repos:
           - "https://k8tz.github.io/k8tz/"
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   k8up:
     enabled: false
@@ -508,8 +504,8 @@ apps:
           - "https://k8up-io.github.io/k8up"
           - "https://github.com/k8up-io/k8up.git"
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   kepler:
     description: |
@@ -536,8 +532,8 @@ apps:
         source_repos:
           - "https://sustainable-computing-io.github.io/kepler-helm-chart"
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   kubevirt:
     description: |
@@ -563,8 +559,8 @@ apps:
         source_repos: 
           - "https://github.com/small-hack/argocd-apps"
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   kyverno:
     description: |
@@ -587,8 +583,8 @@ apps:
       project:
         source_repos: []
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   mastodon:
     description: |
@@ -645,9 +641,8 @@ apps:
           - https://operator.min.io/
           - https://small-hack.github.io/cloudnative-pg-tenant-chart 
         destination:
-          namespaces:
-            - argocd
-            - mastodon
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   matrix:
     description: |
@@ -703,8 +698,8 @@ apps:
           - https://small-hack.github.io/matrix-chart
           - https://operator.min.io/
         destination:
-          namespaces:
-            - argocd
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by Argo CD if you enable it below
@@ -740,8 +735,8 @@ apps:
         source_repos:
           - "https://github.com/metallb/metallb.git"
         destination:
+          # automatically includes the app's namespace and argocd's namespace
           namespaces:
-            - argocd
             - "metallb-system"
 
   minio_operator:
@@ -771,9 +766,8 @@ apps:
         source_repos:
           - https://operator.min.io/
         destination:
-          namespaces:
-            - argocd
-            - minio
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   minio_tenant:
     enabled: false
@@ -811,9 +805,8 @@ apps:
         source_repos:
           - https://operator.min.io/
         destination:
-          namespaces:
-            - argocd
-            - minio
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   nextcloud:
     enabled: false
@@ -874,9 +867,8 @@ apps:
           - https://operator.min.io/
           - https://small-hack.github.io/cloudnative-pg-tenant-chart 
         destination:
-          namespaces:
-            - argocd
-            - nextcloud
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   prometheus:
     description: |
@@ -915,9 +907,8 @@ apps:
           - "https://github.com/prometheus-community/helm-charts.git"
           - "https://prometheus-community.github.io/helm-charts"
         destination:
+          # automatically includes the app's namespace and argocd's namespace
           namespaces:
-            - argocd
-            - prometheus
             - kube-system
 
   vouch:
@@ -957,9 +948,8 @@ apps:
         source_repos:
           - https://jessebot.github.io/vouch-helm-chart
         destination:
-          namespaces:
-            - argocd
-            - vouch
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   zitadel:
     enabled: true
@@ -992,13 +982,19 @@ apps:
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
+        # if true, we'll use the minio operator to create a minio tenant just for mastodon
+        create_minio_tenant: true
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for zitadel
         hostname: ""
-        # type of database to use: postgresql or cockroachdb
-        database_type: "postgresql"
+        # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
+        s3_endpoint: ""
+        # bucket is for your postgresql backups
+        s3_bucket: "zitadel-postgresql"
+        # optional, but recommended region to deploy the bucket in
+        s3_region: eu-west-1
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
@@ -1010,16 +1006,14 @@ apps:
       # namespace to install the k8s app in
       namespace: "zitadel"
       # recurse directories in the provided git repo
-      directory_recursion: false
+      directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
           - https://charts.zitadel.com
           - https://zitadel.github.io/zitadel-charts
-          - https://charts.cockroachdb.com/
-          - registry-1.docker.io
           - https://small-hack.github.io/cloudnative-pg-tenant-chart 
+          - https://operator.min.io/
         destination:
-          namespaces:
-            - argocd
-            - zitadel
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
