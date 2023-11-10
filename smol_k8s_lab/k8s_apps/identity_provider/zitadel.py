@@ -36,19 +36,52 @@ def configure_zitadel(k8s_obj: K8s,
     secrets = config_dict['argo']['secret_keys']
     if secrets:
         zitadel_hostname = secrets['hostname']
-        database_type = secrets.get('database_type', 'postgresql')
 
     # check to make sure the app instead already installed with Argo CD
     app_installed = check_if_argocd_app_exists('zitadel')
 
     if config_dict['init']['enabled'] and not app_installed:
         log.debug("Creating core key and DB credenitals for zitadel...")
-        if database_type in ["postgres", "psql", "pgsql", "postgresql"]:
-            db_admin_user = "postgres"
+        db_admin_user = "postgres"
+        init_values = config_dict['init']['values']
+        # configure s3 credentials if they're in use
+        s3_access_id = init_values.get('s3_access_id', 'zitadel')
+        s3_access_key = init_values.get('s3_access_key', '')
+        s3_endpoint = secrets.get('s3_endpoint', "")
+        s3_bucket = secrets.get('s3_bucket', "zitadel-postgresql")
+        if config_dict['argo']['directory_recursion']:
+            default_minio = True
         else:
-            db_admin_user = "root"
+            default_minio = False
+        create_minio_tenant = init_values.get('create_minio_tenant',
+                                              default_minio)
+
+        # creates the initial root credentials secret for the minio tenant
+        if create_minio_tenant:
+            if not s3_access_key:
+                s3_access_key = create_password()
+
+            credentials_exports = {
+                    'config.env': f"""MINIO_ROOT_USER={s3_access_id}
+            MINIO_ROOT_PASSWORD={s3_access_key}"""}
+            k8s_obj.create_secret('default-tenant-env-config',
+                                  config_dict['argo']['namespace'],
+                                  credentials_exports)
 
         if bitwarden:
+            # S3 credentials
+            if "http" not in s3_endpoint:
+                s3_endpoint = "https://" + s3_endpoint
+            s3_host_obj = create_custom_field("s3Endpoint", s3_endpoint)
+            s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
+            s3_id = bitwarden.create_login(
+                    name='zitadel-s3-credentials',
+                    item_url=zitadel_hostname,
+                    user=s3_access_id,
+                    password=s3_access_key,
+                    fields=[s3_host_obj, s3_bucket_obj]
+                    )
+
             # create zitadel core key
             new_key = bitwarden.generate()
             core_id = bitwarden.create_login(name="zitadel-core-key",
@@ -59,7 +92,8 @@ def configure_zitadel(k8s_obj: K8s,
             # create db credentials password dict
             db_password = bitwarden.generate()
             db_admin_password = bitwarden.generate()
-            db_admin_user_obj = create_custom_field("adminUser", db_admin_user)
+            db_admin_user_obj = create_custom_field("adminUser",
+                                                    db_admin_user)
             db_admin_pass_obj = create_custom_field("adminPassword",
                                                     db_admin_password)
             db_id = bitwarden.create_login(name="zitadel-db-credentials",
@@ -70,9 +104,12 @@ def configure_zitadel(k8s_obj: K8s,
                                                    db_admin_pass_obj])
 
             # update the zitadel values for the argocd appset
-            fields = {'zitadel_core_bitwarden_id': core_id,
-                      'zitadel_db_bitwarden_id': db_id}
-            update_argocd_appset_secret(k8s_obj, fields)
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'zitadel_core_bitwarden_id': core_id,
+                     'zitadel_db_bitwarden_id': db_id,
+                     'zitadel_s3_credentials_bitwarden_id': s3_id}
+                    )
 
             # reload the bitwarden ESO provider
             try:
@@ -156,6 +193,10 @@ def configure_zitadel(k8s_obj: K8s,
                     f"zitadel-db-credentials-{zitadel_hostname}"
                     )[0]['id']
 
+            s3_id = bitwarden.get_item(
+                    f"zitadel-s3-credentials-{zitadel_hostname}"
+                    )[0]['id']
+
             core_id = bitwarden.get_item(
                     f"zitadel-core-key-{zitadel_hostname}"
                     )[0]['id']
@@ -167,20 +208,22 @@ def configure_zitadel(k8s_obj: K8s,
             argo_client_id = argo_oidc_item['login']['username']
 
             # update the zitadel values for the argocd appset
-            fields = {
+
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {
                     'zitadel_core_bitwarden_id': core_id,
                     'zitadel_db_bitwarden_id': db_id,
+                    'zitadel_s3_credentials_bitwarden_id': s3_id,
                     'argo_cd_oidc_issuer': f"https://{zitadel_hostname}",
                     'argo_cd_oidc_client_id': argo_client_id,
                     'argo_cd_oidc_logout_url': f"https://{zitadel_hostname}/oidc/v1/end_session",
                     'argo_cd_oidc_bitwarden_id': argo_oidc_item['id']
                     }
-
-            update_argocd_appset_secret(k8s_obj, fields)
+                    )
 
             # sync_argocd_app('zitadel')
             # sync_argocd_app('argo-cd')
-
 
             return zitadel
 

@@ -54,7 +54,8 @@ def configure_matrix(k8s_obj: K8s,
             credentials_exports = {
                     'config.env': f"""MINIO_ROOT_USER={s3_access_id}
             MINIO_ROOT_PASSWORD={s3_access_key}"""}
-            k8s_obj.create_secret('default-tenant-env-config', config_dict['argo']['namespace'],
+            k8s_obj.create_secret('default-tenant-env-config',
+                                  config_dict['argo']['namespace'],
                                   credentials_exports)
 
         # create Matrix OIDC Application
@@ -163,13 +164,19 @@ def configure_matrix(k8s_obj: K8s,
         else:
             # postgresql credentials
             matrix_pgsql_password = create_password()
-            k8s_obj.create_secret('matrix-pgsql-credentials', 'matrix',
-                                  {"password": matrix_pgsql_password})
+            k8s_obj.create_secret(
+                    'matrix-pgsql-credentials',
+                    'matrix',
+                    {"password": matrix_pgsql_password}
+                    )
 
             # registation key
             matrix_registration_key = create_password()
-            k8s_obj.create_secret('matrix-registration', 'matrix',
-                                  {"registrationSharedSecret": matrix_registration_key})
+            k8s_obj.create_secret(
+                    'matrix-registration',
+                    'matrix',
+                    {"registrationSharedSecret": matrix_registration_key}
+                    )
 
             # oidc secret
             k8s_obj.create_secret(
