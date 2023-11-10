@@ -638,7 +638,7 @@ apps:
         source_repos:
           - registry-1.docker.io
           - https://operator.min.io/
-          - https://small-hack.github.io/cloudnative-pg-tenant-chart
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://small-hack.github.io/mastodon-helm-chart
           - https://github.com/small-hack/mastodon-helm-chart
         destination:
@@ -865,7 +865,7 @@ apps:
           - registry-1.docker.io
           - https://nextcloud.github.io/helm
           - https://operator.min.io/
-          - https://small-hack.github.io/cloudnative-pg-tenant-chart 
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
@@ -1012,7 +1012,7 @@ apps:
         source_repos:
           - https://charts.zitadel.com
           - https://zitadel.github.io/zitadel-charts
-          - https://small-hack.github.io/cloudnative-pg-tenant-chart 
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://operator.min.io/
         destination:
           # automatically includes the app's namespace and argocd's namespace
