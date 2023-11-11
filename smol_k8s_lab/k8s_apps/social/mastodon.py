@@ -31,6 +31,8 @@ def configure_mastodon(k8s_obj: K8s,
         mastodon_hostname = secrets['hostname']
 
     if init_enabled and not app_installed:
+        k8s_obj.create_namespace('mastodon')
+
         # declare custom values for mastodon
         init_values = config_dict['init']['values']
 
