@@ -10,6 +10,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
+from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
 import logging as log
@@ -69,18 +70,6 @@ def configure_mastodon(k8s_obj: K8s,
                                   credentials_exports)
 
         if bitwarden:
-            # admin credentials
-            email_obj = create_custom_field("email", email)
-            sub_header("Creating secrets in Bitwarden")
-            password = bitwarden.generate()
-            admin_id = bitwarden.create_login(
-                    name='mastodon-admin-credentials',
-                    item_url=mastodon_hostname,
-                    user=username,
-                    password=password,
-                    fields=[email_obj]
-                    )
-
             # elastic search password
             mastodon_elasticsearch_password = bitwarden.generate()
             elastic_id = bitwarden.create_login(
@@ -167,10 +156,10 @@ def configure_mastodon(k8s_obj: K8s,
                     )
             
             # update the mastodon values for the argocd appset
+            # 'mastodon_admin_credentials_bitwarden_id': admin_id,
             update_argocd_appset_secret(
                     k8s_obj,
-                    {'mastodon_admin_credentials_bitwarden_id': admin_id,
-                     'mastodon_smtp_credentials_bitwarden_id': smtp_id,
+                    {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
                      'mastodon_s3_credentials_bitwarden_id': s3_id,
@@ -190,11 +179,9 @@ def configure_mastodon(k8s_obj: K8s,
         # these are standard k8s secrets yaml
         else:
             # admin creds k8s secret
-            password = create_password()
-            k8s_obj.create_secret('mastodon-admin-credentials', 'mastodon',
-                          {"username": username,
-                           "password": password,
-                           "email": email})
+            # k8s_obj.create_secret('mastodon-admin-credentials', 'mastodon',
+            #               {"username": username,
+            #                "email": email})
 
             # postgres creds k8s secret
             mastodon_pgsql_password = create_password()
@@ -220,6 +207,20 @@ def configure_mastodon(k8s_obj: K8s,
             wait_for_argocd_app('mastodon')
             # this is because the official mastodon chart is weird...
             sync_argocd_app('mastodon-web-app')
+
+            # admin credentials
+            password = create_user(username,
+                                   email,
+                                   config_dict['argo']['namespace'])
+            if bitwarden:
+                sub_header("Creating secrets in Bitwarden")
+                bitwarden.create_login(
+                        name='mastodon-admin-credentials',
+                        item_url=mastodon_hostname,
+                        user=username,
+                        password=password,
+                        fields=[create_custom_field("email", email)]
+                        )
     else:
         log.info("mastodon already installed 🎉")
 
@@ -229,9 +230,9 @@ def configure_mastodon(k8s_obj: K8s,
             log.debug("Making sure mastodon Bitwarden item IDs are in appset "
                       "secret plugin secret")
 
-            admin_id = bitwarden.get_item(
-                    f"mastodon-admin-credentials-{mastodon_hostname}"
-                    )[0]['id']
+            # admin_id = bitwarden.get_item(
+            #         f"mastodon-admin-credentials-{mastodon_hostname}"
+            #         )[0]['id']
 
             db_id = bitwarden.get_item(
                     f"mastodon-pgsql-credentials-{mastodon_hostname}"
@@ -257,12 +258,32 @@ def configure_mastodon(k8s_obj: K8s,
                     f"mastodon-server-secrets-{mastodon_hostname}"
                     )[0]['id']
 
+            # {'mastodon_admin_credentials_bitwarden_id': admin_id,
             update_argocd_appset_secret(
                     k8s_obj,
-                    {'mastodon_admin_credentials_bitwarden_id': admin_id,
-                     'mastodon_smtp_credentials_bitwarden_id': smtp_id,
+                    {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
                      'mastodon_s3_credentials_bitwarden_id': s3_id,
                      'mastodon_elasticsearch_credentials_bitwarden_id': elastic_id,
                      'mastodon_server_secrets_bitwarden_id': secrets_id})
+
+
+def create_user(user: str, email: str, pod_namespace: str) -> str:
+    """
+    takes user dict line 
+    """
+    pod_cmd = (
+            f"kubectl get pods -n {pod_namespace} -l "
+            "app.kubernetes.io/instance=mastodon-web-app,"
+            "app.kubernetes.io/component=app "
+            "--no-headers "
+            "-o custom-columns=NAME:.metadata.name")
+    pod = subproc([pod_cmd]).rstrip()
+
+    cmd = (f'kubectl exec -n {pod_namespace} {pod} -- /bin/bash -c bin/tootctl '
+           f'accounts create {user} --email {email} --confirmed --role Owner')
+    res = subproc([cmd],
+                  shell=True,
+                  universal_newlines=True)
+    return res
