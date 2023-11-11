@@ -81,6 +81,15 @@ def configure_mastodon(k8s_obj: K8s,
                     fields=[email_obj]
                     )
 
+            # elastic search password
+            mastodon_elasticsearch_password = bitwarden.generate()
+            elastic_id = bitwarden.create_login(
+                    name='mastodon-elasticsearch-credentials',
+                    item_url=mastodon_hostname,
+                    user='mastodon',
+                    password=mastodon_elasticsearch_password
+                    )
+
             # PostgreSQL credentials
             mastodon_pgsql_password = bitwarden.generate()
             postrges_pass_obj = create_custom_field("postgresPassword",
@@ -165,6 +174,7 @@ def configure_mastodon(k8s_obj: K8s,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
                      'mastodon_s3_credentials_bitwarden_id': s3_id,
+                     'mastodon_elasticsearch_credentials_bitwarden_id': elastic_id,
                      'mastodon_server_secrets_bitwarden_id': secrets_id})
 
             # reload the bitwarden ESO provider
@@ -227,6 +237,10 @@ def configure_mastodon(k8s_obj: K8s,
                     f"mastodon-pgsql-credentials-{mastodon_hostname}"
                     )[0]['id']
 
+            elastic_id = bitwarden.get_item(
+                    f"mastodon-elasticsearch-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
             redis_id = bitwarden.get_item(
                     f"mastodon-redis-credentials-{mastodon_hostname}"
                     )[0]['id']
@@ -250,4 +264,5 @@ def configure_mastodon(k8s_obj: K8s,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
                      'mastodon_s3_credentials_bitwarden_id': s3_id,
+                     'mastodon_elasticsearch_credentials_bitwarden_id': elastic_id,
                      'mastodon_server_secrets_bitwarden_id': secrets_id})
