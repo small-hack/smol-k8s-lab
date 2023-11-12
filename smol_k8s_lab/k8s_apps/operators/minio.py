@@ -173,7 +173,7 @@ class BetterMinio:
         self.admin_client.policy_add('minio_read_users', policy_file_name)
         log.info("Created minio_read only user policy for use with OIDC")
 
-    def set_anonymous_download(self, bucket: str, prefix: str = "") -> None:
+    def set_anonymous_download(self, bucket: str, prefix: str) -> None:
         """ 
         sets anonymous download on a particular bucket and folder
 
@@ -184,7 +184,16 @@ class BetterMinio:
                 {
                     "Effect": "Allow",
                     "Principal": {"AWS": "*"},
-                    "Action": ["s3:GetBucketLocation", "s3:ListBucket"],
+                    "Action": ["s3:GetBucketLocation"],
+                    "Resource": f"arn:aws:s3:::{bucket}",
+                },
+                {
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": ["s3:ListBucket"],
+                    "Condition": {
+                        "StringEquals": {"s3:prefix": [prefix]}
+                    },
                     "Resource": f"arn:aws:s3:::{bucket}",
                 },
                 {
@@ -195,7 +204,9 @@ class BetterMinio:
                 },
             ],
         }
+
         self.client.set_bucket_policy(bucket, dumps(policy))
+
 
 def configure_minio_tenant(k8s_obj: K8s,
                            minio_config: dict,
