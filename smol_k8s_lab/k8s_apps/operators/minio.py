@@ -1,4 +1,4 @@
-from json import load, dump
+from json import load, dump, dumps
 import logging as log
 from os.path import exists
 from os import makedirs
@@ -173,6 +173,29 @@ class BetterMinio:
         self.admin_client.policy_add('minio_read_users', policy_file_name)
         log.info("Created minio_read only user policy for use with OIDC")
 
+    def set_anonymous_download(self, bucket: str, prefix: str = "") -> None:
+        """ 
+        sets anonymous download on a particular bucket and folder
+
+        """
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": ["s3:GetBucketLocation", "s3:ListBucket"],
+                    "Resource": f"arn:aws:s3:::{bucket}",
+                },
+                {
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": "s3:GetObject",
+                    "Resource": f"arn:aws:s3:::{bucket}/{prefix}*",
+                },
+            ],
+        }
+        self.client.set_bucket_policy(bucket, dumps(policy))
 
 def configure_minio_tenant(k8s_obj: K8s,
                            minio_config: dict,
@@ -275,49 +298,11 @@ def configure_minio_tenant(k8s_obj: K8s,
 
         # while we wait for the app to come up, update the config file
         if minio_init_enabled:
-            protocal = "http"
-
-            if secure:
-                protocal = "https"
-
-            # we create a config file so users can easily use minio from the cli
-            new_minio_alias = {"url": f"{protocal}://{minio_hostname}",
-                               "accessKey": access_key,
-                               "secretKey": secret_key,
-                               "api": "S3v4",
-                               "path": "auto"}
-
-            # if the user hasn't chosen a config location, we use XDG spec, maybe
-            # xdg_minio_config_file = xdg_config_home() + "/minio/config.json"
-            minio_config_dir = HOME_DIR + ".mc/"
-            minio_config_file = minio_config_dir + "config.json"
-
-            # create the dir if it doesn't exist
-            if not exists(minio_config_file):
-                makedirs(minio_config_dir, exist_ok=True)
-                minio_cfg_obj = {}
-            else:
-                # open the default minio cli config to take a peek
-                with open(minio_config_file, 'r') as minio_config_contents:
-                    minio_cfg_obj = load(minio_config_contents)
-
-            # reconfigure the file for our new alias
-            if not minio_cfg_obj:
-                # if there's not a config object, make one
-                minio_cfg_obj = {"version": "10",
-                                 "aliases": {"minio-root": new_minio_alias}}
-            else:
-                aliases = minio_cfg_obj.get("aliases", None)
-                # if there is an aliases section with minio-root, update it
-                if aliases:
-                    minio_cfg_obj['aliases']['minio-root'] = new_minio_alias
-                # if there is not an aliases section with minio-root, create one
-                else:
-                    minio_cfg_obj['aliases'] = {"minio-root": new_minio_alias}
-
-            # write out the config file when we're done
-            with open(minio_config_file, 'w') as minio_config_contents:
-                dump(minio_cfg_obj, minio_config_contents)
+            create_minio_alias("minio-root",
+                               minio_hostname,
+                               access_key,
+                               secret_key,
+                               secure)
 
         # make sure the app is up before returning
         wait_for_argocd_app('minio-tenant')
@@ -357,3 +342,55 @@ def configure_minio_operator(k8s_obj: K8s, minio_config: dict) -> None:
                             'minio',
                             minio_config['argo'])
         wait_for_argocd_app('minio')
+
+
+def create_minio_alias(minio_alias: str,
+                       minio_hostname: str,
+                       access_key: str,
+                       secret_key: str,
+                       secure: bool = True) -> None:
+    """
+    add minio alias for credentials to your local /home/.mc/config.json file
+    """
+    protocal = "https"
+    if not secure:
+        protocal = "http"
+
+    # we create a config file so users can easily use minio from the cli
+    new_minio_alias = {"url": f"{protocal}://{minio_hostname}",
+                       "accessKey": access_key,
+                       "secretKey": secret_key,
+                       "api": "S3v4",
+                       "path": "auto"}
+
+    # if the user hasn't chosen a config location, we use XDG spec, maybe
+    # xdg_minio_config_file = xdg_config_home() + "/minio/config.json"
+    minio_config_dir = HOME_DIR + ".mc/"
+    minio_config_file = minio_config_dir + "config.json"
+
+    # create the dir if it doesn't exist
+    if not exists(minio_config_file):
+        makedirs(minio_config_dir, exist_ok=True)
+        minio_cfg_obj = {}
+    else:
+        # open the default minio cli config to take a peek
+        with open(minio_config_file, 'r') as minio_config_contents:
+            minio_cfg_obj = load(minio_config_contents)
+
+    # reconfigure the file for our new alias
+    if not minio_cfg_obj:
+        # if there's not a config object, make one
+        minio_cfg_obj = {"version": "10",
+                         "aliases": {minio_alias: new_minio_alias}}
+    else:
+        aliases = minio_cfg_obj.get("aliases", None)
+        # if there is an aliases section with minio_alias, update it
+        if aliases:
+            minio_cfg_obj['aliases'][minio_alias] = new_minio_alias
+        # if there is not an aliases section with minio_alias, create one
+        else:
+            minio_cfg_obj['aliases'] = {minio_alias: new_minio_alias}
+
+    # write out the config file when we're done
+    with open(minio_config_file, 'w') as minio_config_contents:
+        dump(minio_cfg_obj, minio_config_contents)

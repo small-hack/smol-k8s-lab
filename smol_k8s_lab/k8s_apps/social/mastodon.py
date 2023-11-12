@@ -1,6 +1,6 @@
 # internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_apps.operators.minio import BetterMinio
+from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias, BetterMinio
 from smol_k8s_lab.k8s_apps.social.mastodon_rake import generate_rake_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
@@ -80,6 +80,10 @@ def configure_mastodon(k8s_obj: K8s,
             MINIO_ROOT_PASSWORD={s3_access_key}"""}
             k8s_obj.create_secret('default-tenant-env-config', 'mastodon',
                                   credentials_exports)
+            create_minio_alias("mastodon",
+                               s3_hostname,
+                               s3_access_id,
+                               s3_access_key)
 
         if bitwarden:
             # elastic search password
@@ -218,13 +222,12 @@ def configure_mastodon(k8s_obj: K8s,
                             argo_dict=config_dict['argo']
                             )
         if init_enabled:
+            # for for all the mastodon apps to come up
             wait_for_argocd_app('mastodon')
-            # this is because the official mastodon chart is weird...
-            # sync_argocd_app('mastodon-app-set')
             sync_argocd_app('mastodon-web-app')
             wait_for_argocd_app('mastodon-web-app')
 
-            # admin credentials
+            # create admin credentials
             password = create_user(username,
                                    email,
                                    config_dict['argo']['namespace'])
@@ -237,6 +240,15 @@ def configure_mastodon(k8s_obj: K8s,
                         password=password,
                         fields=[create_custom_field("email", email)]
                         )
+
+            if create_minio_tenant:
+                # create bucket policy for mastodon s3 media bucket
+                minio = BetterMinio("mastodon",
+                                    s3_hostname,
+                                    s3_access_id,
+                                    s3_access_key)
+
+                minio.set_anonymous_download(s3_bucket, "media_attachments")
     else:
         log.info("mastodon already installed 🎉")
 
