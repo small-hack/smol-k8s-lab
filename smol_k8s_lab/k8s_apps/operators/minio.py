@@ -176,7 +176,6 @@ class BetterMinio:
     def set_anonymous_download(self, bucket: str, prefix: str) -> None:
         """ 
         sets anonymous download on a particular bucket and folder
-
         """
         policy = {
             "Version": "2012-10-17",

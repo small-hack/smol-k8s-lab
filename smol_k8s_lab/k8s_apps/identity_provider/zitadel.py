@@ -3,7 +3,7 @@ from json import loads
 import logging as log
 from .zitadel_api import Zitadel
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias, BetterMinio
+from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 wait_for_argocd_app,
@@ -75,12 +75,13 @@ def configure_zitadel(k8s_obj: K8s,
         if bitwarden:
             # S3 credentials
             s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
+            s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
             s3_id = bitwarden.create_login(
                     name='zitadel-s3-credentials',
                     item_url=zitadel_hostname,
                     user=s3_access_id,
                     password=s3_access_key,
-                    fields=[s3_bucket_obj]
+                    fields=[s3_bucket_obj, s3_endpoint_obj]
                     )
 
             # create zitadel core key

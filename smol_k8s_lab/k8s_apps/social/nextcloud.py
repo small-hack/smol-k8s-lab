@@ -1,4 +1,5 @@
 # internal libraries
+from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
@@ -93,6 +94,7 @@ def configure_nextcloud(k8s_obj: K8s,
             k8s_obj.create_secret('default-tenant-env-config',
                                   config_dict['argo']['namespace'],
                                   credentials_exports)
+            create_minio_alias("nextcloud", s3_endpoint, s3_access_id, s3_access_key)
 
         # configure OIDC
         if zitadel:
@@ -151,7 +153,7 @@ def configure_nextcloud(k8s_obj: K8s,
                     name='nextcloud-pgsql-credentials',
                     item_url=nextcloud_hostname,
                     user='nextcloud',
-                    password=bitwarden.generate()
+                    password='we-dont-use-the-password-anymore-we-use-tls'
                     )
 
             # redis credentials creation
@@ -201,10 +203,9 @@ def configure_nextcloud(k8s_obj: K8s,
                                    "smtpPassword": mail_pass})
 
             # postgres db credentials creation
-            pgsql_nextcloud_password = create_password()
             k8s_obj.create_secret('nextcloud-pgsql-credentials', 'nextcloud',
                                   {"username": 'nextcloud',
-                                   "password": pgsql_nextcloud_password})
+                                   "password": 'we-use-tls-instead-of-password'})
 
             # redis credentials creation
             nextcloud_redis_password = create_password()

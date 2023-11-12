@@ -1,4 +1,5 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
@@ -57,6 +58,10 @@ def configure_matrix(k8s_obj: K8s,
             k8s_obj.create_secret('default-tenant-env-config',
                                   config_dict['argo']['namespace'],
                                   credentials_exports)
+            create_minio_alias("matrix",
+                               s3_endpoint,
+                               s3_access_id,
+                               s3_access_key)
 
         # create Matrix OIDC Application
         if zitadel:
@@ -94,16 +99,14 @@ def configure_matrix(k8s_obj: K8s,
                     "hostname",
                     f"matrix-postgres-rw.{config_dict['argo']['namespace']}.svc"
                     )
-            db_pass_obj = create_custom_field("postgresPassword",
-                                              matrix_pgsql_password)
             # the database name
             db_obj = create_custom_field("database", "matrix")
             db_id = bitwarden.create_login(
                     name='matrix-pgsql-credentials',
                     item_url=matrix_hostname,
                     user='matrix',
-                    password=matrix_pgsql_password,
-                    fields=[db_hostname_obj, db_pass_obj, db_obj]
+                    password="we-use-tls-instead-of-password-now",
+                    fields=[db_hostname_obj, db_obj]
                     )
 
             # SMTP credentials
@@ -163,11 +166,10 @@ def configure_matrix(k8s_obj: K8s,
         # else create these as Kubernetes secrets
         else:
             # postgresql credentials
-            matrix_pgsql_password = create_password()
             k8s_obj.create_secret(
                     'matrix-pgsql-credentials',
                     'matrix',
-                    {"password": matrix_pgsql_password}
+                    {"password": "we-use-tls-instead-of-password-now"}
                     )
 
             # registation key
