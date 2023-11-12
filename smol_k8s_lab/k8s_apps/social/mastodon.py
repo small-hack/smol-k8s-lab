@@ -49,8 +49,14 @@ def configure_mastodon(k8s_obj: K8s,
         # configure s3 and credentials if in use
         s3_access_id = init_values.get('s3_access_id', 'mastodon')
         s3_access_key = init_values.get('s3_access_key', create_password())
-        s3_endpoint = secrets.get('s3_endpoint', "")
         s3_bucket = secrets.get('s3_bucket', "mastodon")
+        s3_endpoint = secrets.get('s3_endpoint', "")
+
+        # endpoint that gets put into the secret should probably have http in it
+        if "http" not in s3_endpoint:
+            s3_endpoint = "https://" + s3_endpoint
+
+        # the directory below mastodon/app_of_apps is minio_tenant
         if config_dict['argo']['directory_recursion']:
             default_minio = True
         else:
