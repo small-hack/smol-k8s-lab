@@ -51,10 +51,16 @@ def configure_mastodon(k8s_obj: K8s,
         s3_access_key = init_values.get('s3_access_key', create_password())
         s3_bucket = secrets.get('s3_bucket', "mastodon")
         s3_endpoint = secrets.get('s3_endpoint', "")
+        s3_hostname = secrets.get('s3_endpoint', "")
 
         # endpoint that gets put into the secret should probably have http in it
         if "http" not in s3_endpoint:
             s3_endpoint = "https://" + s3_endpoint
+
+        # the hostname however, must not have a protocol. local s3 is hard...
+        if "http" in s3_hostname:
+            s3_hostname = s3_hostname.replace("https://", "")
+            s3_hostname = s3_hostname.replace("http://", "")
 
         # the directory below mastodon/app_of_apps is minio_tenant
         if config_dict['argo']['directory_recursion']:
@@ -117,7 +123,8 @@ def configure_mastodon(k8s_obj: K8s,
                     )
 
             # S3 credentials
-            mastodon_s3_host_obj = create_custom_field("s3Endpoint", s3_endpoint)
+            mastodon_s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
+            mastodon_s3_host_obj = create_custom_field("s3Hostname", s3_hostname)
             mastodon_s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
             s3_id = bitwarden.create_login(
                     name='mastodon-s3-credentials',
@@ -125,6 +132,7 @@ def configure_mastodon(k8s_obj: K8s,
                     user=s3_access_id,
                     password=s3_access_key,
                     fields=[
+                        mastodon_s3_endpoint_obj,
                         mastodon_s3_host_obj,
                         mastodon_s3_bucket_obj
                         ]
