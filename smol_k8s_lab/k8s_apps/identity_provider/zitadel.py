@@ -67,11 +67,18 @@ def configure_zitadel(k8s_obj: K8s,
             k8s_obj.create_secret('default-tenant-env-config',
                                   config_dict['argo']['namespace'],
                                   credentials_exports)
+
+            # updates the ~/.mc/config.json
             create_minio_alias("zitadel",
                                s3_endpoint,
                                s3_access_id,
                                s3_access_key)
 
+            # create secret for the postgresql s3 credentials
+            # this will hopefully be done programmatically in the future
+            k8s_obj.create_secret('zitadel-postgresql-s3-credentials',
+                                  {"CONSOLE_ACCESS_KEY": "zitadel-postgresql",
+                                   "CONSOLE_SECRET_KEY": create_password()})
         if bitwarden:
             # S3 credentials
             s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
