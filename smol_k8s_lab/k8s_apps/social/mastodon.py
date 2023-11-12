@@ -206,7 +206,9 @@ def configure_mastodon(k8s_obj: K8s,
         if init_enabled:
             wait_for_argocd_app('mastodon')
             # this is because the official mastodon chart is weird...
+            # sync_argocd_app('mastodon-app-set')
             sync_argocd_app('mastodon-web-app')
+            wait_for_argocd_app('mastodon-web-app')
 
             # admin credentials
             password = create_user(username,
