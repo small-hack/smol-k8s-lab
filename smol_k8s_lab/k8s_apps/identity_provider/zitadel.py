@@ -3,6 +3,7 @@ from json import loads
 import logging as log
 from .zitadel_api import Zitadel
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
+from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias, BetterMinio
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 wait_for_argocd_app,
@@ -32,7 +33,7 @@ def configure_zitadel(k8s_obj: K8s,
     If no init: Returns True if successful.
     If init AND vouch_hostname, returns vouch credentials
     """
-    header("Setting up [green]Zitadel[/green], our identity management solution", "👥")
+    header("Setting up [green]Zitadel[/], our identity management solution", "👥")
     secrets = config_dict['argo']['secret_keys']
     if secrets:
         zitadel_hostname = secrets['hostname']
@@ -42,7 +43,6 @@ def configure_zitadel(k8s_obj: K8s,
 
     if config_dict['init']['enabled'] and not app_installed:
         log.debug("Creating core key and DB credenitals for zitadel...")
-        db_admin_user = "postgres"
         init_values = config_dict['init']['values']
         # configure s3 credentials if they're in use
         s3_access_id = init_values.get('s3_access_id', 'zitadel')
@@ -67,19 +67,20 @@ def configure_zitadel(k8s_obj: K8s,
             k8s_obj.create_secret('default-tenant-env-config',
                                   config_dict['argo']['namespace'],
                                   credentials_exports)
+            create_minio_alias("zitadel",
+                               s3_endpoint,
+                               s3_access_id,
+                               s3_access_key)
 
         if bitwarden:
             # S3 credentials
-            if "http" not in s3_endpoint:
-                s3_endpoint = "https://" + s3_endpoint
-            s3_host_obj = create_custom_field("s3Endpoint", s3_endpoint)
             s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
             s3_id = bitwarden.create_login(
                     name='zitadel-s3-credentials',
                     item_url=zitadel_hostname,
                     user=s3_access_id,
                     password=s3_access_key,
-                    fields=[s3_host_obj, s3_bucket_obj]
+                    fields=[s3_bucket_obj]
                     )
 
             # create zitadel core key
@@ -90,18 +91,12 @@ def configure_zitadel(k8s_obj: K8s,
                                              password=new_key)
 
             # create db credentials password dict
-            db_password = bitwarden.generate()
-            db_admin_password = bitwarden.generate()
-            db_admin_user_obj = create_custom_field("adminUser",
-                                                    db_admin_user)
-            db_admin_pass_obj = create_custom_field("adminPassword",
-                                                    db_admin_password)
-            db_id = bitwarden.create_login(name="zitadel-db-credentials",
-                                           user="zitadel",
-                                           item_url=zitadel_hostname,
-                                           password=db_password,
-                                           fields=[db_admin_user_obj,
-                                                   db_admin_pass_obj])
+            db_id = bitwarden.create_login(
+                    name="zitadel-db-credentials",
+                    user="zitadel",
+                    item_url=zitadel_hostname,
+                    password="using-tls-now-so-we-do-not-need-a-password"
+                    )
 
             # update the zitadel values for the argocd appset
             update_argocd_appset_secret(
@@ -121,23 +116,16 @@ def configure_zitadel(k8s_obj: K8s,
                         f"{e}"
                         )
         else:
-            new_key = create_password()
-            secret_dict = {'masterkey': new_key}
+            # create the zitadel core key
+            secret_dict = {'masterkey': create_password()}
             k8s_obj.create_secret(name="zitadel-core-key",
                                   namespace="zitadel",
                                   str_data=secret_dict)
 
-            db_password = create_password()
-            db_admin_password = create_password()
-            db_secret_dict = {
-                    'username': 'zitadel',
-                    'password': db_password,
-                    'adminUsername': db_admin_user,
-                    'adminPassword': db_admin_password
-                    }
+            # this is just for the db username
             k8s_obj.create_secret(name="zitadel-db-credentials",
                                   namespace="zitadel",
-                                  str_data=db_secret_dict)
+                                  str_data={'username': 'zitadel'})
 
     # install Zitadel using ArgoCD
     if not app_installed:
