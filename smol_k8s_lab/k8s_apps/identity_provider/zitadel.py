@@ -77,6 +77,7 @@ def configure_zitadel(k8s_obj: K8s,
             # create secret for the postgresql s3 credentials
             # this will hopefully be done programmatically in the future
             k8s_obj.create_secret('zitadel-postgresql-s3-credentials',
+                                  config_dict['argo']['namespace'],
                                   {"CONSOLE_ACCESS_KEY": "zitadel-postgresql",
                                    "CONSOLE_SECRET_KEY": create_password()})
         if bitwarden:
