@@ -917,7 +917,7 @@ apps:
     enabled: false
     # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
     init:
-      enabled: false
+      enabled: true
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
