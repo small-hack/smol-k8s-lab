@@ -13,7 +13,8 @@ from ..k8s_tools.helm import prepare_helm
 from ..k8s_tools.k8s_lib import K8s
 from ..utils.rich_cli.console_logging import header
 from .argocd import configure_argocd
-from .ingress.ingress_nginx_controller import configure_ingress_nginx, install_ingress_nginx_argocd_app
+from .ingress.ingress_nginx_controller import (configure_ingress_nginx,
+                                               install_ingress_nginx_argocd_app)
 from .ingress.cert_manager import configure_cert_manager
 # from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
@@ -23,6 +24,7 @@ from .networking.metallb import configure_metallb
 from .networking.cilium import configure_cilium
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
+from .secrets_management.vault import configure_vault
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
@@ -33,6 +35,7 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
                                  eso_dict: dict = {},
                                  bitwarden_eso_provider_dict: dict = {},
                                  infisical_dict: dict = {},
+                                 vault_dict: dict = {},
                                  bitwarden: BwCLI = None) -> None:
     """
     sets up k8s secrets management tooling
@@ -57,6 +60,10 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
         header_msg += 'Infisical Secrets Operator[/]'
         header(header_msg, '🤫')
         configure_infisical(k8s_obj, infisical_dict)
+
+    # setup hashicorp's vault, a secret key management system
+    elif vault_dict['enabled']:
+        configure_vault(k8s_obj, vault_dict)
 
 
 def setup_oidc_provider(k8s_obj: K8s,

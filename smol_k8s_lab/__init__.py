@@ -222,11 +222,13 @@ def main(config: str = "",
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
+        # setup k8s secrets management and secret stores
         setup_k8s_secrets_management(k8s_obj,
                                      distro,
                                      apps.pop('external_secrets_operator'),
                                      apps.pop('bitwarden_eso_provider'),
                                      apps.pop('infisical'),
+                                     apps.pop('vault'),
                                      bw)
 
         # if the global cluster issuer is set to letsencrypt-staging don't
