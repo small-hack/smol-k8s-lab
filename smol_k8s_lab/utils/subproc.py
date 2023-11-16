@@ -3,9 +3,9 @@ Using Textualize's rich library to pretty print subprocess outputs,
 so during long running commands, the user isn't wondering what's going on,
 even if you don't actually output anything from stdout/stderr of the command.
 """
-
 import logging as log
 from subprocess import Popen, PIPE
+import re
 from rich.console import Console
 from rich.theme import Theme
 from rich.progress import Progress
@@ -87,7 +87,7 @@ def subproc(commands: list, **kwargs):
     return output
 
 
-def run_subprocess(command: str, **kwargs):
+def run_subprocess(command: str, decode_ascii: bool = False, **kwargs):
     """
     Takes a str commmand to run in BASH in a subprocess.
     Typically run from subproc, which handles output printing.
@@ -97,6 +97,8 @@ def run_subprocess(command: str, **kwargs):
         cwd       - str, current working dir which is the dir to run command in
         shell     - bool, run shell or not
         env       - environment variables you'd like to pass in
+        decode_ascii - decode ascii strings instead of the default UTF-8
+        text, universal_newlines - allow for "" in commands
     """
     # get the values if passed in, otherwise, set defaults
     quiet = kwargs.pop('quiet', False)
@@ -107,8 +109,6 @@ def run_subprocess(command: str, **kwargs):
             p = Popen(command, stdout=PIPE, stderr=PIPE, **kwargs)
         else:
             p = Popen(command.split(), stdout=PIPE, stderr=PIPE, **kwargs)
-        res = p.communicate()
-        return_code = p.returncode
     except Exception as e:
         if error_ok:
             log.debug(str(e))
@@ -116,14 +116,28 @@ def run_subprocess(command: str, **kwargs):
         else:
             raise Exception(e)
 
-    if kwargs.get('universal_newlines', None):
+    res = p.communicate()
+    return_code = p.returncode
+
+    # decode the output only if universal_newlines is not true
+    if kwargs.get('universal_newlines', None) or kwargs.get('text', None):
+        log.info("universal_newlines or text is true")
         res_stdout, res_stderr = res[0], res[1]
+    elif decode_ascii:
+        log.info("decode_ascii is true")
+        ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+        res_stdout = ansi_escape.sub('', res[0].decode('UTF-8'))
+        res_stderr = ansi_escape.sub('', res[1].decode('UTF-8'))
     else:
+        log.info("universal_newlines or text is true")
         res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
 
     # if quiet = True, or res_stdout is empty, we hide this
     if res_stdout and not quiet:
         log.info(res_stdout)
+
+    if res_stderr and not quiet:
+        log.info(res_stderr)
 
     # check return code, raise error if failure
     if not return_code or return_code != 0:

@@ -27,6 +27,7 @@ from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
 import logging as log
+from time import sleep
 
 
 def configure_vault(k8s_obj: K8s, vault_dict: dict, bitwarden: BwCLI = None) -> None:
@@ -49,7 +50,7 @@ def configure_vault(k8s_obj: K8s, vault_dict: dict, bitwarden: BwCLI = None) -> 
         wait_for_argocd_app('vault')
 
     init_dict = vault_dict['init']
-    if init_dict['enabled']:
+    if not app_installed and init_dict['enabled']:
         log.info("Vault init enabled. We'll proceed with the unsealing process")
         initialize_vault(argo_dict['namespace'], bitwarden, vault_cluster_name)
 
@@ -60,10 +61,16 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
     object is passed in
     """
     # first get the vault pod
+    vault_pods = None
     cmd = (f"kubectl get pods -l app.kubernetes.io/name=vault -n {namespace} "
            "--no-headers -o custom-columns=NAME:.metadata.name")
-    vault_pods = subproc([cmd]).split()
 
+    # it might fail the first time, though, so keep trying...
+    while not vault_pods:
+        vault_pods = subproc([cmd])
+        sleep(5)
+
+    pods = vault_pods.split()
     # initialize vault, which will produce something like:
     # Unseal Key 1: MBFSDepD9E6whREc6Dj+k3pMaKJ6cCnCUWcySJQymObb
     # Unseal Key 2: zQj4v22k9ixegS+94HJwmIaWLBL3nZHe1i+b/wHz25fr
@@ -71,13 +78,13 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
     # Unseal Key 4: tLt+ME7Z7hYUATfWnuQdfCEgnKA2L173dptAwfmenCdf
     # Unseal Key 5: vYt9bxLr0+OzJ8m7c7cNMFj7nvdLljj0xWRbpLezFAI9
     # Initial Root Token: s.zJNwZlRrqISjyBHFMiEca6GF
-    cmd = (f"kubectl exec -n {namespace} --stdin=true --tty=true {vault_pods[0]} -- "
-           "vault operator init")
-    key_lines = subproc([cmd], shell=True, universal_newlines=True).split('\n')
-    log.info(key_lines)
-    root_token_line = key_lines.pop()
-    log.info(root_token_line)
-    root_token = root_token_line.split()[3]
+    cmd = (f"kubectl exec -n {namespace} --stdin=true --tty=true {pods[0]}"
+           " -- vault operator init")
+    key_lines_str = subproc([cmd], decode_ascii=True, quiet=True)
+    key_lines = key_lines_str.split('\r\n')
+
+    root_token_line = key_lines.pop(6)
+    root_token = root_token_line.split(' ')[3]
 
     # used for unsealing, and we'll save up them to log.info at the end if no bitwarden
     keys = []
@@ -86,12 +93,16 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
         bw_objs = [create_custom_field('rootToken', root_token)]
 
     # iterate through each key and grab only the key field
-    for index, key_line in enumerate(key_lines):
-        # this should be the key only
-        key = key_line.split()[3]
+    for key_line in key_lines[:4]:
+        # this gets us both the key number and the value
+        key_value_list = key_line.split(": ")
+        # this is just UnsealKey1 or whatever number we're on
+        key_name = key_value_list[0].replace(" ", "")
+        # this is the actual key we need to keep secret
+        key = key_value_list[1]
         keys.append(key)
         if bitwarden:
-            bw_objs.append(create_custom_field(f'unsealKey{str(index)}', key))
+            bw_objs.append(create_custom_field(key_name, key))
 
     # store these keys in bitwarden for later use
     if bitwarden:
@@ -102,13 +113,13 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
                                fields=bw_objs)
 
     # unseal each pod with each key...
-    for pod in vault_pods:
+    for pod in pods:
         cmds = []
         # Unseal the Vault server with the key shares until the key threshold is met
         for key in keys:
             cmds.append(f"kubectl exec -n {namespace} --stdin=true --tty=true {pod} -- "
                         f"vault operator unseal {key}")
-        subproc(cmds, shell=True, universal_newlines=True)
+        subproc(cmds, quiet=True)
 
     log.info("Vault is initialized and unsealed")
 

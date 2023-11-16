@@ -20,19 +20,20 @@ def launch_config_tui():
     secrets = {}
 
     # check if we're using the appset_secret_plugin at all
-    if config['apps']['appset_secret_plugin']['enabled']:
-        # if we are using the appset_secret_plugin, then grab all the secret keys
-        for app, metadata in config['apps'].items():
-            if metadata['enabled']:
-                secret_keys = metadata['argo'].get('secret_keys', None)
-                if secret_keys:
-                    for key, value in secret_keys.items():
-                        secrets[f"{app}_{key}"] = value
+    # if config['apps']['appset_secret_plugin']['enabled']:
 
-        # this is to set global secret keys for all applications
-        global_secrets = config['apps_global_config']
-        if global_secrets:
-            for secret_key, value in global_secrets.items():
-                secrets[f'global_{secret_key}'] = value
+    # if we are using the appset_secret_plugin, then grab all the secret keys
+    for app, metadata in config['apps'].items():
+        if metadata['enabled']:
+            secret_keys = metadata['argo'].get('secret_keys', None)
+            if secret_keys:
+                for key, value in secret_keys.items():
+                    secrets[f"{app}_{key}"] = value
+
+    # this is to set global secret keys for all applications
+    global_secrets = config['apps_global_config']
+    if global_secrets:
+        for secret_key, value in global_secrets.items():
+            secrets[f'global_{secret_key}'] = value
 
     return cluster_name, config, secrets, bitwarden_credentials
