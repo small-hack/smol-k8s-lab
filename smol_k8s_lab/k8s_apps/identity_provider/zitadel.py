@@ -41,20 +41,17 @@ def configure_zitadel(k8s_obj: K8s,
     # check to make sure the app instead already installed with Argo CD
     app_installed = check_if_argocd_app_exists('zitadel')
 
-    if config_dict['init']['enabled'] and not app_installed:
+    init_dict = config_dict['init']
+
+    if init_dict['enabled'] and not app_installed:
         log.debug("Creating core key and DB credenitals for zitadel...")
-        init_values = config_dict['init']['values']
+        init_values = init_dict['values']
         # configure s3 credentials if they're in use
         s3_access_id = init_values.get('s3_access_id', 'zitadel')
         s3_access_key = init_values.get('s3_access_key', '')
         s3_endpoint = secrets.get('s3_endpoint', "")
         s3_bucket = secrets.get('s3_bucket', "zitadel-postgresql")
-        if config_dict['argo']['directory_recursion']:
-            default_minio = True
-        else:
-            default_minio = False
-        create_minio_tenant = init_values.get('create_minio_tenant',
-                                              default_minio)
+        create_minio_tenant = init_values.pop('create_minio_tenant')
 
         # creates the initial root credentials secret for the minio tenant
         if create_minio_tenant:
@@ -142,8 +139,8 @@ def configure_zitadel(k8s_obj: K8s,
 
         # only continue through the rest of the function if we're initializes a
         # user and argocd client in zitadel
-        if config_dict['init']['enabled']:
-            initial_user_dict = config_dict['init']['values']
+        if init_dict['enabled']:
+            initial_user_dict = init_values
             # Before initialization, we need to wait for zitadel's API to be up
             wait_for_argocd_app('zitadel')
             wait_for_argocd_app('zitadel-web-app')
