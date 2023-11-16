@@ -55,14 +55,14 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
                                    k8s_distro,
                                    bitwarden)
 
-    # setup infisical - an secrets manager and operator for k8s
+    # setup infisical - an secrets manager and operator for k8s that replaces eso
     elif infisical_dict['enabled']:
         header_msg += 'Infisical Secrets Operator[/]'
         header(header_msg, '🤫')
         configure_infisical(k8s_obj, infisical_dict)
 
-    # setup hashicorp's vault, a secret key management system
-    elif vault_dict['enabled']:
+    # setup hashicorp's vault, a secret key management system that works with eso
+    if vault_dict['enabled']:
         configure_vault(k8s_obj, vault_dict)
 
 
