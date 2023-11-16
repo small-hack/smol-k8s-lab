@@ -25,7 +25,7 @@ def configure_vault(k8s_obj: K8s, vault_dict: dict, bitwarden: BwCLI = None) -> 
     # check immediately if this app is installed
     app_installed = check_if_argocd_app_exists('vault')
 
-    header("Installing the vault app and Secrets operator...", "🔑")
+    header("Installing the Hashicorp Vault app...", "🔑")
     argo_dict = vault_dict['argo']
 
     # get any secret keys passed in
