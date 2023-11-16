@@ -63,7 +63,7 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
     cmd = ("kubectl get pods "
            "--selector='app.kubernetes.io/name=vault' "
            f"--namespace {namespace} "
-           "--no-headers --custom-columns=NAME:.metadata.name")
+           "--no-headers -o custom-columns=NAME:.metadata.name")
     vault_pods = subproc([cmd]).split()
 
     # initialize vault, which will produce something like:
