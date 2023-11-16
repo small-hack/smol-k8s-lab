@@ -60,9 +60,7 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
     object is passed in
     """
     # first get the vault pod
-    cmd = ("kubectl get pods "
-           "--selector='app.kubernetes.io/name=vault' "
-           f"--namespace {namespace} "
+    cmd = (f"kubectl get pods -l app.kubernetes.io/name=vault -n {namespace} "
            "--no-headers -o custom-columns=NAME:.metadata.name")
     vault_pods = subproc([cmd]).split()
 
@@ -73,12 +71,15 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
     # Unseal Key 4: tLt+ME7Z7hYUATfWnuQdfCEgnKA2L173dptAwfmenCdf
     # Unseal Key 5: vYt9bxLr0+OzJ8m7c7cNMFj7nvdLljj0xWRbpLezFAI9
     # Initial Root Token: s.zJNwZlRrqISjyBHFMiEca6GF
-    cmd = (f"kubectl exec --stdin=true --tty=true {vault_pods[0]} -- "
+    cmd = (f"kubectl exec -n {namespace} --stdin=true --tty=true {vault_pods[0]} -- "
            "vault operator init")
     key_lines = subproc([cmd], shell=True, universal_newlines=True).split('\n')
-    root_token = key_lines.pop().split()[3]
+    log.info(key_lines)
+    root_token_line = key_lines.pop()
+    log.info(root_token_line)
+    root_token = root_token_line.split()[3]
 
-    # used for unsealing, and we'll save up them to print at the end if no bitwarden
+    # used for unsealing, and we'll save up them to log.info at the end if no bitwarden
     keys = []
     # if bitwarden is enabled, we'll create one item with many custom fields
     if bitwarden:
@@ -105,8 +106,12 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
         cmds = []
         # Unseal the Vault server with the key shares until the key threshold is met
         for key in keys:
-            cmds.append(f"kubectl exec --stdin=true --tty=true {pod} -- "
+            cmds.append(f"kubectl exec -n {namespace} --stdin=true --tty=true {pod} -- "
                         f"vault operator unseal {key}")
         subproc(cmds, shell=True, universal_newlines=True)
 
     log.info("Vault is initialized and unsealed")
+
+
+if __name__ == '__main__':
+    initialize_vault('vault')
