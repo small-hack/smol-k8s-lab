@@ -4,7 +4,7 @@
 DESCRIPTION: configures vault app and secrets operator
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version python3
-             vault itself has a custom license that you can view at
+             vault itself has a custom license that you can view at their repo
              smol-k8s-lab do not claim any of their code
 """
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
@@ -12,7 +12,6 @@ from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
                                                 wait_for_argocd_app)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-# from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.subproc import subproc
 
@@ -98,3 +97,5 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name
             cmds.append(f"kubectl exec --stdin=true --tty=true {pod} -- "
                         f"vault operator unseal {key}")
         subproc(cmds, shell=True, universal_newlines=True)
+
+    log.info("Vault is initialized and unsealed")
