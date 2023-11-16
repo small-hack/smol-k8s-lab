@@ -32,8 +32,7 @@ def configure_vault(k8s_obj: K8s, vault_dict: dict, bitwarden: BwCLI = None) -> 
     # get any secret keys passed in
     secrets = vault_dict['argo']['secret_keys']
     if secrets:
-        vault_hostname = secrets['hostname']
-        log.debug(vault_hostname)
+        vault_cluster_name = secrets['cluster_name']
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'vault', argo_dict)
@@ -42,10 +41,10 @@ def configure_vault(k8s_obj: K8s, vault_dict: dict, bitwarden: BwCLI = None) -> 
     init_dict = vault_dict['init']
     if init_dict['enabled']:
         log.info("Vault init enabled. We'll proceed with the unsealing process")
-        initialize_vault(argo_dict['namespace'], bitwarden)
+        initialize_vault(argo_dict['namespace'], bitwarden, vault_cluster_name)
 
 
-def initialize_vault(namespace: str, bitwarden: BwCLI = None):
+def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name: str = ""):
     """ 
     initializes vault and sets up the keys. Puts keys in bitwarden, if BwCLI
     object is passed in
@@ -86,7 +85,7 @@ def initialize_vault(namespace: str, bitwarden: BwCLI = None):
     # store these keys in bitwarden for later use
     if bitwarden:
         bitwarden.create_login(name="vault-unsealing-key",
-                               item_url="",
+                               item_url=vault_cluster_name,
                                user="root",
                                password="see custom fields",
                                fields=bw_objs)

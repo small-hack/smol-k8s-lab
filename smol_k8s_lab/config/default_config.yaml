@@ -911,6 +911,35 @@ apps:
           namespaces:
             - kube-system
 
+  vault:
+    description: |
+      [link=https://www.hashicorp.com/products/vault]vault[/link] is a secrets management tool by Hashicorp.
+    enabled: false
+    # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
+    init:
+      enabled: false
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        # name of the cluster that vault is associated with, can be any unique name
+        cluster_name: my-cool-cluster
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: alpha/vault/
+      # either the branch or tag to point at in the argo repo above
+      revision: eso-helm-chart-test
+      # namespace to install the k8s app in
+      namespace: vault
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://helm.releases.hashicorp.com
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
   vouch:
     description: |
       [link=https://github.com/vouch/vouch-proxy]vouch-proxy[/link] can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
