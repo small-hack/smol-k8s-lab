@@ -3,10 +3,20 @@
        Name: vault
 DESCRIPTION: configures vault app and secrets operator
      AUTHOR: @jessebot
-    LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version python3
-             vault itself has a custom license that you can view at their repo
-             smol-k8s-lab do not claim any of their code
+    LICENSE: The setup script is licensed under:
+               GNU AFFERO GENERAL PUBLIC LICENSE Version 3 and higher
+
+             Hashicorp Vault has a custom license that you can view at their repo:
+                 https://github.com/hashicorp/vault/blob/main/LICENSE
+
+             smol-k8s-lab do not claim any of Vault as our own and we do not
+             provide any paid support for Vault. If support is needed for the 
+             Vault components of smol-k8s-lab, it must be done unpaid via the 
+             smol-k8s-lab community or via an official enterprise contract from 
+             official Hashicorp channels.
 """
+
+# internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
@@ -15,7 +25,8 @@ from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.subproc import subproc
 
-from logging import log
+# external libraries
+import logging as log
 
 
 def configure_vault(k8s_obj: K8s, vault_dict: dict, bitwarden: BwCLI = None) -> None:
