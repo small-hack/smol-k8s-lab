@@ -34,6 +34,8 @@ def configure_zitadel(k8s_obj: K8s,
     If init AND vouch_hostname, returns vouch credentials
     """
     header("Setting up [green]Zitadel[/], our identity management solution", "👥")
+
+    # immediately load in all the secret keys
     secrets = config_dict['argo']['secret_keys']
     if secrets:
         zitadel_hostname = secrets['hostname']
@@ -41,31 +43,37 @@ def configure_zitadel(k8s_obj: K8s,
     # check to make sure the app instead already installed with Argo CD
     app_installed = check_if_argocd_app_exists('zitadel')
 
+    # declare the init dict
     init_dict = config_dict['init']
 
     if init_dict['enabled'] and not app_installed:
-        log.debug("Creating core key and DB credenitals for zitadel...")
+        # process init and secret values
         init_values = init_dict['values']
-        # configure s3 credentials if they're in use
+
+        # configure s3 credentials and minio tenant if they're in use
         s3_access_id = init_values.get('s3_access_id', 'zitadel')
         s3_access_key = init_values.get('s3_access_key', '')
         s3_endpoint = secrets.get('s3_endpoint', "")
         s3_bucket = secrets.get('s3_bucket', "zitadel-postgresql")
         create_minio_tenant = init_values.pop('create_minio_tenant')
 
+        # first we make sure the namespace exists
+        namespace = config_dict['argo']['namespace']
+        k8s_obj.create_namespace(namespace)
+
         # creates the initial root credentials secret for the minio tenant
         if create_minio_tenant:
+            # if they haven't chosen an access key, make one up
             if not s3_access_key:
-                s3_access_key = create_password()
+                s3_access_key = create_password(characters=72)
 
             credentials_exports = {
-                    'config.env': f"""MINIO_ROOT_USER={s3_access_id}
-            MINIO_ROOT_PASSWORD={s3_access_key}"""}
-            k8s_obj.create_secret('default-tenant-env-config',
-                                  config_dict['argo']['namespace'],
-                                  credentials_exports)
+                    'config.env': f"""export MINIO_ROOT_USER={s3_access_id}
+            export MINIO_ROOT_PASSWORD={s3_access_key}"""
+            }
+            k8s_obj.create_secret('minio-env-config', namespace, credentials_exports)
 
-            # updates the ~/.mc/config.json
+            # updates the ~/.mc/config.json with a new alias for zitadel
             create_minio_alias("zitadel",
                                s3_endpoint,
                                s3_access_id,
@@ -74,7 +82,7 @@ def configure_zitadel(k8s_obj: K8s,
             # create secret for the postgresql s3 credentials
             # this will hopefully be done programmatically in the future
             k8s_obj.create_secret('zitadel-postgresql-s3-credentials',
-                                  config_dict['argo']['namespace'],
+                                  namespace,
                                   {"CONSOLE_ACCESS_KEY": "zitadel-postgresql",
                                    "CONSOLE_SECRET_KEY": create_password()})
         if bitwarden:
@@ -125,12 +133,12 @@ def configure_zitadel(k8s_obj: K8s,
             # create the zitadel core key
             secret_dict = {'masterkey': create_password()}
             k8s_obj.create_secret(name="zitadel-core-key",
-                                  namespace="zitadel",
+                                  namespace=namespace,
                                   str_data=secret_dict)
 
             # this is just for the db username
             k8s_obj.create_secret(name="zitadel-db-credentials",
-                                  namespace="zitadel",
+                                  namespace=namespace,
                                   str_data={'username': 'zitadel'})
 
     # install Zitadel using ArgoCD
