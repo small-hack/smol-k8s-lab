@@ -121,15 +121,14 @@ def run_subprocess(command: str, decode_ascii: bool = False, **kwargs):
 
     # decode the output only if universal_newlines is not true
     if kwargs.get('universal_newlines', None) or kwargs.get('text', None):
-        log.info("universal_newlines or text is true")
+        log.debug("universal_newlines or text is true")
         res_stdout, res_stderr = res[0], res[1]
     elif decode_ascii:
-        log.info("decode_ascii is true")
+        log.debug("decode_ascii is true")
         ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
         res_stdout = ansi_escape.sub('', res[0].decode('UTF-8'))
         res_stderr = ansi_escape.sub('', res[1].decode('UTF-8'))
     else:
-        log.info("universal_newlines or text is true")
         res_stdout, res_stderr = res[0].decode('UTF-8'), res[1].decode('UTF-8')
 
     # if quiet = True, or res_stdout is empty, we hide this
