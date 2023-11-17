@@ -32,6 +32,7 @@ $navy: rgb(35,35,54);
 #select-add-apps {
     border: round $cornflower;
     border-title-color: $sky_blue;
+    border-subtitle-color: $sky_blue;
     background: $navy 60%;
     align: center top;
     height: auto;
@@ -45,20 +46,20 @@ $navy: rgb(35,35,54);
 
 /* matches the app selection list, the left button container */
 #left-apps-container {
-    grid-rows: 1fr 0.3fr;
+    grid-rows: 1fr 0.2fr;
     align: center top;
     grid-gutter: 1;
 }
 
 /* new app and modify globals buttons boxes below the app selection list */
 #left-button-box {
-    align: center top;
+    align: center middle;
     grid-gutter: 1;
     width: 100%;
 }
 
 .button-grid {
-    align: center top;
+    align: center middle;
 }
 
 /* ---------------------- RIGHT TOP HALF OF SCREEN ------------------------- */

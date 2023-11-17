@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.11
+
 # smol-k8s-lab libraries
-from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
 from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInputsWidget
@@ -10,65 +10,9 @@ from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 from ruamel.yaml import CommentedSeq
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal, VerticalScroll, Grid
+from textual.containers import Container, Horizontal, VerticalScroll
 from textual.validation import Length
 from textual.widgets import Input, Label, Button, Switch, Static
-from textual.widgets.selection_list import Selection
-
-
-class AddAppInput(Static):
-    """
-    Button for launching a modal to add new apps
-    """
-
-    def compose(self) -> ComposeResult:
-        new_button = Button("✨ New App", id="new-app-button")
-        new_button.tooltip = "Click to add your own Argo CD app from an existing repo"
-        with Grid(classes="button-grid"):
-            yield new_button
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """
-        get pressed "new app" button
-        """
-        def get_new_app(app_response):
-            app_name = app_response[0]
-            app_description = app_response[1]
-
-            if app_name and app_description:
-                self.create_new_app_in_yaml(app_name, app_description)
-
-        self.app.push_screen(NewAppModalScreen(["argo-cd"]), get_new_app)
-
-    def create_new_app_in_yaml(self, app_name: str, app_description: str = "") -> None:
-        underscore_name = app_name.replace(" ", "_").replace("-", "_")
-
-        # updates the base user yaml
-        self.app.cfg['apps'][underscore_name] = {
-            "enabled": True,
-            "description": app_description,
-            "argo": {
-                "secret_keys": {},
-                "repo": "",
-                "path": "",
-                "revision": "",
-                "namespace": "",
-                "project": {
-                    "source_repos": [""],
-                    "destination": {
-                        "namespaces": ["argocd"]
-                        }
-                    }
-                }
-            }
-
-        # adds selection to the app selection list
-        apps = self.app.get_widget_by_id("selection-list-of-apps")
-        apps.add_option(Selection(underscore_name.replace("_", "-"),
-                                  underscore_name, True))
-
-        # scroll down to the new app
-        apps.action_last()
 
 
 class AppInputs(Static):

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
-from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs, AddAppInput
+from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
+from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
 from smol_k8s_lab.tui.util import format_description
 
@@ -27,6 +28,10 @@ class AppsConfig(Screen):
                         key_display="b",
                         action="app.pop_screen",
                         description="Back"),
+                Binding(key="a",
+                        key_display="a",
+                        action="screen.launch_new_app_modal",
+                        description="New App"),
                 Binding(key="n",
                         key_display="n",
                         action="app.request_smol_k8s_cfg",
@@ -77,7 +82,7 @@ class AppsConfig(Screen):
                     yield selection_list
 
                 with Grid(id="left-button-box"):
-                    yield AddAppInput()
+                    # yield AddAppInput()
                     yield ModifyAppGlobals()
 
             # top right: vertically scrolling container for all inputs
@@ -95,9 +100,10 @@ class AppsConfig(Screen):
         sub_title = "Apps Configuration (now with more 🦑)"
         self.sub_title = sub_title
 
-        # select-apps styling - select apps container - top left
+        # select-apps styling - select apps container - top left 
         select_apps_widget = self.get_widget_by_id("select-add-apps")
         select_apps_widget.border_title = "[#ffaff9]♥[/] [i]select[/] [#C1FF87]apps"
+        select_apps_widget.border_subtitle = "[@click=screen.launch_new_app_modal]✨ [i]new[/] [#C1FF87]app[/][/]"
 
         if self.app.speak_screen_titles:
             # if text to speech is on, read screen title
@@ -109,6 +115,16 @@ class AppsConfig(Screen):
         # scroll down to specific app if requested
         if self.initial_app:
             self.scroll_to_app(self.initial_app)
+
+    def action_launch_new_app_modal(self) -> None:
+        def get_new_app(app_response):
+            app_name = app_response[0]
+            app_description = app_response[1]
+
+            if app_name and app_description:
+                self.create_new_app_in_yaml(app_name, app_description)
+
+        self.app.push_screen(NewAppModalScreen(["argo-cd"]), get_new_app)
 
     def scroll_to_app(self, app_to_highlight: str) -> None:
         """ 
@@ -180,3 +196,33 @@ class AppsConfig(Screen):
             self.app.cfg['apps'][app]['enabled'] = False
 
         self.app.write_yaml()
+
+    def create_new_app_in_yaml(self, app_name: str, app_description: str = "") -> None:
+        underscore_name = app_name.replace(" ", "_").replace("-", "_")
+
+        # updates the base user yaml
+        self.app.cfg['apps'][underscore_name] = {
+            "enabled": True,
+            "description": app_description,
+            "argo": {
+                "secret_keys": {},
+                "repo": "",
+                "path": "",
+                "revision": "",
+                "namespace": "",
+                "project": {
+                    "source_repos": [""],
+                    "destination": {
+                        "namespaces": ["argocd"]
+                        }
+                    }
+                }
+            }
+
+        # adds selection to the app selection list
+        apps = self.app.get_widget_by_id("selection-list-of-apps")
+        apps.add_option(Selection(underscore_name.replace("_", "-"),
+                                  underscore_name, True))
+
+        # scroll down to the new app
+        apps.action_last()
