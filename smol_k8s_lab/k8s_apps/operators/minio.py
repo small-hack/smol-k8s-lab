@@ -1,8 +1,9 @@
 from json import load, dump, dumps
 import logging as log
 from os.path import exists
-from os import makedirs
+from os import makedirs, environ
 from minio import Minio, MinioAdmin
+from minio.credentials.providers import MinioClientConfigProvider
 from shutil import which
 
 from smol_k8s_lab.constants import HOME_DIR, XDG_CACHE_DIR
@@ -28,7 +29,10 @@ class BetterMinio:
                  secret_key: str) -> None:
         self.root_user = access_key
         self.root_password = secret_key
-        self.admin_client = MinioAdmin(minio_alias)
+        minio_config_dir = HOME_DIR + ".mc/"
+        minio_config_file = minio_config_dir + "config.json"
+        minio_provider = MinioClientConfigProvider(minio_config_file, minio_alias)
+        self.admin_client = MinioAdmin(api_hostname, minio_provider)
         self.client = Minio(api_hostname, access_key, secret_key)
 
     def create_access_credentials(self, access_key: str) -> str:
@@ -254,7 +258,7 @@ def configure_minio_tenant(k8s_obj: K8s,
         # the namespace probably doesn't exist yet, so we try to create it
         k8s_obj.create_namespace(minio_config['argo']['namespace'])
         access_key = minio_config['init']['values']['root_user']
-        secret_key = create_password()
+        secret_key = create_password(characters=72)
 
         if zitadel:
             log.info("Creating a MinIO OIDC application via Zitadel...")
