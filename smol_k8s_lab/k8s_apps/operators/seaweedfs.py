@@ -91,14 +91,10 @@ def configure_seaweedfs(k8s_obj: K8s,
         #     seaweedfs_obj.create_read_user_group_policy()
     else:
         # if the seaweedfs tenant Argo CD app already exists, but init is enabed...
-        if seaweedfs_init_enabled:
-            if argo_app_exists and bitwarden:
-
-                creds = bitwarden.get_item(
-                        f'seaweedfs-root-credentials-{seaweedfs_hostname}'
-                        )[0]
-                access_key = creds['login']['username']
-                secret_key = creds['login']['password']
+        if bitwarden:
+            creds = bitwarden.get_item(
+                    f'seaweedfs-root-credentials-{seaweedfs_hostname}'
+                    )[0]
 
             # update the nextcloud values for the argocd appset
             update_argocd_appset_secret(
@@ -106,7 +102,10 @@ def configure_seaweedfs(k8s_obj: K8s,
                     {'seaweedfs_s3_credentials_bitwarden_id': creds['id']}
                     )
 
-            # return Betterseaweedfs('seaweedfs-root',
-            #                    seaweedfs_hostname,
-            #                    access_key,
-            #                    secret_key)
+        # if seaweedfs_init_enabled:
+        #     access_key = creds['login']['username']
+        #     secret_key = creds['login']['password']
+        #     return BetterMinio('seaweedfs-root',
+        #                        seaweedfs_hostname,
+        #                        access_key,
+        #                        secret_key)
