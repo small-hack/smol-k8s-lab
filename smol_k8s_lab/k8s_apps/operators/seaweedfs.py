@@ -3,7 +3,10 @@ import logging as log
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_tools.argocd_util import (
-        install_with_argocd, wait_for_argocd_app, check_if_argocd_app_exists)
+        install_with_argocd, 
+        wait_for_argocd_app, 
+        check_if_argocd_app_exists, 
+        update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.passwords import create_password
 
@@ -52,11 +55,16 @@ def configure_seaweedfs(k8s_obj: K8s,
         if bitwarden:
             log.info("Creating seaweedfs admin credentials in Bitwarden")
             # admin credentials + metrics server info token
-            bitwarden.create_login(
+            s3_id = bitwarden.create_login(
                     name='seaweedfs-admin-credentials',
                     item_url=seaweedfs_hostname,
                     user=access_key,
                     password=secret_key
+                    )
+            # update the nextcloud values for the argocd appset
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'seaweedfs_s3_credentials_bitwarden_id': s3_id}
                     )
 
     if not argo_app_exists:
@@ -88,9 +96,15 @@ def configure_seaweedfs(k8s_obj: K8s,
 
                 creds = bitwarden.get_item(
                         f'seaweedfs-root-credentials-{seaweedfs_hostname}'
-                        )[0]['login']
-                access_key = creds['username']
-                secret_key = creds['password']
+                        )[0]
+                access_key = creds['login']['username']
+                secret_key = creds['login']['password']
+
+            # update the nextcloud values for the argocd appset
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'seaweedfs_s3_credentials_bitwarden_id': creds['id']}
+                    )
 
             # return Betterseaweedfs('seaweedfs-root',
             #                    seaweedfs_hostname,
