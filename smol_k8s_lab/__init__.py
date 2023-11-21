@@ -243,7 +243,8 @@ def main(config: str = "",
         setup_operators(k8s_obj,
                         apps.pop('minio_operator'),
                         apps.pop('seaweedfs'),
-                        apps.pop('cnpg_operator'))
+                        apps.pop('cnpg_operator'),
+                        bw)
 
         # setup OIDC for securing all endpoints with SSO
         oidc_obj = setup_oidc_provider(
