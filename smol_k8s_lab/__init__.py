@@ -242,6 +242,7 @@ def main(config: str = "",
         # and cnpg operator, our postgresql operator for creating postgres clusters
         setup_operators(k8s_obj,
                         apps.pop('minio_operator'),
+                        apps.pop('seaweedfs'),
                         apps.pop('cnpg_operator'))
 
         # setup OIDC for securing all endpoints with SSO
