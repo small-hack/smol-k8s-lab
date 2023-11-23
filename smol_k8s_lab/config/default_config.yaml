@@ -839,16 +839,21 @@ apps:
           - brute-force_settings
       sensitive_values:
         - SMTP_PASSWORD
-        - S3_ACCESS_KEY
-        - S3_ACCESS_ID
+        - BACKUP_S3_ACCESS_KEY
+        - BACKUP_S3_ACCESS_ID
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
-        # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
+        # choose S3 as the local primary object store from either: seaweedfs, or minio
+        # SeaweedFS - deploy SeaweedFS filer/s3 gateway
+        # MinIO     - deploy MinIO vanilla helm chart
+        s3_provider: seaweedfs
         s3_endpoint: ""
-        s3_bucket: nextcloud
         s3_region: eu-west-1
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        backup_s3_endpoint: ""
+        backup_s3_bucket: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!

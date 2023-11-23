@@ -12,7 +12,6 @@ from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 # external libraries
-from base64 import standard_b64encode as b64enc
 import logging as log
 from rich.prompt import Prompt
 
@@ -57,19 +56,13 @@ def configure_nextcloud(k8s_obj: K8s,
             mail_user = init_values.get('smtp_user', None)
             mail_pass = init_values.get('smtp_password', None)
 
-            # s3 values
-            s3_access_id = init_values.get('s3_access_id', "nextcloud")
-            s3_access_key = init_values.get('s3_access_key', create_password())
-            if config_dict['argo']['directory_recursion']:
-                default_minio = True
-            else:
-                default_minio = False
-            create_minio_tenant = init_values.get('create_minio_tenant',
-                                                  default_minio)
-
         if secrets:
             s3_endpoint = secrets.get('s3_endpoint', "")
-            s3_bucket = secrets.get('s3_bucket', 'nextcloud')
+            if s3_endpoint:
+                s3_access_key = create_password()
+                # create a local alias to check and make sure nextcloud is functional
+                create_minio_alias("nextcloud", s3_endpoint, "nextcloud", s3_access_key)
+
 
         # configure SMTP
         if not mail_host:
@@ -84,17 +77,6 @@ def configure_nextcloud(k8s_obj: K8s,
         if not mail_pass:
             m = f"[green]Please enter the SMTP password of {mail_user} on {mail_host}"
             mail_pass = Prompt.ask(m, password=True)
-
-        # configure s3 storage
-        # creates the initial root credentials secret for the minio tenant
-        if create_minio_tenant:
-            credentials_exports = {
-                    'config.env': f"""MINIO_ROOT_USER={s3_access_id}
-            MINIO_ROOT_PASSWORD={s3_access_key}"""}
-            k8s_obj.create_secret('default-tenant-env-config',
-                                  config_dict['argo']['namespace'],
-                                  credentials_exports)
-            create_minio_alias("nextcloud", s3_endpoint, s3_access_id, s3_access_key)
 
         # configure OIDC
         if zitadel:
@@ -113,6 +95,33 @@ def configure_nextcloud(k8s_obj: K8s,
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden:
             sub_header("Creating Nextcloud items in Bitwarden")
+
+            # s3 credentials creation
+            bucket_obj = create_custom_field('bucket', "nextcloud")
+            endpoint_obj = create_custom_field('endpoint', s3_endpoint)
+            s3_id = bitwarden.create_login(
+                    name='nextcloud-user-s3-credentials',
+                    item_url=nextcloud_hostname,
+                    user="nextcloud",
+                    password=s3_access_key,
+                    fields=[bucket_obj, endpoint_obj]
+                    )
+
+            pgsql_s3_key = create_password()
+            s3_db_id = bitwarden.create_login(
+                    name='nextcloud-postgres-s3-credentials',
+                    item_url=nextcloud_hostname,
+                    user="nextcloud-postgres",
+                    password=pgsql_s3_key
+                    )
+
+            admin_s3_key = create_password()
+            s3_admin_id = bitwarden.create_login(
+                    name='nextcloud-admin-s3-credentials',
+                    item_url=nextcloud_hostname,
+                    user="nextcloud-root",
+                    password=admin_s3_key
+                    )
 
             # oidc credentials if they were given, else they're probably already there
             if oidc_creds:
@@ -165,19 +174,6 @@ def configure_nextcloud(k8s_obj: K8s,
                     password=nextcloud_redis_password
                     )
 
-            # s3 credentials creation
-            bucket_obj = create_custom_field('bucket', s3_bucket)
-            # encryption_key = b64enc(bytes(create_password()))
-            # encryption_obj = create_custom_field('encryption_key', encryption_key)
-            endpoint_obj = create_custom_field('endpoint', s3_endpoint)
-            s3_id = bitwarden.create_login(
-                    name='nextcloud-s3-credentials',
-                    item_url=nextcloud_hostname,
-                    user=s3_access_id,
-                    password=s3_access_key,
-                    fields=[bucket_obj, endpoint_obj]
-                    )
-
             # update the nextcloud values for the argocd appset
             update_argocd_appset_secret(
                     k8s_obj,
@@ -186,7 +182,9 @@ def configure_nextcloud(k8s_obj: K8s,
                      'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
                      'nextcloud_postgres_credentials_bitwarden_id': db_id,
                      'nextcloud_redis_bitwarden_id': redis_id,
-                     'nextcloud_s3_credentials_bitwarden_id': s3_id}
+                     'nextcloud_s3_admin_credentials_bitwarden_id': s3_admin_id,
+                     'nextcloud_s3_postgres_credentials_bitwarden_id': s3_db_id,
+                     'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id}
                     )
 
         # these are standard k8s secrets
@@ -213,11 +211,9 @@ def configure_nextcloud(k8s_obj: K8s,
                                   {"password": nextcloud_redis_password})
 
             # s3 credentials creation
-            encryption_key = create_password()
             k8s_obj.create_secret('nextcloud-s3-credentials', 'nextcloud',
-                                  {"S3_USER": s3_access_id,
+                                  {"S3_USER": "nextcloud",
                                    "S3_PASSWORD": s3_access_key,
-                                   "S3_ENCRYPTION_KEY": encryption_key,
                                    "S3_ENDPOINT": s3_endpoint})
 
     if not app_installed:

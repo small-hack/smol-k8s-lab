@@ -13,7 +13,7 @@ from textual.widgets import Input, Label, Static, Collapsible, Button, Switch
 
 class SmolK8sLabCollapsibleInputsWidget(Static):
     """
-    modal screen with sensitive inputs
+    widget for input fields for an app
     for argocd that are passed to the argocd appset secrets plugin helm chart
     """
     BINDINGS = [Binding(key="b,escape,q",
@@ -56,10 +56,9 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
                     Button("➕ new field"))
 
     def generate_row(self, key: str, value: str | bool) -> Grid | Horizontal:
-        if key == 'create_minio_tenant':
-            return self.generate_switch_row(key, value)
-        else:
-            return self.generate_input_row(key, value)
+        # if key == 'create_minio_tenant':
+        #     return self.generate_switch_row(key, value)
+        return self.generate_input_row(key, value)
 
     def generate_switch_row(self, key: str, value: bool) -> Horizontal:
         tooltip = "enable the use of a local minio tenant using the minio operator"
@@ -114,7 +113,10 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
                 tooltip = (f"To avoid needing to fill {key} in manually, "
                            "you can export an environment variable.")
             else:
-                tooltip = placeholder_txt + "."
+                if key == "s3_provider":
+                    tooltip = "Choose between minio and seaweedfs for a local s3 provider"
+                else:
+                    tooltip = placeholder_txt + "."
 
         # special metallb tooltip
         if self.app_name == "metallb":

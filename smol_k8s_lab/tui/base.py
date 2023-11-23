@@ -443,25 +443,6 @@ class BaseApp(App):
 
         env_vars = app_cfg['init']['sensitive_values']
 
-        if app in ["nextcloud", "mastodon", "matrix"]:
-            access_id_env_var = "S3_ACCESS_ID"
-            access_key_env_var = "S3_ACCESS_KEY"
-            create_minio_tenant = app_cfg['init']['values']['create_minio_tenant']
-
-            # if the endpoint is set to use minio, we'll create the keys for them
-            if not create_minio_tenant:
-                # add prompts for s3 access key/id if backup method is s3
-                if access_id_env_var not in env_vars:
-                    env_vars.append(access_id_env_var)
-                if access_key_env_var not in env_vars:
-                    env_vars.append(access_key_env_var)
-            else:
-                # remove prompts for s3 access key/id
-                if access_id_env_var in env_vars:
-                    env_vars.remove(access_id_env_var)
-                if access_key_env_var in env_vars:
-                    env_vars.remove(access_key_env_var)
-
         # only prompt for smtp credentials if mail is enabled
         if 'change me' not in app_cfg['init']['values']['smtp_user']:
             if smtp_env_var not in env_vars:
