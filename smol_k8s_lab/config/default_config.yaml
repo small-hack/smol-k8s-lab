@@ -605,12 +605,8 @@ apps:
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
         smtp_user: "change me to enable mail"
-        # if true, we'll use the minio operator to create a minio tenant just for mastodon
-        create_minio_tenant: true
       sensitive_values:
         - SMTP_PASSWORD
-        - S3_ACCESS_KEY
-        - S3_ACCESS_ID
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -619,8 +615,6 @@ apps:
         hostname: ""
         # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
-        # bucket is for your images and other assets
-        s3_bucket: mastodon
         s3_region: eu-west-1
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
@@ -661,12 +655,8 @@ apps:
       values:
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
-        # if true, we'll use the minio operator to create a minio tenant just for matrix
-        create_minio_tenant: true
       sensitive_values:
         - SMTP_PASSWORD
-        - S3_ACCESS_KEY
-        - S3_ACCESS_ID
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -680,7 +670,6 @@ apps:
         admin_email: ""
         # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
-        s3_bucket: matrix
         s3_region: eu-west-1
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
@@ -869,8 +858,9 @@ apps:
         source_repos:
           - registry-1.docker.io
           - https://nextcloud.github.io/helm
-          - https://operator.min.io/
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
+          - https://seaweedfs.github.io/seaweedfs/helm
+          - https://github.com/seaweedfs/seaweedfs
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
