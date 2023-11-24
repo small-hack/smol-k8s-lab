@@ -613,7 +613,6 @@ apps:
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
-        # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
         s3_region: eu-west-1
       # git repo to install the Argo CD app from
@@ -668,7 +667,6 @@ apps:
         federation_hostname: ""
         # email for of the admin user
         admin_email: ""
-        # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
         s3_region: eu-west-1
       # git repo to install the Argo CD app from
@@ -812,8 +810,6 @@ apps:
         admin_user: ""
         smtp_user: "change me to enable mail"
         smtp_host: "change-me-to-real-email@to-enable.mail"
-        # if true, we'll use the minio operator to create a minio tenant just for matrix
-        create_minio_tenant: true
         # additional Nextcloud apps to install via the nextcloud admin cli
         nextcloud_apps:
           # this allows you to login with other OIDC providers such as zitadel
@@ -1006,14 +1002,11 @@ apps:
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
-        # if true, we'll use the minio operator to create a minio tenant just for mastodon
-        create_minio_tenant: true
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for zitadel
         hostname: ""
-        # if create_minio_tenant is set in the init values, this will be the hostname of the tenant
         s3_endpoint: ""
         # bucket is for your postgresql backups
         s3_bucket: "zitadel-postgresql"
