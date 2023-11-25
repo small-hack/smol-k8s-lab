@@ -241,6 +241,7 @@ def main(config: str = "",
         # Setup minio, our local s3 provider, is essential for creating buckets
         # and cnpg operator, our postgresql operator for creating postgres clusters
         setup_operators(k8s_obj,
+                        apps.pop('k8up'),
                         apps.pop('minio_operator'),
                         apps.pop('seaweedfs'),
                         apps.pop('cnpg_operator'),
