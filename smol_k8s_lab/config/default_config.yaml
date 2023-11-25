@@ -1116,6 +1116,8 @@ apps:
         s3_provider: seaweedfs
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
+        # capacity for the PVC backing your local s3 instance
+        pvc_capacity: 2Gi
         # Remote S3 configuration, for pushing remote backups of your local postgresql backups
         # these are done only nightly right now, for speed and cost optimization
         backup_s3_endpoint: ""
