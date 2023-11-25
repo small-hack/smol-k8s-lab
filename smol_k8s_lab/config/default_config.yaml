@@ -625,7 +625,7 @@ apps:
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
-        pvc_capacity: 120Gi
+        s3_pvc_capacity: 120Gi
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
@@ -698,8 +698,6 @@ apps:
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
         s3_provider: seaweedfs
-        # how large the backing pvc's capacity should be for minio or seaweedfs
-        pvc_capacity: 120Gi
         # the endpoint you'd like to use for your minio or SeaweedFS instance
         s3_endpoint: ""
         # how large the backing pvc's capacity should be for minio or seaweedfs
@@ -875,8 +873,6 @@ apps:
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
         s3_provider: seaweedfs
-        # how large the backing pvc's capacity should be for minio or seaweedfs
-        pvc_capacity: 120Gi
         # the endpoint you'd like to use for your minio or SeaweedFS instance
         s3_endpoint: ""
         # how large the backing pvc's capacity should be for minio or seaweedfs
@@ -1142,7 +1138,7 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         # capacity for the PVC backing your local s3 instance
-        pvc_capacity: 2Gi
+        s3_pvc_capacity: 2Gi
         # Remote S3 configuration, for pushing remote backups of your local postgresql backups
         # these are done only nightly right now, for speed and cost optimization
         backup_s3_endpoint: ""
