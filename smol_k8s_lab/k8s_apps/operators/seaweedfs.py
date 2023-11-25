@@ -39,7 +39,7 @@ def configure_seaweedfs(k8s_obj: K8s,
     if seaweedfs_init_enabled and argo_app_exists:
         if bitwarden:
             res = bitwarden.get_item(
-                    f'seaweedfs-tenant-admin-credentials-{seaweedfs_hostname}')
+                    f'seaweedfs-admin-credentials-{seaweedfs_hostname}')
             access_key = seaweedfs_config['init']['values']['root_user']
             secret_key = res[0]['login']['password']
         # if app already exists but bitwarden is not enabled, return None
