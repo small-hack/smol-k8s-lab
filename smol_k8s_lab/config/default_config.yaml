@@ -834,7 +834,10 @@ apps:
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
         s3_provider: seaweedfs
+        # the endpoint you'd like to use for your minio or SeaweedFS instance
         s3_endpoint: ""
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 100Gi
         s3_region: eu-west-1
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
         backup_s3_endpoint: ""
