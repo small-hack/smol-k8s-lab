@@ -929,10 +929,14 @@ apps:
     description: |
       [link=https://github.com/seaweedfs/seaweedfs]seaweedfs[/link] is a filesystem with an exposable S3 endpoint.
 
+      This is mostly meant to be for testing, but have at it :D
+
       If directory_recursion is set to true, we will also deploy the csi driver.
 
     init:
       enabled: true
+      values:
+        root_user: admin
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
