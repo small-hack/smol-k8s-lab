@@ -952,10 +952,7 @@ apps:
       enabled: true
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
-      secret_keys:
-        hostname: ""
-        s3_endpoint: ""
-        s3_region: eu-west-1
+      secret_keys: []
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
