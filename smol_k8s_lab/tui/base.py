@@ -75,9 +75,12 @@ class BaseApp(App):
         self.show_footer = self.cfg['smol_k8s_lab']['tui']['show_footer']
         self.cluster_names = []
         self.current_cluster = ""
-        self.sensitive_values = {'nextcloud': {},
-                                 'matrix': {},
-                                 'mastodon': {}}
+        self.sensitive_values = {
+                'nextcloud': {},
+                'matrix': {},
+                'mastodon': {},
+                'zitadel': {}
+                }
 
         # configure global accessibility
         accessibility_opts = self.cfg['smol_k8s_lab']['tui']['accessibility']
