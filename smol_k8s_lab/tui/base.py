@@ -438,21 +438,8 @@ class BaseApp(App):
         """
         # keep track of a list of stuff to prompt for
         prompt_values = []
-        # default smtp env var
-        smtp_env_var = "SMTP_PASSWORD"
 
         env_vars = app_cfg['init']['sensitive_values']
-
-        # only prompt for smtp credentials if mail is enabled
-        if 'change me' not in app_cfg['init']['values']['smtp_user']:
-            if smtp_env_var not in env_vars:
-                # add prompts if mail is enabled
-                env_vars.append(smtp_env_var)
-        else:
-            if smtp_env_var in env_vars:
-                env_vars.remove(smtp_env_var)
-            #HACK not really sure what to do here and I'm short on time, so 🤷
-            self.sensitive_values[app][smtp_env_var.lower()] = "mail not enabled"
 
         # provided there's actually any env vars to go get...
         if env_vars:
