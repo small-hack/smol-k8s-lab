@@ -907,6 +907,74 @@ apps:
           namespaces:
             - kube-system
 
+  seaweedfs:
+    enabled: false
+    description: |
+      [link=https://github.com/seaweedfs/seaweedfs]seaweedfs[/link] is a filesystem with an exposable S3 endpoint.
+
+      If directory_recursion is set to true, we will also deploy the csi driver.
+
+    init:
+      enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        hostname: ""
+        s3_endpoint: ""
+        s3_region: eu-west-1
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: alpha/seaweedfs/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: eso-helm-chart-test
+      # namespace to install the k8s app in
+      namespace: seaweedfs
+      # recurse directories in the provided git repo
+      # if set to false, we will not deploy the CSI driver
+      directory_recursion: true
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+        - https://seaweedfs.github.io/seaweedfs/helm
+        - https://seaweedfs.github.io/seaweedfs-csi-driver/helm
+        - https://github.com/seaweedfs/seaweedfs
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  seaweedfs_csi_driver:
+    enabled: false
+    description: |
+      [link=https://github.com/seaweedfs/seaweedfs]seaweedfs[/link] is a filesystem with an exposable S3 endpoint. This app deploys ONLY the CSI driver.
+
+    init:
+      enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        hostname: ""
+        s3_endpoint: ""
+        s3_region: eu-west-1
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: alpha/seaweedfs/app_of_apps/csi_driver/
+      # either the branch or tag to point at in the argo repo above
+      revision: eso-helm-chart-test
+      # namespace to install the k8s app in
+      namespace: seaweedfs
+      # recurse directories in the provided git repo
+      # if set to false, we will not deploy the CSI driver
+      directory_recursion: true
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+        - https://seaweedfs.github.io/seaweedfs-csi-driver/helm
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
   vault:
     description: |
       [link=https://www.hashicorp.com/products/vault]vault[/link] is a secrets management tool by Hashicorp.
