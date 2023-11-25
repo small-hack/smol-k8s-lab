@@ -624,6 +624,8 @@ apps:
         # set the local s3 provider for mastodon's public data in one bucket 
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 120Gi
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
