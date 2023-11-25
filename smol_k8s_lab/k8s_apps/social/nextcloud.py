@@ -297,5 +297,5 @@ def configure_nextcloud(k8s_obj: K8s,
                      'nextcloud_s3_admin_credentials_bitwarden_id': s3_admin_id,
                      'nextcloud_s3_postgres_credentials_bitwarden_id': s3_db_id,
                      'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id,
-                     'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id}
+                     'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id
                     })
