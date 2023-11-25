@@ -100,7 +100,7 @@ def configure_nextcloud(k8s_obj: K8s,
             sub_header("Creating Nextcloud items in Bitwarden")
 
             # s3 credentials creation
-            bucket_obj = create_custom_field('bucket', "nextcloud")
+            bucket_obj = create_custom_field('bucket', "nextcloud-data")
             endpoint_obj = create_custom_field('endpoint', s3_endpoint)
             s3_id = bitwarden.create_login(
                     name='nextcloud-user-s3-credentials',
