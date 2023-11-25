@@ -2,7 +2,7 @@ from base64 import standard_b64decode as b64dec
 from json import loads
 import logging as log
 from .zitadel_api import Zitadel
-from smol_k8s_lab.bitwarden.bw_cli import BwCLI
+from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 wait_for_argocd_app,
@@ -52,17 +52,20 @@ def configure_zitadel(k8s_obj: K8s,
         # configure backup s3 credentials
         backup_s3_access_id = init_values.get('backup_s3_access_id', 'zitadel')
         backup_s3_access_key = init_values.get('backup_s3_secret_key', '')
+        restic_repo_pass = init_values.get('restic_repo_password', '')
 
         # first we make sure the namespace exists
         namespace = config_dict['argo']['namespace']
         k8s_obj.create_namespace(namespace)
 
         if bitwarden:
+            restic_repo_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
             backup_s3_id = bitwarden.create_login(
                     name='zitadel-backups-s3-credentials',
                     item_url=zitadel_hostname,
                     user=backup_s3_access_id,
-                    password=backup_s3_access_key
+                    password=backup_s3_access_key,
+                    fields=[restic_repo_obj]
                     )
 
             # S3 credentials
