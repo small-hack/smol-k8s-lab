@@ -134,6 +134,10 @@ def configure_nextcloud(k8s_obj: K8s,
                         password=oidc_creds['client_secret'],
                         fields=[issuer_obj]
                         )
+            else:
+                oidc_id = bitwarden.get_item(
+                        f"nextcloud-oidc-credentials-{nextcloud_hostname}"
+                        )[0]['id']
 
             # admin credentials + metrics server info token
             token = bitwarden.generate()
