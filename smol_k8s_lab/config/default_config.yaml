@@ -593,6 +593,11 @@ apps:
        smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, redis credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab can also create your S3 bucket and credential if you enable the minio app and set minio s3 endpoint to "minio"
+
+       To provide sensitive values via environment variables to smol-k8s-lab use:
+       - MASTODON_BACKUP_S3_ACCESS_ID
+       - MASTODON_BACKUP_S3_SECRET_KEY
+       - MASTODON_RESTIC_REPO_PASSWORD
     enabled: false
     init:
       enabled: true
@@ -607,14 +612,26 @@ apps:
         smtp_user: "change me to enable mail"
       sensitive_values:
         - SMTP_PASSWORD
+        - BACKUP_S3_ACCESS_ID
+        - BACKUP_S3_SECRET_KEY
+        - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
+        # set the local s3 provider for mastodon's public data in one bucket 
+        # and private database backups in another. can be minio or seaweedfs
+        s3_provider: seaweedfs
+        # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
+        # Remote S3 configuration, for pushing remote backups of your local postgresql backups
+        # these are done only nightly right now, for speed and cost optimization
+        backup_s3_endpoint: ""
+        backup_s3_region: ""
+        backup_s3_bucket: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -1058,9 +1075,9 @@ apps:
       The default app will also deploy SeaweedFS to backup your database which in turn is backed up to a remote s3 provider of your choice.
 
       To provide sensitive values via environment variables to smol-k8s-lab use:
-      - BACKUP_S3_ACCESS_ID
-      - BACKUP_S3_SECRET_KEY
-      - RESTIC_REPO_PASSWORD
+      - ZITADEL_BACKUP_S3_ACCESS_ID
+      - ZITADEL_BACKUP_S3_SECRET_KEY
+      - ZITADEL_RESTIC_REPO_PASSWORD
     init:
       # Switch to false if you don't want to create intial secrets or use the
       # API via a service acocunt to create the above described resources
