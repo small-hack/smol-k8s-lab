@@ -49,7 +49,7 @@ def configure_zitadel(k8s_obj: K8s,
         # process init and secret values
         init_values = init_dict['values']
 
-        # configure s3 credentials and minio tenant if they're in use
+        # configure backup s3 credentials
         backup_s3_access_id = init_values.get('backup_s3_access_id', 'zitadel')
         backup_s3_access_key = init_values.get('backup_s3_access_key', '')
 
