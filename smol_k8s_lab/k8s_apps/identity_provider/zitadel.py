@@ -51,7 +51,7 @@ def configure_zitadel(k8s_obj: K8s,
 
         # configure backup s3 credentials
         backup_s3_access_id = init_values.get('backup_s3_access_id', 'zitadel')
-        backup_s3_access_key = init_values.get('backup_s3_access_key', '')
+        backup_s3_access_key = init_values.get('backup_s3_secret_key', '')
 
         # first we make sure the namespace exists
         namespace = config_dict['argo']['namespace']
