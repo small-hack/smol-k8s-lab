@@ -93,7 +93,7 @@ def configure_seaweedfs(k8s_obj: K8s,
         # if the seaweedfs tenant Argo CD app already exists, but init is enabed...
         if bitwarden:
             creds = bitwarden.get_item(
-                    f'seaweedfs-root-credentials-{seaweedfs_hostname}'
+                    f'seaweedfs-admin-credentials-{seaweedfs_hostname}'
                     )[0]
 
             # update the nextcloud values for the argocd appset
