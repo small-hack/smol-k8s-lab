@@ -625,7 +625,7 @@ apps:
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
-        s3_pvc_capacity: 120Gi
+        pvc_capacity: 120Gi
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
@@ -667,6 +667,11 @@ apps:
       - credentials for: postgresql, admin user, S3 storage, and SMTP
 
       smol-k8s-lab also supports setting up an OIDC application via Zitadel.
+
+       To provide sensitive values via environment variables to smol-k8s-lab use:
+       - MATRIX_BACKUP_S3_ACCESS_ID
+       - MATRIX_BACKUP_S3_SECRET_KEY
+       - MATRIX_RESTIC_REPO_PASSWORD
     enabled: false
     init:
       enabled: true
@@ -675,6 +680,9 @@ apps:
         smtp_host: "change@me-to-enable.mail"
       sensitive_values:
         - SMTP_PASSWORD
+        - BACKUP_S3_ACCESS_ID
+        - BACKUP_S3_SECRET_KEY
+        - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -686,8 +694,21 @@ apps:
         federation_hostname: ""
         # email for of the admin user
         admin_email: ""
+        # choose S3 as the local primary object store from either: seaweedfs, or minio
+        # SeaweedFS - deploy SeaweedFS filer/s3 gateway
+        # MinIO     - deploy MinIO vanilla helm chart
+        s3_provider: seaweedfs
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        pvc_capacity: 120Gi
+        # the endpoint you'd like to use for your minio or SeaweedFS instance
         s3_endpoint: ""
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 100Gi
         s3_region: eu-west-1
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        backup_s3_endpoint: ""
+        backup_s3_bucket: ""
+        backup_s3_region: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -854,6 +875,8 @@ apps:
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
         s3_provider: seaweedfs
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        pvc_capacity: 120Gi
         # the endpoint you'd like to use for your minio or SeaweedFS instance
         s3_endpoint: ""
         # how large the backing pvc's capacity should be for minio or seaweedfs
