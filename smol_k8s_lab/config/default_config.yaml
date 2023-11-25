@@ -813,7 +813,7 @@ apps:
         # additional Nextcloud apps to install via the nextcloud admin cli
         nextcloud_apps:
           # this allows you to login with other OIDC providers such as zitadel
-          - oidc_login
+          - oidclogin
           # kanban board
           - deck
           # notes management with markdown
@@ -826,6 +826,7 @@ apps:
         - SMTP_PASSWORD
         - BACKUP_S3_ACCESS_KEY
         - BACKUP_S3_ACCESS_ID
+        - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -842,6 +843,7 @@ apps:
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
         backup_s3_endpoint: ""
         backup_s3_bucket: ""
+        backup_s3_region: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!

@@ -55,6 +55,10 @@ def configure_nextcloud(k8s_obj: K8s,
             mail_host = init_values.get('smtp_host', None)
             mail_user = init_values.get('smtp_user', None)
             mail_pass = init_values.get('smtp_password', None)
+            # credentials of remote backups of s3 PVCs
+            restic_repo_pass = init_values.get('restic_repo_password', "")
+            backups_s3_user = init_values.get('backup_s3_access_id', "")
+            backups_s3_password = init_values.get('backup_s3_secret_key', "")
 
         if secrets:
             s3_endpoint = secrets.get('s3_endpoint', "")
@@ -62,7 +66,6 @@ def configure_nextcloud(k8s_obj: K8s,
                 s3_access_key = create_password()
                 # create a local alias to check and make sure nextcloud is functional
                 create_minio_alias("nextcloud", s3_endpoint, "nextcloud", s3_access_key)
-
 
         # configure SMTP
         if not mail_host:
@@ -121,6 +124,16 @@ def configure_nextcloud(k8s_obj: K8s,
                     item_url=nextcloud_hostname,
                     user="nextcloud-root",
                     password=admin_s3_key
+                    )
+
+            # credentials for remote backups of the s3 PVC
+            restic_repo_pass_obj = create_custom_field("resticRepoPassword", restic_repo_pass)
+            s3_backups_id = bitwarden.create_login(
+                    name='nextcloud-backups-s3-credentials',
+                    item_url=nextcloud_hostname,
+                    user=backups_s3_user,
+                    password=backups_s3_password,
+                    fields=[restic_repo_pass_obj]
                     )
 
             # oidc credentials if they were given, else they're probably already there
@@ -188,7 +201,8 @@ def configure_nextcloud(k8s_obj: K8s,
                      'nextcloud_redis_bitwarden_id': redis_id,
                      'nextcloud_s3_admin_credentials_bitwarden_id': s3_admin_id,
                      'nextcloud_s3_postgres_credentials_bitwarden_id': s3_db_id,
-                     'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id}
+                     'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id,
+                     'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id}
                     )
 
         # these are standard k8s secrets
@@ -258,8 +272,19 @@ def configure_nextcloud(k8s_obj: K8s,
             redis_id = bitwarden.get_item(
                     f"nextcloud-redis-credentials-{nextcloud_hostname}"
                     )[0]['id']
+            s3_admin_id = bitwarden.get_item(
+                    f"nextcloud-admin-s3-credentials-{nextcloud_hostname}"
+                    )[0]['id']
+            s3_db_id = bitwarden.get_item(
+                    f"nextcloud-postgres-s3-credentials-{nextcloud_hostname}"
+                    )[0]['id']
+
             s3_id = bitwarden.get_item(
-                    f"nextcloud-s3-credentials-{nextcloud_hostname}"
+                    f"nextcloud-user-s3-credentials-{nextcloud_hostname}"
+                    )[0]['id']
+
+            s3_backups_id = bitwarden.get_item(
+                    f"nextcloud-backups-s3-credentials-{nextcloud_hostname}"
                     )[0]['id']
 
             update_argocd_appset_secret(
@@ -269,5 +294,8 @@ def configure_nextcloud(k8s_obj: K8s,
                      'nextcloud_smtp_credentials_bitwarden_id': smtp_id,
                      'nextcloud_postgres_credentials_bitwarden_id': db_id,
                      'nextcloud_redis_bitwarden_id': redis_id,
-                     'nextcloud_s3_credentials_bitwarden_id': s3_id,
+                     'nextcloud_s3_admin_credentials_bitwarden_id': s3_admin_id,
+                     'nextcloud_s3_postgres_credentials_bitwarden_id': s3_db_id,
+                     'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id,
+                     'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id}
                     })
