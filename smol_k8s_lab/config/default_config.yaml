@@ -989,6 +989,13 @@ apps:
       - 2 Argo CD groups (admins and users), 1 vouch groups
       - groupsClaim action to enforce group roles on authentication
       - updates your appset_secret_plugin secret and refreshes the pod
+
+      The default app will also deploy SeaweedFS to backup your database which in turn is backed up to a remote s3 provider of your choice.
+
+      To provide sensitive values via environment variables to smol-k8s-lab use:
+      - BACKUP_S3_ACCESS_ID
+      - BACKUP_S3_SECRET_KEY
+      - RESTIC_REPO_PASSWORD
     init:
       # Switch to false if you don't want to create intial secrets or use the
       # API via a service acocunt to create the above described resources
@@ -1007,16 +1014,25 @@ apps:
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
+      sensitive_values:
+      # sensitive values to provide via environment variables or via the TUI
+      - BACKUP_S3_ACCESS_ID
+      - BACKUP_S3_SECRET_KEY
+      - RESTIC_REPO_PASSWORD
+      # coming soon after we refactor a bit
+      # - SMTP_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for zitadel
         hostname: ""
+        # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
-        # bucket is for your postgresql backups
-        s3_bucket: "zitadel-postgresql"
-        # optional, but recommended region to deploy the bucket in
-        s3_region: eu-west-1
+        # Remote S3 configuration, for pushing remote backups of your local postgresql backups
+        # these are done only nightly right now, for speed and cost optimization
+        backup_s3_endpoint: ""
+        backup_s3_region: ""
+        backup_s3_bucket: ""
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
