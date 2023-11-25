@@ -1091,6 +1091,8 @@ apps:
       secret_keys:
         # FQDN to use for zitadel
         hostname: ""
+        # set the local s3 provider for zitadel's database backups. can be minio or seaweedfs
+        s3_provider: seaweedfs
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         # Remote S3 configuration, for pushing remote backups of your local postgresql backups
