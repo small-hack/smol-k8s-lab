@@ -2,8 +2,7 @@ from base64 import standard_b64decode as b64dec
 from json import loads
 import logging as log
 from .zitadel_api import Zitadel
-from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
+from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 wait_for_argocd_app,
@@ -51,50 +50,28 @@ def configure_zitadel(k8s_obj: K8s,
         init_values = init_dict['values']
 
         # configure s3 credentials and minio tenant if they're in use
-        s3_access_id = init_values.get('s3_access_id', 'zitadel')
-        s3_access_key = init_values.get('s3_access_key', '')
-        s3_endpoint = secrets.get('s3_endpoint', "")
-        s3_bucket = secrets.get('s3_bucket', "zitadel-postgresql")
-        create_minio_tenant = init_values.pop('create_minio_tenant')
+        backup_s3_access_id = init_values.get('backup_s3_access_id', 'zitadel')
+        backup_s3_access_key = init_values.get('backup_s3_access_key', '')
 
         # first we make sure the namespace exists
         namespace = config_dict['argo']['namespace']
         k8s_obj.create_namespace(namespace)
 
-        # creates the initial root credentials secret for the minio tenant
-        if create_minio_tenant:
-            # if they haven't chosen an access key, make one up
-            if not s3_access_key:
-                s3_access_key = create_password(characters=72)
-
-            credentials_exports = {
-                    'config.env': f"""export MINIO_ROOT_USER={s3_access_id}
-            export MINIO_ROOT_PASSWORD={s3_access_key}"""
-            }
-            k8s_obj.create_secret('minio-env-config', namespace, credentials_exports)
-
-            # updates the ~/.mc/config.json with a new alias for zitadel
-            create_minio_alias("zitadel",
-                               s3_endpoint,
-                               s3_access_id,
-                               s3_access_key)
-
-            # create secret for the postgresql s3 credentials
-            # this will hopefully be done programmatically in the future
-            k8s_obj.create_secret('zitadel-postgresql-s3-credentials',
-                                  namespace,
-                                  {"CONSOLE_ACCESS_KEY": "zitadel-postgresql",
-                                   "CONSOLE_SECRET_KEY": create_password()})
         if bitwarden:
-            # S3 credentials
-            s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
-            s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
-            s3_id = bitwarden.create_login(
-                    name='zitadel-s3-credentials',
+            backup_s3_id = bitwarden.create_login(
+                    name='zitadel-backups-s3-credentials',
                     item_url=zitadel_hostname,
-                    user=s3_access_id,
-                    password=s3_access_key,
-                    fields=[s3_bucket_obj, s3_endpoint_obj]
+                    user=backup_s3_access_id,
+                    password=backup_s3_access_key
+                    )
+
+            # S3 credentials
+            db_access_key = create_password()
+            s3_id = bitwarden.create_login(
+                    name='zitadel-postgres-s3-credentials',
+                    item_url=zitadel_hostname,
+                    user="zitadel-postgres",
+                    password=db_access_key
                     )
 
             # create zitadel core key
@@ -117,7 +94,8 @@ def configure_zitadel(k8s_obj: K8s,
                     k8s_obj,
                     {'zitadel_core_bitwarden_id': core_id,
                      'zitadel_db_bitwarden_id': db_id,
-                     'zitadel_s3_credentials_bitwarden_id': s3_id}
+                     'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
+                     'zitadel_s3_backups_credentials_bitwarden_id': backup_s3_id}
                     )
 
             # reload the bitwarden ESO provider
@@ -195,8 +173,12 @@ def configure_zitadel(k8s_obj: K8s,
                     f"zitadel-db-credentials-{zitadel_hostname}"
                     )[0]['id']
 
+            backup_s3_id = bitwarden.get_item(
+                    f"zitadel-backups-s3-credentials-{zitadel_hostname}"
+                    )[0]['id']
+
             s3_id = bitwarden.get_item(
-                    f"zitadel-s3-credentials-{zitadel_hostname}"
+                    f"zitadel-postgres-s3-credentials-{zitadel_hostname}"
                     )[0]['id']
 
             core_id = bitwarden.get_item(
@@ -216,7 +198,8 @@ def configure_zitadel(k8s_obj: K8s,
                     {
                     'zitadel_core_bitwarden_id': core_id,
                     'zitadel_db_bitwarden_id': db_id,
-                    'zitadel_s3_credentials_bitwarden_id': s3_id,
+                    'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
+                    'zitadel_s3_backups_credentials_bitwarden_id': backup_s3_id,
                     'argo_cd_oidc_issuer': f"https://{zitadel_hostname}",
                     'argo_cd_oidc_client_id': argo_client_id,
                     'argo_cd_oidc_logout_url': f"https://{zitadel_hostname}/oidc/v1/end_session",
