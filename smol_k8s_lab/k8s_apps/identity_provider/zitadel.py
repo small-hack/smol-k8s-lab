@@ -139,6 +139,11 @@ def configure_zitadel(k8s_obj: K8s,
         # user and argocd client in zitadel
         if init_dict['enabled']:
             initial_user_dict = init_values
+            # we pop these off of the dictionary, because they're only needed
+            # for creating the backups s3 credentials in bitwarden
+            initial_user_dict.pop('backup_s3_access_id')
+            initial_user_dict.pop('backup_s3_secret_key')
+
             # Before initialization, we need to wait for zitadel's API to be up
             wait_for_argocd_app('zitadel')
             wait_for_argocd_app('zitadel-web-app')
