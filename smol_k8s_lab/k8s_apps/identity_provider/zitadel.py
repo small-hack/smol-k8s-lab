@@ -144,6 +144,12 @@ def configure_zitadel(k8s_obj: K8s,
             initial_user_dict.pop('backup_s3_access_id')
             initial_user_dict.pop('backup_s3_secret_key')
             initial_user_dict.pop('restic_repo_password')
+            # also don't need the smtp password past this point
+            try:
+                initial_user_dict.pop('smtp_password')
+            except Exception as e:
+                log.debug(e)
+                pass
 
             # Before initialization, we need to wait for zitadel's API to be up
             wait_for_argocd_app('zitadel')
