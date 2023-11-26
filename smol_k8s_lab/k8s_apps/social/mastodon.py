@@ -46,46 +46,68 @@ def configure_mastodon(k8s_obj: K8s,
         smtp_pass = init_values['smtp_password']
         smtp_host = init_values['smtp_host']
 
-        # configure s3 and credentials if in use
-        s3_access_id = init_values.get('s3_access_id', 'mastodon')
-        s3_access_key = init_values.get('s3_access_key', create_password())
-        s3_bucket = secrets.get('s3_bucket', "mastodon")
         s3_endpoint = secrets.get('s3_endpoint', "")
-        s3_hostname = secrets.get('s3_endpoint', "")
+        # configure s3 credentials
+        s3_access_id = 'mastodon'
+        s3_access_key = create_password()
+        # credentials of remote backups of s3 PVCs
+        restic_repo_pass = init_values.get('restic_repo_password', "")
+        backups_s3_user = init_values.get('backup_s3_access_id', "")
+        backups_s3_password = init_values.get('backup_s3_secret_key', "")
 
         # endpoint that gets put into the secret should probably have http in it
         if "http" not in s3_endpoint:
             s3_endpoint = "https://" + s3_endpoint
 
-        # the hostname however, must not have a protocol. local s3 is hard...
-        if "http" in s3_hostname:
-            s3_hostname = s3_hostname.replace("https://", "")
-            s3_hostname = s3_hostname.replace("http://", "")
-
-        # the directory below mastodon/app_of_apps is minio_tenant
-        if config_dict['argo']['directory_recursion']:
-            default_minio = True
-        else:
-            default_minio = False
-        create_minio_tenant = init_values.get('create_minio_tenant',
-                                              default_minio)
-
         # main mastodon rake secrets
         rake_secrets = generate_rake_secrets()
 
-        # creates the initial root credentials secret for the minio tenant
-        if create_minio_tenant:
-            credentials_exports = {
-                    'config.env': f"""MINIO_ROOT_USER={s3_access_id}
-            MINIO_ROOT_PASSWORD={s3_access_key}"""}
-            k8s_obj.create_secret('default-tenant-env-config', 'mastodon',
-                                  credentials_exports)
-            create_minio_alias("mastodon",
-                               s3_hostname,
-                               s3_access_id,
-                               s3_access_key)
+        # create a local alias to check and make sure mastodon is functional
+        create_minio_alias("mastodon", s3_endpoint, "mastodon", s3_access_key)
 
         if bitwarden:
+            # S3 credentials
+            mastodon_s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
+            mastodon_s3_host_obj = create_custom_field("s3Hostname", s3_endpoint.replace("https://", ""))
+            mastodon_s3_bucket_obj = create_custom_field("s3Bucket", "mastodon")
+            s3_id = bitwarden.create_login(
+                    name='mastodon-user-s3-credentials',
+                    item_url=mastodon_hostname,
+                    user=s3_access_id,
+                    password=s3_access_key,
+                    fields=[
+                        mastodon_s3_endpoint_obj,
+                        mastodon_s3_host_obj,
+                        mastodon_s3_bucket_obj
+                        ]
+                    )
+
+            pgsql_s3_key = create_password()
+            s3_db_id = bitwarden.create_login(
+                    name='mastodon-postgres-s3-credentials',
+                    item_url=mastodon_hostname,
+                    user="mastodon-postgres",
+                    password=pgsql_s3_key
+                    )
+
+            admin_s3_key = create_password()
+            s3_admin_id = bitwarden.create_login(
+                    name='mastodon-admin-s3-credentials',
+                    item_url=mastodon_hostname,
+                    user="mastodon-root",
+                    password=admin_s3_key
+                    )
+
+            # credentials for remote backups of the s3 PVC
+            restic_repo_pass_obj = create_custom_field("resticRepoPassword", restic_repo_pass)
+            s3_backups_id = bitwarden.create_login(
+                    name='mastodon-backups-s3-credentials',
+                    item_url=mastodon_hostname,
+                    user=backups_s3_user,
+                    password=backups_s3_password,
+                    fields=[restic_repo_pass_obj]
+                    )
+
             # elastic search password
             mastodon_elasticsearch_password = bitwarden.generate()
             elastic_id = bitwarden.create_login(
@@ -126,22 +148,6 @@ def configure_mastodon(k8s_obj: K8s,
                     fields=[mastodon_smtp_host_obj]
                     )
 
-            # S3 credentials
-            mastodon_s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
-            mastodon_s3_host_obj = create_custom_field("s3Hostname", s3_hostname)
-            mastodon_s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
-            s3_id = bitwarden.create_login(
-                    name='mastodon-s3-credentials',
-                    item_url=mastodon_hostname,
-                    user=s3_access_id,
-                    password=s3_access_key,
-                    fields=[
-                        mastodon_s3_endpoint_obj,
-                        mastodon_s3_host_obj,
-                        mastodon_s3_bucket_obj
-                        ]
-                    )
-
             # mastodon secrets
             secret_key_base_obj = create_custom_field(
                     "SECRET_KEY_BASE",
@@ -180,7 +186,10 @@ def configure_mastodon(k8s_obj: K8s,
                     {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
-                     'mastodon_s3_credentials_bitwarden_id': s3_id,
+                     'mastodon_s3_admin_credentials_bitwarden_id': s3_admin_id,
+                     'mastodon_s3_postgres_credentials_bitwarden_id': s3_db_id,
+                     'mastodon_s3_mastodon_credentials_bitwarden_id': s3_id,
+                     'mastodon_s3_backups_credentials_bitwarden_id': s3_backups_id,
                      'mastodon_elasticsearch_credentials_bitwarden_id': elastic_id,
                      'mastodon_server_secrets_bitwarden_id': secrets_id})
 
@@ -240,15 +249,6 @@ def configure_mastodon(k8s_obj: K8s,
                         password=password,
                         fields=[create_custom_field("email", email)]
                         )
-
-            if create_minio_tenant:
-                # create bucket policy for mastodon s3 media bucket
-                minio = BetterMinio("mastodon",
-                                    s3_hostname,
-                                    s3_access_id,
-                                    s3_access_key)
-
-                minio.set_anonymous_download(s3_bucket, "media_attachments")
     else:
         log.info("mastodon already installed 🎉")
 
@@ -278,8 +278,20 @@ def configure_mastodon(k8s_obj: K8s,
                     f"mastodon-smtp-credentials-{mastodon_hostname}"
                     )[0]['id']
 
+            s3_admin_id = bitwarden.get_item(
+                    f"mastodon-admin-s3-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
+            s3_db_id = bitwarden.get_item(
+                    f"mastodon-postgres-s3-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
             s3_id = bitwarden.get_item(
-                    f"mastodon-s3-credentials-{mastodon_hostname}"
+                    f"mastodon-user-s3-credentials-{mastodon_hostname}"
+                    )[0]['id']
+
+            s3_backups_id = bitwarden.get_item(
+                    f"mastodon-backups-s3-credentials-{mastodon_hostname}"
                     )[0]['id']
 
             secrets_id = bitwarden.get_item(
@@ -292,7 +304,10 @@ def configure_mastodon(k8s_obj: K8s,
                     {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
-                     'mastodon_s3_credentials_bitwarden_id': s3_id,
+                     'mastodon_s3_admin_credentials_bitwarden_id': s3_admin_id,
+                     'mastodon_s3_postgres_credentials_bitwarden_id': s3_db_id,
+                     'mastodon_s3_mastodon_credentials_bitwarden_id': s3_id,
+                     'mastodon_s3_backups_credentials_bitwarden_id': s3_backups_id,
                      'mastodon_elasticsearch_credentials_bitwarden_id': elastic_id,
                      'mastodon_server_secrets_bitwarden_id': secrets_id}
                     )

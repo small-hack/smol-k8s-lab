@@ -30,38 +30,22 @@ def configure_matrix(k8s_obj: K8s,
     if config_dict['init']['enabled'] and not app_installed:
         init_values = config_dict['init']['values']
 
-        # configure s3 credentials if they're in use
-        s3_access_id = init_values.get('s3_access_id', 'matrix')
-        s3_access_key = init_values.get('s3_access_key', '')
         s3_endpoint = secrets.get('s3_endpoint', "")
-        s3_bucket = secrets.get('s3_bucket', "matrix")
-        if config_dict['argo']['directory_recursion']:
-            default_minio = True
-        else:
-            default_minio = False
-        create_minio_tenant = init_values.get('create_minio_tenant',
-                                              default_minio)
+        # configure s3 credentials
+        s3_access_id = 'matrix'
+        s3_access_key = create_password()
+        # credentials of remote backups of s3 PVCs
+        restic_repo_pass = init_values.get('restic_repo_password', "")
+        backups_s3_user = init_values.get('backup_s3_access_id', "")
+        backups_s3_password = init_values.get('backup_s3_secret_key', "")
 
         # configure the smtp credentials
         smtp_user = init_values['smtp_user']
         smtp_pass = init_values['smtp_password']
         smtp_host = init_values['smtp_host']
 
-        # creates the initial root credentials secret for the minio tenant
-        if create_minio_tenant:
-            if not s3_access_key:
-                s3_access_key = create_password()
-
-            credentials_exports = {
-                    'config.env': f"""MINIO_ROOT_USER={s3_access_id}
-            MINIO_ROOT_PASSWORD={s3_access_key}"""}
-            k8s_obj.create_secret('default-tenant-env-config',
-                                  config_dict['argo']['namespace'],
-                                  credentials_exports)
-            create_minio_alias("matrix",
-                               s3_endpoint,
-                               s3_access_id,
-                               s3_access_key)
+        # create a local alias to check and make sure matrix is functional
+        create_minio_alias("matrix", s3_endpoint, "matrix", s3_access_key)
 
         # create Matrix OIDC Application
         if zitadel:
@@ -83,18 +67,49 @@ def configure_matrix(k8s_obj: K8s,
             # S3 credentials
             if "http" not in s3_endpoint:
                 s3_endpoint = "https://" + s3_endpoint
-            s3_host_obj = create_custom_field("s3Endpoint", s3_endpoint)
-            s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
+            matrix_s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
+            matrix_s3_host_obj = create_custom_field("s3Hostname", s3_endpoint.replace("https://", ""))
+            matrix_s3_bucket_obj = create_custom_field("s3Bucket", "matrix")
             s3_id = bitwarden.create_login(
-                    name='matrix-s3-credentials',
+                    name='matrix-user-s3-credentials',
                     item_url=matrix_hostname,
                     user=s3_access_id,
                     password=s3_access_key,
-                    fields=[s3_host_obj, s3_bucket_obj]
+                    fields=[
+                        matrix_s3_endpoint_obj,
+                        matrix_s3_host_obj,
+                        matrix_s3_bucket_obj
+                        ]
+                    )
+
+            pgsql_s3_key = create_password()
+            s3_db_id = bitwarden.create_login(
+                    name='matrix-postgres-s3-credentials',
+                    item_url=matrix_hostname,
+                    user="matrix-postgres",
+                    password=pgsql_s3_key
+                    )
+
+            admin_s3_key = create_password()
+            s3_admin_id = bitwarden.create_login(
+                    name='matrix-admin-s3-credentials',
+                    item_url=matrix_hostname,
+                    user="matrix-root",
+                    password=admin_s3_key
+                    )
+
+            # credentials for remote backups of the s3 PVC
+            restic_repo_pass_obj = create_custom_field("resticRepoPassword", restic_repo_pass)
+            s3_backups_id = bitwarden.create_login(
+                    name='matrix-backups-s3-credentials',
+                    item_url=matrix_hostname,
+                    user=backups_s3_user,
+                    password=backups_s3_password,
+                    fields=[restic_repo_pass_obj]
                     )
 
             # postgresql credentials
-            matrix_pgsql_password = bitwarden.generate()
+            # matrix_pgsql_password = bitwarden.generate()
             db_hostname_obj = create_custom_field(
                     "hostname",
                     f"matrix-postgres-rw.{config_dict['argo']['namespace']}.svc"
@@ -147,7 +162,10 @@ def configure_matrix(k8s_obj: K8s,
                     k8s_obj,
                     {'matrix_registration_credentials_bitwarden_id': reg_id,
                      'matrix_smtp_credentials_bitwarden_id': smtp_id,
-                     'matrix_s3_credentials_bitwarden_id': s3_id,
+                     'matrix_s3_admin_credentials_bitwarden_id': s3_admin_id,
+                     'matrix_s3_postgres_credentials_bitwarden_id': s3_db_id,
+                     'matrix_s3_matrix_credentials_bitwarden_id': s3_id,
+                     'matrix_s3_backups_credentials_bitwarden_id': s3_backups_id,
                      'matrix_postgres_credentials_bitwarden_id': db_id,
                      'matrix_oidc_credentials_bitwarden_id': oidc_id,
                      'matrix_idp_name': idp_name,
@@ -197,18 +215,35 @@ def configure_matrix(k8s_obj: K8s,
         if bitwarden and config_dict['init']['enabled']:
             log.debug("making sure matrix bitwarden IDs are present in appset "
                       "secret plugin")
+
             reg_id = bitwarden.get_item(
                     f"matrix-registration-key-{matrix_hostname}"
                     )[0]['id']
+
             smtp_id = bitwarden.get_item(
                     f"matrix-smtp-credentials-{matrix_hostname}"
                     )[0]['id']
-            s3_id = bitwarden.get_item(
-                    f"matrix-s3-credentials-{matrix_hostname}"
+
+            s3_admin_id = bitwarden.get_item(
+                    f"matrix-admin-s3-credentials-{matrix_hostname}"
                     )[0]['id']
+
+            s3_db_id = bitwarden.get_item(
+                    f"matrix-postgres-s3-credentials-{matrix_hostname}"
+                    )[0]['id']
+
+            s3_id = bitwarden.get_item(
+                    f"matrix-user-s3-credentials-{matrix_hostname}"
+                    )[0]['id']
+
+            s3_backups_id = bitwarden.get_item(
+                    f"matrix-backups-s3-credentials-{matrix_hostname}"
+                    )[0]['id']
+
             db_id = bitwarden.get_item(
                     f"matrix-pgsql-credentials-{matrix_hostname}"
                     )[0]['id']
+
             oidc_id = bitwarden.get_item(
                     f"matrix-oidc-credentials-{matrix_hostname}"
                     )[0]
@@ -224,7 +259,10 @@ def configure_matrix(k8s_obj: K8s,
                     k8s_obj,
                     {'matrix_registration_credentials_bitwarden_id': reg_id,
                      'matrix_smtp_credentials_bitwarden_id': smtp_id,
-                     'matrix_s3_credentials_bitwarden_id': s3_id,
+                     'matrix_s3_admin_credentials_bitwarden_id': s3_admin_id,
+                     'matrix_s3_postgres_credentials_bitwarden_id': s3_db_id,
+                     'matrix_s3_matrix_credentials_bitwarden_id': s3_id,
+                     'matrix_s3_backups_credentials_bitwarden_id': s3_backups_id,
                      'matrix_postgres_credentials_bitwarden_id': db_id,
                      'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
                      'matrix_idp_name': idp_name,
