@@ -260,21 +260,27 @@ def configure_nextcloud(k8s_obj: K8s,
             oidc_id = bitwarden.get_item(
                     f"nextcloud-oidc-credentials-{nextcloud_hostname}"
                     )[0]['id']
+
             admin_id = bitwarden.get_item(
                     f"nextcloud-admin-credentials-{nextcloud_hostname}"
                     )[0]['id']
+
             smtp_id = bitwarden.get_item(
                     f"nextcloud-smtp-credentials-{nextcloud_hostname}"
                     )[0]['id']
+
             db_id = bitwarden.get_item(
                     f"nextcloud-pgsql-credentials-{nextcloud_hostname}"
                     )[0]['id']
+
             redis_id = bitwarden.get_item(
                     f"nextcloud-redis-credentials-{nextcloud_hostname}"
                     )[0]['id']
+
             s3_admin_id = bitwarden.get_item(
                     f"nextcloud-admin-s3-credentials-{nextcloud_hostname}"
                     )[0]['id']
+
             s3_db_id = bitwarden.get_item(
                     f"nextcloud-postgres-s3-credentials-{nextcloud_hostname}"
                     )[0]['id']

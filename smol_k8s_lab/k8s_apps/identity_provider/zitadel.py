@@ -77,6 +77,14 @@ def configure_zitadel(k8s_obj: K8s,
                     password=db_access_key
                     )
 
+            admin_s3_key = create_password()
+            s3_admin_id = bitwarden.create_login(
+                    name='zitadel-admin-s3-credentials',
+                    item_url=zitadel_hostname,
+                    user="zitadel-root",
+                    password=admin_s3_key
+                    )
+
             # create zitadel core key
             new_key = bitwarden.generate()
             core_id = bitwarden.create_login(name="zitadel-core-key",
@@ -98,6 +106,7 @@ def configure_zitadel(k8s_obj: K8s,
                     {'zitadel_core_bitwarden_id': core_id,
                      'zitadel_db_bitwarden_id': db_id,
                      'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
+                     'zitadel_s3_admin_credentials_bitwarden_id': s3_admin_id,
                      'zitadel_s3_backups_credentials_bitwarden_id': backup_s3_id}
                     )
 
@@ -180,6 +189,10 @@ def configure_zitadel(k8s_obj: K8s,
                     f"zitadel-backups-s3-credentials-{zitadel_hostname}"
                     )[0]['id']
 
+            s3_admin_id = bitwarden.get_item(
+                    f"zitadel-admin-s3-credentials-{zitadel_hostname}"
+                    )[0]['id']
+
             s3_id = bitwarden.get_item(
                     f"zitadel-postgres-s3-credentials-{zitadel_hostname}"
                     )[0]['id']
@@ -203,6 +216,7 @@ def configure_zitadel(k8s_obj: K8s,
                     'zitadel_db_bitwarden_id': db_id,
                     'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
                     'zitadel_s3_backups_credentials_bitwarden_id': backup_s3_id,
+                    'zitadel_s3_admin_credentials_bitwarden_id': s3_admin_id,
                     'argo_cd_oidc_issuer': f"https://{zitadel_hostname}",
                     'argo_cd_oidc_client_id': argo_client_id,
                     'argo_cd_oidc_logout_url': f"https://{zitadel_hostname}/oidc/v1/end_session",
