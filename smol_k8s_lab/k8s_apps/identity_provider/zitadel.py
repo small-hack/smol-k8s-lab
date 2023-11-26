@@ -143,6 +143,7 @@ def configure_zitadel(k8s_obj: K8s,
             # for creating the backups s3 credentials in bitwarden
             initial_user_dict.pop('backup_s3_access_id')
             initial_user_dict.pop('backup_s3_secret_key')
+            initial_user_dict.pop('restic_repo_password')
 
             # Before initialization, we need to wait for zitadel's API to be up
             wait_for_argocd_app('zitadel')
