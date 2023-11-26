@@ -308,7 +308,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/cilium/"
+      path: "demo/cilium/"
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
@@ -388,11 +388,11 @@ apps:
   infisical:
     enabled: false
     description: |
-      ⚠️ [magenta]Alpha Status[/magenta]
+      ⚠️ [magenta]demo Status[/magenta]
 
       [link=https://infisical.com/]Infisical[/link] is an open-source, end-to-end encrypted secret management platform that enables teams to easily manage and sync their env vars.
 
-      This app will remain in alpha status till there is a way to create an initial user easily.
+      This app will remain in demo status till there is a way to create an initial user easily.
     # Initialization of the app through smol-k8s-lab
     init:
       enabled: true
@@ -402,7 +402,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/infisical/"
+      path: "demo/infisical/"
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
@@ -463,7 +463,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/k8tz/"
+      path: "demo/k8tz/"
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
@@ -520,7 +520,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/kepler/"
+      path: "demo/kepler/"
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
@@ -592,12 +592,13 @@ apps:
 
        smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, redis credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
 
-       smol-k8s-lab can also create your S3 bucket and credential if you enable the minio app and set minio s3 endpoint to "minio"
+       smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set mastodon.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 
        To provide sensitive values via environment variables to smol-k8s-lab use:
-       - MASTODON_BACKUP_S3_ACCESS_ID
-       - MASTODON_BACKUP_S3_SECRET_KEY
-       - MASTODON_RESTIC_REPO_PASSWORD
+         - MASTODON_SMTP_PASSWORD
+         - MASTODON_BACKUP_S3_ACCESS_ID
+         - MASTODON_BACKUP_S3_SECRET_KEY
+         - MASTODON_RESTIC_REPO_PASSWORD
     enabled: false
     init:
       enabled: true
@@ -611,6 +612,7 @@ apps:
         # mail user for smtp host
         smtp_user: "change me to enable mail"
       sensitive_values:
+        # these can be passed in as env vars if you pre-pend MASTODON_ to each one
         - SMTP_PASSWORD
         - BACKUP_S3_ACCESS_ID
         - BACKUP_S3_SECRET_KEY
@@ -642,17 +644,16 @@ apps:
       revision: main
       # namespace to install the k8s app in
       namespace: mastodon
-      # recurse directories in the git repo - set to true to use the minio
-      # operator to create an isolated S3 tenant for mastodon
-      directory_recursion: true
+      # recurse directories in the git repo
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        # depending on if you use seaweedfs or minio, you can remove the other source repo
         source_repos:
-          - registry-1.docker.io
-          - https://operator.min.io/
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
+          - https://operator.min.io/
+          - https://seaweedfs.github.io/seaweedfs/helm
           - https://small-hack.github.io/mastodon-helm-chart
-          - https://github.com/small-hack/mastodon-helm-chart
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
@@ -663,15 +664,16 @@ apps:
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
 
       smol-k8s-lab supports initialization by creating initial secrets for your:
-      - matrix, element, and federation hostnames, 
-      - credentials for: postgresql, admin user, S3 storage, and SMTP
+        - matrix, element, and federation hostnames, 
+        - credentials for: postgresql, admin user, S3 storage, and SMTP
 
-      smol-k8s-lab also supports setting up an OIDC application via Zitadel.
+      smol-k8s-lab also sets up an OIDC application via Zitadel.
 
        To provide sensitive values via environment variables to smol-k8s-lab use:
-       - MATRIX_BACKUP_S3_ACCESS_ID
-       - MATRIX_BACKUP_S3_SECRET_KEY
-       - MATRIX_RESTIC_REPO_PASSWORD
+         - MATRIX_SMTP_PASSWORD
+         - MATRIX_BACKUP_S3_ACCESS_ID
+         - MATRIX_BACKUP_S3_SECRET_KEY
+         - MATRIX_RESTIC_REPO_PASSWORD
     enabled: false
     init:
       enabled: true
@@ -715,14 +717,15 @@ apps:
       revision: main
       # namespace to install the k8s app in
       namespace: matrix
-      # recurse directories in the provided git repo
-      directory_recursion: true
+      # recurse directories in the git repo
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
-          - registry-1.docker.io
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://small-hack.github.io/matrix-chart
           - https://operator.min.io/
+          - https://seaweedfs.github.io/seaweedfs/helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
@@ -838,9 +841,15 @@ apps:
     description: |
       [link=https://nextcloud.com/]Nextcloud Hub[/link] is the industry-leading, fully open-source, on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces
 
-      smol-k8s-lab supports initialization by setting up your admin username, password, and SMTP username and password, as well as your redis and postgresql credentials
+      smol-k8s-lab supports initialization by setting up your admin username, password, and SMTP username and password, as well as your redis and postgresql credentials.
 
-      Note: smol-k8s-lab is not officially affiliated with nextcloud or vis versa
+      To avoid providing sensitive values everytime you run smol-k8s-lab, consider exporting the following environment variables before running smol-k8s-lab:
+        - NEXTCLOUD_SMTP_PASSWORD
+        - NEXTCLOUD_BACKUP_S3_ACCESS_KEY
+        - NEXTCLOUD_BACKUP_S3_ACCESS_ID
+        - NEXTCLOUD_RESTIC_REPO_PASSWORD
+
+      Note: smol-k8s-lab is not officially affiliated with Nextcloud gmhb
     # initialize the app by setting up new k8s secrets and/or bitwarden items
     init:
       enabled: true
@@ -851,7 +860,7 @@ apps:
         # additional Nextcloud apps to install via the nextcloud admin cli
         nextcloud_apps:
           # this allows you to login with other OIDC providers such as zitadel
-          - oidclogin
+          - oidc-login
           # kanban board
           - deck
           # notes management with markdown
@@ -891,11 +900,10 @@ apps:
       # namespace to install the k8s app in
       namespace: nextcloud
       # recurse directories in the provided git repo
-      directory_recursion: true
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
-          - registry-1.docker.io
           - https://nextcloud.github.io/helm
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://seaweedfs.github.io/seaweedfs/helm
@@ -953,7 +961,6 @@ apps:
       This is mostly meant to be for testing, but have at it :D
 
       If directory_recursion is set to true, we will also deploy the csi driver.
-
     init:
       enabled: true
       values:
@@ -967,7 +974,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: alpha/seaweedfs/app_of_apps/
+      path: demo/seaweedfs/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: eso-helm-chart-test
       # namespace to install the k8s app in
@@ -998,7 +1005,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: alpha/seaweedfs/app_of_apps/csi_driver/
+      path: demo/seaweedfs/app_of_apps/csi_driver/
       # either the branch or tag to point at in the argo repo above
       revision: eso-helm-chart-test
       # namespace to install the k8s app in
@@ -1016,7 +1023,9 @@ apps:
 
   vault:
     description: |
-      [link=https://www.hashicorp.com/products/vault]vault[/link] is a secrets management tool by Hashicorp.
+      [link=https://www.hashicorp.com/products/vault]Vault[/link] is a secrets management tool by Hashicorp.
+
+      Legal Disclaimer: Vault is open source, but does not use a standard FOSS license. smol-k8s-lab is not afilitated with Hashicorp and does not offer any kind of paid support for anything Hashicorp publishes. If you'd like help with Hashicorp's Vault, you can ask for support via the smol-k8s-lab community, or via official Hashicorp sources, such as via their paid support contracts. Keep in mind though, smol-k8s-lab is not supported by Hashicorp.
     enabled: false
     # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
     init:
@@ -1028,7 +1037,7 @@ apps:
         cluster_name: my-cool-cluster
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: alpha/vault/
+      path: demo/vault/
       # either the branch or tag to point at in the argo repo above
       revision: eso-helm-chart-test
       # namespace to install the k8s app in
