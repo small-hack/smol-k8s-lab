@@ -31,6 +31,7 @@ def configure_matrix(k8s_obj: K8s,
         init_values = config_dict['init']['values']
 
         s3_endpoint = secrets.get('s3_endpoint', "")
+        s3_bucket = secrets.get('s3_bucket', "matrix")
         # configure s3 credentials
         s3_access_id = 'matrix'
         s3_access_key = create_password()
@@ -69,7 +70,7 @@ def configure_matrix(k8s_obj: K8s,
                 s3_endpoint = "https://" + s3_endpoint
             matrix_s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
             matrix_s3_host_obj = create_custom_field("s3Hostname", s3_endpoint.replace("https://", ""))
-            matrix_s3_bucket_obj = create_custom_field("s3Bucket", "matrix")
+            matrix_s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
             s3_id = bitwarden.create_login(
                     name='matrix-user-s3-credentials',
                     item_url=matrix_hostname,

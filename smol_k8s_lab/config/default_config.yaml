@@ -701,6 +701,8 @@ apps:
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
         s3_provider: seaweedfs
+        # local s3 provider bucket name
+        s3_bucket: matrix
         # the endpoint you'd like to use for your minio or SeaweedFS instance
         s3_endpoint: ""
         # how large the backing pvc's capacity should be for minio or seaweedfs
