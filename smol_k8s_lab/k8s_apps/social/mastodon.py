@@ -38,8 +38,8 @@ def configure_mastodon(k8s_obj: K8s,
         init_values = config_dict['init']['values']
 
         # configure the admin user credentials
-        username = init_values['admin_user']
-        email = init_values['admin_email']
+        mastodon_admin_username = init_values['admin_user']
+        mastodon_admin_email = init_values['admin_email']
 
         # configure the smtp credentials
         smtp_user = init_values['smtp_user']
@@ -47,6 +47,7 @@ def configure_mastodon(k8s_obj: K8s,
         smtp_host = init_values['smtp_host']
 
         s3_endpoint = secrets.get('s3_endpoint', "")
+        log.debug(f"Mastodon s3_endpoint at the start is: {s3_endpoint}")
         # configure s3 credentials
         s3_access_id = 'mastodon'
         s3_access_key = create_password()
@@ -54,10 +55,6 @@ def configure_mastodon(k8s_obj: K8s,
         restic_repo_pass = init_values.get('restic_repo_password', "")
         backups_s3_user = init_values.get('backup_s3_access_id', "")
         backups_s3_password = init_values.get('backup_s3_secret_key', "")
-
-        # endpoint that gets put into the secret should probably have http in it
-        if "http" not in s3_endpoint:
-            s3_endpoint = "https://" + s3_endpoint
 
         # main mastodon rake secrets
         rake_secrets = generate_rake_secrets()
@@ -67,6 +64,11 @@ def configure_mastodon(k8s_obj: K8s,
 
         if bitwarden:
             # S3 credentials
+            # endpoint that gets put into the secret should probably have http in it
+            if "http" not in s3_endpoint:
+                log.debug(f"Mastodon s3_endpoint did not have http in it: {s3_endpoint}")
+                s3_endpoint = "https://" + s3_endpoint
+                log.debug(f"Mastodon s3_endpoint - after prepending 'https://': {s3_endpoint}")
             mastodon_s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
             mastodon_s3_host_obj = create_custom_field("s3Hostname", s3_endpoint.replace("https://", ""))
             mastodon_s3_bucket_obj = create_custom_field("s3Bucket", "mastodon")
@@ -148,6 +150,17 @@ def configure_mastodon(k8s_obj: K8s,
                     fields=[mastodon_smtp_host_obj]
                     )
 
+            # admin credentials for mastodon itself
+            toot_password = create_password()
+            email_obj = create_custom_field("email", mastodon_admin_email)
+            admin_id = bitwarden.create_login(
+                    name='mastodon-admin-credentials',
+                    item_url=mastodon_hostname,
+                    user=mastodon_admin_username,
+                    password=toot_password,
+                    fields=[email_obj]
+                    )
+
             # mastodon secrets
             secret_key_base_obj = create_custom_field(
                     "SECRET_KEY_BASE",
@@ -180,10 +193,10 @@ def configure_mastodon(k8s_obj: K8s,
                     )
             
             # update the mastodon values for the argocd appset
-            # 'mastodon_admin_credentials_bitwarden_id': admin_id,
             update_argocd_appset_secret(
                     k8s_obj,
                     {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
+                     'mastodon_admin_credentials_bitwarden_id': admin_id,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
                      'mastodon_s3_admin_credentials_bitwarden_id': s3_admin_id,
@@ -258,9 +271,9 @@ def configure_mastodon(k8s_obj: K8s,
             log.debug("Making sure mastodon Bitwarden item IDs are in appset "
                       "secret plugin secret")
 
-            # admin_id = bitwarden.get_item(
-            #         f"mastodon-admin-credentials-{mastodon_hostname}"
-            #         )[0]['id']
+            admin_id = bitwarden.get_item(
+                    f"mastodon-admin-credentials-{mastodon_hostname}"
+                    )[0]['id']
 
             db_id = bitwarden.get_item(
                     f"mastodon-pgsql-credentials-{mastodon_hostname}"
@@ -304,6 +317,7 @@ def configure_mastodon(k8s_obj: K8s,
                     {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
+                     'mastodon_admin_credentials_bitwarden_id': admin_id,
                      'mastodon_s3_admin_credentials_bitwarden_id': s3_admin_id,
                      'mastodon_s3_postgres_credentials_bitwarden_id': s3_db_id,
                      'mastodon_s3_mastodon_credentials_bitwarden_id': s3_id,
