@@ -366,12 +366,12 @@ def create_minio_alias(minio_alias: str,
     """
     add minio alias for credentials to your local /home/.mc/config.json file
     """
-    protocal = "https"
+    protocol = "https"
     if not secure:
-        protocal = "http"
+        protocol = "http"
 
     # we create a config file so users can easily use minio from the cli
-    new_minio_alias = {"url": f"{protocal}://{minio_hostname}",
+    new_minio_alias = {"url": f"{protocol}://{minio_hostname}",
                        "accessKey": access_key,
                        "secretKey": secret_key,
                        "api": "S3v4",
