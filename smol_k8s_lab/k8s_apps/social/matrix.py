@@ -146,16 +146,23 @@ def configure_matrix(k8s_obj: K8s,
             # OIDC credentials
             log.info("Creating OIDC credentials for Matrix in Bitwarden")
             if zitadel:
-                issuer_obj = create_custom_field("issuer", "https://" + zitadel.hostname)
-                idp_id_obj = create_custom_field("idp_id", idp_id)
-                idp_name_obj = create_custom_field("idp_name", idp_name)
-                oidc_id = bitwarden.create_login(
-                        name='matrix-oidc-credentials',
-                        item_url=matrix_hostname,
-                        user=matrix_dict['client_id'],
-                        password=matrix_dict['client_secret'],
-                        fields=[issuer_obj, idp_id_obj, idp_name_obj]
-                        )
+                if matrix_dict:
+                    issuer_obj = create_custom_field("issuer", "https://" + zitadel.hostname)
+                    idp_id_obj = create_custom_field("idp_id", idp_id)
+                    idp_name_obj = create_custom_field("idp_name", idp_name)
+                    oidc_id = bitwarden.create_login(
+                            name='matrix-oidc-credentials',
+                            item_url=matrix_hostname,
+                            user=matrix_dict['client_id'],
+                            password=matrix_dict['client_secret'],
+                            fields=[issuer_obj, idp_id_obj, idp_name_obj]
+                            )
+                else:
+                    # we assume the credentials already exist if they fail to create
+                    oidc_id = bitwarden.get_item(
+                            f"matrix-oidc-credentials-{matrix_hostname}"
+                            )[0]['id']
+
 
             # update the matrix values for the argocd appset
             update_argocd_appset_secret(
