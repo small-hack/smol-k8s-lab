@@ -61,7 +61,7 @@ class K8s():
         try:
             res = self.core_v1_api.create_namespaced_secret(namespace, body,
                                                             pretty=pretty)
-            log.info(res)
+            log.debug(res)
         except ApiException as e:
             log.error("Exception when calling "
                       f"CoreV1Api->create_namespaced_secret: {e}")
@@ -125,7 +125,7 @@ class K8s():
         # HACK: there's got to be a better way, but I don't have time to fix
         subproc([
             f"kubectl scale deploy -n {namespace} {name} --replicas=0",
-            "sleep 3",
+            f"kubectl rollout status deployment -n {namespace} {name}",
             f"kubectl scale deploy -n {namespace} {name} --replicas=1",
             f"kubectl rollout status deployment -n {namespace} {name}"
                  ])
@@ -213,7 +213,6 @@ class K8s():
         secret that contains an inline yaml block
         """
         secret_data = self.get_secret(secret_name, secret_namespace)['data']
-        log.debug(secret_data)
 
         # if this is a secret with a filename key and then inline yaml inside...
         if in_line_key_name:
@@ -229,9 +228,9 @@ class K8s():
             self.delete_secret(secret_name, secret_namespace)
             # update the inline yaml for the dict we'll feed back to
             self.create_secret(secret_name,
-                                  secret_namespace,
-                                  in_line_yaml,
-                                  in_line_key_name)
+                               secret_namespace,
+                               in_line_yaml,
+                               in_line_key_name)
         else:
             for key, updated_value in updated_values_dict.items():
                # update the keys in the secret yaml one by one
