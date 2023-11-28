@@ -596,8 +596,8 @@ apps:
 
        To provide sensitive values via environment variables to smol-k8s-lab use:
          - MASTODON_SMTP_PASSWORD
-         - MASTODON_BACKUP_S3_ACCESS_ID
-         - MASTODON_BACKUP_S3_SECRET_KEY
+         - MASTODON_S3_BACKUP_ACCESS_ID
+         - MASTODON_S3_BACKUP_SECRET_KEY
          - MASTODON_RESTIC_REPO_PASSWORD
     enabled: false
     init:
@@ -614,8 +614,8 @@ apps:
       sensitive_values:
         # these can be passed in as env vars if you pre-pend MASTODON_ to each one
         - SMTP_PASSWORD
-        - BACKUP_S3_ACCESS_ID
-        - BACKUP_S3_SECRET_KEY
+        - S3_BACKUP_ACCESS_ID
+        - S3_BACKUP_SECRET_KEY
         - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
@@ -633,9 +633,9 @@ apps:
         s3_region: eu-west-1
         # Remote S3 configuration, for pushing remote backups of your local postgresql backups
         # these are done only nightly right now, for speed and cost optimization
-        backup_s3_endpoint: ""
-        backup_s3_region: ""
-        backup_s3_bucket: ""
+        s3_backup_endpoint: ""
+        s3_backup_region: ""
+        s3_backup_bucket: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -672,8 +672,8 @@ apps:
 
        To provide sensitive values via environment variables to smol-k8s-lab use:
          - MATRIX_SMTP_PASSWORD
-         - MATRIX_BACKUP_S3_ACCESS_ID
-         - MATRIX_BACKUP_S3_SECRET_KEY
+         - MATRIX_S3_BACKUP_ACCESS_ID
+         - MATRIX_S3_BACKUP_SECRET_KEY
          - MATRIX_RESTIC_REPO_PASSWORD
     enabled: false
     init:
@@ -683,8 +683,8 @@ apps:
         smtp_host: "change@me-to-enable.mail"
       sensitive_values:
         - SMTP_PASSWORD
-        - BACKUP_S3_ACCESS_ID
-        - BACKUP_S3_SECRET_KEY
+        - S3_BACKUP_ACCESS_ID
+        - S3_BACKUP_SECRET_KEY
         - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
@@ -709,9 +709,9 @@ apps:
         s3_pvc_capacity: 100Gi
         s3_region: eu-west-1
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
-        backup_s3_endpoint: ""
-        backup_s3_bucket: ""
-        backup_s3_region: ""
+        s3_backup_endpoint: ""
+        s3_backup_bucket: ""
+        s3_backup_region: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -819,8 +819,8 @@ apps:
         user_console_hostname: ""
         # options: "local" or "s3". local is for a local filesystem mount. s3 is for using an s3 bucket
         backup_method: "local"
-        backup_s3_endpoint: "none"
-        backup_s3_bucket: "set me to your bucket name"
+        s3_backup_endpoint: "none"
+        s3_backup_bucket: "set me to your bucket name"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -848,8 +848,8 @@ apps:
 
       To avoid providing sensitive values everytime you run smol-k8s-lab, consider exporting the following environment variables before running smol-k8s-lab:
         - NEXTCLOUD_SMTP_PASSWORD
-        - NEXTCLOUD_BACKUP_S3_ACCESS_KEY
-        - NEXTCLOUD_BACKUP_S3_ACCESS_ID
+        - NEXTCLOUD_S3_BACKUP_ACCESS_KEY
+        - NEXTCLOUD_S3_BACKUP_ACCESS_ID
         - NEXTCLOUD_RESTIC_REPO_PASSWORD
 
       Note: smol-k8s-lab is not officially affiliated with Nextcloud gmhb
@@ -874,8 +874,8 @@ apps:
           - brute-force_settings
       sensitive_values:
         - SMTP_PASSWORD
-        - BACKUP_S3_ACCESS_KEY
-        - BACKUP_S3_ACCESS_ID
+        - S3_BACKUP_ACCESS_KEY
+        - S3_BACKUP_ACCESS_ID
         - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
@@ -891,9 +891,9 @@ apps:
         s3_pvc_capacity: 100Gi
         s3_region: eu-west-1
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
-        backup_s3_endpoint: ""
-        backup_s3_bucket: ""
-        backup_s3_region: ""
+        s3_backup_endpoint: ""
+        s3_backup_bucket: ""
+        s3_backup_region: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -1113,8 +1113,8 @@ apps:
       The default app will also deploy SeaweedFS to backup your database which in turn is backed up to a remote s3 provider of your choice.
 
       To provide sensitive values via environment variables to smol-k8s-lab use:
-      - ZITADEL_BACKUP_S3_ACCESS_ID
-      - ZITADEL_BACKUP_S3_SECRET_KEY
+      - ZITADEL_S3_BACKUP_ACCESS_ID
+      - ZITADEL_S3_BACKUP_SECRET_KEY
       - ZITADEL_RESTIC_REPO_PASSWORD
     init:
       # Switch to false if you don't want to create intial secrets or use the
@@ -1136,8 +1136,8 @@ apps:
         project: core
       sensitive_values:
       # sensitive values to provide via environment variables or via the TUI
-      - BACKUP_S3_ACCESS_ID
-      - BACKUP_S3_SECRET_KEY
+      - S3_BACKUP_ACCESS_ID
+      - S3_BACKUP_SECRET_KEY
       - RESTIC_REPO_PASSWORD
       # coming soon after we refactor a bit
       # - SMTP_PASSWORD
@@ -1154,9 +1154,9 @@ apps:
         s3_pvc_capacity: 2Gi
         # Remote S3 configuration, for pushing remote backups of your local postgresql backups
         # these are done only nightly right now, for speed and cost optimization
-        backup_s3_endpoint: ""
-        backup_s3_region: ""
-        backup_s3_bucket: ""
+        s3_backup_endpoint: ""
+        s3_backup_region: ""
+        s3_backup_bucket: ""
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
