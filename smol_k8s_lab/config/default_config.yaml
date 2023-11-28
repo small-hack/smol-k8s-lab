@@ -863,7 +863,7 @@ apps:
         # additional Nextcloud apps to install via the nextcloud admin cli
         nextcloud_apps:
           # this allows you to login with other OIDC providers such as zitadel
-          - oidc-login
+          - oidc_login
           # kanban board
           - deck
           # notes management with markdown
