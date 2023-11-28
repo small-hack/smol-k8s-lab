@@ -852,12 +852,13 @@ apps:
         - NEXTCLOUD_S3_BACKUP_ACCESS_ID
         - NEXTCLOUD_RESTIC_REPO_PASSWORD
 
-      Note: smol-k8s-lab is not officially affiliated with Nextcloud gmhb
+      Note: smol-k8s-lab is not affiliated with Nextcloud GmbH. This is not a community-supported-only install method.
     # initialize the app by setting up new k8s secrets and/or bitwarden items
     init:
       enabled: true
       values:
-        admin_user: ""
+        # change the name of your admin user to whatever you like. This is used in an admin credentials k8s secret
+        admin_user: "nextcloud_admin"
         smtp_user: "change me to enable mail"
         smtp_host: "change-me-to-real-email@to-enable.mail"
       sensitive_values:
