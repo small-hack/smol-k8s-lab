@@ -1,11 +1,9 @@
 # internal libraries
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
-from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
-                                                wait_for_argocd_app,
                                                 update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
@@ -28,7 +26,8 @@ def configure_nextcloud(k8s_obj: K8s,
         config_dict - dictionary with at least argocd key and init key
 
     optional:
-        bitwarden   - BwCLI() object with session token
+        bitwarden   - BwCLI() object with session token to create bitwarden items
+        zitadel     - Zitadel() object with session token to create zitadel oidc app and roles
     """
     # check immediately if this app is installed
     app_installed = check_if_argocd_app_exists('nextcloud')
@@ -236,19 +235,6 @@ def configure_nextcloud(k8s_obj: K8s,
 
     if not app_installed:
         install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
-
-        # optional nextcloud apps to install
-        nextcloud_apps = config_dict['init']['values']['nextcloud_apps']
-
-        if init_enabled and nextcloud_apps:
-            # wait first on the Nextcloud app of apps
-            wait_for_argocd_app("nextcloud")
-            # then make sure the web app is completely up before init actions
-            wait_for_argocd_app("nextcloud-web-app")
-
-            # install any apps the user passed in as an init value
-            nextcloud = Nextcloud(config_dict['argo']['namespace'])
-            nextcloud.install_apps(nextcloud_apps)
     else:
         log.info("nextcloud already installed 🎉")
 
