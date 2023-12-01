@@ -102,9 +102,6 @@ apps:
         # Used for letsencrypt-staging, to generate certs. If set to "" and cert-manager.enabled is true
         # smol-k8s-lab will prompt for this value and save it back to this file for you.
         email: ""
-      # If set to "", we'll instead use the repo, path, ref, namespace, and project_source_repos
-      # else we'll skip installing this app b/c its part of another app of apps with this name.
-      part_of_app_of_apps: ""
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
