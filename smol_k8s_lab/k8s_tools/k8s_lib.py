@@ -119,9 +119,13 @@ class K8s():
         restart a deployment's pod scaling it up and then down again
         currently only works with one pod
         """
-        subproc([f"kubectl scale deploy -n {namespace} {name} --replicas=0",
-                 "sleep 3",
-                 f"kubectl scale deploy -n {namespace} {name} --replicas=1"])
+        # HACK: there's got to be a better way, but I don't have time to fix
+        subproc([
+            f"kubectl scale deploy -n {namespace} {name} --replicas=0",
+            "sleep 3",
+            f"kubectl scale deploy -n {namespace} {name} --replicas=1",
+            "sleep 3"
+                 ])
 
 
     # def create_from_manifest_dict(self,
