@@ -26,7 +26,7 @@ def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str, prometheus: bool = Fa
         # this is to wait for the deployment to come up
         if prometheus:
             nginx_chart_opts = {"prometheus.create": prometheus,
-                                "prometheus.port": 9901}
+                                "prometheus.port": "9901"}
             k8s_obj.apply_manifests(
                     url,
                     "ingress-nginx",
