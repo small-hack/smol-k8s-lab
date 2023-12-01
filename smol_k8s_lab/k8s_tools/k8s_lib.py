@@ -125,7 +125,7 @@ class K8s():
         # HACK: there's got to be a better way, but I don't have time to fix
         subproc([
             f"kubectl scale deploy -n {namespace} {name} --replicas=0",
-            f"kubectl rollout status deployment -n {namespace} {name}",
+            "sleep 3",
             f"kubectl scale deploy -n {namespace} {name} --replicas=1",
             f"kubectl rollout status deployment -n {namespace} {name}"
                  ])
