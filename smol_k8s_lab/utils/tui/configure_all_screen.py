@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
-from rich.syntax import Syntax
-from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
+from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS, XDG_CONFIG_FILE
 from smol_k8s_lab.env_config import process_k8s_distros
+from smol_k8s_lab.utils.yaml_with_comments import syntax_highlighted_yaml
 from smol_k8s_lab.utils.tui.help_screen import HelpScreen
 from smol_k8s_lab.utils.tui.app_config import ArgoCDAppInputs, ArgoCDNewInput
 from smol_k8s_lab.utils.tui.kubelet_config import KubeletConfig
@@ -16,7 +16,9 @@ from textual.widgets import (Button, Footer, Header, Label, Select,
                              SelectionList, TabbedContent, TabPane)
 from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
-from yaml import safe_dump
+import ruamel.yaml
+
+yaml = ruamel.yaml.YAML()
 
 
 class SmolK8sLabConfig(App):
@@ -31,11 +33,7 @@ class SmolK8sLabConfig(App):
                         key_display="h",
                         action="request_help",
                         description="Show Help",
-                        show=True),
-                Binding(key="q",
-                        key_display="q",
-                        action="quit",
-                        description="Quit smol-k8s-lab")]
+                        show=True)]
     ToggleButton.BUTTON_INNER = '♥'
 
     def __init__(self, user_config: dict) -> None:
@@ -270,10 +268,7 @@ class SmolK8sLabConfig(App):
     @on(TabbedContent.TabActivated)
     def update_confirm_tab(self, event: TabbedContent.TabActivated) -> None:
         if event.tab.id == "confirm-selection":
-            rich_highlighted = Syntax(safe_dump(self.usr_cfg),
-                                      lexer="yaml",
-                                      theme="github-dark",
-                                      background_color="black")
+            rich_highlighted = syntax_highlighted_yaml(self.usr_cfg)
             self.get_widget_by_id("pretty-yaml").update(rich_highlighted)
 
             # if the app is selected
@@ -302,6 +297,9 @@ class SmolK8sLabConfig(App):
     @on(Button.Pressed)
     def exit_app_and_return_new_config(self, event: Button.Pressed) -> dict:
         if event.button.id == "confirm-button":
+            with open(XDG_CONFIG_FILE, 'w') as smol_k8s_config:
+                yaml.dump(self.usr_cfg, smol_k8s_config)
+
             self.exit(self.usr_cfg)
 
 

@@ -37,6 +37,8 @@ xdg-base-dirs = "^6.0"
 pyjwt         = "^2.8.0"
 cryptography  = "^41.0.3"
 textual       = "^0.37.1"
+ruamel-yaml   = "^0.17.32"
+ruamel-yaml-string = "^0.1.1"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"

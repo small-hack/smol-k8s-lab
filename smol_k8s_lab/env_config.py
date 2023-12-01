@@ -266,6 +266,7 @@ def process_k8s_distros(k8s_distros: dict = {}, prompt: bool = True):
               # if distro is enabled
               if metadata.get('enabled', False):
                   distros_enabled = True
+                  default = distro
 
     if not distros_enabled:
         if prompt:
