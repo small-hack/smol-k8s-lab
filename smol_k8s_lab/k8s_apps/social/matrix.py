@@ -37,8 +37,8 @@ def configure_matrix(k8s_obj: K8s,
         s3_access_key = create_password()
         # credentials of remote backups of s3 PVCs
         restic_repo_pass = init_values.get('restic_repo_password', "")
-        backups_s3_user = init_values.get('backup_s3_access_id', "")
-        backups_s3_password = init_values.get('backup_s3_secret_key', "")
+        backups_s3_user = init_values.get('s3_backup_access_id', "")
+        backups_s3_password = init_values.get('s3_backup_secret_key', "")
 
         # configure the smtp credentials
         smtp_user = init_values['smtp_user']

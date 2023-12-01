@@ -50,8 +50,8 @@ def configure_zitadel(k8s_obj: K8s,
         init_values = init_dict['values']
 
         # configure backup s3 credentials
-        backup_s3_access_id = init_values.get('backup_s3_access_id', 'zitadel')
-        backup_s3_access_key = init_values.get('backup_s3_secret_key', '')
+        s3_backup_access_id = init_values.get('s3_backup_access_id', 'zitadel')
+        s3_backup_access_key = init_values.get('s3_backup_secret_key', '')
         restic_repo_pass = init_values.get('restic_repo_password', '')
 
         # first we make sure the namespace exists
@@ -60,11 +60,11 @@ def configure_zitadel(k8s_obj: K8s,
 
         if bitwarden:
             restic_repo_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
-            backup_s3_id = bitwarden.create_login(
+            s3_backup_id = bitwarden.create_login(
                     name='zitadel-backups-s3-credentials',
                     item_url=zitadel_hostname,
-                    user=backup_s3_access_id,
-                    password=backup_s3_access_key,
+                    user=s3_backup_access_id,
+                    password=s3_backup_access_key,
                     fields=[restic_repo_obj]
                     )
 
@@ -107,7 +107,7 @@ def configure_zitadel(k8s_obj: K8s,
                      'zitadel_db_bitwarden_id': db_id,
                      'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
                      'zitadel_s3_admin_credentials_bitwarden_id': s3_admin_id,
-                     'zitadel_s3_backups_credentials_bitwarden_id': backup_s3_id}
+                     'zitadel_s3_backups_credentials_bitwarden_id': s3_backup_id}
                     )
 
             # reload the bitwarden ESO provider
@@ -141,8 +141,8 @@ def configure_zitadel(k8s_obj: K8s,
             initial_user_dict = init_values
             # we pop these off of the dictionary, because they're only needed
             # for creating the backups s3 credentials in bitwarden
-            initial_user_dict.pop('backup_s3_access_id')
-            initial_user_dict.pop('backup_s3_secret_key')
+            initial_user_dict.pop('s3_backup_access_id')
+            initial_user_dict.pop('s3_backup_secret_key')
             initial_user_dict.pop('restic_repo_password')
             # also don't need the smtp password past this point
             try:
@@ -197,7 +197,7 @@ def configure_zitadel(k8s_obj: K8s,
                     f"zitadel-db-credentials-{zitadel_hostname}"
                     )[0]['id']
 
-            backup_s3_id = bitwarden.get_item(
+            s3_backup_id = bitwarden.get_item(
                     f"zitadel-backups-s3-credentials-{zitadel_hostname}"
                     )[0]['id']
 
@@ -227,7 +227,7 @@ def configure_zitadel(k8s_obj: K8s,
                     'zitadel_core_bitwarden_id': core_id,
                     'zitadel_db_bitwarden_id': db_id,
                     'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
-                    'zitadel_s3_backups_credentials_bitwarden_id': backup_s3_id,
+                    'zitadel_s3_backups_credentials_bitwarden_id': s3_backup_id,
                     'zitadel_s3_admin_credentials_bitwarden_id': s3_admin_id,
                     'argo_cd_oidc_issuer': f"https://{zitadel_hostname}",
                     'argo_cd_oidc_client_id': argo_client_id,

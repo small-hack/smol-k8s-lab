@@ -56,8 +56,8 @@ def configure_nextcloud(k8s_obj: K8s,
             mail_pass = init_values.get('smtp_password', None)
             # credentials of remote backups of s3 PVCs
             restic_repo_pass = init_values.get('restic_repo_password', "")
-            backups_s3_user = init_values.get('backup_s3_access_id', "")
-            backups_s3_password = init_values.get('backup_s3_secret_key', "")
+            backups_s3_user = init_values.get('s3_backup_access_id', "")
+            backups_s3_password = init_values.get('s3_backup_secret_key', "")
 
         if secrets:
             s3_endpoint = secrets.get('s3_endpoint', "")
