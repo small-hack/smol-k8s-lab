@@ -9,8 +9,8 @@ from json import dumps
 import jwt
 from requests import request
 from rich.prompt import Prompt
+from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.utils.passwords import create_password
-from smol_k8s_lab.utils.bw_cli import BwCLI
 
 
 class Zitadel():
@@ -39,10 +39,13 @@ class Zitadel():
         self.api_token = self.generate_token(hostname, service_account_key_obj)
 
         self.headers = {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           'Accept': 'application/json',
           'Authorization': f'Bearer {self.api_token}'
         }
+
+        self.user_id = ""
+        self.resource_owner = ""
 
     def check_api_health(self,) -> True:
         """
@@ -52,11 +55,13 @@ class Zitadel():
         while True:
             log.debug("checking if api is up by querying the healthz endpoint")
             res = request("GET", f"{self.api_url}healthz", verify=self.verify)
+
             if res.status_code == 200:
                 log.info("Zitadel API is up now :)")
                 break
             else:
                 log.debug("Zitadel API is not yet up")
+
         return True
 
     def generate_token(self, hostname: str = "", secret_blob: dict = {}) -> str:
@@ -90,11 +95,15 @@ class Zitadel():
 
         # actual creation of API token
         log.info("Requesting an API token from zitadel...")
+
         scopes = 'openid profile email urn:zitadel:iam:org:project:id:zitadel:aud'
+
         headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+
         payload = {'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
                    'scope': scopes,
                    'assertion': encoded}
+
         res = request("POST", f"https://{hostname}/oauth/v2/token",
                       headers=headers, data=payload, verify=self.verify)
         log.debug(f"res is {res}")
@@ -112,22 +121,28 @@ class Zitadel():
 
         return(access_token)
 
-    def create_project(self,) -> list[str]:
+    def create_project(self, project_name: str) -> None:
         """
         Creates a new project and returns the project id and resource owner
         """
         log.info("Creating a new project called [green]Core[/]")
         payload = dumps({
-              "name": "Core",
+              "name": project_name,
               "projectRoleAssertion": True,
               "projectRoleCheck": True,
               "hasProjectCheck": True,
               "privateLabelingSetting": "PRIVATE_LABELING_SETTING_UNSPECIFIED"
             })
 
-        response = request("POST", self.api_url + "projects",
-                           headers=self.headers, data=payload, verify=self.verify)
+        response = request(
+                "POST",
+                self.api_url + "projects",
+                headers=self.headers,
+                data=payload,
+                verify=self.verify
+                )
         log.info(response.text)
+
         json_blob = response.json()
         self.project_id = json_blob['id']
         self.resource_owner = json_blob['details']['resourceOwner']
@@ -191,14 +206,17 @@ class Zitadel():
         log.info(response.text)
         return response.json()['userId']
 
-    def create_user_grant(self, user_id: str, role_keys: list) -> str:
+    def create_user_grant(self, role_keys: list, user_id: str = "") -> str:
         """
         Grants a role to non-admin a user.
 
         Arguments:
-            user_id:    ID of the user we're grants a role to
             role_key:   key of the role to assign to the user
+            user_id:    ID of the user we're grants a role to
         """
+        if not user_id:
+            user_id = self.user_id
+
         log.debug(f"Assiging user_id, {user_id} the role(s) of "
                   f"[green]{role_keys}[/] in {self.project_id}")
 
@@ -218,6 +236,44 @@ class Zitadel():
 
         return response.json()['userGrantId']
 
+    def update_user_grant(self, role_keys: list, user_id: str = "") -> str:
+        """
+        updates a user's existing grants.
+
+        Arguments:
+            role_key:   key of the role to assign to the user
+            user_id:    ID of the user we're grants a role to, if not provided,
+                        we use self.user_id
+        """
+        if not user_id:
+            user_id = self.user_id
+
+        url = f"{self.api_url}users/grants/_search"
+
+        payload = dumps({
+                  "userIdQuery": {
+                    "userId": user_id
+                  }
+            })
+
+        response = request("POST", url, headers=self.headers, data=payload,
+                           verify=self.verify)
+        log.info(response.text)
+        user_roles = response.json()['result'][0]['roleKeys']
+        grant_id = response.json()['result'][0]['id']
+        log.info(f"{user_id} has grant id {grant_id} with roles: {user_roles}")
+
+        # now we can update the user's roles
+        role_keys.extend(user_roles)
+        log.debug(f"Assiging user_id, {user_id} the roles of "
+                  f"[green]{role_keys}[/] in {self.project_id}")
+
+        url = f"{self.api_url}users/{user_id}/grants/{grant_id}"
+
+        payload = dumps({"roleKeys": role_keys})
+
+        response = request("PUT", url, headers=self.headers, data=payload,
+                           verify=self.verify)
 
     def create_iam_membership(self, user_id: str, role: str):
         """
@@ -274,26 +330,32 @@ class Zitadel():
         })
         log.debug(payload)
 
+        log.info(self.api_url)
+        log.info(self.project_id)
+
+        url = self.api_url + f'projects/{self.project_id}/apps/oidc'
+        log.info(url)
+
         response = request("POST",
-                           f'{self.api_url}projects/{self.project_id}/apps/oidc',
+                           url,
                            headers=self.headers,
                            data=payload,
                            verify=self.verify)
         log.info(response.text)
         json_res = response.json()
 
-        return {"application_id": json_res['appId'],
-                "client_id": json_res['clientId'],
-                "client_secret": json_res['clientSecret']}
+        try:
+            return {"application_id": json_res['appId'],
+                    "client_id": json_res['clientId'],
+                    "client_secret": json_res['clientSecret']}
+        except KeyError:
+            log.info(f"zitadel app, {app_name}, already exists")
 
-
-    def create_action(self, name: str = "") -> bool:
+    def create_groups_claim_action(self) -> None:
         """
         create an action for zitadel. Currently only creates one kind of action,
-        a group mapper action. Returns True on success.
+        a group mapper action.
         """
-        log.info("Creating action...")
-
         payload = dumps({
           "name": "groupsClaim",
           "script": "function groupsClaim(ctx, api) {\n  if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {\n    return;\n  }\n  let grants = [];\n  ctx.v1.user.grants.grants.forEach(claim => {\n    claim.roles.forEach(role => {\n      grants.push(role)\n    })\n  })\n  api.v1.claims.setClaim('groups', grants)\n}",
@@ -301,10 +363,62 @@ class Zitadel():
           "allowedToFail": True
         })
 
+        self.create_claim_action(payload)
+
+    def create_is_admin_claim(self, claim_name: str, admin_role_key: str, user_role_key: str) -> None:
+        """
+        create an action that returns claim_name based on a if a user is has either
+        an admin role key or a user role key in zitadel. We only send the claim
+        name if the user is in one of those groups
+
+        this is to return a claim name like: nextcloud_admin=True
+
+        Example generated action script:
+
+        function nextcloudAdminClaim(ctx, api) {
+          if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {
+            return;
+          }
+
+          ctx.v1.user.grants.grants.forEach(claim => {
+            if (claim.roles.includes('nextcloud_admins') {
+                api.v1.claims.setClaim('nextcloud_admin', true)
+                return;
+                }
+
+            if (claim.roles.includes('nextcloud_users') {
+                api.v1.claims.setClaim('nextcloud_admin', false)
+                return;
+                }
+            }
+        }
+        """
+        no_underscore_claim = claim_name.replace("_", "")
+        log.info(
+            f"Creating Zitadel action, {no_underscore_claim}, to return in OIDC"
+            f" responses {claim_name}=true if the user has the role "
+            f"{admin_role_key}, and {claim_name}=false if the user has the role "
+            f"{user_role_key}."
+            )
+
+        payload = dumps({
+          "name": f"{no_underscore_claim}Claim",
+          "script": "function " + no_underscore_claim + "Claim(ctx, api) {\n  if (ctx.v1.user.grants === undefined || ctx.v1.user.grants.count == 0) {\n    return;\n  }\n\n  ctx.v1.user.grants.grants.forEach(claim => {\n    if (claim.roles.includes('" + admin_role_key + "') {\n        api.v1.claims.setClaim('" + claim_name + "', true)\n        return;\n        }\n\n    if (claim.roles.includes('" + user_role_key + "') {\n        api.v1.claims.setClaim('" + claim_name + "', false)\n        return;\n        }\n    }\n}\n",
+          "timeout": "10s",
+          "allowedToFail": True
+        })
+        self.create_claim_action(payload)
+
+    def create_claim_action(self, script: str = "") -> None:
+        """
+        create an action for zitadel to run before sending user info or
+        giving access token
+        """
+        log.info("Creating action...")
         response = request("POST",
                            self.api_url + "actions",
                            headers=self.headers,
-                           data=payload,
+                           data=script,
                            verify=self.verify)
         log.debug(response.text)
 
@@ -325,20 +439,16 @@ class Zitadel():
                                data=action_payload,
                                verify=self.verify)
             log.debug(f"flows response is {response.text}")
-        return True
-
 
     def create_role(self,
                     role_key: str = "",
                     display_name: str = "",
-                    group: str = "") -> bool:
+                    group: str = "") -> None:
         """
         create a role in zitadel from given:
             role_key:     name of the role - no spaces allowed!
             display_name: human readable name of the role
             group:        group that this role applies to
-
-        Returns True on success.
         """
         payload = dumps({
           "roleKey": role_key,
@@ -352,4 +462,53 @@ class Zitadel():
                            verify=self.verify)
 
         log.info(response.text)
-        return True
+
+    def set_user_by_login_name(self, user: str) -> None:
+        """ 
+        get the user's ID by their login name
+        """
+        url = f"{self.api_url}global/users/_by_login_name?loginName={user}"
+
+        response = request("GET", url, headers=self.headers, data={},
+                           verify=self.verify).json()
+        log.info(response)
+
+        self.user_id = response['user']['id']
+        self.resource_owner = response['user']['details']['resourceOwner']
+
+    def set_project_by_name(self, project_name: str) -> str:
+        """ 
+        project_name: str - name of the project to use for future app creation
+
+        sets the current self.project_id after searching for the project by name
+        """
+        url = f"{self.api_url}projects/_search"
+
+        payload = dumps({
+          "query": {
+            "offset": "0",
+            "limit": 100,
+            "asc": True
+          },
+          "queries": [
+            {
+              "nameQuery": {
+                "name": project_name,
+                "method": "TEXT_QUERY_METHOD_EQUALS"
+              }
+            }
+          ]
+        })
+        log.debug("set_project_by_name _search payload ...")
+        log.debug(payload)
+
+        self.headers['Content-Type'] = 'application/json'
+
+        response = request("POST", url, headers=self.headers, data=payload,
+                           verify=self.verify)
+
+        log.info(f'response from set_project_by_name for "{project_name}" '
+                 f'_search: {response.text}')
+
+        self.project_id = response.json()['result'][0]['id']
+        log.debug(f"zitadel api: set project id to {self.project_id}")

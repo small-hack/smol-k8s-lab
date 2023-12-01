@@ -1,0 +1,6 @@
+/* whole modal screen */
+#new-option-modal-screen {
+    width: 80%;
+    align: center middle;
+    height: 13;
+}

@@ -1,0 +1,299 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+/* Matches the entire screen */
+Screen {
+    align: center middle;
+    max-width: 90%;
+    min-width: 89;
+}
+
+Tooltip {
+    background: $navy 50%;
+    color: $lavender 75%;
+    border: round $lavender;
+    padding: 1;
+}
+
+Button {
+    color: $light_cornflower;
+    background: $lavender 10%;
+    border-top: tall $blue_gray 60%;
+    border-bottom: tall $dark_gray 50%;
+}
+
+Input {
+    background: $bluish_white 8%;
+    color: white 75%;
+    border: tall black 18%;
+}
+
+Input.-invalid {
+    border: tall $neon_magenta 90%;
+}
+
+Input.-valid:focus {
+    border: tall $spacechalk_lime 70%;
+}
+
+/* Matches the bottom footer text on every page */
+Footer {
+    background: $background 1%;
+}
+
+Footer .footer--description {
+    color: $light_cornflower;
+    background: $navy 50%;
+}
+
+Footer .footer--key {
+    color: $navy;
+    background: $light_cornflower;
+}
+
+Footer .footer--highlight {
+    color: $orange;
+    background: $navy 50%;
+}
+
+Footer .footer--highlight-key {
+    color: $navy;
+    background: $orange;
+}
+
+/* sets the init switch slider color only when it's on */
+Switch.-on > .switch--slider {
+    color: $spacechalk_lime 90%;
+}
+
+/* Matches the "Select apps to install on k8s" Selection List */
+SelectionList {
+    background: $navy 40%;
+    color: $bluish_white;
+    width: 100%;
+}
+
+/* Matches the "Select apps to install on k8s" Selection List highlighted option */
+SelectionList .option-list--option-highlighted {
+    background: $blue_gray 50%;
+    color: $sky_blue;
+}
+
+SelectionList .option-list--option-hover-highlighted {
+    background: $blue_gray 90%;
+    color: $sky_blue;
+}
+
+SelectionList .option-list--option-hover {
+    background: $blue_gray 70%;
+    color: $sky_blue;
+}
+
+.selection-list--button {
+    background: $blue_gray 40%;
+    color: $navy;
+}
+
+/* changes color of filled in app selection button */
+.selection-list--button-selected {
+    color: $neon_magenta 90%;
+    background: $blue_gray 40%;
+}
+
+/* changes color of filled in app selection button */
+.selection-list--button-highlighted {
+    color: $neon_magenta 90%;
+    background: $blue_gray 40%;
+}
+
+/* changes color of filled in app selection button when highlighted */
+.selection-list--button-selected-highlighted {
+    color: $neon_magenta;
+    background: $blue_gray 40%;
+}
+
+/* drop down menus */
+Select .option-list--option {
+    background: $navy;
+}
+
+Select .option-list--option-hover {
+    background: $blue_gray 70%;
+    color: $sky_blue;
+}
+
+Select .option-list--option-highlighted {
+   background: $blue_gray 50%;
+   color: $sky_blue;
+}
+
+Select .option-list--option-hover-highlighted {
+   background: $blue_gray 90%;
+   color: $sky_blue;
+}
+
+/* the underline for tabs when using tabbed content */
+Underline > .underline--bar {
+    color: $soft_green;
+    background: $blue_gray;
+}
+
+Tab.header-tab {
+    color: $cornflower 50%;
+}
+
+Tab.header-tab.-active {
+    color: $cornflower;
+}
+
+Tab.header-tab.-focus {
+    color: $cornflower;
+}
+
+#base-screen-container {
+   grid-size: 1;
+   align: center middle;
+   content-align: center middle;
+   width: 80%;
+}
+
+/* this is the title banner for smol-k8s-lab start page */
+#smol-k8s-lab-header {
+    margin-top: 1;
+    color: $soft_green;
+    width: 100%;
+    content-align: center middle;
+    align: center middle;
+}
+
+/* both with-cluster-table and no-cluster-table are classes for #cluster-boxes */
+.with-cluster-table {
+    grid-rows: 0.3fr 0.9fr;
+    grid-gutter: 2;
+    height: 90%;
+}
+
+.no-cluster-table {
+    grid-rows: 0.5fr 0.6fr;
+    grid-gutter: 2;
+    height: 18;
+}
+
+#cluster-boxes {
+    grid-gutter: 2;
+}
+
+#base-cluster-table-box-grid {
+    padding-left: 1;
+    padding-right: 1;
+    background: $navy;
+    align: center middle;
+    content-align: center middle;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    border-title-align: center;
+}
+
+#base-new-cluster-input-box-grid {
+    padding-top: 1;
+    height: 10;
+    background: $navy;
+    align: center middle;
+    content-align: center middle;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    border-title-align: center;
+}
+
+/* grid around the clusters datatable */
+#table-grid {
+    align: center middle;
+    content-align: center middle;
+}
+
+/* clusters datatable itself */
+DataTable {
+   width: auto;
+   height: auto;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-active: $bluish_white;
+   scrollbar-color-hover: $light_cornflower;
+   scrollbar-color: $cornflower;
+}
+
+/* just the table header */
+.datatable--header {
+    background: $dark_gray 70%;
+    color: $bluish_white;
+}
+
+/* just the table header when hovering */
+.datatable--header-hover {
+   background: $dark_gray 70%;
+   color: $bluish_white;
+}
+
+/* selected table cell or row */
+.datatable--cursor {
+    background: $cornflower 30%;
+    color: $sky_blue;
+}
+
+/* row you're currently hovered over */
+.datatable--hover {
+    background: $cornflower 20%;
+    color: $bluish_white 80%;
+}
+
+/* individual table rows */
+.datatable--even-row {
+    color: $light_cornflower;
+    background: $blue_gray 10%;
+}
+
+.datatable--odd-row {
+    color: $cornflower;
+    background: $blue_gray 20%;
+}
+
+/* the row containing the cluster input/button row */
+#cluster-input-row {
+   align: center middle;
+   content-align: center middle;
+}
+
+/* input and button widget container for new cluster */
+#new-cluster-button-container {
+   align: center middle;
+   content-align: center middle;
+   grid-size: 2;
+   grid-columns: 0.55fr 1fr;
+}
+
+.help-text {
+    width: 100%;
+    color: gray;
+}
+
+/* all labels to the left of the an input */
+.input-label {
+    width: 100%;
+    height: 3;
+    color: $bluish_white;
+    content-align: left middle;
+}

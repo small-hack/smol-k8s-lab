@@ -1,28 +1,7 @@
----
-layout: default
-title: Intro
-description: "Smol K8s Lab Overview"
-has_children: true
-nav_order: 1
-permalink: /
----
-
 ## ☁️  *smol k8s lab* 🧸
 [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">](https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg)
 
 A project aimed at getting up and running quickly with mostly smaller k8s distros in one small command line script.
-
-### Supported k8s distributions
-We always install the latest version of kubernetes that is available from the distro's startup script.
-
-|  Distro    |         Description              |
-|:----------:|:------------------------------------------------------|
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k0s-logo.svg" width="32">][k0s] <br /> [k0s] | Simple, Solid & Certified Kubernetes Distribution |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
-| [<img src="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
-
-We tend to test on k3s first, then kind.
-
 
 ### Stack We Install on K8s
 Version is the helm chart version, or manifest version.
@@ -60,17 +39,9 @@ We also utilize the [Bitwarden cli], for a password manager so you never have to
 ### Port Forwarding
 If you want to access an app outside of port forwarding to test, you'll need to make sure your app's ingress is setup correctly and then you'll need to setup your router to port forward 80->80 and 443->443 for your WAN. then setup DNS for your domain if you want the wider internet to access this remotely.
 
-### SSL/TLS
-After SSL is working (if it's not, follow the steps in the [cert-manager common error troubleshooting guide](https://cert-manager.io/docs/faq/acme/#common-errors)), you can also change the `letsencrypt-staging` value to `letsencrypt-prod` for any domains you own and can configure to point to your cluster via DNS.
-
 ### Troubleshooting
 If you're stuck, checkout the [Notes section](https://jessebot.github.io/smol-k8s-lab/notes) to see if we also got stuck on the same thing at some point :)
 
-
-<!-- k8s distro link references -->
-[k3s]: https://k3s.io/
-[KinD]: https://kind.sigs.k8s.io/
-[k0s]: https://k0sproject.io/
 
 <!-- k8s apps link references -->
 [metallb]: https://github.io/metallb/metallb "metallb"

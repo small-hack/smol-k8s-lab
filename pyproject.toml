@@ -1,7 +1,7 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "1.0.1"
-description   = "bootstrap simple projects on kubernetes with kind and k3s"
+version       = "2.0.0a"
+description   = "Bootstrap simple projects on Kubernetes with kind, k3d, and k3s. this is an alpha release"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
 readme        = "README.md"
@@ -13,12 +13,13 @@ documentation = "https://small-hack.github.io/smol-k8s-lab"
 keywords      = ["kubernetes", "homelab", "kind", "k3s", "k8s"]
 classifiers   = ["Development Status :: 3 - Alpha",
                  "Programming Language :: Python :: 3.11",
+                 "Programming Language :: Python :: 3.12",
                  "Operating System :: MacOS :: MacOS X",
                  "Operating System :: POSIX :: Linux",
                  "Intended Audience :: End Users/Desktop",
                  "Topic :: System :: Installation/Setup",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
-include       = ["smol_k8s_lab/config/kind_cluster_config.yaml",
+include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
                  "smol_k8s_lab/config/extras/Brewfile",
                  "smol_k8s_lab/config/default_config.yaml"]
 
@@ -26,25 +27,34 @@ include       = ["smol_k8s_lab/config/kind_cluster_config.yaml",
 "Bug Tracker" = "http://github.com/small-hack/smol-k8s-lab/issues"
 
 [tool.poetry.dependencies]
-python        = ">=3.11,<4.0"
-rich          = "^13.0"
-click         = "^8.1"
-bcrypt        = "^4.0"
-kubernetes    = "^27.2"
-requests      = "^2.28"
-pyyaml        = "^6.0"
-xdg-base-dirs = "^6.0"
-pyjwt         = "^2.8.0"
-cryptography  = "^41.0.3"
+bcrypt             = "^4.0"
+click              = "^8.1"
+cryptography       = "^41.0.3"
+kubernetes         = "^27.2"
+minio              = "^7.1.17"
+pyfiglet           = "^1.0.2"
+pyjwt              = "^2.8.0"
+python             = ">=3.11,<4.0"
+pyyaml             = "^6.0"
+requests           = "^2.28"
+rich               = "^13.0"
+ruamel-yaml        = "^0.17.32"
+ruamel-yaml-string = "^0.1.1"
+textual            = "^0.40.0"
+xdg-base-dirs      = "^6.0"
+
+[tool.poetry.group.docs.dependencies]
+mkdocs-material = "^9.4.6"
+
+[tool.poetry.group.dev.dependencies]
+deptry = "^0.12.0"
+textual-dev = "^1.1.0"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
 
 [tool.poetry.scripts]
 smol-k8s-lab = "smol_k8s_lab:main"
-
-[tool.poetry.group.dev.dependencies]
-deptry = "^0.12.0"
 
 [build-system]
 requires      = ["poetry-core"]

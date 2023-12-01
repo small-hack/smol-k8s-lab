@@ -6,7 +6,6 @@ parent: Toolbox
 permalink: /toolbox/kubectl
 ---
 
-# Kubectl
 [`kubectl`](https://kubernetes.io/docs/reference/kubectl/kubectl/) is the default CLI for Kuberenetes. I use it mostly to apply things directly, or within simple BASH scripts for automation.
 
 ## Krew

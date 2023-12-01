@@ -1,0 +1,70 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+/* Matches the entire distro screen */
+#distro-config-screen {
+    align: center middle;
+    height: 92%;
+    width: 90%;
+    grid-rows: 0.2fr 1fr;
+    grid-gutter: 2;
+}
+
+#top-distro-row {
+    align: center middle;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    background: $navy 60%;
+    padding: 1;
+}
+
+/* the row of both the distro select dropdown and the description */
+#distro-select-box {
+    grid-size: 2;
+    grid-columns: 0.25fr 1fr;
+    align: center middle;
+}
+
+/* distro description label next to the distro dropdown */
+#distro-description {
+    align: center middle;
+    content-align: center middle;
+    width: 100%;
+    padding-left: 1;
+    color: gray;
+}
+
+/* dropdown k8s distro Select */
+#distro-drop-down {
+    content-align: center middle;
+}
+
+.k8s-distro-config {
+    grid-rows: 0.25fr 0.8fr;
+    grid-gutter: 2;
+}
+
+/* label: input row with delete button */
+.label-input-delete-row {
+    align: center top;
+    grid-columns: 0.35fr 0.9fr 0.15fr;
+    grid-size: 3;
+    grid-gutter: 1;
+    padding-bottom: 1;
+    padding-right: 1;
+    width: 100%;
+    height: auto;
+}

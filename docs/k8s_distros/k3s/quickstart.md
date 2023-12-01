@@ -7,7 +7,6 @@ grand_parent: K8s Distros
 permalink: /distros/k3s/bash-quickstart
 ---
 
-## Installing a k3s using a pre-configured BASH script
 Best for Linux on metal or a bridged VM
 
 #### Pre-Req

@@ -7,11 +7,10 @@ DESCRIPTION: helm install, and optionally configure, cert manager
 """
 from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
 import logging as log
 
 
-def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
+def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> None:
     """
     Installs cert-manager helm chart and optionally creates letsencrypt acme
     ClusterIssuers for both staging and production if email_addr is passed in
@@ -20,8 +19,7 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
     # install chart and wait
     release = Helm.chart(release_name='cert-manager',
                          chart_name='jetstack/cert-manager',
-                         chart_version="1.13.0",
-                         namespace='ingress',
+                         namespace='cert-manager',
                          set_options={'installCRDs': 'true'})
     release.install(True)
 
@@ -29,9 +27,11 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
         log.info("Creating ClusterIssuers for staging and production.")
         # we create a ClusterIssuer for both staging and prod
         acme_staging = "https://acme-staging-v02.api.letsencrypt.org/directory"
+        private_key_ref = "letsencrypt-staging"
         for issuer in ['letsencrypt-staging', 'letsencrypt-prod']:
             if issuer == "letsencrypt-prod":
                 acme_staging = acme_staging.replace("staging-", "")
+                private_key_ref = private_key_ref.replace("-staging", "-prod")
             issuers_dict = {
                 'apiVersion': "cert-manager.io/v1",
                 'kind': 'ClusterIssuer',
@@ -57,6 +57,4 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> True:
             #                                   manifest_dict=issuers_dict)
 
             # backup plan till above issue is resolved
-            apply_custom_resources([issuers_dict])
-
-    return True
+            k8s_obj.apply_custom_resources([issuers_dict])

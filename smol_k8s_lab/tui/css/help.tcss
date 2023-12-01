@@ -1,0 +1,39 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+/* help ModalScreen */
+HelpScreen {
+   align: center middle;
+}
+
+#help-container {
+   align: center middle;
+   padding-left: 1;
+   padding-top: 1;
+   width: 79;
+   height: 90%;
+   border: round $cornflower 80%;
+   border-title-color: $sky_blue;
+   border-subtitle-color: $sky_blue;
+   background: $navy;
+   grid-rows: 0.1fr 1fr;
+   grid-gutter: 1;
+}
+
+#help-options {
+   align: center middle;
+   width: 100%;
+}

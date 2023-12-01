@@ -1,27 +1,36 @@
 #!/usr/bin/env python3.11
 """
        Name: k3s
-DESCRIPTION: install k3s :D
+DESCRIPTION: install k3s :D not affiliated with rancher, suse, or k3s
      AUTHOR: @Jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-import logging as log
-import json
-from os import chmod, remove
-import requests
-import stat
-from ..constants import USER, KUBECONFIG, XDG_CACHE_DIR
+# local libraries
+from ..constants import USER, KUBECONFIG
+from ..constants import XDG_CACHE_DIR
 from ..utils.subproc import subproc
 
+# external libraries
+import logging as log
+from os import chmod, remove, path
+import requests
+import stat
+from ruamel.yaml import YAML
 
-def install_k3s_cluster(disable_servicelb: bool,
-                        cilium_enabled: bool,
-                        additonal_arguments: list,
-                        max_pods: int):
+
+def install_k3s_cluster(cluster_name: str,
+                        extra_k3s_parameters: dict = {
+                            "write-kubeconfig-mode": 700
+                            }
+                        ) -> None:
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
     Notes: --flannel-backend=none will break k3s on metal
     """
+    # always prepend k3s- to the beginning of the cluster name
+    if not cluster_name.startswith("k3s-"):
+        cluster_name = "k3s-" + cluster_name
+
     # download the k3s installer if we don't have it here already
     url = requests.get("https://get.k3s.io")
     k3s_installer_file = open("./install.sh", "wb")
@@ -31,72 +40,112 @@ def install_k3s_cluster(disable_servicelb: bool,
     # make sure we can actually execute the script
     chmod("./install.sh", stat.S_IRWXU)
 
-    # we will edit this file before the install: /etc/rancher/k3s/kubelet.config
-    # so that we can change the max number of pods on this node
-    kube_config = {'apiVersion': 'kubelet.config.k8s.io/v1beta1',
-                   'kind': 'KubeletConfiguration',
-                   'maxPods': max_pods}
-    kube_cache = XDG_CACHE_DIR + '/kubelet.config'
-    with open(kube_cache, 'w') as kubelet_cfg:
-        json.dump(kube_config, kubelet_cfg)
+    # for creating a config file for k3s
+    k3s_yaml_file = XDG_CACHE_DIR + '/k3s.yml'
+    # install command to create k3s cluster (just one server, control plane, node)
+    install_cmd = f'./install.sh --config {k3s_yaml_file}'
 
-    subproc(['sudo mkdir -p /etc/rancher/k3s',
-             f'sudo mv {kube_cache} /etc/rancher/k3s/kubelet.config'])
+    config_dict = extra_k3s_parameters
 
-    # create the k3s cluster (just one server node)
-    cmd = ('./install.sh '
-           '--disable=traefik '
-           '--write-kubeconfig-mode=700 '
-           '--secrets-encryption '
-           '--kubelet-arg=config=/etc/rancher/k3s/kubelet.config')
+    # write out the k3s config
+    yaml = YAML()
+    with open(k3s_yaml_file, 'w') as k3s_cfg:
+        yaml.dump(config_dict, k3s_cfg)
 
-    if disable_servicelb:
-        cmd += ' --disable=servicelb'
+    subproc([install_cmd], spinner=False)
 
-    if cilium_enabled:
-        cmd += ' --flannel-backend=none --disable-network-policy'
-
-    # add additional arguments to k3s if there are any
-    if additonal_arguments:
-        for argument in additonal_arguments:
-            cmd += f" {argument}"
-
-    subproc([cmd], spinner=False)
-
-    log.info(f"Updating your {KUBECONFIG}")
-
-    k3s_kubeconfig = "/etc/rancher/k3s/k3s.yaml"
-    # Grab the kubeconfig and copy it locally
-    cp = f'sudo cp {k3s_kubeconfig} {KUBECONFIG}'
-
-    # change the mode (permissions) of kubeconfig so that it doesn't complain
-    chmod_cmd = f'sudo chmod 600 {KUBECONFIG}'
-    # change the owner to the current user running this script
-    chown_cmd = f'sudo chown {USER}: {KUBECONFIG}'
-
-    # rename the cluster in your kubeconfig to smol-k8s-lab-k3s
-    cluster_rename = "kubectl config rename-context default smol-k8s-lab-k3s"
-
-    # run all 3 commands one after the other
-    subproc([cp, chmod_cmd, chown_cmd, cluster_rename])
+    # adds our newly created cluster for k3s to the user's kubeconfig
+    update_user_kubeconfig(cluster_name)
 
     # remove the script after we're done
     remove('./install.sh')
 
-    return True
 
-
-def uninstall_k3s(context: dict = {}):
+def uninstall_k3s(cluster_name: str) ->  str:
     """
     uninstall k3s and cleans up your kubeconfig as well
     returns True
     """
     log.debug("Uninstalling k3s")
     cmds = ["k3s-uninstall.sh",
-            f"kubectl config delete-cluster {context['cluster']}",
-            f"kubectl config delete-context {context['context']}",
-            f"kubectl config delete-user {context['user']}"]
+            f"kubectl config delete-cluster {cluster_name}",
+            f"kubectl config delete-context {cluster_name}",
+            f"kubectl config delete-user {cluster_name}"]
 
-    subproc(cmds, spinner=False)
+    res = subproc(cmds, spinner=False, error_ok=True)
 
-    return True
+    if isinstance(res, list):
+        return res.join('\n')
+    else:
+        return res
+
+
+def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
+    """
+    update the user's kubeconfig with the cluster, user, and context for the new 
+    cluster by grabbing the k3s generated kubeconfig and using it to update your
+    current kubeconfig. Handles both existing kubeconfig and none at all.
+
+    cluster_name: string - the name you'd like to give to the cluster and context
+    """
+    safe_yaml = YAML(typ='safe')
+    yaml = YAML()
+
+    # Grab the kubeconfig and copy it locally
+    k3s_yml = subproc(['sudo /bin/cat /etc/rancher/k3s/k3s.yaml'])
+    k3s_kubecfg = safe_yaml.load(k3s_yml)
+
+    # update name of cluster, user, and context from default to smol-k8s-lab-k3s
+    k3s_kubecfg['clusters'][0]['name'] = cluster_name
+    k3s_kubecfg['users'][0]['name'] = cluster_name
+    k3s_kubecfg['contexts'][0]['name'] = cluster_name
+    k3s_kubecfg['contexts'][0]['context']['cluster'] = cluster_name
+    k3s_kubecfg['contexts'][0]['context']['user'] = cluster_name
+    # also make sure the current context is set to the same cluster name
+    k3s_kubecfg['current-context'] = cluster_name
+
+    # if the kubeconfig already exists and is not empty, we update it
+    if path.exists(KUBECONFIG):
+        log.info(f"Updating your {KUBECONFIG} ↑")
+        with open(KUBECONFIG, 'r') as user_kubeconfig:
+            existing_config = safe_yaml.load(user_kubeconfig)
+
+        if existing_config:
+            # append new cluster
+            cluster = existing_config['clusters']
+            if cluster:
+                cluster.extend(k3s_kubecfg['clusters'])
+            else:
+                existing_config['clusters'] = k3s_kubecfg['clusters']
+
+            # append new user
+            user = existing_config['users']
+            if user:
+                user.extend(k3s_kubecfg['users'])
+            else:
+                existing_config['users'] = k3s_kubecfg['users']
+
+            # append new context
+            context = existing_config['contexts']
+            if context:
+                context.extend(k3s_kubecfg['contexts'])
+            else:
+                existing_config['contexts'] = k3s_kubecfg['contexts']
+
+            # update the current-context to ours :)
+            existing_config['current-context'] = cluster_name
+
+            # write back the updated user kubeconfig file
+            with open(KUBECONFIG, 'w') as user_kubeconfig:
+                yaml.dump(existing_config, user_kubeconfig)
+    else:
+        log.info(f"Creating your new {KUBECONFIG} ✨")
+
+        # write updated k3s kubeconfig with new names for context, cluster, user
+        with open(KUBECONFIG, 'w') as user_kubeconfig:
+            yaml.dump(k3s_kubecfg, user_kubeconfig)
+
+    # change the mode (permissions) of kubeconfig so that it doesn't complain
+    # and change the owner to the current user running this script
+    subproc([f'sudo chmod 600 {KUBECONFIG}',
+             f'sudo chown {USER}: {KUBECONFIG}'])

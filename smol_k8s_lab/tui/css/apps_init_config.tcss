@@ -1,0 +1,73 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+/* RIGHT TOP HALF OF SCREEN */
+InitValues {
+    height: auto;
+    margin-bottom: 1;
+}
+
+SmolK8sLabCollapsibleInputsWidget {
+    margin-top: 1;
+    height: auto;
+}
+
+.init-inputs-container {
+    height: auto;
+}
+
+/* entire row for app label, app switch label, and switch for each app with initialization */
+.app-init-switch-and-labels-row {
+    background: $blue_gray 25%;
+    layout: grid;
+    grid-size: 4;
+    height: 3;
+    grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
+}
+
+/* label for each app in the conigure selected apps pane */
+.initialization-label {
+   height: 3;
+   width: 100%;
+   content-align: left middle;
+   padding-left: 1;
+   color: $light_cornflower;
+}
+
+/* switch label for each app */
+.app-init-switch-label {
+   height: 3;
+   width: 100%;
+   content-align: right middle;
+}
+
+.app-init-label {
+    content-align: left middle;
+    align: left middle;
+    padding-top: 1;
+    width: 100%;
+}
+
+.app-init-row {
+    content-align: right middle;
+    align: right middle;
+    grid-size: 2;
+    padding-left: 2;
+    padding-right: 1;
+    grid-columns: 0.5fr 1.5fr;
+    height: auto;
+    padding-top: 1;
+}
