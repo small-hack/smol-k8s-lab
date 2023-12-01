@@ -129,12 +129,15 @@ class BaseApp(App):
 
         if clusters:
             self.generate_cluster_table(clusters)
+            if self.speak_screen_titles:
+                self.action_say("Welcome to smol-k8s-lab. Press c to configure "
+                                "accessibility options.")
         else:
             self.get_widget_by_id("base-screen-container").add_class("no-cluster-table")
+            if self.speak_screen_titles:
+                self.action_say("Welcome to smol-k8s-lab. Press tab, then C, to configure "
+                                "accessibility options.")
 
-        if self.speak_screen_titles:
-            self.action_say("Welcome to smol-k8s-lab. Press C to configure "
-                            "accessibility options.")
 
     def generate_cluster_table(self, clusters: list) -> None:
         """ 
