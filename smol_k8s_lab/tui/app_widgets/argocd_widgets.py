@@ -77,10 +77,16 @@ class ArgoCDProjectConfig(Static):
             yield label
 
             n_spaces = self.argo_params["destination"]["namespaces"]
+            if n_spaces:
+                value = ", ".join(n_spaces)
+            else:
+                value = ""
+
             classes = f"{self.app_name} argo-config-input argo-proj-ns"
             yield Input(placeholder="Enter comma seperated list of namespaces",
                         name="namespaces",
-                        value=", ".join(n_spaces),
+                        validators=Length(minimum=2),
+                        value=value,
                         classes=classes)
 
         # row for project source repos
@@ -91,19 +97,34 @@ class ArgoCDProjectConfig(Static):
             yield label
 
             repos = self.argo_params["source_repos"]
+            if repos:
+                value = ", ".join(repos)
+            else:
+                value = ""
             classes = f"{self.app_name} argo-config-input argo-proj-repo"
-            yield Input(placeholder="Please enter source_repos",
-                        value=", ".join(repos),
+            yield Input(placeholder="Please enter source repos",
+                        value=value,
                         name="source_repos",
+                        validators=Length(minimum=5),
                         classes=classes)
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
-        input = event.input
-        parent_app_yaml = self.app.cfg['apps'][self.app_name]
+        if event.validation_result.is_valid:
+            input_value = event.input.value
+            parent_app_yaml = self.app.cfg['apps'][self.app_name]
 
-        parent_app_yaml['argo']['project'][input.name] = input.value
+            # split by , generating a list from a csv
+            if "," in input_value:
+                input_value = input_value.strip()
+                yaml_value = input_value.split(", ")
+            # split by spaces, generating a list from a space delimited list
+            elif "," not in input_value and " " in input_value:
+                yaml_value = input_value.split(" ")
+            # otherwise just use the value
+            else:
+                yaml_value = input_value
 
-        self.app.write_yaml()
+            parent_app_yaml[event.input.name] = yaml_value
 
-
+            self.app.write_yaml()
