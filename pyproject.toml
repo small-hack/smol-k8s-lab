@@ -36,7 +36,7 @@ pyyaml        = "^6.0"
 xdg-base-dirs = "^6.0"
 pyjwt         = "^2.8.0"
 cryptography  = "^41.0.3"
-textual       = "^0.37.1"
+textual       = "^0.38.1"
 ruamel-yaml   = "^0.17.32"
 ruamel-yaml-string = "^0.1.1"
 
