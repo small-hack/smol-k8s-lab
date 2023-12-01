@@ -39,6 +39,7 @@ cryptography  = "^41.0.3"
 textual       = "^0.38.1"
 ruamel-yaml   = "^0.17.32"
 ruamel-yaml-string = "^0.1.1"
+pyfiglet = "^1.0.2"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
