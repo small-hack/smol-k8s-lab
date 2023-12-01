@@ -111,8 +111,8 @@ def configure_vouch(k8s_obj: K8s,
                     )
 
             # update the vouch values for the argocd appset
-            fields = {'vouch_oauth_config_bitwarden_id': oauth_id,
-                      'vouch_config_bitwarden_id': vouch_id}
+            fields = {'vouchOauthConfigBitwardenID': oauth_id,
+                      'vouchConfigBitwardenID': vouch_id}
 
             update_argocd_appset_secret(k8s_obj, fields)
 
@@ -163,8 +163,8 @@ def configure_vouch(k8s_obj: K8s,
                     )[0]['id']
 
             # update the vouch values for the argocd appset
-            fields = {'vouch_oauth_bitwarden_id': oauth_id,
-                      'vouch_config_bitwarden_id': vouch_id}
+            fields = {'vouchOauthConfigBitwardenID': oauth_id,
+                      'vouchConfigBitwardenID': vouch_id}
 
             update_argocd_appset_secret(k8s_obj, fields)
 
