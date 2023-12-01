@@ -129,7 +129,6 @@ def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
         release = Helm.chart(
                 release_name='appset-secret-plugin',
                 chart_name='appset-secret-plugin/appset-secret-plugin',
-                chart_version='0.5.0',
                 namespace='argocd',
                 set_options=set_opts
                 )
