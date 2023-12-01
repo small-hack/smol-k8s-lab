@@ -1,80 +1,269 @@
 ---
-# logging config for the smol-k8s-lab CLI
-log:
-  # path of file to log to if console logging is NOT desired
-  # file: "./smol-k8s-log.log"
-  # logging level, Options: debug, info, warn, error
-  level: "debug"
+smol_k8s_lab:
+  # Terminal User Interface with clickable buttons.
+  # Useful for learning smol-k8s-lab or verifying your configuration
+  tui:
+    # if set to true, we'll always launch smol-k8s-lab in interactive mode :)
+    # else you need to pass in --interactive or -i to use the TUI
+    enabled: true
+    # show bottom footer help bar
+    show_footer: true
+    # accessibility options for users that benefit from TTS and Bell sounds
+    accessibility:
+      bell:
+        # ring the built in terminal bell on focus to new elements on the screen
+        on_focus: true
+        # ring the built in terminal bell when something is wrong
+        on_error: true
+      text_to_speech: 
+        # use a specific program for text to speech - needs to be a full path
+        # macOS default: say
+        speech_program: say
+        # read aloud the screen title and description
+        screen_titles: true
+        # read aloud the element id, value, and tooltip each time you switch focus
+        on_focus: false
+        # press f5 to read the element id and selected row of DataTables
+        on_key_press: true
 
-# which distros of Kubernetes to deploy. Options: kind, k3s, k0s
-# NOTE: only kind is available on macOS at this time
+    # enable text to speech
+    # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
+    k9s:
+      # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s
+      # immediately after the cluster is up and enabled apps have been installed
+      enabled: false
+      # default command to run when k9s launches. Defaults to application.argoproj.io
+      # so that you can view the status of all of your argo apps immediately. This
+      # default results in running: k9s --command applications.argoproj.io
+      command: applications.argoproj.io
+
+  # logging config for the smol-k8s-lab CLI
+  log:
+    # path of file to log to if console logging is NOT desired
+    file: ""
+    # logging level, Options: debug, info, warn, error
+    level: debug
+
+  # store your password and tokens directly in your local password manager
+  local_password_manager:
+    enabled: false
+    # enable the use of Bitwarden as your password manager.
+    # To use Bitwarden, you must export the following environment variables:
+    # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
+    # If you're missing any of these, smol-k8s-lab will prompt for them
+    name: bitwarden
+    # if existing items are found in your password manager, do one of:
+    #
+    # ask: (default in tui mode) display a dialog window asking you how to proceed
+    # edit: edit item, if there's one item found, ask if multiple found
+    # duplicate: create an additional item with the same name
+    # no_action: don't do anything, just continue on with the script
+    duplicate_strategy: ask
+
+# which distros of Kubernetes to deploy. Options: kind, k3s, k3d
+# NOTE: only kind and k3d are available on macOS at this time
 k8s_distros:
-  # k3s is a small Kubernetes distro maintained by Rancher, which is owned by Suse Linux
   k3s:
-    # set to true to enable deploying a kubernetes cluster using k3s
+    # set to true to enable deploying a Kubernetes cluster using k3s
     enabled: false
-    # set the maximum pods per node via /etc/rancher/k3s/kubelet.config
-    # it's set high for beefy nodes, but you can set it lower if you'd like
-    max_pods: 200
-    # if k8s_distribution set to k3s, you can add an array of extra
-    # arguments to pass to the k3s install script
-    extra_args: []
-  # WARNING: NOT tested yet. k3d is k3s in docker.
+    # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
+    # to the k3s install script as a k3s.yaml file. If you enable cilium, we
+    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    k3s_yaml:
+      # if you enable MetalLB, we automatically add servicelb to the disable list
+      # enables encryption at rest for Kubernetes secrets
+      secrets-encryption: true
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      disable:
+      - "traefik"
+      node-label:
+      - "ingress-ready=true"
+      kubelet-arg:
+      - "max_pods=150"
+    # not yet adjustable on k3s at this time
+    nodes:
+      control_plane: 1
+      workers: 0
+
   k3d:
-    # set to true to enable deploying a kubernetes cluster using k3d
+    # set to true to enable deploying a Kubernetes cluster using k3d
     enabled: false
-  # KinD stands for Kubernetes in Docker, and is developed by the Kubernetes Project
+    # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
+    # to the k3s install script as a k3s.yaml file. if you enable cilium, we
+    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    k3s_yaml:
+      # if you enable MetalLB, we automatically add servicelb to the disable list
+      # enables encryption at rest for Kubernetes secrets
+      secrets-encryption: true
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      disable:
+      - "traefik"
+      kubelet-arg:
+      - "max_pods=150"
+      node-label:
+      - "ingress-ready=true"
+    # how many dockerized k3s nodes to deploy
+    nodes:
+      control_plane: 1
+      workers: 0
+
   kind:
-    # set to true to enable deploying a kubernetes cluster using kind
+    # set to true to enable deploying a Kubernetes cluster using kind
     enabled: false
-  # k0s is a minimal distro of kubernetes
-  k0s:
-    # set to true to enable deploying a kubernetes cluster using k0s
-    enabled: false
-
-# k9s is a terminal UI dashboard and interface for interacting with kubernetes
-k9s:
-  # when set to true, smol-k8s-lab runs k9s immediately after the cluster and 
-  # enabled apps have been installed
-  enabled: false
-  # default command to run when k9s launches. defaults to application.argoproj.io
-  # so that you can view the status of all of your argo apps immediately. This
-  # default results in running: k9s --command applications.argoproj.io
-  command: "applications.argoproj.io"
-
-# store your password and tokens directly in your local password manager
-local_password_manager:
-  enabled: true
-  # enable the use of bitwarden as your password manager.
-  # To use Bitwarden, you must export the following environment variables:
-  # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
-  # If you're missing any of these, smol-k8s-lab will prompt for them
-  name: bitwarden
-  # if existing items are found in your password manager, give smol-k8s-lab
-  # permission to delete the old item and create a new one.
-  # If set to false, we attempt to create a second item
-  overwrite: false
+    # change the kubelet config for this node in k3s, feel free to add more values
+    kubelet_extra_args:
+      node-labels: "ingress-ready=true"
+      maxPods: 110
+      podsPerCore: 0
+      resolvConf: "/etc/resolv.conf"
+    networking_args:
+      ipFamily: "ipv4"
+      disableDefaultCNI: false
+      apiServerAddress: "127.0.0.1"
+      podSubnet: "10.244.0.0/16"
+    # how many dockerized kind nodes to deploy
+    nodes:
+      control_plane: 1
+      workers: 0
 
 # anything here gets set for all apps if you're using our default repos
 apps_global_config:
   # setting this changes all the below domains to use the following cluster_issuer
   # change to letsencrypt-prod when you're ready to go live with your infra
-  cluster_issuer: letsencrypt-staging
+  cluster_issuer: "letsencrypt-staging"
+  # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+  time_zone: "Europe/Amsterdam"
+  # always deploy external secrets. *Must be a string of "" (don't use external secrets) or "bitwarden" to use bitwarden for external secrets*
+  external_secrets: "bitwarden"
 
+# ---------------------------------------------------------------------------
+# Argo CD deployed and maintained Applications to run on Kubernetes
+# ---------------------------------------------------------------------------
 apps:
-  # ------------------------
-  # Required Kubernetes Apps
-  # ---------------------------------------------------------------------------
-  # These are installed with helm or manifests depending on what is recommended
-  # for your k8s distro. All become managed by ArgoCD if you enable it below
-  # ---------------------------------------------------------------------------
-  #
-  # Use LetsEncrypt to generate TLS certs for all your apps with ingress
+  argo_cd:
+    # Set to false if you you just want a bare cluster with only the above apps"
+    enabled: true
+    description: |
+      [link=https://argo-cd.readthedocs.io/en/stable/]Argo CD[/link] is a declarative, GitOps continuous delivery tool for Kubernetes.
+
+      smol-k8s-lab installs Argo CD with helm initially to support initial configuration of your admin user and disabling of dex. After your OIDC provider is configured, Argo CD begins managing itself using the below configured Argo CD repo.
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        # FQDN hostname for accessing the Argo CD web interface
+        hostname: ""
+        # which oidc provider to use for Argo CD: defaults to Zitadel
+        oidc_provider: "zitadel"
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      # change to argocd/argocd to not use app of apps with secret plugin
+      path: "argocd/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "argocd"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
+      project:
+        source_repos:
+          - https://argoproj.github.io/argo-helm
+          - https://small-hack.github.io/appset-secret-plugin
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - prometheus
+
+  appset_secret_plugin:
+    # Required if you want to use the default small-hack/argocd-apps argo.repo and
+    # default enabled if ArgoCD is enabled, so we can create a k8s Secret with
+    # your more private info such as hostnames, IP addresses, and emails in a
+    # deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets
+    # This plugin has no ingress and cannot be reached from outside the cluster
+    enabled: true
+    description: |
+      Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [gold3]argo.repo[/gold3] and default enabled if Argo CD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside Argo CD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
+
+      Switch to initialization off if you don't want to deploy a default secret with all keys in each apps.{app}.argo.secret_keys
+
+      Learn more: [link=https://github.com/small-hack/appset-secret-plugin]https://github.com/small-hack/appset-secret-plugin[/link]
+    init:
+      # switch to false if you don't want to create an initial secret of values
+      # to provide to other Argo CD ApplicationSets
+      enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSet itself
+      secret_keys: {}
+      # skip installing this app b/c its part of another app of apps with this
+      # name. If equals "" we'll instead use the repo, path, revision, and namespace
+      part_of_app_of_apps: "argo_cd"
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "argocd/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "argocd"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      project:
+        source_repos:
+          - https://small-hack.github.io/appset-secret-plugin
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  bitwarden_eso_provider:
+    enabled: true
+    description: |
+      The [link="https://github.com/jessebot/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
+
+      smol-k8s-lab support initialization by creating a Kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
+
+      BITWARDEN_PASSWORD, BITWARDEN_CLIENTSECRET, BITWARDEN_CLIENTID
+    init:
+      # Switch to false if you don't want to be prompted for your Bitwarden
+      # API credentials to be created as a Kubernetes secret.
+      enabled: true
+    argo:
+      # skip installing this app b/c its part of another app of apps with this
+      # name. If equals "" we'll instead use the below repo, path, revision, and namespace
+      part_of_app_of_apps: external_secrets_operator
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: external-secrets-operator/bitwarden
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: external-secrets
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # optional secrets keys to pass to the Argo CD Appset secret plugin generator
+      secret_keys: {}
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
+      project:
+        # where the helm chart lives. Go here for more info
+        source_repos:
+          - https://small-hack.github.io/bitwarden-eso-provider
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  # This app is installed with helm or manifests depending on what is recommended
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
   cert_manager:
     # ! NOTE: you currently can't set this to false. It is necessary to deploy
     # most of our supported Argo CD apps since they often have TLS enabled either
     # for pod connectivity or ingress
     enabled: true
+    description: |
+      [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
+
+      smol-k8s-lab supports initialization by creating two [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] for both staging and production using a provided email address as the account ID for acme.
+
     # Initialize of the app through smol-k8s-lab
     init:
       # Deploys staging and prod ClusterIssuers and prompts you for
@@ -85,463 +274,646 @@ apps:
       secret_keys:
         # Used for letsencrypt-staging, to generate certs
         email: ""
-      # skip installing this app b/c its part of another app of apps with this
-      # name. If equals "", we'll instead use the repo, path, ref, namespace
-      part_of_app_of_apps: "ingress"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "ingress/cert-manager/"
+      path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
-      namespace: "ingress"
+      namespace: "cert-manager"
+      # recurse directories in the provided git repo
+      directory_recursion: false
       # source repos for cert-manager CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - https://charts.jetstack.io
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - kube-system
 
-  # deploy ingress-nginx and cert-manager as one argocd app of apps and project 
-  # in the same namespace
-  ingress:
+  # This app is installed with helm or manifests depending on what is recommended
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
+  cilium:
+    enabled: false
+    description: |
+      [link=https://cilium.io/]Cilium[/link] is an open source, cloud native solution for providing, securing, and observing network connectivity between workloads, fueled by the revolutionary Kernel technology eBPF.
+    # Initialize of the app through smol-k8s-lab
+    init:
+      enabled: true
+    argo:
+      secret_keys:
+        hostname: ""
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "demo/cilium/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "cilium"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD cilium Project
+      project:
+        source_repos:
+          - "https://helm.cilium.io/"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  cnpg_operator:
+    description: |
+      CloudNative PostgeSQL Operator for Kubernetes. This lets you create an
+      manage many clusters of postgresql, including backups to s3.
+    # default disabled while a helm chart is being actively developed
+    enabled: true
+    argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: postgres/operators/cloud-native-postgres/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: cnpg-system
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+        - https://github.com/small-hack/argocd-apps
+        - https://cloudnative-pg.github.io/charts
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  external_secrets_operator:
+    enabled: true
+    description: |
+      [link=https://external-secrets.io/latest/]External Secrets Operator[/link] is a Kubernetes operator that integrates external secret management systems like HashiCorp Vault, CyberArk Conjur, Bitwarden, Gitlab, and many more. The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
+    # Initialization of the app through smol-k8s-lab
+    init:
+      enabled: false
+    argo:
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      # change to external-secrets-operator/external-secrets-operator/ to deploy
+      # ONLY the external-secrets-operator, so this will not use app of apps and
+      # therefore we will not deploy the Bitwarden ESO provider. Use if you want to use
+      # a different provider
+      path: external-secrets-operator/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: external-secrets
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # secret keys to provide for the Argo CD Appset secret plugin, none by default
+      secret_keys: {}
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
+      project:
+        source_repos:
+          - https://charts.external-secrets.io
+          # you can remove this one if you're not using bitwarden to store your k8s secrets
+          - https://small-hack.github.io/bitwarden-eso-provider
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  infisical:
+    enabled: false
+    description: |
+      ⚠️ [magenta]demo Status[/magenta]
+
+      [link=https://infisical.com/]Infisical[/link] is an open-source, end-to-end encrypted secret management platform that enables teams to easily manage and sync their env vars.
+
+      This app will remain in demo status till there is a way to create an initial user easily.
+    # Initialization of the app through smol-k8s-lab
+    init:
+      enabled: true
+    argo:
+      secret_keys:
+        hostname: ""
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "demo/infisical/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "infisical"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
+      project:
+        source_repos:
+          - "registry-1.docker.io"
+          - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  # This app is installed with helm or manifests depending on what is recommended
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
+  ingress_nginx:
+    enabled: true
+    description: |
+      Dedefault deploys [link=https://github.com/kubernetes/ingress-nginx]ingress-nginx[/link] and cert-manager as one argocd app of apps and project in the same namespace
+      Ingress-nginx cannot be disabled unless you provide your own ingress controller app
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       # change to "ingress/ingress-nginx/" to not use app of apps
-      path: "ingress/"
+      path: "ingress-nginx/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
-      namespace: "ingress"
+      namespace: "ingress-nginx"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # secret keys to provide for the Argo CD Appset secret plugin, none by default
+      secret_keys: {}
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - https://charts.jetstack.io
-        - "https://kubernetes.github.io/ingress-nginx"
-        - "https://jessebot.github.io/vouch-helm-chart"
-        - "https://github.com/kubernetes/ingress-nginx"
-
-  # all apps below this point are optional
-  # ---------------------------------------------------------------------------
-  cilium:
-    # enable cilium which gives you a more comprehensive networking map
-    enabled: false
-    # Initialize of the app through smol-k8s-lab
-    init:
-      enabled: true
-    argo:
-      secret_keys:
-        hostname: ""
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/cilium/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "cilium"
-      # source repos for Argo CD cilium Project
-      project_source_repos:
-        - "https://helm.cilium.io/"
-
-  metallb:
-    # enable metallb which helps expose IP addresses for loadbalancers on metal
-    # if you're on a vm or container where you can't get an IP, disable this
-    enabled: true
-    # Initialize of the app through smol-k8s-lab
-    init:
-      # Deploys default l2Advertisement and prompts for an IPAddressPool if
-      # metallb.init.address_pool is not set. Change to false if you don't want
-      # to deploy these resources
-      enabled: true
-      values:
-        address_pool: []
-    argo:
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "metallb/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "metallb-system"
-      # source repos for Argo CD metallb Project (in addition to metallb.argo.repo)
-      project_source_repos:
-        - "https://github.com/metallb/metallb.git"
-
-  # ---------------------------------------------------------------------------
-  # Argo CD deployed and maintained Applications to run on Kubernetes
-  # ---------------------------------------------------------------------------
-  # Each of these apps is can only be deployed and maintained by Argo CD
-  # ---------------------------------------------------------------------------
-  argo_cd:
-    # Enable ArgoCD to install other apps, and also manage itself :)
-    # Set to false if you you just want a bare cluster with only the above apps
-    enabled: true
-    # Initialization of the app through smol-k8s-lab
-    init:
-      # Switch to false if you don't want to use the argo_cd_appset_secret_plugin
-      # but then you can't use the default repo
-      enabled: true
-    argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
-      secret_keys:
-        # FQDN hostname for accessing the ArgoCD web interface
-        hostname: ""
-        # which oidc provider to use for argo cd: zitadel (or keycloak)
-        oidc_provider: "zitadel"
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      # change to argocd/argocd to not use app of apps with secret plugin
-      path: "argocd/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "argocd"
-      # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
-      project_source_repos:
-        - https://argoproj.github.io/argo-helm
-        - https://small-hack.github.io/appset-secret-plugin
-
-  appset_secret_plugin:
-    # Required if you want to use the default small-hack/argocd-apps argo.repo and
-    # default enabled if ArgoCD is enabled, so we can create a k8s Secret with
-    # your more private info such as hostnames, IP addresses, and emails in a
-    # deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets
-    # This plugin has no ingress and cannot be reached from outside the cluster
-    enabled: true
-    # Initialization of the app through smol-k8s-lab
-    init:
-      # Switch to false if you don't want to deploy a default secret with all
-      # keys in each apps.{app}.argo.secret_keys
-      enabled: true
-    argo:
-      # skip installing this app b/c its part of another app of apps with this
-      # name. If equals "" we'll instead use the repo, path, ref, and namespace
-      part_of_app_of_apps: "argo_cd"
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "argocd/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "argocd"
-      project_source_repos:
-        - https://small-hack.github.io/appset-secret-plugin
-
-  external_secrets_operator:
-    # enable the external secrets operator to pull remote secrets
-    enabled: true
-    # use bitwarden as a default external secret provider
-    provider: bitwarden
-    argo:
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      # change to external-secrets-operator/external-secrets-operator/ to deploy
-      # ONLY the external-secrets-operator, so this will not use app of apps and
-      # therefore we will not deploy the bitwarden eso provider. Use if you want to use
-      # a different provider
-      path: "external-secrets-operator/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "external-secrets"
-      # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        - "https://charts.external-secrets.io"
-        # you can remove this one if you're not using bitwarden to store your k8s secrets
-        - "https://jessebot.github.io/bitwarden-eso-provider"
-
-  bitwarden_eso_provider:
-    # enable the bitwarden ESO provider to store k8s secrets in bitwarden. This
-    # deployment has no ingress and can't be connected to from outside the cluster
-    # there is a networkPolicy that only allows the pod to communicate with ESO
-    # in the same namespace
-    enabled: true
-    # Initialization of the app through smol-k8s-lab
-    init:
-      # Switch to false if you don't want to be prompted for your Bitwarden
-      # API credentials to be created as a kubernetes secret.
-      enabled: true
-    argo:
-      # skip installing this app b/c its part of another app of apps with this
-      # name. If equals "" we'll instead use the below repo, path, ref, and namespace
-      part_of_app_of_apps: "external_secrets_operator"
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "external-secrets-operator/bitwarden"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "external-secrets"
-      # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        # where the helm chart lives. Go here for more info
-        - "https://jessebot.github.io/bitwarden-eso-provider"
-
-  infisical:
-    # ALPHA TESTING: Infisical is an open-source, end-to-end encrypted secret
-    # management platform that enables teams to easily manage and sync their env
-    # vars however it is not currently production ready for self hosting so we've
-    # kept it disabled.
-    enabled: false
-    # Initialization of the app through smol-k8s-lab
-    init:
-      # Switch to false if you don't want to 
-      enabled: true
-    argo:
-      secret_keys:
-        hostname: ""
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "infisical/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "infisical"
-      # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+          - "https://kubernetes.github.io/ingress-nginx"
+          - "https://jessebot.github.io/vouch-helm-chart"
+          - "https://github.com/kubernetes/ingress-nginx"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   k8tz:
     enabled: false
+    description: |
+      [link=https://github.com/k8tz/k8tz]k8tz[/link] is a Kubernetes admission controller and a CLI tool to inject timezones into Pods and CronJobs. This solves the issue of the default timezone for most images being UTC, yet not being guaranteed from container to container.
+
+      smol-k8s-lab will use your globally defined timezone to set k8tz's timezone. You can view and change the default value of Europe/Amsterdam by clicking the [cornflower_blue]Modify Globals[/] button above. You can find your timezone identifier on [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]this wikipedia list[/link].
     init:
       enabled: true
     argo:
-      secret_keys:
-        timezone: ""
+      secret_keys: []
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/k8tz/"
+      path: "demo/k8tz/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "k8tz"
+      # recurse directories in the provided git repo
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        - "https://k8up-io.github.io/k8up"
+      project:
+        source_repos:
+          - "https://k8tz.github.io/k8tz/"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   k8up:
     enabled: true
+    description: |
+      [link=https://k8up.io]K8up[/link] ([i]pronounced "ketchup?"[/]) is a Kubernetes Operator based on Restic for backups of Persistent Volumes in k8s into S3 compatible storage like MinIO. Backs up all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label. Can also perform "Application Aware" backups, containing the output of any tool capable of writing to stdout. You can also perform individual, on-demand backups, and restores from the k8up CLI tool.
+
+      smol-k8s-lab will use your globally defined timezone to set k8up's timezone. You can view and change the default value of Europe/Amsterdam by clicking the [cornflower_blue]Modify Globals[/] button above. You can find your timezone identifier on [link=https://wikipedia.org/wiki/List_of_tz_database_time_zones#List]this wikipedia list[/link].
     init:
       enabled: true
     argo:
-      secret_keys:
-        timezone: ""
+      secret_keys: []
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       path: "k8up/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "k8up"
+      # recurse directories in the provided git repo
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project_source_repos:
-        - "https://k8up-io.github.io/k8up"
-        - "https://github.com/k8up-io/k8up.git"
-
-  # keycloak is an IAM provider that you can use with ArgoCD for user/group
-  # management and oauth2. it also works with vouch to secure hostnames that
-  # otherwise wouldn't have authentication
-  keycloak:
-    enabled: false
-    # Initialization of the app through smol-k8s-lab
-    init:
-      # initialize keycloak by creating a 1st user & clients for ArgoCD and
-      # vouch this will also prompt you for input for creating an admin user
-      # Switch to false if you want to use your own argo repo that does not not
-      # use the argo_cd_appset_secret_plugin or setup an initial user/clients
-      enabled: true
-      values:
-        # first human user to setup
-        username: ""
-        first_name: ""
-        last_name: ""
-    argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
-      secret_keys:
-        hostname: ""
-        mail_hostname: ""
-        default_realm: "default"
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "keycloak/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "keycloak"
-      # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
+      project:
+        source_repos:
+          - "https://k8up-io.github.io/k8up"
+          - "https://github.com/k8up-io/k8up.git"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   kepler:
+    description: |
+      [link=https://github.com/sustainable-computing-io/kepler]Kepler[/link] (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics.
     enabled: false
     # Initialization of the app through smol-k8s-lab
     init:
-      enabled: true
+      enabled: false
     argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/kepler/"
+      path: "demo/kepler/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "kepler"
+      # recurse directories in the provided git repo
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "https://sustainable-computing-io.github.io/kepler-helm-chart"
-
-  kyverno:
-    # enable kyverno, for k8s native policy management
-    enabled: false
-    argo:
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "kyverno/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "kyvero"
-      # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos: []
+      project:
+        source_repos:
+          - "https://sustainable-computing-io.github.io/kepler-helm-chart"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   kubevirt:
-    # ALPHA TESTING enable kubevirt to create more virtual machines with
-    # kubernetes default disable while a helm chart is being actively developed
+    description: |
+      [link=https://kubevirt.io/]kubevirt[/link] lets you manage virtual machines via Kubernetes.
+  
+    # default disabled while a helm chart is being actively developed
     enabled: false
     argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       path: "kubevirt/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "kubevirt"
+      # recurse directories in the provided git repo
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos: []
+      project:
+        source_repos: 
+          - "https://github.com/small-hack/argocd-apps"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  kyverno:
+    description: |
+      [link=https://kyverno.io/]Kyverno[/link] is a native policy manager for Kubernetes.
+    enabled: false
+    argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "kyverno/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "kyvero"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos: []
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   mastodon:
-    # enable mastodon for a self hosted social media website
-    enabled: false
-    # initialize the app by setting up new k8s secrets and/or bitwarden items
-    init:
-      # Switch to false if you don't want to setup your create initial secrets for
-      # your hostnames, and credentials for: redis, postgresql, admin user, SMTP
-      enabled: true
-    argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
-      secret_keys:
-        hostname: ""
-        mail_hostname: ""
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "mastodon/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "social"
-      # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://jessebot.github.io/mastodon-helm-chart"
+    description: |
+       [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
 
-  matrix:
-    # enable matrix for a self hosted chat service
-    enabled: false
-    # initialize the app by setting up new k8s secrets and/or bitwarden items
-    init:
-      # Switch to false if you don't want to setup your create initial secrets for
-      # your hostnames, and credentials for: postgresql, admin user, SMTP
-      enabled: true
-    argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
-      secret_keys:
-        hostname: ""
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "matrix/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "matrix"
-      # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://jessebot.github.io/matrix-chart"
-  minio:
-    enabled: false
-    # Initialization of the app through smol-k8s-lab
-    init:
-      enabled: true
-    argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
-      secret_keys:
-        hostname: ""
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/minio/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "minio"
-      # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos: []
+       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, redis credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
 
-  nextcloud:
-    # enable nextcloud to stand up a nice little self hosted file server
+       smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set mastodon.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
+
+       To provide sensitive values via environment variables to smol-k8s-lab use:
+         - MASTODON_SMTP_PASSWORD
+         - MASTODON_S3_BACKUP_ACCESS_ID
+         - MASTODON_S3_BACKUP_SECRET_KEY
+         - MASTODON_RESTIC_REPO_PASSWORD
     enabled: false
-    # initialize the app by setting up new k8s secrets and/or bitwarden items
     init:
-      # Switch to false if you don't want to create inital k8s secrets for your
-      # hostnames, admin credentials, SMTP credentials, redis credentials, and postgresql
       enabled: true
       values:
-        admin_user: ""
-        smtp_user: ""
+        # admin user
+        admin_user: "tootadmin"
+        # admin user's email
+        admin_email: ""
+        # mail server to send verification and notification emails
+        smtp_host: "change@me-to-enable.mail"
+        # mail user for smtp host
+        smtp_user: "change me to enable mail"
+      sensitive_values:
+        # these can be passed in as env vars if you pre-pend MASTODON_ to each one
+        - SMTP_PASSWORD
+        - S3_BACKUP_ACCESS_ID
+        - S3_BACKUP_SECRET_KEY
+        - RESTIC_REPO_PASSWORD
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        admin_user: tootadmin
+        # hostname that users go to in the browser
         hostname: ""
-        backup_method: ""
-        backup_s3_endpoint: ""
-        backup_s3_bucket: ""
-        backup_mount_path: ""
+        # set the local s3 provider for mastodon's public data in one bucket 
+        # and private database backups in another. can be minio or seaweedfs
+        s3_provider: seaweedfs
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 120Gi
+        # local s3 endpoint for postgresql backups, backed up constantly
+        s3_endpoint: ""
+        s3_region: eu-west-1
+        # Remote S3 configuration, for pushing remote backups of your local postgresql backups
+        # these are done only nightly right now, for speed and cost optimization
+        s3_backup_endpoint: ""
+        s3_backup_region: ""
+        s3_backup_bucket: ""
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: mastodon/small-hack/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: mastodon
+      # recurse directories in the git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        # depending on if you use seaweedfs or minio, you can remove the other source repo
+        source_repos:
+          - registry-1.docker.io
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
+          - https://operator.min.io/
+          - https://seaweedfs.github.io/seaweedfs/helm
+          - https://small-hack.github.io/mastodon-helm-chart
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  matrix:
+    description: |
+      [link=https://matrix.org/]Matrix[/link] is an open protocol for decentralised, secure communications.
+      This deploys a matrix synapse server, element (web frontend), and turn server (voice)
+
+      smol-k8s-lab supports initialization by creating initial secrets for your:
+        - matrix, element, and federation hostnames, 
+        - credentials for: postgresql, admin user, S3 storage, and SMTP
+
+      smol-k8s-lab also sets up an OIDC application via Zitadel.
+
+      To provide sensitive values via environment variables to smol-k8s-lab use:
+        - MATRIX_SMTP_PASSWORD
+        - MATRIX_S3_BACKUP_ACCESS_ID
+        - MATRIX_S3_BACKUP_SECRET_KEY
+        - MATRIX_RESTIC_REPO_PASSWORD
+    enabled: false
+    init:
+      enabled: true
+      values:
+        smtp_user: "change me to enable mail"
+        smtp_host: "change@me-to-enable.mail"
+      sensitive_values:
+        - SMTP_PASSWORD
+        - S3_BACKUP_ACCESS_ID
+        - S3_BACKUP_SECRET_KEY
+        - RESTIC_REPO_PASSWORD
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        # hostname of the synapse matrix server
+        hostname: ""
+        # the hostname of the element web interface
+        element_hostname: ""
+        # hostname for federation, that others can see you on the fediverse
+        federation_hostname: ""
+        # email for of the admin user
+        admin_email: ""
+        # choose S3 as the local primary object store from either: seaweedfs, or minio
+        # SeaweedFS - deploy SeaweedFS filer/s3 gateway
+        # MinIO     - deploy MinIO vanilla helm chart
+        s3_provider: seaweedfs
+        # local s3 provider bucket name
+        s3_bucket: matrix
+        # the endpoint you'd like to use for your minio or SeaweedFS instance
+        s3_endpoint: ""
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 100Gi
+        s3_region: eu-west-1
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        s3_backup_endpoint: ""
+        s3_backup_bucket: ""
+        s3_backup_region: ""
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: matrix/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: matrix
+      # recurse directories in the git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
+          - https://small-hack.github.io/matrix-chart
+          - https://operator.min.io/
+          - https://seaweedfs.github.io/seaweedfs/helm
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  # This app is installed with helm or manifests depending on what is recommended
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
+  metallb:
+    enabled: true
+    description: |
+      [link=https://metallb.org/]MetalLB[/link] Helps expose IP addresses for loadbalancers on metal if you're on a vm or container where you can't get an IP.
+
+      smol-k8s-lab support initialization by deploying a default l2Advertisement and IPAddressPool.
+
+      Cloud Compatibility: [link=https://metallb.org/installation/clouds/]https://metallb.org/installation/clouds/[/link]
+
+    # Initialize of the app through smol-k8s-lab
+    init:
+      enabled: true
+      values:
+        address_pool: []
+    argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "nextcloud/"
+      path: "metallb/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
-      namespace: "nextcloud"
-      # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://nextcloud.github.io/helm"
+      namespace: "metallb-system"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD metallb Project (in addition to metallb.argo.repo)
+      project:
+        source_repos:
+          - "https://github.com/metallb/metallb.git"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
-  prometheus:
-    # enable full monitoring stack w/ prometheus, grafana, loki, alert manager
-    enabled: true
-    # Initialization of the app through smol-k8s-lab
+  minio_operator:
+    enabled: false
+    description: |
+      [link=https://min.io/]MinIO®️[/link] is a high-performance, self hosted S3 compatible object store. MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
+
+      smol-k8s-lab deploys MinIO Operator and admin Console. The operator creates Custom Resource Definitions for MinIO Tenants, which are isolated instances of minio with their own API and console endpoints. This is useful to isolate different teams, apps, regions, etc. Below we also have a default tenant to get you started, but keep in mind, if you're using the default social apps (Nextcloud, Matrix, and Mastodon), we already create tenants for those.
     init:
-      # Switch to false if you don't want to use create initial k8s secrets with hostnames
       enabled: true
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        admin_console_hostname: ""
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "minio/operator/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "minio"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://operator.min.io/
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  minio_tenant:
+    enabled: false
+    description: |
+      [link=https://min.io/]MinIO®️[/link] is a high-performance, self hosted S3 compatible object store. MinIO is dual-licensed under open source GNU AGPL v3 and a commercial enterprise license.
+
+      smol-k8s-lab deploys the MinIO API and User Console for a tenant, along with an OIDC app provided by Zitadel.
+    init:
+      enabled: true
+      values:
+        # this is the admin user for the tenant
+        root_user: "minio-admin"
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        tenant_name: ""
+        api_hostname: ""
+        user_console_hostname: ""
+        # options: "local" or "s3". local is for a local filesystem mount. s3 is for using an s3 bucket
+        backup_method: "local"
+        s3_backup_endpoint: "none"
+        s3_backup_bucket: "set me to your bucket name"
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "minio/tenant/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "minio"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://operator.min.io/
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  nextcloud:
+    enabled: false
+    description: |
+      [link=https://nextcloud.com/]Nextcloud Hub[/link] is the industry-leading, fully open-source, on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces
+
+      smol-k8s-lab supports initialization by setting up your admin username, password, and SMTP username and password, as well as your redis and postgresql credentials.
+
+      To avoid providing sensitive values everytime you run smol-k8s-lab, consider exporting the following environment variables before running smol-k8s-lab:
+        - NEXTCLOUD_SMTP_PASSWORD
+        - NEXTCLOUD_S3_BACKUP_ACCESS_KEY
+        - NEXTCLOUD_S3_BACKUP_ACCESS_ID
+        - NEXTCLOUD_RESTIC_REPO_PASSWORD
+
+      Note: smol-k8s-lab is not affiliated with Nextcloud GmbH. This is a community-supported-only install method.
+    # initialize the app by setting up new k8s secrets and/or bitwarden items
+    init:
+      enabled: true
+      values:
+        # change the name of your admin user to whatever you like. This is used in an admin credentials k8s secret
+        admin_user: "nextcloud_admin"
+        smtp_user: "change me to enable mail"
+        smtp_host: "change-me-to-real-email@to-enable.mail"
+      sensitive_values:
+        - SMTP_PASSWORD
+        - S3_BACKUP_ACCESS_KEY
+        - S3_BACKUP_ACCESS_ID
+        - RESTIC_REPO_PASSWORD
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        hostname: ""
+        # choose S3 as the local primary object store from either: seaweedfs, or minio
+        # SeaweedFS - deploy SeaweedFS filer/s3 gateway
+        # MinIO     - deploy MinIO vanilla helm chart
+        s3_provider: seaweedfs
+        # the endpoint you'd like to use for your minio or SeaweedFS instance
+        s3_endpoint: ""
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 100Gi
+        s3_region: eu-west-1
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        s3_backup_endpoint: ""
+        s3_backup_bucket: ""
+        s3_backup_region: ""
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: nextcloud/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: nextcloud
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - registry-1.docker.io
+          - https://nextcloud.github.io/helm
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
+          - https://seaweedfs.github.io/seaweedfs/helm
+          - https://github.com/seaweedfs/seaweedfs
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  prometheus:
+    description: |
+      Full monitoring stack with [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link], grafana, loki, and alert manager.
+
+      smol-k8s-lab supports initialization by setting up your ingress hostnames.
+
+    enabled: false
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for Prometheus web interface
         hostname: ""
@@ -552,27 +924,135 @@ apps:
         # FQDN to use for the prometheus push gateway
         push_gateway_hostname: ""
       # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
+      repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important! This
       # is an app of apps. Change to "monitoring/kube-prometheus-stack/" to
       # only install kube-prometheus-stack (foregoing loki and push gateway)
-      path: "prometheus/"
+      path: prometheus/
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "prometheus"
+      # recurse directories in the provided git repo
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
-        - "https://github.com/prometheus-community/helm-charts.git"
-        - "https://prometheus-community.github.io/helm-charts"
+      project:
+        source_repos:
+          - "registry-1.docker.io"
+          - "https://github.com/prometheus-community/helm-charts.git"
+          - "https://prometheus-community.github.io/helm-charts"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - kube-system
+
+  seaweedfs:
+    enabled: false
+    description: |
+      [link=https://github.com/seaweedfs/seaweedfs]seaweedfs[/link] is a filesystem with an exposable S3 endpoint.
+
+      This is mostly meant to be for testing, but have at it :D
+
+      If directory_recursion is set to true, we will also deploy the csi driver.
+    init:
+      enabled: true
+      values:
+        root_user: admin
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        hostname: ""
+        s3_endpoint: ""
+        s3_region: eu-west-1
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: seaweedfs/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: seaweedfs
+      # recurse directories in the provided git repo
+      # if set to false, we will not deploy the CSI driver
+      directory_recursion: true
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+        - https://seaweedfs.github.io/seaweedfs/helm
+        - https://seaweedfs.github.io/seaweedfs-csi-driver/helm
+        - https://github.com/seaweedfs/seaweedfs
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  seaweedfs_csi_driver:
+    enabled: false
+    description: |
+      [link=https://github.com/seaweedfs/seaweedfs]seaweedfs[/link] is a filesystem with an exposable S3 endpoint. This app deploys ONLY the CSI driver.
+
+    init:
+      enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys: []
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: demo/seaweedfs/app_of_apps/csi_driver/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: seaweedfs
+      # recurse directories in the provided git repo
+      # if set to false, we will not deploy the CSI driver
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+        - https://seaweedfs.github.io/seaweedfs-csi-driver/helm
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  vault:
+    description: |
+      [link=https://www.hashicorp.com/products/vault]Vault[/link] is a secrets management tool by Hashicorp.
+
+      Legal Disclaimer: Vault is open source, but does not use a standard FOSS license. smol-k8s-lab is not afilitated with Hashicorp and does not offer any kind of paid support for anything Hashicorp publishes. If you'd like help with Hashicorp's Vault, you can ask for support via the smol-k8s-lab community, or via official Hashicorp sources, such as via their paid support contracts. Keep in mind though, smol-k8s-lab is not supported by Hashicorp.
+    enabled: false
+    # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
+    init:
+      enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        # name of the cluster that vault is associated with, can be any unique name
+        cluster_name: my-cool-cluster
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: demo/vault/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: vault
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://helm.releases.hashicorp.com
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   vouch:
+    description: |
+      [link=https://github.com/vouch/vouch-proxy]vouch-proxy[/link] can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
+
+      smol-k8s-lab supports the initialization of vouch if you also enable zitadel by creating OIDC applications and credentials and your vouch-proxy Kubernetes Secret.
     enabled: true
     # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
     init:
-      # Switch to false if you don't want to deploy initial k8s secret_keys
-      # or use keycloak or zitadel as your OIDC providers
       enabled: true
       values:
         # list of domains allowed to be behind vouch such as example.com
@@ -582,7 +1062,7 @@ apps:
         emails: []
         # - beep@boop.com
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for vouch
         hostname: ""
@@ -592,52 +1072,100 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "vouch-proxy/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
-      namespace: "ingress"
+      namespace: "vouch"
+      # recurse directories in the provided git repo
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - https://jessebot.github.io/vouch-helm-chart
+      project:
+        source_repos:
+          - https://jessebot.github.io/vouch-helm-chart
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   zitadel:
-    # initial zitadel with a user and two applications for Argo CD and Vouch
     enabled: true
-    # Initialization of the app through smol-k8s-lab. Creates bitwarden and/or k8s secrets
-    # and also creates an initial OIDC application for Argo CD, a human admin user,
-    # and two groups for argo (users/admins) along with a groupsClaim action. Updates
-    # your values in the argo_cd_appset_secret_plugin secret and refreshes the pod
+    description: |
+      [link=https://zitadel.com/opensource]ZITADEL[/link] is an open source self hosted IAM platform for the cloud era
+
+      smol-k8s-lab supports initialization of:
+        - an admin service account
+        - a human admin user (including an autogenerated password)
+        - a project with a name of your chosing
+        - 2 OIDC applications for Argo CD and Vouch
+        - 2 Argo CD groups (admins and users), 1 vouch groups
+        - groupsClaim action to enforce group roles on authentication
+        - updates your appset_secret_plugin secret and refreshes the pod
+
+      The default app will also deploy SeaweedFS to backup your database which in turn is backed up to a remote s3 provider of your choice.
+
+      To provide sensitive values via environment variables to smol-k8s-lab use:
+        - ZITADEL_S3_BACKUP_ACCESS_ID
+        - ZITADEL_S3_BACKUP_SECRET_KEY
+        - ZITADEL_RESTIC_REPO_PASSWORD
     init:
-      # Switch to false if you don't want to create intial secrets or use a the
+      # Switch to false if you don't want to create intial secrets or use the
       # API via a service acocunt to create the above described resources
       enabled: true
       values:
+        # initial human user's usename
         username: ""
+        # initial human user's email
         email: ""
+        # initial human's first name
         first_name: ""
+        # initial human's last name
         last_name: ""
         # options: GENDER_UNSPECIFIED, GENDER_MALE, GENDER_FEMALE, GENDER_DIVERSE
         # more coming soon, see: https://github.com/zitadel/zitadel/issues/6355
-        gender: "GENDER_UNSPECIFIED"
+        gender: GENDER_UNSPECIFIED
+        # name of the default project to create OIDC applications in
+        project: core
+      sensitive_values:
+      # sensitive values to provide via environment variables or via the TUI
+      - S3_BACKUP_ACCESS_ID
+      - S3_BACKUP_SECRET_KEY
+      - RESTIC_REPO_PASSWORD
+      # coming soon after we refactor a bit
+      # - SMTP_PASSWORD
     argo:
-      # secrets keys to make available to ArgoCD ApplicationSets
+      # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for zitadel
         hostname: ""
-        # type of database to use: postgresql or cockroachdb
-        database_type: "postgresql"
+        # set the local s3 provider for zitadel's database backups. can be minio or seaweedfs
+        s3_provider: seaweedfs
+        # local s3 endpoint for postgresql backups, backed up constantly
+        s3_endpoint: ""
+        # capacity for the PVC backing your local s3 instance
+        s3_pvc_capacity: 2Gi
+        # Remote S3 configuration, for pushing remote backups of your local postgresql backups
+        # these are done only nightly right now, for speed and cost optimization
+        s3_backup_endpoint: ""
+        s3_backup_region: ""
+        s3_backup_bucket: ""
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       # if you want to use cockroachdb, change to zitadel/zitadel_and_cockroachdb
-      path: "zitadel/zitadel_and_postgresql"
+      path: "zitadel/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: main
       # namespace to install the k8s app in
       namespace: "zitadel"
+      # recurse directories in the provided git repo
+      directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "https://charts.zitadel.com"
-        - "https://zitadel.github.io/zitadel-charts"
-        - "https://charts.cockroachdb.com/"
-        - "registry-1.docker.io"
+      project:
+        source_repos:
+          - https://charts.zitadel.com
+          - https://zitadel.github.io/zitadel-charts
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
+          - https://operator.min.io/
+          - https://seaweedfs.github.io/seaweedfs/helm
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []

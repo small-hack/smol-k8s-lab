@@ -1,0 +1,164 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+#config-screen {
+    grid-size: 1;
+    grid-rows: 0.85fr 1fr 1.2fr;
+    margin-left: 1;
+    margin-right: 1;
+    align: center middle;
+    width: 90%;
+    height: 92%;
+}
+
+/* logging config box */
+#logging-config {
+    padding: 1;
+    margin-bottom: 2;
+    grid-rows: 0.5fr 1fr;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    background: $navy 60%;
+    align: left middle;
+    content-align: left middle;
+}
+
+#logging-config-row-grid {
+    grid-size: 2;
+    align: left middle;
+    content-align: left middle;
+    grid-columns: 0.65fr 0.9fr;
+}
+
+#logging-config-row-grid .input-row {
+    grid-columns: 0.2fr 1fr;
+}
+
+.selection-row {
+    grid-size: 2;
+    align: left middle;
+    grid-gutter: 1;
+    align: left middle;
+    content-align: left middle;
+    grid-columns: 1fr 0.75fr;
+}
+
+.selection-row Label {
+    padding-top: 1;
+    padding-bottom: 1;
+    width: 100%;
+    color: $bluish_white;
+}
+
+.selection-row Select {
+    width: 90%;
+    align: left middle;
+    content-align: left middle;
+}
+
+#logging-config .selection-row {
+    grid-columns: 0.65fr 1.58fr;
+    padding-left: 1;
+    align: left middle;
+}
+
+#logging-config .soft-text {
+    align: left middle;
+}
+
+/* truthy value rows with switches */
+.bool-switch-row {
+    align: left middle;
+    layout: grid;
+    grid-size: 2;
+    grid-gutter: 1;
+    grid-columns: 0.82fr 1fr;
+}
+
+/* k9s enabled bool switch row */
+.k9s-enabled {
+   grid-columns: 0.35fr 1fr;
+}
+
+/* show footer bool switch row */
+.show-footer {
+   grid-columns: 0.65fr 1fr;
+}
+
+.bool-switch-row-label {
+    align: left middle;
+    content-align: left middle;
+    height: 3;
+    color: $bluish_white;
+    width: 100%;
+}
+
+/* k9s input field */
+.k9s-input-row .input-row {
+    align: left middle;
+    grid-size: 2;
+    grid-columns: 0.3fr 1fr;
+}
+
+/* any basic "label: input" row */
+.input-row {
+    align: left middle;
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.2fr 1fr;
+}
+
+/* Label in "label: input" row */
+.input-row-label {
+    align: left middle;
+    padding-top: 1;
+    padding-bottom: 1;
+    width: 100%;
+    color: $bluish_white;
+}
+
+/* Input in "label: input" row */
+.input-row-input {
+    align: left middle;
+}
+
+/* password manager config box */
+#password-manager-config {
+    padding: 1;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    background: $navy 60%;
+}
+
+#password-manager-options-grid {
+    grid-size: 2;
+    padding-left: 1;
+    align: left middle;
+    grid-columns: 0.5fr 1fr;
+    grid-gutter: 1;
+}
+
+#password-manager-options-grid .selection-row {
+    grid-gutter: 1;
+}
+
+/* this is the help-text at the top of each module */
+.soft-text {
+    color: $bluish_white 60%;
+    width: 100%;
+    padding-left: 1;
+    padding-top: 1;
+}

@@ -4,13 +4,12 @@ NAME: constants.py
 DESC: everything to do with initial configuration of a new environment
 """
 
-from importlib.metadata import version as get_version
 from getpass import getuser
+from importlib.metadata import version as get_version
 from os import environ, path, uname
-from shutil import copyfile
 from pathlib import Path
-
-import yaml
+from ruamel.yaml import YAML
+from shutil import copyfile
 from xdg_base_dirs import xdg_cache_home, xdg_config_home
 
 # env
@@ -54,10 +53,22 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
         Path(XDG_CONFIG_DIR).mkdir(parents=True, exist_ok=True)
         copyfile(DEFAULT_CONFIG_FILE, XDG_CONFIG_FILE)
 
+    yaml = YAML()
     # open the yaml config file and then return the dict
     with open(yaml_config_file, 'r') as yaml_file:
-        return yaml.safe_load(yaml_file)
+        return yaml.load(yaml_file)
 
 
 DEFAULT_CONFIG = load_yaml(DEFAULT_CONFIG_FILE)
 INITIAL_USR_CONFIG = load_yaml()
+
+DEFAULT_DISTRO_OPTIONS = DEFAULT_CONFIG['k8s_distros']
+
+if 'Darwin' in OS[0]:
+    # macOS can't run k3s yet
+    DEFAULT_DISTRO_OPTIONS.pop('k3s')
+    DEFAULT_DISTRO = 'kind'
+else:
+    DEFAULT_DISTRO = 'k3s'
+
+DEFAULT_APPS = DEFAULT_CONFIG['apps']

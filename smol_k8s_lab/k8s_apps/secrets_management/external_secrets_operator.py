@@ -7,11 +7,10 @@ DESCRIPTION: configures external secrets, currently only with gitlab
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 import logging as log
+from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.kubernetes_util import apply_custom_resources
-from smol_k8s_lab.utils.bw_cli import BwCLI
-from smol_k8s_lab.utils.pretty_printing.console_logging import sub_header
+from smol_k8s_lab.utils.rich_cli.console_logging import sub_header
 from smol_k8s_lab.utils.subproc import subproc
 
 
@@ -19,7 +18,7 @@ def configure_external_secrets(k8s_obj: K8s,
                                eso_dict: dict,
                                bweso_dict: dict = {},
                                distro: str = "",
-                               bitwarden: BwCLI = None) -> True:
+                               bitwarden: BwCLI = None) -> None:
     """
     configure external secrets and provider. (and optionally bweso)
     """
@@ -28,13 +27,12 @@ def configure_external_secrets(k8s_obj: K8s,
 
     if bweso_dict['enabled']:
         setup_bweso(k8s_obj, distro, bweso_dict['argo'], bitwarden)
-    return True
 
 
 def setup_bweso(k8s_obj: K8s,
                 distro: str,
                 bweso_argo_dict: dict = {},
-                bitwarden: BwCLI = None):
+                bitwarden: BwCLI = None) -> None:
     """
     Creates an initial secret for use with the bitwarden provider for ESO
     """
@@ -59,10 +57,11 @@ def setup_bweso(k8s_obj: K8s,
         return True
 
     install_with_argocd(k8s_obj, 'bitwarden-eso-provider', bweso_argo_dict)
-    return True
+    # wait for bitwarden external secrets provider to be up
+    wait_for_argocd_app('bitwarden-eso-provider')
 
 
-def setup_gitlab_provider(external_secrets_config: dict):
+def setup_gitlab_provider(k8s_obj: K8s, external_secrets_config: dict) -> None:
     """
     setup the gitlab external secrets operator config
     Accepts dict as arg:
@@ -83,4 +82,4 @@ def setup_gitlab_provider(external_secrets_config: dict):
                      'type': 'Opaque',
                      'stringData': {'token': gitlab_access_token}}
 
-    apply_custom_resources([gitlab_secret])
+    k8s_obj.apply_custom_resources([gitlab_secret])

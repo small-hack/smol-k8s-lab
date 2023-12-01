@@ -1,6 +1,9 @@
 # kubernetes in docker
 brew "kind"
 
+# k3d is k3s in docker
+brew "k3d"
+
 # kubernetes cli
 brew "kubernetes-cli"
 
@@ -21,3 +24,6 @@ brew "bitwarden-cli"
 
 # this is for managing cilium
 brew "cilium-cli"
+
+# this is for managing minio clients
+brew "minio-mc"

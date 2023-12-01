@@ -1,0 +1,3 @@
+The [Appset Secret Plugin](https://github.com/small-hack/appset-secret-plugin) is used to store variables in [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/) that can be passed to Argo CD ApplicationSets. This is particularly useful for data such as a specific hostname or timezone for an application.
+
+You can learn more about it at [small-hack/appset-secret-plugin](https://github.com/small-hack/appset-secret-plugin#applicationset-secret-plugin-generator) and you can see how the default Argo CD ApplicationSet is created at [small-hack/argocd-apps](https://github.com/small-hack/argocd-apps/blob/c9f43aa774af9ec7054741df6f19890ce25446c9/argocd/argocd_argocd_app.yaml#L27).

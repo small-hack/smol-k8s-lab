@@ -1,0 +1,39 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+
+/* whole modal screen */
+#new-app-modal-screen {
+    width: 80%;
+    align: center middle;
+    height: 25;
+}
+
+#modal-button-box {
+    margin-top: 1;
+    align: center middle;
+    height: auto;
+}
+
+#app-name-input {
+    margin-bottom: 1;
+    margin-top: 1;
+    height: 3;
+}
+
+#description-input {
+    height: 5;
+}

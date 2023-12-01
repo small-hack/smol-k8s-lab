@@ -43,7 +43,6 @@ def configure_cilium(cilium_dict: dict):
     # install chart and wait
     release = Helm.chart(release_name='cilium',
                          chart_name='cilium/cilium',
-                         chart_version="1.14.1",
                          namespace='cilium',
                          values_file=values_file_name)
     release.install(True)

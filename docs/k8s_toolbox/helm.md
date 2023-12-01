@@ -6,7 +6,6 @@ parent: Toolbox
 permalink: /toolbox/helm
 ---
 
-# Helm
 Helm is a popular package manager for k8s and is generally the default standard, alongside kustomize.
 
 ## Installation on Debian

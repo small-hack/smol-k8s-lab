@@ -1,9 +1,3 @@
----
-layout: default
-title: Prometheus
-description: "Quick notes on hosting prometheus on Kubernetes"
-parent: Apps on K8s
-permalink: /apps/prometheus
----
+[Prometheus](https://prometheus.io/docs/introduction/overview/) is the core of our optionally installed monitoring stack. Together with [Grafana](https://grafana.com/) and [loki](https://grafana.com/oss/loki/), we cover gathering metrics and logs as well as creating dashboards. We even deploy [alert-manager](https://prometheus.io/docs/alerting/latest/alertmanager/) for you to create your own alerts.
 
-Here's a bare bones setup of prometheus that works via an argo app template which uses helm to install the community helm chart with grafana: [https://gitlab.com/vleermuis_tech/goobernetes/prometheus](https://gitlab.com/vleermuis_tech/goobernetes/prometheus)
+You can see an overview of the whole Prometheus Stack Argo CD Application at [small-hack/argocd-apps/prometheus](https://github.com/small-hack/argocd-apps/tree/main/prometheus).

@@ -1,0 +1,233 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+/* Matches the WHOLE screen */
+#apps-config-container {
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.5fr 1fr;
+    grid-rows: 1.55fr 0.35fr;
+    grid-gutter: 1;
+    width: 90%;
+    height: 92%;
+    align: center middle;
+}
+
+/* --------- LEFT TOP HALF OF SCREEN ------------ */
+
+/* matches only the left hand side of top half of screen */
+#select-add-apps {
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    border-subtitle-color: $sky_blue;
+    link-hover-background: $navy;
+    link-hover-color: $orange;
+    background: $navy 60%;
+    align: center top;
+    height: auto;
+    scrollbar-background: $dark_gray;
+    scrollbar-background-active: $dark_gray;
+    scrollbar-background-hover: $dark_gray;
+    scrollbar-color-active: $sky_blue;
+    scrollbar-color-hover: $light_cornflower;
+    scrollbar-color: $cornflower;
+}
+
+/* matches the app selection list, the left button container */
+#left-apps-container {
+    grid-rows: 1fr 0.2fr;
+    align: center top;
+    grid-gutter: 1;
+}
+
+/* new app and modify globals buttons boxes below the app selection list */
+#left-button-box {
+    align: center middle;
+    grid-gutter: 1;
+    width: 100%;
+}
+
+.button-grid {
+    align: center middle;
+}
+
+/* ---------------------- RIGHT TOP HALF OF SCREEN ------------------------- */
+
+/* Matches the "Configure parameters for {app}" input list pane itself */
+#app-inputs-pane {
+    border-title-color: $sky_blue;
+    padding-top: 1;
+    border: round $cornflower;
+    background: $navy 60%;
+    margin-right: 1;
+    grid-gutter: 1;
+}
+
+/* each collapsible in the app config panel */
+Collapsible {
+    background: $navy 60%;
+    border-top: none;
+    padding-left: 0;
+}
+
+Collapsible.-collapsed > Contents {
+    padding-left: 0;
+}
+
+Collapsible > Contents {
+    padding-top: 1;
+    padding-left: 0;
+}
+
+CollapsibleTitle {
+    color: $light_cornflower;
+    padding-top: 1;
+    padding-bottom: 1;
+    padding-left: 1;
+    background: $blue_gray 20%;
+    width: 100%;
+}
+
+CollapsibleTitle:hover {
+    color: $orange;
+    background: $blue_gray 20%;
+}
+
+CollapsibleTitle:focus {
+    color: $sky_blue;
+    background: $blue_gray 20%;
+}
+
+/* this is the grid present in the SmolK8sLabCollapsibleInputs widget */
+.collapsible-updateable-grid {
+    grid-gutter: 1;
+    align: center top;
+    height: auto;
+}
+
+/* each app input label and input field row */
+.app-input-row {
+   layout: grid;
+   height: auto;
+   grid-size: 2;
+   grid-columns: 0.5fr 1.5fr;
+   padding-bottom: 1;
+   padding-left: 2;
+   padding-right: 1;
+}
+
+/* argo cd config param section */
+.argo-config-container {
+   align: left top;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-active: $sky_blue;
+   scrollbar-color-hover: $light_cornflower;
+   scrollbar-color: $cornflower;
+}
+
+.argo-config-header {
+   width: 100%;
+   content-align: left middle;
+   padding-left: 1;
+   background: $blue_gray 20%;
+   color: $light_cornflower;
+   height: 3;
+   margin-bottom: 1;
+}
+
+.argo-config-row {
+   layout: grid;
+   height: auto;
+   grid-size: 2;
+   grid-columns: 0.5fr 1.5fr;
+   padding-bottom: 1;
+   padding-left: 2;
+   padding-right: 1;
+}
+
+.argo-switch-row {
+   layout: grid;
+   height: 5;
+   grid-size: 2;
+   grid-columns: 0.5fr 1.5fr;
+   padding-bottom: 1;
+   padding-left: 2;
+   padding-right: 1;
+}
+
+.argo-config-label {
+   height: 3;
+   width: auto;
+   content-align: left middle;
+   color: $bluish_white 90%;
+}
+
+.argo-config-input {
+   height: auto;
+   width: 100%;
+   content-align: left middle;
+}
+
+/* divider between secret keys and the rest of the argo inputs */
+.secret-key-divider {
+   color: $light_cornflower;
+   height: 3;
+   padding-left: 1;
+   width: 100%;
+   background: $blue_gray 18%;
+   content-align: left middle;
+   margin-bottom: 1;
+}
+
+/* blurb to let users know that we don't have secret keys for this app, but they can add some */
+.secret-key-help-text {
+   width: 100%;
+   padding-left: 1;
+   padding-right: 1;
+   padding-bottom: 1;
+   color: gray;
+}
+
+.app-secret-key-input {
+   height: auto;
+   width: 100;
+}
+
+/* Matches App Description in Select k8s apps */
+#app-notes-container {
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-hover: $light_cornflower;
+   scrollbar-color: $cornflower;
+   column-span: 2;
+   background: $navy 30%;
+   border: round $light_cornflower;
+   border-title-color: $sky_blue;
+   height: 100%;
+   align: left middle;
+}
+
+#app-description {
+   content-align: left middle;
+   width: 100%;
+   padding-left: 1;
+   padding-right: 1;
+   padding-top: 1;
+   color: $bluish_white 60%;
+}

@@ -1,0 +1,109 @@
+$bluish_white: rgb(189,216,255);
+$lavender: rgb(174,168,248);
+$spacechalk_red: rgb(255,141,135);
+$neon_magenta: rgb(242,137,249);
+$light_pink: rgb(255,175,249);
+$orange: rgb(253,205,54);
+$soft_yellow: rgb(249,249,134);
+$soft_green: rgb(193,255,135);
+$spacechalk_lime: rgb(168,253,87);
+$sky_blue: rgb(92,201,253);
+$cornflower: rgb(95,135,255);
+$light_cornflower: rgb(122,162,247);
+$blue_gray: rgb(86,95,137);
+$dark_gray: rgb(58,58,58);
+$navy: rgb(35,35,54);
+
+/* Matches the entire screen */
+Screen {
+   align: center middle;
+}
+
+Tooltip {
+    background: $navy 50%;
+    color: $bluish_white 75%;
+    border: dashed gray 80%;
+    padding-bottom: 0;
+    padding-left: 1;
+    padding-right: 1;
+}
+
+Button {
+    color: $light_cornflower;
+    background: $lavender 10%;
+    border-top: tall $blue_gray 60%;
+    border-bottom: tall $dark_gray 50%;
+}
+
+Label {
+    color: $lavender;
+    width: 100%;
+    content-align: center middle;
+    margin-top: 2;
+    height: 3;
+}
+
+/* select an item to view/edit radioset */
+RadioSet {
+    height: auto;
+    padding-top: 1;
+    padding-bottom: 1;
+    align: center middle;
+    content-align: center middle;
+    width: 100%;
+    color: $bluish_white;
+    margin-bottom: 1;
+    border: solid $light_cornflower;
+    border-title-color: $sky_blue;
+    background: $navy;
+}
+
+/* whole screen grid */
+#main-screen-grid {
+    border: solid $cornflower;
+    border-title-color: $sky_blue;
+    width: 80%;
+    height: 85%;
+    padding: 1;
+    grid-rows: 0.8fr 0.6fr 0.15fr;
+    align: center middle;
+    background: $navy 50%;
+}
+
+/* includes both the selection list, if exists, and the actual vault item */
+#all-duplicates-view {
+    align: center middle;
+    padding-top: 1;
+}
+
+/* the vault item preview */
+#pretty-scroll {
+   border: solid $blue_gray;
+   border-title-color: $sky_blue;
+   scrollbar-background: $dark_gray;
+   scrollbar-background-active: $dark_gray;
+   scrollbar-background-hover: $dark_gray;
+   scrollbar-color-active: $sky_blue;
+   scrollbar-color-hover: $cornflower;
+   scrollbar-color: $light_cornflower;
+}
+
+#question-box {
+    grid-gutter: 1;
+    grid-rows: 0.25fr 0.25fr 0.5fr;
+}
+
+/* just the three option buttons */
+#button-grid {
+    height: 5;
+    grid-size: 3;
+    align: center middle;
+    content-align: center middle;
+}
+
+#always-checkbox {
+    width: 100%;
+    content-align: center middle;
+    background: $navy 1%;
+    color: $bluish_white;
+}

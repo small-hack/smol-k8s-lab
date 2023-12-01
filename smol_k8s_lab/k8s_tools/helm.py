@@ -1,12 +1,28 @@
 #!/usr/bin/env python3
 """
-AUTHOR: @jessebot email: jessebot(AT)linux(d0t)com
+AUTHOR: @jessebot
+LICENSE: AGPLv4
 """
+
+# internal libraries
+from ..utils.subproc import subproc
+from ..utils.rich_cli.console_logging import header, sub_header
+
+# external libraries
 from collections import OrderedDict
 import logging as log
+import requests
+from ruamel.yaml import YAML
 from shutil import which
-from ..utils.subproc import subproc
-from ..utils.pretty_printing.console_logging import header, sub_header
+
+# these are the URLs of each manually installed helm chart, so that the appset matches
+APPSET_URLS = {
+        "argo-cd": "https://raw.githubusercontent.com/small-hack/argocd-apps/eso-helm-chart-test/argocd/argocd_appset.yaml",
+        "appset-secret-plugin": "https://raw.githubusercontent.com/small-hack/argocd-apps/eso-helm-chart-test/argocd/appset_secret_plugin_generator_argocd_app.yaml",
+        "cert-manager": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/cert-manager/cert-manager_argocd_app.yaml",
+        "ingress-nginx": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/ingress-nginx/ingress-nginx_argocd_app.yaml",
+        "cilium": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/alpha/cilium/cilium_argocd_appset.yaml"
+        }
 
 
 class Helm:
@@ -101,6 +117,9 @@ class Helm:
 
             if self.__dict__.get('chart_version', False):
                 cmd += f' --version {self.chart_version}'
+            else:
+                version = self.get_appset_version()
+                cmd += f' --version {version}'
 
             if self.__dict__.get('values_file', False):
                 cmd += f' --values {self.values_file}'
@@ -115,6 +134,25 @@ class Helm:
             subproc([cmd])
             return True
 
+        def get_appset_version(self) -> str:
+            """
+            go get the version of the helm chart installed by the live appset
+            """
+            # get the contents of the remote url
+            res = requests.get(APPSET_URLS[self.release_name]).text
+
+            # use the ruamel.yaml library to load the yaml
+            yaml = YAML()
+            obj = yaml.load(res)
+
+            # this is an app
+            if obj['kind'] == "Application":
+                return obj['spec']['source']['targetRevision']
+            # this is an appset
+            else:
+                # return the current version of the app
+                return obj['spec']['template']['spec']['source']['targetRevision']
+
         def uninstall(self):
             """
             Uninstalls a helm chart from the current k8s context
@@ -128,7 +166,7 @@ def add_default_repos(k8s_distro: str,
                       metallb: bool = False,
                       cilium: bool = False,
                       argo: bool = False,
-                      argo_secrets: bool = False) -> bool:
+                      argo_secrets: bool = False) -> None:
     """
     Add all the default helm chart repos:
     - metallb is for loadbalancing and assigning ips, on metal...
@@ -163,7 +201,6 @@ def add_default_repos(k8s_distro: str,
 
     # install and update any repos needed
     Helm.repo(repos).add()
-    return True
 
 
 def prepare_helm(k8s_distro: str,
