@@ -2,11 +2,14 @@
 # internal library
 from smol_k8s_lab.constants import XDG_CACHE_DIR
 from smol_k8s_lab.tui.util import create_sanitized_list
+from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
 # external libraries
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import VerticalScroll, Grid
+from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.validation import Length
 from textual.widgets import Input, Button, Label, Static
@@ -48,49 +51,37 @@ SUGGESTIONS = SuggestFromList((
 
 LIST_KEYS = ["disable", "node-label", "kubelet-arg"]
 
-help_txt = (
-        "If [dim][#C1FF87]metallb[/][/] is [i]enabled[/], we add servicelb to disabled."
-        " If [dim][#C1FF87]cilium[/][/] is [i]enabled[/], we add "
-        "flannel-backend: none and disable-network-policy: true."
-        )
-
 
 class K3sConfig(Static):
     """
     k3s args config
     """
 
-    def __init__(self, distro: str, k3s_args: list = []) -> None:
+    BINDINGS = [Binding(key="a",
+                        key_display="a",
+                        action="screen.launch_k3s_modal",
+                        description="add new option")]
+
+    def __init__(self, distro: str, k3s_args: list = [], id: str = "") -> None:
         self.k3s_args = k3s_args
         self.distro = distro
-        super().__init__()
+        super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
         # main grid for the whole widget
-        with Grid(classes=f"{self.distro} k3s-config-container"):
-
+        with Grid(classes=f"{self.distro} k3s-config-container",
+                  id=f"{self.distro}-base-grid"):
             yield Label(
-                    "Add extra [steel_blue][u][link=https://docs.k3s.io/cli/server]k3s "
-                    "options[/][/][/] to pass to the k3s install script via a "
+                    "Add extra [steel_blue][u][link=https://docs.k3s.io/cli/server]"
+                    "k3s options[/][/][/] to pass to the k3s install script via a "
                     "[steel_blue][u][link=https://docs.k3s.io/installation/configuration#"
                     f"configuration-file]config file[/][/][/] stored in {CFG_FILE}",
-                    id="k3s-help-text")
+                    id="k3s-help-text"
+                    )
 
             # actual input grid
             with VerticalScroll(classes=f"{self.distro} k3s-arg-scroll"):
                 yield Grid(id="k3s-grid")
-
-            with Grid(id='new-k3s-option-grid'):
-                input = Input(id='new-k3s-option',
-                              placeholder="new k3s option",
-                              suggester=KEY_SUGGESTIONS,
-                              validators=[Length(minimum=4)])
-                input.tooltip = help_txt
-                yield input
-
-                button = Button("➕ add option", id="add-button")
-                button.disabled = True
-                yield button
 
     def on_mount(self) -> None:
         """
@@ -99,75 +90,66 @@ class K3sConfig(Static):
         # k3s arg config styling
         k3s_title = ("[i]Add[/] [i]extra[/] options for the [#C1FF87]k3s[/] "
                      "install script")
-        k3s_container = self.query_one(".k3s-config-container")
+        k3s_container = self.get_widget_by_id(f"{self.distro}-base-grid")
         k3s_container.border_title = k3s_title
+        subtitle = ("[@click=screen.launch_k3s_modal()]➕ k3s option[/] | "
+                    "[i]hotkey[/]: a")
+        k3s_container.border_subtitle = subtitle
 
         # if we've been passed k3s args already, generate rows
         if self.k3s_args:
             for arg, value in self.k3s_args.items():
                 if arg:
-                    self.action_generate_row(arg, value)
+                    self.generate_row(arg, value)
+
+        self.app.action_focus(self.query_one(".k3s-config-container"))
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
         get pressed button and act on it
         """
-        button_classes = event.button.classes
-
         # lets you delete a k3s-arg row
-        if "k3s-arg-del-button" in button_classes:
-            input = event.button.parent.children[1]
+        input = event.button.parent.children[1]
 
-            # if the input field is not blank
-            if input.value:
-                cli_args = self.app.cfg['k8s_distros'][self.distro]["k3s_yaml"]
-                if cli_args[input.name]:
-                    cli_args.pop(input.name)
-                    self.app.write_yaml()
+        # if the input field is not blank
+        if input.value:
+            cli_args = self.app.cfg['k8s_distros'][self.distro]["k3s_yaml"]
+            if cli_args[input.name]:
+                cli_args.pop(input.name)
+                self.app.write_yaml()
 
-            # delete the whole row
-            event.button.parent.remove()
-
-        elif event.button.id == "add-button":
-            input = self.get_widget_by_id("new-k3s-option")
-            self.action_generate_row(input.value)
-            input.value = ""
+        # delete the whole row
+        event.button.parent.remove()
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
         if event.validation_result.is_valid:
-            if event.input.id != "new-k3s-option":
-                # parent app's future yaml config
-                yaml = self.app.cfg['k8s_distros'][self.distro]["k3s_yaml"]
+            # parent app's future yaml config
+            yaml = self.app.cfg['k8s_distros'][self.distro]["k3s_yaml"]
 
-                # input that triggered the event
-                input_name = event.input.name
-                input_value = event.input.value
+            # input that triggered the event
+            input_name = event.input.name
+            input_value = event.input.value
 
-                # if this is a boolean, we have to save it like one
-                if input_value.lower() == 'true':
-                    yaml[input_name] = True
+            # if this is a boolean, we have to save it like one
+            if input_value.lower() == 'true':
+                yaml[input_name] = True
 
-                # if this is a boolean, we have to save it like one, part 2
-                elif input_value.lower() == 'false':
-                    yaml[input_name] = False
+            # if this is a boolean, we have to save it like one, part 2
+            elif input_value.lower() == 'false':
+                yaml[input_name] = False
 
-                # if there's a comma, it's a list
-                elif ',' in input_value or input_name in LIST_KEYS:
-                    yaml[input_name] = create_sanitized_list(input_value)
+            # if there's a comma, it's a list
+            elif ',' in input_value or input_name in LIST_KEYS:
+                yaml[input_name] = create_sanitized_list(input_value)
 
-                # else it's a normal string and should be saved like one
-                else:
-                    yaml[input_name] = input_value
-
-                self.app.write_yaml()
+            # else it's a normal string and should be saved like one
             else:
-                self.get_widget_by_id("add-button").disabled = False
-        else:
-            if event.input.id == "new-k3s-option":
-                self.get_widget_by_id("add-button").disabled = True
+                yaml[input_name] = input_value
 
-    def action_generate_row(self, key: str, value: str = "") -> Grid:
+            self.app.write_yaml()
+
+    def generate_row(self, key: str, value: str = "") -> Grid:
         """
         create a new input row
         """
@@ -199,8 +181,15 @@ class K3sConfig(Static):
 
         # actual input field 
         input = Input(**row_args)
-        input.tooltip = (f"If you want to input more than one {key} option, try"
-                         " using a comma seperated list")
+        tooltip = (f"If you want to input more than one {key} option, try using "
+                   "a comma seperated list.")
+
+        # we give a bit more info on disabling
+        if key == "disable":
+            tooltip += (" If [dim][#C1FF87]metallb[/][/] is [i]enabled[/], we add"
+                        " servicelb to disabled.")
+
+        input.tooltip = tooltip
 
         # button to delete the field entirely
         button = Button("🚮", classes="k3s-arg-del-button")
@@ -208,3 +197,74 @@ class K3sConfig(Static):
         
         grid = Grid(label, input, button, classes="k3s-arg-row")
         self.get_widget_by_id("k3s-grid").mount(grid)
+
+
+class NewK3sOptionModal(ModalScreen):
+    BINDINGS = [Binding(key="b,q,escape",
+                        key_display="esc",
+                        action="app.pop_screen",
+                        description="Cancel")]
+
+    CSS_PATH = ["../css/k3s_modal.css"]
+
+    def __init__(self, k3s_args: list = []) -> None:
+        self.k3s_args = k3s_args
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        # base screen grid
+        question = "[#ffaff9]Add[/] [i]new[/] [#C1FF87]k3s option[/]."
+        tooltip = (
+                "Start typing an option to show suggestions. Use the right arrow "
+                "key to complete the suggestion. Hit enter to submit. Note: If "
+                "[dim][#C1FF87]cilium[/][/] is [i]enabled[/], we add flannel-backend: "
+                "none and disable-network-policy: true."
+                )
+
+        with Grid(id="question-modal-screen"):
+            # grid for app question and buttons
+            with Grid(id="question-box"):
+                yield Label(question, id="modal-text")
+
+                with Grid(id='new-k3s-option-grid'):
+                    input = Input(id='new-k3s-option',
+                                  placeholder="new k3s option",
+                                  suggester=KEY_SUGGESTIONS,
+                                  validators=[
+                                      Length(minimum=4),
+                                      CheckIfNameAlreadyInUse(self.k3s_args.keys())
+                                      ]
+                                  )
+                    input.tooltip = tooltip
+                    yield input
+
+                    button = Button("➕ add option", id="add-button")
+                    button.disabled = True
+                    yield button
+
+    def on_mount(self) -> None:
+        box = self.get_widget_by_id("question-box")
+        box.border_subtitle = "[@click=app.pop_screen]cancel[/]"
+
+    @on(Input.Changed)
+    @on(Input.Submitted)
+    def disable_button_or_not(self, event: Input.Changed | Input.Submitted) -> None:
+        add_button = self.get_widget_by_id("add-button")
+
+        # disable the button if the input is invalid
+        if event.validation_result.is_valid:
+            add_button.disabled = False
+        else:
+            add_button.disabled = True
+
+        # if button is currently enabled and the user presses enter, press button
+        if isinstance(event, Input.Submitted):
+            if not add_button.disabled:
+                add_button.action_press()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        get pressed button and act on it
+        """
+        input = self.get_widget_by_id("new-k3s-option")
+        self.dismiss(input.value)

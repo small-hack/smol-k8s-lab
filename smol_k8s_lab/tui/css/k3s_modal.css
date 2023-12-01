@@ -19,7 +19,7 @@ $navy: rgb(35,35,54);
 #question-modal-screen {
     width: 80%;
     align: center middle;
-    height: 24;
+    height: 13;
 }
 
 #question-box {
@@ -27,27 +27,11 @@ $navy: rgb(35,35,54);
     content-align: center middle;
     background: $navy 75%;
     border: round $cornflower;
-    link-hover-background: $navy;
-    link-hover-color: $orange;
     padding: 1;
     border-subtitle-color: $lavender;
-    grid-rows: 0.45fr 0.9fr 0.45fr;
-}
-
-#scroll-container {
-   scrollbar-background: $dark_gray;
-   scrollbar-background-active: $dark_gray;
-   scrollbar-background-hover: $dark_gray;
-   scrollbar-color-active: $sky_blue;
-   scrollbar-color-hover: $cornflower;
-   scrollbar-color: $light_cornflower;
-   align: center middle;
-}
-
-#new-row {
-    grid-size: 2;
-    align: center middle;
-    margin-top: 1;
+    link-hover-background: $navy;
+    link-hover-color: $orange;
+    grid-gutter: 1;
 }
 
 #modal-text {
@@ -57,4 +41,10 @@ $navy: rgb(35,35,54);
     padding-top: 1;
     padding-bottom: 1;
     background: $dark_gray 30%;
+}
+
+/* button grid */
+#new-k3s-option-grid {
+    content-align: center middle;
+    align: center middle;
 }

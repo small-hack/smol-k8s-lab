@@ -81,7 +81,7 @@ def update_secret_key(k8s_obj: K8s,
 
     # if this is a secret with a filename key and then inline yaml inside...
     if in_line_key_name:
-        yaml = YAML()
+        yaml = YAML(typ='safe')
         file_key = secret_data[in_line_key_name]
         decoded_data  = b64dec(str.encode(file_key)).decode('utf8')
         # load the yaml as a python dictionary
