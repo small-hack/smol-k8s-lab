@@ -103,6 +103,8 @@ apps:
   # deploy ingress-nginx and cert-manager as one argocd app of apps and project 
   # in the same namespace
   ingress:
+    # this cannot be disabled unless you provide your own ingress controller app
+    enabled: true
     argo:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
