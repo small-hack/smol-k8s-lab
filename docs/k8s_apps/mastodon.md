@@ -37,6 +37,9 @@ You have two options. You can:
 You can export the following env vars and we'll use them for your sensitive data:
 
 - `MASTODON_SMTP_PASSWORD`
+- `MASTODON_S3_BACKUP_ACCESS_ID`
+- `MASTODON_S3_BACKUP_SECRET_KEY`
+- `MASTODON_RESTIC_REPO_PASSWORD`
 
 ## Example Config
 
