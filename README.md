@@ -42,7 +42,8 @@ smol-k8s-lab --help
 After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file. To do that, just run:
 
 ```bash
-# we'll walk you through any configuration needed before saving the config and deploying it for you
+# we'll walk you through any configuration needed before 
+# saving the config and deploying it for you
 smol-k8s-lab
 ```
 
