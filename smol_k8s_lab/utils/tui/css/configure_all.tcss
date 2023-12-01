@@ -1,5 +1,7 @@
 Screen {
     align: center top;
+    scrollbar-background: #3a3a3a;
+    scrollbar-color: #5f5fd7;
 }
 
 Horizontal {
@@ -8,12 +10,14 @@ Horizontal {
 }
 
 RadioSet {
-    width: 25%;
+    padding: 1;
+    border: solid cornflowerblue;
+    width: 1fr;
 }
 
 SelectionList {
     padding: 1;
-    border: solid $accent;
+    border: solid cornflowerblue;
     width: 1fr;
 }
 
