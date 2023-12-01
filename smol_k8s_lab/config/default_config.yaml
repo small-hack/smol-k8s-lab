@@ -967,9 +967,9 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: demo/seaweedfs/app_of_apps/
+      path: seaweedfs/app_of_apps/
       # either the branch or tag to point at in the argo repo above
-      revision: eso-helm-chart-test
+      revision: main
       # namespace to install the k8s app in
       namespace: seaweedfs
       # recurse directories in the provided git repo
@@ -1000,7 +1000,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: demo/seaweedfs/app_of_apps/csi_driver/
       # either the branch or tag to point at in the argo repo above
-      revision: eso-helm-chart-test
+      revision: main
       # namespace to install the k8s app in
       namespace: seaweedfs
       # recurse directories in the provided git repo
@@ -1032,7 +1032,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: demo/vault/
       # either the branch or tag to point at in the argo repo above
-      revision: eso-helm-chart-test
+      revision: main
       # namespace to install the k8s app in
       namespace: vault
       # recurse directories in the provided git repo
@@ -1153,7 +1153,7 @@ apps:
       # if you want to use cockroachdb, change to zitadel/zitadel_and_cockroachdb
       path: "zitadel/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
-      revision: eso-helm-chart-test
+      revision: main
       # namespace to install the k8s app in
       namespace: "zitadel"
       # recurse directories in the provided git repo
