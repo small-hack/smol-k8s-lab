@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.11
 """
-       Name: nginx_ingress_controller
-DESCRIPTION: install the nginx ingress controller
-     AUTHOR: @jessebot
+       Name: ingress_nginx_controller
+DESCRIPTION: install the ingress nginx controller
+     AUTHOR: @jessebot, @cloudymax
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 # external libraries
@@ -10,6 +10,7 @@ import logging as log
 
 # internal libraries
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, check_if_argocd_app_exists
+from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 
@@ -34,6 +35,11 @@ def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str, prometheus: bool = Fa
                     "app.kubernetes.io/component=controller",
                     set_options=nginx_chart_opts
                     )
+
+            # deploy the metrics service
+            kubeapply = 'kubectl apply -f nginx-metrics-service.yaml'
+            subproc([kubeapply], spinner=True)
+            return
         else:
             k8s_obj.apply_manifests(
                     url,
