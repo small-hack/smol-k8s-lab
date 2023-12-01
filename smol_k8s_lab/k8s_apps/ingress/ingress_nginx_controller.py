@@ -10,9 +10,10 @@ import logging as log
 
 # internal libraries
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, check_if_argocd_app_exists
-from smol_k8s_lab.utils.subproc import subproc
+from os import path
 from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.utils.subproc import subproc
 
 
 def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str, prometheus: bool = False) -> None:
@@ -37,7 +38,9 @@ def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str, prometheus: bool = Fa
                     )
 
             # deploy the metrics service
-            kubeapply = 'kubectl apply -f nginx-metrics-service.yaml'
+            full_path = path.realpath(__file__)
+            file_path, filename = path.split(full_path)
+            kubeapply = f'kubectl apply -f {file_path}/nginx-metrics-service.yaml'
             subproc([kubeapply], spinner=True)
             return
         else:
