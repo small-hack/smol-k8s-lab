@@ -68,15 +68,13 @@ class Helm:
 
     class chart:
         """
+        Takes key word args:
+        release_name="", chart_name="", chart_version="", namespace="",
+        values_file="", set_options={}
+        order of operations: values file followed by --set options.
         installs/uninstalls a helm chart.
         """
         def __init__(self, **kwargs):
-            """
-            Takes key word args:
-            release_name="", chart_name="", chart_version="", namespace="",
-            values_file="", set_options={}
-            order of operations: values file followed by --set options.
-            """
             # for each keyword arg's key, create self.key for other methods
             # to reference e.g. pass in namespace='kube-system' and we create
             # self.namespace='kube-system'
