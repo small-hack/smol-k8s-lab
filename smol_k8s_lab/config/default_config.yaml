@@ -147,6 +147,12 @@ apps:
       [link=https://argo-cd.readthedocs.io/en/stable/]Argo CD[/link] is a declarative, GitOps continuous delivery tool for Kubernetes.
 
       smol-k8s-lab installs Argo CD with helm initially to support initial configuration of your admin user and disabling of dex. After your OIDC provider is configured, Argo CD begins managing itself using the below configured Argo CD repo.
+
+      The Appset Secret Plugin is required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [gold3]argo.repo[/gold3] and default enabled if Argo CD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside Argo CD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster.
+
+      To disable Appset Secret Plugin, please set directory recursion to false.
+
+      Learn more: [link=https://github.com/small-hack/appset-secret-plugin]https://github.com/small-hack/appset-secret-plugin[/link]
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -158,13 +164,13 @@ apps:
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       # change to argocd/argocd to not use app of apps with secret plugin
-      path: "argocd/"
+      path: "argocd/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
       namespace: "argocd"
-      # recurse directories in the provided git repo
-      directory_recursion: false
+      # recurse directories in the provided git repo, if true, we also deploy the appset secret plugin
+      directory_recursion: true
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project:
         source_repos:
@@ -174,83 +180,6 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
             - prometheus
-
-  appset_secret_plugin:
-    # Required if you want to use the default small-hack/argocd-apps argo.repo and
-    # default enabled if ArgoCD is enabled, so we can create a k8s Secret with
-    # your more private info such as hostnames, IP addresses, and emails in a
-    # deployment that runs alongside ArgoCD to provide Argo CD ApplicationSets
-    # This plugin has no ingress and cannot be reached from outside the cluster
-    enabled: true
-    description: |
-      Required if you want to use the default [link="https://github.com/small-hack/argocd-apps"]small-hack/argocd-apps[/link] [gold3]argo.repo[/gold3] and default enabled if Argo CD is enabled, so we can create a k8s Secret with your more private info such as hostnames, IP addresses, and emails in a deployment that runs alongside Argo CD to provide Argo CD ApplicationSets This plugin has no ingress and cannot be reached from outside the cluster
-
-      Switch to initialization off if you don't want to deploy a default secret with all keys in each apps.{app}.argo.secret_keys
-
-      Learn more: [link=https://github.com/small-hack/appset-secret-plugin]https://github.com/small-hack/appset-secret-plugin[/link]
-    init:
-      # switch to false if you don't want to create an initial secret of values
-      # to provide to other Argo CD ApplicationSets
-      enabled: true
-    argo:
-      # secrets keys to make available to Argo CD ApplicationSet itself
-      secret_keys: {}
-      # skip installing this app b/c its part of another app of apps with this
-      # name. If equals "" we'll instead use the repo, path, revision, and namespace
-      part_of_app_of_apps: "argo_cd"
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "argocd/"
-      # either the branch or tag to point at in the argo repo above
-      revision: main
-      # namespace to install the k8s app in
-      namespace: "argocd"
-      # recurse directories in the provided git repo
-      directory_recursion: false
-      project:
-        source_repos:
-          - https://small-hack.github.io/appset-secret-plugin
-        destination:
-          # automatically includes the app's namespace and argocd's namespace
-          namespaces: []
-
-  bitwarden_eso_provider:
-    enabled: true
-    description: |
-      The [link="https://github.com/jessebot/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
-
-      smol-k8s-lab support initialization by creating a Kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
-
-      BITWARDEN_PASSWORD, BITWARDEN_CLIENTSECRET, BITWARDEN_CLIENTID
-    init:
-      # Switch to false if you don't want to be prompted for your Bitwarden
-      # API credentials to be created as a Kubernetes secret.
-      enabled: true
-    argo:
-      # skip installing this app b/c its part of another app of apps with this
-      # name. If equals "" we'll instead use the below repo, path, revision, and namespace
-      part_of_app_of_apps: external_secrets_operator
-      # git repo to install the Argo CD app from
-      repo: https://github.com/small-hack/argocd-apps
-      # path in the argo repo to point to. Trailing slash very important!
-      path: external-secrets-operator/bitwarden
-      # either the branch or tag to point at in the argo repo above
-      revision: main
-      # namespace to install the k8s app in
-      namespace: external-secrets
-      # recurse directories in the provided git repo
-      directory_recursion: false
-      # optional secrets keys to pass to the Argo CD Appset secret plugin generator
-      secret_keys: {}
-      # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project:
-        # where the helm chart lives. Go here for more info
-        source_repos:
-          - https://small-hack.github.io/bitwarden-eso-provider
-        destination:
-          # automatically includes the app's namespace and argocd's namespace
-          namespaces: []
 
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by Argo CD if you enable it below
@@ -355,6 +284,14 @@ apps:
     enabled: true
     description: |
       [link=https://external-secrets.io/latest/]External Secrets Operator[/link] is a Kubernetes operator that integrates external secret management systems like HashiCorp Vault, CyberArk Conjur, Bitwarden, Gitlab, and many more. The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
+
+      To deploy the Bitwarden provider, please set apps_global_config.external_secrets to "bitwarden".
+
+      The [link="https://github.com/jessebot/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
+
+      smol-k8s-lab support initialization by creating a Kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
+
+      BITWARDEN_PASSWORD, BITWARDEN_CLIENTSECRET, BITWARDEN_CLIENTID
     # Initialization of the app through smol-k8s-lab
     init:
       enabled: false
@@ -366,7 +303,7 @@ apps:
       # ONLY the external-secrets-operator, so this will not use app of apps and
       # therefore we will not deploy the Bitwarden ESO provider. Use if you want to use
       # a different provider
-      path: external-secrets-operator/
+      path: external-secrets-operator/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
@@ -1070,7 +1007,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "vouch-proxy/"
+      path: "vouch-proxy/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
