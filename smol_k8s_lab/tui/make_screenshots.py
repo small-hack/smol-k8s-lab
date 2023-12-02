@@ -54,3 +54,4 @@ async def make_apps_screen_screenshots() -> None:
 if __name__ == "__main__":
     asyncio.run(make_base_screenshots())
     asyncio.run(make_distro_screen_screenshots())
+    asyncio.run(make_apps_screen_screenshots())
