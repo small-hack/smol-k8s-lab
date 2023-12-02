@@ -62,9 +62,9 @@ smol-k8s-lab
 
 </details>
 
-`v2.0.0a3` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0a1/#history)) you can do:
+`v2.0.0a4` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0a1/#history)) you can do:
 ```bash
-pip install smol_k8s_lab==2.0.0a3
+pip install smol_k8s_lab==2.0.0a4
 ```
 
 #### Creating a new config without running smol-k8s-lab
