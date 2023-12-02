@@ -10,7 +10,7 @@ async def make_screenshots() -> None:
     """
     make all the screenshots
     """
-    async with BaseApp().run_test(size=(89, 50)) as pilot:
+    async with BaseApp().run_test(size=(87, 48)) as pilot:
         pilot.app.save_screenshot("./docs/images/screenshots/start_screen.svg")
 
 if __name__ == "__main__":
