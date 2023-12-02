@@ -21,8 +21,8 @@ $navy: rgb(35,35,54);
     border: round $cornflower;
     padding: 1;
     border-subtitle-color: $lavender;
-    link-hover-background: $navy;
-    link-hover-color: $orange;
+    link-background-hover: $navy;
+    link-color-hover: $orange;
     grid-gutter: 1;
 }
 
