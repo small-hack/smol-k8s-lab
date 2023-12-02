@@ -76,7 +76,7 @@ If you're stuck, checkout the [Notes section](https://jessebot.github.io/smol-k8
 
 <!-- k8s opitonal argocd apps link references -->
 [Argo CD]: https://github.io/argoproj/argo-helm
-[ESO]: https://external-secrets.io/v0.5.9/
+[ESO]: https://external-secrets.io/
 [Kyverno]: https://github.com/kyverno/kyverno/
 
 <!-- smol-k8s-lab dependency lib link references -->

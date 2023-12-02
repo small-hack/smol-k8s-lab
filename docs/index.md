@@ -232,7 +232,7 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [k0s]: https://k0sproject.io/
 
 <!-- k8s optional apps link references -->
-[ESO]: https://external-secrets.io/v0.8.1/
+[ESO]: https://external-secrets.io
 [alert manager]: https://prometheus.io/docs/alerting/latest/alertmanager/
 [Argo CD]:https://argo-cd.readthedocs.io/en/latest/
 [Argo CD Appset Secret Plugin]: https://github.com/jessebot/argocd-appset-secret-plugin/
