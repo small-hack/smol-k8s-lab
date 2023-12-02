@@ -3,11 +3,11 @@ from smol_k8s_lab.utils.rich_cli.console_logging import print_msg
 import sys
 
 
-def launch_config_tui(screenshots: bool = False):
+def launch_config_tui():
     """
     Run all the TUI screens
     """
-    res = BaseApp(screenshots=screenshots).run()
+    res = BaseApp().run()
     if not res:
         print_msg("[blue]♥[/] [cyan]Have a nice day[/] [blue]♥\n", style="italic")
         sys.exit()
