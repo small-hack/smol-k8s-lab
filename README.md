@@ -19,7 +19,7 @@ Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions
 
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/screenshots/help_text.svg">
+  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/images/screenshots/help_text.svg">
       <img src="./docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
   </a>
 </p>
@@ -125,9 +125,9 @@ We always install the latest version of Kubernetes that is available from the di
 
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k3d.png" width="26">][k3d] <br /> [k3d] | **ALPHA - TESTING PHASE** k3s in docker 🐳 |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/k3d.png" width="26">][k3d] <br /> [k3d] | **ALPHA - TESTING PHASE** k3s in docker 🐳 |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
 We tend to test first on k3s first, then the other distros. k3d support coming soon.
 
@@ -136,16 +136,16 @@ Version is the helm chart version, or manifest version.
 
 |           Application           |                      Description                      | Initialization Supported |
 |:-------------------------------:|:------------------------------------------------------|:------------------------:|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | Loadbalancer and IP Address pool manager for metal | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][ingress-nginx] <br /> [ingress-nginx] | The ingress controller allows access to the cluster remotely, needed for web traffic | No |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | For SSL/TLS certificates | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | Gitops - Continuous Deployment | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD Appset Secret Plugin] <br /> [Argo CD Appset Secret Plugin] | Gitops - Continuous Deployment | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | external-secrets-operator integrates external secret management systems like Bitwarden or GitLab | No |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/eso_icon.png" width="32" alt="ESO logo, again">][Bitwarden ESO Provider] <br /> [Bitwarden ESO Provider] | Bitwarden external-secrets-operator provider  | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/zitadel.png" width="32" alt="Zitadel logo, an orange arrow pointing left">][Zitadel] <br /> [Zitadel] | An identity provider and OIDC provider to provide SSO | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/vouch.png" width="32" alt="Vouch logo, the letter V in rainbow ">][Vouch] <br /> [Vouch] | Vouch proxy allows you to secure web pages that lack authentication e.g. prometheus | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/prometheus.png" width="32" alt="Prometheus logo, a torch">][Prometheus Stack] <br /> [Prometheus Stack] | Prometheus monitoring and logging stack using [loki]/[promtail], [alert manager], and [grafana]  | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | Loadbalancer and IP Address pool manager for metal | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][ingress-nginx] <br /> [ingress-nginx] | The ingress controller allows access to the cluster remotely, needed for web traffic | No |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | For SSL/TLS certificates | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | Gitops - Continuous Deployment | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD Appset Secret Plugin] <br /> [Argo CD Appset Secret Plugin] | Gitops - Continuous Deployment | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | external-secrets-operator integrates external secret management systems like Bitwarden or GitLab | No |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/eso_icon.png" width="32" alt="ESO logo, again">][Bitwarden ESO Provider] <br /> [Bitwarden ESO Provider] | Bitwarden external-secrets-operator provider  | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/zitadel.png" width="32" alt="Zitadel logo, an orange arrow pointing left">][Zitadel] <br /> [Zitadel] | An identity provider and OIDC provider to provide SSO | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/vouch.png" width="32" alt="Vouch logo, the letter V in rainbow ">][Vouch] <br /> [Vouch] | Vouch proxy allows you to secure web pages that lack authentication e.g. prometheus | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/prometheus.png" width="32" alt="Prometheus logo, a torch">][Prometheus Stack] <br /> [Prometheus Stack] | Prometheus monitoring and logging stack using [loki]/[promtail], [alert manager], and [grafana]  | Yes |
 
 
 <sub>**Minor Notes**</sub>
@@ -161,17 +161,17 @@ Version is the helm chart version, or manifest version.
 
 | Application/Tool | Description | Initialization Supported |
 |:----------------:|:------------|:------------------------:|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/cilium.png"  width="32" alt="cilium logo">][Cilium] <br /> [Cilium]<sup>alpha</sup> | Kubernetes netflow visualizer and policy editor | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno]<sup>alpha</sup> | Kubernetes native policy management to enforce policies on k8s resources | No |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/keycloak.png"  width="32" alt="keycloak logo">][Keycloak] <br /> [KeyCloak]<sup>alpha</sup> | Self hosted IAM/Oauth2 solution | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler] | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k8up.png" width="32" alt="k8up logo, a minimalist logo of a small blue hill with line starting the right going into the hill">][k8up] <br /> [k8up] | Backups operator using [restic] to backup to s3 endpoints | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k8tz.png" width="32" alt="k8tz logo, the k8s logo but with a watch in the center instead of the ship wheel">][k8tz] <br /> [k8tz] | Timezone environment variable injector for pods and cronjobs | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/nextcloud.png" width="32" alt="nextcloud logo, 3 white circles touching eachother on a blue background">][Nextcloud] <br /> [Nextcloud] | Nextcloud is a self hosted file server | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon] | Mastodon is a self hosted federated social media network  | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix] | Matrix is a self hosted chat platform  | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio] | Self hosted S3 Object Store operator | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for Kubernetes | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/cilium.png"  width="32" alt="cilium logo">][Cilium] <br /> [Cilium]<sup>alpha</sup> | Kubernetes netflow visualizer and policy editor | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno]<sup>alpha</sup> | Kubernetes native policy management to enforce policies on k8s resources | No |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/keycloak.png"  width="32" alt="keycloak logo">][Keycloak] <br /> [KeyCloak]<sup>alpha</sup> | Self hosted IAM/Oauth2 solution | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler] | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/k8up.png" width="32" alt="k8up logo, a minimalist logo of a small blue hill with line starting the right going into the hill">][k8up] <br /> [k8up] | Backups operator using [restic] to backup to s3 endpoints | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/k8tz.png" width="32" alt="k8tz logo, the k8s logo but with a watch in the center instead of the ship wheel">][k8tz] <br /> [k8tz] | Timezone environment variable injector for pods and cronjobs | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/nextcloud.png" width="32" alt="nextcloud logo, 3 white circles touching eachother on a blue background">][Nextcloud] <br /> [Nextcloud] | Nextcloud is a self hosted file server | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon] | Mastodon is a self hosted federated social media network  | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix] | Matrix is a self hosted chat platform  | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio] | Self hosted S3 Object Store operator | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for Kubernetes | Yes |
 
 
 ## Troubleshooting
