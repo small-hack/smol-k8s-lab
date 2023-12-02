@@ -180,21 +180,14 @@ class ConfirmConfig(Screen):
         """
         if event.button.id == "confirm-button":
             # First, check if we need bitwarden credentials before proceeding
-
-            # this is the official small-hack repo
-            repo = "https://github.com/small-hack/argocd-apps"
             pw_mngr = self.smol_k8s_cfg['local_password_manager']
-            bweso = self.apps['bitwarden_eso_provider']
-
-
+            secrets_provider = self.cfg['apps_global_config']['external_secrets']
+            
             # if local_password_manager is enabled, and is bitwarden
             local_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
 
-            # check if bweso is enabled and we're using the default repo
-            official_bweso = bweso['enabled'] and bweso['argo']['repo'] == repo
-
             # if local password manager is bitwarden/enabled or we're using bweso
-            if local_bitwarden or official_bweso:
+            if local_bitwarden or secrets_provider == 'bitwarden':
                 self.get_bitwarden_credentials()
             else:
                 self.append_sensitive_values()

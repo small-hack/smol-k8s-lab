@@ -151,7 +151,7 @@ def main(config: str = "",
         # if we're using bitwarden, unlock the vault
         pw_mngr = USR_CFG['smol_k8s_lab']['local_password_manager']
         using_bw_pw_manager = pw_mngr['enabled'] and pw_mngr['name'] == 'bitwarden'
-        using_bweso = USR_CFG['apps']['bitwarden_eso_provider']['enabled']
+        using_bweso = SECRETS['global_external_secrets']
 
         if using_bw_pw_manager or using_bweso:
             # get bitwarden credentials from the env if there are any
