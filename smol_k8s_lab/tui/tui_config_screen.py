@@ -23,8 +23,9 @@ class TuiConfigScreen(Screen):
                         show=False,
                         action="app.bell")]
 
-    def __init__(self, config: dict) -> None:
+    def __init__(self, config: dict, screenshots: bool = True) -> None:
         self.cfg = config
+        self.screenshots = screenshots
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -66,6 +67,10 @@ class TuiConfigScreen(Screen):
                     "Configure Terminal UI. Box 2: Configure Accessibility. Focus"
                     " starts on Box 1."
                     )
+
+        if self.screenshots:
+            self.app.save_screenshot(self.app.screenshots_path + '/tui_config_screen.svg')
+            self.app.pop_screen()
 
 
 class TuiConfig(Widget):

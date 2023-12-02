@@ -47,6 +47,9 @@ def options_help():
         'interactive':
         'New! ⚙️ Interactively configure smol-k8s-lab',
 
+        'screenshots':
+        'Takes a sceenshot for every screen. Support to be for updating the docs.',
+
         'version':
         f'Print the version of smol-k8s-lab (v{VERSION})'
         }

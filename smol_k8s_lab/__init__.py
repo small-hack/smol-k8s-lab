@@ -107,11 +107,15 @@ def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
 @option("--version", "-v",
         is_flag=True,
         help=HELP['version'])
+@option("--take_screenshots", "-t",
+        is_flag=True,
+        help=HELP['screenshots'])
 def main(config: str = "",
          delete: bool = False,
          setup: bool = False,
          log_file: str = "",
          version: bool = False,
+         take_screenshots: bool = False,
          interactive: bool = False):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
@@ -137,7 +141,9 @@ def main(config: str = "",
     # declaring the default name to be smol-k8s-lab
     cluster_name = "smol-k8s-lab"
 
-    if interactive or INITIAL_USR_CONFIG['smol_k8s_lab']['tui']['enabled']:
+    if take_screenshots:
+        launch_config_tui(True)
+    elif interactive or INITIAL_USR_CONFIG['smol_k8s_lab']['tui']['enabled']:
         cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
     else:
         if setup:

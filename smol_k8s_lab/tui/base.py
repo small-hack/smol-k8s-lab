@@ -70,7 +70,9 @@ class BaseApp(App):
     CSS_PATH = ["./css/base.tcss",
                 "./css/help.tcss"]
 
-    def __init__(self, user_config: dict = INITIAL_USR_CONFIG) -> None:
+    def __init__(self,
+                 user_config: dict = INITIAL_USR_CONFIG,
+                 screenshots: bool = False) -> None:
         self.cfg = user_config
         self.show_footer = self.cfg['smol_k8s_lab']['tui']['show_footer']
         self.cluster_names = []
@@ -81,6 +83,10 @@ class BaseApp(App):
                 'mastodon': {},
                 'zitadel': {}
                 }
+
+        # run through and take all the screenshots
+        self.screenshots = screenshots
+        self.screenshots_path = "./docs/images/screenshots"
 
         # configure global accessibility
         accessibility_opts = self.cfg['smol_k8s_lab']['tui']['accessibility']
@@ -137,6 +143,9 @@ class BaseApp(App):
             if self.speak_screen_titles:
                 self.action_say("Welcome to smol-k8s-lab. Press tab, then C, to configure "
                                 "accessibility options.")
+
+        if self.screenshots:
+            self.take_screenshots()
 
 
     def generate_cluster_table(self, clusters: list) -> None:
@@ -272,17 +281,17 @@ class BaseApp(App):
         """
         self.app.push_screen(ConfirmConfig(self.cfg))
 
-    def action_request_help(self) -> None:
+    def action_request_help(self, screenshots=False) -> None:
         """
         if the user presses 'h' or '?', show the help modal screen
         """
-        self.push_screen(HelpScreen())
+        self.push_screen(HelpScreen(screenshots=screenshots))
 
-    def action_request_config(self) -> None:
+    def action_request_config(self, screenshots: bool = True) -> None:
         """ 
         if the user pressed 'c', show the TUI config screen
         """
-        self.push_screen(TuiConfigScreen(self.cfg['smol_k8s_lab']['tui']))
+        self.push_screen(TuiConfigScreen(self.cfg['smol_k8s_lab']['tui'], screenshots=screenshots))
 
     def action_toggle_footer(self) -> None:
         """
@@ -464,6 +473,13 @@ class BaseApp(App):
 
         return set(prompt_values)
 
+    def take_screenshots(self,) -> None:
+        """ 
+        takes a screenshot of each screen and exits
+        """
+        self.save_screenshot(f"{self.screenshots_path}/start_screen.svg")
+        self.action_request_help(screenshots=True)
+        self.action_request_config(screenshots=True)
 
 class NewClusterInput(Static):
     """ 

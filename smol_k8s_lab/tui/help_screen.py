@@ -22,6 +22,10 @@ class HelpScreen(ModalScreen):
                     action="app.bell")
                 ]
 
+    def __init__(self, screenshots: bool = False) -> None:
+        self.screenshots = screenshots
+        super().__init__()
+
     def compose(self) -> ComposeResult:
         welcome = ("Use your 🐁 to click anything in the UI ✨ Or use the "
                    "following key bindings. For additional help, check out "
@@ -52,6 +56,10 @@ class HelpScreen(ModalScreen):
                     )
 
         self.build_help_table()
+
+        if self.screenshots:
+            self.app.save_screenshot(self.app.screenshots_path + '/tui_help_screen.svg')
+            self.app.pop_screen()
 
     def build_help_table(self) -> None:
         data_table = DataTable(zebra_stripes=True,
