@@ -164,12 +164,12 @@ apps:
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
       # change to argocd/argocd to not use app of apps with secret plugin
-      path: "argocd/"
+      path: "argocd/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
       namespace: "argocd"
-      # recurse directories in the provided git repo
+      # recurse directories in the provided git repo, if true, we also deploy the appset secret plugin
       directory_recursion: true
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project:
@@ -285,7 +285,7 @@ apps:
     description: |
       [link=https://external-secrets.io/latest/]External Secrets Operator[/link] is a Kubernetes operator that integrates external secret management systems like HashiCorp Vault, CyberArk Conjur, Bitwarden, Gitlab, and many more. The operator reads information from external APIs and automatically injects the values into a Kubernetes Secret.
 
-      To deploy the Bitwarden provider, please set directory_recursion to true.
+      To deploy the Bitwarden provider, please set apps_global_config.external_secrets to "bitwarden".
 
       The [link="https://github.com/jessebot/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
 
@@ -303,13 +303,13 @@ apps:
       # ONLY the external-secrets-operator, so this will not use app of apps and
       # therefore we will not deploy the Bitwarden ESO provider. Use if you want to use
       # a different provider
-      path: external-secrets-operator/
+      path: external-secrets-operator/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
       namespace: external-secrets
       # recurse directories in the provided git repo
-      directory_recursion: true
+      directory_recursion: false
       # secret keys to provide for the Argo CD Appset secret plugin, none by default
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
@@ -1007,7 +1007,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "vouch-proxy/"
+      path: "vouch-proxy/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in

@@ -216,7 +216,7 @@ def main(config: str = "",
                     apps.pop('ingress_nginx'),
                     apps['cert_manager'],
                     argo_enabled,
-                    apps['appset_secret_plugin']['enabled'],
+                    apps['argocd']['argo']['directory_recursion'],
                     SECRETS,
                     bw)
 
@@ -226,7 +226,7 @@ def main(config: str = "",
         setup_k8s_secrets_management(k8s_obj,
                                      distro,
                                      apps.pop('external_secrets_operator'),
-                                     apps.pop('bitwarden_eso_provider'),
+                                     SECRETS['global_external_secrets'],
                                      apps.pop('infisical'),
                                      apps.pop('vault'),
                                      bw)
@@ -285,9 +285,8 @@ def main(config: str = "",
         header("Installing the rest of the Argo CD apps")
         for app_key, app_meta in apps.items():
             if app_meta['enabled']:
-                app_of_apps = app_meta['argo'].get('part_of_app_of_apps', False)
                 app_installed = check_if_argocd_app_exists(app_key)
-                if not app_of_apps and not app_installed:
+                if not app_installed:
                     argo_app = app_key.replace('_', '-')
                     sub_header(f"Installing app: {argo_app}")
                     install_with_argocd(k8s_obj, argo_app, app_meta['argo'])

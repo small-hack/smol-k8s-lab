@@ -86,7 +86,9 @@ def configure_vouch(k8s_obj: K8s,
                 create_custom_field("endSessionEndpoint", auth_dict['end_session_url']),
                 create_custom_field("preferredDomain", preferred_domain)
                 ]
+
             log.info(f"vouch oauth fields are {fields}")
+
             # create oauth OIDC bitwarden item
             oauth_id = bitwarden.create_login(
                 name='vouch-oauth-config',
@@ -100,7 +102,9 @@ def configure_vouch(k8s_obj: K8s,
             domains_obj = create_custom_field("domains", domains)
             emails_obj = create_custom_field("allowList", emails)
             jwt_secret_obj = create_custom_field("jwtSecret", jwt_secret)
+
             log.debug(f"emails_obj is {emails_obj} and domains_obj is {domains_obj}")
+
             # create vouch config bitwarden item
             vouch_id = bitwarden.create_login(
                     name='vouch-config',
@@ -111,10 +115,11 @@ def configure_vouch(k8s_obj: K8s,
                     )
 
             # update the vouch values for the argocd appset
-            fields = {'vouchOauthConfigBitwardenID': oauth_id,
-                      'vouchConfigBitwardenID': vouch_id}
-
-            update_argocd_appset_secret(k8s_obj, fields)
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'vouch_oauth_config_bitwarden_id': oauth_id,
+                     'vouch_config_bitwarden_id': vouch_id}
+                    )
 
             # reload the bitwarden ESO provider
             try:
@@ -163,10 +168,11 @@ def configure_vouch(k8s_obj: K8s,
                     )[0]['id']
 
             # update the vouch values for the argocd appset
-            fields = {'vouchOauthConfigBitwardenID': oauth_id,
-                      'vouchConfigBitwardenID': vouch_id}
-
-            update_argocd_appset_secret(k8s_obj, fields)
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'vouch_oauth_config_bitwarden_id': oauth_id,
+                     'vouch_config_bitwarden_id': vouch_id}
+                   )
 
 
 def create_vouch_app(provider: str,

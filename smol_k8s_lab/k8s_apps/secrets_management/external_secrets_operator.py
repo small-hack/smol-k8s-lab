@@ -1,85 +1,63 @@
 #!/usr/bin/env python3.11
 """
        Name: external_secrets
-DESCRIPTION: configures external secrets, currently only with gitlab
+DESCRIPTION: configures external secrets, currently only with Bitwardne and GitLab
              hopefully with more supported providers in the future
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
-import logging as log
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.utils.rich_cli.console_logging import sub_header
 from smol_k8s_lab.utils.subproc import subproc
 
 
 def configure_external_secrets(k8s_obj: K8s,
                                eso_dict: dict,
-                               bweso_dict: dict = {},
+                               eso_provider: str = "",
                                distro: str = "",
                                bitwarden: BwCLI = None) -> None:
     """
-    configure external secrets and provider. (and optionally bweso)
+    configure external secrets and provider. (and optionally bweso or gitlab)
     """
+    k8s_obj.create_namespace("external-secrets")
+
+    if eso_provider == "bitwarden":
+        setup_bweso_provider(k8s_obj, distro, bitwarden)
+    elif eso_provider == "gitlab":
+        setup_gitlab_provider(k8s_obj, eso_dict['init']['values']['gitlab_access_token'])
+
     install_with_argocd(k8s_obj, 'external-secrets-operator', eso_dict['argo'])
     wait_for_argocd_app('external-secrets-operator')
 
-    if bweso_dict['enabled']:
-        setup_bweso(k8s_obj, distro, bweso_dict['argo'], bitwarden)
+    # wait for bitwarden external secrets provider to be up
+    wait_for_argocd_app('bitwarden-eso-provider')
 
 
-def setup_bweso(k8s_obj: K8s,
-                distro: str,
-                bweso_argo_dict: dict = {},
-                bitwarden: BwCLI = None) -> None:
+def setup_bweso_provider(k8s_obj: K8s, distro: str, bitwarden: BwCLI = None) -> None:
     """
     Creates an initial secret for use with the bitwarden provider for ESO
     """
-    sub_header("Installing the Bitwarden External Secrets Provider...")
-
     # this is a standard k8s secrets yaml
-    k8s_obj.create_secret('bweso-login', 'external-secrets',
+    k8s_obj.create_secret('bweso-login',
+                          'external-secrets',
                           {"BW_PASSWORD": bitwarden.password,
                            "BW_CLIENTSECRET": bitwarden.client_secret,
                            "BW_CLIENTID": bitwarden.client_id,
                            "BW_HOST": bitwarden.host})
 
     if distro == 'kind':
-        image = "docker.io/jessebot/bweso:v0.2.0"
+        image = "docker.io/jessebot/bweso:v0.5.0"
         cmds = [f"docker pull --platform=linux/amd64 {image}",
                 f"kind load docker-image {image} --name smol-k8s-lab-kind"]
         subproc(cmds)
 
-    if bweso_argo_dict.get('part_of_app_of_apps', None):
-        log.debug("Looks like this app is actually part of an app of apps "
-                  "that will be deployed")
-        return True
 
-    install_with_argocd(k8s_obj, 'bitwarden-eso-provider', bweso_argo_dict)
-    # wait for bitwarden external secrets provider to be up
-    wait_for_argocd_app('bitwarden-eso-provider')
-
-
-def setup_gitlab_provider(k8s_obj: K8s, external_secrets_config: dict) -> None:
+def setup_gitlab_provider(k8s_obj: K8s, gitlab_access_token: str) -> None:
     """
-    setup the gitlab external secrets operator config
-    Accepts dict as arg:
-    dict = {'namespace': 'somenamespace', 'access_token': 'tokenhere'}
+    setup the GitLab external secrets operator provider config by creating a
+    secret with the GitLab access token
     """
-    gitlab_access_token = external_secrets_config['access_token']
-    gitlab_namespace = external_secrets_config['namespace']
-
-    # create the namespace if does not exist
-    subproc([f'kubectl create namespace {gitlab_namespace}'], error_ok=True)
-
-    # this currently only works with gitlab
-    gitlab_secret = {'apiVersion': 'v1',
-                     'kind': 'Secret',
-                     'metadata': {'name': 'gitlab-secret',
-                                  'namespace': gitlab_namespace,
-                                  'labels': {'type': 'gitlab'}},
-                     'type': 'Opaque',
-                     'stringData': {'token': gitlab_access_token}}
-
-    k8s_obj.apply_custom_resources([gitlab_secret])
+    k8s_obj.create_secret('gitlab-secret',
+                          'external-secrets',
+                          {'token': gitlab_access_token})
