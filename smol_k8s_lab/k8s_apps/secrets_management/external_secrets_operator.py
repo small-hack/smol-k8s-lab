@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 """
        Name: external_secrets
-DESCRIPTION: configures external secrets, currently only with Bitwardne and GitLab
+DESCRIPTION: configures external secrets, currently only with Bitwarden and GitLab
              hopefully with more supported providers in the future
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
