@@ -33,7 +33,7 @@ from .social.nextcloud import configure_nextcloud
 def setup_k8s_secrets_management(k8s_obj: K8s,
                                  k8s_distro: str,
                                  eso_dict: dict = {},
-                                 bitwarden_eso_provider_dict: dict = {},
+                                 eso_provider: str = "",
                                  infisical_dict: dict = {},
                                  vault_dict: dict = {},
                                  bitwarden: BwCLI = None) -> None:
@@ -45,13 +45,11 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
 
     # setup external secrets operator and bitwarden external secrets
     if eso_dict['enabled']:
-        header_msg += 'External Secrets Operator[/]'
-        if bitwarden_eso_provider_dict['enabled']:
-            header_msg += ' and [blue]Bitwarden[/] as the Provider'
+        header_msg += f'External Secrets Operator[/] and [blue]{eso_provider}[/] as the Provider'
         header(header_msg, '🤫')
         configure_external_secrets(k8s_obj,
                                    eso_dict,
-                                   bitwarden_eso_provider_dict,
+                                   eso_provider,
                                    k8s_distro,
                                    bitwarden)
 
