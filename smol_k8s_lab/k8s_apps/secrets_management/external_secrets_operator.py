@@ -44,6 +44,7 @@ def setup_bweso_provider(k8s_obj: K8s, distro: str, bitwarden: BwCLI = None) -> 
                           {"BW_PASSWORD": bitwarden.password,
                            "BW_CLIENTSECRET": bitwarden.client_secret,
                            "BW_CLIENTID": bitwarden.client_id,
+                           "BW_APPID": "external-secrets-operator-bitwarden-provider",
                            "BW_HOST": bitwarden.host})
 
     if distro == 'kind':
