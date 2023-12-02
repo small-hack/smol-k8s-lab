@@ -216,7 +216,7 @@ def main(config: str = "",
                     apps.pop('ingress_nginx'),
                     apps['cert_manager'],
                     argo_enabled,
-                    apps['argocd']['argo']['directory_recursion'],
+                    apps['argo_cd']['argo']['directory_recursion'],
                     SECRETS,
                     bw)
 
