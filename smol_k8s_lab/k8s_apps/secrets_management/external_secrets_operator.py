@@ -47,7 +47,7 @@ def setup_bweso_provider(k8s_obj: K8s, distro: str, bitwarden: BwCLI = None) -> 
                            "BW_HOST": bitwarden.host})
 
     if distro == 'kind':
-        image = "docker.io/jessebot/bweso:v0.5.0"
+        image = "docker.io/jessebot/bweso:v0.4.0"
         cmds = [f"docker pull --platform=linux/amd64 {image}",
                 f"kind load docker-image {image} --name smol-k8s-lab-kind"]
         subproc(cmds)
