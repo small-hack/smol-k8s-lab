@@ -8,7 +8,7 @@ async def make_screenshots() -> None:
     """
     make all the screenshots
     """
-    async with BaseApp(screenshots=True).run_test() as pilot:
+    async with BaseApp().run_test() as pilot:
         pilot.app.save_screenshot("./docs/images/screenshots/start_screen.svg")
 
 if __name__ == "__main__":
