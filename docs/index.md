@@ -151,10 +151,10 @@ If you're stuck, checkout the [Notes section](https://jessebot.github.io/smol-k8
 [restic]: https://restic.readthedocs.io/en/stable/
 
 <!-- smol-k8s-lab dependency lib link references -->
-[Poetry]: https://python-poetry.org/
-[rich]: https://github.com/Textualize/richP
-[textual]: https://github.com/Textualize/textual
-[PyYAML]: https://pyyaml.org/
+[Bitwarden cli]: https://bitwarden.com/help/cli/
 [bcrypt]: https://pypi.org/project/bcrypt/
 [click]: https://pypi.org/project/click/
-[Bitwarden cli]: https://bitwarden.com/help/cli/
+[rich]: https://github.com/Textualize/richP
+[ruamel.yaml]: https://pypi.org/project/ruamel.yaml/
+[Poetry]: https://python-poetry.org/
+[textual]: https://github.com/Textualize/textual
