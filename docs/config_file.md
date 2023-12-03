@@ -76,7 +76,7 @@ Currently you can only deploy one distro at a time.
 For k3s, we use a [config file](https://docs.k3s.io/installation/configuration#configuration-file) for [all the options](https://docs.k3s.io/cli/server) that get passed to the k3s install script. We define them under `k8s_distros.k3s.k3s_yaml` in the `smol-k8s-lab` config file.
 
 !!! NOTE
-    You cannot adjust the node count at this time
+    You cannot adjust the k3s node count at this time
 
 ```yaml
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
@@ -198,18 +198,25 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/home_assistant"
+      path: "demo/home_assistant/"
       # git branch or tag to point at in the argo repo above
       ref: "main"
       # Kubernetes namespace to install the k8s app in
-      namespace: "zitadel"
-      # source git repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
+      namespace: "home-assistant"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      project:
+        # source git repos for Argo CD App Project (in addition to argo.repo)
+        source_repos:
+          - registry-1.docker.io
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - prometheus
 ```
 
 !!! Note
-    Only applications with the `init` field in the [`default_config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by `smol-k8s-lab`, therefore, you cannot use the `apps.{app}.init` parameter for custom apps. You can still use the appset secret plugin for Argo CD though :)
+    Only applications with the `init` field in the [`default_config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by `smol-k8s-lab`, therefore, you cannot use the `apps.{app}.init` parameter for custom apps. You can still use the appset secret plugin for Argo CD though :) If you'd like initialization supported by smol-k8s-lab, please feel free to open a feature request in the GitHub Issues.
 
 ### Globally Available Argo CD ApplicationSet 
 
