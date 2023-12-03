@@ -14,7 +14,17 @@ If it's a code fix, please:
 
 ## Development
 
-We're open to unit, integration, and ci testing btw! We just don't have any because we weren't stable enough to justify them yet. 🤦
+`smol-k8s-lab` is written in Python. You can check out the [`pyproject.toml`](./pyproject.toml) for the versions of each library we install below:
+
+- [bcrypt] (to pass a password to argocd and automatically update your Bitwarden)
+- [rich] (this is what makes all the pretty formatted text in logs and `--help`)
+- [textual] (this is the framework used for writing the TUI)
+- [ruamel.yaml] (to handle the k8s yamls and configs while maintaining comments)
+- [click] (handles arguments for the CLI)
+
+We also utilize the [Bitwarden cli], for a password manager so you never have to see/know your Argo CD password.
+
+NOTE: We're open to unit, integration, and ci testing btw! We just don't have any because we weren't stable enough to justify them yet. 🤦
 
 ### Prereqs
 
@@ -47,3 +57,12 @@ smol-k8s-lab --version
 ```
 
 When you're done playing with your environment, you can just type `exit` to leave the shell :)
+
+<!-- smol-k8s-lab dependency lib link references -->
+[Bitwarden cli]: https://bitwarden.com/help/cli/
+[bcrypt]: https://pypi.org/project/bcrypt/
+[click]: https://pypi.org/project/click/
+[rich]: https://github.com/Textualize/richP
+[ruamel.yaml]: https://pypi.org/project/ruamel.yaml/
+[Poetry]: https://python-poetry.org/
+[textual]: https://github.com/Textualize/textual
