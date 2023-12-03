@@ -3,6 +3,7 @@ Name: help_text
 Desc: the help text for smol-k8s-lab
 """
 import click
+from os import environ
 from rich.console import Console
 from rich.highlighter import RegexHighlighter
 from rich.panel import Panel
@@ -11,9 +12,10 @@ from rich.text import Text
 from rich.theme import Theme
 
 from smol_k8s_lab.constants import VERSION, XDG_CONFIG_FILE
+from smol_k8s_lab.utils.subproc import subproc
 
 
-RECORD = False
+RECORD = environ.get("SMOL_SCREENSHOT", False)
 
 
 def pretty_choices(default_list: list):
@@ -32,11 +34,7 @@ def options_help():
     Help text for all the options/switches for main()
     Returns a dict.
     """
-    return {
-        'config':
-        'Full path and name of the YAML config file to parse.\n Defaults to '
-        f'[light_steel_blue]{XDG_CONFIG_FILE}[/]',
-
+    help_dict = {
         'delete':
         'Delete an existing cluster by name.',
 
@@ -45,11 +43,25 @@ def options_help():
         'kubectl, and more via brew.',
 
         'interactive':
-        'New! ⚙️ Interactively configure smol-k8s-lab',
+        'New! ⚙️ Interactively configures  smol-k8s-lab',
 
         'version':
         f'Print the version of smol-k8s-lab (v{VERSION})'
         }
+
+    if RECORD:
+        help_dict['config'] = (
+        'Full path and name of the YAML config file to parse.\n Defaults to '
+        '[light_steel_blue]$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml[/]'
+        )
+    else:
+        help_dict['config'] = (
+        'Full path and name of the YAML config file to parse.\n Defaults to '
+        f'[light_steel_blue]{XDG_CONFIG_FILE}[/]'
+        )
+
+
+    return help_dict
 
 
 class RichCommand(click.Command):
@@ -76,7 +88,7 @@ class RichCommand(click.Command):
                                        "skl_title": "cornflower_blue"}),
                           highlighter=highlighter, record=RECORD)
 
-        title =" 🧸 [cornflower_blue]smol k8s lab[/]\n"
+        title =" 🧸[cornflower_blue]smol k8s lab[/]\n"
         desc = ("\n[steel_blue][i]Install slim Kubernetes distros + plus all your "
                 "apps via Argo CD.\n")
 
@@ -129,4 +141,5 @@ class RichCommand(click.Command):
 
         # I use this to print a pretty svg at the end sometimes
         if RECORD:
-            console.save_svg("docs/screenshots/help_text.svg", title="term")
+            console.save_svg("docs/images/screenshots/help_text.svg", title="term")
+            subproc(["sed -i 's/\/Users\/jesse/\~/' docs/images/screenshots/help_text.svg"])

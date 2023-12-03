@@ -17,18 +17,17 @@ Smol K8s Lab leverages ArgoCD and slim k8s distributions like K3s to create prod
 
 ## About
 
-By default, Smol K8s Lab deploys ArgoCD + a secret plugin generator which enables ArgoCD to securely manage your lab via files in public open-source git repos. Additionally, a customized dark-theme is provided for ArgoCD's incredibly useful web-interface.
+`smol-k8s-lab`'s declarative workflow enables rapid iteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking Kubernetes applications and distributions! 💙
 
-Smol K8s Lab's declarative workflow enables rapid itteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking k8s applicatons and distributions! 💙 <br>
-
+By default, `smol-k8s-lab` deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open-source Git repos. Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
 
 ## Installation
 
-Smol K8s Lab requires Python 3.11 and brew. An installer script is provided below to install the proper dependancies on Ubuntu 22.04, Debain12, or MacOS 13.0+ hosts.
+Smol K8s Lab requires Python 3.11 or higher and brew. An installer script is provided below to install the proper dependencies on Ubuntu 22.04, Debian 12, or MacOS 13.0+ hosts.
 
-If you do NOT have the required dependancies:
+If you do NOT have the required dependencies:
 
-- Download [setup.sh](https://github.com/jessebot/onboardme/blob/main/setup.sh) to your current directory and execute it. This is a generic provisioning script that will install Python 3.11, Brew, and a select few other pacakages used throughout our repos.
+- Download [setup.sh](https://github.com/jessebot/onboardme/blob/main/setup.sh) to your current directory and execute it. This is a generic provisioning script that will install Python 3.11, Brew, and a select few other packages used throughout our repos.
 
     ```bash
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/jessebot/onboardme/main/setup.sh)"
@@ -51,17 +50,18 @@ If you DO have Python 3.11 and brew installed:
 ## Usage
 
 ### Initialization
-After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file. To do that, just run:
+After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file by running:
 
 ```bash
-# we'll walk you through any configuration needed before saving the config and deploying it for you
+# we'll walk you through any configuration needed
+# before saving the config and deploying it for you
 smol-k8s-lab
 ```
 
 <details>
-  <summary><h3>Upgrading to v1.x</h3></summary>
+  <summary><h3>Upgrading to v1.x or v2.x</h3></summary>
 
-If you've installed smol-k8s-lab prior to `v1.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following:
+If you've installed smol-k8s-lab prior to `v1.0.0`, please backup your old configuration, `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`), and then remove the file entirely. Then, run the following:
 
 ```yaml
 # this upgrades smol-k8s-lab
@@ -71,10 +71,12 @@ pip3.11 install --upgrade smol-k8s-lab
 smol-k8s-lab
 ```
 
+For details on exactly what's changed, please check out the release notes in the [GitHub Releases](https://github.com/small-hack/smol-k8s-lab/releases).
+
 </details>
 
 #### Creating a new config without running smol-k8s-lab
-This is helpful if you just want to take a look at the default configuration before installing any kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
+This is helpful if you just want to take a look at the default configuration before installing any Kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
 
 ```bash
 # create the needed directory if you haven't already, NOTE: this can also be in $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml
@@ -235,7 +237,7 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [ESO]: https://external-secrets.io
 [alert manager]: https://prometheus.io/docs/alerting/latest/alertmanager/
 [Argo CD]:https://argo-cd.readthedocs.io/en/latest/
-[Argo CD Appset Secret Plugin]: https://github.com/jessebot/argocd-appset-secret-plugin/
+[Argo CD Appset Secret Plugin]: https://github.com/small-hack/argocd-appset-secret-plugin/
 
 [cert-manager]: https://cert-manager.io/docs/
 [cilium]: https://github.com/cilium/cilium/tree/v1.14.1/install/kubernetes/cilium
