@@ -1,20 +1,18 @@
-[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is:
+[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, files, and data lakes with a O(1) disk seek speeds. You can find out more about them by checking their [Wiki](https://github.com/seaweedfs/seaweedfs/wiki). 
 
-> a fast distributed storage system for blobs, objects, files, and data lake, for billions of files! Blob store has O(1) disk seek, cloud tiering. Filer supports Cloud Drive, cross-DC active-active replication, Kubernetes, POSIX FUSE mount, S3 API, S3 Gateway, Hadoop, WebDAV, encryption, Erasure Coding. 
-
-`smol-k8s-lab` uses SeaweedFS for spinning up isolated file systems with s3 endpoints.
-
-[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system which supports S3 Gateway, FUSE Mount, a Kubernetes CSI driver and other cool stuff. They keep most of their documentation in their [Wiki](https://github.com/seaweedfs/seaweedfs/wiki).
+Smol-k8s-lab uses SeaweedFS for creating isolated file-systems for apps like Postgres, Mastodon, and JuiceFS. This provides a consistent storage layer across applications that allows for uniform backup and restoration processes and high-speed local-storage. This data can easily be backed up to external storage via k8up. Check it out via our [SeaweedFS Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/seaweedfs).
 
 ## How it works
 
+- The Volume Services chunk and encrypt data on-disk.
+- The Filer Service tracks what data is stored where and answers queries about it.
+- The Control Server keeps the state of all servers and keeps everything in sync
+
 <p align="center">
-  <a href="../assets/images/seaweedfs-diagram.png">
-      <img src="../assets/images/seaweedfs-diagram.png" alt="" width=500>
+  <a href="../../assets/images/seaweedfs.drawio.png">
+      <img src="../../assets/images/seaweedfs.drawio.png">
   </a>
 </p>
-
-Check out our [SeaweedFS Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/seaweedfs).
 
 ## Security
 

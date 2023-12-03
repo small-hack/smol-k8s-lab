@@ -84,11 +84,7 @@ nav:
       - Infisical: k8s_apps/experimental/infisical.md
       - Kepler: k8s_apps/experimental/kepler.md
       - Kyverno: k8s_apps/experimental/kyverno.md
-      - Kubevirt: 
-        - Installation: k8s_apps/experimental/kubevirt.md
-        - Disk Types: k8s_apps/experimental/kubevirt-disks.md
-        - Virtual Machines: k8s_apps/experimental/kubevirt-vms.md
-        - Connecting: k8s_apps/experimental/kubevirt-connecting.md
+      - Kubevirt: k8s_apps/experimental/kubevirt.md
       - MinIO: k8s_apps/experimental/minio.md
     - Ingress Nginx: k8s_apps/ingress_nginx.md
     - K8tz: k8s_apps/k8tz.md
