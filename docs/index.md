@@ -35,37 +35,7 @@ After you've followed the installation instructions, if you're *new* to `smol-k8
 smol-k8s-lab
 ```
 
-### Adding custom Applications
-
-You can create any application you already have an Argo CD application repo for, by following a simple application yaml schema in `~/.config/smol-k8s-lab/config.yaml` like this:
-
-```yaml
-apps:
-  # name of application to create in Argo CD
-  cert_manager:
-    # if set to false, we ignore this app
-    enabled: true
-    argo:
-      # secret keys to pass to Argo CD Application Set Generator
-      secret_keys:
-        # Used for letsencrypt-staging, to generate certs. If set to "" and cert-manager.enabled is true
-        # smol-k8s-lab will prompt for this value and save it back to this file for you.
-        email: ""
-      # If set to "", we'll instead use the repo, path, ref, namespace, and project_source_repos
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "ingress/cert-manager/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "ingress"
-      # source repos for cert-manager CD App Project (in addition to cert-manager.argo.repo)
-      project_source_repos:
-        - https://charts.jetstack.io
-```
-
-Note: the above application, cert-manager, is already included as a default application in smol-k8s-lab :)
+For more info on the config file checkout [config file](/config_file), and for more info on the TUI, checkout the [TUI section](tui/create_modify_screens). For more info on applications, checkout [default apps](k8s_apps/argocd).
 
 # Under the hood
 Note: this project is not officially affiliated with any of the below tooling or applications.
@@ -101,11 +71,7 @@ Version is the helm chart version, or manifest version.
 
 Minor Notes:
 
->All Default Applications can be disabled through your `~/.config/smol-k8s-lab/config.yaml` file, **except**:</sub>
->
->    - ingress-nginx is the currently the only _supported_ ingress-controller. traefik support is being worked on.</sub>
->
->    - Argo CD is optional, but if not installed, smol-k8s-lab will <i>only</i> install: metallb, nginx-ingress, and cert-manager</sub>
+>All Default Applications can be disabled through your `~/.config/smol-k8s-lab/config.yaml` file, **except** Argo CD. You can still choose not to install it, but if not installed, smol-k8s-lab will <i>only</i> install: metallb, nginx-ingress, and cert-manager</sub>
 
 
 ## Optionally Installed Applications
@@ -123,10 +89,6 @@ Minor Notes:
 | [<img src="images/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio] | Self hosted S3 Object Store operator | ✅ |
 | [<img src="images/icons/seaweedfs.png" width="32" alt="seaweedfs logo, ">][seaweedfs] <br /> [seaweedfs] | Self hosted S3 Object Store | ✅ |
 | [<img src="images/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for kubernetes | ✅ |
-
-
-## Troubleshooting
-If you're stuck, checkout the [Notes](https://jessebot.github.io/smol-k8s-lab/notes) to see if we also got stuck on the same thing at some point :) Under each Kubernetes distro or application, we'll have notes on how to learn more about it, as well as any errors we've already battled.
 
 
 # Status
