@@ -58,7 +58,17 @@ smol-k8s-lab
 ```
 
 <details>
-  <summary><h3>Upgrading from v1.x to v2.x</h3></summary>
+  <summary><h3>Upgrading config from v1.x to v2.x</h3></summary>
+
+If you've installed smol-k8s-lab prior to `v2.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following:
+
+```yaml
+# this upgrades smol-k8s-lab
+pip3.11 install --upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
 
 The main difference between the old and new config files are for apps, we've added:
 
@@ -122,7 +132,7 @@ apps:
 </details>
 
 <details>
-  <summary><h3>Upgrading to v1.x</h3></summary>
+  <summary><h3>Upgrading your config to v1.x</h3></summary>
 
 If you've installed smol-k8s-lab prior to `v1.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following:
 
