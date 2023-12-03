@@ -82,8 +82,12 @@ nav:
       - Cilium: k8s_apps/experimental/cilium.md
       - Infisical: k8s_apps/experimental/infisical.md
       - Kepler: k8s_apps/experimental/kepler.md
-      - Kubevirt: k8s_apps/experimental/kubevirt.md
       - Kyverno: k8s_apps/experimental/kyverno.md
+      - Kubevirt: 
+        - About: k8s_apps/experimental/kubevirt.md
+        - Disk Management via CDI: k8s_apps/experimental/kubevirt-disks.md
+        - Create VMs with Helm: k8s_apps/experimental/kubevirt-vms.md
+        - Connecting to a VM: k8s_apps/experimental/kubevirt-connecting.md
       - MinIO: k8s_apps/experimental/minio.md
     - Ingress Nginx: k8s_apps/ingress_nginx.md
     - K8tz: k8s_apps/k8tz.md
