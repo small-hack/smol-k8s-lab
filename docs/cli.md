@@ -8,8 +8,8 @@ smol-k8s-lab --help
 <details>
   <summary>Help text example</summary>
 
-  <a href="/images/screenshots/help_text.svg">
-    <img src="/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+  <a href="/assets/images/screenshots/help_text.svg">
+    <img src="/assets/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
   </a>
 
 </details>

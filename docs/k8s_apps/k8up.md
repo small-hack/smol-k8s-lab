@@ -2,7 +2,7 @@
 
 `smol-k8s-lab` optionally installs K8up as one of it's supported Kubernetes applications using [Argo CD repo with K8up template](https://gitlab.com/small-hack/argocd-apps/blob/main/k8up).
 
-<img src="/images/screenshots/k8up_screenshot.png" alt="screenshot of the Argo CD web interface showing the k8up app of apps in tree view mode with two children: k8up-crd and k8up-helm-appset. k8up-helm-appset has one child: k8up-helm-release">
+<img src="/assets/images/screenshots/k8up_screenshot.png" alt="screenshot of the Argo CD web interface showing the k8up app of apps in tree view mode with two children: k8up-crd and k8up-helm-appset. k8up-helm-appset has one child: k8up-helm-release">
 
 One of the most important template values we require for our default Argo CD ApplicationSet is `timezone`, which should be a timezone from the [TZ database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List) (in the wikipedia list, you want the second column, TZ Identifier).
 

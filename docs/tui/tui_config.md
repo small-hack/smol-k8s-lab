@@ -4,7 +4,7 @@ You can configure the TUI (Terminal User Interface) either via the config file, 
 
 From any screen in the TUI, you can press `c` and it will bring up the TUI.
 
-![terminal screenshot showing the smol-k8s-lab configure tui screen. There is one box with a blue border. The border title is "Configure Terminal UI" and the text at the top of the box says "These parameters are all related to the TUI itself." Below that there's a row of three switches labeled: enabled, footer, and k9s. Below that is an input row with for k9s command with pre-populated text that says applications.argoproj.io](/images/screenshots/tui_config_screen.svg)
+![terminal screenshot showing the smol-k8s-lab configure tui screen. There is one box with a blue border. The border title is "Configure Terminal UI" and the text at the top of the box says "These parameters are all related to the TUI itself." Below that there's a row of three switches labeled: enabled, footer, and k9s. Below that is an input row with for k9s command with pre-populated text that says applications.argoproj.io](/assets/images/screenshots/tui_config_screen.svg)
 
 Some options may not take effect till you return to the start screen or restart the program.
 

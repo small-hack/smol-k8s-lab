@@ -6,9 +6,9 @@ We currently maintain [our own Mastodon helm chart](https://github.com/jessebot/
 
 Check out our [Mastodon Argo CD ApplicationSet](https://github.com/small-hack/argocd-apps/tree/main/mastodon)!
 
-<img src="/images/screenshots/mastodon_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view.">
+<img src="/assets/images/screenshots/mastodon_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view.">
 
-<img src="/images/screenshots/mastodon_networking_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view.">
+<img src="/assets/images/screenshots/mastodon_networking_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view.">
 
 ## Required Init Values
 

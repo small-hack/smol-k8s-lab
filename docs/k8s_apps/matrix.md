@@ -2,7 +2,7 @@
 
 `smol-k8s-lab` deploys a matrix synapse server, element (a web frontend), and a turn server (voice server).
 
-<img src="/images/screenshots/matrix_screenshot.png" alt="screenshot of the Argo CD web interface showing the matrix app of apps in tree view mode, which shows the following children: persistence app, external secrets appset, postgres appset, s3 provider appset, s3 pvc app set, and matrix web app set.">
+<img src="/assets/images/screenshots/matrix_screenshot.png" alt="screenshot of the Argo CD web interface showing the matrix app of apps in tree view mode, which shows the following children: persistence app, external secrets appset, postgres appset, s3 provider appset, s3 pvc app set, and matrix web app set.">
 
 The main variable you need to worry about when setting up matrix is your `hostname`.
 

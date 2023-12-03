@@ -1,6 +1,6 @@
 [Zitadel](https://zitadel.com/) is an Identity Management solution that includes acting as an OIDC provider.
 
-<img src="/images/screenshots/zitadel_screenshot.png" alt="screenshot of the Argo CD web interface showing the Zitadel app of apps in tree view mode. The zitadel app of apps has 5 children: zitadel-bitwarden-eso, zitadel-postgres-app-set, zitadel-s3-provider-app-set, zitadel-s3-pvc-app-set, and zitadel-web-app-set">
+<img src="/assets/images/screenshots/zitadel_screenshot.png" alt="screenshot of the Argo CD web interface showing the Zitadel app of apps in tree view mode. The zitadel app of apps has 5 children: zitadel-bitwarden-eso, zitadel-postgres-app-set, zitadel-s3-provider-app-set, zitadel-s3-pvc-app-set, and zitadel-web-app-set">
 
 Zitadel is one of the more complex apps that `smol-k8s-lab` supports out of the box. For initialization, you need to pass in the following info:
 
