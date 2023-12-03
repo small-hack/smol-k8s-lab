@@ -72,20 +72,20 @@ nav:
       - Argo CD App: k8s_apps/argocd.md
       - Appset Secret Plugin: k8s_apps/appset-secret-plugin.md
     - Cert Manager: k8s_apps/cert_manager.md
-    - Cilium: k8s_apps/cilium.md
     - Core DNS: k8s_apps/core_dns.md
     - External Secrets: 
       - External Secrets Operator: k8s_apps/external-secrets-operator.md
       - Bitwarden ESO Provider: k8s_apps/bitwarden_eso_provider.md
     - Experimental:
+      - Cilium: k8s_apps/experimental/cilium.md
       - Infisical: k8s_apps/experimental/infisical.md
       - Kepler: k8s_apps/experimental/kepler.md
       - Kubevirt: k8s_apps/experimental/kubevirt.md
+      - Kyverno: k8s_apps/experimental/kyverno.md
       - MinIO: k8s_apps/experimental/minio.md
     - Ingress Nginx: k8s_apps/ingress_nginx.md
     - K8tz: k8s_apps/k8tz.md
     - K8up: k8s_apps/k8up.md
-    - Kyverno: k8s_apps/kyverno.md
     - Mastodon: k8s_apps/mastodon.md
     - Matrix: k8s_apps/matrix.md
     - MetalLB: k8s_apps/metallb.md
