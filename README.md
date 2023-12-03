@@ -20,7 +20,7 @@ Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions
 
 <p align="center">
   <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/images/screenshots/help_text.svg">
-      <img src="./docs/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+      <img src="./docs/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
   </a>
 </p>
 
