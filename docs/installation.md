@@ -76,9 +76,9 @@ smol-k8s-lab
 <details>
   <summary><h3>Upgrading to v1.x or v2.x</h3></summary>
 
-If you've installed smol-k8s-lab prior to `v1.0.0`, please backup your old configuration, `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`), and then remove the file entirely. Then, run the following:
+If you've installed smol-k8s-lab prior to <code>v1.0.0</code>, please backup your old configuration, <code>~/.config/smol-k8s-lab/config.yaml</code> (or <code>$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml</code>), and then remove the file entirely. Then, run the following:
 
-```yaml
+```bash
 # this upgrades smol-k8s-lab
 pip3.11 install --upgrade smol-k8s-lab
 
@@ -86,7 +86,7 @@ pip3.11 install --upgrade smol-k8s-lab
 smol-k8s-lab
 ```
 
-For details on exactly what's changed, please check out the release notes in the [GitHub Releases](https://github.com/small-hack/smol-k8s-lab/releases).
+For details on exactly what's changed, please check out the release notes in the <a href="https://github.com/small-hack/smol-k8s-lab/releases">GitHub Releases</a>.
 
 </details>
 
@@ -107,7 +107,7 @@ mv config.yaml ~/.config/smol-k8s-lab/config.yaml
 You can now use your text editor of choice to view and edit the default config before running `smol-k8s-lab` :)
 
 ## Configuration
-You can checkout the default config file [here](./smol_k8s_lab/config/default_config.yaml). We've also got a [Quickstart guide](https://small-hack.github.io/smol-k8s-lab/quickstart) for you to jump right in :)
+You can checkout the default config file [here](./smol_k8s_lab/config/default_config.yaml). We also highly recommend checking out the [TUI (Terminal User Interface)](/tui/create_modify_screens) for you to jump right in :)
 
 
 [brew]: https://brew.sh/
