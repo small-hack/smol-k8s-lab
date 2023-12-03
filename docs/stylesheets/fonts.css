@@ -1,11 +1,23 @@
 @font-face {
   font-family: "Mononoki";
-  src: "/fonts/MononokiNerdFontMono-Regular.ttf";
+  src: url("/fonts/MononokiNerdFontMono-Regular.ttf");
   font-weight: normal;
 }
 
 @font-face {
   font-family: "Mononoki Bold";
-  src: "/fonts/MononokiNerdFontMono-Bold.ttf";
+  src: url("/fonts/MononokiNerdFontMono-Bold.ttf");
   font-weight: bold;
+}
+
+@font-face {
+  font-family: "Mononoki Italic";
+  src: url("/fonts/MononokiNerdFont-Italic.ttf");
+  font-weight: italic;
+}
+
+@font-face {
+  font-family: "Mononoki Bold Italic";
+  src: url("/fonts/MononokiNerdFont-BoldItalic.ttf");
+  font-weight: bold italic;
 }

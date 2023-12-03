@@ -111,26 +111,13 @@ def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
             existing_config = safe_yaml.load(user_kubeconfig)
 
         if existing_config:
-            # append new cluster
-            cluster = existing_config['clusters']
-            if cluster:
-                cluster.extend(k3s_kubecfg['clusters'])
-            else:
-                existing_config['clusters'] = k3s_kubecfg['clusters']
-
-            # append new user
-            user = existing_config['users']
-            if user:
-                user.extend(k3s_kubecfg['users'])
-            else:
-                existing_config['users'] = k3s_kubecfg['users']
-
-            # append new context
-            context = existing_config['contexts']
-            if context:
-                context.extend(k3s_kubecfg['contexts'])
-            else:
-                existing_config['contexts'] = k3s_kubecfg['contexts']
+            for obj in ['clusters', 'users', 'contexts']:
+                # if there is already an object array, just append our thing to that
+                if existing_config.get(obj, None):
+                    existing_config[obj].extend(k3s_kubecfg[obj])
+                # if there is no object array or it is empty, create one with our thing in it
+                else:
+                    existing_config[obj] = k3s_kubecfg[obj]
 
             # update the current-context to ours :)
             existing_config['current-context'] = cluster_name
