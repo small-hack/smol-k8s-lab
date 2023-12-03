@@ -36,6 +36,16 @@ pip3.11 install smol-k8s-lab
 smol-k8s-lab --help
 ```
 
+## Beta release of 2.0.0
+
+`v2.0.0b1` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b1/#history)) you can do:
+
+```bash
+pip install smol_k8s_lab==2.0.0b1
+```
+
+This should have actually been 1.0, but I misunderstood semver, and now here we are, with another major version update.
+
 ## Usage
 
 ### Initialization
@@ -46,6 +56,70 @@ After you've followed the installation instructions, if you're *new* to `smol-k8
 # saving the config and deploying it for you
 smol-k8s-lab
 ```
+
+<details>
+  <summary><h3>Upgrading from v1.x to v2.x</h3></summary>
+
+The main difference between the old and new config files are for apps, we've added:
+
+- `apps.APPNAME.description` - for adding a custom description, set it to whatever you like
+- `apps.APPNAME.argo.directory_recursion` - so you can have bigger nested apps :)
+- `apps.APPNAME.argo.project.destination.namespaces` - control what namespaces are allowed for a project
+
+And we've changed:
+
+- `apps.APPNAME.argo.ref` to `apps.APPNAME.argo.revision`
+- `apps.APPNAME.argo.project_source_repos` to `apps.APPNAME.argo.project.source_repos`
+
+And we've REMOVED:
+
+- `apps.APPNAME.argo.part_of_app_of_apps` - this was mostly used internally, we think
+
+Here's an example of an updated cert-manager app with the new config
+```yaml
+apps:
+  cert_manager:
+    # ! NOTE: you currently can't set this to false. It is necessary to deploy
+    # most of our supported Argo CD apps since they often have TLS enabled either
+    # for pod connectivity or ingress
+    enabled: true
+    description: |
+      [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
+
+      smol-k8s-lab supports initialization by creating two [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] for both staging and production using a provided email address as the account ID for acme.
+
+    # Initialize of the app through smol-k8s-lab
+    init:
+      # Deploys staging and prod ClusterIssuers and prompts you for
+      # cert-manager.argo.secret_keys if they were not set. Switch to false if
+      # you don't want to deploy any ClusterIssuers
+      enabled: true
+    argo:
+      secret_keys:
+        # Used for letsencrypt-staging, to generate certs
+        email: ""
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "cert-manager/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "cert-manager"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for cert-manager CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - kube-system
+```
+
+
+</details>
 
 <details>
   <summary><h3>Upgrading to v1.x</h3></summary>
@@ -59,32 +133,6 @@ pip3.11 install --upgrade smol-k8s-lab
 # this initializes a new configuration
 smol-k8s-lab
 ```
-
-</details>
-
-`v2.0.0b1` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b1/#history)) you can do:
-```bash
-pip install smol_k8s_lab==2.0.0b1
-```
-
-#### Creating a new config without running smol-k8s-lab
-This is helpful if you just want to take a look at the default configuration before installing any Kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
-
-```bash
-# create the needed directory if you haven't already, NOTE: this can also be in $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml
-mkdir -p ~/.config/smol-k8s-lab
-
-# download the default config file
-curl -o config.yaml https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/smol_k8s_lab/config/default_config.yaml
-
-# move the config file to the config directory (can also be $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml)
-mv config.yaml ~/.config/smol-k8s-lab/config.yaml
-```
-
-You can now use your text editor of choice to view and edit the default config before running `smol-k8s-lab` :)
-
-## Configuration
-You can checkout the default config file [here](./smol_k8s_lab/config/default_config.yaml). We've also got a [Quickstart guide](https://small-hack.github.io/smol-k8s-lab/quickstart) for you to jump right in :)
 
 ### Adding custom Applications
 
@@ -116,6 +164,28 @@ apps:
 ```
 
 Note: the above application, cert-manager, is already included as a default application in smol-k8s-lab :)
+
+</details>
+
+#### Creating a new config without running smol-k8s-lab
+This is helpful if you just want to take a look at the default configuration before installing any Kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
+
+```bash
+# create the needed directory if you haven't already, NOTE: this can also be in $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml
+mkdir -p ~/.config/smol-k8s-lab
+
+# download the default config file
+curl -o config.yaml https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/smol_k8s_lab/config/default_config.yaml
+
+# move the config file to the config directory (can also be $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml)
+mv config.yaml ~/.config/smol-k8s-lab/config.yaml
+```
+
+You can now use your text editor of choice to view and edit the default config before running `smol-k8s-lab` :)
+
+## Configuration
+You can checkout the default config file [here](./smol_k8s_lab/config/default_config.yaml). We've also got a [Quickstart guide](https://small-hack.github.io/smol-k8s-lab/quickstart) for you to jump right in :)
+
 
 # Under the hood
 Note: this project is not officially affiliated with any of the below tooling or applications.
