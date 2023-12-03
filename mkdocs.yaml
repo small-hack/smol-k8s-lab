@@ -85,10 +85,10 @@ nav:
       - Kepler: k8s_apps/experimental/kepler.md
       - Kyverno: k8s_apps/experimental/kyverno.md
       - Kubevirt: 
-        - About: k8s_apps/experimental/kubevirt.md
-        - Disk Management via CDI: k8s_apps/experimental/kubevirt-disks.md
-        - Create VMs with Helm: k8s_apps/experimental/kubevirt-vms.md
-        - Connecting to a VM: k8s_apps/experimental/kubevirt-connecting.md
+        - Installation: k8s_apps/experimental/kubevirt.md
+        - Disk Types: k8s_apps/experimental/kubevirt-disks.md
+        - Virtual Machines: k8s_apps/experimental/kubevirt-vms.md
+        - Connecting: k8s_apps/experimental/kubevirt-connecting.md
       - MinIO: k8s_apps/experimental/minio.md
     - Ingress Nginx: k8s_apps/ingress_nginx.md
     - K8tz: k8s_apps/k8tz.md
@@ -97,6 +97,7 @@ nav:
     - Matrix: k8s_apps/matrix.md
     - MetalLB: k8s_apps/metallb.md
     - Nextcloud: k8s_apps/nextcloud.md
+    - SeaweedFS: k8s_apps/seaweedfs.md
     - Prometheus: k8s_apps/prometheus.md
     - Vouch: k8s_apps/vouch.md
     - Zitadel: k8s_apps/zitadel.md

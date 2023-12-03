@@ -4,6 +4,16 @@
 
 `smol-k8s-lab` uses SeaweedFS for spinning up isolated file systems with s3 endpoints.
 
+[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system which supports S3 Gateway, FUSE Mount, a Kubernetes CSI driver and other cool stuff. They keep most of their documentation in their [Wiki](https://github.com/seaweedfs/seaweedfs/wiki).
+
+## How it works
+
+<p align="center">
+  <a href="../assets/images/seaweedfs-diagram.png">
+      <img src="../assets/images/seaweedfs-diagram.png" alt="" width=500>
+  </a>
+</p>
+
 Check out our [SeaweedFS Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/seaweedfs).
 
 ## Security
