@@ -74,6 +74,7 @@ nav:
       - Argo CD App: k8s_apps/argocd.md
       - Appset Secret Plugin: k8s_apps/appset-secret-plugin.md
     - Cert Manager: k8s_apps/cert_manager.md
+    - CloudNative Postgress Operator: k8s_apps/cnpg_operator.md
     - Core DNS: k8s_apps/core_dns.md
     - External Secrets: 
       - External Secrets Operator: k8s_apps/external-secrets-operator.md

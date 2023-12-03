@@ -1,6 +1,14 @@
-# SeaweedFS
+[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is:
+
+> a fast distributed storage system for blobs, objects, files, and data lake, for billions of files! Blob store has O(1) disk seek, cloud tiering. Filer supports Cloud Drive, cross-DC active-active replication, Kubernetes, POSIX FUSE mount, S3 API, S3 Gateway, Hadoop, WebDAV, encryption, Erasure Coding. 
+
+`smol-k8s-lab` uses SeaweedFS for spinning up isolated file systems with s3 endpoints.
 
 Check out our [SeaweedFS Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/seaweedfs).
+
+## Security
+
+We enable encryption by default.
 
 ## Example config
 
