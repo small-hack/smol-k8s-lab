@@ -220,4 +220,8 @@ apps_global_config:
   # setting this changes all the below domains to use the following cluster_issuer
   # change to letsencrypt-prod when you're ready to go live with your infra
   cluster_issuer: "letsencrypt-staging"
+  # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+  time_zone: "Europe/Amsterdam"
+  # always deploy external secrets. *Must be a string of "" (don't use external secrets) or "bitwarden" to use bitwarden for external secrets*
+  external_secrets: "bitwarden"
 ```
