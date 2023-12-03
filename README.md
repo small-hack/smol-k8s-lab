@@ -18,13 +18,6 @@ A tool to run slimmer k8s distros on metal, with batteries included. Deploys Arg
 Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions)! 💙
 
 
-<p align="center">
-  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/assets/images/screenshots/help_text.svg">
-      <img src="./docs/assets/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
-  </a>
-</p>
-
-
 # Installation
 `smol-k8s-lab` requires Python 3.11. If you've already got it and [`brew`] installed, you should be able to:
 
@@ -35,6 +28,13 @@ pip3.11 install smol-k8s-lab
 # Check the help menu before proceeding
 smol-k8s-lab --help
 ```
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/assets/images/screenshots/help_text.svg">
+      <img src="./docs/assets/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+  </a>
+</p>
+
 
 ## Beta release of 2.0.0
 
@@ -85,7 +85,8 @@ And we've REMOVED:
 
 - `apps.APPNAME.argo.part_of_app_of_apps` - this was mostly used internally, we think
 
-Here's an example of an updated cert-manager app with the new config
+Here's an example of an updated cert-manager app with the new config:
+
 ```yaml
 apps:
   cert_manager:
@@ -176,26 +177,6 @@ apps:
 Note: the above application, cert-manager, is already included as a default application in smol-k8s-lab :)
 
 </details>
-
-#### Creating a new config without running smol-k8s-lab
-This is helpful if you just want to take a look at the default configuration before installing any Kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
-
-```bash
-# create the needed directory if you haven't already, NOTE: this can also be in $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml
-mkdir -p ~/.config/smol-k8s-lab
-
-# download the default config file
-curl -o config.yaml https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/smol_k8s_lab/config/default_config.yaml
-
-# move the config file to the config directory (can also be $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml)
-mv config.yaml ~/.config/smol-k8s-lab/config.yaml
-```
-
-You can now use your text editor of choice to view and edit the default config before running `smol-k8s-lab` :)
-
-## Configuration
-You can checkout the default config file [here](./smol_k8s_lab/config/default_config.yaml). We've also got a [Quickstart guide](https://small-hack.github.io/smol-k8s-lab/quickstart) for you to jump right in :)
-
 
 # Under the hood
 Note: this project is not officially affiliated with any of the below tooling or applications.
