@@ -10,6 +10,43 @@ smol-k8s-lab will walk you through an initial configuration, but you can also ed
 
 You can checkout the full official current [default `config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
 
+## TUI Configuration
+
+You can checkout more about the TUI in [our tui config section](/tui/tui_config), but briefly please see the default configuration for in the yaml below:
+
+```yaml
+smol_k8s_lab:
+  # Terminal User Interface with clickable buttons.
+  # Useful for learning smol-k8s-lab or verifying your configuration
+  tui:
+    # if set to true, we'll always launch smol-k8s-lab in interactive mode :)
+    # else you need to pass in --interactive or -i to use the TUI
+    enabled: true
+    # show bottom footer help bar
+    show_footer: true
+    # accessibility options for users that benefit from TTS and Bell sounds
+    accessibility:
+      # options related to terminal bell sounds
+      bell:
+        # ring the built in terminal bell on focus to new elements on the screen
+        on_focus: true
+        # ring the built in terminal bell when something is wrong
+        on_error: true
+      # options related to text to speech
+      text_to_speech: 
+        # use a specific program for text to speech - needs to be a full path
+        # macOS default: say
+        speech_program: say
+        # read aloud the screen title and description
+        screen_titles: true
+        # read aloud the element id, value, and tooltip each time you switch focus
+        on_focus: false
+        # press f5 to read the element id and selected row of DataTables
+        on_key_press: true
+```
+
+Regarding the `smol_k8s_lab.tui.accessibility` section. If you have experience with programming python on linux to work with screenreaders or working in the terminal using screen readers generally, please reach out on GitHub via an Issue or Discussion. We'd love your opinions and help!
+
 ## Logging
 
 Logging defaults to `info` level, but you can you make it more verbose by changing it to `debug` or less verbose by changing it to `warn` or `error`.
@@ -19,12 +56,13 @@ All logging is done directly to your console (stdout) aka standard out, unless y
 Example logging configuration:
 
 ```yaml
-# logging configuration for the smol-k8s-lab CLI
-log:
-  # path of file to log to if console logging is NOT desired
-  file: ""
-  # logging level, Options: debug, info, warn, error
-  level: "debug"
+smol_k8s_lab:
+  # logging configuration for the smol-k8s-lab CLI
+  log:
+    # path of file to log to if console logging is NOT desired
+    file: ""
+    # logging level, Options: debug, info, warn, error
+    level: "debug"
 ```
 
 ## Kubernetes distros
@@ -38,7 +76,7 @@ Currently you can only deploy one distro at a time.
 For k3s, we use a [config file](https://docs.k3s.io/installation/configuration#configuration-file) for [all the options](https://docs.k3s.io/cli/server) that get passed to the k3s install script. We define them under `k8s_distros.k3s.k3s_yaml` in the `smol-k8s-lab` config file.
 
 !!! NOTE
-    You cannot adjust the node count at this time
+    You cannot adjust the k3s node count at this time
 
 ```yaml
 # which distros of Kubernetes to deploy. Options: kind, k3s, k3d
@@ -97,6 +135,7 @@ k8s_distros:
 ### kind
 
 ```yaml
+k8s_distros:
   kind:
     # set to true to enable deploying a Kubernetes cluster using kind
     enabled: false
@@ -143,7 +182,7 @@ smol_k8s_lab:
 
 ## Applications
 
-All applications are under the `apps` parameter in the `config.yaml`. You can even add your own. Here's an example application:
+All applications are under the `apps` parameter in the `config.yaml`. For the default installable applications, please check out the [Default Apps](/k8s_apps/argocd) tab. You can even add your own. Here's an example application:
 
 ```yaml
 apps:
@@ -159,18 +198,25 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "alpha/home_assistant"
+      path: "demo/home_assistant/"
       # git branch or tag to point at in the argo repo above
       ref: "main"
       # Kubernetes namespace to install the k8s app in
-      namespace: "zitadel"
-      # source git repos for Argo CD App Project (in addition to argo.repo)
-      project_source_repos:
-        - "registry-1.docker.io"
+      namespace: "home-assistant"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      project:
+        # source git repos for Argo CD App Project (in addition to argo.repo)
+        source_repos:
+          - registry-1.docker.io
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - prometheus
 ```
 
 !!! Note
-    Only applications with the `init` field in the [`default_config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by `smol-k8s-lab`, therefore, you cannot use the `apps.{app}.init` parameter for custom apps. You can still use the appset secret plugin for Argo CD though :)
+    Only applications with the `init` field in the [`default_config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by `smol-k8s-lab`, therefore, you cannot use the `apps.{app}.init` parameter for custom apps. You can still use the appset secret plugin for Argo CD though :) If you'd like initialization supported by smol-k8s-lab, please feel free to open a feature request in the GitHub Issues.
 
 ### Globally Available Argo CD ApplicationSet 
 
@@ -181,4 +227,8 @@ apps_global_config:
   # setting this changes all the below domains to use the following cluster_issuer
   # change to letsencrypt-prod when you're ready to go live with your infra
   cluster_issuer: "letsencrypt-staging"
+  # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
+  time_zone: "Europe/Amsterdam"
+  # always deploy external secrets. *Must be a string of "" (don't use external secrets) or "bitwarden" to use bitwarden for external secrets*
+  external_secrets: "bitwarden"
 ```

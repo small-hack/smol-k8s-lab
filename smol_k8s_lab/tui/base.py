@@ -272,13 +272,13 @@ class BaseApp(App):
         """
         self.app.push_screen(ConfirmConfig(self.cfg))
 
-    def action_request_help(self) -> None:
+    def action_request_help(self,) -> None:
         """
         if the user presses 'h' or '?', show the help modal screen
         """
         self.push_screen(HelpScreen())
 
-    def action_request_config(self) -> None:
+    def action_request_config(self,) -> None:
         """ 
         if the user pressed 'c', show the TUI config screen
         """

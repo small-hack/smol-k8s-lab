@@ -1,7 +1,7 @@
 :root {
     /* set global font */
     --md-text-font: "Firacode";
-    --md-code-font: "Mononoki Mono";
+    --md-code-font: "Mononoki";
 
     --gloabl-padding: .5%;
     --header-padding: 0;
@@ -194,7 +194,7 @@ strong, emp {
     padding-left: 5%!important;
     padding-top: 2%;
     padding-bottom: 2%;
-    font-family: "Mononoki";
+    font-family: var(--md-code-font);
 }
 
 .md-nav__list, .md-nav, .md-nav--primary, .md-nav--lifted, .md-nav--integrated {
@@ -218,7 +218,7 @@ strong, emp {
 h1, h2, h3, h4 {
     line-height: var(--title-line-height)!important;
     color: #7aa2f7;
-    font-family: Mononoki;
+    font-family: var(--md-code-font)!important;
 }
 
 h1 {
@@ -323,7 +323,7 @@ p {
     display: flex;
     justify-content: center;
     flex-direction: row;
-    font-family: 'Lato', sans-serif;
+    font-family: var(--md-code-font);
     color: var(--header-contrast);
     z-index: 100;
     margin-top: auto; 

@@ -9,6 +9,7 @@ In the meantime, feel free to checkout out our first shot at an [Infisical Argo 
 Here's an example config for Infisical:
 
 ```yaml
+apps:
   infisical:
     enabled: false
     description: |
@@ -37,6 +38,5 @@ Here's an example config for Infisical:
           - "registry-1.docker.io"
           - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
         destination:
-          namespaces:
-            - argocd
+          namespaces: []
 ```

@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "2.0.0a4"
+version       = "2.0.0b1"
 description   = "Bootstrap simple projects on Kubernetes with kind, k3d, and k3s. this is an alpha release"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -49,6 +49,7 @@ mkdocs-material = "^9.4.6"
 [tool.poetry.group.dev.dependencies]
 deptry = "^0.12.0"
 textual-dev = "^1.1.0"
+pytest-textual-snapshot = "^0.4.0"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"

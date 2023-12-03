@@ -17,8 +17,8 @@ from shutil import which
 
 # these are the URLs of each manually installed helm chart, so that the appset matches
 APPSET_URLS = {
-        "argo-cd": "https://raw.githubusercontent.com/small-hack/argocd-apps/eso-helm-chart-test/argocd/argocd_appset.yaml",
-        "appset-secret-plugin": "https://raw.githubusercontent.com/small-hack/argocd-apps/eso-helm-chart-test/argocd/appset_secret_plugin_generator_argocd_app.yaml",
+        "argo-cd": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/argocd/app_of_apps/argocd_appset.yaml",
+        "appset-secret-plugin": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/argocd/app_of_apps/appset_secret_plugin/appset_secret_plugin_generator_argocd_app.yaml",
         "cert-manager": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/cert-manager/cert-manager_argocd_app.yaml",
         "ingress-nginx": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/ingress-nginx/ingress-nginx_argocd_app.yaml",
         "cilium": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/alpha/cilium/cilium_argocd_appset.yaml"

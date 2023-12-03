@@ -4,7 +4,7 @@ The "k8s distro config" screen is the first screen you will see in the TUI when 
 
 ## Select Kubernetes Distro
 
-To choose a distro, select one from the drop down [Select](https://textual.textualize.io/widgets/select/#select) in the first box.
+To choose a distro, select one from the drop down [Select](https://textual.textualize.io/widgets/select/#select) in the first box. You can do this either with your mouse, or by hitting enter and then using the arrow keys to select a distro before hitting enter.
 
 ## Configuring control plane and worker nodes
 
