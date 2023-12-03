@@ -10,6 +10,43 @@ smol-k8s-lab will walk you through an initial configuration, but you can also ed
 
 You can checkout the full official current [default `config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
 
+## TUI Configuration
+
+You can checkout more about the TUI in [our tui config section](/tui/tui_config), but briefly please see the default configuration for in the yaml below:
+
+```yaml
+smol_k8s_lab:
+  # Terminal User Interface with clickable buttons.
+  # Useful for learning smol-k8s-lab or verifying your configuration
+  tui:
+    # if set to true, we'll always launch smol-k8s-lab in interactive mode :)
+    # else you need to pass in --interactive or -i to use the TUI
+    enabled: true
+    # show bottom footer help bar
+    show_footer: true
+    # accessibility options for users that benefit from TTS and Bell sounds
+    accessibility:
+      # options related to terminal bell sounds
+      bell:
+        # ring the built in terminal bell on focus to new elements on the screen
+        on_focus: true
+        # ring the built in terminal bell when something is wrong
+        on_error: true
+      # options related to text to speech
+      text_to_speech: 
+        # use a specific program for text to speech - needs to be a full path
+        # macOS default: say
+        speech_program: say
+        # read aloud the screen title and description
+        screen_titles: true
+        # read aloud the element id, value, and tooltip each time you switch focus
+        on_focus: false
+        # press f5 to read the element id and selected row of DataTables
+        on_key_press: true
+```
+
+Regarding the `smol_k8s_lab.tui.accessibility` section. If you have experience with programming python on linux to work with screenreaders or working in the terminal using screen readers generally, please reach out on GitHub via an Issue or Discussion. We'd love your opinions and help!
+
 ## Logging
 
 Logging defaults to `info` level, but you can you make it more verbose by changing it to `debug` or less verbose by changing it to `warn` or `error`.
@@ -19,12 +56,13 @@ All logging is done directly to your console (stdout) aka standard out, unless y
 Example logging configuration:
 
 ```yaml
-# logging configuration for the smol-k8s-lab CLI
-log:
-  # path of file to log to if console logging is NOT desired
-  file: ""
-  # logging level, Options: debug, info, warn, error
-  level: "debug"
+smol_k8s_lab:
+  # logging configuration for the smol-k8s-lab CLI
+  log:
+    # path of file to log to if console logging is NOT desired
+    file: ""
+    # logging level, Options: debug, info, warn, error
+    level: "debug"
 ```
 
 ## Kubernetes distros
@@ -97,6 +135,7 @@ k8s_distros:
 ### kind
 
 ```yaml
+k8s_distros:
   kind:
     # set to true to enable deploying a Kubernetes cluster using kind
     enabled: false
