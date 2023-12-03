@@ -77,23 +77,23 @@ Kubevirt is made up of several pieces:
 
 In the event that Kubevirt does not uninstall gracefully, you may need to perform the following steps:
 
-    ```bash
-    export RELEASE=v0.17.0
+```bash
+export RELEASE=v0.17.0
 
-    # --wait=true should anyway be default
-    kubectl delete -n kubevirt kubevirt kubevirt --wait=true
+# --wait=true should anyway be default
+kubectl delete -n kubevirt kubevirt kubevirt --wait=true
 
-    # this needs to be deleted to avoid stuck terminating namespaces
-    kubectl delete apiservices v1.subresources.kubevirt.io
+# this needs to be deleted to avoid stuck terminating namespaces
+kubectl delete apiservices v1.subresources.kubevirt.io
 
-    # not blocking but would be left over
-    kubectl delete mutatingwebhookconfigurations virt-api-mutator
+# not blocking but would be left over
+kubectl delete mutatingwebhookconfigurations virt-api-mutator
 
-    # not blocking but would be left over
-    kubectl delete validatingwebhookconfigurations virt-operator-validator
+# not blocking but would be left over
+kubectl delete validatingwebhookconfigurations virt-operator-validator
 
-    # not blocking but would be left over
-    kubectl delete validatingwebhookconfigurations virt-api-validator
+# not blocking but would be left over
+kubectl delete validatingwebhookconfigurations virt-api-validator
 
-    kubectl delete -f https://github.com/kubevirt/kubevirt/releases/download/${RELEASE}/kubevirt-operator.yaml --wait=false
-    ```
+kubectl delete -f https://github.com/kubevirt/kubevirt/releases/download/${RELEASE}/kubevirt-operator.yaml --wait=false
+```
