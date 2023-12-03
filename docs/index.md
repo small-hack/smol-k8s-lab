@@ -15,6 +15,9 @@ Smol K8s Lab leverages Argo CD and slim k8s distributions like K3s to create pro
   </a>
 </p>
 
+
+![type:video](/assets/videos/full_tour.mov)
+
 ## About
 
 `smol-k8s-lab`'s declarative workflow enables rapid iteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking Kubernetes applications and distributions! 💙

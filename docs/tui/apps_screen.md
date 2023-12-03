@@ -2,6 +2,8 @@ The TUI features an applications screen to modify or create new Argo CD Applicat
 
 [<img src="/assets/images/screenshots/apps_screen.svg" alt="screenshot of the application configuration screen for the smol-k8s-lab TUI. On the top left-hand side, there is a list of applications (titled Select apps) that can be scrolled through with arrow keys once selected. It will always have one item in the list highlighted. On the top right-hand side, there is a configuration menu (titled Configure parameters for argo-cd) for the highlighted application from the left hand list. The configuration shows options for initialization with a switch to enable or disable it, and then headers and inputs for the following: Argo CD Application Configuration which has inputs for: repo, path, ref, and namespace. Template values for Argo CD ApplicationSets which has inputs for parameters that can passed to Argo CD ApplicationSets and in this screenshot shows an input for hostname. There are more headers that will be discussed further on in the docs. On the left-hand side below the apps list are two buttons: top button is ✨ New App, bottom button is ✏️ Modify Globals. Final box on the screen below all previously described elements is the App Description which shows a description and link to https://argo-cd.readthedocs.io/en/stable/">](/assets/images/screenshots/apps_screen.svg)
 
+![type:video](/assets/videos/tour_of_apps_config.mov)
+
 ## Selecting Applications
 
 The left hand side [SelectionList] can be clicked or navigated using your arrow keys. To enable an app, you can either click it, or you can use the `spacebar` or `enter` keys. Only selected apps will be installed on your cluster.
