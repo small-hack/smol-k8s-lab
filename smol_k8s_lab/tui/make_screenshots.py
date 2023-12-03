@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# shamelessly stolen from:
+# thank you to davep for helping me learn this:
 # https://blog.davep.org/2023/07/03/making-my-github-banner.html
 
 from smol_k8s_lab.tui.base import BaseApp
