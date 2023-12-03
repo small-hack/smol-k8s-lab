@@ -1,5 +1,7 @@
 site_name: smol-k8s-lab
 site_url: https://smol-k8s.com
+plugins:
+  - mkdocs-video
 theme:
   favicon: images/cloud_favicon.png
   icon:

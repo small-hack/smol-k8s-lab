@@ -14,6 +14,10 @@ To exit the TUI config, just press `q` or `escape`.
 
 There are two ways to disable the TUI, but both accomplish the same thing: modifying the `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`.
 
+Here's a short video showing how to do this. I don't know how to add subtitles, but the voice says "Welcome to smol-k8s-lab. Press tab, then C, to configure accessibility options." If you have an existing cluster, you can just just press "c" without needing to press tab first.
+
+![type:video](/assets/videos/how_to_disable_text_to_speech.mov)
+
 #### Disable TUI via TUI
 
 Launch the TUI with `smol-k8s-lab` and then press `c`. Click the switch next to the word "enabled", and this will disable the TUI from launching automatically. You can still launch the tui with `smol-k8s-lab -i` or `smol-k8s-lab --interactive`. Once disabled by default, you can only re-enable it by default from the config file.
