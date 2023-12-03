@@ -107,7 +107,11 @@ mv config.yaml ~/.config/smol-k8s-lab/config.yaml
 You can now use your text editor of choice to view and edit the default config before running `smol-k8s-lab` :)
 
 ## Configuration
-You can checkout the default config file [here](./smol_k8s_lab/config/default_config.yaml). We also highly recommend checking out the [TUI (Terminal User Interface)](/tui/create_modify_screens) for you to jump right in :)
+You can checkout the [default config file](./smol_k8s_lab/config/default_config.yaml) as well as our [config file docs](/config_file).
+
+We also highly recommend checking out the [TUI (Terminal User Interface)](/tui/create_modify_screens) for you to jump right in :)
+
+Finally, for more info on applications we install, checkout [default apps](k8s_apps/argocd).
 
 
 [brew]: https://brew.sh/

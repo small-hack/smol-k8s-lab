@@ -21,21 +21,9 @@ Smol K8s Lab leverages Argo CD and slim k8s distributions like K3s to create pro
 
 By default, `smol-k8s-lab` deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open-source Git repos. Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
 
-## Installation
+## Getting Started
 
-Please see [our installation guide](/installation)
-
-## Usage
-
-After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file by running:
-
-```bash
-# we'll walk you through any configuration needed
-# before saving the config and deploying it for you
-smol-k8s-lab
-```
-
-For more info on the config file checkout [config file](/config_file), and for more info on the TUI, checkout the [TUI section](tui/create_modify_screens). For more info on applications, checkout [default apps](k8s_apps/argocd).
+Please see our [Getting Started guide](/installation).
 
 # Under the hood
 Note: this project is not officially affiliated with any of the below tooling or applications.

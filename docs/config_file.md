@@ -182,7 +182,7 @@ smol_k8s_lab:
 
 ## Applications
 
-All applications are under the `apps` parameter in the `config.yaml`. You can even add your own. Here's an example application:
+All applications are under the `apps` parameter in the `config.yaml`. For the default installable applications, please check out the [Default Apps](/k8s_apps/argocd) tab. You can even add your own. Here's an example application:
 
 ```yaml
 apps:
