@@ -24,8 +24,8 @@ class HelpScreen(ModalScreen):
 
     def compose(self) -> ComposeResult:
         welcome = ("Use your 🐁 to click anything in the UI ✨ Or use the "
-                   "following key bindings. For additional help, check out "
-                   "[steel_blue][link=https://smol-k8s.org]smol-k8s.org[/][/]")
+                   "following key bindings. For additional help, check out the "
+                   "[steel_blue][link=https://small-hack.github.io/smol-k8s-lab/]docs[/][/]")
 
         with Grid(id="help-container"):
             yield Label(welcome, classes="help-text")

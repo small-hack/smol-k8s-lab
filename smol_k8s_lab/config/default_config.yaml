@@ -42,7 +42,7 @@ smol_k8s_lab:
     # path of file to log to if console logging is NOT desired
     file: ""
     # logging level, Options: debug, info, warn, error
-    level: debug
+    level: info
 
   # store your password and tokens directly in your local password manager
   local_password_manager:
