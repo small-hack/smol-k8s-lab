@@ -10,13 +10,13 @@ Smol K8s Lab leverages Argo CD and slim k8s distributions like K3s to create pro
   </a>
 </p>
 <p align="center">
-  <a href="../../assets/images/screenshots/help_text.svg">
-      <img src="../../assets/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+  <a href="assets/images/screenshots/help_text.svg">
+      <img src="assets/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
   </a>
 </p>
 
 
-![type:video](../../assets/videos/full_tour.mov)
+![type:video](assets/videos/full_tour.mov)
 
 ## About
 
@@ -37,9 +37,9 @@ We always install the latest version of Kubernetes that is available from the di
 
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
-| [<img src="../../assets/images/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
-| [<img src="../../assets/images/icons/k3d.png" width="26">][k3d] <br /> [k3d] | K3d is k3s in Docker 🐳. <br> ⚠️ testing |
-| [<img src="../../assets/images/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
+| [<img src="assets/images/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
+| [<img src="assets/images/icons/k3d.png" width="26">][k3d] <br /> [k3d] | K3d is k3s in Docker 🐳. <br> ⚠️ testing |
+| [<img src="assets/images/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
 We tend to test first on k3s first, then the other distros. k3d support coming soon.
 
