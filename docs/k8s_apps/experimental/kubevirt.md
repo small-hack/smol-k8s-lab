@@ -26,8 +26,8 @@ Kubevirt is made up of several pieces:
     This is a community-developed web-ui which allows users to create, manage, and interact with virtual machines running in Kubevirt. See their official docs at [kubevirt-manager.io](https://kubevirt-manager.io/)
 
 <p align="center">
-  <a href="../../../images/screenshots/kubevirt-manager.png">
-      <img src="../../../images/screenshots/kubevirt-manager.png" alt="Screenshot showing the default page of Kubevirt-manager. The screen is devided into 2 sections. On the left, there is a vertical navigation tab with a grey background. The options in this bar are Dashboard, Virtual Machines, VM Pools, Auto Scaling, Nodes, Data Volumes, Instance Types, and Load Balancers.  On the right, there is a grid of blue rectangular icons each representing one of the option in the navigation tab, but with an icon and text representing metrics about that option." width=500>
+  <a href="../../../assets/images/screenshots/kubevirt-manager.png">
+      <img src="../../../assets/images/screenshots/kubevirt-manager.png" alt="Screenshot showing the default page of Kubevirt-manager. The screen is devided into 2 sections. On the left, there is a vertical navigation tab with a grey background. The options in this bar are Dashboard, Virtual Machines, VM Pools, Auto Scaling, Nodes, Data Volumes, Instance Types, and Load Balancers.  On the right, there is a grid of blue rectangular icons each representing one of the option in the navigation tab, but with an icon and text representing metrics about that option." width=500>
   </a>
 </p>
 
