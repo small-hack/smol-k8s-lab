@@ -2,7 +2,9 @@ The [External Secrets Operator](https://external-secrets.io/latest/) (abbreviate
 
 The goal of External Secrets Operator is to synchronize secrets from external APIs into Kubernetes. ESO is a collection of custom API resources - ExternalSecret, SecretStore and ClusterSecretStore that provide a user-friendly abstraction for the external API that stores and manages the lifecycle of the secrets for you.
 
-<img src="/assets/images/screenshots/eso_screenshot.png" alt="a screenshot of the Argo CD web interface showing the External Secrets Operator app of apps which shows two child apps: external-secrets-operator-helm and external-secrets-provider-appset. the external-secrets-provider-appset has one child called bitwarden-provider-app">
+<a href="../../assets/images/screenshots/eso_screenshot.png">
+<img src="../../assets/images/screenshots/eso_screenshot.png" alt="a screenshot of the Argo CD web interface showing the External Secrets Operator app of apps which shows two child apps: external-secrets-operator-helm and external-secrets-provider-appset. the external-secrets-provider-appset has one child called bitwarden-provider-app">
+</a>
 
 `smol-k8s-lab` default makes heavy use of ESO in conjunction with the [Bitwarden ESO Provider](/k8s_apps/bitwarden_eso_provider.md) to ensure no credentials or sensitive data is stored as plain text in our git repos or in any helm values we provide. We accomplish this goal by always biasing towards using Kubernetes Secrets as sources of truth for helm charts, and those secrets come from Bitwarden by default.
 
