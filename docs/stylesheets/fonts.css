@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Mononoki";
-  src: url("https://github.com/small-hack/smol-k8s-lab/raw/main/docs/assets/fonts/MononokiNerdFont-Regular.ttf");
+  src: url("../../assets/fonts/MononokiNerdFont-Regular.ttf");
   font-weight: normal;
 }
 
