@@ -2,4 +2,6 @@
 
 You can see an overview of the whole Prometheus Stack Argo CD Application at [small-hack/argocd-apps/prometheus](https://github.com/small-hack/argocd-apps/tree/main/prometheus).
 
-<img src="/assets/images/screenshots/prometheus_screenshot.png" alt="screenshot of the Argo CD web interface showing the prometheus app of apps which includes the following children: loki, prometheus-crd, prometheus-appset, prometheus-pushgateway-appset">
+<a href="../../assets/images/screenshots/prometheus_screenshot.png">
+<img src="../../assets/images/screenshots/prometheus_screenshot.png" alt="screenshot of the Argo CD web interface showing the prometheus app of apps which includes the following children: loki, prometheus-crd, prometheus-appset, prometheus-pushgateway-appset">
+</a>
