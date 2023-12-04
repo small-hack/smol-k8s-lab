@@ -1,14 +1,7 @@
 <h1 align="center">
 🧸 Smol K8s Lab </h1>
 
-<p align="center">
-Smol K8s Lab leverages Argo CD and slim k8s distributions like K3s to create production-like environments via a declarative workflow. Batteries and 🦑 included.</i>
-</p>
-<p align="center">
-  <a href="https://github.com/jessebot/smol-k8s-lab/releases">
-    <img src="https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white">
-  </a>
-</p>
+`smol-k8s-lab` <a href="https://github.com/jessebot/smol-k8s-lab/releases"><img src="https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white"></a> leverages Argo CD and slim k8s distributions like K3s to create production-like environments via a declarative workflow. Batteries and 🦑 included.
 
 ## About
 
