@@ -210,6 +210,7 @@ class AppsConfig(Screen):
                 "path": "",
                 "revision": "",
                 "namespace": "",
+                "directory_recursion": False,
                 "project": {
                     "source_repos": [""],
                     "destination": {
