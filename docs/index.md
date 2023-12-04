@@ -19,7 +19,7 @@ Here's the [same video with captions](https://youtu.be/2E9DVJpv440?feature=share
 
 ## Getting Started
 
-Please see our [Getting Started guide](/installation).
+Please see our [Getting Started guide](https://small-hack.github.io/smol-k8s-lab/installation).
 
 # Under the hood
 Note: this project is not officially affiliated with any of the below tooling or applications.
