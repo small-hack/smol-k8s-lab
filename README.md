@@ -16,8 +16,8 @@ smol k8s lab 🧸 <sup><sub>Now with more :squid:</sub></sup>
 A tool to run slimmer k8s distros on metal, with batteries included. Deploys Argo CD by default, so you can mange your entire local testing lab from the very beginning using files in [open source git repos](), and with the help of a very handy dashboard. Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions)! 💙 Check out our video tour, if you like that sort of thing:<br></br>
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=2E9DVJpv440">
-    <img width="800" alt="Screenshot of smol-k8s-lab in a video tutorial on youtube. please click this image, as it is a link to youtube where I explain everything" src="https://github.com/small-hack/smol-k8s-lab/assets/2389292/b65b074c-1b3a-465c-bffe-42f2ba70fc60">
+  <a href="https://www.youtube.com/watch?v=UdOQM9n5hyU&t=0s">
+    <img width="800" alt="Screenshot of smol-k8s-lab (on the welcome screen) in a video tutorial on youtube. please click this image, as it is a link to youtube where I explain everything about smol-k8s-lab. The video image screenshot shows the smol-k8s-lab create a cluster feature which is a text input" src="https://github.com/small-hack/smol-k8s-lab/assets/2389292/ee0ca93b-628e-495f-83ab-70aa9eb52295">
   </a>
 </p>
 <p align="center">
