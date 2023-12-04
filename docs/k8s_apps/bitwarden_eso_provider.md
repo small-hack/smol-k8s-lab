@@ -1,6 +1,6 @@
 We use the Bitwarden ESO Provider along side the [external-secrets-operator](/k8s_apps/external-secrets-operator.md) to pull secret data from your Bitwarden vault, into the cluster as [Kubernetes Secrets](https://kubernetes.io/docs/concepts/configuration/secret/).
 
-<img src="/images/screenshots/bweso_screenshot.png" alt="a screenshot of the Argo CD web interface showing the bitwarden-eso-provider application in tree view mode. it shows the following children of bitwarden-eso-provider: test-connection configmap, bitwarden-eso-provider service,bitwarden-eso-provider service account, bitwarden-eso-provider deployment, bitwarden-fields cluster secret store, bitwarden-login cluster secret store. the deployment then points to additonal replica sets which point to a single pod">
+<img src="/assets/images/screenshots/bweso_screenshot.png" alt="a screenshot of the Argo CD web interface showing the bitwarden-eso-provider application in tree view mode. it shows the following children of bitwarden-eso-provider: test-connection configmap, bitwarden-eso-provider service,bitwarden-eso-provider service account, bitwarden-eso-provider deployment, bitwarden-fields cluster secret store, bitwarden-login cluster secret store. the deployment then points to additonal replica sets which point to a single pod">
 
 `smol-k8s-lab` stores any sensitive user specific data about applications in your Bitwarden vault. Some examples include admin credentials, database credentials, and OIDC credentials.
 

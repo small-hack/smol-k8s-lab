@@ -1,14 +1,12 @@
-[Mastodon](https://joinmastodon.org/) is a FOSS social media networking platform based on [ActivityPub](https://www.w3.org/TR/activitypub/).
+[Mastodon](https://joinmastodon.org/) is a Free and Open Source social media networking platform based on [ActivityPub](https://www.w3.org/TR/activitypub/).
 
-This app is a work in progress as we find the best way to sustainably run Mastodon on Kubernetes, which is another app that didn't really have the cloud in mind when it came to be, but as it's the best we got, we still love it dearly.
+We are mostly stable for running Mastodon on Kubernetes. Check out our [Mastodon Argo CD ApplicationSet](https://github.com/small-hack/argocd-apps/tree/main/mastodon/small-hack):
 
-We currently maintain [our own Mastodon helm chart](https://github.com/jessebot/mastodon-helm-chart) as the [official Mastodon helm chart](https://github.com/mastodon/chart) is missing some features from [PR](https://github.com/mastodon/chart/pulls)s that have yet to be merged. The goal is to at least move to the [Bitnami hosted Mastodon helm chart](https://github.com/bitnami/charts/tree/main/bitnami/mastodon) after [bitnami/charts#19179](https://github.com/bitnami/charts/pull/19179) is merged, as then there's one less helm chart for small-hack to manage on its own.
+<img src="/assets/images/screenshots/mastodon_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view. the main mastodon app has 6 child apps: mastodon-redis, mastodon-app-set with child mastodon-web-app, mastodon-external-secrets-appset with child mastodon-external-secrets, mastodon-postgres-app-set with child mastodon-postgres-cluster, mastodon-s3-provider-app-set with child mastodon-seaweedfs, and mastodon-s3-pvc-appset with child mastodon-s3-pvc.">
 
-Check out our [Mastodon Argo CD ApplicationSet](https://github.com/small-hack/argocd-apps/tree/main/mastodon)!
+This is the networking view in Argo CD:
 
-<img src="/images/screenshots/mastodon_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view.">
-
-<img src="/images/screenshots/mastodon_networking_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view.">
+<img src="/assets/images/screenshots/mastodon_networking_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the networking tree mode view. it shows the flow of cloud to ip address to mastodon-web-app ingress to two services mastodon-web-app-streaming and mastodon-web-app-web which each go to their respective pods. There's also additional services and pods outside of that flow. pods masotdon-web-app-media and masotdon-web-app-sidekiq have no children. 2 elastic search services have the same elastic search pod child. and then there's an additional 3 matching elastic search service and pod pairs">
 
 ## Required Init Values
 

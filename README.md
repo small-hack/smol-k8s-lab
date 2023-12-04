@@ -18,13 +18,6 @@ A tool to run slimmer k8s distros on metal, with batteries included. Deploys Arg
 Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions)! 💙
 
 
-<p align="center">
-  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/images/screenshots/help_text.svg">
-      <img src="./docs/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
-  </a>
-</p>
-
-
 # Installation
 `smol-k8s-lab` requires Python 3.11. If you've already got it and [`brew`] installed, you should be able to:
 
@@ -35,6 +28,23 @@ pip3.11 install smol-k8s-lab
 # Check the help menu before proceeding
 smol-k8s-lab --help
 ```
+
+<p align="center">
+  <a href="https://raw.githubusercontent.com/jessebot/smol-k8s-lab/main/docs/assets/images/screenshots/help_text.svg">
+      <img src="./docs/assets/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
+  </a>
+</p>
+
+
+## Beta release of 2.0.0
+
+`v2.0.0b1` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b1/#history)) you can do:
+
+```bash
+pip install smol_k8s_lab==2.0.0b1
+```
+
+This should have actually been 1.0, but I misunderstood semver, and now here we are, with another major version update.
 
 ## Usage
 
@@ -48,7 +58,82 @@ smol-k8s-lab
 ```
 
 <details>
-  <summary><h3>Upgrading to v1.x</h3></summary>
+  <summary><h3>Upgrading config from v1.x to v2.x</h3></summary>
+
+If you've installed smol-k8s-lab prior to `v2.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following:
+
+```yaml
+# this upgrades smol-k8s-lab
+pip3.11 install --upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+The main difference between the old and new config files are for apps, we've added:
+
+- `apps.APPNAME.description` - for adding a custom description, set it to whatever you like
+- `apps.APPNAME.argo.directory_recursion` - so you can have bigger nested apps :)
+- `apps.APPNAME.argo.project.destination.namespaces` - control what namespaces are allowed for a project
+
+And we've changed:
+
+- `apps.APPNAME.argo.ref` to `apps.APPNAME.argo.revision`
+- `apps.APPNAME.argo.project_source_repos` to `apps.APPNAME.argo.project.source_repos`
+
+And we've REMOVED:
+
+- `apps.APPNAME.argo.part_of_app_of_apps` - this was mostly used internally, we think
+
+Here's an example of an updated cert-manager app with the new config:
+
+```yaml
+apps:
+  cert_manager:
+    # ! NOTE: you currently can't set this to false. It is necessary to deploy
+    # most of our supported Argo CD apps since they often have TLS enabled either
+    # for pod connectivity or ingress
+    enabled: true
+    description: |
+      [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
+
+      smol-k8s-lab supports initialization by creating two [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] for both staging and production using a provided email address as the account ID for acme.
+
+    # Initialize of the app through smol-k8s-lab
+    init:
+      # Deploys staging and prod ClusterIssuers and prompts you for
+      # cert-manager.argo.secret_keys if they were not set. Switch to false if
+      # you don't want to deploy any ClusterIssuers
+      enabled: true
+    argo:
+      secret_keys:
+        # Used for letsencrypt-staging, to generate certs
+        email: ""
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "cert-manager/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "cert-manager"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for cert-manager CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - kube-system
+```
+
+
+</details>
+
+<details>
+  <summary><h3>Upgrading your config to v1.x</h3></summary>
 
 If you've installed smol-k8s-lab prior to `v1.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following:
 
@@ -59,32 +144,6 @@ pip3.11 install --upgrade smol-k8s-lab
 # this initializes a new configuration
 smol-k8s-lab
 ```
-
-</details>
-
-`v2.0.0b1` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b1/#history)) you can do:
-```bash
-pip install smol_k8s_lab==2.0.0b1
-```
-
-#### Creating a new config without running smol-k8s-lab
-This is helpful if you just want to take a look at the default configuration before installing any Kubernetes distros. This will also allow you to disable any default applications you'd like ahead of time.
-
-```bash
-# create the needed directory if you haven't already, NOTE: this can also be in $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml
-mkdir -p ~/.config/smol-k8s-lab
-
-# download the default config file
-curl -o config.yaml https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/smol_k8s_lab/config/default_config.yaml
-
-# move the config file to the config directory (can also be $XDG_CONFIG_HOME/smol-k8s-lab/config.yaml)
-mv config.yaml ~/.config/smol-k8s-lab/config.yaml
-```
-
-You can now use your text editor of choice to view and edit the default config before running `smol-k8s-lab` :)
-
-## Configuration
-You can checkout the default config file [here](./smol_k8s_lab/config/default_config.yaml). We've also got a [Quickstart guide](https://small-hack.github.io/smol-k8s-lab/quickstart) for you to jump right in :)
 
 ### Adding custom Applications
 
@@ -117,6 +176,8 @@ apps:
 
 Note: the above application, cert-manager, is already included as a default application in smol-k8s-lab :)
 
+</details>
+
 # Under the hood
 Note: this project is not officially affiliated with any of the below tooling or applications.
 
@@ -132,68 +193,26 @@ We always install the latest version of Kubernetes that is available from the di
 We tend to test first on k3s first, then the other distros. k3d support coming soon.
 
 ### Default Installed Applications
-Version is the helm chart version, or manifest version.
+All of these can be disabled with the exception of Argo CD, which is optional, but if not installed, `smol-k8s-lab` will <i>only</i> install: MetalLB, nginx-ingress, and cert-manager.
 
 |           Application           |                      Description                      | Initialization Supported |
 |:-------------------------------:|:------------------------------------------------------|:------------------------:|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | Loadbalancer and IP Address pool manager for metal | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][ingress-nginx] <br /> [ingress-nginx] | The ingress controller allows access to the cluster remotely, needed for web traffic | No |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | For SSL/TLS certificates | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | Gitops - Continuous Deployment | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD Appset Secret Plugin] <br /> [Argo CD Appset Secret Plugin] | Gitops - Continuous Deployment | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | external-secrets-operator integrates external secret management systems like Bitwarden or GitLab | No |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/eso_icon.png" width="32" alt="ESO logo, again">][Bitwarden ESO Provider] <br /> [Bitwarden ESO Provider] | Bitwarden external-secrets-operator provider  | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/zitadel.png" width="32" alt="Zitadel logo, an orange arrow pointing left">][ZITADEL] <br /> [ZITADEL] | An identity provider and OIDC provider to provide SSO | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/vouch.png" width="32" alt="Vouch logo, the letter V in rainbow ">][Vouch] <br /> [Vouch] | Vouch proxy allows you to secure web pages that lack authentication e.g. prometheus | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/prometheus.png" width="32" alt="Prometheus logo, a torch">][Prometheus Stack] <br /> [Prometheus Stack] | Prometheus monitoring and logging stack using [loki]/[promtail], [alert manager], and [grafana]  | Yes |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | Loadbalancer and IP Address pool manager for metal | ✅ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][ingress-nginx] <br /> [ingress-nginx] | The ingress controller allows access to the cluster remotely, needed for web traffic | ❌ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | For SSL/TLS certificates | ✅ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | Gitops - Continuous Deployment | ✅ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD Appset Secret Plugin] <br /> [Argo CD Appset Secret Plugin] | Gitops - Continuous Deployment | ✅ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | external-secrets-operator integrates external secret management systems like Bitwarden or GitLab | ❌ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/eso_icon.png" width="32" alt="ESO logo, again">][Bitwarden ESO Provider] <br /> [Bitwarden ESO Provider] | Bitwarden external-secrets-operator provider  | ✅ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/zitadel.png" width="32" alt="Zitadel logo, an orange arrow pointing left">][ZITADEL] <br /> [ZITADEL] | An identity provider and OIDC provider to provide SSO | ✅ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/vouch.png" width="32" alt="Vouch logo, the letter V in rainbow ">][Vouch] <br /> [Vouch] | Vouch proxy allows you to secure web pages that lack authentication e.g. prometheus | ✅ |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/prometheus.png" width="32" alt="Prometheus logo, a torch">][Prometheus Stack] <br /> [Prometheus Stack] | Prometheus monitoring and logging stack using [loki]/[promtail], [alert manager], and [grafana]  | ✅ |
 
-
-<sub>**Minor Notes**</sub>
-
-<sub>All Default Applications can be disabled through your `~/.config/smol-k8s-lab/config.yaml` file, **except**:</sub>
-
-<sub>1. ingress-nginx is the currently the only supported ingress-controller. traefik support is being worked on.</sub>
-
-<sub>2. Argo CD is optional, but if not installed, smol-k8s-lab will <i>only</i> install: MetalLB, nginx-ingress, and cert-manager</sub>
-
-
-### Optionally Installed Applications
-
-| Application/Tool | Description | Initialization Supported |
-|:----------------:|:------------|:------------------------:|
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/cilium.png"  width="32" alt="cilium logo">][Cilium] <br /> [Cilium]<sup>alpha</sup> | Kubernetes netflow visualizer and policy editor | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno]<sup>alpha</sup> | Kubernetes native policy management to enforce policies on k8s resources | No |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler] | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/k8up.png" width="32" alt="k8up logo, a minimalist logo of a small blue hill with line starting the right going into the hill">][k8up] <br /> [k8up] | Backups operator using [restic] to backup to s3 endpoints | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/k8tz.png" width="32" alt="k8tz logo, the k8s logo but with a watch in the center instead of the ship wheel">][k8tz] <br /> [k8tz] | Timezone environment variable injector for pods and cronjobs | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/nextcloud.png" width="32" alt="nextcloud logo, 3 white circles touching eachother on a blue background">][Nextcloud] <br /> [Nextcloud] | Nextcloud is a self hosted file server | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon] | Mastodon is a self hosted federated social media network  | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix] | Matrix is a self hosted chat platform  | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio] | Self hosted S3 Object Store operator | Yes |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/images/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for Kubernetes | Yes |
-
-
-## Troubleshooting
-If you're stuck, checkout the [Notes](https://jessebot.github.io/smol-k8s-lab/notes) to see if we also got stuck on the same thing at some point :) Under each Kubernetes distro or application, we'll have notes on how to learn more about it, as well as any errors we've already battled.
+For a complete list of installable applications, checkout the [default apps docs](https://small-hack.github.io/smol-k8s-lab/k8s_apps/argocd/). To install your own custom apps, you can check out an [example via the config file](https://small-hack.github.io/smol-k8s-lab/config_file/#applications) or [learn how to do it via the tui](https://small-hack.github.io/smol-k8s-lab/tui/apps_screen/#adding-new-applications).
 
 
 # Status
-This is still in later alpha, as we figure out all the apps and distros we want to support, and pin all the versions, but if you'd like to contribute or just found a :bug:, feel free to open an issue (or pull request), and we'll take a look! We'll try to get back to you asap!
-
-
-### Development
-smol-k8s-lab is written in Python and built and published using [Poetry]. You can check out the `pyproject.toml` for the versions of each library we install below:
-
-- [rich] (this is what makes all the pretty formatted text)
-- [PyYAML] (to handle the k8s yamls and configs)
-- [bcrypt] (to pass a password to argocd and automatically update your Bitwarden)
-- [click] (handles arguments for the CLI)
-
-We also utilize the [Bitwarden cli], for a password manager so you never have to see/know your argocd password.
-
-## And more!
-
-Want to get started with argocd? If you've installed it via smol-k8s-lab, then you can jump [here](https://github.com/jessebot/argo-example#argo-via-the-gui). Otherwise, if you want to start from scratch, start [here](https://github.com/jessebot/argo-example#argocd)
+This is still in early beta, as we figure out all the apps and distros we want to support, and pin all the versions, but if you'd like to [contribute](./CONTRIBUTING.md) or just found a :bug:, feel free to open an issue (and/or pull request), and we'll try to take a look ASAP!
 
 <!-- k8s distro link references -->
 [k3s]: https://k3s.io/
@@ -230,11 +249,3 @@ Want to get started with argocd? If you've installed it via smol-k8s-lab, then y
 [`brew`]: https://brew.sh
 [k9s]: https://k9scli.io/topics/install/
 [restic]: https://restic.readthedocs.io/en/stable/
-
-<!-- smol-k8s-lab dependency lib link references -->
-[Poetry]: https://python-poetry.org/
-[rich]: https://github.com/Textualize/richP
-[PyYAML]: https://pyyaml.org/
-[bcrypt]: https://pypi.org/project/bcrypt/
-[click]: https://pypi.org/project/click/
-[Bitwarden cli]: https://bitwarden.com/help/cli/

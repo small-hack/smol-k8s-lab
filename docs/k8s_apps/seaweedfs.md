@@ -1,6 +1,22 @@
-# SeaweedFS
+[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, files, and data lakes with a O(1) disk seek speeds. You can find out more about them by checking their [Wiki](https://github.com/seaweedfs/seaweedfs/wiki). 
 
-Check out our [SeaweedFS Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/seaweedfs).
+Smol-k8s-lab uses SeaweedFS for creating isolated file-systems for apps like Postgres, Mastodon, and JuiceFS. This provides a consistent storage layer across applications that allows for uniform backup and restoration processes and high-speed local-storage. This data can easily be backed up to external storage via k8up. Check it out via our [SeaweedFS Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/seaweedfs).
+
+## How it works
+
+- The Volume Services chunk and encrypt data on-disk.
+- The Filer Service tracks what data is stored where and answers queries about it.
+- The Control Server keeps the state of all servers and keeps everything in sync
+
+<p align="center">
+  <a href="../../assets/images/seaweedfs.drawio.png">
+      <img src="../../assets/images/seaweedfs.drawio.png">
+  </a>
+</p>
+
+## Security
+
+We enable encryption by default.
 
 ## Example config
 

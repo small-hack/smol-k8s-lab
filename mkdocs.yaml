@@ -1,5 +1,7 @@
 site_name: smol-k8s-lab
 site_url: https://smol-k8s.com
+plugins:
+  - mkdocs-video
 theme:
   favicon: images/cloud_favicon.png
   icon:
@@ -72,6 +74,7 @@ nav:
       - Argo CD App: k8s_apps/argocd.md
       - Appset Secret Plugin: k8s_apps/appset-secret-plugin.md
     - Cert Manager: k8s_apps/cert_manager.md
+    - CloudNative Postgress Operator: k8s_apps/cnpg_operator.md
     - Core DNS: k8s_apps/core_dns.md
     - External Secrets: 
       - External Secrets Operator: k8s_apps/external-secrets-operator.md
@@ -80,8 +83,8 @@ nav:
       - Cilium: k8s_apps/experimental/cilium.md
       - Infisical: k8s_apps/experimental/infisical.md
       - Kepler: k8s_apps/experimental/kepler.md
-      - Kubevirt: k8s_apps/experimental/kubevirt.md
       - Kyverno: k8s_apps/experimental/kyverno.md
+      - Kubevirt: k8s_apps/experimental/kubevirt.md
       - MinIO: k8s_apps/experimental/minio.md
     - Ingress Nginx: k8s_apps/ingress_nginx.md
     - K8tz: k8s_apps/k8tz.md
@@ -90,6 +93,7 @@ nav:
     - Matrix: k8s_apps/matrix.md
     - MetalLB: k8s_apps/metallb.md
     - Nextcloud: k8s_apps/nextcloud.md
+    - SeaweedFS: k8s_apps/seaweedfs.md
     - Prometheus: k8s_apps/prometheus.md
     - Vouch: k8s_apps/vouch.md
     - Zitadel: k8s_apps/zitadel.md
