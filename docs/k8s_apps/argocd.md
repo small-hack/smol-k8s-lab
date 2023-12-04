@@ -12,7 +12,9 @@ Argo CD is one of the most complex applications we deploy for you. We follow thi
 
 The final Application will be sourced from [small-hack/argocd-apps/argocd](https://github.com/small-hack/argocd-apps/tree/main/argocd), which you can learn more about its readme.
 
-<img src="/assets/images/screenshots/argocd_screenshot.png" alt="screenshot of the Argo CD Application viewed through the Argo CD web interface in tree mode. It shows Argo CD as the parent application and then 3 child applications: appset-secret-plugin (an app), argocd-bitwarden-eso (an appset), and argocd-web-app-set (an appset).">
+<a href="../../assets/images/screenshots/argocd_screenshot.png">
+<img src="../../assets/images/screenshots/argocd_screenshot.png" alt="screenshot of the Argo CD Application viewed through the Argo CD web interface in tree mode. It shows Argo CD as the parent application and then 3 child applications: appset-secret-plugin (an app), argocd-bitwarden-eso (an appset), and argocd-web-app-set (an appset).">
+</a>
 
 
 ## ApplicationSets
