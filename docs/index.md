@@ -16,13 +16,16 @@ Smol K8s Lab leverages Argo CD and slim k8s distributions like K3s to create pro
 </p>
 
 
-![type:video](https://www.youtube.com/watch?v=UdOQM9n5hyU)
-
 ## About
 
 `smol-k8s-lab`'s declarative workflow enables rapid iteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking Kubernetes applications and distributions! 💙
 
 By default, `smol-k8s-lab` deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open-source Git repos. Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
+
+Consider viewing my very long walk through if you like video walk-throughs:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/UdOQM9n5hyU?si=5dDCf2J2Oczhdej3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+Here's the [same video with captions](https://youtu.be/2E9DVJpv440?feature=shared).
 
 ## Getting Started
 
