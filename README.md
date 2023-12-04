@@ -42,6 +42,8 @@ smol-k8s-lab --help
   </a>
 </p>
 
+Checkout our [TUI docs](https://small-hack.github.io/smol-k8s-lab/tui/create_modify_screens/) for more info on how to get started playing with `smol-k8s-lab` :-)
+
 
 ## Beta release of 2.0.0
 
