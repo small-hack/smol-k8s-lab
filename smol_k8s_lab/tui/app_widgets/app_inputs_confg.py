@@ -178,11 +178,9 @@ class AppsetSecretValues(Static):
                              " Secret Plugin Generator for templating non-"
                              "sensitive values such as hostnames.")
 
-        yield Horizontal(Button("➕",
-                                id=f"{self.app_name}-new-secret-button",
-                                classes="new-secret-button"),
-                         key_input,
-                         classes="app-input-row")
+        button = Button("➕", id=f"{self.app_name}-new-secret-button",
+                        classes="new-secret-button")
+        yield Horizontal(button, key_input, classes="app-input-row")
 
     def generate_secret_key_row(self, secret_key: str, value: str = "") -> None:
         """
@@ -245,7 +243,7 @@ class AppsetSecretValues(Static):
         """
         add a new input row for secret stuff
         """
-        inputs_box = self.get_widget_by_id(f"{self.app_name}-argo-config-container")
+        inputs_box = self.app.get_widget_by_id(f"{self.app_name}-argo-config-container")
         input = self.get_widget_by_id(f"{self.app_name}-new-secret")
 
         if len(input.value) > 1:
