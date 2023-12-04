@@ -2,7 +2,9 @@
 
 `smol-k8s-lab` supports a custom initialization of Vouch using [Zitadel](/k8s_apps/zitadel.md).
 
-<img src="/assets/images/screenshots/vouch_screenshot.png" alt="Screenshot of the Argo CD web interface showing the vouch app of apps in tree view mode. It has two children: vouch-appset which has a children of vouch-helm, and vouch-external-secrets-appset which has a child of vouch-external-secrets">
+<a href="../../assets/images/screenshots/vouch_screenshot.png">
+<img src="../../assets/images/screenshots/vouch_screenshot.png" alt="Screenshot of the Argo CD web interface showing the vouch app of apps in tree view mode. It has two children: vouch-appset which has a children of vouch-helm, and vouch-external-secrets-appset which has a child of vouch-external-secrets">
+</a>
 
 Learn more about our:
 

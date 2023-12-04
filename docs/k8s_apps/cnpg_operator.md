@@ -1,6 +1,8 @@
 We use the Cloud Native PostgeSQL Operator to create postgresql clusters and manage backups to S3. 
 
-<img src="/assets/images/cnpg_operator_screenshot.png" alt="Screenshot of Argo CD's web interface showing the CNPG Operator Application in tree view mode. This includes configmap s for monitoring and manager config, webhook-service, cnpg-validating-webhook-config, backups CRD, clusters CRD, poolers CRD, scheduledBackups CRD, operator deployment, and 3 cluster roles. the cnpg-webhook-service is branching to the cnpg-webhook-service endpoint. The cnpg-validating-webhook-config is branching to an endpoint slice of the same name. the deployment has two children: cnpg-webhook-cert and cnpg-operator replicaset. the replicaset feeds into a single pod called cnpg-operator">
+<a href="../../assets/images/cnpg_operator_screenshot.png">
+<img src="../../assets/images/cnpg_operator_screenshot.png" alt="Screenshot of Argo CD's web interface showing the CNPG Operator Application in tree view mode. This includes configmap s for monitoring and manager config, webhook-service, cnpg-validating-webhook-config, backups CRD, clusters CRD, poolers CRD, scheduledBackups CRD, operator deployment, and 3 cluster roles. the cnpg-webhook-service is branching to the cnpg-webhook-service endpoint. The cnpg-validating-webhook-config is branching to an endpoint slice of the same name. the deployment has two children: cnpg-webhook-cert and cnpg-operator replicaset. the replicaset feeds into a single pod called cnpg-operator">
+</a>
 
 In the CloudNative PostgeSQL Operator Backups for S3 are done to local s3 endpoints consistently and to a configurable remote endpoint.
 

@@ -51,7 +51,7 @@ apps:
 
 TUI example:
 
-[<img src="/assets/images/screenshots/metallb_example.svg" alt="terminal screenshot of smol-k8s-lab on the apps screen showing the app list on the left with metallb highlighted. On the right, there is a config panel for metallb with initialization enabled switch set to True and one init field titled address pool. The input field has the following text: 192.168.20.23/32, 192.168.20.24/32. below is the rest of the normal apps screen which is details further in the tui docs.">](/assets/images/screenshots/metallb_example.svg)
+[<img src="../../assets/images/screenshots/metallb_example.svg" alt="terminal screenshot of smol-k8s-lab on the apps screen showing the app list on the left with metallb highlighted. On the right, there is a config panel for metallb with initialization enabled switch set to True and one init field titled address pool. The input field has the following text: 192.168.20.23/32, 192.168.20.24/32. below is the rest of the normal apps screen which is details further in the tui docs.">](../../assets/images/screenshots/metallb_example.svg)
 
 To dig a bit deeper on how we deploy the MetalLB Argo CD app, head over to [small-hack/argocd-apps](https://github.com/small-hack/argocd-apps/tree/main/metallb).
 
