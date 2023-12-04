@@ -17,6 +17,11 @@ A tool to run slimmer k8s distros on metal, with batteries included. Deploys Arg
 
 Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions)! 💙
 
+Consider viewing my very long walk through if you like video walk-throughs:
+<iframe width="560" height="315" src="https://www.youtube.com/embed/UdOQM9n5hyU?si=5dDCf2J2Oczhdej3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+Here's the [same video with captions](https://youtu.be/2E9DVJpv440?feature=shared).
+
 
 # Installation
 `smol-k8s-lab` requires Python 3.11. If you've already got it and [`brew`] installed, you should be able to:
