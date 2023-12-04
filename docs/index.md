@@ -16,7 +16,7 @@ Smol K8s Lab leverages Argo CD and slim k8s distributions like K3s to create pro
 </p>
 
 
-![type:video](assets/videos/full_tour.mov)
+![type:video](https://www.youtube.com/watch?v=UdOQM9n5hyU)
 
 ## About
 
