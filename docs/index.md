@@ -9,12 +9,6 @@ Smol K8s Lab leverages Argo CD and slim k8s distributions like K3s to create pro
     <img src="https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white">
   </a>
 </p>
-<p align="center">
-  <a href="assets/images/screenshots/help_text.svg">
-      <img src="assets/images/screenshots/help_text.svg" alt="Output of smol-k8s-lab --help after cloning the directory and installing the prerequisites.">
-  </a>
-</p>
-
 
 ## About
 
@@ -23,7 +17,10 @@ Smol K8s Lab leverages Argo CD and slim k8s distributions like K3s to create pro
 By default, `smol-k8s-lab` deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open-source Git repos. Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
 
 Consider viewing my very long walk through if you like video walk-throughs:
-<iframe width="560" height="315" src="https://www.youtube.com/embed/UdOQM9n5hyU?si=5dDCf2J2Oczhdej3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<p align="center">
+<iframe width="720" height="480" src="https://www.youtube.com/embed/UdOQM9n5hyU?si=5dDCf2J2Oczhdej3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</p>
 
 Here's the [same video with captions](https://youtu.be/2E9DVJpv440?feature=shared).
 
