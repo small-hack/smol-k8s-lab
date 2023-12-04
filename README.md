@@ -38,24 +38,14 @@ smol-k8s-lab --help
 
 ## Beta release of 2.0.0
 
-`v2.0.0b1` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b1/#history)) you can do:
+`v2.0.0b2` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b1/#history)) you can do:
 
 ```bash
-pip install smol_k8s_lab==2.0.0b1
+pip install smol_k8s_lab==2.0.0b2
 ```
 
 This should have actually been 1.0, but I misunderstood semver, and now here we are, with another major version update.
 
-## Usage
-
-### Initialization
-After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file. To do that, just run:
-
-```bash
-# we'll walk you through any configuration needed before 
-# saving the config and deploying it for you
-smol-k8s-lab
-```
 
 <details>
   <summary><h3>Upgrading config from v1.x to v2.x</h3></summary>
@@ -129,8 +119,18 @@ apps:
             - kube-system
 ```
 
-
 </details>
+
+## Usage
+
+### Initialization
+After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file. To do that, just run:
+
+```bash
+# we'll walk you through any configuration needed before 
+# saving the config and deploying it for you
+smol-k8s-lab
+```
 
 <details>
   <summary><h3>Upgrading your config to v1.x</h3></summary>
