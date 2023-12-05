@@ -25,6 +25,7 @@ from .networking.cilium import configure_cilium
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
 from .secrets_management.vault import configure_vault
+from .social.appflowy import configure_appflowy
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
@@ -205,6 +206,7 @@ def setup_base_apps(k8s_obj: K8s,
 
 def setup_federated_apps(k8s_obj: K8s,
                          api_tls_verify: bool = False,
+                         appflowy_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
                          matrix_dict: dict = {},
@@ -214,6 +216,9 @@ def setup_federated_apps(k8s_obj: K8s,
     """
     Setup any federated apps with initialization supported
     """
+    if appflowy_dict['enabled']:
+        configure_appflowy(k8s_obj, appflowy_dict, bw, zitadel_obj)
+
     if nextcloud_dict['enabled']:
         configure_nextcloud(k8s_obj, nextcloud_dict, bw, zitadel_obj)
 

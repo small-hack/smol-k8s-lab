@@ -261,6 +261,7 @@ def main(config: str = "",
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
+                apps.pop('appflowy'),
                 apps.pop('nextcloud'),
                 apps.pop('mastodon'),
                 apps.pop('matrix'),

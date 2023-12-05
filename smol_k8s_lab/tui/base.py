@@ -76,6 +76,7 @@ class BaseApp(App):
         self.cluster_names = []
         self.current_cluster = ""
         self.sensitive_values = {
+                'appflowy': {},
                 'nextcloud': {},
                 'matrix': {},
                 'mastodon': {},
