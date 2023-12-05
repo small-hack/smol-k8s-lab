@@ -12,7 +12,6 @@ from rich.text import Text
 from rich.theme import Theme
 
 from smol_k8s_lab.constants import VERSION, XDG_CONFIG_FILE
-from smol_k8s_lab.utils.subproc import subproc
 
 
 RECORD = environ.get("SMOL_SCREENSHOT", False)
@@ -141,5 +140,4 @@ class RichCommand(click.Command):
 
         # I use this to print a pretty svg at the end sometimes
         if RECORD:
-            console.save_svg("docs/images/screenshots/help_text.svg", title="term")
-            subproc(["sed -i 's/\/Users\/jesse/\~/' docs/images/screenshots/help_text.svg"])
+            console.save_svg("docs/assets/images/screenshots/help_text.svg", title="term")
