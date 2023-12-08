@@ -92,7 +92,7 @@ def configure_appflowy(k8s_obj: K8s,
             # s3 credentials creation
             endpoint_obj = create_custom_field('endpoint', s3_endpoint)
             region_obj = create_custom_field('region', "eu-west-1")
-            bucket_obj = create_custom_field('bucket', "appflowy-data")
+            bucket_obj = create_custom_field('bucket', "appflowy")
             s3_id = bitwarden.create_login(
                     name='appflowy-user-s3-credentials',
                     item_url=appflowy_hostname,
