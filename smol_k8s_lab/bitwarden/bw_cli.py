@@ -171,7 +171,8 @@ class BwCLI():
         response = json.loads(
                 subproc([f'{self.bw_path} get item {item_name} --response'],
                         error_ok=True,
-                        env=self.env
+                        env=self.env,
+                        quiet=True
                         )
                 )
 
@@ -328,7 +329,9 @@ class BwCLI():
 
 
         # edit OR create the item
-        bitwarden_return_item = subproc([cmd + " --response"], env=self.env)
+        bitwarden_return_item = subproc([cmd + " --response"],
+                                        env=self.env,
+                                        quiet=True)
         log.info(bitwarden_return_item)
 
         if edit:
