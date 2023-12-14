@@ -26,7 +26,7 @@ Here's the <a href="https://youtu.be/2E9DVJpv440?feature=shared">same video with
 
 
 # Installation
-`smol-k8s-lab` requires Python 3.11. If you've already got it and [`brew`] installed, you should be able to:
+B sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` requires Python 3.11 (and [pip](https://pip.pypa.io/en/stable/installation/)). If you've already got it and [other pre-reqs](https://small-hack.github.io/smol-k8s-lab/installation/#prerequisites), you should be able to:
 
 ```bash
 # install the CLI
@@ -133,7 +133,7 @@ apps:
 ## Usage
 
 ### Initialization
-After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file. To do that, just run:
+After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file:
 
 ```bash
 # we'll walk you through any configuration needed before 
