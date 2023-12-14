@@ -47,10 +47,10 @@ Checkout our [TUI docs](https://small-hack.github.io/smol-k8s-lab/tui/create_mod
 
 ## Beta release of 2.0.0
 
-`v2.0.0b4` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b4/#history)) you can do:
+`v2.0.0b6` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b6/#history)) you can do:
 
 ```bash
-pip install smol_k8s_lab==2.0.0b4
+pip install smol_k8s_lab==2.0.0b6
 ```
 
 This should have actually been 1.0, but I misunderstood semver, and now here we are, with another major version update.
