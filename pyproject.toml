@@ -44,7 +44,7 @@ textual            = "^0.44"
 xdg-base-dirs      = "^6.0"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs-material = "^9.4.6"
+mkdocs-material = "^9.5.3"
 mkdocs-video = "^1.5.0"
 
 [tool.poetry.group.dev.dependencies]
