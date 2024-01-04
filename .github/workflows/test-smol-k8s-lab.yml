@@ -2,8 +2,8 @@
 name: Test smol-k8s-lab
 on:
   push:
-    branches:
-      - main
+    branches-ignore:
+      - "main"
 jobs:
   smol_k8s_lab_kind:
     runs-on: ubuntu-latest
