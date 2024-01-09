@@ -202,7 +202,7 @@ apps:
     argo:
       secret_keys:
         # Used for letsencrypt-staging, to generate certs
-        email: ""
+        email: "cicdtest@test.com"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
