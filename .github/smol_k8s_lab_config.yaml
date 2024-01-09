@@ -157,7 +157,7 @@ apps:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN hostname for accessing the Argo CD web interface
-        hostname: ""
+        hostname: "argocd.test.com"
         # which oidc provider to use for Argo CD: defaults to Zitadel
         oidc_provider: "zitadel"
       # git repo to install the Argo CD app from
