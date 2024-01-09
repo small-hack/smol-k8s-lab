@@ -161,7 +161,7 @@ def main(config: str = "",
         using_bw_pw_manager = pw_mngr['enabled'] and pw_mngr['name'] == 'bitwarden'
         using_bweso = SECRETS['global_external_secrets']
 
-        if using_bw_pw_manager or using_bweso:
+        if using_bw_pw_manager or using_bweso == 'bitwarden':
             # get bitwarden credentials from the env if there are any
             password = env.get("BW_PASSWORD", None)
             client_id = env.get("BW_CLIENTID", None)
