@@ -16,7 +16,7 @@ from rich.logging import RichHandler
 from rich.panel import Panel
 
 # custom libs and constants
-from .constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
+from .constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE, load_yaml
 from .env_config import check_os_support, process_configs
 from .bitwarden.bw_cli import BwCLI
 from .bitwarden.tui.bitwarden_app import BitwardenCredentialsApp
@@ -137,8 +137,16 @@ def main(config: str = "",
     # declaring the default name to be smol-k8s-lab
     cluster_name = "smol-k8s-lab"
 
-    if interactive or INITIAL_USR_CONFIG['smol_k8s_lab']['tui']['enabled']:
-        cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui()
+    # verify if the TUI should be used
+    tui_enabled = INITIAL_USR_CONFIG['smol_k8s_lab']['tui']['enabled']
+    if config:
+        config_dict = load_yaml(config)
+        tui_enabled = config_dict['smol_k8s_lab']['tui']['enabled']
+    else:
+        config_dict = INITIAL_USR_CONFIG
+
+    if interactive or tui_enabled:
+        cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui(config_dict)
     else:
         if setup:
             # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
@@ -146,7 +154,7 @@ def main(config: str = "",
             do_setup()
 
         # process all of the config file, or create a new one and also grab secrets
-        USR_CFG, SECRETS = process_configs()
+        USR_CFG, SECRETS = process_configs(config_dict)
 
         # if we're using bitwarden, unlock the vault
         pw_mngr = USR_CFG['smol_k8s_lab']['local_password_manager']
