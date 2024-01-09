@@ -37,10 +37,6 @@ def options_help():
         'delete':
         'Delete an existing cluster by name.',
 
-        'setup':
-        'Install/update extra tools such as argocd, cilium-cli, helm, k9s, krew, '
-        'kubectl, and more via brew.',
-
         'interactive':
         'New! ⚙️ Interactively configures  smol-k8s-lab',
 

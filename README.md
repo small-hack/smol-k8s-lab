@@ -26,7 +26,27 @@ Here's the <a href="https://youtu.be/2E9DVJpv440?feature=shared">same video with
 
 
 # Installation
-B sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` requires Python 3.11 (and [pip](https://pip.pypa.io/en/stable/installation/)). If you've already got it and [other pre-reqs](https://small-hack.github.io/smol-k8s-lab/installation/#prerequisites), you should be able to:
+B sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` can be installed via `pip` or `brew`.
+
+## brew
+
+[`brew`] is the preferred installation method for macOS/Debian/Ubuntu, as this will also install any prerequisites you need, so you don't need to worry about them.
+
+```bash
+# tap the special homebrew repo for our formula
+brew tap small-hack/homebrew-smol-k8s-lab
+# then install
+brew install smol-k8s-lab
+```
+
+Then you should be able to check the version and cli options with:
+
+```bash
+smol-k8s-lab --help
+```
+
+## pip
+`smol-k8s-lab` requires Python 3.11+ (and [pip](https://pip.pypa.io/en/stable/installation/)). If you've already got both and [other pre-reqs](https://small-hack.github.io/smol-k8s-lab/installation/#prerequisites), you should be able to:
 
 ```bash
 # install the CLI
@@ -47,10 +67,10 @@ Checkout our [TUI docs](https://small-hack.github.io/smol-k8s-lab/tui/create_mod
 
 ## Beta release of 2.0.0
 
-`v2.0.0b7` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. (testing was delayed initially because @jessebot got covid for a couple of weeks, but is back on track now) To begin testing that release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b7/#history)) you can do:
+`v2.0.0b8` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. (testing was delayed initially because @jessebot got covid for a couple of weeks, but is back on track now) To begin testing the beta release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b8/#history)) locally you can do:
 
 ```bash
-pip install smol_k8s_lab==2.0.0b7
+pip install smol_k8s_lab==2.0.0b8
 ```
 
 This should have actually been 1.0, but I misunderstood semver, and now here we are, with another major version update.
