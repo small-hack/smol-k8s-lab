@@ -113,9 +113,9 @@ k8s_distros:
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
       node-labels: "ingress-ready=true"
-      maxPods: 110
-      podsPerCore: 0
-      resolvConf: "/etc/resolv.conf"
+      max-pods: 110
+      pods-per-core: 0
+      resolv-conf: "/etc/resolv.conf"
     networking_args:
       ipFamily: "ipv4"
       disableDefaultCNI: false
