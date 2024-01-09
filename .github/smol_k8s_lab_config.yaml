@@ -5,7 +5,7 @@ smol_k8s_lab:
   tui:
     # if set to true, we'll always launch smol-k8s-lab in interactive mode :)
     # else you need to pass in --interactive or -i to use the TUI
-    enabled: true
+    enabled: false
     # show bottom footer help bar
     show_footer: true
     # accessibility options for users that benefit from TTS and Bell sounds
@@ -109,7 +109,7 @@ k8s_distros:
 
   kind:
     # set to true to enable deploying a Kubernetes cluster using kind
-    enabled: false
+    enabled: true
     # change the kubelet config for this node in k3s, feel free to add more values
     kubelet_extra_args:
       node-labels: "ingress-ready=true"
@@ -134,7 +134,7 @@ apps_global_config:
   # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
   time_zone: "Europe/Amsterdam"
   # always deploy external secrets. *Must be a string of "" (don't use external secrets) or "bitwarden" to use bitwarden for external secrets*
-  external_secrets: "bitwarden"
+  external_secrets: "none"
 
 # ---------------------------------------------------------------------------
 # Argo CD deployed and maintained Applications to run on Kubernetes
@@ -157,7 +157,7 @@ apps:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN hostname for accessing the Argo CD web interface
-        hostname: ""
+        hostname: "argocd.test.com"
         # which oidc provider to use for Argo CD: defaults to Zitadel
         oidc_provider: "zitadel"
       # git repo to install the Argo CD app from
@@ -202,7 +202,7 @@ apps:
     argo:
       secret_keys:
         # Used for letsencrypt-staging, to generate certs
-        email: ""
+        email: "cicdtest@test.com"
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
@@ -257,7 +257,7 @@ apps:
       CloudNative PostgeSQL Operator for Kubernetes. This lets you create an
       manage many clusters of postgresql, including backups to s3.
     # default disabled while a helm chart is being actively developed
-    enabled: true
+    enabled: false
     argo:
       # secret keys to provide for the argocd secret plugin app, none by default
       secret_keys: {}
@@ -416,7 +416,7 @@ apps:
           namespaces: []
 
   k8up:
-    enabled: true
+    enabled: false
     description: |
       [link=https://k8up.io]K8up[/link] ([i]pronounced "ketchup?"[/]) is a Kubernetes Operator based on Restic for backups of Persistent Volumes in k8s into S3 compatible storage like MinIO. Backs up all PVCs marked as ReadWriteMany, ReadWriteOnce or with a specific label. Can also perform "Application Aware" backups, containing the output of any tool capable of writing to stdout. You can also perform individual, on-demand backups, and restores from the k8up CLI tool.
 
@@ -673,7 +673,7 @@ apps:
   # This app is installed with helm or manifests depending on what is recommended
   # for your k8s distro. Becomes managed by Argo CD if you enable it below
   metallb:
-    enabled: true
+    enabled: false
     description: |
       [link=https://metallb.org/]MetalLB[/link] Helps expose IP addresses for loadbalancers on metal if you're on a vm or container where you can't get an IP.
 
@@ -987,7 +987,7 @@ apps:
       [link=https://github.com/vouch/vouch-proxy]vouch-proxy[/link] can help you forward requests for OIDC authentication to any ingress source that doesn't already have it. Super useful for web pages like prometheus's UI.
 
       smol-k8s-lab supports the initialization of vouch if you also enable zitadel by creating OIDC applications and credentials and your vouch-proxy Kubernetes Secret.
-    enabled: true
+    enabled: false
     # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
     init:
       enabled: true
@@ -1023,7 +1023,7 @@ apps:
           namespaces: []
 
   zitadel:
-    enabled: true
+    enabled: false
     description: |
       [link=https://zitadel.com/opensource]ZITADEL[/link] is an open source self hosted IAM platform for the cloud era
 
