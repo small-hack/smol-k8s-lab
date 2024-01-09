@@ -134,7 +134,7 @@ apps_global_config:
   # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
   time_zone: "Europe/Amsterdam"
   # always deploy external secrets. *Must be a string of "" (don't use external secrets) or "bitwarden" to use bitwarden for external secrets*
-  external_secrets: "bitwarden"
+  external_secrets: "none"
 
 # ---------------------------------------------------------------------------
 # Argo CD deployed and maintained Applications to run on Kubernetes
