@@ -13,6 +13,7 @@ from os import path
 from ruamel.yaml import YAML
 from ruamel.yaml.scalarstring import PreservedScalarString as pss
 from shutil import which
+from sys import exit
 
 
 yaml = YAML()
@@ -34,10 +35,15 @@ def create_kind_cluster(cluster_name: str,
     # make sure kind is installed first, and if not, install it
     if not which("kind"):
         msg = ("ʕ•́ᴥ•̀ʔ [b]kind[/b] is [warn]not installed[/warn]. "
-               "[i]We'll install it for you.[/i] ʕᵔᴥᵔʔ")
+               "[i]We'll try to install it for you.[/i] ʕᵔᴥᵔʔ")
         sub_header(msg)
-        log.debug("Installing kind with brew...")
-        subproc(['brew install kind'], spinner=True)
+        if which("brew"):
+            log.debug("Installing kind with brew...")
+            subproc(['brew install kind'], spinner=True)
+        else:
+            log.error("Sorry, you don't have brew installed. :( " + \
+                      "Please install [b]kind[/b] and run smol-k8s-lab again")
+            exit()
 
     log.debug("Creating a kind cluster...")
 

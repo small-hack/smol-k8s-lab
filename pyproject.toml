@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "2.0.0b7"
+version       = "2.0.0b8"
 description   = "Bootstrap simple projects on Kubernetes with kind, k3d, and k3s. This is a beta release"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -11,7 +11,7 @@ homepage      = "https://small-hack.github.io/smol-k8s-lab"
 repository    = "http://github.com/small-hack/smol-k8s-lab"
 documentation = "https://small-hack.github.io/smol-k8s-lab"
 keywords      = ["kubernetes", "homelab", "kind", "k3s", "k8s"]
-classifiers   = ["Development Status :: 3 - Alpha",
+classifiers   = ["Development Status :: 4 - Beta",
                  "Programming Language :: Python :: 3.11",
                  "Programming Language :: Python :: 3.12",
                  "Operating System :: MacOS :: MacOS X",
@@ -20,7 +20,6 @@ classifiers   = ["Development Status :: 3 - Alpha",
                  "Topic :: System :: Installation/Setup",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
 include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
-                 "smol_k8s_lab/config/extras/Brewfile",
                  "smol_k8s_lab/config/default_config.yaml"]
 
 [tool.poetry.urls]
