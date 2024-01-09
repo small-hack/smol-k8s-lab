@@ -98,9 +98,6 @@ def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
         metavar="CLUSTER_NAME",
         type=str,
         help=HELP['delete'])
-@option("--setup", "-s",
-        is_flag=True,
-        help=HELP['setup'])
 @option("--interactive", "-i",
         is_flag=True,
         help=HELP['interactive'])
@@ -109,7 +106,6 @@ def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
         help=HELP['version'])
 def main(config: str = "",
          delete: bool = False,
-         setup: bool = False,
          log_file: str = "",
          version: bool = False,
          interactive: bool = False):
@@ -148,11 +144,6 @@ def main(config: str = "",
     if interactive or tui_enabled:
         cluster_name, USR_CFG, SECRETS, bitwarden_credentials = launch_config_tui(config_dict)
     else:
-        if setup:
-            # installs required/extra tooling: kubectl, helm, k9s, argocd, krew
-            from .utils.setup_k8s_tools import do_setup
-            do_setup()
-
         # process all of the config file, or create a new one and also grab secrets
         USR_CFG, SECRETS = process_configs(config_dict)
 

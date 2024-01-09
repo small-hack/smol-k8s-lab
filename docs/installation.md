@@ -7,9 +7,31 @@ nav_order: 2
 permalink: /install
 ---
 
-## Prerequisites
+!!! Note 
+    `smol-k8s-lab` is only tested on Debian, Ubuntu, and macOS. It may run on other Linux distros and even WSL, but we do not actively test them at this time.
 
-### Required
+## Install via `brew`
+
+[brew] is the preferred installation method for macOS/Debian/Ubuntu, as this will also install any prerequisites you need.
+
+```bash
+# tap the special homebrew repo for our formula
+brew tap small-hack/homebrew-smol-k8s-lab
+# then install
+brew install smol-k8s-lab
+```
+
+Then you should be able to check the version and cli options with:
+
+```bash
+smol-k8s-lab --help
+```
+
+## Install via `pip`
+
+### Prerequisites
+
+#### Required
 
 `smol-k8s-lab` cannot function without at least the following installed:
 
@@ -17,26 +39,19 @@ permalink: /install
 - [`kubectl`](https://kubernetes.io/docs/tasks/tools/)
 - [`helm`](https://helm.sh/docs/intro/install/)
 - [`argocd`](https://argo-cd.readthedocs.io/en/stable/cli_installation/)
-- Internet access
 
-### Optional
+#### Optional
 
 All of these are not Required for core functionality of `smol-k8s-lab`, but they greatly enhance the experience, so they are still recommended.
 
 | application | description                                                                                                              |
 |-------------|--------------------------------------------------------------------------------------------------------------------------|
-| [brew]      | If installed, we can install all prerequisites for you (except python/pip, because you need those to run `smol-k8s-lab`) |
 | [docker]  | needed for k3d, kind, and installing the mastodon app                                                                    |
 | [bw]      | only if you want to use Bitwarden to store your passwords                                                                |
 | [k3d]     | only if you want to use k3d                                                                                            |
 | [k9s]     | only if you want a k8s TUI for viewing an already installed cluster                                                      |
 | [kind]    | only if you want to use kind                                                                                           |
 | [mc]      | only if you want smol-k8s-lab to create MinIO users and buckets for you                                                |
-
-## Install via `pip`
-
-!!! Note 
-    `smol-k8s-lab` is only tested on Debian, Ubuntu, and macOS. It may run on other Linux distros and even WSL, but we do not actively test them at this time.
 
 
 `pip` is probably the best way to install `smol-k8s-lab`, but you can also probably use `pipx`:
