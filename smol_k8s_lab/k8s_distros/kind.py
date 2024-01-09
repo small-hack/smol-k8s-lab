@@ -11,6 +11,7 @@ from ..utils.subproc import subproc
 import logging as log
 from os import path
 from ruamel.yaml import YAML
+from ruamel.yaml.scalarstring import PreservedScalarString as pss
 from shutil import which
 
 
@@ -89,6 +90,9 @@ def build_kind_config(cfg_file: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
                    }
 
     if kubelet_extra_args:
+        for arg, value in kubelet_extra_args.items():
+            kubelet_extra_args[arg] = f'"{value}"'
+
         # adding any extra kubelet args you'd like to the kind node
         kube_adm_config = {
                 'kind': 'InitConfiguration',
@@ -99,7 +103,7 @@ def build_kind_config(cfg_file: str = "~/.config/smol-k8s-lab/kind_cfg.yaml",
 
         # only add extra kubelet args if any were passed in
         node_config['kubeadmConfigPatches'] = [
-                safe_yaml.dump_to_string(kube_adm_config)
+                pss(safe_yaml.dump_to_string(kube_adm_config)).replace("'","")
                 ]
 
     kind_cfg = {

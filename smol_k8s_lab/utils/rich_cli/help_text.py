@@ -50,15 +50,14 @@ def options_help():
 
     if RECORD:
         help_dict['config'] = (
-        'Full path and name of the YAML config file to parse.\n Defaults to '
+        'Full path and name of the YAML config file to parse.\nDefaults to '
         '[light_steel_blue]$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml[/]'
         )
     else:
         help_dict['config'] = (
-        'Full path and name of the YAML config file to parse.\n Defaults to '
+        'Full path and name of the YAML config file to parse.\nDefaults to '
         f'[light_steel_blue]{XDG_CONFIG_FILE}[/]'
         )
-
 
     return help_dict
 

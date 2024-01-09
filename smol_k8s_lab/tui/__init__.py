@@ -1,13 +1,18 @@
 from smol_k8s_lab.tui.base import BaseApp
+from smol_k8s_lab.constants import load_yaml
 from smol_k8s_lab.utils.rich_cli.console_logging import print_msg
 import sys
 
 
-def launch_config_tui():
+def launch_config_tui(config_file: str = ""):
     """
     Run all the TUI screens
     """
-    res = BaseApp().run()
+    if config_file:
+        config = load_yaml(config_file)
+        res = BaseApp(config).run()
+    else:
+        res = BaseApp().run()
     if not res:
         print_msg("[blue]♥[/] [cyan]Have a nice day[/] [blue]♥\n", style="italic")
         sys.exit()

@@ -7,7 +7,10 @@ from textual.validation import Length
 from textual.widget import Widget
 from textual.widgets import Input, Button, Label
 
-VALUE_SUGGESTIONS = SuggestFromList(("ingress-ready=true"))
+VALUE_SUGGESTIONS = SuggestFromList(("ingress-ready=true",
+                                     "pods-per-core",
+                                     "resolv-conf",
+                                     "max-pods"))
 
 kubelet_help = (
         "Add key value pairs to pass to your [steel_blue][b][link=https://kubernetes.io/docs/"
