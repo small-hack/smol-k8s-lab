@@ -30,11 +30,11 @@ B sure to check out our full [installation guide](https://small-hack.github.io/s
 
 ## brew
 
-[`brew`] is the future preferred installation method for macOS/Debian/Ubuntu, as this will also install any prerequisites you need, so you don't need to worry about them. There are still some kinks with this method, so please [let us know if anything isn't working for you](https://github.com/small-hack/homebrew-smol-k8s-lab/issues). In the meantime, use pip or pipx methods below.
+[`brew`] is the future preferred installation method for macOS/Debian/Ubuntu, as this will also install any prerequisites you need, so you don't need to worry about them. There are still some kinks with this method, so please [let us know if anything isn't working for you](https://github.com/small-hack/homebrew-tap/issues). In the meantime, use pip or pipx methods below.
 
 ```bash
 # tap the special homebrew repo for our formula and install it
-brew install small-hack/homebrew-smol-k8s-lab/smol-k8s-lab
+brew install small-hack/tap/smol-k8s-lab
 ```
 
 Then you should be able to check the version and cli options with:
