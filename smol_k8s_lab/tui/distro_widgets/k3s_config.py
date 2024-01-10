@@ -133,7 +133,10 @@ class K3sConfig(Static):
 
             # if there's a comma, it's a list
             elif ',' in input_value or input_name in LIST_KEYS:
-                yaml[input_name] = create_sanitized_list(input_value)
+                # don't create a list if there's a = in the value. catches issues
+                # with kube-reserved=cpu=1,memory=2Gi which shouldn't be a list
+                if "=" not in input_value:
+                    yaml[input_name] = create_sanitized_list(input_value)
 
             # else it's a normal string and should be saved like one
             else:
