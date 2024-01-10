@@ -30,7 +30,7 @@ B sure to check out our full [installation guide](https://small-hack.github.io/s
 
 ## brew
 
-[`brew`] is the future preferred installation method for macOS/Debian/Ubuntu, as this will also install any prerequisites you need, so you don't need to worry about them. There are still some kinks with this method, so please [let us know if anything isn't working for you](https://github.com/small-hack/homebrew-tap/issues). In the meantime, use pip or pipx methods below.
+[`brew`] is the future preferred installation method for macOS/Debian/Ubuntu, as this will also install any non-python prerequisites you need, so you don't need to worry about them. This method is new, so please [let us know if anything isn't working for you](https://github.com/small-hack/homebrew-tap/issues).
 
 ```bash
 # tap the special homebrew repo for our formula and install it
