@@ -74,52 +74,6 @@ smol-k8s-lab
 ```
 
 <details>
-  <summary><h3>Upgrading your config to v1.x</h3></summary>
-
-If you've installed smol-k8s-lab prior to `v1.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following:
-
-```yaml
-# this upgrades smol-k8s-lab
-pip3.11 install --upgrade smol-k8s-lab
-
-# this initializes a new configuration
-smol-k8s-lab
-```
-
-### Adding custom Applications
-
-You can create any application you already have an Argo CD application repo for, by following a simple application YAML schema in `~/.config/smol-k8s-lab/config.yaml` like this:
-
-```yaml
-apps:
-  # name of application to create in Argo CD
-  cert_manager:
-    # if set to false, we ignore this app
-    enabled: true
-    argo:
-      # secret keys to pass to Argo CD Application Set Generator
-      secret_keys:
-        # Used for letsencrypt-staging, to generate certs. If set to "" and cert-manager.enabled is true
-        # smol-k8s-lab will prompt for this value and save it back to this file for you.
-        email: ""
-      # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
-      # path in the argo repo to point to. Trailing slash very important!
-      path: "ingress/cert-manager/"
-      # either the branch or tag to point at in the argo repo above
-      ref: "main"
-      # namespace to install the k8s app in
-      namespace: "ingress"
-      # source repos for cert-manager CD App Project (in addition to cert-manager.argo.repo)
-      project_source_repos:
-        - https://charts.jetstack.io
-```
-
-Note: the above application, cert-manager, is already included as a default application in smol-k8s-lab :)
-
-</details>
-
-<details>
   <summary><h3>Upgrading config from v1.x to v2.x</h3></summary>
 
 If you've installed smol-k8s-lab prior to `v2.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following:
@@ -192,6 +146,53 @@ apps:
 ```
 
 </details>
+
+<details>
+  <summary><h3>Upgrading your config to v1.x</h3></summary>
+
+If you've installed smol-k8s-lab prior to `v1.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following:
+
+```yaml
+# this upgrades smol-k8s-lab
+pip3.11 install --upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+### Adding custom Applications
+
+You can create any application you already have an Argo CD application repo for, by following a simple application YAML schema in `~/.config/smol-k8s-lab/config.yaml` like this:
+
+```yaml
+apps:
+  # name of application to create in Argo CD
+  cert_manager:
+    # if set to false, we ignore this app
+    enabled: true
+    argo:
+      # secret keys to pass to Argo CD Application Set Generator
+      secret_keys:
+        # Used for letsencrypt-staging, to generate certs. If set to "" and cert-manager.enabled is true
+        # smol-k8s-lab will prompt for this value and save it back to this file for you.
+        email: ""
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "ingress/cert-manager/"
+      # either the branch or tag to point at in the argo repo above
+      ref: "main"
+      # namespace to install the k8s app in
+      namespace: "ingress"
+      # source repos for cert-manager CD App Project (in addition to cert-manager.argo.repo)
+      project_source_repos:
+        - https://charts.jetstack.io
+```
+
+Note: the above application, cert-manager, is already included as a default application in smol-k8s-lab :)
+
+</details>
+
 
 # Under the hood
 Note: this project is not officially affiliated with any of the below tooling or applications.
