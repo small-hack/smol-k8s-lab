@@ -30,7 +30,7 @@ B sure to check out our full [installation guide](https://small-hack.github.io/s
 
 ## brew
 
-[`brew`] is the preferred installation method for macOS/Debian/Ubuntu, as this will also install any prerequisites you need, so you don't need to worry about them.
+[`brew`] is the future preferred installation method for macOS/Debian/Ubuntu, as this will also install any prerequisites you need, so you don't need to worry about them. There are still some kinks with this method, so please let us know if anything isn't working for you. In the meantime, use pip or pipx methods below.
 
 ```bash
 # tap the special homebrew repo for our formula
@@ -63,17 +63,6 @@ smol-k8s-lab --help
 </p>
 
 Checkout our [TUI docs](https://small-hack.github.io/smol-k8s-lab/tui/create_modify_screens/) for more info on how to get started playing with `smol-k8s-lab` :-)
-
-
-## Beta release of 2.0.0
-
-`v2.0.0b8` is available for testing but docs and screenshots are still under development. ETA is about 1-2 weeks for those tests to be complete and the official `2.0.0` to be launched, which will support a full TUI and a range of new options in the config file. (testing was delayed initially because @jessebot got covid for a couple of weeks, but is back on track now) To begin testing the beta release (or [other pre-releases](https://pypi.org/project/smol_k8s_lab/2.0.0b8/#history)) locally you can do:
-
-```bash
-pip install smol_k8s_lab==2.0.0b8
-```
-
-This should have actually been 1.0, but I misunderstood semver, and now here we are, with another major version update.
 
 
 <details>
@@ -241,7 +230,7 @@ For a complete list of installable applications, checkout the [default apps docs
 
 
 # Status
-This is still in early beta, as we figure out all the apps and distros we want to support, and pin all the versions, but if you'd like to [contribute](./CONTRIBUTING.md) or just found a :bug:, feel free to open an issue (and/or pull request), and we'll try to take a look ASAP!
+This is recently released, but still being actively supported, and if you'd like to [contribute](./CONTRIBUTING.md) or just found a :bug:, feel free to open an issue (and/or pull request), and we'll try to take a look ASAP! 
 
 <!-- k8s distro link references -->
 [k3s]: https://k3s.io/
