@@ -128,9 +128,9 @@ class DistroConfigScreen(Screen):
                     )
         else:
             main_box.mount(
-                    K3ConfigWidget(
+                    K3sConfigWidget(
                         self.current_distro,
-                        DEFAULT_DISTRO_OPTIONS[self.current_distro],
+                        self.cfg.get('k3s', DEFAULT_DISTRO_OPTIONS['k3s']),
                         id=self.current_distro + "-pseudo-screen"
                         )
                     )
@@ -158,7 +158,7 @@ class DistroConfigScreen(Screen):
                         )
             else:
                 self.get_widget_by_id("distro-config-screen").mount(
-                        K3ConfigWidget(
+                        K3sConfigWidget(
                             distro,
                             DEFAULT_DISTRO_OPTIONS[distro],
                             id=distro + "-pseudo-screen"
@@ -253,11 +253,14 @@ class KindConfigWidget(Static):
         # update tabbed content box
         tabbed_content = self.query_one(TabbedContent)
 
-        tabbed_content.border_title = ("Add [i]extra[/] options for "
-                                       "[#C1FF87]kind[/] config files")
+        tabbed_content.border_title = (
+                "Add [i]extra[/] options for [#C1FF87]kind[/] config files"
+                )
 
-        subtitle = ("[b][@click=screen.launch_new_option_modal()]"
-                    "➕ kind option[/][/]")
+        subtitle = (
+                "[b][@click=screen.launch_new_option_modal()] ➕ kind option[/][/]"
+                )
+
         tabbed_content.border_subtitle = subtitle
 
         for tab in self.query("Tab"):
@@ -273,13 +276,13 @@ class KindConfigWidget(Static):
             self.app.action_say(f"Selected tab is {event.tab.id}")
 
 
-class K3ConfigWidget(Static):
+class K3sConfigWidget(Static):
     """ 
     a widget representing the entire kind configuration
     """
     def __init__(self, distro: str, metadata: dict, id: str = "") -> None:
-        self.metadata = metadata
         self.distro = distro
+        self.metadata = metadata
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
@@ -289,8 +292,8 @@ class K3ConfigWidget(Static):
         with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
 
             # take number of nodes from config and make string
-            nodes = self.metadata.get('nodes', {'control_plane': 1,
-                                                'workers': 0})
+            nodes = self.metadata.get('nodes',
+                                      {'control_plane': 1, 'workers': 0})
             control_nodes = str(nodes.get('control_plane', '1'))
             worker_nodes = str(nodes.get('workers', '0'))
 
@@ -298,5 +301,6 @@ class K3ConfigWidget(Static):
             yield NodeAdjustmentBox(self.distro, control_nodes, worker_nodes)
 
             # take extra k3s args if self.distro is k3s or k3d
-            yield K3sConfig(self.distro, self.metadata['k3s_yaml'],
+            yield K3sConfig(self.distro,
+                            self.metadata['k3s_yaml'],
                             id=f"{self.distro}-widget")

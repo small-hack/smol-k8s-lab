@@ -96,11 +96,6 @@ class K3sConfig(Static):
                 if arg:
                     self.generate_row(arg, value)
 
-        # don't remember why we needed this, but testing breaks with these errors if it's on:
-        # RuntimeWarning: Enable tracemalloc to get the object allocation traceback
-        # RuntimeWarning: coroutine 'App.action_focus' was never awaited
-        # self.app.action_focus(self.query_one(".k3s-config-container"))
-
     def on_button_pressed(self, event: Button.Pressed) -> None:
         """
         get pressed button and act on it
