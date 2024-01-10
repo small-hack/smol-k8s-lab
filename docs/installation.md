@@ -15,10 +15,8 @@ permalink: /install
 [brew] is the preferred installation method for macOS/Debian/Ubuntu, as this will also install any prerequisites you need.
 
 ```bash
-# tap the special homebrew repo for our formula
-brew tap small-hack/homebrew-smol-k8s-lab
-# then install
-brew install smol-k8s-lab
+# tap the special homebrew repo for our formula and then install
+brew install small-hack/tap/smol-k8s-lab
 ```
 
 Then you should be able to check the version and cli options with:
