@@ -220,8 +220,9 @@ class KindConfigWidget(Static):
     def compose(self) -> ComposeResult:
         with Grid(classes="k8s-distro-config", id="kind-box"):
             # take number of nodes from config and make string
-            nodes = self.metadata.get('nodes', {'control_plane': 1,
-                                                'workers': 0})
+            nodes = self.metadata.get('nodes',
+                                      {'control_plane': 1, 'workers': 0}
+                                      )
             control_nodes = str(nodes.get('control_plane', '1'))
             worker_nodes = str(nodes.get('workers', '0'))
 
@@ -300,7 +301,18 @@ class K3sConfigWidget(Static):
             # node input row
             yield NodeAdjustmentBox(self.distro, control_nodes, worker_nodes)
 
-            # take extra k3s args if self.distro is k3s or k3d
-            yield K3sConfig(self.distro,
-                            self.metadata['k3s_yaml'],
-                            id=f"{self.distro}-widget")
+
+            # Add the TabbedContent widget for kind config
+            with TabbedContent(initial="kind-networking-tab", id="kind-tabbed-content"):
+                # tab 1 - networking options
+                with TabPane("Networking options", id="kind-networking-tab"):
+                    # take extra k3s args if self.distro is k3s or k3d
+                    yield K3sConfig(self.distro,
+                                    self.metadata['k3s_yaml'],
+                                    id=f"{self.distro}-widget")
+
+                # tab 2 - kubelet options
+                with TabPane("Kubelet Config Options", id="kind-kubelet-tab"):
+                    # kubelet config section for kind only
+                    kubelet_args = self.metadata['k3s_yaml'].get('kubelet-args', '')
+                    yield KubeletConfig('k3s', kubelet_args)
