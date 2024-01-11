@@ -316,3 +316,32 @@ class K3sConfigWidget(Static):
                     # kubelet config section for kind only
                     kubelet_args = self.metadata['k3s_yaml'].get('kubelet-args', '')
                     yield KubeletConfig('k3s', kubelet_args)
+
+    def on_mount(self) -> None:
+        """
+        screen and box border styling
+        """
+        # update tabbed content box
+        tabbed_content = self.query_one(TabbedContent)
+
+        tabbed_content.border_title = (
+                "[i]Add extra[/] options for the [#C1FF87]k3s[/] install script"
+                )
+
+        subtitle = (
+                "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/]"
+                )
+
+        tabbed_content.border_subtitle = subtitle
+
+        for tab in self.query("Tab"):
+            tab.add_class('header-tab')
+
+    def action_show_tab(self, tab: str) -> None:
+        """Switch to a new tab."""
+        self.get_child_by_type(TabbedContent).active = tab
+
+    @on(TabbedContent.TabActivated)
+    def speak_when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
+        if self.app.speak_on_focus:
+            self.app.action_say(f"Selected tab is {event.tab.id}")

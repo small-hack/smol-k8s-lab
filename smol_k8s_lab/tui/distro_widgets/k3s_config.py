@@ -81,15 +81,6 @@ class K3sConfig(Static):
         """
         box border styling
         """
-        # k3s arg config styling
-        k3s_title = ("[i]Add[/] [i]extra[/] options for the [#C1FF87]k3s[/] "
-                     "install script")
-        k3s_container = self.get_widget_by_id(f"{self.distro}-base-grid")
-        k3s_container.border_title = k3s_title
-        subtitle = ("[b][@click=screen.launch_new_option_modal()]"
-                    "➕ k3s option[/][/]")
-        k3s_container.border_subtitle = subtitle
-
         # if we've been passed k3s args already, generate rows
         if self.k3s_args:
             for arg, value in self.k3s_args.items():

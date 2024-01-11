@@ -18,9 +18,6 @@ $navy: rgb(35,35,54);
 .k3s-config-container {
     align: center middle;
     background: rgb(35,35,54) 50%;
-    border: round $cornflower;
-    border-title-color: $sky_blue;
-    border-subtitle-color: $lavender;
     link-background-hover: $navy;
     link-color-hover: $orange;
     padding: 2;

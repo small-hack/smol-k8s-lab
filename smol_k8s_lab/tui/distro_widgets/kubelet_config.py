@@ -80,7 +80,7 @@ class KubeletConfig(Widget):
 
         # this isn't beautiful, but should get the job done
         if self.distro == "k3s":
-            k3s_args = app_yaml['k3s_yaml']
+            k3s_args = app_yaml['k3s_yaml']['kubelet-args']
             pop_item = None
 
             if input_key:
@@ -114,7 +114,7 @@ class KubeletConfig(Widget):
 
             # k3s uses a list
             if self.distro == "k3s":
-                args = distro_cfg["k3s_yaml"]
+                args = distro_cfg["k3s_yaml"]['kubelet-args']
                 if isinstance(args, list):
                     args.append(f"{event.input.name}={event.input.value}")
                 else:
