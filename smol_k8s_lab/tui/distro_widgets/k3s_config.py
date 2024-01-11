@@ -69,7 +69,8 @@ class K3sConfig(Static):
                     "Add extra [steel_blue][b][link=https://docs.k3s.io/cli/server]"
                     "k3s options[/][/][/] to pass to the k3s install script via a "
                     "[steel_blue][b][link=https://docs.k3s.io/installation/configuration#"
-                    f"configuration-file]config file[/][/][/] stored in {CFG_FILE}",
+                    f"configuration-file]config file[/][/][/] stored in {CFG_FILE}. "
+                    "Please use the second tab for extra kubelet args.",
                     classes="help-text"
                     )
 
@@ -84,7 +85,7 @@ class K3sConfig(Static):
         # if we've been passed k3s args already, generate rows
         if self.k3s_args:
             for arg, value in self.k3s_args.items():
-                if arg:
+                if arg and arg != "kubelet-arg":
                     self.generate_row(arg, value)
 
     def on_button_pressed(self, event: Button.Pressed) -> None:

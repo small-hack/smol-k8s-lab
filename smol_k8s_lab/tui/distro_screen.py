@@ -303,18 +303,18 @@ class K3sConfigWidget(Static):
 
 
             # Add the TabbedContent widget for kind config
-            with TabbedContent(initial="kind-networking-tab", id="kind-tabbed-content"):
+            with TabbedContent(initial="k3s-yaml-tab", id="k3s-tabbed-content"):
                 # tab 1 - networking options
-                with TabPane("Networking options", id="kind-networking-tab"):
+                with TabPane("k3s.yaml", id="k3s-yaml-tab"):
                     # take extra k3s args if self.distro is k3s or k3d
                     yield K3sConfig(self.distro,
                                     self.metadata['k3s_yaml'],
                                     id=f"{self.distro}-widget")
 
                 # tab 2 - kubelet options
-                with TabPane("Kubelet Config Options", id="kind-kubelet-tab"):
+                with TabPane("Kubelet Config Options", id="k3s-kubelet-tab"):
                     # kubelet config section for kind only
-                    kubelet_args = self.metadata['k3s_yaml'].get('kubelet-args', '')
+                    kubelet_args = self.metadata['k3s_yaml'].get('kubelet-arg', '')
                     yield KubeletConfig('k3s', kubelet_args)
 
     def on_mount(self) -> None:
