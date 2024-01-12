@@ -180,21 +180,30 @@ class DistroConfigScreen(Screen):
     def action_launch_new_option_modal(self) -> None:
         def add_new_row(option: str):
             if option and self.current_distro != 'kind':
-                k3s_widget = self.get_widget_by_id(f"{self.current_distro}-widget")
+                if self.query_one(TabbedContent).active == "k3s-yaml-tab":
+                    k3s_widget = self.get_widget_by_id(f"{self.current_distro}-widget")
+                else:
+                    k3s_widget = self.get_widget_by_id(
+                            f"kubelet-config-{self.current_distro}"
+                            )
                 k3s_widget.generate_row(option)
+
             elif option and self.current_distro == 'kind':
                 if self.query_one(TabbedContent).active == "kind-networking-tab":
                     kind_widget = self.query_one(KindNetworkingConfig)
-                    kind_widget.generate_row(option)
                 else:
-                    kind_widget = self.query_one(KubeletConfig)
-                    kind_widget.generate_row(option)
+                    kind_widget = self.get_widget_by_id(
+                            f"kubelet-config-{self.current_distro}"
+                            )
+                kind_widget.generate_row(option)
             else:
                 return
 
         if self.current_distro != 'kind':
             if self.query_one(TabbedContent).active == "k3s-kubelet-tab":
-                existing_keys = self.cfg[self.current_distro]['k3s_yaml'].get("kubelet-arg", [])
+                existing_keys = self.cfg[self.current_distro]['k3s_yaml'].get(
+                        "kubelet-arg", []
+                        )
                 trigger = "k3s kubelet"
             else:
                 existing_keys = self.cfg[self.current_distro]['k3s_yaml'].keys()

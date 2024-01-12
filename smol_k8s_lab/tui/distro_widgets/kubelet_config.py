@@ -29,12 +29,14 @@ class KubeletConfig(Widget):
     def __init__(self, distro: str, kubelet_extra_args: list = []) -> None:
         self.distro = distro
         self.kubelet_extra_args = kubelet_extra_args
-        super().__init__()
+        super().__init__(id=f"kubelet-config-{distro}")
 
     def compose(self) -> ComposeResult:
-        with Grid(id="kubelet-config-container"):
+        with Grid(id=f"kubelet-config-container-{self.distro}",
+                  classes="kubelet-config-container"):
             yield Label(kubelet_help, classes="help-text")
-            yield VerticalScroll(id="kubelet-config-scroll")
+            yield VerticalScroll(id=f"kubelet-config-scroll-{self.distro}",
+                                 classes="kubelet-config-scroll")
 
     def on_mount(self) -> None:
         if self.kubelet_extra_args:
@@ -146,7 +148,7 @@ class KubeletConfig(Widget):
         del_button = Button("🚮", id=f"kind-kubelet-delete-{param}-button")
         del_button.tooltip = "Delete this kubelet parameter"
 
-        self.get_widget_by_id("kubelet-config-scroll").mount(
+        self.get_widget_by_id(f"kubelet-config-scroll-{self.distro}").mount(
                 Grid(label, param_value_input, del_button,
                      classes="label-input-delete-row")
                 )
