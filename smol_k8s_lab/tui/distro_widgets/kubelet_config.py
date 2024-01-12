@@ -115,9 +115,11 @@ class KubeletConfig(Widget):
             # k3s uses a list
             if self.distro == "k3s":
                 args = distro_cfg["k3s_yaml"]['kubelet-arg']
-                if isinstance(args, list):
-                    args.append(f"{event.input.name}={event.input.value}")
-                else:
+
+                kubelet_arg = f"{event.input.name}={event.input.value}"
+                if isinstance(args, list) and kubelet_arg not in args:
+                    args.append(kubelet_arg)
+                elif not isinstance(args, list) and kubelet_arg not in args:
                     args = [f"{event.input.name}={event.input.value}"]
 
             self.app.write_yaml()
