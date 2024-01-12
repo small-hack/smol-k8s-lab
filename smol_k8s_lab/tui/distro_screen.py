@@ -137,6 +137,9 @@ class DistroConfigScreen(Screen):
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:
+        """
+        changed currently enabled kubernetes distro in the TUI
+        """
         distro = str(event.value)
 
         # disable display on previous distro
@@ -190,35 +193,45 @@ class DistroConfigScreen(Screen):
             Takes option (str) to add new row to the tui for the active tab of
             current distro
             """
-            # if the distro is kind
-            if option and self.current_distro == 'kind':
-                # use tab for kind networking, which is the default tab
-                if self.query_one(TabbedContent).active == "kind-networking-tab":
-                    kind_widget = self.query_one(KindNetworkingConfig)
-                # use tab for kubelet config
-                else:
-                    kind_widget = self.get_widget_by_id(
-                            f"kubelet-config-{self.current_distro}"
-                            )
-                kind_widget.generate_row(option)
+            distro = self.current_distro
 
-            # if the distro is k3s OR k3d
-            elif option and self.current_distro.startswith('k3'):
-                # use tab for k3s yaml options, EXCEPT for kubelet config args
-                if self.query_one(TabbedContent).active == "k3s-yaml-tab":
-                    k3s_widget = self.get_widget_by_id(f"{self.current_distro}-widget")
-                # use tab for k3s kubelet-args
-                else:
-                    k3s_widget = self.get_widget_by_id(
-                            f"kubelet-config-{self.current_distro}"
-                            )
-                k3s_widget.generate_row(option)
+            if option:
+                # if the distro is kind
+                if distro == 'kind':
+                    # use tab for kind networking, which is the default tab
+                    tabbed_content = self.get_widget_by_id("kind-tabbed-content")
+                    if tabbed_content.active == "kind-networking-tab":
+                        widget = self.query_one(KindNetworkingConfig)
+
+                # if the distro is k3s OR k3d
+                elif distro.startswith('k3'):
+                    tabbed_content = self.get_widget_by_id("k3s-tabbed-content")
+                    # use tab for k3s yaml options, EXCEPT for kubelet config args
+                    if tabbed_content.active == "k3s-yaml-tab":
+                        widget = self.get_widget_by_id(f"{distro}-widget")
+
+                if "kubelet" in tabbed_content.active:
+                    widget = self.get_widget_by_id(f"kubelet-config-{distro}")
+
+                widget.generate_row(option)
 
             else:
                 return
 
-        if self.current_distro != 'kind':
-            if self.query_one(TabbedContent).active == "k3s-kubelet-tab":
+        if self.current_distro == 'kind':
+            kind_cfg = self.cfg['kind']
+            kind_tabbed_content = self.get_widget_by_id("kind-tabbed-content")
+            if kind_tabbed_content.active == "kind-networking-tab":
+                existing_keys = kind_cfg['networking_args'].keys()
+                trigger = "kind networking"
+            else:
+                existing_keys = kind_cfg['kubelet_extra_args'].keys()
+                trigger = "kind kubelet"
+
+        # if the current_distro is k3s or k3d
+        else:
+            k3s_tabbed_content = self.get_widget_by_id("k3s-tabbed-content")
+            if k3s_tabbed_content.active == "k3s-kubelet-tab":
                 existing_keys = self.cfg[self.current_distro]['k3s_yaml'].get(
                         "kubelet-arg", []
                         )
@@ -226,14 +239,6 @@ class DistroConfigScreen(Screen):
             else:
                 existing_keys = self.cfg[self.current_distro]['k3s_yaml'].keys()
                 trigger = "k3s k3s_yaml"
-        else:
-            kind_cfg = self.cfg['kind']
-            if self.query_one(TabbedContent).active == "kind-networking-tab":
-                existing_keys = kind_cfg['networking_args'].keys()
-                trigger = "kind networking"
-            else:
-                existing_keys = kind_cfg['kubelet_extra_args'].keys()
-                trigger = "kind kubelet"
 
         self.app.push_screen(NewOptionModal(trigger, existing_keys), add_new_row)
 
