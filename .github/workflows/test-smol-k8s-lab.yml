@@ -1,7 +1,7 @@
 ---
 name: Test smol-k8s-lab
 on:
-  push:
+  pull_request:
     branches-ignore:
       - "main"
     paths-ignore:
