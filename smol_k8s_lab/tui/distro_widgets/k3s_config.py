@@ -1,6 +1,8 @@
 #!/usr/bin/env python3.11
 # internal library
-from smol_k8s_lab.constants import XDG_CACHE_DIR
+from smol_k8s_lab.constants import XDG_CACHE_DIR, DEFAULT_DISTRO_OPTIONS
+from smol_k8s_lab.tui.distro_widgets.kubelet_config import KubeletConfig
+from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
 from smol_k8s_lab.tui.util import create_sanitized_list
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
@@ -11,7 +13,7 @@ from textual.containers import VerticalScroll, Grid
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.validation import Length
-from textual.widgets import Input, Button, Label, Static
+from textual.widgets import Input, Button, Label, Static, TabbedContent, TabPane
 
 CFG_FILE = XDG_CACHE_DIR + "/k3s.yaml"
 
@@ -49,6 +51,77 @@ SUGGESTIONS = SuggestFromList((
        ))
 
 LIST_KEYS = ["disable", "node-label", "kubelet-arg"]
+
+
+class K3sConfigWidget(Static):
+    """ 
+    a widget representing the entire kind configuration
+    """
+    def __init__(self, distro: str, metadata: dict, id: str = "") -> None:
+        self.distro = distro
+        self.metadata = metadata
+        super().__init__(id=id)
+
+    def compose(self) -> ComposeResult:
+        if not self.metadata:
+            self.metadata = DEFAULT_DISTRO_OPTIONS[self.distro]
+
+        with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
+
+            # take number of nodes from config and make string
+            nodes = self.metadata.get('nodes',
+                                      {'control_plane': 1, 'workers': 0})
+            control_nodes = str(nodes.get('control_plane', '1'))
+            worker_nodes = str(nodes.get('workers', '0'))
+
+            # node input row
+            yield NodeAdjustmentBox(self.distro, control_nodes, worker_nodes)
+
+
+            # Add the TabbedContent widget for kind config
+            with TabbedContent(initial="k3s-yaml-tab", id="k3s-tabbed-content"):
+                # tab 1 - networking options
+                with TabPane("k3s.yaml", id="k3s-yaml-tab"):
+                    # take extra k3s args if self.distro is k3s or k3d
+                    yield K3sConfig(self.distro,
+                                    self.metadata['k3s_yaml'],
+                                    id=f"{self.distro}-widget")
+
+                # tab 2 - kubelet options
+                with TabPane("Kubelet Config Options", id="k3s-kubelet-tab"):
+                    # kubelet config section for kind only
+                    kubelet_args = self.metadata['k3s_yaml'].get('kubelet-arg', '')
+                    yield KubeletConfig('k3s', kubelet_args)
+
+    def on_mount(self) -> None:
+        """
+        screen and box border styling
+        """
+        # update tabbed content box
+        tabbed_content = self.query_one(TabbedContent)
+
+        tabbed_content.border_title = (
+                "[i]Add extra[/] options for the [#C1FF87]k3s[/] install script"
+                )
+
+        subtitle = (
+                "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/]"
+                )
+
+        tabbed_content.border_subtitle = subtitle
+
+        for tab in self.query("Tab"):
+            tab.add_class('header-tab')
+
+    def action_show_tab(self, tab: str) -> None:
+        """Switch to a new tab."""
+        self.get_widget_by_id("k3s-tabbed-content").show_tab(tab)
+        self.get_widget_by_id("k3s-tabbed-content").active = tab
+
+    @on(TabbedContent.TabActivated)
+    def speak_when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
+        if self.app.speak_on_focus:
+            self.app.action_say(f"Selected tab is {event.tab.id}")
 
 
 class K3sConfig(Static):

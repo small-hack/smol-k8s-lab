@@ -123,22 +123,27 @@ class NewOptionModal(ModalScreen):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        # base screen grid
+        """
+        base screen grid
+        """
         question = f"[#ffaff9]Add[/] [i]new[/] [#C1FF87]{self.tab} option[/]."
         tooltip = (
                 "Start typing an option to show suggestions. Use the right arrow "
                 "key to complete the suggestion. Hit enter to submit."
                 )
-        if self.tab.startswith("k3s k3s.yaml"):
+
+        if self.tab.startswith("k3s k3s_yaml"):
             tooltip += (
                     "Note: If [dim][#C1FF87]cilium[/][/] is [i]enabled[/], we "
                     "add flannel-backend: none and disable-network-policy: true."
                 )
             suggestions = K3S_SUGGESTIONS
+
         elif "network" in self.tab:
             tooltip += ("Note: If [dim][#C1FF87]cilium[/][/] is [i]enabled[/],"
                         "we pass in disableDefaultCNI=true.")
             suggestions = NETWORKING_SUGGESTIONS
+
         elif "kubelet" in self.tab:
             suggestions = KUBELET_SUGGESTIONS
 

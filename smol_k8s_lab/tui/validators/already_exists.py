@@ -10,7 +10,7 @@ class CheckIfNameAlreadyInUse(Validator):
 
     def validate(self, value: str) -> ValidationResult:
         """Check if a string is already in use as an app name."""
-        if value in self.params:
+        if value in self.params and value != "kubelet-arg":
             return self.failure("That name is already in use 🫨")
         else:
             return self.success()
