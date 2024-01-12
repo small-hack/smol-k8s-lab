@@ -178,24 +178,42 @@ class DistroConfigScreen(Screen):
         self.current_distro = distro
 
     def action_launch_new_option_modal(self) -> None:
+        """
+        callable action via link and key binding to display a modal for adding
+        a new option to the currently selected tab of the distro's config screen
+        """
         def add_new_row(option: str):
-            if option and self.current_distro != 'kind':
+            """
+            DistroConfigScreen.action_launch_new_option_modal.add_new_row
+            called when user's input for a new option validates and is submitted
+
+            Takes option (str) to add new row to the tui for the active tab of
+            current distro
+            """
+            # if the distro is kind
+            if option and self.current_distro == 'kind':
+                # use tab for kind networking, which is the default tab
+                if self.query_one(TabbedContent).active == "kind-networking-tab":
+                    kind_widget = self.query_one(KindNetworkingConfig)
+                # use tab for kubelet config
+                else:
+                    kind_widget = self.get_widget_by_id(
+                            f"kubelet-config-{self.current_distro}"
+                            )
+                kind_widget.generate_row(option)
+
+            # if the distro is k3s OR k3d
+            elif option and self.current_distro.startswith('k3'):
+                # use tab for k3s yaml options, EXCEPT for kubelet config args
                 if self.query_one(TabbedContent).active == "k3s-yaml-tab":
                     k3s_widget = self.get_widget_by_id(f"{self.current_distro}-widget")
+                # use tab for k3s kubelet-args
                 else:
                     k3s_widget = self.get_widget_by_id(
                             f"kubelet-config-{self.current_distro}"
                             )
                 k3s_widget.generate_row(option)
 
-            elif option and self.current_distro == 'kind':
-                if self.query_one(TabbedContent).active == "kind-networking-tab":
-                    kind_widget = self.query_one(KindNetworkingConfig)
-                else:
-                    kind_widget = self.get_widget_by_id(
-                            f"kubelet-config-{self.current_distro}"
-                            )
-                kind_widget.generate_row(option)
             else:
                 return
 
