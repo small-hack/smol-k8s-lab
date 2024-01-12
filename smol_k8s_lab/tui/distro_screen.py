@@ -2,10 +2,9 @@
 # smol-k8s-lab libraries
 from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
 from smol_k8s_lab.env_config import process_k8s_distros
-from smol_k8s_lab.tui.distro_widgets.k3s_config import K3sConfig
-from smol_k8s_lab.tui.distro_widgets.kind_networking import KindNetworkingConfig
-from smol_k8s_lab.tui.distro_widgets.kubelet_config import KubeletConfig
-from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
+from smol_k8s_lab.tui.distro_widgets.k3s_config import K3sConfigWidget
+from smol_k8s_lab.tui.distro_widgets.kind_config import (KindNetworkingConfig,
+                                                         KindConfigWidget)
 from smol_k8s_lab.tui.util import NewOptionModal
 
 # external libraries
@@ -14,8 +13,7 @@ from textual.app import ComposeResult, NoMatches
 from textual.binding import Binding
 from textual.containers import Grid
 from textual.screen import Screen
-from textual.widgets import (Footer, Header, Label, Select, TabbedContent,
-                             TabPane, Static)
+from textual.widgets import Footer, Header, Label, Select
 
 
 # the description of the k8s distro
@@ -137,6 +135,9 @@ class DistroConfigScreen(Screen):
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:
+        """
+        changed currently enabled kubernetes distro in the TUI
+        """
         distro = str(event.value)
 
         # disable display on previous distro
@@ -178,129 +179,67 @@ class DistroConfigScreen(Screen):
         self.current_distro = distro
 
     def action_launch_new_option_modal(self) -> None:
+        """
+        callable action via link and key binding to display a modal for adding
+        a new option to the currently selected tab of the distro's config screen
+        """
         def add_new_row(option: str):
-            if option and self.current_distro != 'kind':
-                k3s_widget = self.get_widget_by_id(f"{self.current_distro}-widget")
-                k3s_widget.generate_row(option)
-            elif option and self.current_distro == 'kind':
-                if self.query_one(TabbedContent).active == "kind-networking-tab":
-                    kind_widget = self.query_one(KindNetworkingConfig)
-                    kind_widget.generate_row(option)
-                else:
-                    kind_widget = self.query_one(KubeletConfig)
-                    kind_widget.generate_row(option)
+            """
+            DistroConfigScreen.action_launch_new_option_modal.add_new_row
+            called when user's input for a new option validates and is submitted
+
+            Takes option (str) to add new row to the tui for the active tab of
+            current distro
+            """
+            distro = self.current_distro
+
+            if option:
+                # if the distro is kind
+                if distro == 'kind':
+                    # use tab for kind networking, which is the default tab
+                    tabbed_content = self.get_widget_by_id("kind-tabbed-content")
+                    if tabbed_content.active == "kind-networking-tab":
+                        widget = self.query_one(KindNetworkingConfig)
+
+                # if the distro is k3s OR k3d
+                elif distro.startswith('k3'):
+                    tabbed_content = self.get_widget_by_id("k3s-tabbed-content")
+                    # use tab for k3s yaml options, EXCEPT for kubelet config args
+                    if tabbed_content.active == "k3s-yaml-tab":
+                        if option == "kubelet-arg":
+                            self.query_one(K3sConfigWidget).action_show_tab("k3s-kubelet-tab")
+                            return
+                        else:
+                            widget = self.get_widget_by_id(f"{distro}-widget")
+
+                if "kubelet" in tabbed_content.active:
+                    widget = self.get_widget_by_id(f"kubelet-config-{distro}")
+
+                widget.generate_row(option)
+
             else:
                 return
 
-        if self.current_distro != 'kind':
-            existing_keys = self.cfg[self.current_distro]['k3s_yaml'].keys()
-            trigger = "k3s"
-        else:
+        if self.current_distro == 'kind':
             kind_cfg = self.cfg['kind']
-            if self.query_one(TabbedContent).active == "kind-networking-tab":
+            kind_tabbed_content = self.get_widget_by_id("kind-tabbed-content")
+            if kind_tabbed_content.active == "kind-networking-tab":
                 existing_keys = kind_cfg['networking_args'].keys()
                 trigger = "kind networking"
             else:
                 existing_keys = kind_cfg['kubelet_extra_args'].keys()
                 trigger = "kind kubelet"
 
+        # if the current_distro is k3s or k3d
+        else:
+            k3s_tabbed_content = self.get_widget_by_id("k3s-tabbed-content")
+            if k3s_tabbed_content.active == "k3s-kubelet-tab":
+                existing_keys = self.cfg[self.current_distro]['k3s_yaml'].get(
+                        "kubelet-arg", []
+                        )
+                trigger = "k3s kubelet"
+            else:
+                existing_keys = self.cfg[self.current_distro]['k3s_yaml'].keys()
+                trigger = "k3s k3s_yaml"
+
         self.app.push_screen(NewOptionModal(trigger, existing_keys), add_new_row)
-
-
-class KindConfigWidget(Static):
-    """ 
-    a widget representing the entire kind configuration
-    """
-    def __init__(self,
-                 metadata: dict = DEFAULT_DISTRO_OPTIONS['kind'],
-                 id="kind-pseudo-screen") -> None:
-        self.metadata = metadata
-        super().__init__(id=id)
-
-    def compose(self) -> ComposeResult:
-        with Grid(classes="k8s-distro-config", id="kind-box"):
-            # take number of nodes from config and make string
-            nodes = self.metadata.get('nodes', {'control_plane': 1,
-                                                'workers': 0})
-            control_nodes = str(nodes.get('control_plane', '1'))
-            worker_nodes = str(nodes.get('workers', '0'))
-
-            # node input row
-            yield NodeAdjustmentBox('kind', control_nodes, worker_nodes)
-
-            kubelet_args = self.metadata['kubelet_extra_args']
-            networking_args = self.metadata['networking_args']
-
-            # Add the TabbedContent widget for kind config
-            with TabbedContent(initial="kind-networking-tab",
-                               id="kind-tabbed-content"):
-                # tab 1 - networking options
-                with TabPane("Networking options",
-                             id="kind-networking-tab"):
-                    # kind networking section
-                    yield KindNetworkingConfig(networking_args)
-
-                # tab 2 - kubelet options
-                with TabPane("Kubelet Config Options", 
-                             id="kind-kubelet-tab"):
-                    # kubelet config section for kind only
-                    yield KubeletConfig('kind', kubelet_args)
-
-    def on_mount(self) -> None:
-        """
-        screen and box border styling
-        """
-        # update tabbed content box
-        tabbed_content = self.query_one(TabbedContent)
-
-        tabbed_content.border_title = (
-                "Add [i]extra[/] options for [#C1FF87]kind[/] config files"
-                )
-
-        subtitle = (
-                "[b][@click=screen.launch_new_option_modal()] ➕ kind option[/][/]"
-                )
-
-        tabbed_content.border_subtitle = subtitle
-
-        for tab in self.query("Tab"):
-            tab.add_class('header-tab')
-
-    def action_show_tab(self, tab: str) -> None:
-        """Switch to a new tab."""
-        self.get_child_by_type(TabbedContent).active = tab
-
-    @on(TabbedContent.TabActivated)
-    def speak_when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
-        if self.app.speak_on_focus:
-            self.app.action_say(f"Selected tab is {event.tab.id}")
-
-
-class K3sConfigWidget(Static):
-    """ 
-    a widget representing the entire kind configuration
-    """
-    def __init__(self, distro: str, metadata: dict, id: str = "") -> None:
-        self.distro = distro
-        self.metadata = metadata
-        super().__init__(id=id)
-
-    def compose(self) -> ComposeResult:
-        if not self.metadata:
-            self.metadata = DEFAULT_DISTRO_OPTIONS[self.distro]
-
-        with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
-
-            # take number of nodes from config and make string
-            nodes = self.metadata.get('nodes',
-                                      {'control_plane': 1, 'workers': 0})
-            control_nodes = str(nodes.get('control_plane', '1'))
-            worker_nodes = str(nodes.get('workers', '0'))
-
-            # node input row
-            yield NodeAdjustmentBox(self.distro, control_nodes, worker_nodes)
-
-            # take extra k3s args if self.distro is k3s or k3d
-            yield K3sConfig(self.distro,
-                            self.metadata['k3s_yaml'],
-                            id=f"{self.distro}-widget")

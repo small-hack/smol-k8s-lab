@@ -57,13 +57,13 @@ KubeletConfig {
 }
 
 /* kubelet config container */
-#kubelet-config-container {
+.kubelet-config-container {
     padding: 1;
     grid-rows: 0.25fr 1fr;
     align: center middle;
 }
 
-#kubelet-config-scroll {
+.kubelet-config-scroll {
     align: center middle;
     scrollbar-background: $dark_gray;
     scrollbar-background-active: $dark_gray;

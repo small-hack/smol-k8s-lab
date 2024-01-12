@@ -98,7 +98,7 @@ k8s_distros:
       node-label:
       - "ingress-ready=true"
       kubelet-arg:
-      - "max_pods=150"
+      - "max-pods=150"
     # not yet adjustable on k3s at this time
     nodes:
       control_plane: 1
@@ -123,7 +123,7 @@ k8s_distros:
       disable:
       - "traefik"
       kubelet-arg:
-      - "max_pods=150"
+      - "max-pods=150"
       node-label:
       - "ingress-ready=true"
     # how many dockerized k3s nodes to deploy
@@ -143,9 +143,9 @@ k8s_distros:
     kubelet_extra_args:
       # all these options are defaults
       node-labels: "ingress-ready=true"
-      maxPods: 110
-      podsPerCore: 0
-      resolvConf: "/etc/resolv.conf"
+      max-pods: 110
+      pods-per-core: 0
+      resolv-conf: "/etc/resolv.conf"
     networking_args:
       # all these options are defaults
       ipFamily: "ipv4"
@@ -229,6 +229,6 @@ apps_global_config:
   cluster_issuer: "letsencrypt-staging"
   # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
   time_zone: "Europe/Amsterdam"
-  # always deploy external secrets. *Must be a string of "" (don't use external secrets) or "bitwarden" to use bitwarden for external secrets*
+  # always deploy external secrets. *Must be a string of "none" (don't use external secrets) or "bitwarden" to use bitwarden for external secrets*
   external_secrets: "bitwarden"
 ```
