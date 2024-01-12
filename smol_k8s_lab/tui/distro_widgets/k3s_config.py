@@ -43,9 +43,9 @@ SUGGESTIONS = SuggestFromList((
        "none",
        "wireguard-native",
        "true",
-       "max_pods=",
-       "podsPerCore=",
-       "featureGates=",
+       "max-pods=",
+       "pods-per-Core=",
+       "feature-gates=",
        ))
 
 LIST_KEYS = ["disable", "node-label", "kubelet-arg"]

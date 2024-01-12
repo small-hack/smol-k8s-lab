@@ -79,7 +79,7 @@ k8s_distros:
       node-label:
       - "ingress-ready=true"
       kubelet-arg:
-      - "max_pods=150"
+      - "max-pods=150"
     # not yet adjustable on k3s at this time
     nodes:
       control_plane: 1
@@ -99,7 +99,7 @@ k8s_distros:
       disable:
       - "traefik"
       kubelet-arg:
-      - "max_pods=150"
+      - "max-pods=150"
       node-label:
       - "ingress-ready=true"
     # how many dockerized k3s nodes to deploy
