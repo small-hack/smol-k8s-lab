@@ -193,8 +193,12 @@ class DistroConfigScreen(Screen):
                 return
 
         if self.current_distro != 'kind':
-            existing_keys = self.cfg[self.current_distro]['k3s_yaml'].keys()
-            trigger = "k3s"
+            if self.query_one(TabbedContent).active == "k3s-kubelet-tab":
+                existing_keys = self.cfg[self.current_distro]['k3s_yaml'].get("kubelet-arg", [])
+                trigger = "k3s kubelet"
+            else:
+                existing_keys = self.cfg[self.current_distro]['k3s_yaml'].keys()
+                trigger = "k3s k3s_yaml"
         else:
             kind_cfg = self.cfg['kind']
             if self.query_one(TabbedContent).active == "kind-networking-tab":

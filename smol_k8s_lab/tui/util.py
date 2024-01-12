@@ -14,10 +14,12 @@ from textual.widgets import Input, Button, Label, Switch
 
 
 KUBELET_SUGGESTIONS = SuggestFromList((
-        "podsPerCore",
-        "maxPods",
+        "pods-per-core",
+        "max-pods",
         "node-labels",
-        "featureGates"
+        "feature-gates",
+        "system-reserved",
+        "kube-reserved"
         ))
 
 
@@ -115,29 +117,29 @@ class NewOptionModal(ModalScreen):
             "./css/new_option_modal.tcss"
             ]
 
-    def __init__(self, trigger: str, in_use_args: list = []) -> None:
+    def __init__(self, tab: str, in_use_args: list = []) -> None:
         self.in_use_args = in_use_args
-        self.trigger = trigger
+        self.tab = tab
         super().__init__()
 
     def compose(self) -> ComposeResult:
         # base screen grid
-        question = f"[#ffaff9]Add[/] [i]new[/] [#C1FF87]{self.trigger} option[/]."
+        question = f"[#ffaff9]Add[/] [i]new[/] [#C1FF87]{self.tab} option[/]."
         tooltip = (
                 "Start typing an option to show suggestions. Use the right arrow "
                 "key to complete the suggestion. Hit enter to submit."
                 )
-        if self.trigger.startswith("k3"):
+        if self.tab.startswith("k3s k3s.yaml"):
             tooltip += (
                     "Note: If [dim][#C1FF87]cilium[/][/] is [i]enabled[/], we "
                     "add flannel-backend: none and disable-network-policy: true."
                 )
             suggestions = K3S_SUGGESTIONS
-        elif "network" in self.trigger:
+        elif "network" in self.tab:
             tooltip += ("Note: If [dim][#C1FF87]cilium[/][/] is [i]enabled[/],"
                         "we pass in disableDefaultCNI=true.")
             suggestions = NETWORKING_SUGGESTIONS
-        elif "kubelet" in self.trigger:
+        elif "kubelet" in self.tab:
             suggestions = KUBELET_SUGGESTIONS
 
         with Grid(id="new-option-modal-screen"):
@@ -147,7 +149,7 @@ class NewOptionModal(ModalScreen):
 
                 with Grid(id='new-option-grid'):
                     input = Input(id='new-option-input',
-                                  placeholder=f"new {self.trigger} option",
+                                  placeholder=f"new {self.tab} option",
                                   suggester=suggestions,
                                   validators=[
                                       Length(minimum=4),
