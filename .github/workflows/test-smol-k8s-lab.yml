@@ -9,7 +9,7 @@ on:
       - "README.md"
       - "docs/**"
 jobs:
-  smol_k8s_lab_kind:
+  smol_k8s_lab_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -36,7 +36,12 @@ jobs:
             sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
             rm argocd-linux-amd64
 
-      - name: source virtual env and test smol-k8s-lab
+      - name: test smol-k8s-lab with kind
         run: |
             source .venv/bin/activate 
-            smol-k8s-lab -c .github/smol_k8s_lab_config.yaml
+            smol-k8s-lab -c .github/smol_k8s_lab_config_kind.yaml
+
+      - name: test smol-k8s-lab with k3s
+        run: |
+            source .venv/bin/activate 
+            smol-k8s-lab -c .github/smol_k8s_lab_config_k3s.yaml
