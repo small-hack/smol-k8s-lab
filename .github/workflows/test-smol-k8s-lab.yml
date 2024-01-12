@@ -2,8 +2,6 @@
 name: Test smol-k8s-lab
 on:
   pull_request:
-    branches-ignore:
-      - "main"
     paths-ignore:
       - ".github/**"
       - "README.md"
@@ -14,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up python
+      - name: Set up Python
         id: setup-python
         uses: actions/setup-python@v4
         with:
@@ -30,7 +28,7 @@ jobs:
       - name: Install smol-k8s-lab via poetry
         run: poetry install
 
-      - name: Install Argo CD
+      - name: Install Argo CD cli
         run: |
             curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
             sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
