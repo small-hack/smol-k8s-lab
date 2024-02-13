@@ -29,7 +29,7 @@ include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
 bcrypt             = "^4.0"
 click              = "^8.1"
 cryptography       = "^42.0.2"
-kubernetes         = "^28.1"
+kubernetes         = ">=28.1,<30.0"
 minio              = "^7.1.17"
 pyfiglet           = "^1.0.2"
 pyjwt              = "^2.8.0"
