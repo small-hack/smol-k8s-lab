@@ -32,7 +32,7 @@ def configure_external_secrets(k8s_obj: K8s,
 
     if bitwarden:
         # wait for bitwarden external secrets provider to be up
-        wait_for_argocd_app('bitwarden-eso-provider')
+        wait_for_argocd_app('bitwarden-eso-provider', retry=True)
 
 
 def setup_bweso_provider(k8s_obj: K8s, distro: str, bitwarden: BwCLI = None) -> None:
