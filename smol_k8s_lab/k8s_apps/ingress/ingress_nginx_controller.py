@@ -24,10 +24,10 @@ def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str) -> None:
     if k8s_distro == 'kind':
         # this is to wait for the deployment to come up
         k8s_obj.apply_manifests(
-                url,
-                "ingress-nginx",
-                "ingress-nginx-controller",
-                "app.kubernetes.io/component=controller"
+                manifest_file_name=url,
+                namespace="ingress-nginx",
+                deployment="ingress-nginx-controller",
+                selector="app.kubernetes.io/component=controller"
                 )
     else:
         values = {"controller.allowSnippetAnnotations": True}
