@@ -60,12 +60,25 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     log.debug(response)
 
 
-def wait_for_argocd_app(app: str):
+def wait_for_argocd_app(app: str, retry: bool = False) -> None:
     """
     checks the status of an Argo CD app and waits till it is ready
     """
-    subproc([f"argocd app wait {app}"])
-    return True
+    if retry:
+        # set error to true by default
+        error = True
+        # while error still equals True, keep retrying the command
+        while error:
+            try:
+                subproc([f"argocd app wait {app} --health"])
+            except Exception as e:
+                log.debug(e)
+                error = True
+                log.debug(f"Retrying wait for for {app}")
+            else:
+                error = False
+    else:
+        subproc([f"argocd app wait {app} --health"])
 
 
 def create_argocd_project(k8s_obj: K8s,

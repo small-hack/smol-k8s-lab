@@ -106,9 +106,12 @@ def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
 
     # if the kubeconfig already exists and is not empty, we update it
     if path.exists(KUBECONFIG):
-        log.info(f"Updating your {KUBECONFIG} ↑")
+        log.info(f"↑ Updating your KUBECONFIG: {KUBECONFIG}")
         with open(KUBECONFIG, 'r') as user_kubeconfig:
-            existing_config = safe_yaml.load(user_kubeconfig)
+            try:
+                existing_config = safe_yaml.load(user_kubeconfig)
+            except Exception as e:
+                log.error(e)
 
         if existing_config:
             for obj in ['clusters', 'users', 'contexts']:
@@ -125,6 +128,11 @@ def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
             # write back the updated user kubeconfig file
             with open(KUBECONFIG, 'w') as user_kubeconfig:
                 yaml.dump(existing_config, user_kubeconfig)
+        else:
+            log.info("Looks like your KUBECONFIG is empty, we'll fill it in for you.")
+            # write updated k3s kubeconfig with new names for context, cluster, user
+            with open(KUBECONFIG, 'w') as user_kubeconfig:
+                yaml.dump(k3s_kubecfg, user_kubeconfig)
     else:
         log.info(f"Creating your new {KUBECONFIG} ✨")
 
