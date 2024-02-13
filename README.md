@@ -8,8 +8,8 @@ smol k8s lab 🧸 <sup><sub>Now with more :squid:</sub></sup>
 </h2>
 
 <p align="center">
-  <a href="https://github.com/jessebot/smol-k8s-lab/releases">
-    <img src="https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white">
+  <a href="https://github.com/small-hack/smol-k8s-lab/releases">
+    <img src="https://img.shields.io/github/v/release/small-hack/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white">
   </a>
 </p>
 
