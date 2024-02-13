@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "2.0.3"
+version       = "2.0.4"
 description   = "CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -28,7 +28,7 @@ include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
 [tool.poetry.dependencies]
 bcrypt             = "^4.0"
 click              = "^8.1"
-cryptography       = "^41.0.3"
+cryptography       = "^42.0.2"
 kubernetes         = "^28.1"
 minio              = "^7.1.17"
 pyfiglet           = "^1.0.2"
