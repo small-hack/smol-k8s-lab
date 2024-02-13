@@ -28,7 +28,7 @@ include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
 [tool.poetry.dependencies]
 bcrypt             = "^4.0"
 click              = "^8.1"
-cryptography       = "^41.0.3"
+cryptography       = ">=41.0.3,<43.0.0"
 kubernetes         = "^28.1"
 minio              = "^7.1.17"
 pyfiglet           = "^1.0.2"
