@@ -26,9 +26,20 @@ Here's the <a href="https://youtu.be/2E9DVJpv440?feature=shared">same video with
 
 
 # Installation
-B sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` can be installed via `pip` or `brew`.
+B sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` can be installed via `pipx` or `brew`.
 
-## brew
+## pipx
+`smol-k8s-lab` requires Python 3.11+ (and [pipx](https://github.com/pypa/pipx)). If you've already got both and [other pre-reqs](https://small-hack.github.io/smol-k8s-lab/installation/#prerequisites), you should be able to:
+
+```bash
+# install the CLI
+pipx install smol-k8s-lab
+
+# Check the help menu before proceeding
+smol-k8s-lab --help
+```
+
+## brew (still unstable)
 
 [`brew`] is the future preferred installation method for macOS/Debian/Ubuntu, as this will also install any non-python prerequisites you need, so you don't need to worry about them. This method is new, so please [let us know if anything isn't working for you](https://github.com/small-hack/homebrew-tap/issues).
 
@@ -40,17 +51,6 @@ brew install small-hack/tap/smol-k8s-lab
 Then you should be able to check the version and cli options with:
 
 ```bash
-smol-k8s-lab --help
-```
-
-## pip
-`smol-k8s-lab` requires Python 3.11+ (and [pip](https://pip.pypa.io/en/stable/installation/)). If you've already got both and [other pre-reqs](https://small-hack.github.io/smol-k8s-lab/installation/#prerequisites), you should be able to:
-
-```bash
-# install the CLI
-pip3.11 install smol-k8s-lab
-
-# Check the help menu before proceeding
 smol-k8s-lab --help
 ```
 

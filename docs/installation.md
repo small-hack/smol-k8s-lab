@@ -25,7 +25,7 @@ Then you should be able to check the version and cli options with:
 smol-k8s-lab --help
 ```
 
-## Install via `pip`
+## Install via `pipx`
 
 ### Prerequisites
 
@@ -52,17 +52,14 @@ All of these are not Required for core functionality of `smol-k8s-lab`, but they
 | [mc]      | only if you want smol-k8s-lab to create MinIO users and buckets for you                                                |
 
 
-`pip` is probably the best way to install `smol-k8s-lab`, but you can also probably use `pipx`:
+## pipx
+`smol-k8s-lab` requires Python 3.11+ (and [pipx](https://github.com/pypa/pipx)). If you've already got both and [other pre-reqs](https://small-hack.github.io/smol-k8s-lab/installation/#prerequisites), you should be able to:
 
 ```bash
-# smol-k8s-lab will also work on newer python versions
-pip3.11 install smol-k8s-lab
-```
+# install the CLI
+pipx install smol-k8s-lab
 
-If all was successful, you should be able to run:
-
-```bash
-# this will show the help text
+# Check the help menu before proceeding
 smol-k8s-lab --help
 ```
 
