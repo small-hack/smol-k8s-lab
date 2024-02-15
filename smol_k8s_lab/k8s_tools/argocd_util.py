@@ -78,7 +78,7 @@ def wait_for_argocd_app(app: str, retry: bool = False) -> None:
             else:
                 error = False
     else:
-        subproc([f"argocd app wait {app} --health"])
+        subproc([f"argocd app wait {app}"])
 
 
 def create_argocd_project(k8s_obj: K8s,
