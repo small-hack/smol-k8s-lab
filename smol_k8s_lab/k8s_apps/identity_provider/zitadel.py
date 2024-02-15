@@ -152,8 +152,8 @@ def configure_zitadel(k8s_obj: K8s,
                 pass
 
             # Before initialization, we need to wait for zitadel's API to be up
-            wait_for_argocd_app('zitadel')
-            wait_for_argocd_app('zitadel-web-app')
+            wait_for_argocd_app('zitadel', retry=True)
+            wait_for_argocd_app('zitadel-web-app', retry=True)
             vouch_dict = initialize_zitadel(k8s_obj=k8s_obj,
                                             zitadel_hostname=zitadel_hostname,
                                             api_tls_verify=api_tls_verify,
