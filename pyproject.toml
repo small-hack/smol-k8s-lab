@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "2.0.5"
+version       = "2.1.0"
 description   = "CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -28,28 +28,28 @@ include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
 [tool.poetry.dependencies]
 bcrypt             = "^4.0"
 click              = "^8.1"
-cryptography       = "^42.0.2"
+cryptography       = "^42.0"
 kubernetes         = "^28.1"
-minio              = "^7.1.17"
-pyfiglet           = "^1.0.2"
-pyjwt              = "^2.8.0"
+minio              = "^7.1"
+pyfiglet           = "^1.0"
+pyjwt              = "^2.8"
 python             = ">=3.11,<4.0"
 pyyaml             = "^6.0"
 requests           = "^2.28"
 rich               = "^13.0"
 ruamel-yaml        = "^0.18"
-ruamel-yaml-string = "^0.1.1"
-textual            = ">=0.47,<0.53"
+ruamel-yaml-string = "^0.1"
+textual            = "^0.52"
 xdg-base-dirs      = "^6.0"
 
 [tool.poetry.group.docs.dependencies]
-mkdocs-material = "^9.4.6"
-mkdocs-video = "^1.5.0"
+mkdocs-material = "^9.4"
+mkdocs-video = "^1.5"
 
 [tool.poetry.group.dev.dependencies]
-deptry = "^0.12.0"
-textual-dev = "^1.1.0"
-pytest-textual-snapshot = "^0.4.0"
+deptry = "^0.12"
+textual-dev = "^1.1"
+pytest-textual-snapshot = "^0.4"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
