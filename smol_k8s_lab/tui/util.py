@@ -221,7 +221,7 @@ def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Hori
     """
     returns a label and switch row in a Horizontal container
     """
-    bool_label = Label(label, classes="bool-switch-row-label")
+    bool_label = Label(label + ":", classes="bool-switch-row-label")
     bool_label.tooltip = tooltip
 
     switch = Switch(value=switch_value,
@@ -239,7 +239,7 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
     """
     returns an input label and field within a Horizontal container
     """
-    input_label = Label(label, classes="input-row-label")
+    input_label = Label(label + ":", classes="input-row-label")
     input_label.tooltip = tooltip
 
     input_dict = {"placeholder": placeholder,
