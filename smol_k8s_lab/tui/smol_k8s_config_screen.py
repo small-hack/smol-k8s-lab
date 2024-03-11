@@ -111,7 +111,7 @@ class LoggingConfig(Widget):
                                  id="log-level-select",
                                  value=current_level)
 
-                yield input_field(label="file:",
+                yield input_field(label="file",
                                   initial_value=logging_opt['file'],
                                   name="file",
                                   placeholder=XDG_STATE_HOME,
@@ -158,7 +158,7 @@ class PasswordManagerConfig(Widget):
 
             enabled_tooltip = "enable storing passwords for apps in a password manager"
             with Grid(id="password-manager-options-grid"):
-                yield bool_option("enabled:",
+                yield bool_option("enabled",
                                   self.cfg['enabled'],
                                   "enabled",
                                   enabled_tooltip)
