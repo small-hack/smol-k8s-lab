@@ -322,6 +322,27 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
+  home_assistant:
+    enabled: false
+    description: |
+      ⚠️ [magenta]demo Status[/magenta]
+
+      Home Assistant is a home IOT management solution.
+    argo:
+      secret_keys:
+        hostname: ""
+      repo: https://github.com/small-hack/argocd-apps
+      path: demo/home-assistant/
+      revision: main
+      namespace: home-assistant
+      directory_recursion: false
+      project:
+        source_repos:
+        - http://jessebot.github.io/home-assistant-helm
+        destination:
+          namespaces:
+          - argocd
+
   infisical:
     enabled: false
     description: |
