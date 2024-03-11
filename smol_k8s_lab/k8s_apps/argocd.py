@@ -52,7 +52,7 @@ def configure_argocd(k8s_obj: K8s,
                "server": {
                    "ingress": {
                        "enabled": True,
-                       "hosts": [argo_cd_domain],
+                       "hostname": argo_cd_domain,
                        "annotations": {
                            "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
                            "cert-manager.io/cluster-issuer": "letsencrypt-staging",
