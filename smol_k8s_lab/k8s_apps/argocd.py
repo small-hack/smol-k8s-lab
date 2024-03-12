@@ -55,7 +55,6 @@ def configure_argocd(k8s_obj: K8s,
                        "hostname": argo_cd_domain,
                        "annotations": {
                            "nginx.ingress.kubernetes.io/backend-protocol": "HTTPS",
-                           "cert-manager.io/cluster-issuer": "letsencrypt-staging",
                            "kubernetes.io/tls-acme": True,
                            "nginx.ingress.kubernetes.io/ssl-passthrough": True,
                        },
@@ -63,6 +62,9 @@ def configure_argocd(k8s_obj: K8s,
                        "https": True,
                        "tls":  [{"secretName": "argocd-secret",
                                  "hosts": [argo_cd_domain]}]}}}
+
+        if secret_dict.get('global_cluster_issuer', None):
+            val['server']['ingress']['annotations']['cert-manager.io/cluster-issuer'] = secret_dict['global_cluster_issuer']
 
         # if we're using bitwarden, generate a password & save it
         if bitwarden:
