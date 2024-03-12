@@ -1,7 +1,7 @@
 from json import load, dump, dumps
 import logging as log
-from os.path import exists
-from os import makedirs, environ
+from os.path import exists, join
+from os import makedirs
 from minio import Minio, MinioAdmin
 from minio.credentials.providers import MinioClientConfigProvider
 from shutil import which
@@ -29,8 +29,9 @@ class BetterMinio:
                  secret_key: str) -> None:
         self.root_user = access_key
         self.root_password = secret_key
-        minio_config_dir = HOME_DIR + ".mc/"
-        minio_config_file = minio_config_dir + "config.json"
+        minio_config_dir = join(HOME_DIR, ".mc/")
+        minio_config_file = join(minio_config_dir, "config.json")
+        log.debug(f"Checking for config file in {minio_config_file}")
         minio_provider = MinioClientConfigProvider(minio_config_file, minio_alias)
         self.admin_client = MinioAdmin(api_hostname, minio_provider)
         self.client = Minio(api_hostname, access_key, secret_key)
@@ -379,8 +380,8 @@ def create_minio_alias(minio_alias: str,
 
     # if the user hasn't chosen a config location, we use XDG spec, maybe
     # xdg_minio_config_file = xdg_config_home() + "/minio/config.json"
-    minio_config_dir = HOME_DIR + ".mc/"
-    minio_config_file = minio_config_dir + "config.json"
+    minio_config_dir = join(HOME_DIR, ".mc/")
+    minio_config_file = join(minio_config_dir, "config.json")
 
     # create the dir if it doesn't exist
     if not exists(minio_config_file):
