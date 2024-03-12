@@ -380,8 +380,8 @@ def create_minio_alias(minio_alias: str,
 
     # if the user hasn't chosen a config location, we use XDG spec, maybe
     # xdg_minio_config_file = xdg_config_home() + "/minio/config.json"
-    minio_config_dir = HOME_DIR + ".mc/"
-    minio_config_file = minio_config_dir + "config.json"
+    minio_config_dir = join(HOME_DIR, ".mc/")
+    minio_config_file = join(minio_config_dir, "config.json")
 
     # create the dir if it doesn't exist
     if not exists(minio_config_file):
