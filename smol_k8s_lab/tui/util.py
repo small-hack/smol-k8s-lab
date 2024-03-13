@@ -10,7 +10,7 @@ from textual.containers import Grid, Horizontal
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.validation import Length
-from textual.widgets import Input, Button, Label, Switch
+from textual.widgets import Input, Button, Label, Switch, Select
 
 
 KUBELET_SUGGESTIONS = SuggestFromList((
@@ -232,6 +232,33 @@ def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Hori
 
     extra_class = name.replace('_',"-")
     return Horizontal(bool_label, switch, classes=f"bool-switch-row {extra_class}")
+
+
+def drop_down(values: list,
+              name: str,
+              tooltip: str,
+              select_value: str = "",
+              label: str = "") -> Horizontal:
+    """
+    returns a label and switch row in a Horizontal container
+    """
+    if label:
+        select_label = Label(label + ":", classes="input-row-label")
+        select_label.tooltip = tooltip
+
+    select = Select.from_values(values,
+                                name=name,
+                                value=select_value,
+                                classes="dropdown-row-dropdown"
+                                )
+    select.tooltip = tooltip
+
+    extra_class = name.replace('_',"-")
+    if label:
+        return Horizontal(select_label, select,
+                          classes=f"{extra_class}")
+    else:
+        return Horizontal(select, classes=f"{extra_class}")
 
 
 def input_field(label: str, initial_value: str, name: str, placeholder: str,

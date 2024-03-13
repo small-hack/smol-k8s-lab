@@ -82,10 +82,11 @@ class K3sConfigWidget(Static):
                     kubelet_args = self.metadata['k3s_yaml'].get('kubelet-arg', '')
                     yield KubeletConfig('k3s', kubelet_args)
 
-                # tab 3 - add remote nodes
-                with TabPane("Add remote nodes", id="k3s-nodes-tab"):
-                    yield AddNodesBox(self.metadata.get('nodes', []),
-                                      id="nodes-tab")
+                if self.distro == "k3s":
+                    # tab 3 - add remote nodes
+                    with TabPane("🆕 Add [i]Remote[/i] Nodes", id="k3s-nodes-tab"):
+                        yield AddNodesBox(self.metadata.get('nodes', []),
+                                          id="nodes-tab")
 
     def on_mount(self) -> None:
         """
@@ -94,9 +95,14 @@ class K3sConfigWidget(Static):
         # update tabbed content box
         tabbed_content = self.query_one(TabbedContent)
 
-        tabbed_content.border_title = (
-                "[i]Add extra[/] options for the [#C1FF87]k3s[/] install script"
-                )
+        if self.distro == "k3s":
+            top_title = ("[#ffaff9]Customize[/] k3s install with extra "
+                         "[#C1FF87]options[/] [i]and[/i] [#C1FF87]nodes[/]")
+        else:
+            top_title = ("[#ffaff9]Add[/] [i]extra[/] options for the "
+                         "[#C1FF87]k3s[/] install script")
+
+        tabbed_content.border_title = top_title
 
         subtitle = (
                 "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/]"
@@ -112,6 +118,18 @@ class K3sConfigWidget(Static):
         tabbed_content = self.get_widget_by_id("k3s-tabbed-content")
         tabbed_content.show_tab(tab)
         tabbed_content.active = tab
+
+    @on(TabbedContent.TabActivated)
+    def when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
+        """
+        speaks name of tab if tts is on and changes button at the button of border
+        """
+        tab = event.tab.id
+        if self.app.speak_on_focus:
+            self.app.action_say(f"Selected tab is {tab}")
+
+        # change border subtitle button depending on the tab activated
+        tabbed_content = self.query_one(TabbedContent)
         if tab == "k3s-nodes-tab":
            tabbed_content.border_subtitle = (
                 "[b][@click=screen.launch_new_option_modal()] ➕ node[/][/]"
@@ -120,11 +138,6 @@ class K3sConfigWidget(Static):
            tabbed_content.border_subtitle = (
                 "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/]"
                 )
-
-    @on(TabbedContent.TabActivated)
-    def speak_when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
-        if self.app.speak_on_focus:
-            self.app.action_say(f"Selected tab is {event.tab.id}")
 
 
 class K3sConfig(Static):

@@ -14,11 +14,16 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-/* number of nodes input row */
+/* number of nodes box */
 #add-nodes-box {
     background: $navy 60%;
-    padding-top: 2;
     padding-left: 1;
+    grid-rows: 0.9fr 0.1fr 0.55fr;
+    align: center middle;
+    content-align: center middle;
+}
+
+#nodes-data-table {
 }
 
 #nodes-tab {
@@ -26,11 +31,17 @@ $navy: rgb(35,35,54);
     height: auto;
 }
 
-.k3s-node-input-row {
-    grid-size: 6;
+#new-node-text {
+    background: $dark_gray 80%;
+    width: 100%;
+    color: $light_cornflower;
 }
 
-.nodes-input-label {
-    align: left middle;
-    color: $bluish_white;
+.k3s-node-input-row {
+    grid-size: 2;
+    grid-gutter: 1;
+}
+
+#new-node-button {
+    margin-left: 10;
 }

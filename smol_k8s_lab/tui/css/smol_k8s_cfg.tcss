@@ -130,11 +130,6 @@ $navy: rgb(35,35,54);
     color: $bluish_white;
 }
 
-/* Input in "label: input" row */
-.input-row-input {
-    align: left middle;
-}
-
 /* password manager config box */
 #password-manager-config {
     padding: 1;

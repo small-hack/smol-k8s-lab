@@ -1,12 +1,13 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.constants import HOME_DIR
+from smol_k8s_lab.tui.util import input_field, drop_down
 
 from os.path import join
+from rich.text import Text
 from textual import on
 from textual.app import ComposeResult, Widget
 from textual.containers import Grid
-from textual.widgets import Label, Input, Select
-from textual.widgets.selection_list import Selection
+from textual.widgets import Label, Input, DataTable, Button
 
 
 class AddNodesBox(Widget):
@@ -17,90 +18,71 @@ class AddNodesBox(Widget):
         # this is just to take a few variables for class organizing
         if not nodes:
             self.nodes = {"example": {"ssh_key": "id_rsa",
-                                      "node_type": "worker"}}
+                                      "node_type": "worker",
+                                      "taint": {"key": "",
+                                                "value": "",
+                                                "effect": ""}}}
         else:
             self.nodes = nodes
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
         with Grid(id="add-nodes-box"):
-            for host, metadata in self.nodes.items():
-                yield self.add_node(host, metadata)
+            yield Label("🖥️ Add a new node", id="new-node-text")
+            yield self.add_node_row()
 
     def on_mount(self) -> None:
         """
-        styling for the border
+        generate nodes table
         """
-        node_row = self.get_widget_by_id("add-nodes-box")
-        node_row.border_title = ("[i]Add[/] additional [#C1FF87]remote nodes[/]"
-                                 " to join to local cluster")
+        self.generate_nodes_table(self.nodes)
 
-    def add_node(self, node: str = "", node_dict: dict = {}) -> None:
+    def generate_nodes_table(self, nodes: dict) -> None:
         """ 
-        add a node input section for k3s
+        generate a readable table for all the nodes.
+
+        Each row is has a height of 3 and is centered to make it easier to read
+        for people with dyslexia
         """
-        node_class = "nodes-input"
-        hostname = node
-        all_disabled = False
-        tooltip = "Press [gold3]↩ Enter[/] to save"
+        data_table = DataTable(zebra_stripes=True,
+                               id="nodes-data-table",
+                               cursor_type="row")
 
-        # hostname label and input
-        host_label = Label("host:", classes=f"{node_class}-label nodes-input-label")
-        host_label.tooltip = (
-                "The hostname or ip address of the node you'd like to "
-                "join to the cluster"
-                )
-        if hostname != "example":
-            host_input = Input(value=hostname,
-                               name="host",
-                               placeholder='hostname or ip address',
-                               classes=f"{hostname}-host",
-                              )
-        else:
-            host_input = Input(name="host",
-                               placeholder='hostname or ip address',
-                               classes=f"{hostname}-host",
-                              )
-            all_disabled = True
-        host_input.tooltip = tooltip
+        # then fill in the cluster table
+        data_table.add_column(Text("Node", justify="center"))
+        data_table.add_column(Text("Type", justify="center"))
+        data_table.add_column(Text("SSH Key", justify="center"))
+        data_table.add_column(Text("Label", justify="center"))
+        data_table.add_column(Text("Taint", justify="center"))
 
-        # node type label and input
-        node_type_label = Label("node_type:", classes=f"{node_class}-label nodes-input-label")
-        node_type_label.tooltip = ("The type for this Kubernetes node. "
-                         "Choose between worker or control_plane.")
+        for node, metadata in nodes.items():
+            row = [node, metadata['node_type'], metadata['ssh_key']]
+            # we use an extra line to center the rows vertically 
+            styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
-        node_type = node_dict.get('node_type', 'worker')
-        node_type_input = Select.from_values(
-                ['worker', 'control_plane'],
-                name="node_type",
-                value=node_type,
-                classes=f"{hostname}-node-type"
-                )
+            # we add extra height to make the rows more readable
+            data_table.add_row(*styled_row, height=3, key=row[0])
 
-        node_type_input.tooltip = tooltip
-        if all_disabled:
-            node_type_input.disabled = True
+        # grid for the cluster data table
+        table_grid = Grid(data_table, id="table-grid")
 
-        # ssh key label and input
-        ssh_key_label = Label("ssh_key:", classes=f"{node_class}-label nodes-input-label")
-        ssh_key_label.tooltip = (
-                "The SSH key to use to connect to the other node. This "
-                f"defaults to {join(HOME_DIR, ".ssh/id_rsa")}"
-                )
+        # the actual little box in the middle of screen
+        main_grid = Grid(table_grid, id="node-table-box-grid")
 
-        ssh_key = node_dict.get('ssh_key', "id_rsa")
-        ssh_key_input = Input(value=ssh_key,
-                              name="ssh_key",
-                              placeholder='',
-                              classes=f"{hostname}-ssh-key",
-                              )
-        ssh_key_input.tooltip = tooltip
-        if all_disabled:
-            ssh_key_input.disabled = True
+        # modify clusters box title
+        main_grid.border_title = ("Select a row to [#ffaff9]modify[/] or [#ffaff9]"
+                                  "delete[/] an [i]existing[/] [#C1FF87]node[/]")
 
-        return Grid(host_label, host_input, node_type_label, node_type_input,
-                    ssh_key_label, ssh_key_input, id=f"{hostname}-row",
-                    classes="k3s-node-input-row")
+        nodes_container = self.get_widget_by_id("add-nodes-box")
+        nodes_container.mount(main_grid, before="#new-node-text")
+
+    @on(DataTable.RowHighlighted)
+    def node_row_highlighted(self, event: DataTable.RowHighlighted) -> None:
+        """
+        check which row was selected to read it aloud
+        """
+        if self.app.speak_on_focus:
+            self.say_row(event.data_table)
 
     @on(Input.Changed)
     def update_parent_yaml(self, event: Input.Changed):
@@ -126,3 +108,78 @@ class AddNodesBox(Widget):
                             }
 
                 self.app.write_yaml()
+
+    def add_node_row(self, node: str = "example", node_dict: dict = {}) -> None:
+        """ 
+        add a node input section for k3s
+        """
+        hostname = node
+
+        # hostname label and input
+        host_label_tooltip = (
+                "The hostname or ip address of the node you'd like to "
+                "join to the cluster"
+                )
+        # classes=f"{node_class}-label nodes-input-label"
+        host_input = input_field(label="host",
+                                 initial_value=hostname,
+                                 name="host",
+                                 placeholder="hostname or ip address",
+                                 tooltip=host_label_tooltip)
+
+        # node type label and input
+        node_type_tooltip = ("The type for this Kubernetes node. "
+                             "Choose between worker or control_plane.")
+
+        node_type_dropdown = drop_down(
+                ['worker', 'control_plane'],
+                select_value=node_dict.get('node_type', 'worker'),
+                name="node_type",
+                tooltip=node_type_tooltip,
+                label="node_type"
+                )
+
+        # ssh key label and input
+        ssh_key_label_tooltip = (
+                "The SSH key to use to connect to the other node. This "
+                f"defaults to {join(HOME_DIR, ".ssh/id_rsa")}"
+                )
+        ssh_key = node_dict.get('ssh_key', "id_rsa")
+        ssh_key_input = input_field(label="ssh-key",
+                                 initial_value=ssh_key,
+                                 name="ssh_key",
+                                 placeholder="SSH key to connect to host",
+                                 tooltip=ssh_key_label_tooltip)
+
+        # node labels label and input
+        node_labels_label_tooltip = (
+                "any labels you'd like to apply to this node (useful for node affinity)"
+                )
+        node_labels = node_dict.get('node_labels', "")
+        node_labels_input = input_field(
+                label="node_labels",
+                initial_value=node_labels,
+                name="node_labels",
+                placeholder="labels to apply to this node",
+                tooltip=node_labels_label_tooltip)
+
+        # taints label and input
+        taints_label_tooltip = (
+                "any labels you'd like to apply to this node (useful for node affinity)"
+                )
+        taints = node_dict.get('taints', "")
+        taints_input = input_field(
+                label="taints",
+                initial_value=taints,
+                name="taints",
+                placeholder="taints to apply to this node",
+                tooltip=taints_label_tooltip)
+
+        # submit button
+        submit = Button("➕ new node", id="new-node-button")
+        submit.tooltip = "Submit new node to cluster to be joined on cluster creation"
+
+        return Grid(host_input, node_type_dropdown, ssh_key_input, 
+                    node_labels_input, taints_input, submit,
+                    id=f"{hostname}-row",
+                    classes="k3s-node-input-row")
