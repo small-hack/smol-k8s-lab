@@ -67,14 +67,6 @@ class K3sConfigWidget(Static):
             self.metadata = DEFAULT_DISTRO_OPTIONS[self.distro]
 
         with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
-
-            # take number of nodes from config and make string
-            nodes = self.metadata.get('nodes', None)
-
-            # node input row
-            yield AddNodesBox(nodes)
-
-
             # Add the TabbedContent widget for kind config
             with TabbedContent(initial="k3s-yaml-tab", id="k3s-tabbed-content"):
                 # tab 1 - networking options
@@ -86,9 +78,14 @@ class K3sConfigWidget(Static):
 
                 # tab 2 - kubelet options
                 with TabPane("Kubelet Config Options", id="k3s-kubelet-tab"):
-                    # kubelet config section for kind only
+                    # kubelet config section for kind only?
                     kubelet_args = self.metadata['k3s_yaml'].get('kubelet-arg', '')
                     yield KubeletConfig('k3s', kubelet_args)
+
+                # tab 3 - add remote nodes
+                with TabPane("Add remote nodes", id="k3s-nodes-tab"):
+                    yield AddNodesBox(self.metadata.get('nodes', []),
+                                      id="nodes-tab")
 
     def on_mount(self) -> None:
         """
@@ -112,8 +109,17 @@ class K3sConfigWidget(Static):
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
-        self.get_widget_by_id("k3s-tabbed-content").show_tab(tab)
-        self.get_widget_by_id("k3s-tabbed-content").active = tab
+        tabbed_content = self.get_widget_by_id("k3s-tabbed-content")
+        tabbed_content.show_tab(tab)
+        tabbed_content.active = tab
+        if tab == "k3s-nodes-tab":
+           tabbed_content.border_subtitle = (
+                "[b][@click=screen.launch_new_option_modal()] ➕ node[/][/]"
+                )
+        else:
+           tabbed_content.border_subtitle = (
+                "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/]"
+                )
 
     @on(TabbedContent.TabActivated)
     def speak_when_tab_selected(self, event: TabbedContent.TabActivated) -> None:

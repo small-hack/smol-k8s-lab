@@ -82,13 +82,13 @@ k8s_distros:
       - "max-pods=150"
     # list of nodes to SSH to and join to cluster. example:
     # nodes:
-        # name can be a hostname or ip address
-    #   - serverfriend1.lan 
+    #   # name can be a hostname or ip address
+    #   serverfriend1.lan:
     #     # change ssh_key to the name of a local private key to use   
     #     ssh_key: id_rsa
     #     # must be node type of "worker" or "control_plane"
     #     node_type: worker
-    nodes: []
+    nodes: {}
 
   k3d:
     # set to true to enable deploying a Kubernetes cluster using k3d

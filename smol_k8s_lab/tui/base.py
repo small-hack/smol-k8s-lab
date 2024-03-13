@@ -51,7 +51,7 @@ class BaseApp(App):
             Binding(key="f",
                     key_display="f",
                     action="toggle_footer",
-                    description="Toggle footer"),
+                    description="Hide footer"),
             Binding(key="q,escape",
                     action="quit",
                     show=False),
