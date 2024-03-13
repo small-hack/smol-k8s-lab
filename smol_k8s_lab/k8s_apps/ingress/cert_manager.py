@@ -10,7 +10,9 @@ from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 import logging as log
 
 
-def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> None:
+def configure_cert_manager(k8s_obj: K8s,
+                           email_addr: str = "",
+                           init_values: dict = {}) -> None:
     """
     Installs cert-manager helm chart and optionally creates letsencrypt acme
     ClusterIssuers for both staging and production if email_addr is passed in
@@ -28,10 +30,12 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> None:
         # we create a ClusterIssuer for both staging and prod
         acme_staging = "https://acme-staging-v02.api.letsencrypt.org/directory"
         private_key_ref = "letsencrypt-staging"
+
         for issuer in ['letsencrypt-staging', 'letsencrypt-prod']:
             if issuer == "letsencrypt-prod":
                 acme_staging = acme_staging.replace("staging-", "")
                 private_key_ref = private_key_ref.replace("-staging", "-prod")
+
             issuers_dict = {
                 'apiVersion': "cert-manager.io/v1",
                 'kind': 'ClusterIssuer',
@@ -47,7 +51,22 @@ def configure_cert_manager(k8s_obj: K8s, email_addr: str = "") -> None:
                                      ]
                                   }
                          }
+                } 
+
+            if init_values.get('challenge_solver', "http01") == "dns01": 
+                challenge = {"dns01": {
+                    "cloudflare": {
+                        "apiTokenSecretRef": {
+                            "name": token_secret,
+                            "key": token_secret_key
+                            }
+                        }
+                    }
                 }
+            else:
+                challenge = {'http01': {'ingress': {'class': 'nginx'}}}
+
+            issuers_dict['spec']['acme']['privateKeySecretRef']['solvers'] = [challenge]
 
             # not working: https://github.com/kubernetes-client/python/issues/2103
             # k8s_obj.create_from_manifest_dict(api_group="cert-manager.io",
