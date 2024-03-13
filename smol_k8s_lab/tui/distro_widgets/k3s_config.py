@@ -2,7 +2,7 @@
 # internal library
 from smol_k8s_lab.constants import XDG_CACHE_DIR, DEFAULT_DISTRO_OPTIONS
 from smol_k8s_lab.tui.distro_widgets.kubelet_config import KubeletConfig
-from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
+from smol_k8s_lab.tui.distro_widgets.add_nodes import AddNodesBox
 from smol_k8s_lab.tui.util import create_sanitized_list
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
@@ -69,13 +69,10 @@ class K3sConfigWidget(Static):
         with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
 
             # take number of nodes from config and make string
-            nodes = self.metadata.get('nodes',
-                                      {'control_plane': 1, 'workers': 0})
-            control_nodes = str(nodes.get('control_plane', '1'))
-            worker_nodes = str(nodes.get('workers', '0'))
+            nodes = self.metadata.get('nodes', None)
 
             # node input row
-            yield NodeAdjustmentBox(self.distro, control_nodes, worker_nodes)
+            yield AddNodesBox(nodes)
 
 
             # Add the TabbedContent widget for kind config
