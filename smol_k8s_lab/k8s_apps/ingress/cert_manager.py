@@ -27,7 +27,7 @@ def configure_cert_manager(k8s_obj: K8s,
     if init_dict['enabled']:
         init_values = init_dict['values']
         sensitive_init_values = init_dict.get('sensitive_values', None)
-        create_cluster_issuers(init_values, sensitive_init_values)
+        create_cluster_issuers(init_values, k8s_obj, sensitive_init_values)
 
 
 def create_cluster_issuers(init_values: dict,
