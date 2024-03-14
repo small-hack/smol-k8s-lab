@@ -70,7 +70,7 @@ class AddNodesBox(Widget):
 
         for node, metadata in self.nodes.items():
             row = [node, metadata['node_type'], metadata['ssh_key'],
-                   metadata['node_labels'], metadata['taints']]
+                   metadata['node_labels'], metadata['node_taints']]
             # we use an extra line to center the rows vertically 
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
@@ -103,6 +103,15 @@ class AddNodesBox(Widget):
         update the base parent app yaml with new nodes
         """
         distro_cfg = self.app.cfg['k8s_distros']['k3s']['nodes']
+
+        # make sure the taints and labels are written as lists
+        for node_list in ['node_taints', 'node_labels']:
+            value = node_metadata.get(node_list, [])
+            if value:
+                node_metadata[node_list] = value.split(',')
+            else:
+                node_metadata[node_list] = []
+
         distro_cfg[node_name] = node_metadata
         self.app.write_yaml()
 
@@ -163,11 +172,11 @@ class AddNodesBox(Widget):
         taints_label_tooltip = (
                 "any labels you'd like to apply to this node (useful for node affinity)"
                 )
-        taints = node_dict.get('taints', "")
+        taints = node_dict.get('node_taints', "")
         taints_input = input_field(
-                label="taints",
+                label="node_taints",
                 initial_value=taints,
-                name="taints",
+                name="node_taints",
                 placeholder="taints to apply to this node",
                 tooltip=taints_label_tooltip)
 
@@ -189,11 +198,11 @@ class AddNodesBox(Widget):
             node_type = self.get_widget_by_id("node-type").value
             ssh_key = self.get_widget_by_id("ssh-key").value
             node_labels = self.get_widget_by_id("node-labels").value
-            taints = self.get_widget_by_id("taints").value
+            taints = self.get_widget_by_id("node-taints").value
             node_metadata = {"node_type": node_type,
                              "ssh_key": ssh_key,
                              "node_labels": node_labels,
-                             "taints": taints}
+                             "node_taints": taints}
 
             if not self.nodes:
                 self.nodes = {host: node_metadata}
