@@ -243,7 +243,7 @@ def drop_down(values: list,
     returns a label and switch row in a Horizontal container
     """
     if label:
-        select_label = Label(label + ":", classes="input-row-label")
+        select_label = Label(label.replace("_", " ") + ":", classes="input-row-label")
         select_label.tooltip = tooltip
         id = label.replace("_", "-")
     else:
@@ -270,7 +270,7 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
     """
     returns an input label and field within a Horizontal container
     """
-    input_label = Label(label + ":", classes="input-row-label")
+    input_label = Label(label.replace("_", " ") + ":", classes="input-row-label")
     input_label.tooltip = tooltip
 
     input_dict = {"placeholder": placeholder,

@@ -115,6 +115,14 @@ class AddNodesBox(Widget):
         distro_cfg[node_name] = node_metadata
         self.app.write_yaml()
 
+    def delete_from_parent_yaml(self, node_name: str):
+        """
+        delete an extra node and update the base parent app yaml
+        """
+        distro_cfg = self.app.cfg['k8s_distros']['k3s']['nodes']
+        distro_cfg.pop(node_name, None)
+        self.app.write_yaml()
+
     def add_node_row(self, node: str = "", node_dict: dict = {}) -> None:
         """ 
         add a node input section for k3s
@@ -150,11 +158,11 @@ class AddNodesBox(Widget):
                 f"defaults to {join(HOME_DIR, ".ssh/id_rsa")}"
                 )
         ssh_key = node_dict.get('ssh_key', "id_rsa")
-        ssh_key_input = input_field(label="ssh-key",
-                                 initial_value=ssh_key,
-                                 name="ssh_key",
-                                 placeholder="SSH key to connect to host",
-                                 tooltip=ssh_key_label_tooltip)
+        ssh_key_input = input_field(label="ssh_key",
+                                    initial_value=ssh_key,
+                                    name="ssh_key",
+                                    placeholder="SSH key to connect to host",
+                                    tooltip=ssh_key_label_tooltip)
 
         # node labels label and input
         node_labels_label_tooltip = (
