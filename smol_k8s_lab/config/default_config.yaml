@@ -202,7 +202,9 @@ apps:
     description: |
       [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
 
-      smol-k8s-lab supports initialization by creating two [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] for both staging and production using a provided email address as the account ID for acme.
+      smol-k8s-lab supports initialization by creating two HTTP01 challenge solver [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] for both staging and production using a provided email address as the account ID for acme.
+
+      Alternatively, if you can't use the HTTP01 challenge solver, we also support using the DNS01 challenge solver via cloudflare. If you'd like to use a different DNS provider, please either set one up outside of smol-k8s-lab or submit a PR to add this feature :)
 
     # Initialize of the app through smol-k8s-lab
     init:
@@ -219,7 +221,7 @@ apps:
         # choose between http01 and dns01
         cluster_issuer_challenge_solver: "http01"
         # only needed if cluster_issuer_challenge_solver set to dns01
-        # only cloudflare is currently supported, submit a PR for additional DNS01 provider
+        # currently only cloudflare is supported
         cluster_issuer_dns01_provider: "cloudflare"
         # Used for acme to generate certs and alert you of expiration
         email: ""
