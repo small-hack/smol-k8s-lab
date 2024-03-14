@@ -227,7 +227,7 @@ def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Hori
     switch = Switch(value=switch_value,
                     classes="bool-switch-row-switch",
                     name=name,
-                    id=label)
+                    id=label.replace("_", "-").replace(" ", "-"))
     switch.tooltip = tooltip
 
     extra_class = name.replace('_',"-")
