@@ -68,8 +68,8 @@ def install_k3s_cluster(cluster_name: str,
 
 def join_k3s_nodes(extra_nodes: dict) -> None:
     """
-    process extra remote nodes to join to the cluster... and apply any labels,
-    or taints after we're done
+    process extra remote nodes to join to the cluster as well as apply any labels,
+    or taints, after we're done joining the node
     """
     # this gets the internal ip address of our current control plane node
     ip_cmd = ("kubectl get nodes -o custom-columns=NAME:.status.addresses[0].address"
