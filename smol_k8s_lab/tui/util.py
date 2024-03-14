@@ -245,11 +245,15 @@ def drop_down(values: list,
     if label:
         select_label = Label(label + ":", classes="input-row-label")
         select_label.tooltip = tooltip
+        id = label.replace("_", "-")
+    else:
+        id = name.replace("_", "-")
 
     select = Select.from_values(values,
                                 name=name,
                                 value=select_value,
-                                classes="dropdown-row-dropdown"
+                                classes="dropdown-row-dropdown",
+                                id=id
                                 )
     select.tooltip = tooltip
 
@@ -271,7 +275,7 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
 
     input_dict = {"placeholder": placeholder,
                   "classes": "input-row-input",
-                  "id": label,
+                  "id": label.replace("_","-"),
                   "name": name}
     if initial_value:
         input_dict["value"] = initial_value

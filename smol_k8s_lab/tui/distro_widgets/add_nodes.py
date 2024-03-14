@@ -9,6 +9,20 @@ from textual.app import ComposeResult, Widget
 from textual.containers import Grid
 from textual.widgets import Label, Input, DataTable, Button
 
+placeholder = """
+[grey53]
+               _____
+              /     \\
+              vvvvvvv  /|__/|
+                 I   /O,O   |
+                 I /_____   |      /|/|
+                J|/^ ^ ^ \  |    /00  |    _//|
+                 |^ ^ ^ ^ |W|   |/^^\ |   /oo |
+                  \m___m__|_|    \m_m_|   \mm_|
+
+                "Totoros" (from "My Neighbor Totoro")
+                    --- Duke Lee
+"""
 
 class AddNodesBox(Widget):
     """
@@ -16,18 +30,15 @@ class AddNodesBox(Widget):
     """
     def __init__(self, nodes: dict = {}, id: str = "") -> None:
         # this is just to take a few variables for class organizing
-        if not nodes:
-            self.nodes = {"example": {"ssh_key": "id_rsa",
-                                      "node_type": "worker",
-                                      "taint": {"key": "",
-                                                "value": "",
-                                                "effect": ""}}}
-        else:
-            self.nodes = nodes
+        self.nodes = nodes
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
         with Grid(id="add-nodes-box"):
+            yield Label(
+                    "Add a node below for something to appear here...\n" + placeholder,
+                    id="nodes-placeholder"
+                    )
             yield Label("🖥️ Add a new node", id="new-node-text")
             yield self.add_node_row()
 
@@ -35,9 +46,11 @@ class AddNodesBox(Widget):
         """
         generate nodes table
         """
-        self.generate_nodes_table(self.nodes)
+        if self.nodes:
+            self.get_widget_by_id("nodes-placeholder").display = False
+            self.generate_nodes_table()
 
-    def generate_nodes_table(self, nodes: dict) -> None:
+    def generate_nodes_table(self) -> None:
         """ 
         generate a readable table for all the nodes.
 
@@ -52,11 +65,12 @@ class AddNodesBox(Widget):
         data_table.add_column(Text("Node", justify="center"))
         data_table.add_column(Text("Type", justify="center"))
         data_table.add_column(Text("SSH Key", justify="center"))
-        data_table.add_column(Text("Label", justify="center"))
-        data_table.add_column(Text("Taint", justify="center"))
+        data_table.add_column(Text("Labels", justify="center"))
+        data_table.add_column(Text("Taints", justify="center"))
 
-        for node, metadata in nodes.items():
-            row = [node, metadata['node_type'], metadata['ssh_key']]
+        for node, metadata in self.nodes.items():
+            row = [node, metadata['node_type'], metadata['ssh_key'],
+                   metadata['node_labels'], metadata['taints']]
             # we use an extra line to center the rows vertically 
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
@@ -109,7 +123,7 @@ class AddNodesBox(Widget):
 
                 self.app.write_yaml()
 
-    def add_node_row(self, node: str = "example", node_dict: dict = {}) -> None:
+    def add_node_row(self, node: str = "", node_dict: dict = {}) -> None:
         """ 
         add a node input section for k3s
         """
@@ -120,7 +134,6 @@ class AddNodesBox(Widget):
                 "The hostname or ip address of the node you'd like to "
                 "join to the cluster"
                 )
-        # classes=f"{node_class}-label nodes-input-label"
         host_input = input_field(label="host",
                                  initial_value=hostname,
                                  name="host",
@@ -181,5 +194,33 @@ class AddNodesBox(Widget):
 
         return Grid(host_input, node_type_dropdown, ssh_key_input, 
                     node_labels_input, taints_input, submit,
-                    id=f"{hostname}-row",
-                    classes="k3s-node-input-row")
+                    id=f"{hostname}-row", classes="k3s-node-input-row")
+
+    @on(Button.Pressed)
+    def submit_new_node(self, event: Button.Pressed):
+        """
+        submit new node to cluster
+        """
+        if event.button.id == "new-node-button":
+            host = self.get_widget_by_id("host").value
+            node_type = self.get_widget_by_id("node-type").value
+            ssh_key = self.get_widget_by_id("ssh-key").value
+            node_labels = self.get_widget_by_id("node-labels").value
+            taints = self.get_widget_by_id("taints").value
+            node_metadata = {"node_type": node_type,
+                             "ssh_key": ssh_key,
+                             "node_labels": node_labels,
+                             "taints": taints}
+
+            if not self.nodes:
+                self.nodes = {host: node_metadata}
+                self.generate_nodes_table()
+                self.get_widget_by_id("nodes-placeholder").display = False
+            else:
+                self.nodes[host] = node_metadata
+                data_table = self.get_widget_by_id("nodes-data-table")
+                row = [host, node_type, ssh_key, node_labels, taints]
+                # we use an extra line to center the rows vertically 
+                styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
+                # we add extra height to make the rows more readable
+                data_table.add_row(*styled_row, height=3, key=row[0])
