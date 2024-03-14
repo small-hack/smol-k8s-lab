@@ -216,7 +216,7 @@ apps:
       enabled: true
       values:
         # Used for to generate certs and alert you if they're going to expire
-        email: jessebot@linux.com
+        email: "" 
         # choose between "http01" or "dns01"
         cluster_issuer_acme_challenge_solver: http01
         # only needed if cluster_issuer_challenge_solver set to dns01
