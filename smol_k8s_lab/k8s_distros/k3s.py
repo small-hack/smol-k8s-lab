@@ -21,7 +21,8 @@ from ruamel.yaml import YAML
 def install_k3s_cluster(cluster_name: str,
                         extra_k3s_parameters: dict = {
                             "write-kubeconfig-mode": 700
-                            }
+                            },
+                        extra_nodes: dict = {}
                         ) -> None:
     """
     python installation for k3s, emulates curl -sfL https://get.k3s.io | sh -
@@ -59,6 +60,52 @@ def install_k3s_cluster(cluster_name: str,
 
     # remove the script after we're done
     remove('./install.sh')
+
+    # if we have extra remote nodes to join to the cluster...
+    if extra_nodes:
+        join_k3s_nodes(extra_nodes)
+
+
+def join_k3s_nodes(extra_nodes: dict) -> None:
+    """
+    process extra remote nodes to join to the cluster... and apply any labels,
+    or taints after we're done
+    """
+    # this gets the internal ip address of our current control plane node
+    ip_cmd = ("kubectl get nodes -o custom-columns=NAME:.status.addresses[0].address"
+              " -l node-role.kubernetes.io/master --no-headers")
+    k3s_control_plane_ip = subproc([ip_cmd])
+
+    # token from the server is needed for the new agent
+    k3s_token = subproc(["sudo cat /var/lib/rancher/k3s/server/node-token"])
+    k3s_cmd = ('curl -sfL https://get.k3s.io | '
+               f'K3S_URL=https://{k3s_control_plane_ip}:6443 '
+               f'K3S_TOKEN="{k3s_token}" sh -')
+
+    # for each node and it's meta data, ssh in and join the node
+    for node, metadata in extra_nodes.items():
+        ssh_cmd = "ssh "
+        ssh_key = metadata.get('ssh_key', 'id_rsa')
+        if ssh_key != "id_rsa":
+            ssh_cmd += f"-i {metadata['ssh_key']} {node} "
+        else:
+            ssh_cmd += f"{node} "
+
+        # join node to cluster
+        subproc([ssh_cmd + k3s_cmd], shell=True, universal_newlines=True)
+
+        labels = metadata.get('node_labels', None)
+        taints = metadata.get('node_taints', None)
+
+        # after joining the node make sure the labels are up to date
+        if labels:
+            for label in labels:
+                subproc([f"kubectl label nodes {node} {label}"])
+
+        # after joining the node make sure the taints are up to date
+        if taints:
+            for taint in taints:
+                subproc([f"kubectl taint nodes {node} {taint}"])
 
 
 def uninstall_k3s(cluster_name: str) ->  str:

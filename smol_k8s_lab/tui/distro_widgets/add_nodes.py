@@ -7,7 +7,7 @@ from rich.text import Text
 from textual import on
 from textual.app import ComposeResult, Widget
 from textual.containers import Grid
-from textual.widgets import Label, Input, DataTable, Button
+from textual.widgets import Label, DataTable, Button
 
 placeholder = """
 [grey53]
@@ -98,30 +98,13 @@ class AddNodesBox(Widget):
         if self.app.speak_on_focus:
             self.say_row(event.data_table)
 
-    @on(Input.Changed)
-    def update_parent_yaml(self, event: Input.Changed):
+    def update_parent_yaml(self, node_name: str, node_metadata: dict):
         """
-        update the base parent app yaml with worker/control plane node count
-        only if input is valid, and the distro is not k3s
+        update the base parent app yaml with new nodes
         """
-        if event.validation_result:
-            distro_cfg = self.app.cfg['k8s_distros']['k3s']['nodes']
-
-            if event.input.name == "host":
-                try:
-                    host_index = distro_cfg.index(event.input.value)
-                # if the host doesn't exist in config yet
-                except ValueError:
-                    distro_cfg.append({event.input.value: {"ssh_key": "id_rsa",
-                                                           "node_type": "worker"}})
-                # if no error
-                else:
-                    distro_cfg[host_index] = {
-                            event.input.value: {"ssh_key": "id_rsa",
-                                                "node_type": "worker"}
-                            }
-
-                self.app.write_yaml()
+        distro_cfg = self.app.cfg['k8s_distros']['k3s']['nodes']
+        distro_cfg[node_name] = node_metadata
+        self.app.write_yaml()
 
     def add_node_row(self, node: str = "", node_dict: dict = {}) -> None:
         """ 
@@ -224,3 +207,5 @@ class AddNodesBox(Widget):
                 styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
                 # we add extra height to make the rows more readable
                 data_table.add_row(*styled_row, height=3, key=row[0])
+
+            self.update_parent_yaml(host, node_metadata)
