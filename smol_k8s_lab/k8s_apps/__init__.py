@@ -185,12 +185,7 @@ def setup_base_apps(k8s_obj: K8s,
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [green]cert-manager[/green] for TLS certificates...", '📜')
     if cert_manager_dict["enabled"]:
-        cert_manager_init = cert_manager_dict['init']['enabled']
-        if cert_manager_init:
-            email = cert_manager_dict['argo']['secret_keys']['email']
-        else:
-            email = ""
-        configure_cert_manager(k8s_obj, email)
+        configure_cert_manager(k8s_obj, cert_manager_dict['init'])
 
     # then we install argo cd if it's enabled
     if argo_enabled:
