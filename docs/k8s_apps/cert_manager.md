@@ -28,18 +28,28 @@ apps:
     description: |
       [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
 
-      smol-k8s-lab supports initialization by creating two HTTP01 challenge solver [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] for both staging and production using a provided email address as the account ID for acme.
+      smol-k8s-lab supports optional initialization by creating [link=https://cert-manager.io/docs/configuration/acme/]ACME Issuer type[/link] [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] using either the HTTP01 or DNS01 challenge solvers. We create two ClusterIssuers: letsencrypt-staging and letsencrypt-staging.
 
-      Alternatively, if you can't use the HTTP01 challenge solver, we also support using the DNS01 challenge solver via cloudflare. If you'd like to use a different DNS provider, please either set one up outside of smol-k8s-lab or submit a PR to add this feature :)
+      For the DNS01 challange solver, you will need to either export $CLOUDFLARE_API_TOKEN as an env var, or fill in the sensitive value for it each time you run smol-k8s-lab.
+
+      Currently, Cloudflare is the only supported DNS provider for the DNS01 challenge solver. If you'd like to use a different DNS provider or use a different Issuer type all together, please either set one up outside of smol-k8s-lab. We also welcome [link=https://github.com/small-hack/smol-k8s-lab/pulls]PRs[/link] to add these features :)
 
     # Initialize of the app through smol-k8s-lab
     init:
       # Deploys staging and prod ClusterIssuers and prompts you for
-      # cert-manager.argo.secret_keys if they were not set. Switch to false if
-      # you don't want to deploy any ClusterIssuers
+      # values if they were not set. Switch to false if you don't want
+      # to deploy any ClusterIssuers
       enabled: true
-      # you can remove this section if you're not using cloudflare as your DNS01 provider
+      values:
+        # Used for to generate certs and alert you if they're going to expire
+        email: coolfriend@amazingdogs.dog
+        # choose between "http01" or "dns01"
+        cluster_issuer_acme_challenge_solver: dns01
+        # only needed if cluster_issuer_challenge_solver set to dns01
+        # currently only cloudflare is supported
+        cluster_issuer_acme_dns01_provider: cloudflare
       sensitive_values:
+        # you can remove this if you're not using cloudflare as your DNS01 provider
         # can be passed in as env vars if you pre-pend CERT_MANAGER_
         # e.g. CERT_MANAGER_CLOUDFLARE_API_TOKEN
         - CLOUDFLARE_API_TOKEN
