@@ -88,6 +88,12 @@ k8s_distros:
     #     ssh_key: id_rsa
     #     # must be node type of "worker" or "control_plane"
     #     node_type: worker
+    #     # labels are optional, but may be useful for pod node affinity
+    #     node_labels:
+    #       - iot=true
+    #     # taints are optional, but may be useful for pod tolerations
+    #     node_taints:
+    #       - iot=true:NoSchedule
     nodes: {}
 
   k3d:
