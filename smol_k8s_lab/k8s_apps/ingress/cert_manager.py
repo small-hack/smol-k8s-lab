@@ -80,7 +80,7 @@ def create_cluster_issuers(init_values: dict,
                     'email':  init_values['email'],
                     'server': acme_staging,
                     'privateKeySecretRef': {'name': private_key_ref},
-                    'solvers': [{provider: challenge}]
+                    'solvers': [{solver: challenge}]
                     }
                 }
             }
