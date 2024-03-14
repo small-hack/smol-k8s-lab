@@ -26,13 +26,10 @@ def configure_cert_manager(k8s_obj: K8s,
 
     if init_dict['enabled']:
         init_values = init_dict['values']
-        sensitive_init_values = init_dict.get('sensitive_values', None)
-        create_cluster_issuers(init_values, k8s_obj, sensitive_init_values)
+        create_cluster_issuers(init_values, k8s_obj)
 
 
-def create_cluster_issuers(init_values: dict,
-                           k8s_obj: K8s = None,
-                           sensitive_init_values: dict = None) -> None:
+def create_cluster_issuers(init_values: dict, k8s_obj: K8s = None) -> None:
     """
     create ClusterIssuers for cert manager
     """
@@ -41,7 +38,7 @@ def create_cluster_issuers(init_values: dict,
         # create the cloudflare api token secret
         provider = init_values.get("cluster_issuer_acme_dns01_provider", "")
         if provider == "cloudflare":
-            token_dict = {"token": sensitive_init_values['cloudflare_api_token']}
+            token_dict = {"token": init_values['CLOUDFLARE_API_TOKEN']}
             k8s_obj.create_secret("cloudflare-api-token",
                                   "cert-manager",
                                   token_dict)
