@@ -84,7 +84,7 @@ def join_k3s_nodes(extra_nodes: dict) -> None:
 
     # for each node and it's meta data, ssh in and join the node
     for node, metadata in extra_nodes.items():
-        ssh_cmd = "ssh "
+        ssh_cmd = "ssh -o StrictHostKeyChecking=no "
         ssh_key = metadata.get('ssh_key', 'id_rsa')
         if ssh_key != "id_rsa":
             ssh_cmd += f"-i {metadata['ssh_key']} {node} "

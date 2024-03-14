@@ -74,7 +74,10 @@ class AddNodesBox(Widget):
             labels = metadata.get('node_labels', "")
             if not isinstance(labels, str):
                 if labels:
-                    labels = labels.join(",")
+                    if len(labels) == 1:
+                        labels = labels[0]
+                    else:
+                        labels = labels.join(",")
                 else:
                     labels = ""
 
@@ -82,7 +85,10 @@ class AddNodesBox(Widget):
             taints = metadata.get('node_taints', "")
             if not isinstance(taints, str):
                 if taints:
-                    taints = taints.join(",")
+                    if len(taints) == 1:
+                        taints = taints[0]
+                    else:
+                        taints = taints.join(",")
                 else:
                     taints = ""
 
