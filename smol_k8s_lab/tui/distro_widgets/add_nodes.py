@@ -1,6 +1,7 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.constants import HOME_DIR
 from smol_k8s_lab.tui.util import input_field, drop_down
+from smol_k8s_lab.tui.distro_widgets.modify_node_modal import NodeModalScreen
 
 from os.path import join
 from rich.text import Text
@@ -16,7 +17,7 @@ placeholder = """
               vvvvvvv  /|__/|
                  I   /O,O   |
                  I /_____   |      /|/|
-                J|/^ ^ ^ \  |    /00  |    _//|
+                C|/^ ^ ^ \  |    /oo  |    _//|
                  |^ ^ ^ ^ |W|   |/^^\ |   /oo |
                   \m___m__|_|    \m_m_|   \mm_|
 
@@ -69,8 +70,23 @@ class AddNodesBox(Widget):
         data_table.add_column(Text("Taints", justify="center"))
 
         for node, metadata in self.nodes.items():
-            row = [node, metadata['node_type'], metadata['ssh_key'],
-                   metadata['node_labels'], metadata['node_taints']]
+            # labels can be a list or CommentedSeq, so we convert to str
+            labels = metadata.get('node_labels', "")
+            if not isinstance(labels, str):
+                if labels:
+                    labels = labels.join(",")
+                else:
+                    labels = ""
+
+            # taints can be a list or CommentedSeq, so we convert to str
+            taints = metadata.get('node_taints', "")
+            if not isinstance(taints, str):
+                if taints:
+                    taints = taints.join(",")
+                else:
+                    taints = ""
+
+            row = [node, metadata['node_type'], metadata['ssh_key'], labels, taints]
             # we use an extra line to center the rows vertically 
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
@@ -97,6 +113,40 @@ class AddNodesBox(Widget):
         """
         if self.app.speak_on_focus:
             self.say_row(event.data_table)
+
+    @on(DataTable.RowSelected)
+    def node_row_selected(self, event: DataTable.RowSelected) -> None:
+        """
+        check which row was selected to launch a modal screen to modify or delete it
+        """
+        if event.data_table.id == "nodes-data-table":
+            def update_nodes(response: list = []):
+                """
+                check if cluster has been deleted
+                """
+                node = response[0]
+                node_metadata = response[1]
+
+                # make sure we actually got anything, because the user may have
+                # hit the cancel button
+                if node and not node_metadata:
+                    data_table = self.get_widget_by_id("nodes-data-table")
+                    data_table.remove_row(node)
+
+                    if data_table.row_count < 1:
+                        data_table.remove()
+                        self.get_widget_by_id("nodes-placeholder").display = True
+
+                    self.delete_from_parent_yaml(node)
+
+            row_index = event.cursor_row
+            row = event.data_table.get_row_at(row_index)
+
+            # get the row's first column (the name of the node) and remove whitespace
+            node = row[0].plain.strip()
+
+            # launch modal UI to ask if they'd like to modify or delete a node
+            self.app.push_screen(NodeModalScreen(node, self.nodes[node]), update_nodes)
 
     def update_parent_yaml(self, node_name: str, node_metadata: dict):
         """
@@ -166,7 +216,8 @@ class AddNodesBox(Widget):
 
         # node labels label and input
         node_labels_label_tooltip = (
-                "any labels you'd like to apply to this node (useful for node affinity)"
+                "Any labels you'd like to apply to this node (useful for node "
+                "affinity). For multiple labels, use commas to seperate them."
                 )
         node_labels = node_dict.get('node_labels', "")
         node_labels_input = input_field(
@@ -178,7 +229,8 @@ class AddNodesBox(Widget):
 
         # taints label and input
         taints_label_tooltip = (
-                "any labels you'd like to apply to this node (useful for node affinity)"
+                "Any taints you'd like to apply to this node (useful for pod "
+                "tolerations). For multiple labels, use commas to seperate them."
                 )
         taints = node_dict.get('node_taints', "")
         taints_input = input_field(
