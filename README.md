@@ -72,6 +72,41 @@ After you've followed the installation instructions, if you're *new* to `smol-k8
 # saving the config and deploying it for you
 smol-k8s-lab
 ```
+<details>
+  <summary><h3>Upgrading config from v2.2.4 to v3.x</h3></summary>
+
+If you've installed smol-k8s-lab prior to `v3.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following with either pip or pipx:
+
+*if using pip*:
+```yaml
+# this upgrades smol-k8s-lab
+pip3.11 install --upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+*or if using pipx*:
+```yaml
+# this upgrades smol-k8s-lab
+pipx upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+The main breaking changes between `v2.2.4` and `v3.0` are as follows:
+
+- *new k3s feature for adding additional nodes*
+
+This feature changes `k8s_distros.k3s.nodes` to be a dictionary so that you can include additional nodes for us to join to the cluster after we create it, but before we install apps.
+
+
+- *cert-manager now supports DNS01 challenge solver using the Cloudflare provider*
+
+This feature reworks the `apps.cert_manager.init` and `apps.cert_manager.argo.secret_keys` sections.
+
+</details>
 
 <details>
   <summary><h3>Upgrading config from v1.x to v2.x</h3></summary>
