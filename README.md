@@ -97,6 +97,67 @@ smol-k8s-lab
 
 The main breaking changes between `v2.2.4` and `v3.0` are as follows:
 
+- *home assistant has graduated from demo app to live app*
+
+You'll need to change `apps.home_assistant.argo.path` to either `home-assistant/toleration_and_affinity/` if you're using node labels and taints, or `home-assistant/` if you're deploying to a single node cluster. Here's an example with no tolerations or node affinity:
+
+```yaml
+apps:
+  home_assistant:
+    enabled: false
+    description: |
+      [link=https://home-assistant.io]Home Assistant[/link] is a home IOT management solution.
+
+      By default, we assume you want to use node affinity and tolerations to keep home assistant pods on certain nodes and keep other pods off said nodes. If you don't want to use either of these features but still want to use the small-hack/argocd-apps repo, first change the argo path to /home-assistant/ and then remove the 'toleration_' and 'affinity' secret_keys from the yaml file under apps.home_assistant.description.
+    argo:
+      secret_keys:
+        hostname: "home-assistant.coolestdogintheworld.dog"
+      repo: https://github.com/small-hack/argocd-apps
+      path: home-assistant/
+      revision: main
+      namespace: home-assistant
+      directory_recursion: false
+      project:
+        source_repos:
+        - http://jessebot.github.io/home-assistant-helm
+        destination:
+          namespaces:
+          - argocd
+```
+
+And here's an example for labeled and tainted nodes, where your pod can use tolerations and node affinity:
+
+```yaml
+apps:
+  home_assistant:
+    enabled: false
+    description: |
+      [link=https://home-assistant.io]Home Assistant[/link] is a home IOT management solution.
+
+      By default, we assume you want to use node affinity and tolerations to keep home assistant pods on certain nodes and keep other pods off said nodes. If you don't want to use either of these features but still want to use the small-hack/argocd-apps repo, first change the argo path to /home-assistant/ and then remove the 'toleration_' and 'affinity' secret_keys from the yaml file under apps.home_assistant.description.
+    argo:
+      secret_keys:
+        hostname: "home-assistant.coolestdogintheworld.dog"
+        toleration_key: "blutooth"
+        toleration_operator: "Equals"
+        toleration_value: "True"
+        toleration_effect: "NoSchedule"
+        affinity_key: "blutooth"
+        affinity_value: "True"
+      repo: https://github.com/small-hack/argocd-apps
+      path: home-assistant/toleration_and_affinity/
+      revision: main
+      namespace: home-assistant
+      directory_recursion: false
+      project:
+        source_repos:
+        - http://jessebot.github.io/home-assistant-helm
+        destination:
+          namespaces:
+          - argocd
+```
+
+
 - *new k3s feature for adding additional nodes*
 
 This feature changes `k8s_distros.k3s.nodes` to be a dictionary so that you can include additional nodes for us to join to the cluster after we create it, but before we install apps. Here's an example of how you can add a new node to k3s on installation:
