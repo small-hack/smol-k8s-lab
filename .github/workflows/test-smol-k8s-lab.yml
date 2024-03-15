@@ -7,7 +7,7 @@ on:
       - "README.md"
       - "docs/**"
 jobs:
-  smol_k8s_lab_test:
+  test_kind:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -38,6 +38,33 @@ jobs:
         run: |
             source .venv/bin/activate 
             smol-k8s-lab -c .github/smol_k8s_lab_config_kind.yaml
+
+  test_k3s:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Install smol-k8s-lab via poetry
+        run: poetry install
+
+      - name: Install Argo CD cli
+        run: |
+            curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+            sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+            rm argocd-linux-amd64
 
       - name: test smol-k8s-lab with k3s
         run: |
