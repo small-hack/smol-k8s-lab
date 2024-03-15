@@ -297,3 +297,17 @@ DataTable {
     color: $bluish_white;
     content-align: left middle;
 }
+
+/* Input in "label: input" row */
+.input-row-input {
+    align: left middle;
+}
+
+/* Label in "label: input" row */
+.input-row-label {
+    align: left middle;
+    padding-top: 1;
+    padding-bottom: 1;
+    color: $bluish_white;
+}
+

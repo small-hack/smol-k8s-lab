@@ -51,7 +51,7 @@ class BaseApp(App):
             Binding(key="f",
                     key_display="f",
                     action="toggle_footer",
-                    description="Toggle footer"),
+                    description="Hide footer"),
             Binding(key="q,escape",
                     action="quit",
                     show=False),
@@ -76,6 +76,7 @@ class BaseApp(App):
         self.cluster_names = []
         self.current_cluster = ""
         self.sensitive_values = {
+                'cert_manager': {},
                 'nextcloud': {},
                 'matrix': {},
                 'mastodon': {},
@@ -417,13 +418,23 @@ class BaseApp(App):
                                     empty_fields.append(key)
 
                         # sensitive inputs
-                        init_sensitive_values = init_dict.get('sensitive_values', None)
+                        init_sensitive_values = init_dict.get('sensitive_values',
+                                                              None)
                         if init_sensitive_values:
+                            # cert manager is special
+                            if app == "cert_manager": 
+                                solver = init_values['cluster_issuer_acme_challenge_solver']
+                                if solver == "http01":
+                                    skip = True
+                                else:
+                                    skip = False
+
                             prompts = self.check_for_env_vars(app, metadata)
                             if prompts:
                                 for value in prompts:
                                     if not self.sensitive_values[app].get(value, ""):
-                                        empty_fields.append(value)
+                                        if not skip:
+                                            empty_fields.append(value)
 
                 # check for empty secret key fields (some apps don't have secret keys)
                 secret_keys = metadata['argo'].get('secret_keys', None)

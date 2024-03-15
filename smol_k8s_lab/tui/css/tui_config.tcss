@@ -67,20 +67,6 @@ $navy: rgb(35,35,54);
     grid-columns: 0.2fr 1fr;
 }
 
-/* Label in "label: input" row */
-.input-row-label {
-    align: left middle;
-    padding-top: 1;
-    padding-bottom: 1;
-    width: 100%;
-    color: $bluish_white;
-}
-
-/* Input in "label: input" row */
-.input-row-input {
-    align: left middle;
-}
-
 /* this is the help-text at the top of each module */
 .soft-text {
     color: $bluish_white 60%;

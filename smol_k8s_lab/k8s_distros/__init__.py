@@ -140,8 +140,7 @@ def create_k8s_distro(cluster_name: str,
             k3s_args['disable-network-policy'] = True
 
         if k8s_distro == "k3s":
-            install_k3s_cluster(cluster_name,
-                                k3s_args)
+            install_k3s_cluster(cluster_name, k3s_args, distro_metadata['nodes'])
 
         # curently unsupported - in alpha state
         if k8s_distro == "k3d":

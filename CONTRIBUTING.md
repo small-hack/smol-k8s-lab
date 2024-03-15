@@ -24,7 +24,7 @@ If it's a code fix, please:
 
 We also utilize the [Bitwarden cli], for a password manager so you never have to see/know your Argo CD password.
 
-NOTE: We're open to unit, integration, and ci testing btw! We just don't have any because we weren't stable enough to justify them yet. 🤦
+NOTE: We're open to unit and integration tests btw! We just don't have anything but ci via Github Actions, because we weren't stable enough to justify them yet. 🤦
 
 ### Prereqs
 

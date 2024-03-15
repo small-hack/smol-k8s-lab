@@ -44,3 +44,13 @@ Enter the name of the new option you'd like to add.
 
 !!! Tip
     To turn off bells, visit the [TUI config screen](/tui/tui_config.md)
+
+## Add Nodes to k3s clusters (🆕 in v3.0)
+
+The ability to other metal nodes to your cluster is exclusively to k3s in smol-k8s-lab. To add a new node in the TUI, make sure k3s is selected via the dropdown on the distro config screen. In the second box on the screen, there are three tabs, the final tab called "Add Remote Nodes" is the one you want to click. You can also use the left and right arrow keys to navigate the tabs.
+
+Once there, you should see a list of any existing nodes you've added via your [config file](/config_file.md).
+
+If you haven't added any clusters to your config file, you will see a random ascii art from a time in the past. The second half of the tab has a small form for you to add new nodes:
+
+![terminal screenshot showing smol-k8s-lab "add remote nodes" tab for the k3s distro config screen](../../assets/images/screenshots/add_node_k3s_tab.svg)
