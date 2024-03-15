@@ -209,9 +209,10 @@ class AddNodesBox(Widget):
                 )
 
         # ssh key label and input
+        default_ssh_key = join(HOME_DIR, ".ssh/id_rsa")
         ssh_key_label_tooltip = (
                 "The SSH key to use to connect to the other node. This "
-                f"defaults to {join(HOME_DIR, ".ssh/id_rsa")}"
+                f"defaults to {default_ssh_key}"
                 )
         ssh_key = node_dict.get('ssh_key', "id_rsa")
         ssh_key_input = input_field(label="ssh_key",
