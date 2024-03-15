@@ -28,6 +28,7 @@ $navy: rgb(35,35,54);
     content-align: center middle;
     padding: 1;
     border: round $cornflower;
+    border-title-color: $soft_green;
     grid-gutter: 1;
     grid-rows: 0.25fr 1fr 0.25fr;
 }
