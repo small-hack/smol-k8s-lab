@@ -38,7 +38,7 @@ def create_cluster_issuers(init_values: dict, k8s_obj: K8s = None) -> None:
         # create the cloudflare api token secret
         provider = init_values.get("cluster_issuer_acme_dns01_provider", "")
         if provider == "cloudflare":
-            token_dict = {"token": init_values['CLOUDFLARE_API_TOKEN']}
+            token_dict = {"token": init_values['cloudflare_api_token']}
             k8s_obj.create_secret("cloudflare-api-token",
                                   "cert-manager",
                                   token_dict)
