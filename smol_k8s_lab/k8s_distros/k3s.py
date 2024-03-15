@@ -75,7 +75,6 @@ def join_k3s_nodes(extra_nodes: dict) -> None:
     ip_cmd = ("kubectl get nodes -o custom-columns=NAME:.status.addresses[0].address"
               " -l node-role.kubernetes.io/master --no-headers")
     k3s_control_plane_ip = subproc([ip_cmd]).strip()
-    log.debug(f"local node ip is {k3s_control_plane_ip}")
 
     # token from the server is needed for the new agent
     k3s_token = subproc(["sudo cat /var/lib/rancher/k3s/server/node-token"]).strip()
