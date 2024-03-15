@@ -129,7 +129,8 @@ class DistroConfigScreen(Screen):
             main_box.mount(
                     K3sConfigWidget(
                         self.current_distro,
-                        self.cfg.get('k3s', DEFAULT_DISTRO_OPTIONS['k3s']),
+                        self.cfg.get(self.current_distro,
+                                     DEFAULT_DISTRO_OPTIONS[self.current_distro]),
                         id=self.current_distro + "-pseudo-screen"
                         )
                     )

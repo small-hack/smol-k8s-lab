@@ -54,7 +54,7 @@ class BitwardenCredentialsScreen(ModalScreen):
 
     def on_mount(self,) -> None:
         credentials_box = self.get_widget_by_id("credentials-box")
-        credentials_box.border_title = "[green]🛡️ Enter Bitwarden Vault Credentials"
+        credentials_box.border_title = "🛡️ Enter Bitwarden Vault Credentials"
 
         # we set this at the beginning, so we can still return empty if they cancel
         self.credentials = {}
