@@ -76,7 +76,7 @@ async def make_confirmation_screen_screenshots() -> None:
     """
     async with BaseApp().run_test(size=(87, 47)) as pilot:
         # logging and password config
-        await pilot.press("enter", "n", "n")
+        await pilot.press("enter", "n", "n", "n")
         pilot.app.save_screenshot(f"{screenshot_path}/logging_password_config.svg")
 
         # confirmation screen finally
@@ -84,10 +84,11 @@ async def make_confirmation_screen_screenshots() -> None:
         pilot.app.save_screenshot(f"{screenshot_path}/confirm_screen.svg")
 
         # enter bitwarden credentials
-        await pilot.press("tab", "tab", "enter")
+        await pilot.press("n", "tab", "tab", "enter")
         pilot.app.save_screenshot(f"{screenshot_path}/bitwarden_credentials_screen.svg")
 
 if __name__ == "__main__":
     asyncio.run(make_base_screenshots())
     asyncio.run(make_distro_screen_screenshots())
     asyncio.run(make_apps_screen_screenshots())
+    asyncio.run(make_confirmation_screen_screenshots())
