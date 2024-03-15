@@ -4,6 +4,7 @@ on:
   pull_request:
     paths-ignore:
       - ".github/**"
+      - "mkdocs.yaml"
       - "README.md"
       - "docs/**"
 jobs:

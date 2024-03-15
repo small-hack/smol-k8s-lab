@@ -83,6 +83,10 @@ async def make_confirmation_screen_screenshots() -> None:
         await pilot.press("n")
         pilot.app.save_screenshot(f"{screenshot_path}/confirm_screen.svg")
 
+        # enter bitwarden credentials
+        await pilot.press("tab", "tab", "enter")
+        pilot.app.save_screenshot(f"{screenshot_path}/bitwarden_credentials_screen.svg")
+
 if __name__ == "__main__":
     asyncio.run(make_base_screenshots())
     asyncio.run(make_distro_screen_screenshots())

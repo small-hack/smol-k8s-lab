@@ -68,6 +68,7 @@ nav:
     - K8s Apps: tui/apps_screen.md
     - Config: tui/tui_config.md
     - Getting Help: tui/help_screen.md
+    - Confirmation: tui/confirmation_screen.md
   - Config File: config_file.md
   - Default Apps: 
     - Argo CD: 
