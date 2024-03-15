@@ -80,10 +80,7 @@ k8s_distros:
       - "ingress-ready=true"
       kubelet-arg:
       - "max-pods=150"
-    # not yet adjustable on k3s at this time
-    nodes:
-      control_plane: 1
-      workers: 0
+    nodes: {}
 
   k3d:
     # set to true to enable deploying a Kubernetes cluster using k3d
@@ -196,13 +193,23 @@ apps:
     # Initialize of the app through smol-k8s-lab
     init:
       # Deploys staging and prod ClusterIssuers and prompts you for
-      # cert-manager.argo.secret_keys if they were not set. Switch to false if
-      # you don't want to deploy any ClusterIssuers
+      # values if they were not set. Switch to false if you don't want
+      # to deploy any ClusterIssuers
       enabled: true
-    argo:
-      secret_keys:
-        # Used for letsencrypt-staging, to generate certs
+      values:
+        # Used for to generate certs and alert you if they're going to expire
         email: "cicdtest@test.com"
+        # choose between "http01" or "dns01"
+        cluster_issuer_acme_challenge_solver: http01
+        # only needed if cluster_issuer_challenge_solver set to dns01
+        # currently only cloudflare is supported
+        cluster_issuer_acme_dns01_provider: cloudflare
+      sensitive_values:
+        # can be passed in as env vars if you pre-pend CERT_MANAGER_
+        # e.g. CERT_MANAGER_CLOUDFLARE_API_TOKEN
+      - CLOUDFLARE_API_TOKEN
+    argo:
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
