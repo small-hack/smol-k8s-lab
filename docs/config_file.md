@@ -99,10 +99,21 @@ k8s_distros:
       - "ingress-ready=true"
       kubelet-arg:
       - "max-pods=150"
-    # not yet adjustable on k3s at this time
+    # list of nodes to SSH to and join to cluster
+    # if using single node, set to nodes: {}
     nodes:
-      control_plane: 1
-      workers: 0
+      # name can be a hostname or ip address
+      serverfriend1.lan:
+        # change ssh_key to the name of a local private key to use
+        ssh_key: id_rsa
+        # must be node type of "worker" or "control_plane"
+        node_type: worker
+        # labels are optional, but may be useful for pod node affinity
+        node_labels:
+          - iot=true
+        # taints are optional, but may be useful for pod tolerations
+        node_taints:
+          - iot=true:NoSchedule
 ```
 
 ### k3d

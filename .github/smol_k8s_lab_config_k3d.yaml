@@ -65,7 +65,7 @@ smol_k8s_lab:
 k8s_distros:
   k3s:
     # set to true to enable deploying a Kubernetes cluster using k3s
-    enabled: true
+    enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. If you enable cilium, we
     # automatically pass in flannel-backend: none and disable-network-policy: true 
@@ -84,7 +84,7 @@ k8s_distros:
 
   k3d:
     # set to true to enable deploying a Kubernetes cluster using k3d
-    enabled: false
+    enabled: true
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. if you enable cilium, we
     # automatically pass in flannel-backend: none and disable-network-policy: true 

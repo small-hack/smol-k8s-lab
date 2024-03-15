@@ -46,6 +46,11 @@ $navy: rgb(35,35,54);
     height: auto;
 }
 
+/* tabpane 2 */
+#k3s-nodes-tab {
+    height: auto;
+}
+
 /* k3s container itself */
 .k3s-arg-scroll {
     align: center middle;

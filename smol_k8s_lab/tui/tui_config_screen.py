@@ -83,7 +83,7 @@ class TuiConfig(Widget):
                         classes="soft-text")
             with Grid(classes="triple-switch-row"):
                 yield bool_option(
-                        label="enabled:",
+                        label="enabled",
                         name="enabled",
                         switch_value=self.cfg['enabled'],
                         tooltip=("Enable tui mode by default. Otherwise, you"
@@ -92,14 +92,14 @@ class TuiConfig(Widget):
                         )
 
                 yield bool_option(
-                        label="footer:",
+                        label="footer",
                         name="show_footer",
                         switch_value=self.cfg['show_footer'],
                         tooltip="show the footer at the bottom of the screen"
                         )
 
                 yield bool_option(
-                        label="k9s:",
+                        label="k9s",
                         name="k9s-enabled",
                         switch_value=self.cfg['k9s']['enabled'],
                         tooltip="launch k9s, a k8s TUI dashboard when cluster is up"
@@ -107,7 +107,7 @@ class TuiConfig(Widget):
 
             with Grid(classes="k9s-input-row"):
                 yield input_field(
-                        label="k9s command:",
+                        label="k9s_command",
                         name="k9s-command",
                         initial_value=self.cfg['k9s']['command'],
                         placeholder="command to run when k9s starts",
@@ -177,7 +177,7 @@ class AccessibilityWidget(Widget):
             with Grid(id="bell-row"):
 
                 yield bool_option(
-                        label="bell on focus:",
+                        label="bell_on_focus",
                         name="bell-on_focus",
                         switch_value=self.cfg['bell']['on_focus'],
                         tooltip=(
@@ -186,7 +186,7 @@ class AccessibilityWidget(Widget):
                         )
 
                 yield bool_option(
-                        label="bell on error:",
+                        label="bell_on_error",
                         name="bell-on_error",
                         switch_value=self.cfg['bell']['on_error'],
                         tooltip=(
@@ -197,7 +197,7 @@ class AccessibilityWidget(Widget):
 
             with Grid(id="tts-row"):
                 yield bool_option(
-                        label="TTS screen titles:",
+                        label="TTS_screen_titles",
                         name="text-to-speech-screen_titles",
                         switch_value=self.cfg['text_to_speech']['screen_titles'],
                         tooltip=(
@@ -206,7 +206,7 @@ class AccessibilityWidget(Widget):
                         )
 
                 yield bool_option(
-                        label="TTS on key press:",
+                        label="TTS_on_key_press",
                         name="text-to-speech-on_key_press",
                         switch_value=self.cfg['text_to_speech']['on_key_press'],
                         tooltip=(
@@ -216,7 +216,7 @@ class AccessibilityWidget(Widget):
                         )
 
                 yield bool_option(
-                        label="TTS on focus:",
+                        label="TTS_on_focus",
                         name="text-to-speech-on_focus",
                         switch_value=self.cfg['text_to_speech']['on_focus'],
                         tooltip=(
@@ -227,7 +227,7 @@ class AccessibilityWidget(Widget):
                         )
 
             yield input_field(
-                    label="speech program:",
+                    label="speech_program",
                     name="text-to-speech-speech_program",
                     initial_value=self.cfg['text_to_speech']['speech_program'],
                     placeholder="name of program for speech",

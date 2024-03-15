@@ -10,7 +10,7 @@ from textual.containers import Grid, Horizontal
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
 from textual.validation import Length
-from textual.widgets import Input, Button, Label, Switch
+from textual.widgets import Input, Button, Label, Switch, Select
 
 
 KUBELET_SUGGESTIONS = SuggestFromList((
@@ -227,11 +227,42 @@ def bool_option(label: str, switch_value: bool, name: str, tooltip: str) -> Hori
     switch = Switch(value=switch_value,
                     classes="bool-switch-row-switch",
                     name=name,
-                    id=label)
+                    id=label.replace("_", "-").replace(" ", "-"))
     switch.tooltip = tooltip
 
     extra_class = name.replace('_',"-")
     return Horizontal(bool_label, switch, classes=f"bool-switch-row {extra_class}")
+
+
+def drop_down(values: list,
+              name: str,
+              tooltip: str,
+              select_value: str = "",
+              label: str = "") -> Horizontal:
+    """
+    returns a label and switch row in a Horizontal container
+    """
+    if label:
+        select_label = Label(label.replace("_", " ") + ":", classes="input-row-label")
+        select_label.tooltip = tooltip
+        id = label.replace("_", "-")
+    else:
+        id = name.replace("_", "-")
+
+    select = Select.from_values(values,
+                                name=name,
+                                value=select_value,
+                                classes="dropdown-row-dropdown",
+                                id=id
+                                )
+    select.tooltip = tooltip
+
+    extra_class = name.replace('_',"-")
+    if label:
+        return Horizontal(select_label, select,
+                          classes=f"{extra_class}")
+    else:
+        return Horizontal(select, classes=f"{extra_class}")
 
 
 def input_field(label: str, initial_value: str, name: str, placeholder: str,
@@ -239,12 +270,12 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
     """
     returns an input label and field within a Horizontal container
     """
-    input_label = Label(label + ":", classes="input-row-label")
+    input_label = Label(label.replace("_", " ") + ":", classes="input-row-label")
     input_label.tooltip = tooltip
 
     input_dict = {"placeholder": placeholder,
                   "classes": "input-row-input",
-                  "id": label,
+                  "id": label.replace("_","-"),
                   "name": name}
     if initial_value:
         input_dict["value"] = initial_value

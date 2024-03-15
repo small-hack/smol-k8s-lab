@@ -2,7 +2,7 @@
 # internal library
 from smol_k8s_lab.constants import XDG_CACHE_DIR, DEFAULT_DISTRO_OPTIONS
 from smol_k8s_lab.tui.distro_widgets.kubelet_config import KubeletConfig
-from smol_k8s_lab.tui.distro_widgets.node_adjustment import NodeAdjustmentBox
+from smol_k8s_lab.tui.distro_widgets.add_nodes import AddNodesBox
 from smol_k8s_lab.tui.util import create_sanitized_list
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
@@ -67,17 +67,6 @@ class K3sConfigWidget(Static):
             self.metadata = DEFAULT_DISTRO_OPTIONS[self.distro]
 
         with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
-
-            # take number of nodes from config and make string
-            nodes = self.metadata.get('nodes',
-                                      {'control_plane': 1, 'workers': 0})
-            control_nodes = str(nodes.get('control_plane', '1'))
-            worker_nodes = str(nodes.get('workers', '0'))
-
-            # node input row
-            yield NodeAdjustmentBox(self.distro, control_nodes, worker_nodes)
-
-
             # Add the TabbedContent widget for kind config
             with TabbedContent(initial="k3s-yaml-tab", id="k3s-tabbed-content"):
                 # tab 1 - networking options
@@ -89,9 +78,15 @@ class K3sConfigWidget(Static):
 
                 # tab 2 - kubelet options
                 with TabPane("Kubelet Config Options", id="k3s-kubelet-tab"):
-                    # kubelet config section for kind only
+                    # kubelet config section for kind only?
                     kubelet_args = self.metadata['k3s_yaml'].get('kubelet-arg', '')
                     yield KubeletConfig('k3s', kubelet_args)
+
+                if self.distro == "k3s":
+                    # tab 3 - add remote nodes
+                    with TabPane("🆕 Add [i]Remote[/i] Nodes", id="k3s-nodes-tab"):
+                        yield AddNodesBox(self.metadata.get('nodes', []),
+                                          id="nodes-tab")
 
     def on_mount(self) -> None:
         """
@@ -100,9 +95,14 @@ class K3sConfigWidget(Static):
         # update tabbed content box
         tabbed_content = self.query_one(TabbedContent)
 
-        tabbed_content.border_title = (
-                "[i]Add extra[/] options for the [#C1FF87]k3s[/] install script"
-                )
+        if self.distro == "k3s":
+            top_title = ("[#ffaff9]Customize[/] k3s install with extra "
+                         "[#C1FF87]options[/] [i]and[/i] [#C1FF87]nodes[/]")
+        else:
+            top_title = ("[#ffaff9]Add[/] [i]extra[/] options for the "
+                         "[#C1FF87]k3s[/] install script")
+
+        tabbed_content.border_title = top_title
 
         subtitle = (
                 "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/]"
@@ -115,13 +115,29 @@ class K3sConfigWidget(Static):
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
-        self.get_widget_by_id("k3s-tabbed-content").show_tab(tab)
-        self.get_widget_by_id("k3s-tabbed-content").active = tab
+        tabbed_content = self.get_widget_by_id("k3s-tabbed-content")
+        tabbed_content.show_tab(tab)
+        tabbed_content.active = tab
 
     @on(TabbedContent.TabActivated)
-    def speak_when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
+    def when_tab_selected(self, event: TabbedContent.TabActivated) -> None:
+        """
+        speaks name of tab if tts is on and changes button at the button of border
+        """
+        tab = event.tab.id
         if self.app.speak_on_focus:
-            self.app.action_say(f"Selected tab is {event.tab.id}")
+            self.app.action_say(f"Selected tab is {tab}")
+
+        # change border subtitle button depending on the tab activated
+        tabbed_content = self.query_one(TabbedContent)
+        if tab == "k3s-nodes-tab":
+           tabbed_content.border_subtitle = (
+                "[b][@click=screen.launch_new_option_modal()] ➕ node[/][/]"
+                )
+        else:
+           tabbed_content.border_subtitle = (
+                "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/]"
+                )
 
 
 class K3sConfig(Static):

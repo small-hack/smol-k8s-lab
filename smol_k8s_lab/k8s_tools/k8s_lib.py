@@ -29,7 +29,7 @@ class K8s():
     def create_secret(self,
                       name: str,
                       namespace: str,
-                      str_data: str,
+                      str_data: dict,
                       inline_key: str = "",
                       labels: dict = {}) -> None:
         """

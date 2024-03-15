@@ -39,6 +39,7 @@ class DistroConfigScreen(Screen):
     """
     CSS_PATH = ["./css/distro_config.tcss",
                 "./css/node_inputs_widget.tcss",
+                "./css/add_nodes_widget.tcss",
                 "./css/k3s.tcss",
                 "./css/kind.tcss"]
 
