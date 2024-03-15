@@ -99,7 +99,11 @@ jobs:
             sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
             rm argocd-linux-amd64
 
-      - name: test smol-k8s-lab with k3s
+      - name: Install k3d
+        run: |
+            curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+
+      - name: test smol-k8s-lab with k3d
         run: |
             source .venv/bin/activate 
             export KUBECONFIG="/home/runner/.config/kube/config"
