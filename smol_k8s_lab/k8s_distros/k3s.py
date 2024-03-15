@@ -74,12 +74,20 @@ def join_k3s_nodes(extra_nodes: dict) -> None:
     # this gets the internal ip address of our current control plane node
     ip_cmd = ("kubectl get nodes -o custom-columns=NAME:.status.addresses[0].address"
               " -l node-role.kubernetes.io/master --no-headers")
-    k3s_control_plane_ip = subproc([ip_cmd]).strip()
+
+    k3s_control_plane_ip = subproc([ip_cmd])
+
+    # we loop b/c sometimes the server isn't ready yet, so this might return None
+    while not k3s_control_plane_ip:
+        k3s_control_plane_ip = subproc([ip_cmd])
+
+    # strips new line character from end of ip address
+    internal_ip = k3s_control_plane_ip.strip()
 
     # token from the server is needed for the new agent
     k3s_token = subproc(["sudo cat /var/lib/rancher/k3s/server/node-token"]).strip()
     k3s_cmd = ('\'curl -sfL https://get.k3s.io | '
-               f'K3S_URL="https://{k3s_control_plane_ip}:6443" '
+               f'K3S_URL="https://{internal_ip}:6443" '
                f'K3S_TOKEN="{k3s_token}" sh -\'')
 
     # for each node and it's meta data, ssh in and join the node
