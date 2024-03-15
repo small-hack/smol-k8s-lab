@@ -99,12 +99,173 @@ The main breaking changes between `v2.2.4` and `v3.0` are as follows:
 
 - *new k3s feature for adding additional nodes*
 
-This feature changes `k8s_distros.k3s.nodes` to be a dictionary so that you can include additional nodes for us to join to the cluster after we create it, but before we install apps.
+This feature changes `k8s_distros.k3s.nodes` to be a dictionary so that you can include additional nodes for us to join to the cluster after we create it, but before we install apps. Here's an example of how you can add a new node to k3s on installation:
+
+
+```yaml
+k8s_distros:
+  k3s:
+    enabled: false
+    k3s_yaml:
+      # if you enable MetalLB, we automatically add servicelb to the disable list
+      # enables encryption at rest for Kubernetes secrets
+      secrets-encryption: true
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      disable:
+      - "traefik"
+      node-label:
+      - "ingress-ready=true"
+      kubelet-arg:
+      - "max-pods=150"
+    # nodes to SSH to and join to cluster. example:
+    nodes:
+      # name can be a hostname or ip address
+      serverfriend1.lan:
+        # change ssh_key to the name of a local private key to use
+        ssh_key: id_rsa
+        # must be node type of "worker" or "control_plane"
+        node_type: worker
+        # labels are optional, but may be useful for pod node affinity
+        node_labels:
+          - iot=true
+        # taints are optional, but may be useful for pod tolerations
+        node_taints:
+          - iot=true:NoSchedule
+```
+
+if you don't want to add any nodes, this is what you should change your nodes section to be:
+
+```yaml
+k8s_distros:
+  k3s:
+    enabled: false
+    k3s_yaml:
+      # if you enable MetalLB, we automatically add servicelb to the disable list
+      # enables encryption at rest for Kubernetes secrets
+      secrets-encryption: true
+      # disables traefik so we can enable ingress-nginx, remove if you're using traefik
+      disable:
+      - "traefik"
+      node-label:
+      - "ingress-ready=true"
+      kubelet-arg:
+      - "max-pods=150"
+    # nodes to SSH to and join to cluster. example:
+    nodes: {}
+```
 
 
 - *cert-manager now supports DNS01 challenge solver using the Cloudflare provider*
 
 This feature reworks the `apps.cert_manager.init` and `apps.cert_manager.argo.secret_keys` sections.
+
+Here's an example of using the HTTP01 challenge solver, which would be the only previously supported challenge solver, so if you want everything to just work how it did before your config file should look like this:
+
+```yaml
+apps:
+  cert_manager:
+    enabled: true
+    description: |
+      [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
+
+      smol-k8s-lab supports optional initialization by creating [link=https://cert-manager.io/docs/configuration/acme/]ACME Issuer type[/link] [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] using either the HTTP01 or DNS01 challenge solvers. We create two ClusterIssuers: letsencrypt-staging and letsencrypt-staging.
+
+      For the DNS01 challange solver, you will need to either export $CLOUDFLARE_API_TOKEN as an env var, or fill in the sensitive value for it each time you run smol-k8s-lab.
+
+      Currently, Cloudflare is the only supported DNS provider for the DNS01 challenge solver. If you'd like to use a different DNS provider or use a different Issuer type all together, please either set one up outside of smol-k8s-lab. We also welcome [link=https://github.com/small-hack/smol-k8s-lab/pulls]PRs[/link] to add these features :)
+
+    # Initialize of the app through smol-k8s-lab
+    init:
+      # Deploys staging and prod ClusterIssuers and prompts you for
+      # values if they were not set. Switch to false if you don't want
+      # to deploy any ClusterIssuers
+      enabled: true
+      values:
+        # Used for to generate certs and alert you if they're going to expire
+        email: "you@emailsforfriends.com"
+        # choose between "http01" or "dns01"
+        cluster_issuer_acme_challenge_solver: http01
+        # only needed if cluster_issuer_challenge_solver set to dns01,
+        # currently only cloudflare is supported
+        cluster_issuer_acme_dns01_provider: cloudflare
+      sensitive_values: []
+    argo:
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "cert-manager/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "cert-manager"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for cert-manager CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - kube-system
+```
+
+And here's how you'd use the new DNS01 feature (keep in mind you need to either provide a sensitive value each time you run `smol-k8s-lab`, OR you need to export `$CLOUDFLARE_API_TOKEN` as an env var prior to running `smol-k8s-lab`):
+
+
+```yaml
+apps:
+  cert_manager:
+    enabled: true
+    description: |
+      [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
+
+      smol-k8s-lab supports optional initialization by creating [link=https://cert-manager.io/docs/configuration/acme/]ACME Issuer type[/link] [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] using either the HTTP01 or DNS01 challenge solvers. We create two ClusterIssuers: letsencrypt-staging and letsencrypt-staging.
+
+      For the DNS01 challange solver, you will need to either export $CLOUDFLARE_API_TOKEN as an env var, or fill in the sensitive value for it each time you run smol-k8s-lab.
+
+      Currently, Cloudflare is the only supported DNS provider for the DNS01 challenge solver. If you'd like to use a different DNS provider or use a different Issuer type all together, please either set one up outside of smol-k8s-lab. We also welcome [link=https://github.com/small-hack/smol-k8s-lab/pulls]PRs[/link] to add these features :)
+
+    # Initialize of the app through smol-k8s-lab
+    init:
+      # Deploys staging and prod ClusterIssuers and prompts you for
+      # values if they were not set. Switch to false if you don't want
+      # to deploy any ClusterIssuers
+      enabled: true
+      values:
+        # Used for to generate certs and alert you if they're going to expire
+        email: "you@emailsforfriends.com"
+        # choose between "http01" or "dns01"
+        cluster_issuer_acme_challenge_solver: dns01
+        # only needed if cluster_issuer_challenge_solver set to dns01
+        # currently only cloudflare is supported
+        cluster_issuer_acme_dns01_provider: cloudflare
+      sensitive_values:
+        # can be passed in as env vars if you pre-pend CERT_MANAGER_
+        # e.g. CERT_MANAGER_CLOUDFLARE_API_TOKEN
+      - CLOUDFLARE_API_TOKEN
+    argo:
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "cert-manager/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "cert-manager"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for cert-manager CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - kube-system
+```
 
 </details>
 

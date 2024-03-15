@@ -2,7 +2,7 @@
 
 The main variable you need to worry about when setting up home assistant is your `hostname`.
 
-## Example config
+## Example configs
 
 ### Using tolerations and node affinity
 

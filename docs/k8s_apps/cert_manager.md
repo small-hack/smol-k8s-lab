@@ -13,8 +13,71 @@ All applications will use `letsencrypt-staging` by default, until you change thi
 
 Alternatively, you can also use the DNS01 challenge solver with cloudflare only. If you'd like to use a different DNS provider for the DNS01 challenge solver type, please submit a PR as the devs only have regular access to cloudflare and can't test other providers at this time.
 
-## Example config
+## Example configs
 
+### HTTP01 Challenge Solver
+
+This is the default challenge solver.
+
+```yaml
+apps:
+  # This app is installed with helm or manifests depending on what is recommended
+  # for your k8s distro. Becomes managed by Argo CD if you enable it below
+  cert_manager:
+    # ! NOTE: you currently can't set this to false. It is necessary to deploy
+    # most of our supported Argo CD apps since they often have TLS enabled either
+    # for pod connectivity or ingress. IF set to false, you need an alternative SSL pipeline
+    enabled: true
+    description: |
+      [link=https://cert-manager.io/]cert-manager[/link] let's you use LetsEncrypt to generate TLS certs for all your apps with ingress.
+
+      smol-k8s-lab supports optional initialization by creating [link=https://cert-manager.io/docs/configuration/acme/]ACME Issuer type[/link] [link=https://cert-manager.io/docs/concepts/issuer/]ClusterIssuers[/link] using either the HTTP01 or DNS01 challenge solvers. We create two ClusterIssuers: letsencrypt-staging and letsencrypt-staging.
+
+      For the DNS01 challange solver, you will need to either export $CLOUDFLARE_API_TOKEN as an env var, or fill in the sensitive value for it each time you run smol-k8s-lab.
+
+      Currently, Cloudflare is the only supported DNS provider for the DNS01 challenge solver. If you'd like to use a different DNS provider or use a different Issuer type all together, please either set one up outside of smol-k8s-lab. We also welcome [link=https://github.com/small-hack/smol-k8s-lab/pulls]PRs[/link] to add these features :)
+
+    # Initialize of the app through smol-k8s-lab
+    init:
+      # Deploys staging and prod ClusterIssuers and prompts you for
+      # values if they were not set. Switch to false if you don't want
+      # to deploy any ClusterIssuers
+      enabled: true
+      values:
+        # Used for to generate certs and alert you if they're going to expire
+        email: coolfriend@amazingdogs.dog
+        # choose between "http01" or "dns01"
+        cluster_issuer_acme_challenge_solver: http01
+        # only needed if cluster_issuer_challenge_solver set to dns01
+        # currently only cloudflare is supported
+        cluster_issuer_acme_dns01_provider: cloudflare
+      sensitive_values: []
+    argo:
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: "https://github.com/small-hack/argocd-apps"
+      # path in the argo repo to point to. Trailing slash very important!
+      path: "cert-manager/"
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "cert-manager"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for cert-manager CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+          - https://charts.jetstack.io
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - kube-system
+```
+
+
+### DNS01 Challenge Solver
+
+For the DNS01 challange solver, you will need to either export `$CLOUDFLARE_API_TOKEN` as an env var, or fill in the sensitive value for it each time you run `smol-k8s-lab`.
 
 ```yaml
 apps:
@@ -54,14 +117,7 @@ apps:
         # e.g. CERT_MANAGER_CLOUDFLARE_API_TOKEN
         - CLOUDFLARE_API_TOKEN
     argo:
-      secret_keys:
-        # choose between http01 and dns01
-        cluster_issuer_challenge_solver: "http01"
-        # only needed if cluster_issuer_challenge_solver set to dns01
-        # currently only cloudflare is supported
-        cluster_issuer_dns01_provider: "cloudflare"
-        # Used for acme to generate certs and alert you of expiration
-        email: ""
+      secret_keys: {}
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!

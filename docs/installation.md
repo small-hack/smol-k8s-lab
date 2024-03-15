@@ -84,13 +84,22 @@ smol-k8s-lab
 ```
 
 <details>
-  <summary><h3>Upgrading to v1.x or v2.x</h3></summary>
+  <summary><h3>Upgrading to v1.x, v2.x, v3.x</h3></summary>
 
-If you've installed smol-k8s-lab prior to <code>v1.0.0</code>, please backup your old configuration, <code>~/.config/smol-k8s-lab/config.yaml</code> (or <code>$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml</code>), and then remove the file entirely. Then, run the following:
+If you've installed smol-k8s-lab prior to <code>v3.0.0</code>, please backup your old configuration, <code>~/.config/smol-k8s-lab/config.yaml</code> (or <code>$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml</code>), and then remove the file entirely. Then, run the following if you're using pip:
 
 ```bash
 # this upgrades smol-k8s-lab
-pip3.11 install --upgrade smol-k8s-lab
+pip install --upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+if you're using pipx:
+```bash
+# this upgrades smol-k8s-lab
+pipx upgrade smol-k8s-lab
 
 # this initializes a new configuration
 smol-k8s-lab
