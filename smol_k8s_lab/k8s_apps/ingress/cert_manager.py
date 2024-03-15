@@ -25,7 +25,6 @@ def configure_cert_manager(k8s_obj: K8s,
     release.install(True)
 
     if init_dict['enabled']:
-        log.info(init_dict)
         init_values = init_dict['values']
         create_cluster_issuers(init_values, k8s_obj)
 
