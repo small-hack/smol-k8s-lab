@@ -110,8 +110,9 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         tooltip = self.tooltips.get(key, None)
         if not tooltip:
             if self.sensitive:
-                tooltip = (f"To avoid needing to fill {key} in manually, "
-                           "you can export an environment variable.")
+                env_var = "_".join([self.app_name.upper(), key.upper()])
+                tooltip = (f"To avoid needing to fill in this value manually, you"
+                           f" can export ${env_var} as an environment variable.")
             else:
                 if key == "s3_provider":
                     tooltip = "Choose between minio and seaweedfs for a local s3 provider"
