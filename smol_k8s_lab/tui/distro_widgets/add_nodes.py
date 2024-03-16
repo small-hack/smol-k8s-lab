@@ -135,15 +135,17 @@ class AddNodesBox(Widget):
 
                 # make sure we actually got anything, because the user may have
                 # hit the cancel button
-                if node and not node_metadata:
+                if node:
                     data_table = self.get_widget_by_id("nodes-data-table")
-                    data_table.remove_row(node)
 
-                    if data_table.row_count < 1:
-                        data_table.remove()
-                        self.get_widget_by_id("nodes-placeholder").display = True
+                    if not node_metadata:
+                        data_table.remove_row(node)
 
-                    self.delete_from_parent_yaml(node)
+                        if data_table.row_count < 1:
+                            data_table.remove()
+                            self.get_widget_by_id("nodes-placeholder").display = True
+
+                        self.delete_from_parent_yaml(node)
 
             row_index = event.cursor_row
             row = event.data_table.get_row_at(row_index)
