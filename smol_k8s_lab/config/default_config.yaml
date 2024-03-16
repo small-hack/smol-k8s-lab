@@ -356,6 +356,7 @@ apps:
     argo:
       secret_keys:
         hostname: ""
+        # you can delete these if they don't have values
         toleration_key: ""
         toleration_operator: ""
         toleration_value: ""
@@ -369,7 +370,7 @@ apps:
       directory_recursion: false
       project:
         source_repos:
-        - http://jessebot.github.io/home-assistant-helm
+        - https://small-hack.github.io/home-assistant-chart
         destination:
           namespaces:
           - argocd
