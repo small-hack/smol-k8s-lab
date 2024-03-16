@@ -16,6 +16,7 @@ from os import chmod, remove, path
 import requests
 import stat
 from ruamel.yaml import YAML
+from time import sleep
 
 
 def install_k3s_cluster(cluster_name: str,
@@ -79,6 +80,8 @@ def join_k3s_nodes(extra_nodes: dict) -> None:
 
     # we loop b/c sometimes the server isn't ready yet, so this might return None
     while not k3s_control_plane_ip:
+        # sleep 3 seconds to avoid clogging the logs
+        sleep(3)
         k3s_control_plane_ip = subproc([ip_cmd])
 
     # strips new line character from end of ip address
