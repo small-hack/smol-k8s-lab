@@ -2,16 +2,20 @@
 Small Zitadel API wrapper using k8s service accounts
 """
 
+# external libraries
 import cryptography
 from datetime import datetime, timezone, timedelta
 import logging as log
 from json import dumps
 import jwt
 from requests import request
+from requests.exceptions import SSLError
 from rich.prompt import Prompt
+from time import sleep
+
+# internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.utils.passwords import create_password
-
 
 class Zitadel():
     """
@@ -53,14 +57,23 @@ class Zitadel():
         Returns True when the status code is 200 (success).
         """
         while True:
-            log.debug("checking if api is up by querying the healthz endpoint")
-            res = request("GET", f"{self.api_url}healthz", verify=self.verify)
+            log.debug("checking if api is up by querying the healthz endpoint"
+                      f" by querying {self.api_url} using verify={self.verify}")
+
+            try:
+                res = request("GET", f"{self.api_url}healthz", verify=self.verify)
+            except SSLError:
+                log.warn(f"Looks like querying {self.api_url} gave an SSL error,"
+                         "but we'll try again")
+                pass
 
             if res.status_code == 200:
                 log.info("Zitadel API is up now :)")
                 break
             else:
-                log.debug("Zitadel API is not yet up")
+                # sleep just a couple of seconds to avoid being locked out or something
+                sleep(2)
+                log.debug("Zitadel API is not yet up :(")
 
         return True
 
