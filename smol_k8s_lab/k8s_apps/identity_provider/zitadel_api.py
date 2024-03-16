@@ -56,6 +56,7 @@ class Zitadel():
         Loops and checks https://{self.api_url}healthz for an HTTP status.
         Returns True when the status code is 200 (success).
         """
+        res = None
         while True:
             log.debug("checking if api is up by querying the healthz endpoint"
                       f" by querying {self.api_url} using verify={self.verify}")
@@ -67,13 +68,16 @@ class Zitadel():
                          "but we'll try again")
                 pass
 
-            if res.status_code == 200:
-                log.info("Zitadel API is up now :)")
-                break
+            if res:
+                if res.status_code == 200:
+                    log.info("Zitadel API is up now :)")
+                    break
+                else:
+                    # sleep just a couple of seconds to avoid being locked out or something
+                    sleep(2)
+                    log.debug("Zitadel API is not yet up :(")
             else:
-                # sleep just a couple of seconds to avoid being locked out or something
                 sleep(2)
-                log.debug("Zitadel API is not yet up :(")
 
         return True
 
