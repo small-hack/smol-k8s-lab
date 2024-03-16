@@ -30,10 +30,10 @@ apps:
       directory_recursion: false
       project:
         source_repos:
-        - http://jessebot.github.io/home-assistant-helm
+          - https://small-hack.github.io/home-assistant-chart
         destination:
           namespaces:
-          - argocd
+            - argocd
 ```
 
 ### Without tolerations and node affinity
@@ -54,8 +54,8 @@ apps:
       directory_recursion: false
       project:
         source_repos:
-        - http://jessebot.github.io/home-assistant-helm
+          - http://small-hack.github.io/home-assistant-chart
         destination:
           namespaces:
-          - argocd
+            - argocd
 ```
