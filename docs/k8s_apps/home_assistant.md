@@ -18,7 +18,7 @@ apps:
       secret_keys:
         hostname: "home-assistant.cooldomainfordogs.biz"
         toleration_key: "iot"
-        toleration_operator: "Equals"
+        toleration_operator: "Equal"
         toleration_value: "true"
         toleration_effect: "NoSchedule"
         affinity_key: "iot"
