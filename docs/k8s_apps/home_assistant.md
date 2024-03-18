@@ -1,6 +1,6 @@
 [Home Assistant](https://www.home-assistant.io/) is an open source IoT management solution. We deploy a [small-hack maintained helm chart](https://github.com/small-hack/home-assistant-chart/) by default.
 
-![screenshot of the home-assistant-app in Argo CD showing a tree featuring a configmap, pvc, service, service account, deployment, and ingress resource all called home-assistant.](../home-assistant-argocd-app.png)
+<img src="../../assets/images/screenshots/home-assistant_screenshot.png" alt="screenshot of the home-assistant-app in Argo CD showing a tree featuring a configmap, pvc, service, service account, deployment, and ingress resource all called home-assistant.">
 
 The main variable you need to worry about when setting up home assistant is your `hostname`.
 
