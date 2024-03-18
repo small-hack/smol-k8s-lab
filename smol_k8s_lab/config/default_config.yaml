@@ -389,7 +389,7 @@ apps:
         # these are for passing in a USB device such as a the conbee II
         usb_device_path: ""
         usb_device_mount_path: "/dev/ttyACM0"
-        usb_device_index: "0"
+        usb_device_index: "1"
 
       repo: https://github.com/small-hack/argocd-apps
       path: home-assistant/toleration_and_affinity/
