@@ -38,7 +38,7 @@ def options_help():
         'Delete an existing cluster by name.',
 
         'interactive':
-        'New! ⚙️ Interactively configures  smol-k8s-lab',
+        '⚙️ Interactively configures smol-k8s-lab',
 
         'version':
         f'Print the version of smol-k8s-lab (v{VERSION})'

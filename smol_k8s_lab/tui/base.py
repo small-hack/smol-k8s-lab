@@ -421,16 +421,17 @@ class BaseApp(App):
                         init_sensitive_values = init_dict.get('sensitive_values',
                                                               None)
                         if init_sensitive_values:
-                            # cert manager is special
-                            if app == "cert_manager": 
-                                solver = init_values['cluster_issuer_acme_challenge_solver']
-                                if solver == "http01":
-                                    skip = True
-                                else:
-                                    skip = False
 
                             prompts = self.check_for_env_vars(app, metadata)
                             if prompts:
+                                skip = False
+
+                                # cert manager is special
+                                if app == "cert_manager": 
+                                    solver = init_values['cluster_issuer_acme_challenge_solver']
+                                    if solver == "http01":
+                                        skip = True
+
                                 for value in prompts:
                                     if not self.sensitive_values[app].get(value, ""):
                                         if not skip:
