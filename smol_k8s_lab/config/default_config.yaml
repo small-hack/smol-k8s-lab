@@ -347,20 +347,41 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
+  generic_device_plugin:
+    enabled: false
+    description: |
+      This installs the [link=https://github.com/squat/generic-device-plugin/tree/main]squat/generic-device-plugin[/link], which is recommended for exposing generic devices such as USB devices to your k8s pods. This can useful if you have an IoT coordinator device such as the conbee 2 that you are using with deconz or home assistant. You can read more about device plugins in the [Kubernetes docs](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/).
+    argo:
+      secret_keys: {}
+      repo: https://github.com/small-hack/argocd-apps
+      path: generic-device-plugin/
+      revision: main
+      namespace: kube-system
+      directory_recursion: false
+      project:
+        source_repos:
+          - https://github.com/squat/generic-device-plugin
+        destination:
+          namespaces:
+            - kube-system
+
   home_assistant:
     enabled: false
     description: |
       [link=https://home-assistant.io]Home Assistant[/link] is a home IOT management solution.
 
       By default, we assume you want to use node affinity and tolerations to keep home assistant pods on certain nodes and keep other pods off said nodes. If you don't want to use either of these features but still want to use the small-hack/argocd-apps repo, first change the argo path to /home-assistant/ and then remove the 'toleration_' and 'affinity' secret_keys from the yaml file under apps.home_assistant.description.
+
+      [b]NOTE[/b]: If you want to pass in a USB device, you will need the generic device plugin (which is available as a default Argo CD app via smol-k8s-lab 💙)
     argo:
       secret_keys:
         hostname: ""
-        # you can delete these if they don't have values
+        # you can delete these if you're not using tolerations/affinity
         toleration_key: ""
         toleration_operator: ""
         toleration_value: ""
         toleration_effect: ""
+        # these are for node affinity
         affinity_key: ""
         affinity_value: ""
       repo: https://github.com/small-hack/argocd-apps
@@ -370,10 +391,10 @@ apps:
       directory_recursion: false
       project:
         source_repos:
-        - https://small-hack.github.io/home-assistant-chart
+          - https://small-hack.github.io/home-assistant-chart
         destination:
           namespaces:
-          - argocd
+            - argocd
 
   infisical:
     enabled: false
