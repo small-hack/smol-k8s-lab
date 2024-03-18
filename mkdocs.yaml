@@ -87,6 +87,7 @@ nav:
       - Kyverno: k8s_apps/experimental/kyverno.md
       - Kubevirt: k8s_apps/experimental/kubevirt.md
       - MinIO: k8s_apps/experimental/minio.md
+    - Generic Device Plugin: k8s_apps/generic_device_plugin.md
     - Home Assistant: k8s_apps/home_assistant.md
     - Ingress Nginx: k8s_apps/ingress_nginx.md
     - K8tz: k8s_apps/k8tz.md
