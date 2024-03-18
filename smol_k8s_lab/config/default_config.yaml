@@ -376,6 +376,8 @@ apps:
     argo:
       secret_keys:
         hostname: ""
+        unit_system: "metric"
+        temperature_unit: "C"
         # you can delete these if you're not using tolerations/affinity
         toleration_key: ""
         toleration_operator: ""
@@ -384,6 +386,11 @@ apps:
         # these are for node affinity
         affinity_key: ""
         affinity_value: ""
+        # these are for passing in a USB device such as a the conbee II
+        usb_device_path: ""
+        usb_device_mount_path: "/dev/ttyACM0"
+        usb_device_index: "0"
+
       repo: https://github.com/small-hack/argocd-apps
       path: home-assistant/toleration_and_affinity/
       revision: main
