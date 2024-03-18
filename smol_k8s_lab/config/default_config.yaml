@@ -386,7 +386,7 @@ apps:
         # these are for node affinity
         affinity_key: ""
         affinity_value: ""
-        # these are for passing in a USB device such as a the conbee II
+        # these are for passing in a USB device such as the conbee II
         usb_device_path: ""
         usb_device_mount_path: "/dev/ttyACM0"
         usb_device_index: "1"
