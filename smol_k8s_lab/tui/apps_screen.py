@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
+from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.k8s_tools.argocd_util import sync_argocd_app
 from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
@@ -200,18 +201,24 @@ class AppsConfig(Screen):
         """ 
         syncs an existing Argo CD application
         """
-        res = sync_argocd_app(self.previous_app)
+        app = self.previous_app.replace("_","-")
+        res = subproc([f"argocd app sync {app}"], spinner=False, error_ok=True)
+
         if res:
             if isinstance(res, list):
                 response = "\n".join(res)
             else:
                 response = res
+            severity = "warning"
+        else:
+            response = "No response recieved from Argo CD sync..."
+            severity = "information"
 
-            # if result is not valid, notify the user why
-            self.notify(response,
-                        timeout=8,
-                        severity="warning",
-                        title="Argo CD Sync Response\n")
+        # if result is not valid, notify the user why
+        self.notify(response,
+                    timeout=10,
+                    severity=severity,
+                    title="Argo CD Sync Response\n")
 
     @on(SelectionList.SelectionToggled)
     def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:
