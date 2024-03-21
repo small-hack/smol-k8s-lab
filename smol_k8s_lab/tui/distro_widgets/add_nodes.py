@@ -13,7 +13,7 @@ from textual.widgets import Label, DataTable, Button
 placeholder = """
 [grey53]
                _____
-              /     \\
+              /     |
               vvvvvvv  /|__/|
                  I   /O,O   |
                  I /_____   |      /|/|
@@ -23,6 +23,7 @@ placeholder = """
 
                 "Totoros" (from "My Neighbor Totoro")
                     --- Duke Lee
+[/grey53]
 """
 
 class AddNodesBox(Widget):

@@ -140,45 +140,46 @@ class DistroConfigScreen(Screen):
         """
         changed currently enabled kubernetes distro in the TUI
         """
-        distro = str(event.value)
+        if event.select.id == "distro-drop-down":
+            distro = str(event.value)
 
-        # disable display on previous distro
-        old_distro_obj = self.get_widget_by_id(f"{self.current_distro}-pseudo-screen")
-        old_distro_obj.display = False
-        self.cfg[self.current_distro]['enabled'] = False
+            # disable display on previous distro
+            old_distro_obj = self.get_widget_by_id(f"{self.current_distro}-pseudo-screen")
+            old_distro_obj.display = False
+            self.cfg[self.current_distro]['enabled'] = False
 
-        # change display to True if the distro is selected
-        try:
-            distro_obj = self.get_widget_by_id(f"{distro}-pseudo-screen")
-            distro_obj.display = True
-        except NoMatches:
-            if distro == 'kind':
-                self.get_widget_by_id("distro-config-screen").mount(
-                        KindConfigWidget(
-                            self.cfg.get('kind', DEFAULT_DISTRO_OPTIONS['kind']),
-                            id="kind-pseudo-screen"
+            # change display to True if the distro is selected
+            try:
+                distro_obj = self.get_widget_by_id(f"{distro}-pseudo-screen")
+                distro_obj.display = True
+            except NoMatches:
+                if distro == 'kind':
+                    self.get_widget_by_id("distro-config-screen").mount(
+                            KindConfigWidget(
+                                self.cfg.get('kind', DEFAULT_DISTRO_OPTIONS['kind']),
+                                id="kind-pseudo-screen"
+                                )
                             )
-                        )
-            else:
-                self.get_widget_by_id("distro-config-screen").mount(
-                        K3sConfigWidget(
-                            distro,
-                            DEFAULT_DISTRO_OPTIONS[distro],
-                            id=distro + "-pseudo-screen"
+                else:
+                    self.get_widget_by_id("distro-config-screen").mount(
+                            K3sConfigWidget(
+                                distro,
+                                DEFAULT_DISTRO_OPTIONS[distro],
+                                id=distro + "-pseudo-screen"
+                                )
                             )
-                        )
 
-        self.cfg[distro]['enabled'] = True
+            self.cfg[distro]['enabled'] = True
 
-        # update the tooltip to be the correct distro's description
-        distro_description = DISTRO_DESC[distro]
-        self.get_widget_by_id("distro-description").update(distro_description)
+            # update the tooltip to be the correct distro's description
+            distro_description = DISTRO_DESC[distro]
+            self.get_widget_by_id("distro-description").update(distro_description)
 
-        self.app.cfg['k8s_distros'][distro]['enabled'] = True
-        self.app.cfg['k8s_distros'][self.current_distro]['enabled'] = False
-        self.app.write_yaml()
+            self.app.cfg['k8s_distros'][distro]['enabled'] = True
+            self.app.cfg['k8s_distros'][self.current_distro]['enabled'] = False
+            self.app.write_yaml()
 
-        self.current_distro = distro
+            self.current_distro = distro
 
     def action_launch_new_option_modal(self) -> None:
         """

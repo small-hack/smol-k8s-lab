@@ -24,9 +24,24 @@ $navy: rgb(35,35,54);
     width: 90%;
     height: 92%;
     align: center middle;
+    scrollbar-background: $dark_gray;
+    scrollbar-background-active: $dark_gray;
+    scrollbar-background-hover: $dark_gray;
+    scrollbar-color-active: $sky_blue;
+    scrollbar-color-hover: $light_cornflower;
+    scrollbar-color: $cornflower;
 }
 
 /* --------- LEFT TOP HALF OF SCREEN ------------ */
+
+#selection-list-of-apps {
+    scrollbar-background: $dark_gray;
+    scrollbar-background-active: $dark_gray;
+    scrollbar-background-hover: $dark_gray;
+    scrollbar-color-active: $sky_blue;
+    scrollbar-color-hover: $light_cornflower;
+    scrollbar-color: $cornflower;
+}
 
 /* matches only the left hand side of top half of screen */
 #select-add-apps {
@@ -51,6 +66,12 @@ $navy: rgb(35,35,54);
     grid-rows: 1fr 0.2fr;
     align: center top;
     grid-gutter: 1;
+    scrollbar-background: $dark_gray;
+    scrollbar-background-active: $dark_gray;
+    scrollbar-background-hover: $dark_gray;
+    scrollbar-color-active: $sky_blue;
+    scrollbar-color-hover: $light_cornflower;
+    scrollbar-color: $cornflower;
 }
 
 /* new app and modify globals buttons boxes below the app selection list */

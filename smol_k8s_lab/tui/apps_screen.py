@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
+from smol_k8s_lab.k8s_tools.argocd_util import sync_argocd_app
 from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
@@ -39,9 +40,13 @@ class AppsConfig(Screen):
 
     ToggleButton.BUTTON_INNER = '♥'
 
-    def __init__(self, config: dict, highlighted_app: str = "") -> None:
+    def __init__(self, config: dict,
+                 highlighted_app: str = "",
+                 modify_cluster: bool = False) -> None:
         # show the footer at bottom of screen or not
         self.show_footer = self.app.cfg['smol_k8s_lab']['tui']['show_footer']
+
+        self.modify_cluster = modify_cluster
 
         # should be the apps section of smol k8s lab config
         self.cfg = config
@@ -161,7 +166,8 @@ class AppsConfig(Screen):
         # styling for the select-apps - configure apps container - right
         app_title = highlighted_app.replace("_", " ").title()
         app_cfg_title = f"🔧 [i]configure[/] parameters for [#C1FF87]{app_title}"
-        self.get_widget_by_id("app-inputs-pane").border_title = app_cfg_title
+        app_inputs_pane = self.get_widget_by_id("app-inputs-pane")
+        app_inputs_pane.border_title = app_cfg_title
 
         if self.previous_app != "":
             app_input = self.get_widget_by_id(f"{self.previous_app}-inputs")
@@ -182,6 +188,30 @@ class AppsConfig(Screen):
         app_desc.border_title = f"📓 {app_title} [i]notes[/i]"
 
         self.previous_app = highlighted_app
+
+        if self.modify_cluster and self.cfg[highlighted_app]['enabled']:
+            app_inputs_pane.border_subtitle = (
+                    "[@click=screen.sync_argocd_app]🔁 sync[/]"
+                    )
+        else:
+            app_inputs_pane.border_subtitle = ""
+
+    def action_sync_argocd_app(self) -> None:
+        """ 
+        syncs an existing Argo CD application
+        """
+        res = sync_argocd_app(self.previous_app)
+        if res:
+            if isinstance(res, list):
+                response = "\n".join(res)
+            else:
+                response = res
+
+            # if result is not valid, notify the user why
+            self.notify(response,
+                        timeout=8,
+                        severity="warning",
+                        title="Argo CD Sync Response\n")
 
     @on(SelectionList.SelectionToggled)
     def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:
