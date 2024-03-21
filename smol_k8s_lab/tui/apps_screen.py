@@ -47,10 +47,16 @@ class AppsConfig(Screen):
         # show the footer at bottom of screen or not
         self.show_footer = self.app.cfg['smol_k8s_lab']['tui']['show_footer']
 
-        self.modify_cluster = modify_cluster
-
         # should be the apps section of smol k8s lab config
         self.cfg = config
+
+        # if this is an active cluster or not
+        self.modify_cluster = modify_cluster
+
+        if self.modify_cluster:
+            namespace = self.cfg['argo_cd']['argo']['namespace']
+            subproc(['kubectl config set-context --current --namespace='
+                     f'{namespace}'])
 
         # this is state storage
         self.previous_app = ''
@@ -209,10 +215,10 @@ class AppsConfig(Screen):
                 response = "\n".join(res)
             else:
                 response = res
-            severity = "warning"
+            severity = "information"
         else:
             response = "No response recieved from Argo CD sync..."
-            severity = "information"
+            severity = "warning"
 
         # if result is not valid, notify the user why
         self.notify(response,
