@@ -65,7 +65,8 @@ class BwCLI():
         # make sure there's not a session token in the env vars already
         self.env = {"BW_SESSION": env.get("BW_SESSION", default=None),
                     "PATH": env.get("PATH"),
-                    "HOME": env.get("HOME")}
+                    "HOME": env.get("HOME"),
+                    "NODE_OPTIONS": "--no-deprecation"}
 
         self.password = password
         self.client_id = client_id
