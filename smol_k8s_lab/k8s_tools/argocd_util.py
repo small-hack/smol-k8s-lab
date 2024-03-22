@@ -15,11 +15,16 @@ def check_if_argocd_app_exists(app: str) -> bool:
         return False
 
 
-def sync_argocd_app(app: str) -> None:
+def sync_argocd_app(app: str, spinner: bool = True):
     """
-    syncs an argocd app
+    syncs an argocd app and returns the result
     """
-    subproc([f"argocd app sync {app}"])
+    if not spinner:
+        subproc(['kubectl config set-context --current --namespace=argocd'],
+                spinner=False, error_ok=True)
+        return subproc([f"argocd app sync {app}"], spinner=False, error_ok=True)
+    else:
+        return subproc([f"argocd app sync {app}"])
 
 
 def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:

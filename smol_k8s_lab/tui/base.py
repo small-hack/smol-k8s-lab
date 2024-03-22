@@ -239,14 +239,15 @@ class BaseApp(App):
         if not new_cluster_button.disabled:
             new_cluster_button.action_press()
 
-    def action_request_apps_cfg(self, app_to_highlight: str = "") -> None:
+    def action_request_apps_cfg(self,
+                                app_to_highlight: str = "", 
+                                modify_cluster: bool = False) -> None:
         """
         launches the argo app config screen
         """
-        if app_to_highlight:
-            self.app.push_screen(AppsConfig(self.cfg['apps'], app_to_highlight))
-        else:
-            self.app.push_screen(AppsConfig(self.cfg['apps'], ""))
+        self.app.push_screen(AppsConfig(self.cfg['apps'],
+                                        app_to_highlight,
+                                        modify_cluster))
 
     def action_request_distro_cfg(self) -> None:
         """

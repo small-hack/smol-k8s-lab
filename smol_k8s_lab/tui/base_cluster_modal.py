@@ -76,7 +76,8 @@ class ClusterModalScreen(ModalScreen):
             # set the current context to this cluster
             system(f"kubectl config use-context {self.cluster}")
             # call the apps page for this cluster
-            self.app.action_request_apps_cfg()
+            self.app.action_request_apps_cfg(app_to_highlight="",
+                                             modify_cluster=True)
 
         elif event.button.id == "delete-cluster-first-try":
             # don't display the first delete button or the modify button
