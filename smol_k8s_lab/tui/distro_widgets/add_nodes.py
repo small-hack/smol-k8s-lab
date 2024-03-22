@@ -10,16 +10,16 @@ from textual.app import ComposeResult, Widget
 from textual.containers import Grid
 from textual.widgets import Label, DataTable, Button
 
-placeholder = """
+placeholder = """Add a node below for something to appear here...
 [grey53]
                _____
-              /     |
+              /     \\
               vvvvvvv  /|__/|
                  I   /O,O   |
-                 I /_____   |      /|/|
-                C|/^ ^ ^ \  |    /oo  |    _//|
-                 |^ ^ ^ ^ |W|   |/^^\ |   /oo |
-                  \m___m__|_|    \m_m_|   \mm_|
+                 I /_____   |     /|/|
+                C|/^ ^ ^ \\  |   /oo  |    _//|
+                 |^ ^ ^ ^ |W|  |/^^\\ |   /oo |
+                  \\m___m__|_|   \\m_m_|   \\mm_|
 
                 "Totoros" (from "My Neighbor Totoro")
                     --- Duke Lee
@@ -37,10 +37,7 @@ class AddNodesBox(Widget):
 
     def compose(self) -> ComposeResult:
         with Grid(id="add-nodes-box"):
-            yield Label(
-                    "Add a node below for something to appear here...\n" + placeholder,
-                    id="nodes-placeholder"
-                    )
+            yield Label(placeholder, id="nodes-placeholder")
             yield Label("🖥️ Add a new node", id="new-node-text")
             yield self.add_node_row()
 
