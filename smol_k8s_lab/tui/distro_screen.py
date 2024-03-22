@@ -169,14 +169,19 @@ class DistroConfigScreen(Screen):
                                 )
                             )
 
-            self.cfg[distro]['enabled'] = True
-
             # update the tooltip to be the correct distro's description
             distro_description = DISTRO_DESC[distro]
             self.get_widget_by_id("distro-description").update(distro_description)
 
+            # set local and app config to correct distro
+            self.cfg[distro]['enabled'] = True
             self.app.cfg['k8s_distros'][distro]['enabled'] = True
-            self.app.cfg['k8s_distros'][self.current_distro]['enabled'] = False
+
+            # don't disable if it's already our distro
+            if self.current_distro != distro:
+                self.app.cfg['k8s_distros'][self.current_distro]['enabled'] = False
+
+            # write out the yaml
             self.app.write_yaml()
 
             self.current_distro = distro
