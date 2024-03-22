@@ -485,7 +485,7 @@ For a complete list of installable applications, checkout the [default apps docs
 
 
 # Status
-This is recently released, but still being actively supported, and if you'd like to [contribute](./CONTRIBUTING.md) or just found a :bug:, feel free to open an issue (and/or pull request), and we'll try to take a look ASAP! 
+Somewhat stable and being actively supported, so if you'd like to [contribute](./CONTRIBUTING.md) or just found a :bug:, feel free to open an issue (and/or pull request), and we'll try to take a look ASAP!
 
 <!-- k8s distro link references -->
 [k3s]: https://k3s.io/
