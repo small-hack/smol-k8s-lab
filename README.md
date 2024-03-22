@@ -13,7 +13,7 @@ smol k8s lab 🧸 <sup><sub>Now with more :squid:</sub></sup>
   </a>
 </p>
 
-A terminal based tool to install slimmer k8s distros on metal, with batteries included. Deploys [Argo CD](https://github.com/argoproj/argo-cd) by default, so you can manage your entire local testing lab from the very beginning using files in [open source git repos](https://github.com/small-hack/argocd-apps), and with the help of a very handy dashboard. Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions)! 💙 Check out our video tour, if you like that sort of thing:<br></br>
+A terminal based tool to install slimmer k8s distros on metal, with batteries included. Deploys [Argo CD](https://github.com/argoproj/argo-cd) by default, so you can manage your entire local testing lab from the very beginning using files in [open source git repos](https://github.com/small-hack/argocd-apps), and with the help of a very handy dashboard. Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions)! Specializes in using Bitwarden (though not required) to store sensitive values both locally and on your cluster. 💙 Check out our video tour, if you like that sort of thing:<br></br>
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=UdOQM9n5hyU&t=0s">
