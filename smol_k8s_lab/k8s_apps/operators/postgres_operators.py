@@ -15,10 +15,10 @@ def configure_cnpg_operator(k8s_obj: K8s, config: dict) -> None:
     setup the CNPG operator as an Argo CD Application
     """
     # check if minio is using smol_k8s_lab init and if already present in Argo CD
-    if not check_if_argocd_app_exists('postgres-operator'):
+    if not check_if_argocd_app_exists('cnpg-operator'):
         # actual installation of the minio app
         install_with_argocd(k8s_obj,
-                            'postgres-operator',
+                            'cnpg-operator',
                             config['argo'])
 
 
