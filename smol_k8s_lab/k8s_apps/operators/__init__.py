@@ -39,4 +39,4 @@ def setup_operators(k8s_obj: K8s,
 
     # zalando postgres operator is a postgres operator for creating postgresql clusters
     if pg_config and pg_config.get('enabled', False):
-        configure_postgres_operator(k8s_obj, pg_config)
+        configure_postgres_operator(k8s_obj, pg_config, bitwarden)
