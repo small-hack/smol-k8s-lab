@@ -38,7 +38,6 @@ def configure_postgres_operator(k8s_obj: K8s,
             access_id = config['init']['values']['backup_s3_access_id']
             secret_key = config['init']['values']['backup_s3_secret_key']
             if bw:
-
                 # s3 credentials for zalando postgres operator access
                 pgsql_s3_pass = create_password()
                 s3_id = bw.create_login(
