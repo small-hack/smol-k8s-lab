@@ -406,7 +406,7 @@ apps:
   infisical:
     enabled: false
     description: |
-      ⚠️ [magenta]demo Status[/magenta]
+      ⚠️ [magenta][i]demo[/i] Status[/magenta]
 
       [link=https://infisical.com/]Infisical[/link] is an open-source, end-to-end encrypted secret management platform that enables teams to easily manage and sync their env vars.
 
@@ -934,7 +934,7 @@ apps:
 
   postgres_operator:
     description: |
-      🆕 [b]NEW[/b] to smol-k8s-lab 💙
+      ⚠️ [magenta][i]demo[/i] status[/magenta]
 
       postgres-operator is a Kubernetes operator for postgresql by Zalando.
 
