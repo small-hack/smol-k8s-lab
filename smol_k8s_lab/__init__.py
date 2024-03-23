@@ -244,6 +244,7 @@ def main(config: str = "",
                         apps.pop('minio_operator'),
                         apps.pop('seaweedfs'),
                         apps.pop('cnpg_operator'),
+                        apps.pop('postgres_operator'),
                         bw)
 
         # setup OIDC for securing all endpoints with SSO
