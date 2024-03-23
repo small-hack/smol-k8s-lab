@@ -17,3 +17,7 @@ build/**
 
 # mkdocs stuff
 site/**
+
+# not this time, world!
+**/*tls.yaml
+**/*tls.yml
