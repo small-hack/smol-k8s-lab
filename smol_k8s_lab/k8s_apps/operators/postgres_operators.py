@@ -2,6 +2,7 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 update_argocd_appset_secret,
+                                                sync_argocd_app,
                                                 check_if_argocd_app_exists)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.passwords import create_password
@@ -99,3 +100,5 @@ def configure_postgres_operator(k8s_obj: K8s,
                      'postgres_operator_s3_user_credentials_bitwarden_id': s3_id,
                      'postgres_operator_s3_backups_credentials_bitwarden_id': s3_backups_id
                     })
+
+        sync_argocd_app('postgres-operator')
