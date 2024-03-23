@@ -35,8 +35,8 @@ def configure_postgres_operator(k8s_obj: K8s,
     # check if minio is using smol_k8s_lab init and if already present in Argo CD
     if not check_if_argocd_app_exists('postgres-operator'):
         if init_enabled:
-            access_id = config['init']['values']['backup_s3_access_id']
-            secret_key = config['init']['values']['backup_s3_secret_key']
+            access_id = config['init']['values']['s3_backup_access_id']
+            secret_key = config['init']['values']['s3_backup_secret_key']
             if bw:
                 # s3 credentials for zalando postgres operator access
                 pgsql_s3_pass = create_password()
