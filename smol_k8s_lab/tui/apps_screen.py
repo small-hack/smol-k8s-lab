@@ -1,7 +1,8 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
 from smol_k8s_lab.utils.subproc import subproc
-from smol_k8s_lab.k8s_tools.argocd_util import sync_argocd_app
+from smol_k8s_lab.k8s_apps.operators.postgres_operators import configure_postgres_operator
+from smol_k8s_lab.k8s_tools.argocd_util import sync_argocd_app, check_if_argocd_app_exists
 from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
@@ -54,9 +55,9 @@ class AppsConfig(Screen):
         self.modify_cluster = modify_cluster
 
         if self.modify_cluster:
-            namespace = self.cfg['argo_cd']['argo']['namespace']
+            argo_namespace = self.cfg['argo_cd']['argo']['namespace']
             subproc(['kubectl config set-context --current --namespace='
-                     f'{namespace}'])
+                     f'{argo_namespace}'])
 
         # this is state storage
         self.previous_app = ''
@@ -208,23 +209,29 @@ class AppsConfig(Screen):
         syncs an existing Argo CD application
         """
         app = self.previous_app.replace("_","-")
-        res = subproc([f"argocd app sync {app}"], spinner=False, error_ok=True)
 
-        if res:
-            if isinstance(res, list):
-                response = "\n".join(res)
+        # default response
+        severity = "warning"
+        response = f"No Argo CD Application called [b]{app}[/b] could be found 😞"
+
+        if check_if_argocd_app_exists(app):
+            # res = subproc([f"argocd app sync {app}"], spinner=False, error_ok=True)
+            res = sync_argocd_app(app, spinner=False)
+
+            if res:
+                severity = "information"
+                if isinstance(res, list):
+                    response = "\n".join(res)
+                else:
+                    response = res
             else:
-                response = res
-            severity = "information"
-        else:
-            response = "No response recieved from Argo CD sync..."
-            severity = "warning"
+                response = "No response recieved from Argo CD sync... 🤔"
 
         # if result is not valid, notify the user why
         self.notify(response,
                     timeout=10,
                     severity=severity,
-                    title="Argo CD Sync Response\n")
+                    title="🦑 Argo CD Sync Response\n")
 
     @on(SelectionList.SelectionToggled)
     def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:
