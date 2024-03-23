@@ -976,6 +976,7 @@ apps:
         source_repos:
         - https://opensource.zalando.com/postgres-operator/charts/postgres-operator
         - https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
+        - https://seaweedfs.github.io/seaweedfs/helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
