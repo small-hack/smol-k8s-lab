@@ -210,9 +210,9 @@ def main(config: str = "",
     # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager, and argocd
     setup_base_apps(k8s_obj,
                     distro,
-                    apps['cilium'],
+                    apps.get('cilium', {}),
                     apps['metallb'],
-                    apps.pop('ingress_nginx'),
+                    apps.pop('ingress_nginx', {}),
                     apps['cert_manager'],
                     argo_enabled,
                     apps['argo_cd']['argo']['directory_recursion'],
@@ -224,10 +224,10 @@ def main(config: str = "",
         # setup k8s secrets management and secret stores
         setup_k8s_secrets_management(k8s_obj,
                                      distro,
-                                     apps.pop('external_secrets_operator'),
+                                     apps.pop('external_secrets_operator', {}),
                                      SECRETS['global_external_secrets'],
-                                     apps.pop('infisical'),
-                                     apps.pop('vault'),
+                                     apps.pop('infisical', {}),
+                                     apps.pop('vault', {}),
                                      bw)
 
         # if the global cluster issuer is set to letsencrypt-staging don't
@@ -240,18 +240,19 @@ def main(config: str = "",
         # Setup minio, our local s3 provider, is essential for creating buckets
         # and cnpg operator, our postgresql operator for creating postgres clusters
         setup_operators(k8s_obj,
-                        apps.pop('k8up'),
-                        apps.pop('minio_operator'),
-                        apps.pop('seaweedfs'),
-                        apps.pop('cnpg_operator'),
+                        apps.pop('k8up', {}),
+                        apps.pop('minio_operator', {}),
+                        apps.pop('seaweedfs', {}),
+                        apps.pop('cnpg_operator', {}),
+                        apps.pop('postgres_operator', {}),
                         bw)
 
         # setup OIDC for securing all endpoints with SSO
         oidc_obj = setup_oidc_provider(
                 k8s_obj,
                 api_tls_verify,
-                apps.pop('zitadel'),
-                apps.pop('vouch'),
+                apps.pop('zitadel', {}),
+                apps.pop('vouch', {}),
                 bw,
                 SECRETS['argo_cd_hostname']
                 )
@@ -260,9 +261,9 @@ def main(config: str = "",
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
-                apps.pop('nextcloud'),
-                apps.pop('mastodon'),
-                apps.pop('matrix'),
+                apps.pop('nextcloud', {}),
+                apps.pop('mastodon', {}),
+                apps.pop('matrix', {}),
                 zitadel_hostname,
                 oidc_obj,
                 bw
@@ -270,7 +271,7 @@ def main(config: str = "",
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
-        minio_tenant_config = apps.pop('minio_tenant')
+        minio_tenant_config = apps.pop('minio_tenant', {})
         if minio_tenant_config and minio_tenant_config.get('enabled', False):
             configure_minio_tenant(k8s_obj,
                                    minio_tenant_config,

@@ -165,7 +165,14 @@ class ConfirmConfig(Screen):
         """
         for app, values in self.app.sensitive_values.items():
             if values:
-                if self.cfg['apps'][app]['enabled']:
+                app_enabled = self.cfg['apps'][app]['enabled']
+                init_enabled = self.cfg['apps'][app]['init']['enabled']
+                if app_enabled and init_enabled:
+                    # if there's no values object, create one
+                    if not self.cfg['apps'][app]['init'].get('values', False):
+                        self.cfg['apps'][app]['init']['values'] = {}
+
+                    # append the sensitive values to general values
                     for key, value in values.items():
                         self.cfg['apps'][app]['init']['values'][key] = value
 
