@@ -215,7 +215,6 @@ class AppsConfig(Screen):
         response = f"No Argo CD Application called [b]{app}[/b] could be found 😞"
 
         if check_if_argocd_app_exists(app):
-            # res = subproc([f"argocd app sync {app}"], spinner=False, error_ok=True)
             res = sync_argocd_app(app, spinner=False)
 
             if res:
