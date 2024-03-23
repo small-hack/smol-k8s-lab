@@ -80,6 +80,7 @@ class BaseApp(App):
                 'nextcloud': {},
                 'matrix': {},
                 'mastodon': {},
+                'postgres_operator': {},
                 'zitadel': {}
                 }
 

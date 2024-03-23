@@ -3,7 +3,7 @@ from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from .minio import configure_minio_operator
 from .seaweedfs import configure_seaweedfs
-from .cnpg_operator import configure_cnpg_operator
+from .postgres_operators import configure_cnpg_operator, configure_postgres_operator
 from .k8up_operater import configure_k8up_operator
 
 
@@ -12,6 +12,7 @@ def setup_operators(k8s_obj: K8s,
                     minio_config: dict = {},
                     seaweed_config: dict = {},
                     cnpg_config: dict = {},
+                    pg_config: dict = {},
                     bitwarden: BwCLI = None) -> None:
     """ 
     deploy all k8s operators that can block other apps:
@@ -35,3 +36,7 @@ def setup_operators(k8s_obj: K8s,
     # cnpg operator is a postgres operator for creating postgresql clusters
     if cnpg_config and cnpg_config.get('enabled', False):
         configure_cnpg_operator(k8s_obj, cnpg_config)
+
+    # zalando postgres operator is a postgres operator for creating postgresql clusters
+    if pg_config and pg_config.get('enabled', False):
+        configure_postgres_operator(k8s_obj, pg_config, bitwarden)
