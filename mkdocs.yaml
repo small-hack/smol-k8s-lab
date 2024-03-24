@@ -87,6 +87,7 @@ nav:
       - Kepler: k8s_apps/experimental/kepler.md
       - Kyverno: k8s_apps/experimental/kyverno.md
       - Kubevirt: k8s_apps/experimental/kubevirt.md
+      - Longhorn: k8s_apps/experimental/longhorn.md
       - MinIO: k8s_apps/experimental/minio.md
       - Zalando Postgress Operator: k8s_apps/experimental/postgres_operator.md
     - Generic Device Plugin: k8s_apps/generic_device_plugin.md

@@ -23,6 +23,7 @@ from .bitwarden.tui.bitwarden_app import BitwardenCredentialsApp
 from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
+from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
 from .k8s_distros import create_k8s_distro, delete_cluster
@@ -243,6 +244,7 @@ def main(config: str = "",
         # Setup minio, our local s3 provider, is essential for creating buckets
         # and cnpg operator, our postgresql operator for creating postgres clusters
         setup_operators(k8s_obj,
+                        apps.pop('longhorn', {}),
                         apps.pop('k8up', {}),
                         apps.pop('minio_operator', {}),
                         apps.pop('seaweedfs', {}),
@@ -261,6 +263,18 @@ def main(config: str = "",
                 )
 
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
+
+        # setup netmaker, a wireguard vpn management web interface
+        netmaker_dict = apps.pop('netmaker', {'init': {'enabled': False}})
+        # only do this if the user has smol-k8s-lab init enabled
+        if netmaker_dict['init']['enabled']:
+            configure_netmaker(k8s_obj,
+                               netmaker_dict,
+                               'zitadel',
+                               zitadel_hostname,
+                               bw,
+                               oidc_obj)
+
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
@@ -344,6 +358,11 @@ def main(config: str = "",
         if home_assistant_hostname:
             final_msg += ("\n🏠 Home Assistant, for managing your IoT needs:\n"
                           f"[blue][link]https://{home_assistant_hostname}[/][/]\n")
+
+        netmaker_hostname = SECRETS.get('netmaker_hostname', "")
+        if home_assistant_hostname:
+            final_msg += ("\n🛜 Netmaker, for managing your own VPN:\n"
+                          f"[blue][link]https://{netmaker_hostname}[/][/]\n")
 
     CONSOLE.print(Panel(final_msg,
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
