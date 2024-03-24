@@ -938,8 +938,6 @@ apps:
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         source_repos:
-        - https://github.com/jessebot/netmaker-helm
-        - https://small-hack.github.io/netmaker-helm
         - https://github.com/small-hack/netmaker-helm
         - https://small-hack.github.io/netmaker-helm
         destination:
