@@ -77,6 +77,9 @@ def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
     for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
 
+    kubernetes = logging.getLogger("kubernetes")
+    kubernetes.level = "WARNING"
+
     # this uses the opts dictionary as parameters to logging.basicConfig()
     logging.basicConfig(**opts)
 

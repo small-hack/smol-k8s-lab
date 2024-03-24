@@ -23,6 +23,7 @@ class K8s():
         This is mostly for storing the k8s config
         """
         config.load_kube_config()
+        client.rest.logger.setLevel(log.WARNING)
         self.api_client = client.ApiClient()
         self.core_v1_api = client.CoreV1Api(self.api_client)
 
@@ -65,6 +66,7 @@ class K8s():
         except ApiException as e:
             log.error("Exception when calling "
                       f"CoreV1Api->create_namespaced_secret: {e}")
+
             # delete the secret if it already exists
             try:
                 self.core_v1_api.delete_namespaced_secret(name, namespace)
@@ -80,7 +82,8 @@ class K8s():
         """
         log.debug(f"Getting secret: {name} in namespace: {namespace}")
 
-        res = subproc([f"kubectl get secret -n {namespace} {name} -o json"])
+        res = subproc([f"kubectl get secret -n {namespace} {name} -o json"],
+                      quiet=True)
         return loads(res)
 
     def delete_secret(self, name: str, namespace: str) -> None:
