@@ -46,6 +46,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     extra_source_repos = argo_dict["project"].get('source_repos', [])
     if extra_source_repos:
         source_repos.extend(extra_source_repos)
+
     create_argocd_project(k8s_obj,
                           argo_dict['project'].get('name', app),
                           app,
