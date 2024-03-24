@@ -337,8 +337,13 @@ def main(config: str = "",
 
         matrix_hostname = SECRETS.get('matrix_hostname', "")
         if matrix_hostname:
-            final_msg += ("\n🗣️ Matrix, for your chat:\n"
+            final_msg += ("\n💬 Matrix, for your chat:\n"
                           f"[blue][link]https://{matrix_hostname}[/][/]\n")
+
+        home_assistant_hostname = SECRETS.get('home_assistant_hostname', "")
+        if home_assistant_hostname:
+            final_msg += ("\n🏠 Home Assistant, for managing your IoT needs:\n"
+                          f"[blue][link]https://{home_assistant_hostname}[/][/]\n")
 
     CONSOLE.print(Panel(final_msg,
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
