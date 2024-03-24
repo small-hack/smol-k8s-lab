@@ -23,7 +23,7 @@ def setup_operators(k8s_obj: K8s,
     """
     header("Setting up Operators", "⚙️ ")
 
-    # longhorn operator is used to spin up minio tenants for isolated s3 endpoints
+    # longhorn operator is used to have expanding volumes that span multiple nodes
     if longhorn_config and longhorn_config.get('enabled', False):
         configure_longhorn(k8s_obj, longhorn_config)
 
