@@ -27,13 +27,14 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "infisical/"
+      path: "demo/infisical/"
       # either the branch or tag to point at in the argo repo above
       ref: "main"
       # namespace to install the k8s app in
       namespace: "infisical"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
+        name: infisical
         source_repos:
           - "registry-1.docker.io"
           - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"

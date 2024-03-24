@@ -45,6 +45,7 @@ apps:
       namespace: "k8up"
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
+        name: k8up
         source_repos:
           - "https://k8up-io.github.io/k8up"
           - "https://github.com/k8up-io/k8up.git"

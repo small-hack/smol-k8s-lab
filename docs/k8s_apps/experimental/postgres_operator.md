@@ -1,6 +1,6 @@
 We are experimenting with the Zalando PostgeSQL Operator to create postgresql clusters and manage backups to S3. Our main interest here is that they support major version backups. Our main concern is the mutual TLS support.
 
-In the PostgeSQL Operator Backups for S3 are done to local s3 endpoints consistently and to a configurable remote endpoint.
+In the PostgeSQL Operator, backups for S3 are done to local s3 endpoints consistently and to a configurable remote endpoint. You can see more in our [Zalando Postgres Operator Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/postgres/operators/zalando).
 
 ## Example yaml config
 
@@ -47,6 +47,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: postgres-operator
         source_repos:
         - https://opensource.zalando.com/postgres-operator/charts/postgres-operator
         - https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui

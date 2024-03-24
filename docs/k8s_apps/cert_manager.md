@@ -66,6 +66,7 @@ apps:
       directory_recursion: false
       # source repos for cert-manager CD App Project (in addition to argo.repo)
       project:
+        name: cert-manager
         source_repos:
           - https://charts.jetstack.io
         destination:
@@ -130,6 +131,7 @@ apps:
       directory_recursion: false
       # source repos for cert-manager CD App Project (in addition to argo.repo)
       project:
+        name: cert-manager
         source_repos:
           - https://charts.jetstack.io
         destination:

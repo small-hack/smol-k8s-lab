@@ -60,6 +60,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: vouch
         source_repos:
           - https://jessebot.github.io/vouch-helm-chart
         destination:
