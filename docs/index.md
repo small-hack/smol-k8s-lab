@@ -63,7 +63,8 @@ Minor Notes:
 
 | Application/Tool | Description | Initialization Supported |
 |:----------------:|:------------|:------------------------:|
-| [<img src="assets/images/icons/cilium.png"  width="32" alt="cilium logo">][Cilium] <br /> [Cilium]<sup>alpha</sup> | Kubernetes netflow visualizer and policy editor | ✅ |
+| [<img src="assets/images/icons/cilium.png"  width="32" alt="cilium logo">][Cilium] <br /> [Cilium]<sup>demo</sup> | Kubernetes netflow visualizer and policy editor | ✅ |
+| [<img src="assets/images/icons/home_assistant_icon.png"  width="32" alt="home assistant logo, which is a small blue house with three white tracers inside of it, making it appear as though the home is a circuit board">][Home Assistant] <br /> [Home Assistant] | Home Assistant, a self hosted, at home IoT management solution. | ✅ |
 | [<img src="assets/images/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno]<sup>alpha</sup> | Kubernetes native policy management to enforce policies on k8s resources | ❌ |
 | [<img src="assets/images/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler] | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. | ✅ |
 | [<img src="assets/images/icons/k8up.png" width="32" alt="k8up logo, a minimalist logo of a small blue hill with line starting the right going into the hill">][k8up] <br /> [k8up] | Backups operator using [restic] to backup to s3 endpoints | ✅ |
@@ -120,6 +121,7 @@ We also utilize the [Bitwarden cli], for a password manager so you never have to
 [Bitwarden ESO Provider]: https://github.com/jessebot/bitwarden-eso-provider
 [grafana]: https://grafana.com/
 [ingress-nginx]: https://github.io/kubernetes/ingress-nginx
+[Home Assistant]: https://www.home-assistant.io/
 [k8tz]: https://github.com/small-hack/argocd-apps/tree/main/alpha/k8tz
 [k8up]: https://k8up.io
 [Kyverno]: https://github.com/kyverno/kyverno/
