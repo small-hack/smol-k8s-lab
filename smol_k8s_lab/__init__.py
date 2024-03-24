@@ -265,7 +265,7 @@ def main(config: str = "",
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
 
         # setup netmaker, a wireguard vpn management web interface
-        netmaker_dict = apps.pop('netmaker')
+        netmaker_dict = apps.pop('netmaker', {'init': {'enabled': False}})
         # only do this if the user has smol-k8s-lab init enabled
         if netmaker_dict['init']['enabled']:
             configure_netmaker(k8s_obj,
@@ -358,6 +358,11 @@ def main(config: str = "",
         if home_assistant_hostname:
             final_msg += ("\n🏠 Home Assistant, for managing your IoT needs:\n"
                           f"[blue][link]https://{home_assistant_hostname}[/][/]\n")
+
+        netmaker_hostname = SECRETS.get('netmaker_hostname', "")
+        if home_assistant_hostname:
+            final_msg += ("\n🛜 Netmaker, for managing your own VPN:\n"
+                          f"[blue][link]https://{netmaker_hostname}[/][/]\n")
 
     CONSOLE.print(Panel(final_msg,
                         title='[green]◝(ᵔᵕᵔ)◜ Success!',
