@@ -56,6 +56,19 @@ def configure_netmaker(k8s_obj: K8s,
                 ]
 
             log.info(f"netmaker oauth fields are {fields}")
+            
+            # generate postgres credentials
+            postgresPassword = create_password()
+            sqlPass = create_password()
+            mqPass = create_password()
+            
+            postgres_fields = [
+                create_custom_field("postgres_password", postgresPassword),
+                create_custom_field("SQL_PASS", sqlPass),
+                create_custom_field("MQ_ADMIN_PASSWORD", mqPass)
+                ]
+            
+            log.info(f"netmaker postgres fields are {postgres_fields}")
 
             # create oauth OIDC bitwarden item
             oauth_id = bitwarden.create_login(
@@ -65,11 +78,22 @@ def configure_netmaker(k8s_obj: K8s,
                 password=auth_dict['client_secret'],
                 fields=fields
                 )
+            
+            # create the postgres bitwarden item
+            postgres_id = bitwarden.create_login(
+                    name='netmaker-pgsql-credentials',
+                    fields=postgres_fields
+                    )
 
             # update the netmaker values for the argocd appset
             update_argocd_appset_secret(
                     k8s_obj,
                     {'netmaker_oauth_config_bitwarden_id': oauth_id})
+
+            # update the postgres values for the argocd appset secret
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'netmaker_pgsql_config_bitwarden_id': postgres_id})
 
             # reload the bitwarden ESO provider
             try:
@@ -94,6 +118,14 @@ def configure_netmaker(k8s_obj: K8s,
                                    'endSessionEndpoint': auth_dict['end_session_url']}
                                    )
 
+            # create postgres k8s secret
+            k8s_obj.create_secret('netmaker-pgsql-credentials',
+                                  'netmaker',
+                                  {'postgres_password': postgresPassword,
+                                   'SQL_PASS': sqlPass,
+                                   'MQ_ADMIN_PASSWORD': mqPass}
+                                   )
+
     if not app_installed:
         install_with_argocd(k8s_obj, 'netmaker', netmaker_config_dict['argo'])
     else:
@@ -106,8 +138,8 @@ def configure_netmaker(k8s_obj: K8s,
                     f"netmaker-oauth-config-{netmaker_hostname}"
                     )[0]['id']
 
-            netmaker_id = bitwarden.get_item(
-                    f"netmaker-config-{netmaker_hostname}"
+            postgres_id = bitwarden.get_item(
+                    f"netmaker-pgsql-credentials-{netmaker_hostname}"
                     )[0]['id']
 
             # update the netmaker values for the argocd appset
@@ -115,6 +147,9 @@ def configure_netmaker(k8s_obj: K8s,
                     k8s_obj,
                     {'netmaker_oauth_config_bitwarden_id': oauth_id})
 
+            update_argocd_appset_secret(
+                    k8s_obj,
+                    {'netmaker_pgsql_config_bitwarden_id': postgres_id})
 
 def create_netmaker_app(provider: str,
                      provider_hostname: str,
