@@ -23,6 +23,7 @@ from .bitwarden.tui.bitwarden_app import BitwardenCredentialsApp
 from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
+from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
 from .k8s_distros import create_k8s_distro, delete_cluster
@@ -261,6 +262,18 @@ def main(config: str = "",
                 )
 
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
+
+        # setup netmaker, a wireguard vpn management web interface
+        netmaker_dict = apps.pop('netmaker')
+        # only do this if the user has smol-k8s-lab init enabled
+        if netmaker_dict['init']['enabled']:
+            configure_netmaker(k8s_obj,
+                               netmaker_dict,
+                               'zitadel',
+                               zitadel_hostname,
+                               bw,
+                               oidc_obj)
+
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
