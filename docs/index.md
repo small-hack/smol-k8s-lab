@@ -1,13 +1,13 @@
 <h1 align="center">
-🧸 Smol K8s Lab </h1>
+🧸 Smol K8s Lab <a href="https://github.com/jessebot/smol-k8s-lab/releases"><img src="https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white"></a></h1>
 
-`smol-k8s-lab` <a href="https://github.com/jessebot/smol-k8s-lab/releases"><img src="https://img.shields.io/github/v/release/jessebot/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white"></a> leverages Argo CD and slim k8s distributions like K3s to create production-like environments via a declarative workflow. Batteries and 🦑 included.
+`smol-k8s-lab` leverages Argo CD and slim k8s distributions like K3s to create production-like environments via a declarative workflow. Batteries and 🦑 included.
 
 ## About
 
-`smol-k8s-lab`'s declarative workflow enables rapid iteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking Kubernetes applications and distributions! 💙
+`smol-k8s-lab`'s declarative workflow, CLI, and TUI enable rapid iteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking Kubernetes applications and distributions! 💙
 
-By default, `smol-k8s-lab` deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open-source Git repos. Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
+By default, `smol-k8s-lab` deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open-source Git repos. We can optionally make heavy use of Bitwarden. Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
 
 Consider viewing my very long walk through if you like video walk-throughs:
 
