@@ -18,8 +18,8 @@ def configure_matrix(k8s_obj: K8s,
     """
     creates a matrix app and initializes it with secrets if you'd like :)
     """
-    header("Setting up [green]Matrix[/green], so you can self host your own chat"
-           '🔢')
+    header("Setting up [green]Matrix[/green], so you can self host your own chat "
+           '💬')
 
     app_installed = check_if_argocd_app_exists('matrix')
     secrets = config_dict['argo']['secret_keys']
