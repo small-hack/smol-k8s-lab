@@ -14,7 +14,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: demo/longhorn/
+      path: demo/longhorn/helm/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
