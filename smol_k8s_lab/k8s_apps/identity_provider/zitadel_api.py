@@ -158,7 +158,7 @@ class Zitadel():
                 data=payload,
                 verify=self.verify
                 )
-        log.info(response.text)
+        log.debug(response.text)
 
         json_blob = response.json()
         self.project_id = json_blob['id']
@@ -488,7 +488,7 @@ class Zitadel():
 
         response = request("GET", url, headers=self.headers, data={},
                            verify=self.verify).json()
-        log.info(response)
+        log.debug(response)
 
         self.user_id = response['user']['id']
         self.resource_owner = response['user']['details']['resourceOwner']
@@ -524,8 +524,8 @@ class Zitadel():
         response = request("POST", url, headers=self.headers, data=payload,
                            verify=self.verify)
 
-        log.info(f'response from set_project_by_name for "{project_name}" '
-                 f'_search: {response.text}')
+        log.debug(f'response from set_project_by_name for "{project_name}" '
+                  f'_search: {response.text}')
 
         self.project_id = response.json()['result'][0]['id']
         log.debug(f"zitadel api: set project id to {self.project_id}")

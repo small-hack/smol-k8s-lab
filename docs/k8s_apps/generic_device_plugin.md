@@ -16,6 +16,7 @@ apps:
       namespace: kube-system
       directory_recursion: false
       project:
+        name: generic-device-plugin
         source_repos:
           - https://github.com/squat/generic-device-plugin
         destination:

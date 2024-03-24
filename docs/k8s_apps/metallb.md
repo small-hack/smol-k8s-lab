@@ -41,6 +41,7 @@ apps:
       namespace: metallb-system
       # source repos for Argo CD metallb Project (in addition to metallb.argo.repo)
       project:
+        name: metallb
         source_repos:
         - https://github.com/metallb/metallb.git
         destination:

@@ -18,8 +18,8 @@ def configure_matrix(k8s_obj: K8s,
     """
     creates a matrix app and initializes it with secrets if you'd like :)
     """
-    header("Setting up [green]Matrix[/green], so you can self host your own chat"
-           '🔢')
+    header("Setting up [green]Matrix[/green], so you can self host your own chat "
+           '💬')
 
     app_installed = check_if_argocd_app_exists('matrix')
     secrets = config_dict['argo']['secret_keys']
@@ -229,31 +229,31 @@ def configure_matrix(k8s_obj: K8s,
                     )[0]['id']
 
             smtp_id = bitwarden.get_item(
-                    f"matrix-smtp-credentials-{matrix_hostname}"
+                    f"matrix-smtp-credentials-{matrix_hostname}", False
                     )[0]['id']
 
             s3_admin_id = bitwarden.get_item(
-                    f"matrix-admin-s3-credentials-{matrix_hostname}"
+                    f"matrix-admin-s3-credentials-{matrix_hostname}", False
                     )[0]['id']
 
             s3_db_id = bitwarden.get_item(
-                    f"matrix-postgres-s3-credentials-{matrix_hostname}"
+                    f"matrix-postgres-s3-credentials-{matrix_hostname}", False
                     )[0]['id']
 
             s3_id = bitwarden.get_item(
-                    f"matrix-user-s3-credentials-{matrix_hostname}"
+                    f"matrix-user-s3-credentials-{matrix_hostname}", False
                     )[0]['id']
 
             s3_backups_id = bitwarden.get_item(
-                    f"matrix-backups-s3-credentials-{matrix_hostname}"
+                    f"matrix-backups-s3-credentials-{matrix_hostname}", False
                     )[0]['id']
 
             db_id = bitwarden.get_item(
-                    f"matrix-pgsql-credentials-{matrix_hostname}"
+                    f"matrix-pgsql-credentials-{matrix_hostname}", False
                     )[0]['id']
 
             oidc_id = bitwarden.get_item(
-                    f"matrix-oidc-credentials-{matrix_hostname}"
+                    f"matrix-oidc-credentials-{matrix_hostname}", False
                     )[0]
 
             # identity provider name and id are nested in the oidc item fields

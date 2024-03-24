@@ -38,6 +38,8 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     app_namespace = argo_dict['namespace']
     proj_namespaces = argo_dict['project']['destination']['namespaces']
     proj_namespaces.append(app_namespace)
+    if 'argocd' not in proj_namespaces:
+        proj_namespaces.append('argocd')
 
     # make sure the namespace already exists
     k8s_obj.create_namespace(app_namespace)
@@ -46,7 +48,12 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     extra_source_repos = argo_dict["project"].get('source_repos', [])
     if extra_source_repos:
         source_repos.extend(extra_source_repos)
-    create_argocd_project(k8s_obj, app, app, set(proj_namespaces), source_repos)
+
+    create_argocd_project(k8s_obj,
+                          argo_dict['project'].get('name', app),
+                          app,
+                          set(proj_namespaces),
+                          set(source_repos))
 
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
@@ -89,8 +96,8 @@ def wait_for_argocd_app(app: str, retry: bool = False) -> None:
 def create_argocd_project(k8s_obj: K8s,
                           project_name: str,
                           app: str,
-                          namespaces: str,
-                          source_repos: list) -> True:
+                          namespaces: set,
+                          source_repos: set) -> True:
     """
     create an argocd project
     """
@@ -109,13 +116,7 @@ def create_argocd_project(k8s_obj: K8s,
                 }
             ],
             "description": f"project for {app}",
-            "destinations": [
-                {
-                    "name": "in-cluster",
-                    "namespace": 'argocd',
-                    "server": "https://kubernetes.default.svc"
-                }
-            ],
+            "destinations": [],
             "namespaceResourceWhitelist": [
                 {
                     "group": "*",
@@ -123,7 +124,7 @@ def create_argocd_project(k8s_obj: K8s,
                 }
             ],
             "orphanedResources": {},
-            "sourceRepos": source_repos
+            "sourceRepos": list(source_repos)
         },
         "status": {}
     }

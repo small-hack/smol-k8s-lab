@@ -30,6 +30,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: cnpg-operator
         source_repos:
         - https://github.com/small-hack/argocd-apps
         - https://cloudnative-pg.github.io/charts

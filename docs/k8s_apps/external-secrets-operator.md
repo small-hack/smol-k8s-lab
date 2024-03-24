@@ -52,6 +52,7 @@ apps:
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
+        name: external-secrets-operator
         source_repos:
           - https://charts.external-secrets.io
           # you can remove this one if you're not using bitwarden to store your k8s secrets

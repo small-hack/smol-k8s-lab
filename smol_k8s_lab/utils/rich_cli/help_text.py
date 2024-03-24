@@ -124,8 +124,8 @@ class RichCommand(click.Command):
 
             options_table.add_row(opt1, opt2, highlighter(help))
 
-        url = ("♥ docs: [link=https://github.com/smal-hack/smol-k8s-lab]"
-               "github.com/small-hack/smol-k8s-lab[/link]")
+        url = ("♥ docs: [link=https://small-hack.github.io/smol-k8s-lab]"
+               "https://small-hack.github.io/smol-k8s-lab[/link]")
         console.print(Panel(options_table,
                             border_style="light_steel_blue",
                             title="ʕ ᵔᴥᵔʔ Options",

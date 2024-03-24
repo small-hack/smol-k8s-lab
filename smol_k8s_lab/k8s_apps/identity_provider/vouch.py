@@ -164,7 +164,7 @@ def configure_vouch(k8s_obj: K8s,
                     )[0]['id']
 
             vouch_id = bitwarden.get_item(
-                    f"vouch-config-{vouch_hostname}"
+                    f"vouch-config-{vouch_hostname}", False
                     )[0]['id']
 
             # update the vouch values for the argocd appset

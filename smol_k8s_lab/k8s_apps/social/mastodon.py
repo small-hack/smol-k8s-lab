@@ -280,35 +280,35 @@ def configure_mastodon(k8s_obj: K8s,
                     )[0]['id']
 
             elastic_id = bitwarden.get_item(
-                    f"mastodon-elasticsearch-credentials-{mastodon_hostname}"
+                    f"mastodon-elasticsearch-credentials-{mastodon_hostname}", False
                     )[0]['id']
 
             redis_id = bitwarden.get_item(
-                    f"mastodon-redis-credentials-{mastodon_hostname}"
+                    f"mastodon-redis-credentials-{mastodon_hostname}", False
                     )[0]['id']
 
             smtp_id = bitwarden.get_item(
-                    f"mastodon-smtp-credentials-{mastodon_hostname}"
+                    f"mastodon-smtp-credentials-{mastodon_hostname}", False
                     )[0]['id']
 
             s3_admin_id = bitwarden.get_item(
-                    f"mastodon-admin-s3-credentials-{mastodon_hostname}"
+                    f"mastodon-admin-s3-credentials-{mastodon_hostname}", False
                     )[0]['id']
 
             s3_db_id = bitwarden.get_item(
-                    f"mastodon-postgres-s3-credentials-{mastodon_hostname}"
+                    f"mastodon-postgres-s3-credentials-{mastodon_hostname}", False
                     )[0]['id']
 
             s3_id = bitwarden.get_item(
-                    f"mastodon-user-s3-credentials-{mastodon_hostname}"
+                    f"mastodon-user-s3-credentials-{mastodon_hostname}", False
                     )[0]['id']
 
             s3_backups_id = bitwarden.get_item(
-                    f"mastodon-backups-s3-credentials-{mastodon_hostname}"
+                    f"mastodon-backups-s3-credentials-{mastodon_hostname}", False
                     )[0]['id']
 
             secrets_id = bitwarden.get_item(
-                    f"mastodon-server-secrets-{mastodon_hostname}"
+                    f"mastodon-server-secrets-{mastodon_hostname}", False
                     )[0]['id']
 
             # {'mastodon_admin_credentials_bitwarden_id': admin_id,
