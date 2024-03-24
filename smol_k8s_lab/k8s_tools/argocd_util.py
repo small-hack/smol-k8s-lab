@@ -46,7 +46,11 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     extra_source_repos = argo_dict["project"].get('source_repos', [])
     if extra_source_repos:
         source_repos.extend(extra_source_repos)
-    create_argocd_project(k8s_obj, app, app, set(proj_namespaces), source_repos)
+    create_argocd_project(k8s_obj,
+                          argo_dict['project'].get('name', app),
+                          app,
+                          set(proj_namespaces),
+                          set(source_repos))
 
     cmd = (f"argocd app create {app} --upsert "
            f"--repo {repo} "
@@ -89,8 +93,8 @@ def wait_for_argocd_app(app: str, retry: bool = False) -> None:
 def create_argocd_project(k8s_obj: K8s,
                           project_name: str,
                           app: str,
-                          namespaces: str,
-                          source_repos: list) -> True:
+                          namespaces: set,
+                          source_repos: set) -> True:
     """
     create an argocd project
     """
