@@ -37,6 +37,7 @@ def configure_netmaker(k8s_obj: K8s,
     secrets = netmaker_config_dict['argo']['secret_keys']
     if secrets:
         netmaker_hostname = secrets['hostname']
+        frontendUrl = secrets['admin_pannel_url']
 
     if netmaker_config_dict['init']['enabled'] and not app_installed:
         auth_dict = create_netmaker_app(provider=oidc_provider_name,
@@ -52,7 +53,8 @@ def configure_netmaker(k8s_obj: K8s,
                 create_custom_field("authUrl", auth_dict['auth_url']),
                 create_custom_field("tokenUrl", auth_dict['token_url']),
                 create_custom_field("userInfoUrl", auth_dict['user_info_url']),
-                create_custom_field("endSessionEndpoint", auth_dict['end_session_url'])
+                create_custom_field("endSessionEndpoint", auth_dict['end_session_url']),
+                create_custom_field("frontendUrl", frontendUrl)
                 ]
 
             log.info(f"netmaker oauth fields are {fields}")
@@ -115,7 +117,8 @@ def configure_netmaker(k8s_obj: K8s,
                                    'authUrl': auth_dict['auth_url'],
                                    'tokenUrl': auth_dict['token_url'],
                                    'userInfoUrl': auth_dict['user_info_url'],
-                                   'endSessionEndpoint': auth_dict['end_session_url']}
+                                   'endSessionEndpoint': auth_dict['end_session_url'],
+                                   'frontendUrl': frontendUrl}
                                    )
 
             # create postgres k8s secret
