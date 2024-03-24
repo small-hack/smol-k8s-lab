@@ -4,26 +4,30 @@
     height="30"
     width="0px"
   />
-smol k8s lab 🧸 <sup><sub>Now with more :squid:</sub></sup>
-</h2>
-
-<p align="center">
+ 🧸 <code>smol-k8s-lab</code>
   <a href="https://github.com/small-hack/smol-k8s-lab/releases">
     <img src="https://img.shields.io/github/v/release/small-hack/smol-k8s-lab?style=plastic&labelColor=484848&color=3CA324&logo=GitHub&logoColor=white">
   </a>
+</h2>
+<p align="center">
+  A terminal based tool to install slimmer k8s distros on metal, with batteries included! <sub>(Here's the <a href="https://youtu.be/2E9DVJpv440?feature=shared">same video with captions)</a></sub>
 </p>
-
-A terminal based tool to install slimmer k8s distros on metal, with batteries included. Deploys [Argo CD](https://github.com/argoproj/argo-cd) by default, so you can manage your entire local testing lab from the very beginning using files in [open source git repos](https://github.com/small-hack/argocd-apps), and with the help of a very handy dashboard. Also helpful for benchmarking various [k8s distros](#supported-k8s-distributions)! Specializes in using Bitwarden (though not required) to store sensitive values both locally and on your cluster. 💙 Check out our video tour, if you like that sort of thing:<br></br>
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=UdOQM9n5hyU&t=0s">
     <img width="800" alt="Screenshot of smol-k8s-lab (on the welcome screen) in a video tutorial on youtube. please click this image, as it is a link to youtube where I explain everything about smol-k8s-lab. The video image screenshot shows the smol-k8s-lab create a cluster feature which is a text input" src="https://github.com/small-hack/smol-k8s-lab/assets/2389292/ee0ca93b-628e-495f-83ab-70aa9eb52295">
   </a>
 </p>
-<p align="center">
-Here's the <a href="https://youtu.be/2E9DVJpv440?feature=shared">same video with captions.</a>
-</p>
 
+
+### Features
+- Deploys [Argo CD](https://github.com/argoproj/argo-cd) by default, so you can manage your entire lab using files in [open source git repos](https://github.com/small-hack/argocd-apps)
+  - Argo CD ships with a dashboard with a custom theme 💙
+- Supports multiple [k8s distros](#supported-k8s-distributions)
+- Specializes in using Bitwarden (though not required) to store sensitive values both locally and on your cluster
+- Manages all your authentication needs centrally using Zitadel and Vouch 💪
+- Supports initialization on a [range of common self-hosted apps](https://small-hack.github.io/smol-k8s-lab/k8s_apps/argocd/) 📱
+- Lots o' [docs](https://small-hack.github.io/smol-k8s-lab)
 
 # Installation
 B sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` can be installed via `pipx` or `brew`.
