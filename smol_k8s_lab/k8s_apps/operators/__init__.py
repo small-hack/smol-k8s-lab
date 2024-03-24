@@ -1,13 +1,15 @@
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.utils.rich_cli.console_logging import header
-from .minio import configure_minio_operator
-from .seaweedfs import configure_seaweedfs
-from .postgres_operators import configure_cnpg_operator, configure_postgres_operator
+from .longhorn import configure_longhorn
 from .k8up_operater import configure_k8up_operator
+from .minio import configure_minio_operator
+from .postgres_operators import configure_cnpg_operator, configure_postgres_operator
+from .seaweedfs import configure_seaweedfs
 
 
 def setup_operators(k8s_obj: K8s,
+                    longhorn_config: dict = {},
                     k8up_config: dict = {},
                     minio_config: dict = {},
                     seaweed_config: dict = {},
@@ -20,6 +22,10 @@ def setup_operators(k8s_obj: K8s,
         - cnpg (cloud native postgres) operator
     """
     header("Setting up Operators", "⚙️ ")
+
+    # longhorn operator is used to have expanding volumes that span multiple nodes
+    if longhorn_config and longhorn_config.get('enabled', False):
+        configure_longhorn(k8s_obj, longhorn_config)
 
     # k8up operator is a postgres operator for creating postgresql clusters
     if k8up_config and k8up_config.get('enabled', False):

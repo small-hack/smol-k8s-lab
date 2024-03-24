@@ -627,6 +627,34 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
+  longhorn:
+    description: |
+      🐮 [link=https://longhorn.io/]Longhorn[/link] is a Cloud native distributed block storage for Kubernetes.
+    enabled: false
+    argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: demo/longhorn/helm/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: longhorn-system
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: longhorn
+        source_repos:
+          - https://charts.longhorn.io
+          - https://github.com/longhorn/longhorn
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - longhorn-system
+
   mastodon:
     description: |
        [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
@@ -881,6 +909,40 @@ apps:
         name: minio
         source_repos:
           - https://operator.min.io/
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  netmaker:
+    enabled: false
+    description: |
+      [link=https://www.netmaker.io/]NetMaker[/link]®️  makes networks with WireGuard. Netmaker automates fast, secure, and distributed virtual networks.
+    init:
+      enabled: true
+      values:
+        user: admin
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        hostname: netmaker.example.com
+        admin_pannel_url: admin.netmaker.example.com
+        api_endpoint_url: api.netmaker.example.com
+        auth_provider: oidc
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: demo/netmaker/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: netmaker
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        source_repos:
+        - https://github.com/small-hack/netmaker-helm
+        - https://small-hack.github.io/netmaker-helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
