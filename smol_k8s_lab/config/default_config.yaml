@@ -641,7 +641,7 @@ apps:
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
-      namespace: longhorn
+      namespace: longhorn-system
       # recurse directories in the provided git repo
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
@@ -652,7 +652,8 @@ apps:
           - https://github.com/longhorn/longhorn
         destination:
           # automatically includes the app's namespace and argocd's namespace
-          namespaces: []
+          namespaces:
+            - longhorn-system
 
   mastodon:
     description: |
