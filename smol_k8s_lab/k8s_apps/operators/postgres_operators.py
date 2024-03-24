@@ -87,11 +87,11 @@ def configure_postgres_operator(k8s_obj: K8s,
                     )[0]['id']
 
             s3_id = bw.get_item(
-                    f"postgres-operator-user-s3-credentials-{hostname}"
+                    f"postgres-operator-user-s3-credentials-{hostname}", False
                     )[0]['id']
 
             s3_backups_id = bw.get_item(
-                    f"postgres-operator-backups-s3-credentials-{hostname}"
+                    f"postgres-operator-backups-s3-credentials-{hostname}", False
                     )[0]['id']
 
             update_argocd_appset_secret(

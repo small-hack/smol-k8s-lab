@@ -86,6 +86,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: matrix
         source_repos:
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://small-hack.github.io/matrix-chart

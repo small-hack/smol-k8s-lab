@@ -184,6 +184,7 @@ apps:
       directory_recursion: true
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project:
+        name: argo-cd
         source_repos:
           - https://argoproj.github.io/argo-helm
           - https://small-hack.github.io/appset-secret-plugin
@@ -240,6 +241,7 @@ apps:
       directory_recursion: false
       # source repos for cert-manager CD App Project (in addition to argo.repo)
       project:
+        name: cert-manager
         source_repos:
           - https://charts.jetstack.io
         destination:
@@ -271,6 +273,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD cilium Project
       project:
+        name: cilium
         source_repos:
           - "https://helm.cilium.io/"
         destination:
@@ -298,6 +301,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: cnpg-operator
         source_repos:
         - https://github.com/small-hack/argocd-apps
         - https://cloudnative-pg.github.io/charts
@@ -339,6 +343,7 @@ apps:
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
+        name: external-secrets-operator
         source_repos:
           - https://charts.external-secrets.io
           # you can remove this one if you're not using bitwarden to store your k8s secrets
@@ -359,6 +364,7 @@ apps:
       namespace: kube-system
       directory_recursion: false
       project:
+        name: generic-device-plugin
         source_repos:
           - https://github.com/squat/generic-device-plugin
         destination:
@@ -397,6 +403,7 @@ apps:
       namespace: home-assistant
       directory_recursion: false
       project:
+        name: home-assistant
         source_repos:
           - https://small-hack.github.io/home-assistant-chart
         destination:
@@ -429,6 +436,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
+        name: infisical
         source_repos:
           - "registry-1.docker.io"
           - "https://dl.cloudsmith.io/public/infisical/helm-charts/helm/charts/"
@@ -459,6 +467,7 @@ apps:
       secret_keys: {}
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: ingress-nginx
         source_repos:
           - https://charts.jetstack.io
           - "https://kubernetes.github.io/ingress-nginx"
@@ -490,6 +499,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
+        name: k8tz
         source_repos:
           - "https://k8tz.github.io/k8tz/"
         destination:
@@ -518,6 +528,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to app.argo.repo)
       project:
+        name: k8up
         source_repos:
           - "https://k8up-io.github.io/k8up"
           - "https://github.com/k8up-io/k8up.git"
@@ -547,6 +558,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: kepler
         source_repos:
           - "https://sustainable-computing-io.github.io/kepler-helm-chart"
         destination:
@@ -575,6 +587,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: kubevirt
         source_repos:
         - https://cloudymax.github.io/kubevirt-community-stack/
         destination:
@@ -608,6 +621,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: kyverno
         source_repos: []
         destination:
           # automatically includes the app's namespace and argocd's namespace
@@ -675,6 +689,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: mastodon
         # depending on if you use seaweedfs or minio, you can remove the other source repo
         source_repos:
           - registry-1.docker.io
@@ -751,6 +766,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: matrix
         source_repos:
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://small-hack.github.io/matrix-chart
@@ -791,6 +807,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD metallb Project (in addition to metallb.argo.repo)
       project:
+        name: metallb
         source_repos:
           - "https://github.com/metallb/metallb.git"
         destination:
@@ -821,6 +838,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: minio
         source_repos:
           - https://operator.min.io/
         destination:
@@ -860,6 +878,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: minio
         source_repos:
           - https://operator.min.io/
         destination:
@@ -922,6 +941,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: nextcloud
         source_repos:
           - registry-1.docker.io
           - https://nextcloud.github.io/helm
@@ -973,6 +993,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: postgres-operator
         source_repos:
         - https://opensource.zalando.com/postgres-operator/charts/postgres-operator
         - https://opensource.zalando.com/postgres-operator/charts/postgres-operator-ui
@@ -1014,6 +1035,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: prometheus
         source_repos:
           - "registry-1.docker.io"
           - "https://github.com/prometheus-community/helm-charts.git"
@@ -1054,6 +1076,7 @@ apps:
       directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: seaweedfs
         source_repos:
         - https://seaweedfs.github.io/seaweedfs/helm
         - https://seaweedfs.github.io/seaweedfs-csi-driver/helm
@@ -1085,6 +1108,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: seaweedfs
         source_repos:
         - https://seaweedfs.github.io/seaweedfs-csi-driver/helm
         destination:
@@ -1116,6 +1140,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: vault
         source_repos:
           - https://helm.releases.hashicorp.com
         destination:
@@ -1156,6 +1181,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: vouch
         source_repos:
           - https://jessebot.github.io/vouch-helm-chart
         destination:
@@ -1237,6 +1263,7 @@ apps:
       directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: zitadel
         source_repos:
           - https://charts.zitadel.com
           - https://zitadel.github.io/zitadel-charts

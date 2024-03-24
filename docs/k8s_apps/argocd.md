@@ -38,6 +38,8 @@ apps:
       To disable Appset Secret Plugin, please set directory recursion to false.
 
       Learn more: [link=https://github.com/small-hack/appset-secret-plugin]https://github.com/small-hack/appset-secret-plugin[/link]
+    init:
+      enabled: true
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -58,6 +60,8 @@ apps:
       directory_recursion: true
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project:
+        # you can change this project name :)
+        name: argo-cd
         source_repos:
           - https://argoproj.github.io/argo-helm
           - https://small-hack.github.io/appset-secret-plugin

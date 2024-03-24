@@ -44,6 +44,7 @@ apps:
       namespace: home-assistant
       directory_recursion: false
       project:
+        name: home-assistant
         source_repos:
           - https://small-hack.github.io/home-assistant-chart
         destination:
@@ -70,6 +71,7 @@ apps:
       namespace: home-assistant
       directory_recursion: false
       project:
+        name:
         source_repos:
           - http://small-hack.github.io/home-assistant-chart
         destination:

@@ -53,6 +53,7 @@ apps:
       directory_recursion: true
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: seaweedfs
         source_repos:
         - https://seaweedfs.github.io/seaweedfs/helm
         - https://seaweedfs.github.io/seaweedfs-csi-driver/helm

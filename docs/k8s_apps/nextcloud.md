@@ -106,6 +106,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: nextcloud
         source_repos:
           - registry-1.docker.io
           - https://nextcloud.github.io/helm

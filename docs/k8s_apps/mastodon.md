@@ -111,6 +111,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
+        name: mastodon
         # depending on if you use seaweedfs or minio, you can remove the other source repo
         source_repos:
           - registry-1.docker.io
