@@ -38,6 +38,8 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     app_namespace = argo_dict['namespace']
     proj_namespaces = argo_dict['project']['destination']['namespaces']
     proj_namespaces.append(app_namespace)
+    if 'argocd' not in proj_namespaces:
+        proj_namespaces.append('argocd')
 
     # make sure the namespace already exists
     k8s_obj.create_namespace(app_namespace)
@@ -114,13 +116,7 @@ def create_argocd_project(k8s_obj: K8s,
                 }
             ],
             "description": f"project for {app}",
-            "destinations": [
-                {
-                    "name": "in-cluster",
-                    "namespace": 'argocd',
-                    "server": "https://kubernetes.default.svc"
-                }
-            ],
+            "destinations": [],
             "namespaceResourceWhitelist": [
                 {
                     "group": "*",
@@ -128,7 +124,7 @@ def create_argocd_project(k8s_obj: K8s,
                 }
             ],
             "orphanedResources": {},
-            "sourceRepos": source_repos
+            "sourceRepos": list(source_repos)
         },
         "status": {}
     }
