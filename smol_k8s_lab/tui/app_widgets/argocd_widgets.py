@@ -98,6 +98,28 @@ class ArgoCDProjectConfig(Static):
     def compose(self) -> ComposeResult:
         # row for project destination namespaces
         with Horizontal(classes=f"{self.app_name} argo-config-row"):
+            label = Label("project name:",
+                          classes=f"{self.app_name} argo-config-label")
+            label.tooltip = "The name of the Argo CD AppProject for the App to live"
+            yield label
+
+            # set project name for the user if they don't have one
+            proj_name = self.argo_params.get("name", "")
+            if not proj_name:
+                value = self.app_name.replace("_","-")
+                if value == 'argo-cd':
+                    value = 'argocd'
+            else:
+                value = proj_name
+
+            classes = f"{self.app_name} argo-config-input argo-proj-name"
+            yield Input(placeholder="Enter the name of your project",
+                        name="name",
+                        validators=Length(minimum=2),
+                        value=value,
+                        classes=classes)
+
+        with Horizontal(classes=f"{self.app_name} argo-config-row"):
             label = Label("namespaces:",
                           classes=f"{self.app_name} argo-config-label")
             label.tooltip = "Comma seperated list of namespaces"
@@ -144,11 +166,18 @@ class ArgoCDProjectConfig(Static):
             # section of the yaml this widget updates
             project_yml = self.app.cfg['apps'][self.app_name]['argo']['project']
 
-            # sorts out any spaces or commas as delimeters to create a list
-            yaml_value = create_sanitized_list(event.input.value)
+            # the name of the input triggering this
+            input_name = event.input.name
+
+            if input_name in ['namespaces', 'source_repos']:
+                # sorts out any spaces or commas as delimeters to create a list
+                yaml_value = create_sanitized_list(event.input.value)
+            else:
+                yaml_value = event.input.value
 
             if event.input.name == 'namespaces':
                 project_yml['destination'][event.input.name] = yaml_value
             else:
                 project_yml[event.input.name] = yaml_value
+
             self.app.write_yaml()
