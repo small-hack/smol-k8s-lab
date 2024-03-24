@@ -488,7 +488,7 @@ class Zitadel():
 
         response = request("GET", url, headers=self.headers, data={},
                            verify=self.verify).json()
-        log.info(response)
+        log.debug(response)
 
         self.user_id = response['user']['id']
         self.resource_owner = response['user']['details']['resourceOwner']
