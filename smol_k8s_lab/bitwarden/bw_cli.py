@@ -158,15 +158,16 @@ class BwCLI():
         log.debug('New password generated.')
         return password
 
-    def get_item(self, item_name: str) -> list:
+    def get_item(self, item_name: str, sync_first: bool = True) -> list:
         """
         Get Item and return False if it does not exist else return the item ID
 
         Required Args:
             - item_name: str of name of item
         """
-        # always sync the vault before checking anything
-        self.sync()
+        # always sync vault before checking anything, unless otherwise stated
+        if sync_first:
+            self.sync()
 
         # go get the actual item
         response = json.loads(

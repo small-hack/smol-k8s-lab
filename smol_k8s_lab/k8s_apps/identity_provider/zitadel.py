@@ -198,23 +198,23 @@ def configure_zitadel(k8s_obj: K8s,
                     )[0]['id']
 
             s3_backup_id = bitwarden.get_item(
-                    f"zitadel-backups-s3-credentials-{zitadel_hostname}"
+                    f"zitadel-backups-s3-credentials-{zitadel_hostname}", False
                     )[0]['id']
 
             s3_admin_id = bitwarden.get_item(
-                    f"zitadel-admin-s3-credentials-{zitadel_hostname}"
+                    f"zitadel-admin-s3-credentials-{zitadel_hostname}", False
                     )[0]['id']
 
             s3_id = bitwarden.get_item(
-                    f"zitadel-postgres-s3-credentials-{zitadel_hostname}"
+                    f"zitadel-postgres-s3-credentials-{zitadel_hostname}", False
                     )[0]['id']
 
             core_id = bitwarden.get_item(
-                    f"zitadel-core-key-{zitadel_hostname}"
+                    f"zitadel-core-key-{zitadel_hostname}", False
                     )[0]['id']
 
             argo_oidc_item = bitwarden.get_item(
-                    f"argocd-oidc-credentials-{argocd_hostname}"
+                    f"argocd-oidc-credentials-{argocd_hostname}", False
                     )[0]
 
             argo_client_id = argo_oidc_item['login']['username']

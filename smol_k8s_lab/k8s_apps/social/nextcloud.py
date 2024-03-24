@@ -248,35 +248,35 @@ def configure_nextcloud(k8s_obj: K8s,
                     )[0]['id']
 
             admin_id = bitwarden.get_item(
-                    f"nextcloud-admin-credentials-{nextcloud_hostname}"
+                    f"nextcloud-admin-credentials-{nextcloud_hostname}", False
                     )[0]['id']
 
             smtp_id = bitwarden.get_item(
-                    f"nextcloud-smtp-credentials-{nextcloud_hostname}"
+                    f"nextcloud-smtp-credentials-{nextcloud_hostname}", False
                     )[0]['id']
 
             db_id = bitwarden.get_item(
-                    f"nextcloud-pgsql-credentials-{nextcloud_hostname}"
+                    f"nextcloud-pgsql-credentials-{nextcloud_hostname}", False
                     )[0]['id']
 
             redis_id = bitwarden.get_item(
-                    f"nextcloud-redis-credentials-{nextcloud_hostname}"
+                    f"nextcloud-redis-credentials-{nextcloud_hostname}", False
                     )[0]['id']
 
             s3_admin_id = bitwarden.get_item(
-                    f"nextcloud-admin-s3-credentials-{nextcloud_hostname}"
+                    f"nextcloud-admin-s3-credentials-{nextcloud_hostname}", False
                     )[0]['id']
 
             s3_db_id = bitwarden.get_item(
-                    f"nextcloud-postgres-s3-credentials-{nextcloud_hostname}"
+                    f"nextcloud-postgres-s3-credentials-{nextcloud_hostname}", False
                     )[0]['id']
 
             s3_id = bitwarden.get_item(
-                    f"nextcloud-user-s3-credentials-{nextcloud_hostname}"
+                    f"nextcloud-user-s3-credentials-{nextcloud_hostname}", False
                     )[0]['id']
 
             s3_backups_id = bitwarden.get_item(
-                    f"nextcloud-backups-s3-credentials-{nextcloud_hostname}"
+                    f"nextcloud-backups-s3-credentials-{nextcloud_hostname}", False
                     )[0]['id']
 
             update_argocd_appset_secret(
