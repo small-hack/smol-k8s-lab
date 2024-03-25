@@ -1,5 +1,4 @@
 import logging as log
-from rich.prompt import Prompt
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
@@ -80,7 +79,7 @@ def configure_netmaker(k8s_obj: K8s,
 
             # create oauth OIDC bitwarden item
             oauth_id = bitwarden.create_login(
-                name='netmaker-oauth-config',
+                name=f'{netmaker_hostname}-netmaker-oauth-config',
                 user=auth_dict['client_id'],
                 item_url=netmaker_hostname,
                 password=auth_dict['client_secret'],
@@ -89,7 +88,7 @@ def configure_netmaker(k8s_obj: K8s,
             
             # create the postgres bitwarden item
             postgres_id = bitwarden.create_login(
-                    name=f"netmaker-pgsql-credentials",
+                    name=f"{netmaker_hostname}-netmaker-pgsql-credentials",
                     fields=postgres_fields
                     )
 
@@ -147,12 +146,12 @@ def configure_netmaker(k8s_obj: K8s,
         if netmaker_config_dict['init']['enabled'] and bitwarden:
             log.debug("Updating netmaker-oath-config bitwarden ID in the appset secret")
             oauth_id = bitwarden.get_item(
-                    f"netmaker-oauth-config-{netmaker_hostname}"
+                    f"{netmaker_hostname}-netmaker-oauth-config"
                     )[0]['id']
 
             log.debug("Updating netmaker-pqsql-credentials bitwarden ID in the appset secret")
             postgres_id = bitwarden.get_item(
-                    f"netmaker-pgsql-credentials"
+                    f"{netmaker_hostname}-netmaker-pgsql-credentials"
                     )[0]['id']
 
             # update the netmaker values for the argocd appset
