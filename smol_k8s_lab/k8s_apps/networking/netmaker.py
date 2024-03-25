@@ -54,7 +54,7 @@ def configure_netmaker(k8s_obj: K8s,
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
-            fields = [create_custom_field("issuer", auth_dict['auth_url'])]
+            fields = [create_custom_field("issuer", f"https://{oidc_provider_hostname}")]
 
             log.debug(f"netmaker oauth fields are {fields}")
             
@@ -111,7 +111,7 @@ def configure_netmaker(k8s_obj: K8s,
                                   'netmaker',
                                   {'CLIENT_ID': auth_dict['client_id'],
                                    'CLIENT_SECRET': auth_dict['client_secret'],
-                                   'OIDC_SSUER': auth_dict['auth_url']}
+                                   'OIDC_SSUER': f"https://{oidc_provider_hostname}"}
                                    )
 
             # create mqtt k8s secret
