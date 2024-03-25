@@ -927,6 +927,7 @@ apps:
         hostname: netmaker.example.com
         admin_pannel_url: admin.netmaker.example.com
         api_endpoint_url: api.netmaker.example.com
+        broker_endpoint_url: broker.netmaker.example.com
         auth_provider: oidc
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps

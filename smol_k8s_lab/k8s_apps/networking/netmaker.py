@@ -40,6 +40,7 @@ def configure_netmaker(k8s_obj: K8s,
         frontendUrl = secrets['admin_pannel_url']
         serverHttpHost = secrets['api_endpoint_url']
         auth_provider = secrets['auth_provider']
+        serverBrokerEndpoint = secrets['broker_endpoint_url']
 
     if netmaker_config_dict['init']['enabled'] and not app_installed:
         auth_dict = create_netmaker_app(provider=oidc_provider_name,
@@ -58,7 +59,8 @@ def configure_netmaker(k8s_obj: K8s,
                 create_custom_field("endSessionEndpoint", auth_dict['end_session_url']),
                 create_custom_field("frontendUrl", frontendUrl),
                 create_custom_field("serverHttpHost", serverHttpHost),
-                create_custom_field("auth_provider", auth_provider)
+                create_custom_field("auth_provider", auth_provider),
+                create_custom_field("serverBrokerEndpoint", serverBrokerEndpoint)
                 ]
 
             log.info(f"netmaker oauth fields are {fields}")
@@ -87,7 +89,7 @@ def configure_netmaker(k8s_obj: K8s,
             
             # create the postgres bitwarden item
             postgres_id = bitwarden.create_login(
-                    name='netmaker-pgsql-credentials',
+                    name=f"netmaker-pgsql-credentials",
                     fields=postgres_fields
                     )
 
@@ -124,7 +126,8 @@ def configure_netmaker(k8s_obj: K8s,
                                    'endSessionEndpoint': auth_dict['end_session_url'],
                                    'frontendUrl': frontendUrl,
                                    'serverHttpHost': serverHttpHost,
-                                   'auth_provider': auth_provider}
+                                   'auth_provider': auth_provider,
+                                   'serverBrokerEndpoint': serverBrokerEndpoint}
                                    )
 
             # create postgres k8s secret
@@ -142,13 +145,14 @@ def configure_netmaker(k8s_obj: K8s,
 
         # we need to still update the bitwarden IDs if bitwarden and init is enabled
         if netmaker_config_dict['init']['enabled'] and bitwarden:
-            log.debug("Updating netmaker bitwarden IDs in the appset secret")
+            log.debug("Updating netmaker-oath-config bitwarden ID in the appset secret")
             oauth_id = bitwarden.get_item(
                     f"netmaker-oauth-config-{netmaker_hostname}"
                     )[0]['id']
 
+            log.debug("Updating netmaker-pqsql-credentials bitwarden ID in the appset secret")
             postgres_id = bitwarden.get_item(
-                    f"netmaker-pgsql-credentials-{netmaker_hostname}"
+                    f"netmaker-pgsql-credentials"
                     )[0]['id']
 
             # update the netmaker values for the argocd appset
