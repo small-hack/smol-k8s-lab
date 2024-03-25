@@ -38,12 +38,14 @@ def configure_netmaker(k8s_obj: K8s,
         netmaker_hostname = secrets['hostname']
 
     if netmaker_config_dict['init']['enabled'] and not app_installed:
+        netmaker_user = netmaker_config_dict['init']['values']['user']
+        netmaker_realm = netmaker_config_dict['init']['values'].get('realm', "")
         auth_dict = create_netmaker_app(provider=oidc_provider_name,
-                                     provider_hostname=oidc_provider_hostname,
-                                     netmaker_hostname=netmaker_hostname,
-                                     users=netmaker_config_dict['init']['values']['user'],
-                                     zitadel=zitadel,
-                                     realm=netmaker_config_dict['init']['values'].get('realm', ""))
+                                        provider_hostname=oidc_provider_hostname,
+                                        netmaker_hostname=netmaker_hostname,
+                                        users=netmaker_user,
+                                        zitadel=zitadel,
+                                        realm=netmaker_realm)
 
         # generate postgres and mqtt credentials
         postgresPassword = create_password()
@@ -109,7 +111,7 @@ def configure_netmaker(k8s_obj: K8s,
                                   'netmaker',
                                   {'CLIENT_ID': auth_dict['client_id'],
                                    'CLIENT_SECRET': auth_dict['client_secret'],
-                                   'ISSUER': auth_dict['auth_url']}
+                                   'OIDC_SSUER': auth_dict['auth_url']}
                                    )
 
             # create mqtt k8s secret
