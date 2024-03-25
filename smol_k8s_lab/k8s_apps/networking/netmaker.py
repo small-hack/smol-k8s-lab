@@ -59,8 +59,10 @@ def configure_netmaker(k8s_obj: K8s,
             log.debug(f"netmaker oauth fields are {fields}")
             
             postgres_fields = [
+                create_custom_field("host", 'postgresql.svc.cluster.local'),
+                create_custom_field("port", '5432'),
+                create_custom_field("database", 'netmaker'),
                 create_custom_field("postgres_password", postgresPassword),
-                create_custom_field("SQL_PASS", sqlPass)
                 ]
             
             log.info(f"netmaker postgres fields are {postgres_fields}")
@@ -84,6 +86,8 @@ def configure_netmaker(k8s_obj: K8s,
             # create the postgres bitwarden item
             postgres_id = bitwarden.create_login(
                     name=f"{netmaker_hostname}-netmaker-pgsql-credentials",
+                    user='netmaker',
+                    password=sqlPass,
                     fields=postgres_fields
                     )
 
