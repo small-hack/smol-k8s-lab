@@ -36,10 +36,6 @@ def configure_netmaker(k8s_obj: K8s,
     secrets = netmaker_config_dict['argo']['secret_keys']
     if secrets:
         netmaker_hostname = secrets['hostname']
-        frontendUrl = secrets['admin_pannel_url']
-        serverHttpHost = secrets['api_endpoint_url']
-        auth_provider = secrets['auth_provider']
-        serverBrokerEndpoint = secrets['broker_endpoint_url']
 
     if netmaker_config_dict['init']['enabled'] and not app_installed:
         auth_dict = create_netmaker_app(provider=oidc_provider_name,
@@ -49,30 +45,20 @@ def configure_netmaker(k8s_obj: K8s,
                                      zitadel=zitadel,
                                      realm=netmaker_config_dict['init']['values'].get('realm', ""))
 
+        # generate postgres and mqtt credentials
+        postgresPassword = create_password()
+        sqlPass = create_password()
+        mqPass = create_password()
+
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
-            fields = [
-                create_custom_field("authUrl", auth_dict['auth_url']),
-                create_custom_field("tokenUrl", auth_dict['token_url']),
-                create_custom_field("userInfoUrl", auth_dict['user_info_url']),
-                create_custom_field("endSessionEndpoint", auth_dict['end_session_url']),
-                create_custom_field("frontendUrl", frontendUrl),
-                create_custom_field("serverHttpHost", serverHttpHost),
-                create_custom_field("auth_provider", auth_provider),
-                create_custom_field("serverBrokerEndpoint", serverBrokerEndpoint)
-                ]
+            fields = [create_custom_field("issuer", auth_dict['auth_url'])]
 
-            log.info(f"netmaker oauth fields are {fields}")
-            
-            # generate postgres credentials
-            postgresPassword = create_password()
-            sqlPass = create_password()
-            mqPass = create_password()
+            log.debug(f"netmaker oauth fields are {fields}")
             
             postgres_fields = [
                 create_custom_field("postgres_password", postgresPassword),
-                create_custom_field("SQL_PASS", sqlPass),
-                create_custom_field("MQ_ADMIN_PASSWORD", mqPass)
+                create_custom_field("SQL_PASS", sqlPass)
                 ]
             
             log.info(f"netmaker postgres fields are {postgres_fields}")
@@ -85,6 +71,13 @@ def configure_netmaker(k8s_obj: K8s,
                 password=auth_dict['client_secret'],
                 fields=fields
                 )
+
+            # create the mqtt bitwarden item
+            mq_id = bitwarden.create_login(
+                    name=f"{netmaker_hostname}-netmaker-mq-credentials",
+                    user='netmaker',
+                    password=mqPass
+                    )
             
             # create the postgres bitwarden item
             postgres_id = bitwarden.create_login(
@@ -95,12 +88,9 @@ def configure_netmaker(k8s_obj: K8s,
             # update the netmaker values for the argocd appset
             update_argocd_appset_secret(
                     k8s_obj,
-                    {'netmaker_oauth_config_bitwarden_id': oauth_id})
-
-            # update the postgres values for the argocd appset secret
-            update_argocd_appset_secret(
-                    k8s_obj,
-                    {'netmaker_pgsql_config_bitwarden_id': postgres_id})
+                    {'netmaker_oauth_config_bitwarden_id': oauth_id,
+                     'netmaker_mq_config_bitwarden_id': mq_id,
+                     'netmaker_pgsql_config_bitwarden_id': postgres_id})
 
             # reload the bitwarden ESO provider
             try:
@@ -117,24 +107,27 @@ def configure_netmaker(k8s_obj: K8s,
             # create oauth OIDC k8s secret
             k8s_obj.create_secret('netmaker-oauth-config',
                                   'netmaker',
-                                  {'user': auth_dict['client_id'],
-                                   'password': auth_dict['client_secret'],
-                                   'authUrl': auth_dict['auth_url'],
-                                   'tokenUrl': auth_dict['token_url'],
-                                   'userInfoUrl': auth_dict['user_info_url'],
-                                   'endSessionEndpoint': auth_dict['end_session_url'],
-                                   'frontendUrl': frontendUrl,
-                                   'serverHttpHost': serverHttpHost,
-                                   'auth_provider': auth_provider,
-                                   'serverBrokerEndpoint': serverBrokerEndpoint}
+                                  {'CLIENT_ID': auth_dict['client_id'],
+                                   'CLIENT_SECRET': auth_dict['client_secret'],
+                                   'ISSUER': auth_dict['auth_url']}
+                                   )
+
+            # create mqtt k8s secret
+            k8s_obj.create_secret('netmaker-mq-credentials',
+                                  'netmaker',
+                                  {'MQ_PASSWORD': mqPass,
+                                   'MQ_USERNAME': 'netmaker'}
                                    )
 
             # create postgres k8s secret
             k8s_obj.create_secret('netmaker-pgsql-credentials',
                                   'netmaker',
                                   {'postgres_password': postgresPassword,
-                                   'SQL_PASS': sqlPass,
-                                   'MQ_ADMIN_PASSWORD': mqPass}
+                                   'SQL_HOST': 'posgresql.svc.cluster.local',
+                                   'SQL_PORT': '5432',
+                                   'SQL_DB': 'netmaker',
+                                   'SQL_USER': 'netmaker',
+                                   'SQL_PASS': sqlPass}
                                    )
 
     if not app_installed:
@@ -151,17 +144,19 @@ def configure_netmaker(k8s_obj: K8s,
 
             log.debug("Updating netmaker-pqsql-credentials bitwarden ID in the appset secret")
             postgres_id = bitwarden.get_item(
-                    f"{netmaker_hostname}-netmaker-pgsql-credentials"
+                    f"{netmaker_hostname}-netmaker-pgsql-credentials", False
+                    )[0]['id']
+
+            mq_id = bitwarden.get_item(
+                    f"{netmaker_hostname}-netmaker-mq-credentials", False
                     )[0]['id']
 
             # update the netmaker values for the argocd appset
             update_argocd_appset_secret(
                     k8s_obj,
-                    {'netmaker_oauth_config_bitwarden_id': oauth_id})
-
-            update_argocd_appset_secret(
-                    k8s_obj,
-                    {'netmaker_pgsql_config_bitwarden_id': postgres_id})
+                    {'netmaker_oauth_config_bitwarden_id': oauth_id,
+                     'netmaker_mq_config_bitwarden_id': mq_id,
+                     'netmaker_pgsql_config_bitwarden_id': postgres_id})
 
 def create_netmaker_app(provider: str,
                      provider_hostname: str,
