@@ -69,6 +69,7 @@ Minor Notes:
 | [<img src="assets/images/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler] | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. | ✅ |
 | [<img src="assets/images/icons/k8up.png" width="32" alt="k8up logo, a minimalist logo of a small blue hill with line starting the right going into the hill">][k8up] <br /> [k8up] | Backups operator using [restic] to backup to s3 endpoints | ✅ |
 | [<img src="assets/images/icons/k8tz.png" width="32" alt="k8tz logo, the k8s logo but with a watch in the center instead of the ship wheel">][k8tz] <br /> [k8tz] | Timezone environment variable injector for pods and cronjobs | ✅ |
+| [<img src="assets/images/icons/netmaker-icon.png" width="32" alt="netmaker logo, a purple letter N">][Netmaker] <br /> [Netmaker] | Netmaker is a self hosted vpn management tool | ✅ |
 | [<img src="assets/images/icons/nextcloud.png" width="32" alt="nextcloud logo, 3 white circles touching eachother on a blue background">][Nextcloud] <br /> [Nextcloud] | Nextcloud is a self hosted file server | ✅ |
 | [<img src="assets/images/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon] | Mastodon is a self hosted federated social media network  | ✅ |
 | [<img src="assets/images/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix] | Matrix is a self hosted chat platform  | ✅ |
@@ -133,6 +134,7 @@ We also utilize the [Bitwarden cli], for a password manager so you never have to
 [metallb]: https://github.io/metallb/metallb "metallb"
 [minio]: https://min.io/
 [Nextcloud]: https://github.com/nextcloud/helm
+[Netmaker]: https://netmaker.io
 [Prometheus Stack]: https://github.com/small-hack/argocd-apps/tree/main/prometheus
 [promtail]: https://grafana.com/docs/loki/latest/send-data/promtail/
 [seaweedfs]: https://github.com/seaweedfs/seaweedfs
