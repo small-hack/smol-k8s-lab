@@ -359,7 +359,7 @@ def main(config: str = "",
             final_msg += ("\n🏠 Home Assistant, for managing your IoT needs:\n"
                           f"[blue][link]https://{home_assistant_hostname}[/][/]\n")
 
-        netmaker_hostname = SECRETS.get('netmaker_admin_panel_url', "")
+        netmaker_hostname = SECRETS.get('netmaker_admin_hostname', "")
         if home_assistant_hostname:
             final_msg += ("\n🛜 Netmaker, for managing your own VPN:\n"
                           f"[blue][link]https://{netmaker_hostname}[/][/]\n")
