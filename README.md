@@ -10,13 +10,14 @@
   </a>
 </h2>
 <p align="center">
-  A terminal based tool to install slimmer k8s distros on metal, with batteries included! <sub>(Here's the <a href="https://youtu.be/2E9DVJpv440?feature=shared">same video with captions)</a></sub>
+  A terminal based tool to install slimmer k8s distros on metal, with batteries included! 
 </p>
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=UdOQM9n5hyU&t=0s">
     <img width="800" alt="Screenshot of smol-k8s-lab (on the welcome screen) in a video tutorial on youtube. please click this image, as it is a link to youtube where I explain everything about smol-k8s-lab. The video image screenshot shows the smol-k8s-lab create a cluster feature which is a text input" src="https://github.com/small-hack/smol-k8s-lab/assets/2389292/ee0ca93b-628e-495f-83ab-70aa9eb52295">
-  </a>
+  </a><br>
+  <sup>(Here's the <a href="https://youtu.be/2E9DVJpv440?feature=shared">same video with captions)</a></sup>
 </p>
 
 
