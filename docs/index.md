@@ -118,8 +118,8 @@ We also utilize the [Bitwarden cli], for a password manager so you never have to
 [Argo CD Appset Secret Plugin]: https://github.com/small-hack/argocd-appset-secret-plugin/
 
 [cert-manager]: https://cert-manager.io/docs/
-[cilium]: https://github.com/cilium/cilium/tree/v1.14.1/install/kubernetes/cilium
-[Bitwarden ESO Provider]: https://github.com/jessebot/bitwarden-eso-provider
+[cilium]: https://github.com/cilium/cilium/tree/main/install/kubernetes/cilium
+[Bitwarden ESO Provider]: https://github.com/small-hack/bitwarden-eso-provider
 [grafana]: https://grafana.com/
 [ingress-nginx]: https://github.io/kubernetes/ingress-nginx
 [Home Assistant]: https://www.home-assistant.io/
