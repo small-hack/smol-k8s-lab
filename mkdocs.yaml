@@ -71,7 +71,8 @@ nav:
     - Getting Help: tui/help_screen.md
     - Confirmation: tui/confirmation_screen.md
   - Config File: config_file.md
-  - Default Apps: 
+  - Apps: 
+    - Overview: k8s_apps/index.md
     - Argo CD: 
       - Argo CD App: k8s_apps/argocd.md
       - Appset Secret Plugin: k8s_apps/appset-secret-plugin.md
