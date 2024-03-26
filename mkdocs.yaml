@@ -88,7 +88,6 @@ nav:
       - Kyverno: k8s_apps/experimental/kyverno.md
       - Kubevirt: k8s_apps/experimental/kubevirt.md
       - Longhorn: k8s_apps/experimental/longhorn.md
-      - Netmaker: k8s_apps/experimental/netmaker.md
       - MinIO: k8s_apps/experimental/minio.md
       - Zalando Postgress Operator: k8s_apps/experimental/postgres_operator.md
     - Generic Device Plugin: k8s_apps/generic_device_plugin.md
@@ -99,6 +98,7 @@ nav:
     - Mastodon: k8s_apps/mastodon.md
     - Matrix: k8s_apps/matrix.md
     - MetalLB: k8s_apps/metallb.md
+    - Netmaker: k8s_apps/netmaker.md
     - Nextcloud: k8s_apps/nextcloud.md
     - SeaweedFS: k8s_apps/seaweedfs.md
     - Prometheus: k8s_apps/prometheus.md

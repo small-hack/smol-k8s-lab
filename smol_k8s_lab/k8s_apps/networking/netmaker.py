@@ -40,13 +40,11 @@ def configure_netmaker(k8s_obj: K8s,
         netmaker_api_hostname = secrets['api_hostname']
 
     if netmaker_config_dict['init']['enabled'] and not app_installed:
-        netmaker_user = netmaker_config_dict['init']['values']['user']
         netmaker_realm = netmaker_config_dict['init']['values'].get('realm', "")
         auth_dict = create_netmaker_app(provider=oidc_provider_name,
                                         provider_hostname=oidc_provider_hostname,
                                         dashboard_hostname=netmaker_dashboard_hostname,
                                         api_hostname=netmaker_api_hostname,
-                                        users=netmaker_user,
                                         zitadel=zitadel,
                                         realm=netmaker_realm)
 
@@ -54,6 +52,11 @@ def configure_netmaker(k8s_obj: K8s,
         postgresPassword = create_password()
         sqlPass = create_password()
         mqPass = create_password()
+
+        # netmaker superadmin user and password, as well as master key
+        netmaker_user = netmaker_config_dict['init']['values']['admin_user']
+        netmaker_pass = create_password()
+        netmaker_master_key = create_password()
 
         # if using bitwarden, put the secret in bitarden and ESO will grab it
         if bitwarden:
@@ -69,6 +72,15 @@ def configure_netmaker(k8s_obj: K8s,
                 ]
             
             log.info(f"netmaker postgres fields are {postgres_fields}")
+
+            # create netmaker super admin credentials bitwarden item
+            admin_id = bitwarden.create_login(
+                name=f'{netmaker_hostname}-netmaker-admin-credentials',
+                user=netmaker_user,
+                password=netmaker_pass,
+                item_url=netmaker_hostname,
+                fields=[create_custom_field("masterkey", netmaker_master_key)]
+                )
 
             # create oauth OIDC bitwarden item
             oauth_id = bitwarden.create_login(
@@ -98,6 +110,7 @@ def configure_netmaker(k8s_obj: K8s,
             update_argocd_appset_secret(
                     k8s_obj,
                     {'netmaker_oauth_config_bitwarden_id': oauth_id,
+                     'netmaker_admin_credentials_bitwarden_id': admin_id,
                      'netmaker_mq_config_bitwarden_id': mq_id,
                      'netmaker_pgsql_config_bitwarden_id': postgres_id})
 
@@ -113,6 +126,14 @@ def configure_netmaker(k8s_obj: K8s,
 
         # create netmaker k8s secrets if we're not using bitwarden
         else:
+            # create oauth OIDC k8s secret
+            k8s_obj.create_secret('netmaker-admin-credentials',
+                                  'netmaker',
+                                  {'ADMIN_USER': netmaker_user,
+                                   'ADMIN_PASSWORD': netmaker_pass,
+                                   'MASTER_KEY': netmaker_master_key}
+                                   )
+
             # create oauth OIDC k8s secret
             k8s_obj.create_secret('netmaker-oauth-config',
                                   'netmaker',
@@ -146,9 +167,14 @@ def configure_netmaker(k8s_obj: K8s,
 
         # we need to still update the bitwarden IDs if bitwarden and init is enabled
         if netmaker_config_dict['init']['enabled'] and bitwarden:
+            log.debug("Updating netmaker-admin-credentials bitwarden ID in the appset secret")
+            admin_id = bitwarden.get_item(
+                    f"{netmaker_hostname}-netmaker-admin-credentials"
+                    )[0]['id']
+
             log.debug("Updating netmaker-oath-config bitwarden ID in the appset secret")
             oauth_id = bitwarden.get_item(
-                    f"{netmaker_hostname}-netmaker-oauth-config"
+                    f"{netmaker_hostname}-netmaker-oauth-config", False
                     )[0]['id']
 
             log.debug("Updating netmaker-pqsql-credentials bitwarden ID in the appset secret")
@@ -164,6 +190,7 @@ def configure_netmaker(k8s_obj: K8s,
             update_argocd_appset_secret(
                     k8s_obj,
                     {'netmaker_oauth_config_bitwarden_id': oauth_id,
+                     'netmaker_admin_credentials_bitwarden_id': admin_id,
                      'netmaker_mq_config_bitwarden_id': mq_id,
                      'netmaker_pgsql_config_bitwarden_id': postgres_id})
 
@@ -171,7 +198,6 @@ def create_netmaker_app(provider: str,
                      provider_hostname: str,
                      dashboard_hostname: str = "",
                      api_hostname: str = "",
-                     users: list = [],
                      zitadel: Zitadel = None,
                      realm: str = "default") -> list:
     """
