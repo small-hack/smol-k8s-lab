@@ -916,7 +916,7 @@ apps:
   netmaker:
     enabled: false
     description: |
-      [link=https://www.netmaker.io/]NetMaker[/link]®️  makes networks with WireGuard. Netmaker automates fast, secure, and distributed virtual networks.
+      [link=https://www.netmaker.io/]Netmaker[/link]®️  makes networks with WireGuard. Netmaker automates fast, secure, and distributed virtual networks.
     init:
       enabled: true
       values:
@@ -925,8 +925,9 @@ apps:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: netmaker.example.com
-        admin_pannel_url: admin.netmaker.example.com
-        api_endpoint_url: api.netmaker.example.com
+        admin_hostname: admin.netmaker.example.com
+        api_hostname: api.netmaker.example.com
+        broker_hostname: broker.netmaker.example.com
         auth_provider: oidc
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
