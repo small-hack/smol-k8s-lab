@@ -925,9 +925,9 @@ apps:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: netmaker.example.com
-        admin_pannel_url: admin.netmaker.example.com
-        api_endpoint_url: api.netmaker.example.com
-        broker_endpoint_url: broker.netmaker.example.com
+        admin_hostname: admin.netmaker.example.com
+        api_hostname: api.netmaker.example.com
+        broker_hostname: broker.netmaker.example.com
         auth_provider: oidc
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps

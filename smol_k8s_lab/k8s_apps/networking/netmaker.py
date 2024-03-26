@@ -10,11 +10,11 @@ from smol_k8s_lab.utils.passwords import create_password
 
 
 def configure_netmaker(k8s_obj: K8s,
-                    netmaker_config_dict: dict,
-                    oidc_provider_name: str = "",
-                    oidc_provider_hostname: str = "",
-                    bitwarden: BwCLI = None,
-                    zitadel: Zitadel = None) -> None:
+                       netmaker_config_dict: dict,
+                       oidc_provider_name: str = "",
+                       oidc_provider_hostname: str = "",
+                       bitwarden: BwCLI = None,
+                       zitadel: Zitadel = None) -> None:
     """
     Installs netmaker as an Argo CD application on Kubernetes
 
@@ -36,13 +36,16 @@ def configure_netmaker(k8s_obj: K8s,
     secrets = netmaker_config_dict['argo']['secret_keys']
     if secrets:
         netmaker_hostname = secrets['hostname']
+        netmaker_dashboard_hostname = secrets['admin_hostname']
+        netmaker_api_hostname = secrets['api_hostname']
 
     if netmaker_config_dict['init']['enabled'] and not app_installed:
         netmaker_user = netmaker_config_dict['init']['values']['user']
         netmaker_realm = netmaker_config_dict['init']['values'].get('realm', "")
         auth_dict = create_netmaker_app(provider=oidc_provider_name,
                                         provider_hostname=oidc_provider_hostname,
-                                        netmaker_hostname=netmaker_hostname,
+                                        dashboard_hostname=netmaker_dashboard_hostname,
+                                        api_hostname=netmaker_api_hostname,
                                         users=netmaker_user,
                                         zitadel=zitadel,
                                         realm=netmaker_realm)
@@ -166,7 +169,8 @@ def configure_netmaker(k8s_obj: K8s,
 
 def create_netmaker_app(provider: str,
                      provider_hostname: str,
-                     netmaker_hostname: str = "",
+                     dashboard_hostname: str = "",
+                     api_hostname: str = "",
                      users: list = [],
                      zitadel: Zitadel = None,
                      realm: str = "default") -> list:
@@ -174,11 +178,12 @@ def create_netmaker_app(provider: str,
     Creates an OIDC application, for netmaker, in either Keycloak or Zitadel
 
     Arguments:
-      provider          - either 'keycloak' or 'zitadel'
-      provider_hostname - hostname of keycloak or zitadel
-      netmaker_hostname - hostname of netmaker
-      zitadel           - Zitadel api object 
-      realm             - realm to use for keycloak if using keycloak
+      provider           - either 'keycloak' or 'zitadel'
+      provider_hostname  - hostname of keycloak or zitadel
+      dashboard_hostname - hostname of netmaker admina dashboard
+      api_hostname       - hostname of netmaker api endpoint
+      zitadel            - Zitadel api object 
+      realm              - realm to use for keycloak if using keycloak
 
     returns [url, client_id, client_secret]
     """
@@ -187,8 +192,8 @@ def create_netmaker_app(provider: str,
         log.info("Creating an OIDC application for Netmaker via Zitadel...")
         netmaker_dict = zitadel.create_application(
                 "netmaker", 
-                f"https://{netmaker_hostname}/auth",
-                [f"https://{netmaker_hostname}"]
+                f"https://{api_hostname}/api/oauth/callback",
+                [f"https://{dashboard_hostname}"]
                 )
         zitadel.create_role("netmaker_users", "Netmaker Users", "netmaker_users")
         zitadel.update_user_grant(['netmaker_users'])
