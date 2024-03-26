@@ -110,7 +110,7 @@ def configure_netmaker(k8s_obj: K8s,
             update_argocd_appset_secret(
                     k8s_obj,
                     {'netmaker_oauth_config_bitwarden_id': oauth_id,
-                     'netmaker_admin_credentials_bitwarden_id': mq_id,
+                     'netmaker_admin_credentials_bitwarden_id': admin_id,
                      'netmaker_mq_config_bitwarden_id': mq_id,
                      'netmaker_pgsql_config_bitwarden_id': postgres_id})
 
