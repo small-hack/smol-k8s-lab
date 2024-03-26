@@ -921,7 +921,7 @@ apps:
       enabled: true
       values:
         # initial super admin user to create. this disables GUI registration
-        admin_user: admin
+        admin_user: smoladmin
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
