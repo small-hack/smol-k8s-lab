@@ -36,7 +36,6 @@ Minor Notes:
 | [<img src="../assets/images/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix] | Matrix is a self hosted chat platform  | ✅ |
 | [<img src="../assets/images/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio] | Self hosted S3 Object Store operator | ✅ |
 | [<img src="../assets/images/icons/seaweedfs.png" width="32" alt="seaweedfs logo, ">][seaweedfs] <br /> [seaweedfs] | Self hosted S3 Object Store | ✅ |
-| [<img src="../assets/images/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for kubernetes | ✅ |
 
 There are plenty more on the side bar, and you can even add your own :)
 
