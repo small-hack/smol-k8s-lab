@@ -916,11 +916,12 @@ apps:
   netmaker:
     enabled: false
     description: |
-      [link=https://www.netmaker.io/]Netmaker[/link]®️  makes networks with WireGuard. Netmaker automates fast, secure, and distributed virtual networks.
+      [link=https://www.netmaker.io/]Netmaker[/link]®️  makes networks with WireGuard ®️.  Netmaker specializes in automating fast secure, and distributed virtual networks. It also comes with a handy litle dashboard.
     init:
       enabled: true
       values:
-        user: admin
+        # initial super admin user to create. this disables GUI registration
+        admin_user: admin
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -932,7 +933,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: demo/netmaker/app_of_apps/
+      path: netmaker/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # namespace to install the k8s app in
