@@ -1,9 +1,13 @@
 ## Netmaker Argo CD Application
 [Netmaker](https://www.netmaker.io/) is a vpn management tool wrapping WireGuard ®️.
 
-![Screenshot of the Argo CD web interface showing the netmaker app of apps. The netmaker app shows three children: netmaker-persistence application in healthy state, netmaker-appset with a child of netmaker-helm app both in healthy state, and the netmaker external secrets appset with a child app of netmaker-externalsecrets also both in a healthy state](./netmaker.png)
+<a href="../../assets/images/screenshots/netmaker.png">
+<img src="../../assets/images/screenshots/netmaker.png" alt="Screenshot of the Argo CD web interface showing the netmaker app of apps. The netmaker app shows three children: netmaker-persistence application in healthy state, netmaker-appset with a child of netmaker-helm app both in healthy state, and the netmaker external secrets appset with a child app of netmaker-externalsecrets also both in a healthy state">
+</a>
 
-![Screenshot of the Argo CD web interface showing the netmaker-helm app's networking view. From the left it shows connection from the internet to the ip 192.168.42.42 which then connects to three ingresses, which connect to three services, which connect to three pods. The ingresses are netmaker-api, netmaker-mqtt, and netmaker-ui, which similarly named services and pods. Outside of that part of the chart are two services netmaker-postgresql and netmaker-postgresql-hl. Both connect to a pod called netmaker-postgresql-0](./netmaker-network.png)
+<a href="../../assets/images/screenshots/netmaker-network.png">
+<img src="../../assets/images/screenshots/netmaker-network.png" alt="Screenshot of the Argo CD web interface showing the netmaker-helm app's networking view. From the left it shows connection from the internet to the ip 192.168.42.42 which then connects to three ingresses, which connect to three services, which connect to three pods. The ingresses are netmaker-api, netmaker-mqtt, and netmaker-ui, which similarly named services and pods. Outside of that part of the chart are two services netmaker-postgresql and netmaker-postgresql-hl. Both connect to a pod called netmaker-postgresql-0">
+</a>
 
 We're currently using our [own home grown helm chart](https://github.com/small-hack/netmaker-helm) as it supports existing secrets and initial super admin user creation. You can learn more about the Argo CD ApplicationSet [here](https://github.com/small-hack/argocd-apps/tree/main/netmaker).
 
