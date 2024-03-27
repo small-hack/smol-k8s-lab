@@ -40,3 +40,5 @@ apps:
 Uninstalling through the Argo CD web interface often doesn't cut it. Try going through the [docs to uninstall longhorn](https://longhorn.io/docs/1.6.0/deploy/uninstall/).
 
 If you have issues deleting a namespace with longhorn, try these steps [here](https://github.com/small-hack/argocd-apps/tree/main?tab=readme-ov-file#troubleshooting-tips).
+
+We also found this issue useful: [longhorn/longhorn#5319](https://github.com/longhorn/longhorn/issues/5319)
