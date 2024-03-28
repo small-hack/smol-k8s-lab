@@ -360,7 +360,7 @@ def main(config: str = "",
                           f"[blue][link]https://{home_assistant_hostname}[/][/]\n")
 
         netmaker_hostname = SECRETS.get('netmaker_admin_hostname', "")
-        if home_assistant_hostname:
+        if netmaker_hostname:
             final_msg += ("\n🛜 Netmaker, for managing your own VPN:\n"
                           f"[blue][link]https://{netmaker_hostname}[/][/]\n")
 
