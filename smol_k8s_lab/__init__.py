@@ -265,9 +265,9 @@ def main(config: str = "",
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
 
         # setup netmaker, a wireguard vpn management web interface
-        netmaker_dict = apps.pop('netmaker', {'init': {'enabled': False}})
+        netmaker_dict = apps.pop('netmaker', {'enabled': False})
         # only do this if the user has smol-k8s-lab init enabled
-        if netmaker_dict['init']['enabled']:
+        if netmaker_dict['enabled']:
             configure_netmaker(k8s_obj,
                                netmaker_dict,
                                'zitadel',
