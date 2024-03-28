@@ -471,7 +471,6 @@ apps:
         source_repos:
           - https://charts.jetstack.io
           - "https://kubernetes.github.io/ingress-nginx"
-          - "https://jessebot.github.io/vouch-helm-chart"
           - "https://github.com/kubernetes/ingress-nginx"
         destination:
           # automatically includes the app's namespace and argocd's namespace
@@ -1247,7 +1246,7 @@ apps:
       project:
         name: vouch
         source_repos:
-          - https://jessebot.github.io/vouch-helm-chart
+          - https://small-hack.github.io/vouch-helm-chart
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
