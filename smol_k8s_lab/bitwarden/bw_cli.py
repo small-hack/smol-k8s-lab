@@ -332,7 +332,7 @@ class BwCLI():
 
         # edit OR create the item
         bitwarden_return_item = subproc([cmd + " --response"], quiet=True, env=self.env)
-        log.info(bitwarden_return_item)
+        log.debug(bitwarden_return_item)
 
         if edit:
             return item['id']
