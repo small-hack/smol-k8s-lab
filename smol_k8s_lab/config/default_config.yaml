@@ -415,21 +415,27 @@ apps:
     argo:
       secret_keys:
         hostname: ""
+        # name of your home assistant area, users often just use "home"
+        name: "home"
         unit_system: "metric"
+        # set to F for USA imperialist tempurature
         temperature_unit: "C"
         # you can delete these if you're not using tolerations/affinity
         toleration_key: ""
         toleration_operator: ""
         toleration_value: ""
         toleration_effect: ""
-        # these are for node affinity
+        # these are for node affinity, delete if not in use
         affinity_key: ""
         affinity_value: ""
         # these are for passing in a USB device such as the conbee II
         usb_device_path: ""
         usb_device_mount_path: "/dev/ttyACM0"
         usb_device_index: "1"
-
+        # these are for passing in a bluetooth device
+        bluetooth_device_path: /run/dbus
+        bluetooth_device_mount_path: /run/dbus
+        bluetooth_device_index: '2'
       repo: https://github.com/small-hack/argocd-apps
       path: home-assistant/toleration_and_affinity/
       revision: main
