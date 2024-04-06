@@ -1386,7 +1386,7 @@ apps:
       # namespace to install the k8s app in
       namespace: "zitadel"
       # recurse directories in the provided git repo
-      directory_recursion: true
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         name: zitadel
