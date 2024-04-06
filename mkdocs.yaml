@@ -71,15 +71,15 @@ nav:
     - Getting Help: tui/help_screen.md
     - Confirmation: tui/confirmation_screen.md
   - Config File: config_file.md
-  - Apps: 
+  - Apps:
     - Overview: k8s_apps/index.md
-    - Argo CD: 
+    - Argo CD:
       - Argo CD App: k8s_apps/argocd.md
       - Appset Secret Plugin: k8s_apps/appset-secret-plugin.md
     - Cert Manager: k8s_apps/cert_manager.md
     - CloudNative Postgress Operator: k8s_apps/cnpg_operator.md
     - Core DNS: k8s_apps/core_dns.md
-    - External Secrets: 
+    - External Secrets:
       - External Secrets Operator: k8s_apps/external-secrets-operator.md
       - Bitwarden ESO Provider: k8s_apps/bitwarden_eso_provider.md
     - Experimental:
@@ -108,17 +108,18 @@ nav:
     - Zitadel: k8s_apps/zitadel.md
   - Supported Distros:
     - Intro: k8s_distros/distros.md
-    - K3s: 
+    - K3s:
       - About: k8s_distros/k3s/k3s.md
       - QuickStart: k8s_distros/k3s/quickstart.md
       - Tutorial: k8s_distros/k3s/tutorial.md
-    - K3d: 
+      - Extras: k8s_distros/k3s/sqllite_backend.md
+    - K3d:
       - About: k8s_distros/k3d/k3d.md
-    - Kind: 
+    - Kind:
       - About: k8s_distros/kind/kind.md
       - QuickStart: k8s_distros/kind/quickstart.md
       - Tutorial: k8s_distros/kind/tutorial.md
-  - Tools: 
+  - Tools:
     - About: k8s_toolbox/toolbox.md
     - Helm: k8s_toolbox/helm.md
     - K9s: k8s_toolbox/k9s.md
