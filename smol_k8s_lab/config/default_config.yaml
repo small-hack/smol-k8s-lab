@@ -417,9 +417,16 @@ apps:
         hostname: ""
         # name of your home assistant area, users often just use "home"
         name: "home"
+        # other option is "imperial"
         unit_system: "metric"
         # set to F for USA imperialist tempurature
         temperature_unit: "C"
+        # latitude of your personal coordinates
+        latitude: ""
+        # longitude of your personal coordinates
+        longitude: ""
+        # the elevation of your house?
+        elevation: ""
         # you can delete these if you're not using tolerations/affinity
         toleration_key: ""
         toleration_operator: ""
