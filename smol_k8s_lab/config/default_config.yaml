@@ -15,7 +15,7 @@ smol_k8s_lab:
         on_focus: true
         # ring the built in terminal bell when something is wrong
         on_error: true
-      text_to_speech: 
+      text_to_speech:
         # use a specific program for text to speech - needs to be a full path
         # macOS default: say
         speech_program: say
@@ -68,7 +68,7 @@ k8s_distros:
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. If you enable cilium, we
-    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    # automatically pass in flannel-backend: none and disable-network-policy: true
     k3s_yaml:
       # if you enable MetalLB, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
@@ -84,7 +84,7 @@ k8s_distros:
     # nodes:
     #   # name can be a hostname or ip address
     #   serverfriend1.lan:
-    #     # change ssh_key to the name of a local private key to use   
+    #     # change ssh_key to the name of a local private key to use
     #     ssh_key: id_rsa
     #     # must be node type of "worker" or "control_plane"
     #     node_type: worker
@@ -101,7 +101,7 @@ k8s_distros:
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. if you enable cilium, we
-    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    # automatically pass in flannel-backend: none and disable-network-policy: true
     k3s_yaml:
       # if you enable MetalLB, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
@@ -217,7 +217,7 @@ apps:
       enabled: true
       values:
         # Used for to generate certs and alert you if they're going to expire
-        email: "" 
+        email: ""
         # choose between "http01" or "dns01"
         cluster_issuer_acme_challenge_solver: http01
         # only needed if cluster_issuer_challenge_solver set to dns01
@@ -724,7 +724,7 @@ apps:
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
-        # set the local s3 provider for mastodon's public data in one bucket 
+        # set the local s3 provider for mastodon's public data in one bucket
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
@@ -767,7 +767,7 @@ apps:
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
 
       smol-k8s-lab supports initialization by creating initial secrets for your:
-        - matrix, element, and federation hostnames, 
+        - matrix, element, and federation hostnames,
         - credentials for: postgresql, admin user, S3 storage, and SMTP
 
       smol-k8s-lab also sets up an OIDC application via Zitadel.
@@ -1098,6 +1098,36 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
           - postgres-operator
+
+  prometheus_crds:
+    description: |
+      [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link] CRDs to start with.
+      You can optionally disable this if you don't want to deploy apps with metrics.
+
+    enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: prometheus/crds/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: prometheus
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: prometheus
+        source_repos:
+        - https://github.com/prometheus-community/helm-charts.git
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+          - kube-system
+          - prometheus
 
   prometheus:
     description: |
