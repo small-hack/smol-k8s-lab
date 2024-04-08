@@ -15,7 +15,7 @@ smol_k8s_lab:
         on_focus: true
         # ring the built in terminal bell when something is wrong
         on_error: true
-      text_to_speech: 
+      text_to_speech:
         # use a specific program for text to speech - needs to be a full path
         # macOS default: say
         speech_program: say
@@ -68,7 +68,7 @@ k8s_distros:
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. If you enable cilium, we
-    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    # automatically pass in flannel-backend: none and disable-network-policy: true
     k3s_yaml:
       # if you enable MetalLB, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
@@ -84,7 +84,7 @@ k8s_distros:
     # nodes:
     #   # name can be a hostname or ip address
     #   serverfriend1.lan:
-    #     # change ssh_key to the name of a local private key to use   
+    #     # change ssh_key to the name of a local private key to use
     #     ssh_key: id_rsa
     #     # must be node type of "worker" or "control_plane"
     #     node_type: worker
@@ -101,7 +101,7 @@ k8s_distros:
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. if you enable cilium, we
-    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    # automatically pass in flannel-backend: none and disable-network-policy: true
     k3s_yaml:
       # if you enable MetalLB, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
@@ -217,7 +217,7 @@ apps:
       enabled: true
       values:
         # Used for to generate certs and alert you if they're going to expire
-        email: "" 
+        email: ""
         # choose between "http01" or "dns01"
         cluster_issuer_acme_challenge_solver: http01
         # only needed if cluster_issuer_challenge_solver set to dns01
@@ -388,7 +388,7 @@ apps:
   generic_device_plugin:
     enabled: false
     description: |
-      This installs the [link=https://github.com/squat/generic-device-plugin/tree/main]squat/generic-device-plugin[/link], which is recommended for exposing generic devices such as USB devices to your k8s pods. This can useful if you have an IoT coordinator device such as the conbee 2 that you are using with deconz or home assistant. You can read more about device plugins in the [Kubernetes docs](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/).
+      This installs the [link=https://github.com/squat/generic-device-plugin/tree/main]squat/generic-device-plugin[/link], which is recommended for exposing generic devices such as USB devices to your k8s pods. This can useful if you have an IoT coordinator device such as the conbee 2 that you are using with deconz or home assistant. You can read more about device plugins in the [link=https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/device-plugins/]Kubernetes docs[/link].
     argo:
       secret_keys: {}
       repo: https://github.com/small-hack/argocd-apps
@@ -412,24 +412,56 @@ apps:
       By default, we assume you want to use node affinity and tolerations to keep home assistant pods on certain nodes and keep other pods off said nodes. If you don't want to use either of these features but still want to use the small-hack/argocd-apps repo, first change the argo path to /home-assistant/ and then remove the 'toleration_' and 'affinity' secret_keys from the yaml file under apps.home_assistant.description.
 
       [b]NOTE[/b]: If you want to pass in a USB device, you will need the generic device plugin (which is available as a default Argo CD app via smol-k8s-lab 💙)
+
+      This app takes one sensitive value, password for the initial owner user. You can also pass it in as an enviornment variable called $HOME_ASSISTANT_PASSWORD.
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # enable the creation of an initial owner user
+      enabled: true
+      values:
+        # -- owner user's name
+        name: "admin"
+        # -- owner user's username
+        user_name: "admin"
+        # -- owner user's language, default is english
+        language: "en"
+      sensitive_values:
+        - PASSWORD
     argo:
       secret_keys:
         hostname: ""
+        # name of your home assistant area, users often just use "home"
+        name: "home"
+        # default alpha-2 country code, default is NL which is The Netherlands
+        country: "NL"
+        # currency code to use for calculating costs, defaults to EUR for euro
+        currency: "EUR"
+        # other option is "imperial"
         unit_system: "metric"
+        # set to F for USA imperialist tempurature
         temperature_unit: "C"
+        # latitude of your personal coordinates
+        latitude: ""
+        # longitude of your personal coordinates
+        longitude: ""
+        # the elevation of your house?
+        elevation: ""
         # you can delete these if you're not using tolerations/affinity
         toleration_key: ""
         toleration_operator: ""
         toleration_value: ""
         toleration_effect: ""
-        # these are for node affinity
+        # these are for node affinity, delete if not in use
         affinity_key: ""
         affinity_value: ""
         # these are for passing in a USB device such as the conbee II
         usb_device_path: ""
         usb_device_mount_path: "/dev/ttyACM0"
         usb_device_index: "1"
-
+        # these are for passing in a bluetooth device
+        bluetooth_device_path: /run/dbus
+        bluetooth_device_mount_path: /run/dbus
+        bluetooth_device_index: '2'
       repo: https://github.com/small-hack/argocd-apps
       path: home-assistant/toleration_and_affinity/
       revision: main
@@ -724,7 +756,7 @@ apps:
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
-        # set the local s3 provider for mastodon's public data in one bucket 
+        # set the local s3 provider for mastodon's public data in one bucket
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
@@ -767,7 +799,7 @@ apps:
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
 
       smol-k8s-lab supports initialization by creating initial secrets for your:
-        - matrix, element, and federation hostnames, 
+        - matrix, element, and federation hostnames,
         - credentials for: postgresql, admin user, S3 storage, and SMTP
 
       smol-k8s-lab also sets up an OIDC application via Zitadel.
@@ -1099,6 +1131,36 @@ apps:
           namespaces:
           - postgres-operator
 
+  prometheus_crds:
+    description: |
+      [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link] CRDs to start with.
+      You can optionally disable this if you don't want to deploy apps with metrics.
+
+    enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: prometheus/crds/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: prometheus
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: prometheus
+        source_repos:
+        - https://github.com/prometheus-community/helm-charts.git
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+          - kube-system
+          - prometheus
+
   prometheus:
     description: |
       Full monitoring stack with [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link], grafana, loki, and alert manager.
@@ -1356,7 +1418,7 @@ apps:
       # namespace to install the k8s app in
       namespace: "zitadel"
       # recurse directories in the provided git repo
-      directory_recursion: true
+      directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         name: zitadel

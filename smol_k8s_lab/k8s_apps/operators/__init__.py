@@ -5,10 +5,12 @@ from .longhorn import configure_longhorn
 from .k8up_operater import configure_k8up_operator
 from .minio import configure_minio_operator
 from .postgres_operators import configure_cnpg_operator, configure_postgres_operator
+from .prometheus import configure_prometheus_crds
 from .seaweedfs import configure_seaweedfs
 
 
 def setup_operators(k8s_obj: K8s,
+                    prometheus_config: dict = {},
                     longhorn_config: dict = {},
                     k8up_config: dict = {},
                     minio_config: dict = {},
@@ -16,12 +18,21 @@ def setup_operators(k8s_obj: K8s,
                     cnpg_config: dict = {},
                     pg_config: dict = {},
                     bitwarden: BwCLI = None) -> None:
-    """ 
+    """
     deploy all k8s operators that can block other apps:
+        - prometheus
+        - longhorn
+        - k8up
         - minio operator
+        - seaweedfs
         - cnpg (cloud native postgres) operator
+        - zalando postgres operator
     """
     header("Setting up Operators", "⚙️ ")
+
+    # deploy the prometheus CRDs before everything else so that apps with metrics don't fail
+    if prometheus_config and prometheus_config.get('enabled', False):
+        configure_prometheus_crds(k8s_obj, prometheus_config)
 
     # longhorn operator is used to have expanding volumes that span multiple nodes
     if longhorn_config and longhorn_config.get('enabled', False):

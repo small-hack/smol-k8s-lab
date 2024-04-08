@@ -33,7 +33,7 @@ CUTE_NOUNS = [
         ]
 
 CUTE_ADJECTIVE = [
-        "lovely", "adorable", "cute", "friendly", "nice", "leuke", "mooie", 
+        "lovely", "adorable", "cute", "friendly", "nice", "leuke", "mooie",
         "vriendelijke", "cool", "soft", "smol", "small", "klein"
         ]
 
@@ -78,6 +78,7 @@ class BaseApp(App):
         self.sensitive_values = {
                 'cert_manager': {},
                 'nextcloud': {},
+                'home_assistant': {},
                 'matrix': {},
                 'mastodon': {},
                 'postgres_operator': {},
@@ -142,7 +143,7 @@ class BaseApp(App):
 
 
     def generate_cluster_table(self, clusters: list) -> None:
-        """ 
+        """
         generate a readable table for all the clusters.
 
         Each row is has a height of 3 and is centered to make it easier to read
@@ -157,7 +158,7 @@ class BaseApp(App):
         data_table.add_column(Text("Distro", justify="center"))
 
         for row in clusters:
-            # we use an extra line to center the rows vertically 
+            # we use an extra line to center the rows vertically
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
             # we add extra height to make the rows more readable
@@ -241,7 +242,7 @@ class BaseApp(App):
             new_cluster_button.action_press()
 
     def action_request_apps_cfg(self,
-                                app_to_highlight: str = "", 
+                                app_to_highlight: str = "",
                                 modify_cluster: bool = False) -> None:
         """
         launches the argo app config screen
@@ -282,7 +283,7 @@ class BaseApp(App):
         self.push_screen(HelpScreen())
 
     def action_request_config(self,) -> None:
-        """ 
+        """
         if the user pressed 'c', show the TUI config screen
         """
         self.push_screen(TuiConfigScreen(self.cfg['smol_k8s_lab']['tui']))
@@ -315,7 +316,7 @@ class BaseApp(App):
             yaml.dump(self.cfg, smol_k8s_config)
 
     def action_say(self, text_for_speech: str = "") -> None:
-        """ 
+        """
         Use the configured speech program to read a string aloud. If no string
         is passed in, and self.speak_on_key_press is True, we read the currently
         focused element id
@@ -362,7 +363,7 @@ class BaseApp(App):
 
     @on(DescendantFocus)
     def on_focus(self, event: DescendantFocus) -> None:
-        """ 
+        """
         on focus, say the id of each element and the value or label if possible
         """
         if self.speak_on_focus:
@@ -429,7 +430,7 @@ class BaseApp(App):
                                 skip = False
 
                                 # cert manager is special
-                                if app == "cert_manager": 
+                                if app == "cert_manager":
                                     solver = init_values['cluster_issuer_acme_challenge_solver']
                                     if solver == "http01":
                                         skip = True
@@ -467,7 +468,7 @@ class BaseApp(App):
             for item in env_vars:
                 # check env and self.sensitive_values
                 value = environ.get(
-                        "_".join([app.upper(), item]),
+                        "_".join([app.replace("-", "_").upper(), item]),
                         default=self.sensitive_values[app].get(item.lower(), ""))
 
                 if not value:
@@ -480,9 +481,9 @@ class BaseApp(App):
 
 
 class NewClusterInput(Static):
-    """ 
+    """
     small widget with an input and button that takes the names of a cluster,
-    and changes the 
+    and changes the
     """
     def compose(self) -> ComposeResult:
         with Grid(id="new-cluster-button-container"):
@@ -508,7 +509,7 @@ class NewClusterInput(Static):
     @on(Input.Changed)
     @on(Input.Submitted)
     def input_validation(self, event: Input.Changed | Input.Submitted) -> None:
-        """ 
+        """
         Takes events matching Input.Changed and Input.Submitted events, and
         checks if input is valid. If the user presses enter (Input.Submitted),
         and the input is valid, we also press the button for them.
