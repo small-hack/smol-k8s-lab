@@ -432,6 +432,8 @@ apps:
         hostname: ""
         # name of your home assistant area, users often just use "home"
         name: "home"
+        # default alpha-2 country code, default is NL which is The Netherlands
+        country: "NL"
         # other option is "imperial"
         unit_system: "metric"
         # set to F for USA imperialist tempurature
