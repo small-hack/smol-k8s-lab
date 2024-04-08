@@ -57,6 +57,7 @@ def configure_home_assistant(k8s_obj: K8s,
 
             admin_name_field = create_custom_field('name', admin_name)
             admin_lang_field = create_custom_field('language', admin_language)
+            external_url_field = create_custom_field('externalurl', home_assistant_hostname + '/')
 
             # admin credentials for initial owner user
             admin_password = bitwarden.generate()
@@ -65,7 +66,7 @@ def configure_home_assistant(k8s_obj: K8s,
                     item_url=home_assistant_hostname,
                     user=admin_user,
                     password=admin_password,
-                    fields=[admin_name_field, admin_lang_field]
+                    fields=[admin_name_field, admin_lang_field, external_url_field]
                     )
 
             # update the home-assistant values for the argocd appset
@@ -81,7 +82,8 @@ def configure_home_assistant(k8s_obj: K8s,
                                   {"ADMIN_USERNAME": admin_user,
                                    "ADMIN_NAME": admin_name,
                                    "ADMIN_PASSWORD": admin_password,
-                                   "ADMIN_LANGUAGE": admin_language
+                                   "ADMIN_LANGUAGE": admin_language,
+                                   "EXTERNAL_URL": home_assistant_hostname
                                    })
 
     if not app_installed:
