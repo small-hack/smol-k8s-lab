@@ -432,12 +432,16 @@ class Zitadel():
         giving access token
         """
         log.info("Creating action...")
-        response = request("POST",
-                           self.api_url + "actions",
-                           headers=self.headers,
-                           data=script,
-                           verify=self.verify)
-        log.debug(response.text)
+        while True:
+            response = request("POST",
+                               self.api_url + "actions",
+                               headers=self.headers,
+                               data=script,
+                               verify=self.verify)
+            log.debug(response.text)
+            # if the response is not 200, just try again 🤷
+            if response.status_code == 200:
+                break
 
         log.debug("Creating action flow triggers...")
         action_id = response.json()['id']
@@ -450,12 +454,17 @@ class Zitadel():
             url = f"{self.api_url}flows/2/trigger/{trigger_type}"
             log.debug(f"url is {url}")
 
-            response = request("POST",
-                               url,
-                               headers=self.headers,
-                               data=action_payload,
-                               verify=self.verify)
-            log.debug(f"flows response is {response.text}")
+            while True:
+                response = request("POST",
+                                   url,
+                                   headers=self.headers,
+                                   data=action_payload,
+                                   verify=self.verify)
+                log.debug(f"flows response is {response.text}")
+
+                # if the response is not 200, just try again 🤷
+                if response.status_code == 200:
+                    break
 
     def create_role(self,
                     role_key: str = "",
@@ -481,7 +490,7 @@ class Zitadel():
         log.info(response.text)
 
     def set_user_by_login_name(self, user: str) -> None:
-        """ 
+        """
         get the user's ID by their login name
         """
         url = f"{self.api_url}global/users/_by_login_name?loginName={user}"
@@ -494,7 +503,7 @@ class Zitadel():
         self.resource_owner = response['user']['details']['resourceOwner']
 
     def set_project_by_name(self, project_name: str) -> str:
-        """ 
+        """
         project_name: str - name of the project to use for future app creation
 
         sets the current self.project_id after searching for the project by name

@@ -63,6 +63,9 @@ def configure_argocd(k8s_obj: K8s,
                        "tls":  [{"secretName": "argocd-secret",
                                  "hosts": [argo_cd_domain]}]}}}
 
+        # TODO: add this to dict if debug logging is enabled for smol-k8s-lab:
+        # "global": {"logging": {"level": "debug"}}
+
         if secret_dict.get('global_cluster_issuer', None):
             val['server']['ingress']['annotations']['cert-manager.io/cluster-issuer'] = secret_dict['global_cluster_issuer']
 

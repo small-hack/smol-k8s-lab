@@ -4,7 +4,7 @@
     DESCRIPTION: package, cli, and tui for setting up k8s on metal with
                  k3s, KinD, and k3d, as well as installing our or your own
                  Argo CD Apps, ApplicationSets, and Projects.
-                 
+
          AUTHOR: jessebot(AT)linux(d0t)com
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
@@ -244,6 +244,7 @@ def main(config: str = "",
         # Setup minio, our local s3 provider, is essential for creating buckets
         # and cnpg operator, our postgresql operator for creating postgres clusters
         setup_operators(k8s_obj,
+                        apps.pop('prometheus_crds', {}),
                         apps.pop('longhorn', {}),
                         apps.pop('k8up', {}),
                         apps.pop('minio_operator', {}),
@@ -262,6 +263,7 @@ def main(config: str = "",
                 SECRETS['argo_cd_hostname']
                 )
 
+        # we need this for all the oidc apps we need to create
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
 
         # setup netmaker, a wireguard vpn management web interface
@@ -278,6 +280,7 @@ def main(config: str = "",
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
+                apps.pop('home_assistant', {}),
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
                 apps.pop('matrix', {}),

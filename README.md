@@ -10,7 +10,7 @@
   </a>
 </h2>
 <p align="center">
-  A terminal based tool to install slimmer k8s distros on metal, with batteries included! 
+  A terminal based tool to install slimmer k8s distros on metal, with batteries included!
 </p>
 
 <p align="center">
@@ -73,10 +73,76 @@ Checkout our [TUI docs](https://small-hack.github.io/smol-k8s-lab/tui/create_mod
 After you've followed the installation instructions, if you're *new* to `smol-k8s-lab`,  initialize a new config file:
 
 ```bash
-# we'll walk you through any configuration needed before 
+# we'll walk you through any configuration needed before
 # saving the config and deploying it for you
 smol-k8s-lab
 ```
+<details>
+  <summary><b>Upgrading config from v3.7.1 to v4.x</b></summary>
+
+If you've installed smol-k8s-lab prior to `v4.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following with either pip or pipx:
+
+*if using pip*:
+```yaml
+# this upgrades smol-k8s-lab
+pip3.11 install --upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+*or if using pipx*:
+```yaml
+# this upgrades smol-k8s-lab
+pipx upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+The main breaking changes between `v3.7.1` and `v4.0.0` are that we now default enable metrics on most apps. Because of this, you need to have the Prometheus ServiceMonitor CRD installed ahead of time. Luckily, we now provide that as an app as well :) If you deleted your config and created a new one, it will already be there, but if you want to reuse your old config, you can add the app like this:
+
+```yaml
+apps:
+  prometheus_crds:
+    description: |
+      [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link] CRDs to start with.
+      You can optionally disable this if you don't want to deploy apps with metrics.
+
+    enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: prometheus/crds/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: prometheus
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: prometheus
+        source_repos:
+        - https://github.com/prometheus-community/helm-charts.git
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+          - kube-system
+          - prometheus
+```
+
+If using the default repos, please also disable directory directory_recursion for:
+- your prometheus stack app
+- zitadel
+
+For all changes, please check out [PR #206](https://github.com/small-hack/smol-k8s-lab/pull/206).
+
+</details>
+
 <details>
   <summary><b>Upgrading config from v2.2.4 to v3.x</b></summary>
 
