@@ -434,6 +434,8 @@ apps:
         name: "home"
         # default alpha-2 country code, default is NL which is The Netherlands
         country: "NL"
+        # currency code to use for calculating costs, defaults to EUR for euro
+        currency: "EUR"
         # other option is "imperial"
         unit_system: "metric"
         # set to F for USA imperialist tempurature
