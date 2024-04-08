@@ -15,6 +15,7 @@ import logging as log
 
 def configure_home_assistant(k8s_obj: K8s,
                              config_dict: dict,
+                             api_tls_verify: bool = False,
                              bitwarden: BwCLI = None) -> None:
     """
     creates a home-assistant app and initializes it with secrets if you'd like :)
@@ -54,12 +55,16 @@ def configure_home_assistant(k8s_obj: K8s,
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden:
             sub_header("Creating home-assistant items in Bitwarden")
-
-            admin_name_field = create_custom_field('name', admin_name)
-            admin_lang_field = create_custom_field('language', admin_language)
-            external_url_field = create_custom_field('externalurl', home_assistant_hostname + '/')
+            # determine if using https or http for home assistant api calls
+            if api_tls_verify:
+                external_url = 'https://' + home_assistant_hostname + '/'
+            else:
+                external_url = 'http://' + home_assistant_hostname + '/'
+            external_url_field = create_custom_field('externalurl', external_url)
 
             # admin credentials for initial owner user
+            admin_name_field = create_custom_field('name', admin_name)
+            admin_lang_field = create_custom_field('language', admin_language)
             admin_password = bitwarden.generate()
             admin_id = bitwarden.create_login(
                     name=f'home-assistant-admin-credentials-{home_assistant_hostname}',

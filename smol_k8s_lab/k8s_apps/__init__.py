@@ -212,7 +212,7 @@ def setup_federated_apps(k8s_obj: K8s,
     Setup any federated apps with initialization supported
     """
     if home_assistant_dict['enabled']:
-        configure_home_assistant(k8s_obj, home_assistant_dict, bw)
+        configure_home_assistant(k8s_obj, home_assistant_dict, api_tls_verify, bw)
 
     if nextcloud_dict['enabled']:
         configure_nextcloud(k8s_obj, nextcloud_dict, bw, zitadel_obj)
