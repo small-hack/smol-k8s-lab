@@ -412,6 +412,21 @@ apps:
       By default, we assume you want to use node affinity and tolerations to keep home assistant pods on certain nodes and keep other pods off said nodes. If you don't want to use either of these features but still want to use the small-hack/argocd-apps repo, first change the argo path to /home-assistant/ and then remove the 'toleration_' and 'affinity' secret_keys from the yaml file under apps.home_assistant.description.
 
       [b]NOTE[/b]: If you want to pass in a USB device, you will need the generic device plugin (which is available as a default Argo CD app via smol-k8s-lab 💙)
+
+      This app takes one sensitive value, password for the initial owner user. You can also pass it in as an enviornment variable called $HOME_ASSISTANT_PASSWORD.
+    # Initialization of the app through smol-k8s-lab
+    init:
+      # enable the creation of an initial owner user
+      enabled: true
+      values:
+        # -- owner user's name
+        name: "admin"
+        # -- owner user's username
+        user_name: "admin"
+        # -- owner user's language, default is english
+        language: "en"
+      sensitive_values:
+        - PASSWORD
     argo:
       secret_keys:
         hostname: ""

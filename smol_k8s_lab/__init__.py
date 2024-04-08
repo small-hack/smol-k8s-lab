@@ -263,6 +263,7 @@ def main(config: str = "",
                 SECRETS['argo_cd_hostname']
                 )
 
+        # we need this for all the oidc apps we need to create
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
 
         # setup netmaker, a wireguard vpn management web interface
@@ -279,6 +280,7 @@ def main(config: str = "",
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
+                apps.pop('home_assistant', {}),
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
                 apps.pop('matrix', {}),

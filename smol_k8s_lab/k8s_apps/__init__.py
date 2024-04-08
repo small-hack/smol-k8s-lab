@@ -28,6 +28,7 @@ from .secrets_management.vault import configure_vault
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
+from .social.home_assistant import configure_home_assistant
 
 
 def setup_k8s_secrets_management(k8s_obj: K8s,
@@ -146,7 +147,7 @@ def setup_base_apps(k8s_obj: K8s,
                     argo_secrets_plugin_enabled: bool = False,
                     plugin_secrets: dict = {},
                     bw: BwCLI = None) -> None:
-    """ 
+    """
     Uses Helm to install all base apps that need to be running being argo cd:
         cilium, metallb, ingess-nginx, cert-manager, argo cd, argocd secrets plugin
     All Needed for getting Argo CD up and running.
@@ -190,7 +191,7 @@ def setup_base_apps(k8s_obj: K8s,
     # then we install argo cd if it's enabled
     if argo_enabled:
         configure_argocd(k8s_obj,
-                         bw, 
+                         bw,
                          argo_secrets_plugin_enabled,
                          plugin_secrets)
 
@@ -200,6 +201,7 @@ def setup_base_apps(k8s_obj: K8s,
 
 def setup_federated_apps(k8s_obj: K8s,
                          api_tls_verify: bool = False,
+                         home_assistant_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
                          matrix_dict: dict = {},
@@ -209,6 +211,9 @@ def setup_federated_apps(k8s_obj: K8s,
     """
     Setup any federated apps with initialization supported
     """
+    if home_assistant_dict['enabled']:
+        configure_home_assistant(k8s_obj, home_assistant_dict, bw)
+
     if nextcloud_dict['enabled']:
         configure_nextcloud(k8s_obj, nextcloud_dict, bw, zitadel_obj)
 
