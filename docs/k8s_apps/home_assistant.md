@@ -1,10 +1,22 @@
-[Home Assistant](https://www.home-assistant.io/) is an open source IoT management solution. We deploy a [small-hack maintained helm chart](https://github.com/small-hack/home-assistant-chart/) by default.
+[Home Assistant](https://www.home-assistant.io/) is an open source IoT management solution. We deploy a [small-hack maintained helm chart](https://github.com/small-hack/home-assistant-chart/) by default, which allows us to:
+
+- specify a default `configuration.yaml`
+- create an initial user to disable public registration
 
 <img src="../../assets/images/screenshots/home-assistant_screenshot.png" alt="screenshot of the home-assistant-app in Argo CD showing a tree featuring a configmap, pvc, service, service account, deployment, and ingress resource all called home-assistant.">
 
-The main variable you need to worry about when setting up home assistant is your `hostname`.
-
 *NOTE*: You'll need to enable the [Generic Device Plugin](/k8s_apps/generic-device-plugin.md) as a prereq in order to use USB devices with home assistant.
+
+### Secret Keys
+
+The main variables you need to worry about when setting up home assistant is your `hostname`.
+
+### Sensitive Initialization Values
+Since we support the creation of an initial user for Home Assistant, you need to either fill in the password for that user via the TUI, or before you run `smol-k8s-lab`, you run the following to export `$HOME_ASSISTANT_PASSWORD` as an enviornment variable:
+
+```bash
+export HOME_ASSISTANT_PASSWORD="mysupersecretpassword"
+```
 
 ## Example configs
 
