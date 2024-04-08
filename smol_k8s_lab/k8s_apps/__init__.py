@@ -45,7 +45,7 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
     header_msg = "Setting up K8s secret management with [green]"
 
     # setup external secrets operator and bitwarden external secrets
-    if eso_dict['enabled']:
+    if eso_dict.get('enabled', False):
         header_msg += f'External Secrets Operator[/] and [blue]{eso_provider}[/] as the Provider'
         header(header_msg, '🤫')
         configure_external_secrets(k8s_obj,
@@ -55,13 +55,13 @@ def setup_k8s_secrets_management(k8s_obj: K8s,
                                    bitwarden)
 
     # setup infisical - an secrets manager and operator for k8s that replaces eso
-    elif infisical_dict['enabled']:
+    elif infisical_dict.get('enabled', False):
         header_msg += 'Infisical Secrets Operator[/]'
         header(header_msg, '🤫')
         configure_infisical(k8s_obj, infisical_dict)
 
     # setup hashicorp's vault, a secret key management system that works with eso
-    if vault_dict['enabled']:
+    if vault_dict.get('enabled', False):
         configure_vault(k8s_obj, vault_dict)
 
 
@@ -79,11 +79,11 @@ def setup_oidc_provider(k8s_obj: K8s,
     header("Setting up [green]OIDC[/]/[green]Oauth[/] Applications")
 
     # keycloak_enabled = keycloak_dict['enabled']
-    zitadel_enabled = zitadel_dict['enabled']
+    zitadel_enabled = zitadel_dict.get('enabled', False)
 
     vouch_enabled = False
     if vouch_dict:
-        vouch_enabled = vouch_dict['enabled']
+        vouch_enabled = vouch_dict.get('enabled', False)
 
     # setup keycloak if we're using that for OIDC
     # if keycloak_enabled:
@@ -152,9 +152,9 @@ def setup_base_apps(k8s_obj: K8s,
         cilium, metallb, ingess-nginx, cert-manager, argo cd, argocd secrets plugin
     All Needed for getting Argo CD up and running.
     """
-    metallb_enabled = metallb_dict['enabled']
-    cilium_enabled = cilium_dict['enabled']
-    ingress_nginx_enabled = ingress_dict["enabled"]
+    metallb_enabled = metallb_dict.get('enabled', False)
+    cilium_enabled = cilium_dict.get('enabled', False)
+    ingress_nginx_enabled = ingress_dict.get('enabled', False)
     # make sure helm is installed and the repos are up to date
     prepare_helm(k8s_distro, argo_enabled, metallb_enabled, cilium_enabled,
                  argo_secrets_plugin_enabled)
@@ -185,7 +185,7 @@ def setup_base_apps(k8s_obj: K8s,
 
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [green]cert-manager[/green] for TLS certificates...", '📜')
-    if cert_manager_dict["enabled"]:
+    if cert_manager_dict.get('enabled', False):
         configure_cert_manager(k8s_obj, cert_manager_dict['init'])
 
     # then we install argo cd if it's enabled
@@ -211,14 +211,14 @@ def setup_federated_apps(k8s_obj: K8s,
     """
     Setup any federated apps with initialization supported
     """
-    if home_assistant_dict['enabled']:
+    if home_assistant_dict.get('enabled', False):
         configure_home_assistant(k8s_obj, home_assistant_dict, api_tls_verify, bw)
 
-    if nextcloud_dict['enabled']:
+    if nextcloud_dict.get('enabled', False):
         configure_nextcloud(k8s_obj, nextcloud_dict, bw, zitadel_obj)
 
-    if mastodon_dict['enabled']:
+    if mastodon_dict.get('enabled', False):
         configure_mastodon(k8s_obj, mastodon_dict, bw)
 
-    if matrix_dict['enabled']:
+    if matrix_dict.get('enabled', False):
         configure_matrix(k8s_obj, matrix_dict, zitadel_obj, bw)
