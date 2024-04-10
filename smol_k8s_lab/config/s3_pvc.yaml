@@ -1,0 +1,41 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: swfs-volume-data
+  annotations:
+    k8up.io/backup: "true"
+  labels:
+    argocd.argoproj.io/instance: APP-s3-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.pvc_capacity }}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: swfs-master-data
+  annotations:
+    k8up.io/backup: "true"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: swfs-filer-data
+  annotations:
+    k8up.io/backup: "true"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

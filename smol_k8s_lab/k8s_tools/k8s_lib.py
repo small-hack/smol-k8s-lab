@@ -165,9 +165,13 @@ class K8s():
                         deployment: str = "",
                         selector: str = "component=controller"):
         """
-        applies a manifest and waits with a nice loading bar if deployment
+        applies a manifest and waits with a nice loading bar if deployment name
+        is passed in
         """
-        cmds = [f"kubectl apply --wait -f {manifest_file_name}"]
+        if not namespace:
+            cmds = [f"kubectl apply --wait -f {manifest_file_name}"]
+        else:
+            cmds = [f"kubectl apply -n {namespace} --wait -f {manifest_file_name}"]
 
         if deployment:
             # these commands let us monitor a deployment rollout
@@ -243,7 +247,7 @@ class K8s():
 
     def run_k8s_cmd(self, pod_name: str, namespace: str, command: str,
                     container: str = "") -> str:
-        """ 
+        """
         run a given command for a given pod in a given namespace and return the result
         """
         print(f"Running: '{command}' on pod: {pod_name} in container {container}"

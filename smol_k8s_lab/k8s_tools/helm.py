@@ -165,6 +165,7 @@ class Helm:
 def add_default_repos(k8s_distro: str,
                       metallb: bool = False,
                       cilium: bool = False,
+                      cnpg_operator: bool = False,
                       argo: bool = False,
                       argo_secrets: bool = False) -> None:
     """
@@ -188,6 +189,9 @@ def add_default_repos(k8s_distro: str,
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
 
+    if cnpg_operator:
+        repos['cnpg-cluster'] = 'https://small-hack.github.io/cloudnative-pg-cluster-chart'
+
     if argo:
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
@@ -204,9 +208,10 @@ def add_default_repos(k8s_distro: str,
 
 
 def prepare_helm(k8s_distro: str,
-                 argo: bool = False,
                  metallb: bool = True,
                  cilium: bool = False,
+                 cnpg_operator: bool = False,
+                 argo: bool = False,
                  argo_app_set: bool = False) -> bool:
     """
     get helm installed if needed, and then install/update all the helm repos
@@ -219,5 +224,5 @@ def prepare_helm(k8s_distro: str,
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, metallb, cilium, argo, argo_app_set)
+    add_default_repos(k8s_distro, metallb, cilium, cnpg_operator, argo, argo_app_set)
     return True

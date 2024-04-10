@@ -812,6 +812,27 @@ apps:
     enabled: false
     init:
       enabled: true
+      restore:
+        # set to true to run a restic restore via a k8up job for:
+        # - seaweedfs
+        # - matrix signing key, synapse config, media backups
+        enabled: true
+        # the id of the snapshot you want to restore for the PVCs
+        restic_snapshot_ids:
+          # seaweedFS volume pvc snapshot id. if not given, we use the latest
+          seaweedfs_volume_id: ""
+          # seaweedFS filer pvc snapshot id. if not given, we use the latest
+          seaweedfs_filer_id: ""
+          # seaweedFS master pvc snapshot id. if not given, we use the latest
+          seaweedfs_master_id: ""
+          # signing key snapshot id. if not given, we use the latest
+          signing_key_id: ""
+          # media snapshot id. if not given, we use the latest
+          media_id: ""
+          # synapse config snapshot id. if not given, we use the latest
+          synapse_config_id: ""
+        # for postgres restore, we just need the postgres cluster name
+        cluster_name: "matrix-postgres"
       values:
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
@@ -1030,6 +1051,22 @@ apps:
     # initialize the app by setting up new k8s secrets and/or bitwarden items
     init:
       enabled: true
+      restore:
+        # set to true to run a restic restore via a k8up job for:
+        # seaweedfs pvcs and nextcloud files pvc
+        enabled: true
+        # the id of the snapshot you want to restore for the PVCs
+        restic_snapshot_ids:
+          # seaweedFS volume pvc snapshot id. if not given, we use the latest
+          seaweedfs_volume_id: ""
+          # seaweedFS filer pvc snapshot id. if not given, we use the latest
+          seaweedfs_filer_id: ""
+          # seaweedFS master pvc snapshot id. if not given, we use the latest
+          seaweedfs_master_id: ""
+          # nextcloud-files pvc snapshot id. if not given, we use the latest
+          nextcloud_files_id: ""
+        # for postgres restore, we just need the postgres cluster name
+        cluster_name: "nextcloud-postgres"
       values:
         # change the name of your admin user to whatever you like. This is used in an admin credentials k8s secret
         admin_user: "nextcloud_admin"

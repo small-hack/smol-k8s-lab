@@ -143,6 +143,7 @@ def setup_base_apps(k8s_obj: K8s,
                     metallb_dict: dict = {},
                     ingress_dict: dict = {},
                     cert_manager_dict: dict = {},
+                    cnpg_operator_dict: dict = {},
                     argo_enabled: bool = False,
                     argo_secrets_plugin_enabled: bool = False,
                     plugin_secrets: dict = {},
@@ -155,9 +156,10 @@ def setup_base_apps(k8s_obj: K8s,
     metallb_enabled = metallb_dict.get('enabled', False)
     cilium_enabled = cilium_dict.get('enabled', False)
     ingress_nginx_enabled = ingress_dict.get('enabled', False)
+    cnpg_operator_enabled = cnpg_operator_dict.get('enabled', False)
     # make sure helm is installed and the repos are up to date
-    prepare_helm(k8s_distro, argo_enabled, metallb_enabled, cilium_enabled,
-                 argo_secrets_plugin_enabled)
+    prepare_helm(k8s_distro, metallb_enabled, cilium_enabled, cnpg_operator_enabled,
+                 argo_enabled, argo_secrets_plugin_enabled)
 
     # needed for network policy editor and hubble UI
     if cilium_enabled:
