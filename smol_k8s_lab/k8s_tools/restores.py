@@ -98,6 +98,7 @@ def restore_pvc(app: str,
 
     restore_dict['metadata']['name'] = pvc
     restore_dict['metadata']['namespace'] = namespace
+    # TODO: verify that snapshot id will default to latest if not passed in
     if snapshot_id:
         restore_dict['spec']['snapshot'] = snapshot_id
     restore_dict['spec']['restoreMethod']['folder']['claimName'] = pvc
@@ -115,8 +116,7 @@ def restore_postgresql(app: str,
                        cluster_name: str,
                        postgresql_version: float,
                        s3_endpoint: str,
-                       s3_bucket: str,
-                       k8s_obj: K8s,
+                       s3_bucket: str
                        ):
     """
     restore a CNPG operator controlled postgresql cluster

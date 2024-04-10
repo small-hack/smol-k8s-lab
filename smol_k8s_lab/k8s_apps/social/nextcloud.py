@@ -6,7 +6,9 @@ from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
                                                 update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.restores import restore_seaweedfs, restore_pvc
+from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
+                                             restore_pvc,
+                                             restore_postgresql)
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.utils.passwords import create_password
@@ -184,7 +186,12 @@ def configure_nextcloud(k8s_obj: K8s,
                         k8s_obj)
 
             # then we finally can restore the postgres database :D
-
+            restore_postgresql('nextcloud',
+                               nextcloud_namespace,
+                               'nextcloud-postgres',
+                               postgresql_version,
+                               s3_endpoint,
+                               s3_bucket)
 
         install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
     else:
