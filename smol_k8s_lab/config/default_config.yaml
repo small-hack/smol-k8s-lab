@@ -1113,6 +1113,12 @@ apps:
         s3_backup_endpoint: ""
         s3_backup_bucket: ""
         s3_backup_region: ""
+        # cronjob schedule to turn on nextcloud maintenance mode for backups
+        maintenance_mode_on_schedule: "0 1 * * *"
+        # cronjob schedule to turn off nextcloud maintenance mode after backups
+        maintenance_mode_off_schedule: "30 1 * * *"
+        # cronjob syntax schedule to run nextcloud backups
+        backup_schedule: "10 1 * * *"
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
