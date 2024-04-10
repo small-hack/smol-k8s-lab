@@ -144,7 +144,7 @@ apps_global_config:
   cluster_issuer: "letsencrypt-staging"
   # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
   time_zone: "Europe/Amsterdam"
-  # always deploy external secrets. *Must be a string of either:
+  # always deploy extnernal secrets. *Must be a string of either:
   # ""           - don't use external secrets
   # "bitwarden"  - use bitwarden for external secrets
   # "openbao"    - (coming soon!) use openbao (a fork of vault) for external secrets

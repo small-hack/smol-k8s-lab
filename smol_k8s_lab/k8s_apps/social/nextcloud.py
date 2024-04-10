@@ -154,63 +154,107 @@ def configure_nextcloud(k8s_obj: K8s,
     if not app_installed:
         # if the user is restoring, the process is a little different
         if init_enabled and restore_enabled:
-            # first we grab existing bitwarden items if they exist
-            if bitwarden and init_enabled:
-                refresh_bweso(nextcloud_hostname, k8s_obj, bitwarden)
-
-                external_secrets_yaml = (
-                        "https://raw.githubusercontent.com/small-hack/argocd-apps"
-                        "/main/nextcloud/app_of_apps/external_secrets_appset.yaml"
-                        )
-                k8s_obj.apply_manifests(external_secrets_yaml, argocd_namespace)
-
-            s3_backup_endpoint = secrets['s3_backup_endpoint']
-            s3_backup_bucket = secrets['s3_backup_bucket'],
-
-            # then we create all the seaweedfs pvcs we lost and restore them
-            snapshot_ids = config_dict['init']['restore']['restic_snapshot_ids']
-            restore_seaweedfs(k8s_obj,
-                              'nextcloud',
+            restore_nextcloud(argocd_namespace,
+                              nextcloud_hostname,
                               nextcloud_namespace,
-                              s3_backup_endpoint,
-                              s3_backup_bucket,
-                              snapshot_ids['seaweedfs_volume'],
-                              snapshot_ids['seaweedfs_master'],
-                              snapshot_ids['seaweedfs_filer']
-                         )
-
-            # creates the nexcloud files pvc
-            k8s_obj.apply_manifests(
-                    "https://raw.githubusercontent.com/small-hack/argocd-apps/main/nextcloud/storage/pvc/nextcloud_pvc.yaml",
-                    nextcloud_namespace)
-
-            # then we begin the restic restore of all the nextcloud PVCs we lost
-            for pvc in ['files', 'config']:
-                if secrets.get(f'{pvc}_pvc_enabled', False):
-                    restore_pvc(k8s_obj,
-                                'nextcloud',
-                                f'nextcloud-{pvc}',
-                                'nextcloud',
-                                s3_endpoint,
-                                'nextcloud',
-                                snapshot_ids[f'nextcloud_{pvc}']
-                                )
-
-            # then we finally can restore the postgres database :D
-            if restore_dict.get("cnpg_restore", False):
-                psql_version = restore_dict.get("postgresql_version", 16)
-                restore_postgresql('nextcloud',
-                                   nextcloud_namespace,
-                                   'nextcloud-postgres',
-                                   psql_version,
-                                   s3_endpoint,
-                                   'nextcloud')
+                              config_dict,
+                              secrets,
+                              restore_dict,
+                              k8s_obj,
+                              bitwarden)
 
         install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
     else:
         log.info("nextcloud already installed 🎉")
         if bitwarden and init_enabled:
             refresh_bweso(nextcloud_hostname, k8s_obj, bitwarden)
+
+
+def restore_nextcloud(argocd_namespace,
+                      nextcloud_hostname: str,
+                      nextcloud_namespace: str,
+                      config_dict: dict,
+                      secrets: dict,
+                      restore_dict: dict,
+                      k8s_obj: K8s,
+                      bitwarden: BwCLI) -> None:
+    """
+    restore nextcloud seaweedfs PVCs, nextcloud files and/or config PVC(s),
+    and CNPG postgresql cluster
+    """
+    # first we grab existing bitwarden items if they exist
+    if bitwarden:
+        refresh_bweso(nextcloud_hostname, k8s_obj, bitwarden)
+
+        # apply the external secrets so we can immediately use them for restores
+        external_secrets_yaml = (
+                "https://raw.githubusercontent.com/small-hack/argocd-apps"
+                "/main/nextcloud/app_of_apps/external_secrets_appset.yaml"
+                )
+        k8s_obj.apply_manifests(external_secrets_yaml, argocd_namespace)
+
+    # these are the remote backups for seaweedfs
+    s3_backup_endpoint = secrets['s3_backup_endpoint']
+    s3_backup_bucket = secrets['s3_backup_bucket'],
+
+    # then we create all the seaweedfs pvcs we lost and restore them
+    snapshot_ids = config_dict['init']['restore']['restic_snapshot_ids']
+    restore_seaweedfs(
+            k8s_obj,
+            'nextcloud',
+            nextcloud_namespace,
+            s3_backup_endpoint,
+            s3_backup_bucket,
+            snapshot_ids['seaweedfs_volume'],
+            snapshot_ids['seaweedfs_master'],
+            snapshot_ids['seaweedfs_filer']
+            )
+
+    # then we begin the restic restore of all the nextcloud PVCs we lost
+    for pvc in ['files', 'config']:
+        if secrets.get(f'{pvc}_pvc_enabled', False):
+            pvc_dict = {
+                    "kind": "PersistentVolumeClaim",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": f"nextcloud-{pvc}",
+                        "namespace": nextcloud_namespace,
+                        "annotations": {"k8up.io/backup": "true"},
+                        "labels": {
+                            "argocd.argoproj.io/instance": "nextcloud-pvc"
+                            }
+                        },
+                    "spec": {
+                        "storageClassName": "local-path",
+                        "accessModes": [secrets[f'{pvc}_access_mode']],
+                        "resources": {
+                            "requests": {
+                                "storage": secrets[f'{pvc}_storage']}
+                            }
+                        }
+                    }
+
+            # creates the nexcloud files pvc
+            k8s_obj.apply_custom_resources(pvc_dict)
+            s3_endpoint = secrets.get('s3_endpoint', "")
+            restore_pvc(k8s_obj,
+                        'nextcloud',
+                        f'nextcloud-{pvc}',
+                        'nextcloud',
+                        s3_endpoint,
+                        'nextcloud',
+                        snapshot_ids[f'nextcloud_{pvc}']
+                        )
+
+    # then we finally can restore the postgres database :D
+    if restore_dict.get("cnpg_restore", False):
+        psql_version = restore_dict.get("postgresql_version", 16)
+        restore_postgresql('nextcloud',
+                           nextcloud_namespace,
+                           'nextcloud-postgres',
+                           psql_version,
+                           s3_endpoint,
+                           'nextcloud')
 
 
 def setup_bitwarden_items(nextcloud_hostname: str,
