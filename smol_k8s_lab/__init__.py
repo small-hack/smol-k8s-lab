@@ -4,6 +4,7 @@
     DESCRIPTION: package, cli, and tui for setting up k8s on metal with
                  k3s, KinD, and k3d, as well as installing our or your own
                  Argo CD Apps, ApplicationSets, and Projects.
+                 And now we support restores too!
 
          AUTHOR: jessebot(AT)linux(d0t)com
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
@@ -43,7 +44,6 @@ def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
     Returns logging.getLogger("rich")
 
     TODO: change this to always add file logger
-
     """
 
     # determine logging level and default to warning level
@@ -281,6 +281,7 @@ def main(config: str = "",
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
+                apps['argocd']['argo']['namespace'],
                 apps.pop('home_assistant', {}),
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),

@@ -10,7 +10,6 @@ from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
                                              restore_pvc,
                                              restore_postgresql)
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
-from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.utils.passwords import create_password
 
 # external libraries
@@ -20,14 +19,16 @@ from rich.prompt import Prompt
 
 def configure_nextcloud(k8s_obj: K8s,
                         config_dict: dict,
+                        argocd_namespace: str,
                         bitwarden: BwCLI = None,
                         zitadel: Zitadel = None) -> None:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
 
     required:
-        k8s_obj     - K8s() object with cluster credentials
-        config_dict - dictionary with at least argocd key and init key
+        k8s_obj          - K8s() object with cluster credentials
+        config_dict      - dictionary with at least argocd key and init key
+        argocd_namespace - namespace of Argo CD
 
     optional:
         bitwarden   - BwCLI() object with session token to create bitwarden items
@@ -42,15 +43,16 @@ def configure_nextcloud(k8s_obj: K8s,
         nextcloud_hostname = secrets['hostname']
 
     # verify if initialization is enabled
-    init_enabled = config_dict['init']['enabled']
+    init_enabled = config_dict['init'].get('enabled', True)
 
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         nextcloud_namespace = config_dict['argo']['namespace']
         k8s_obj.create_namespace(nextcloud_namespace)
 
-        restore = config_dict['init'].get('restore', {}).get('enabled', False)
-        if restore:
+        restore_dict = config_dict['init'].get('restore', {"enabled": False})
+        restore_enabled = restore_dict['enabled']
+        if restore_enabled:
             header_start = "Restoring"
         else:
             header_start = "Setting up"
@@ -73,10 +75,13 @@ def configure_nextcloud(k8s_obj: K8s,
 
         if secrets:
             s3_endpoint = secrets.get('s3_endpoint', "")
-            if s3_endpoint:
+            if s3_endpoint and not restore_enabled:
                 s3_access_key = create_password()
                 # create a local alias to check and make sure nextcloud is functional
-                create_minio_alias("nextcloud", s3_endpoint, "nextcloud", s3_access_key)
+                create_minio_alias(minio_alias="nextcloud",
+                                   minio_hostname=s3_endpoint,
+                                   access_key="nextcloud",
+                                   secret_key=s3_access_key)
 
         # configure SMTP
         if not mail_host:
@@ -93,7 +98,7 @@ def configure_nextcloud(k8s_obj: K8s,
             mail_pass = Prompt.ask(m, password=True)
 
         # configure OIDC
-        if zitadel:
+        if zitadel and not restore_enabled:
             log.debug("Creating a Nextcloud OIDC application in Zitadel...")
             redirect_uris = f"https://{nextcloud_hostname}/apps/oidc_login/oidc"
             logout_uris = [f"https://{nextcloud_hostname}"]
@@ -110,7 +115,7 @@ def configure_nextcloud(k8s_obj: K8s,
             zitadel_hostname = ""
 
         # if bitwarden is enabled, we create login items for each set of credentials
-        if bitwarden:
+        if bitwarden and not restore_enabled:
             setup_bitwarden_items(nextcloud_hostname, s3_endpoint, s3_access_key,
                                   backups_s3_user, backups_s3_password,
                                   restic_repo_pass, admin_user,
@@ -118,7 +123,7 @@ def configure_nextcloud(k8s_obj: K8s,
                                   zitadel_hostname, k8s_obj, bitwarden)
 
         # these are standard k8s secrets
-        else:
+        elif not bitwarden and not restore_enabled:
             # nextcloud admin credentials and smtp credentials
             token = create_password()
             admin_password = create_password()
@@ -148,27 +153,30 @@ def configure_nextcloud(k8s_obj: K8s,
 
     if not app_installed:
         # if the user is restoring, the process is a little different
-        if init_enabled and restore:
+        if init_enabled and restore_enabled:
             # first we grab existing bitwarden items if they exist
             if bitwarden and init_enabled:
                 refresh_bweso(nextcloud_hostname, k8s_obj, bitwarden)
+
+                external_secrets_yaml = (
+                        "https://raw.githubusercontent.com/small-hack/argocd-apps"
+                        "/main/nextcloud/app_of_apps/external_secrets_appset.yaml"
+                        )
+                k8s_obj.apply_manifests(external_secrets_yaml, argocd_namespace)
 
             s3_backup_endpoint = secrets['s3_backup_endpoint']
             s3_backup_bucket = secrets['s3_backup_bucket'],
 
             # then we create all the seaweedfs pvcs we lost and restore them
             snapshot_ids = config_dict['init']['restore']['restic_snapshot_ids']
-            restore_seaweedfs('nextcloud',
+            restore_seaweedfs(k8s_obj,
+                              'nextcloud',
                               nextcloud_namespace,
                               s3_backup_endpoint,
                               s3_backup_bucket,
-                              backups_s3_user,
-                              backups_s3_password,
-                              restic_repo_pass,
                               snapshot_ids['seaweedfs_volume'],
                               snapshot_ids['seaweedfs_master'],
-                              snapshot_ids['seaweedfs_filer'],
-                              k8s_obj
+                              snapshot_ids['seaweedfs_filer']
                          )
 
             # creates the nexcloud files pvc
@@ -176,22 +184,27 @@ def configure_nextcloud(k8s_obj: K8s,
                     "https://raw.githubusercontent.com/small-hack/argocd-apps/main/nextcloud/storage/pvc/nextcloud_pvc.yaml",
                     nextcloud_namespace)
 
-            # then we begin the restic restore of all the nextcloud pvc we lost
-            restore_pvc('nextcloud',
-                        'nextcloud-files',
-                        'nextcloud',
-                        s3_backup_endpoint,
-                        s3_backup_bucket,
-                        snapshot_ids['nextcloud_files'],
-                        k8s_obj)
+            # then we begin the restic restore of all the nextcloud PVCs we lost
+            for pvc in ['files', 'config']:
+                if secrets.get(f'{pvc}_pvc_enabled', False):
+                    restore_pvc(k8s_obj,
+                                'nextcloud',
+                                f'nextcloud-{pvc}',
+                                'nextcloud',
+                                s3_endpoint,
+                                'nextcloud',
+                                snapshot_ids[f'nextcloud_{pvc}']
+                                )
 
             # then we finally can restore the postgres database :D
-            restore_postgresql('nextcloud',
-                               nextcloud_namespace,
-                               'nextcloud-postgres',
-                               postgresql_version,
-                               s3_endpoint,
-                               s3_bucket)
+            if restore_dict.get("cnpg_restore", False):
+                psql_version = restore_dict.get("postgresql_version", 16)
+                restore_postgresql('nextcloud',
+                                   nextcloud_namespace,
+                                   'nextcloud-postgres',
+                                   psql_version,
+                                   s3_endpoint,
+                                   'nextcloud')
 
         install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
     else:

@@ -203,6 +203,7 @@ def setup_base_apps(k8s_obj: K8s,
 
 def setup_federated_apps(k8s_obj: K8s,
                          api_tls_verify: bool = False,
+                         argocd_namespace: str = "argocd",
                          home_assistant_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
@@ -217,7 +218,7 @@ def setup_federated_apps(k8s_obj: K8s,
         configure_home_assistant(k8s_obj, home_assistant_dict, api_tls_verify, bw)
 
     if nextcloud_dict.get('enabled', False):
-        configure_nextcloud(k8s_obj, nextcloud_dict, bw, zitadel_obj)
+        configure_nextcloud(k8s_obj, nextcloud_dict, argocd_namespace, bw, zitadel_obj)
 
     if mastodon_dict.get('enabled', False):
         configure_mastodon(k8s_obj, mastodon_dict, bw)

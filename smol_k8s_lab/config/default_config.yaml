@@ -144,8 +144,15 @@ apps_global_config:
   cluster_issuer: "letsencrypt-staging"
   # change to your tz: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones#List
   time_zone: "Europe/Amsterdam"
-  # always deploy external secrets. *Must be a string of "" (don't use external secrets) or "bitwarden" to use bitwarden for external secrets*
+  # always deploy external secrets. *Must be a string of either:
+  # ""           - don't use external secrets
+  # "bitwarden"  - use bitwarden for external secrets
+  # "openbao"    - (coming soon!) use openbao (a fork of vault) for external secrets
   external_secrets: "bitwarden"
+  # the default storage class you want to use for the creation of all Persistent Volume claims
+  # it defaults to local-path, but you can set it to longhorn or whatever you'd like :)
+  # for storage classes see:
+  pvc_storage_class: "local-path"
 
 # ---------------------------------------------------------------------------
 # Argo CD deployed and maintained Applications to run on Kubernetes
@@ -813,11 +820,13 @@ apps:
     init:
       enabled: true
       restore:
-        # set to true to run a restic restore via a k8up job for:
-        # - seaweedfs
-        # - matrix signing key, synapse config, media backups
+        # set to true to run a restic restore via a k8up job for your
+        # seaweedfs PVCs, matrix signing key PVC, synapse config PVC, media PVC
+        # and restoring your postgresql database
         enabled: true
-        # the id of the snapshot you want to restore for the PVCs
+        # for Cloudnative postgres operator cluster restores only
+        cnpg_restore: true
+        # the restic snapshot IDs of the PVC snapshots you want to restore
         restic_snapshot_ids:
           # seaweedFS volume pvc snapshot id. if not given, we use the latest
           seaweedfs_volume_id: ""
@@ -831,8 +840,6 @@ apps:
           media_id: ""
           # synapse config snapshot id. if not given, we use the latest
           synapse_config_id: ""
-        # for postgres restore, we just need the postgres cluster name
-        cluster_name: "matrix-postgres"
       values:
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
@@ -1055,18 +1062,20 @@ apps:
         # set to true to run a restic restore via a k8up job for:
         # seaweedfs pvcs and nextcloud files pvc
         enabled: true
-        # the id of the snapshot you want to restore for the PVCs
+        # for Cloudnative postgres operator cluster restores only
+        cnpg_restore: true
+        # the restic snapshot IDs of the PVC snapshots you want to restore
         restic_snapshot_ids:
           # seaweedFS volume pvc snapshot id. if not given, we use the latest
-          seaweedfs_volume_id: ""
+          seaweedfs_volume: ""
           # seaweedFS filer pvc snapshot id. if not given, we use the latest
-          seaweedfs_filer_id: ""
+          seaweedfs_filer: ""
           # seaweedFS master pvc snapshot id. if not given, we use the latest
-          seaweedfs_master_id: ""
+          seaweedfs_master: ""
           # nextcloud-files pvc snapshot id. if not given, we use the latest
-          nextcloud_files_id: ""
-        # for postgres restore, we just need the postgres cluster name
-        cluster_name: "nextcloud-postgres"
+          nextcloud_files: ""
+          # nextcloud-config pvc snapshot id. if not given, we use the latest
+          nextcloud_config: ""
       values:
         # change the name of your admin user to whatever you like. This is used in an admin credentials k8s secret
         admin_user: "nextcloud_admin"
@@ -1081,6 +1090,16 @@ apps:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: ""
+        # create a pvc for nextcloud files
+        files_pvc_enabled: "true"
+        # size of the pvc for nextcloud files
+        files_storage: "20Gi"
+        files_access_mode: "ReadWriteOnce"
+        # create a pvc for nextcloud config
+        config_pvc_enabled: "true"
+        # size of the pvc for nextcloud config
+        config_storage: "2Gi"
+        config_access_mode: "ReadWriteOnce"
         # choose S3 as the local primary object store from either: seaweedfs, or minio
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
@@ -1407,6 +1426,20 @@ apps:
       # Switch to false if you don't want to create intial secrets or use the
       # API via a service acocunt to create the above described resources
       enabled: true
+      restore:
+        # set to true to run a restic restore via a k8up job for seaweedfs PVCs,
+        # and restoring your postgresql database
+        enabled: true
+        # for Cloudnative postgres operator cluster restores only
+        cnpg_restore: true
+        # the restic snapshot IDs of the PVC snapshots you want to restore
+        restic_snapshot_ids:
+          # seaweedFS volume pvc snapshot id. if not given, we use the latest
+          seaweedfs_volume_id: ""
+          # seaweedFS filer pvc snapshot id. if not given, we use the latest
+          seaweedfs_filer_id: ""
+          # seaweedFS master pvc snapshot id. if not given, we use the latest
+          seaweedfs_master_id: ""
       values:
         # initial human user's usename
         username: ""

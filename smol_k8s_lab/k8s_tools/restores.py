@@ -16,17 +16,15 @@ from os import path
 import yaml
 
 
-def restore_seaweedfs(app: str,
+def restore_seaweedfs(k8s_obj: K8s,
+                      app: str,
                       namespace: str,
                       s3_endpoint: str,
                       s3_bucket: str,
-                      s3_user: str,
-                      s3_password: str,
-                      restic_password: str,
-                      volume_snapshot_id: str,
-                      master_snapshot_id: str,
-                      filer_snapshot_id: str,
-                      k8s_obj: K8s):
+                      volume_snapshot_id: str = "",
+                      master_snapshot_id: str = "",
+                      filer_snapshot_id: str = ""
+                      ):
     """
     recreate the seaweedfs PVCs for a given namespace and restore them via restic
     """
@@ -44,16 +42,17 @@ def restore_seaweedfs(app: str,
                  f"argocd.argoproj.io/instance: {app}-s3-pvc"])
 
         # build a k8up restore file and apply it
-        restore_pvc(app, swfs_pvc, namespace, s3_endpoint, s3_bucket, snapshot_id)
+        restore_pvc(k8s_obj, app, swfs_pvc, namespace,
+                    s3_endpoint, s3_bucket, snapshot_id)
 
 
-def restore_pvc(app: str,
+def restore_pvc(k8s_obj: K8s,
+                app: str,
                 pvc: str,
                 namespace: str,
                 s3_endpoint: str,
                 s3_bucket: str,
-                snapshot_id: str,
-                k8s_obj: K8s):
+                snapshot_id: str = ""):
     """
     builds a k8up restore manifest and applies it
     """
@@ -69,7 +68,6 @@ def restore_pvc(app: str,
                         'podSecurityContext': {
                             'runAsUser': 0
                             },
-                        'snapshot': '',
                         'restoreMethod': {
                             'folder': {
                                 'claimName': ''
@@ -96,11 +94,12 @@ def restore_pvc(app: str,
                         }
                     }
 
-    restore_dict['metadata']['name'] = pvc
-    restore_dict['metadata']['namespace'] = namespace
-    # TODO: verify that snapshot id will default to latest if not passed in
+    # if snapshot not passed in, restic/k8up use the latest snapshot
     if snapshot_id:
         restore_dict['spec']['snapshot'] = snapshot_id
+
+    restore_dict['metadata']['name'] = pvc
+    restore_dict['metadata']['namespace'] = namespace
     restore_dict['spec']['restoreMethod']['folder']['claimName'] = pvc
     restore_dict['spec']['backend']['repoPasswordSecretRef']['name'] = f"{app}-backups-credentials"
     restore_dict['spec']['backend']['s3']['endpoint'] = s3_endpoint
