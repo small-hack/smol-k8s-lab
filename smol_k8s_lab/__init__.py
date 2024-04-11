@@ -354,9 +354,9 @@ def main(config: str = "",
             final_msg += ("\n🐘 Mastodon, for your social media:\n"
                           f"[blue][link]https://{mastodon_hostname}[/][/]\n")
 
-        matrix_hostname = SECRETS.get('matrix_hostname', "")
+        matrix_hostname = SECRETS.get('matrix_element_hostname', "")
         if matrix_hostname:
-            final_msg += ("\n💬 Matrix, for your chat:\n"
+            final_msg += ("\n💬 Matrix (with Element frontend), for your chat:\n"
                           f"[blue][link]https://{matrix_hostname}[/][/]\n")
 
         home_assistant_hostname = SECRETS.get('home_assistant_hostname', "")
