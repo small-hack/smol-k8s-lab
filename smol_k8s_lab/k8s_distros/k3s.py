@@ -96,9 +96,18 @@ def join_k3s_nodes(extra_nodes: dict) -> None:
     # for each node and it's meta data, ssh in and join the node
     for node, metadata in extra_nodes.items():
         ssh_cmd = "ssh -o StrictHostKeyChecking=no "
+
+        # only add the port if it's not 22
+        ssh_port = metadata.get('ssh_port', '22')
+        if str(ssh_port) != "22":
+            ssh_cmd += f"-p {ssh_port} "
+        else:
+            ssh_cmd += f"{node} "
+
+        # only add the ssh key if it's not id_rsa
         ssh_key = metadata.get('ssh_key', 'id_rsa')
         if ssh_key != "id_rsa":
-            ssh_cmd += f"-i {metadata['ssh_key']} {node} "
+            ssh_cmd += f"-i {ssh_key} {node} "
         else:
             ssh_cmd += f"{node} "
 
@@ -140,7 +149,7 @@ def uninstall_k3s(cluster_name: str) ->  str:
 
 def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
     """
-    update the user's kubeconfig with the cluster, user, and context for the new 
+    update the user's kubeconfig with the cluster, user, and context for the new
     cluster by grabbing the k3s generated kubeconfig and using it to update your
     current kubeconfig. Handles both existing kubeconfig and none at all.
 

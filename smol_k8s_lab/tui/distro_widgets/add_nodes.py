@@ -50,7 +50,7 @@ class AddNodesBox(Widget):
             self.generate_nodes_table()
 
     def generate_nodes_table(self) -> None:
-        """ 
+        """
         generate a readable table for all the nodes.
 
         Each row is has a height of 3 and is centered to make it easier to read
@@ -63,6 +63,7 @@ class AddNodesBox(Widget):
         # then fill in the cluster table
         data_table.add_column(Text("Node", justify="center"))
         data_table.add_column(Text("Type", justify="center"))
+        data_table.add_column(Text("SSH Port", justify="center"))
         data_table.add_column(Text("SSH Key", justify="center"))
         data_table.add_column(Text("Labels", justify="center"))
         data_table.add_column(Text("Taints", justify="center"))
@@ -90,8 +91,13 @@ class AddNodesBox(Widget):
                 else:
                     taints = ""
 
-            row = [node, metadata['node_type'], metadata['ssh_key'], labels, taints]
-            # we use an extra line to center the rows vertically 
+            row = [node,
+                   metadata['node_type'],
+                   metadata['ssh_port'],
+                   metadata['ssh_key'],
+                   labels,
+                   taints]
+            # we use an extra line to center the rows vertically
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
             # we add extra height to make the rows more readable
@@ -180,7 +186,7 @@ class AddNodesBox(Widget):
         self.app.write_yaml()
 
     def add_node_row(self, node: str = "", node_dict: dict = {}) -> None:
-        """ 
+        """
         add a node input section for k3s
         """
         hostname = node
@@ -207,6 +213,19 @@ class AddNodesBox(Widget):
                 tooltip=node_type_tooltip,
                 label="node_type"
                 )
+
+        # ssh port label and input
+        default_ssh_port = 22
+        ssh_port_label_tooltip = (
+                "The SSH port to use to connect to the other node. This "
+                f"defaults to {default_ssh_port}"
+                )
+        ssh_port = node_dict.get('ssh_port', default_ssh_port)
+        ssh_port_input = input_field(label="ssh_port",
+                                    initial_value=ssh_port,
+                                    name="ssh_port",
+                                    placeholder="SSH port to connect to host",
+                                    tooltip=ssh_port_label_tooltip)
 
         # ssh key label and input
         default_ssh_key = join(HOME_DIR, ".ssh/id_rsa")
@@ -251,7 +270,7 @@ class AddNodesBox(Widget):
         submit = Button("➕ new node", id="new-node-button")
         submit.tooltip = "Submit new node to cluster to be joined on cluster creation"
 
-        return Grid(host_input, node_type_dropdown, ssh_key_input, 
+        return Grid(host_input, node_type_dropdown, ssh_port_input, ssh_key_input,
                     node_labels_input, taints_input, submit,
                     id=f"{hostname}-row", classes="k3s-node-input-row")
 
@@ -264,10 +283,12 @@ class AddNodesBox(Widget):
             host = self.get_widget_by_id("host").value
             node_type = self.get_widget_by_id("node-type").value
             ssh_key = self.get_widget_by_id("ssh-key").value
+            ssh_port = self.get_widget_by_id("ssh-key").value
             node_labels = self.get_widget_by_id("node-labels").value
             taints = self.get_widget_by_id("node-taints").value
             node_metadata = {"node_type": node_type,
                              "ssh_key": ssh_key,
+                             "ssh_port": ssh_port,
                              "node_labels": node_labels,
                              "node_taints": taints}
 
@@ -278,8 +299,8 @@ class AddNodesBox(Widget):
             else:
                 self.nodes[host] = node_metadata
                 data_table = self.get_widget_by_id("nodes-data-table")
-                row = [host, node_type, ssh_key, node_labels, taints]
-                # we use an extra line to center the rows vertically 
+                row = [host, node_type, ssh_port, ssh_key, node_labels, taints]
+                # we use an extra line to center the rows vertically
                 styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
                 # we add extra height to make the rows more readable
                 data_table.add_row(*styled_row, height=3, key=row[0])
