@@ -215,7 +215,7 @@ class AddNodesBox(Widget):
                 )
 
         # ssh port label and input
-        default_ssh_port = 22
+        default_ssh_port = "22"
         ssh_port_label_tooltip = (
                 "The SSH port to use to connect to the other node. This "
                 f"defaults to {default_ssh_port}"
