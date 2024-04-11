@@ -281,7 +281,7 @@ def main(config: str = "",
         setup_federated_apps(
                 k8s_obj,
                 api_tls_verify,
-                apps['argocd']['argo']['namespace'],
+                apps['argo_cd']['argo']['namespace'],
                 apps.pop('home_assistant', {}),
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
