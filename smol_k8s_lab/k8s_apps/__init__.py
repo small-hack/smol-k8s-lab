@@ -224,4 +224,4 @@ def setup_federated_apps(k8s_obj: K8s,
         configure_mastodon(k8s_obj, mastodon_dict, bw)
 
     if matrix_dict.get('enabled', False):
-        configure_matrix(k8s_obj, matrix_dict, zitadel_obj, bw)
+        configure_matrix(k8s_obj, matrix_dict, argocd_namespace, zitadel_obj, bw)

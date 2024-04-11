@@ -4,6 +4,9 @@ from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
                                                 update_argocd_appset_secret)
+from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
+                                             restore_pvc,
+                                             restore_postgresql)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
@@ -13,6 +16,7 @@ import logging as log
 
 def configure_matrix(k8s_obj: K8s,
                      config_dict: dict,
+                     argocd_namespace: str,
                      zitadel: Zitadel,
                      bitwarden: BwCLI = None) -> bool:
     """
@@ -331,3 +335,90 @@ def setup_bitwarden_items(matrix_hostname: str,
                 "deployment in [green]external-secrets[/] namespace. Recieved: "
                 f"{e}"
                 )
+
+
+def restore_matrix(argocd_namespace: str,
+                   matrix_hostname: str,
+                   matrix_namespace: str,
+                   config_dict: dict,
+                   secrets: dict,
+                   restore_dict: dict,
+                   k8s_obj: K8s,
+                   bitwarden: BwCLI) -> None:
+    """
+    restore matrix seaweedfs PVCs, matrix files and/or config PVC(s),
+    and CNPG postgresql cluster
+    """
+    # first we grab existing bitwarden items if they exist
+    if bitwarden:
+        refresh_bweso(matrix_hostname, k8s_obj, bitwarden)
+
+        # apply the external secrets so we can immediately use them for restores
+        external_secrets_yaml = (
+                "https://raw.githubusercontent.com/small-hack/argocd-apps"
+                "/main/matrix/app_of_apps/external_secrets_appset.yaml"
+                )
+        k8s_obj.apply_manifests(external_secrets_yaml, argocd_namespace)
+
+    # these are the remote backups for seaweedfs
+    s3_backup_endpoint = secrets['s3_backup_endpoint']
+    s3_backup_bucket = secrets['s3_backup_bucket'],
+
+    # then we create all the seaweedfs pvcs we lost and restore them
+    snapshot_ids = config_dict['init']['restore']['restic_snapshot_ids']
+    restore_seaweedfs(
+            k8s_obj,
+            'matrix',
+            matrix_namespace,
+            s3_backup_endpoint,
+            s3_backup_bucket,
+            snapshot_ids['seaweedfs_volume'],
+            snapshot_ids['seaweedfs_master'],
+            snapshot_ids['seaweedfs_filer']
+            )
+
+    # then we begin the restic restore of all the matrix PVCs we lost
+    for pvc in ['media', 'synapse_config', 'signing_key']:
+        if secrets.get(f'{pvc}_pvc_enabled', False):
+            pvc_dict = {
+                    "kind": "PersistentVolumeClaim",
+                    "apiVersion": "v1",
+                    "metadata": {
+                        "name": f"matrix-{pvc.replace("_","-")}",
+                        "namespace": matrix_namespace,
+                        "annotations": {"k8up.io/backup": "true"},
+                        "labels": {
+                            "argocd.argoproj.io/instance": "matrix-pvc"
+                            }
+                        },
+                    "spec": {
+                        "storageClassName": "local-path",
+                        "accessModes": [secrets[f'{pvc}_access_mode']],
+                        "resources": {
+                            "requests": {
+                                "storage": secrets[f'{pvc}_storage']}
+                            }
+                        }
+                    }
+
+            # creates the nexcloud files pvc
+            k8s_obj.apply_custom_resources(pvc_dict)
+            s3_endpoint = secrets.get('s3_endpoint', "")
+            restore_pvc(k8s_obj,
+                        'matrix',
+                        f'matrix-{pvc}',
+                        'matrix',
+                        s3_endpoint,
+                        'matrix',
+                        snapshot_ids[f'matrix_{pvc}']
+                        )
+
+    # then we finally can restore the postgres database :D
+    if restore_dict.get("cnpg_restore", False):
+        psql_version = restore_dict.get("postgresql_version", 16)
+        restore_postgresql('matrix',
+                           matrix_namespace,
+                           'matrix-postgres',
+                           psql_version,
+                           s3_endpoint,
+                           'matrix')
