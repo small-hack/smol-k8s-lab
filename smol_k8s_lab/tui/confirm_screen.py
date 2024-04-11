@@ -187,14 +187,18 @@ class ConfirmConfig(Screen):
         """
         if event.button.id == "confirm-button":
             # First, check if we need bitwarden credentials before proceeding
-            pw_mngr = self.smol_k8s_cfg['local_password_manager']
+
+            # check if external secrets provider is enabled and set to use bitwarden
             secrets_provider = self.cfg['apps_global_config']['external_secrets']
-            
+            external_secrets = self.cfg['apps']['external_secrets_operator']['enabled']
+            secrets_provider_bitwarden = external_secrets and secrets_provider == 'bitwarden'
+
             # if local_password_manager is enabled, and is bitwarden
-            local_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
+            pw_mngr = self.smol_k8s_cfg['local_password_manager']
+            pw_mngr_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
 
             # if local password manager is bitwarden/enabled or we're using bweso
-            if local_bitwarden or secrets_provider == 'bitwarden':
+            if pw_mngr_bitwarden or secrets_provider_bitwarden:
                 self.get_bitwarden_credentials()
             else:
                 self.append_sensitive_values()
