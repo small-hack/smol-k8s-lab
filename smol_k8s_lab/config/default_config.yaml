@@ -86,6 +86,8 @@ k8s_distros:
     #   serverfriend1.lan:
     #     # change ssh_key to the name of a local private key to use
     #     ssh_key: id_rsa
+    #     # change ssh port for the remote node
+    #     ssh_port: 22
     #     # must be node type of "worker" or "control_plane"
     #     node_type: worker
     #     # labels are optional, but may be useful for pod node affinity
