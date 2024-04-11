@@ -58,12 +58,12 @@ class BwCLI():
         self.delete_session = True
 
         # this is used for bweso and logins
-        self.host = env.get("BW_HOST", default="https://bitwarden.com")
+        self.host = env.get("BW_HOST", "https://bitwarden.com")
         log.debug(f"Using {self.host} as $BW_HOST")
 
 
         # make sure there's not a session token in the env vars already
-        self.env = {"BW_SESSION": env.get("BW_SESSION", default=None),
+        self.env = {"BW_SESSION": env.get("BW_SESSION", ""),
                     "PATH": env.get("PATH"),
                     "HOME": env.get("HOME"),
                     "NODE_OPTIONS": "--no-deprecation"}
@@ -205,7 +205,7 @@ class BwCLI():
             # if they always want to do this, then set self.duplicate_strategy
             if always_do_action:
                 # NOTE: we still always ask if there's more than 1 entry returned
-                self.duplicate_strategy = action 
+                self.duplicate_strategy = action
 
             return item, action
         else:
