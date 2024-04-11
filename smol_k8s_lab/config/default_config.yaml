@@ -859,6 +859,21 @@ apps:
         federation_hostname: ""
         # email for of the admin user
         admin_email: ""
+        # enable persistent volume claim for matrix media storage
+        media_pvc_enabled: "true"
+        # size of media pvc storage
+        media_storage: "20Gi"
+        media_access_mode: "ReadWriteOnce"
+        # enable persistent volume claim for matrix synapse config storage
+        synapse_config_pvc_enabled: "true"
+        # size of synapse config pvc storage
+        synapse_config_storage: "2Mi"
+        synapse_config_access_mode: "ReadWriteOnce"
+        # enable persistent volume claim for matrix signing key storage
+        signing_key_pvc_enabled: "true"
+        # size of signing key pvc storage
+        signing_key_storage: "1Mi"
+        signing_key_access_mode: "ReadWriteOnce"
         # choose S3 as the local primary object store from either: seaweedfs, or minio
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
