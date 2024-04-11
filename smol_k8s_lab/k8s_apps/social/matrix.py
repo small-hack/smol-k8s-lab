@@ -380,11 +380,12 @@ def restore_matrix(argocd_namespace: str,
     # then we begin the restic restore of all the matrix PVCs we lost
     for pvc in ['media', 'synapse_config', 'signing_key']:
         if secrets.get(f'{pvc}_pvc_enabled', False):
+            pvc_name = pvc.replace("_","-")
             pvc_dict = {
                     "kind": "PersistentVolumeClaim",
                     "apiVersion": "v1",
                     "metadata": {
-                        "name": f"matrix-{pvc.replace("_","-")}",
+                        "name": f"matrix-{pvc_name}",
                         "namespace": matrix_namespace,
                         "annotations": {"k8up.io/backup": "true"},
                         "labels": {
