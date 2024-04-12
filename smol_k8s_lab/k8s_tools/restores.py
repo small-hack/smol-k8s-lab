@@ -63,8 +63,8 @@ def restore_pvc(k8s_obj: K8s,
                         'namespace': ''
                         },
                     'spec': {
-                        'failedJobHistoryLimit': 5,
-                        'successfulJobHistoryLimit': 1,
+                        'failedJobsHistoryLimit': 5,
+                        'successfulJobsHistoryLimit': 1,
                         'podSecurityContext': {
                             'runAsUser': 0
                             },
