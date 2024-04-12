@@ -92,7 +92,7 @@ class BwCLI():
         generate a new password. Takes special_characters bool.
         """
         log.info('Checking if you are logged in...')
-        return json.loads(subproc(["bw status"]))['status']
+        return json.loads(subproc(["bw status"], env=self.env))['status']
 
     def unlock(self) -> None:
         """
@@ -104,27 +104,30 @@ class BwCLI():
 
         status = self.status()
 
-        if status == "unauthenticated" or status == "locked":
-            # verify we're even logged in :)
-            if status == "unauthenticated":
-                log.info('Logging into the Bitwarden vault...')
-                # set command to login if we're unauthenticated
-                cmd = (f"{self.bw_path} login --passwordenv BW_PASSWORD "
-                       "--apikey --raw")
-            else:
-                log.info('Unlocking the Bitwarden vault...')
-                # set command to unlock if status is locked
-                cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
+        # login if we need to
+        if status == "unauthenticated":
+            env = {"BW_PASSWORD": self.password,
+                   "BW_CLIENTID": self.client_id,
+                   "BW_CLIENTSECRET": self.client_secret,
+                   "BW_HOST": self.host,
+                   "PATH": self.env['PATH'],
+                   "HOME": self.env['HOME'],
+                   "NODE_OPTIONS": "--no-deprecation"}
+
+            log.info('Logging into the Bitwarden vault...')
+            # set command to login if we're unauthenticated
+            cmd = f"{self.bw_path} login --passwordenv BW_PASSWORD --apikey --raw"
+            subproc([cmd], quiet=True, env=env)
+
+        # we still need to unlock, even if we logged in already
+        if status == "locked" or status == "unauthenticated":
+            log.info('Unlocking the Bitwarden vault...')
+            # set command to unlock if status is locked
+            cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
 
             # run either bw login or bw unlock depending on bw status
-            self.env['BW_SESSION'] = subproc([cmd], quiet=True,
-                                             env={"BW_PASSWORD": self.password,
-                                                  "BW_CLIENTID": self.client_id,
-                                                  "BW_CLIENTSECRET": self.client_secret,
-                                                  "BW_HOST": self.host,
-                                                  "PATH": self.env['PATH'],
-                                                  "HOME": self.env['HOME']})
-            # log.debug(f"session is {self.session}")
+            self.env['BW_SESSION'] = subproc([cmd], quiet=True, env=env)
+            log.debug(f"bw unlock session is {self.env['BW_SESSION']}")
             log.info('Unlocked the Bitwarden vault.')
         else:
             log.info(f"[green]bw status[/] returned '{status}', so we won't "
