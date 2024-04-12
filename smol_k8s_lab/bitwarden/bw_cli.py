@@ -103,9 +103,7 @@ class BwCLI():
             self.delete_session = False
 
         status = self.status()
-
-        # login if we need to
-        if status == "unauthenticated":
+        if status == "locked" or status == "unauthenticated":
             env = {"BW_PASSWORD": self.password,
                    "BW_CLIENTID": self.client_id,
                    "BW_CLIENTSECRET": self.client_secret,
@@ -114,6 +112,8 @@ class BwCLI():
                    "HOME": self.env['HOME'],
                    "NODE_OPTIONS": "--no-deprecation"}
 
+        # login if we need to
+        if status == "unauthenticated":
             log.info('Logging into the Bitwarden vault...')
             # set command to login if we're unauthenticated
             cmd = f"{self.bw_path} login --passwordenv BW_PASSWORD --apikey --raw"
