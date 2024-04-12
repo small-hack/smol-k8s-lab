@@ -39,7 +39,7 @@ def restore_seaweedfs(k8s_obj: K8s,
     for swfs_pvc, snapshot_id in snapshots.items():
         # label the PVCs so Argo CD doesn't complain
         subproc([f"kubectl label pvc -n {namespace} {swfs_pvc} "
-                 f"argocd.argoproj.io/instance: {app}-s3-pvc"])
+                 f"argocd.argoproj.io/instance={app}-s3-pvc"])
 
         # build a k8up restore file and apply it
         restore_pvc(k8s_obj, app, swfs_pvc, namespace,
