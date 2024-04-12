@@ -106,8 +106,9 @@ def restore_pvc(k8s_obj: K8s,
     restore_dict['spec']['backend']['s3']['bucket'] = s3_bucket
     restore_dict['spec']['backend']['s3']['accessKeyIDSecretRef']['name'] = f"{app}-backups-credentials"
     restore_dict['spec']['backend']['s3']['secretAccessKeySecretRef']['name'] = f"{app}-backups-credentials"
+
     # apply the k8up restore job
-    k8s_obj.apply_custom_resources(restore_dict)
+    k8s_obj.apply_custom_resources([restore_dict])
 
 
 def restore_postgresql(app: str,
