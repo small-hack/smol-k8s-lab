@@ -1102,8 +1102,8 @@ apps:
         smtp_host: "change-me-to-real-email@to-enable.mail"
       sensitive_values:
         - SMTP_PASSWORD
-        - S3_BACKUP_ACCESS_KEY
         - S3_BACKUP_ACCESS_ID
+        - S3_BACKUP_SECRET_KEY
         - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
