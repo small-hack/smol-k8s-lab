@@ -141,7 +141,6 @@ class BaseApp(App):
                 self.action_say("Welcome to smol-k8s-lab. Press tab, then C, to configure "
                                 "accessibility options.")
 
-
     def generate_cluster_table(self, clusters: list) -> None:
         """
         generate a readable table for all the clusters.

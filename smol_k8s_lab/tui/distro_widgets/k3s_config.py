@@ -54,7 +54,7 @@ LIST_KEYS = ["disable", "node-label", "kubelet-arg"]
 
 
 class K3sConfigWidget(Static):
-    """ 
+    """
     a widget representing the entire kind configuration
     """
     def __init__(self, distro: str, metadata: dict, id: str = "") -> None:
@@ -229,7 +229,7 @@ class K3sConfig(Static):
         """
         create a new input row
         """
-        # this is the label 
+        # this is the label
         key_label = key.replace("-", " ").replace("_", " ") + ":"
         label = Label(key_label, classes="input-label")
 
@@ -256,7 +256,7 @@ class K3sConfig(Static):
             if isinstance(value, str):
                 row_args['value'] = value
 
-        # actual input field 
+        # actual input field
         input = Input(**row_args)
         tooltip = (f"If you want to input more than one {key} option, try using "
                    "a comma seperated list.")
@@ -273,7 +273,7 @@ class K3sConfig(Static):
                         id=f"{self.distro}-{key}-delete-button",
                         classes="k3s-arg-del-button")
         button.tooltip = "Delete the arg to the left of this button"
-        
+
         grid = Grid(label, input, button, classes="label-input-delete-row")
         self.get_widget_by_id("k3s-grid").mount(grid)
 
