@@ -92,8 +92,8 @@ class ConfirmConfig(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        sub_title = "Review your configuration (last step!)"
+        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
+        sub_title = f"Review your configuration for {self.app.current_cluster} (last step!)"
         self.sub_title = sub_title
 
         if self.app.speak_screen_titles:

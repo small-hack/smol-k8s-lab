@@ -104,8 +104,8 @@ class DistroConfigScreen(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        sub_title = "Kubernetes distro config"
+        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
+        sub_title = f"Kubernetes distro config for {self.app.current_cluster}"
         self.sub_title = sub_title
 
         top_row = self.get_widget_by_id("top-distro-row")

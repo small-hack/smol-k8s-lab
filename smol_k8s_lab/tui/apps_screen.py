@@ -109,11 +109,11 @@ class AppsConfig(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        sub_title = "Apps Configuration (now with more 🦑)"
+        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
+        sub_title = f"Apps Configuration for {self.app.current_cluster} (now with more 🦑)"
         self.sub_title = sub_title
 
-        # select-apps styling - select apps container - top left 
+        # select-apps styling - select apps container - top left
         select_apps_widget = self.get_widget_by_id("select-add-apps")
         select_apps_widget.border_title = "[#ffaff9]♥[/] [i]select[/] [#C1FF87]apps"
         select_apps_widget.border_subtitle = "[@click=screen.launch_new_app_modal]✨ [i]new[/] [#C1FF87]app[/][/]"
@@ -140,7 +140,7 @@ class AppsConfig(Screen):
         self.app.push_screen(NewAppModalScreen(["argo-cd"]), get_new_app)
 
     def scroll_to_app(self, app_to_highlight: str) -> None:
-        """ 
+        """
         lets you scroll down to the exact app you need in the app selection list
         """
         # get the apps selection list
@@ -205,7 +205,7 @@ class AppsConfig(Screen):
             app_inputs_pane.border_subtitle = ""
 
     def action_sync_argocd_app(self) -> None:
-        """ 
+        """
         syncs an existing Argo CD application
         """
         app = self.previous_app.replace("_","-")
@@ -234,7 +234,7 @@ class AppsConfig(Screen):
 
     @on(SelectionList.SelectionToggled)
     def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:
-        """ 
+        """
         when a selection list item is checked or unchecked, update the base app yaml
         """
         selection_list = self.query_one(SelectionList)
