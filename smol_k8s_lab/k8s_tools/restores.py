@@ -21,6 +21,8 @@ def restore_seaweedfs(k8s_obj: K8s,
                       namespace: str,
                       s3_endpoint: str,
                       s3_bucket: str,
+                      s3_pvc_capacity: str,
+                      storage_class: str = "local-path",
                       volume_snapshot_id: str = "",
                       master_snapshot_id: str = "",
                       filer_snapshot_id: str = ""
@@ -29,14 +31,39 @@ def restore_seaweedfs(k8s_obj: K8s,
     recreate the seaweedfs PVCs for a given namespace and restore them via restic
     """
     # this recreates all the seaweedfs PVCs
-    k8s_obj.apply_manifests(path.join(PWD, 'config/seaweedfs_pvcs.yaml'),
-                            namespace)
+    pvc_dict = {"kind": "PersistentVolumeClaim",
+                "apiVersion": "v1",
+                "metadata": {
+                  "name": "",
+                  "annotations": {"k8up.io/backup": "true"}
+                  },
+                "spec": {
+                  "storageClassName": storage_class,
+                  "accessModes": ["ReadWriteOnce"],
+                  "resources": {
+                    "requests": {"storage": s3_pvc_capacity}
+                    }
+                  }
+                }
 
     snapshots = {'swfs-volume-data': volume_snapshot_id,
                  'swfs-master-data': master_snapshot_id,
                  'swfs-filer-data': filer_snapshot_id}
 
     for swfs_pvc, snapshot_id in snapshots.items():
+        # set the pvc name accordingly
+        pvc_dict["metadata"]["name"] = swfs_pvc
+
+        # master and filer have preset smaller capacities
+        if swfs_pvc == "swfs-master-data":
+            pvc_dict["spec"]["resources"]["requests"]["storage"] = "2Gi"
+
+        if swfs_pvc == "swfs-filer-data":
+            pvc_dict["spec"]["resources"]["requests"]["storage"] = "5Gi"
+
+        # apply the pvc_dict
+        k8s_obj.apply_custom_resources([pvc_dict])
+
         # label the PVCs so Argo CD doesn't complain
         subproc([f"kubectl label pvc -n {namespace} {swfs_pvc} "
                  f"argocd.argoproj.io/instance={app}-s3-pvc"])
