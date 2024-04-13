@@ -94,6 +94,17 @@ class K8s():
 
         subproc([f"kubectl delete secret -n {namespace} {name}"])
 
+    def get_nodes(self, name: str) -> bool:
+        """
+        checks for specific namespace and returns True if it exists,
+        returns False if namespace does not exist
+        """
+        node_list_sdk = self.core_v1_api.list_node()
+        node_list_cmd = subproc(["kubectl get nodes --no-headers=true"])
+        print(node_list_sdk)
+        print(node_list_cmd)
+        return node_list_cmd
+
     def get_namespace(self, name: str) -> bool:
         """
         checks for specific namespace and returns True if it exists,
