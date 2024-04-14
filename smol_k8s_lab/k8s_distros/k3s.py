@@ -114,21 +114,30 @@ def join_k3s_nodes(extra_nodes: dict) -> None:
         # join node to cluster
         subproc([ssh_cmd + k3s_cmd], shell=True, universal_newlines=True)
 
-        nodes = subproc(["kubectl get nodes"])
 
-        if node in nodes:
-            labels = metadata.get('node_labels', None)
-            taints = metadata.get('node_taints', None)
+        # check if we have taints or labels to apply to this new node
+        labels = metadata.get('node_labels', None)
+        taints = metadata.get('node_taints', None)
+        if labels or taints:
+            log.debug(f"Checking if {node} is ready for labeling and/or tainting.")
 
-            # after joining the node make sure the labels are up to date
+            k_get_nodes = subproc(["kubectl get nodes"])
+
+            # if new node is not available, keep checking
+            while node not in k_get_nodes:
+                log.info(f"Waiting for {node} to be available")
+                sleep(1)
+                k_get_nodes = subproc(["kubectl get nodes"])
+
+            # apply labels to new node
             if labels:
                 for label in labels:
                     subproc([f"kubectl label nodes {node} {label}"])
 
-            # after joining the node make sure the taints are up to date
+            # apply taints to new node
             if taints:
                 for taint in taints:
-                    subproc([f"kubectl taint nodes {node} {taint}"], error_ok=True)
+                    subproc([f"kubectl taint nodes {node} {taint}"])
 
 
 def uninstall_k3s(cluster_name: str) ->  str:
