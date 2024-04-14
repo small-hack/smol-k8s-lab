@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.constants import HOME_DIR
+from smol_k8s_lab.k8s_distros.k3s import join_k3s_nodes
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.tui.util import input_field, drop_down
 from smol_k8s_lab.tui.distro_widgets.modify_node_modal import NodeModalScreen
@@ -231,7 +232,8 @@ class AddNodesBox(Widget):
                                  initial_value=hostname,
                                  name="host",
                                  placeholder="hostname or ip address",
-                                 tooltip=host_label_tooltip)
+                                 tooltip=host_label_tooltip,
+                                 validate_empty=True)
 
         # node type label and input
         node_type_tooltip = ("The type for this Kubernetes node. "
@@ -307,7 +309,19 @@ class AddNodesBox(Widget):
         this is a hidden "button" if you will that will add a new node
         based on the inputs in the "🖥️Add a new node" section
         """
-        host = self.get_widget_by_id("host").value
+        host_input = self.get_widget_by_id("host")
+        host_value = host_input.value
+        host_input.validate(host_value)
+
+        # not much else matters except the hostname
+        if not host_value:
+            self.app.notify(
+                    message="You need at least a hostname to add a new node.",
+                    title="⚠️ Missing Hostname",
+                    severity="warning"
+                    )
+            return
+
         node_type = self.get_widget_by_id("node-type").value
         ssh_key = self.get_widget_by_id("ssh-key").value
         ssh_port = self.get_widget_by_id("ssh-key").value
@@ -319,20 +333,25 @@ class AddNodesBox(Widget):
                          "node_labels": node_labels,
                          "node_taints": taints}
 
+        new_node_dict = {host_value: node_metadata}
         if not self.nodes:
-            self.nodes = {host: node_metadata}
+            self.nodes = new_node_dict
             self.generate_nodes_table()
             self.get_widget_by_id("nodes-placeholder").display = False
         else:
-            self.nodes[host] = node_metadata
+            self.nodes[host_value] = node_metadata
             data_table = self.get_widget_by_id("nodes-data-table")
-            row = [host, node_type, ssh_port, ssh_key, node_labels, taints]
+            row = [host_value, node_type, ssh_port, ssh_key, node_labels, taints]
             # we use an extra line to center the rows vertically
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
             # we add extra height to make the rows more readable
             data_table.add_row(*styled_row, height=3, key=row[0])
 
-        self.update_parent_yaml(host, node_metadata)
+        self.update_parent_yaml(host_value, node_metadata)
+
+        # if this is an existing cluster, go ahead and join the new node right away
+        if self.existing_cluster:
+            join_k3s_nodes(new_node_dict)
 
 
 class NodesConfigScreen(Screen):

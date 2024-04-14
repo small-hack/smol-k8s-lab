@@ -266,7 +266,7 @@ def drop_down(values: list,
 
 
 def input_field(label: str, initial_value: str, name: str, placeholder: str,
-                tooltip: str = "") -> Horizontal:
+                tooltip: str = "", validate_empty: bool = False) -> Horizontal:
     """
     returns an input label and field within a Horizontal container
     """
@@ -281,6 +281,9 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
         input_dict["value"] = initial_value
     else:
         input_dict["value"] = ""
+
+    if validate_empty:
+        input_dict["validators"] = [Length(1)]
 
     input = Input(**input_dict)
     input.tooltip = tooltip

@@ -157,7 +157,7 @@ class K3sConfigWidget(Static):
         current border subtitle action
         """
         if "node" in self.query_one(TabbedContent).border_subtitle:
-            self.screen.add_node_to_widget()
+            self.screen.action_add_node_to_widget()
         else:
             self.screen.launch_new_option_modal()
 
