@@ -94,16 +94,39 @@ class K8s():
 
         subproc([f"kubectl delete secret -n {namespace} {name}"])
 
-    def get_nodes(self, name: str) -> bool:
+    def get_nodes(self,) -> list|str:
         """
-        checks for specific namespace and returns True if it exists,
-        returns False if namespace does not exist
+        get all nodes fo current cluster and returns them in a list
         """
-        node_list_sdk = self.core_v1_api.list_node()
-        node_list_cmd = subproc(["kubectl get nodes --no-headers=true"])
-        print(node_list_sdk)
-        print(node_list_cmd)
+        # todo: figure out how to parse this data
+        # node_list_sdk = self.core_v1_api.list_node()['items']
+        # print(node_list_sdk)
+
+        list_cmd = "kubectl get nodes --no-headers=true"
+
+        node_list_cmd = subproc([list_cmd]).rstrip().split('\n')
         return node_list_cmd
+
+    def get_node(self, node: str) -> dict:
+        """
+        checks for specific node and returns info on it as a dict if it exists.
+        returns empty dict if node does not return any info
+        """
+        return_dict = {}
+        node_list_cmd = subproc([f"kubectl get node {node} --no-headers=true"],
+                                error_ok=True)
+
+        # provided there's no errors, create a dict of relevant info for the node
+        if "Error from server" not in node_list_cmd:
+            res = node_list_cmd.split()
+
+            return_dict["name"] = res[0]
+            return_dict["status"] = res[1]
+            return_dict["role"] = res[2]
+            return_dict["age"] = res[3]
+            return_dict["version"] = res[4]
+
+        return return_dict
 
     def get_namespace(self, name: str) -> bool:
         """

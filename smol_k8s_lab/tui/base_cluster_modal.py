@@ -1,16 +1,18 @@
 # smol-k8s-lab libraries
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_distros.k3d import delete_k3d_cluster
 from smol_k8s_lab.k8s_distros.k3s import uninstall_k3s
 from smol_k8s_lab.k8s_distros.kind import delete_kind_cluster
+from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
 from os import system
 from textual import on
-from textual.app import ComposeResult, NoMatches
+from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid
 from textual.screen import ModalScreen
-from textual.widgets import Button, Label
+from textual.widgets import Button, Label, Pretty
 from textual.widgets.data_table import RowKey
 
 
@@ -18,13 +20,20 @@ class ClusterModalScreen(ModalScreen):
     CSS_PATH = ["./css/cluster_modal.tcss"]
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
-                        action="press_cancel",
+                        action="cancel_button",
                         description="Back")]
 
     def __init__(self, cluster: str, distro: str, row_key: RowKey) -> None:
         self.cluster = cluster
         self.distro = distro
         self.row_key = row_key
+        # keep the current context in memory in case the user cancels
+        self.start_current_context = subproc(["kubectl config current-context"])
+
+        # set the context to the current cluster so we can operate on it
+        system(f"kubectl config use-context {self.cluster}")
+        self.k8s_ctx = K8s()
+
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -39,9 +48,17 @@ class ClusterModalScreen(ModalScreen):
 
                 with Grid(id="modal-button-box"):
                     # modify button allows user to change apps (and soon distro details)
-                    modify_button = Button("✏️  Modify", id="modify-cluster-button")
-                    modify_button.tooltip = "Modify the cluster's Applications"
-                    yield modify_button
+                    modify_apps_button = Button("✏️  Modify Apps",
+                                                id="modify-apps-button")
+                    modify_apps_button.tooltip = "Modify the cluster's Applications"
+                    yield modify_apps_button
+
+                    if self.distro == "k3s":
+                        # modify button allows user to change nodes
+                        modify_nodes_button = Button("🖥️ Modify Nodes",
+                                                     id="modify-nodes-button")
+                        modify_nodes_button.tooltip = "Modify the cluster's nodes"
+                        yield modify_nodes_button
 
                     # delete button deletes the cluster
                     delete_button = Button("🚮 Delete", id="delete-cluster-first-try")
@@ -51,38 +68,37 @@ class ClusterModalScreen(ModalScreen):
                         delete_button.disabled = False
                     yield delete_button
 
-                    cancel = Button("🤷 Cancel", id="cancel")
-                    cancel.tooltip = "Return to previous screen"
-                    yield cancel
-
     def on_mount(self):
-        """ 
+        """
         say the title if that self.app.speak_screen_titles is set to True
         """
         if self.app.speak_screen_titles:
             self.app.action_say(
                     f"Screen title: What would you like to do with {self.cluster}?"
+                    " To quit this screen, press Q or B."
                     )
+        question_box = self.get_widget_by_id("cluster-question-box")
+        question_box.border_subtitle = "[@click=screen.cancel_button]cancel[/]"
 
-    def action_press_cancel(self) -> None:
-        """
-        presses the cancel button
-        """
-        self.get_widget_by_id("cancel").action_press()
+    def action_cancel_button(self):
+        subproc([f"kubectl config use-context {self.start_current_context}"])
+        self.app.pop_screen()
 
     @on(Button.Pressed)
     def button_pressed(self, event: Button.Pressed) -> None:
-        if event.button.id == "modify-cluster-button":
-            # set the current context to this cluster
-            system(f"kubectl config use-context {self.cluster}")
+        if event.button.id == "modify-apps-button":
             # call the apps page for this cluster
             self.app.action_request_apps_cfg(app_to_highlight="",
                                              modify_cluster=True)
 
+        elif event.button.id == "modify-nodes-button":
+            # call the nodes page for this cluster
+            self.app.action_request_nodes_cfg(self.distro, True)
+
         elif event.button.id == "delete-cluster-first-try":
             # don't display the first delete button or the modify button
             event.button.display = False
-            self.get_widget_by_id("modify-cluster-button").display = False
+            self.get_widget_by_id("modify-apps-button").display = False
 
             # are you sure, the text
             confirm_txt = ('Are you [b][i]sure[/][/] you want to [#ffaff9]delete[/]'
@@ -93,8 +109,10 @@ class ClusterModalScreen(ModalScreen):
 
             # are you sure, the button
             sure_button = Button("🚮 Yes", id="delete-button-second-try")
-            self.get_widget_by_id("modal-button-box").mount(sure_button,
-                                                            before="#cancel")
+            self.get_widget_by_id("modal-button-box").mount(sure_button)
+
+            nope_button = Button("😱 No", id="nope-button")
+            self.get_widget_by_id("modal-button-box").mount(nope_button)
 
         # if the user really wants to delete a cluster, we do it
         elif event.button.id == "delete-button-second-try":
@@ -120,25 +138,20 @@ class ClusterModalScreen(ModalScreen):
             # after deleting pop the screen
             self.dismiss([self.cluster, self.row_key])
 
-        elif event.button.id == "cancel":
+        elif event.button.id == "nope-button":
             # resets the modal
-            try:
-                delete_2nd_try = self.get_widget_by_id("delete-button-second-try")
+            delete_2nd_try = self.get_widget_by_id("delete-button-second-try")
+            delete_2nd_try.display = False
+            nope = self.get_widget_by_id("nope-button")
+            nope.display = False
 
-                if not delete_2nd_try.display:
-                    self.app.pop_screen()
-                else:
-                    delete_2nd_try.display = False
-                self.get_widget_by_id("modify-cluster-button").display = True
+            self.get_widget_by_id("modify-apps-button").display = True
 
-                question = f'What would you like to do with [#C1FF87]{self.cluster}[/]?'
-                self.get_widget_by_id("cluster-modal-text").update(question)
-                if self.app.bell_on_error:
-                    self.app.action_say(
-                            f"What would you like to do with {self.cluster}?"
-                            )
+            question = f'What would you like to do with [#C1FF87]{self.cluster}[/]?'
+            self.get_widget_by_id("cluster-modal-text").update(question)
+            if self.app.bell_on_error:
+                self.app.action_say(
+                        f"What would you like to do with {self.cluster}?"
+                        )
 
-                self.get_widget_by_id("delete-cluster-first-try").display = True
-            except NoMatches:
-                pass
-                self.app.pop_screen()
+            self.get_widget_by_id("delete-cluster-first-try").display = True

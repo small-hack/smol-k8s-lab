@@ -5,6 +5,7 @@ from smol_k8s_lab.tui.apps_screen import AppsConfig
 from smol_k8s_lab.tui.base_cluster_modal import ClusterModalScreen
 from smol_k8s_lab.tui.confirm_screen import ConfirmConfig
 from smol_k8s_lab.tui.distro_screen import DistroConfigScreen
+from smol_k8s_lab.tui.distro_widgets.add_nodes import NodesConfigScreen
 from smol_k8s_lab.tui.help_screen import HelpScreen
 from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsScreen
 from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
@@ -133,7 +134,7 @@ class BaseApp(App):
         if clusters:
             self.generate_cluster_table(clusters)
             if self.speak_screen_titles:
-                self.action_say("Welcome to smol-k8s-lab. Press c to configure "
+                self.action_say("Welcome to smol-k8s-lab. Press C to configure "
                                 "accessibility options.")
         else:
             self.get_widget_by_id("base-screen-container").add_class("no-cluster-table")
@@ -155,6 +156,8 @@ class BaseApp(App):
         # then fill in the cluster table
         data_table.add_column(Text("Cluster", justify="center"))
         data_table.add_column(Text("Distro", justify="center"))
+        data_table.add_column(Text("Version", justify="center"))
+        data_table.add_column(Text("Platform", justify="center"))
 
         for row in clusters:
             # we use an extra line to center the rows vertically
@@ -249,6 +252,16 @@ class BaseApp(App):
         self.app.push_screen(AppsConfig(self.cfg['apps'],
                                         app_to_highlight,
                                         modify_cluster))
+
+    def action_request_nodes_cfg(self,
+                                 distro: str,
+                                 modify_cluster: bool = False) -> None:
+        """
+        launches the argo app config screen
+        """
+        nodes = self.cfg['k8s_distros'][distro]['nodes']
+        self.app.push_screen(NodesConfigScreen(nodes,
+                                               modify_cluster))
 
     def action_request_distro_cfg(self) -> None:
         """
@@ -345,20 +358,28 @@ class BaseApp(App):
         """
         row_index = data_table.cursor_row
         row = data_table.get_row_at(row_index)
+
         # get the row's first column and remove whitespace
         row_column1 = row[0].plain.strip()
+
         # change ? to question mark so it reads aloud well
         if row_column1 == "?":
             row_column1 = "question mark"
+
         row_column2 = row[1].plain.strip()
+        row_column3 = row[2].plain.strip()
+        row_column4 = row[3].plain.strip()
 
         # get the column names
         columns = list(data_table.columns.values())
         column1 = columns[0].label
         column2 = columns[1].label
+        column3 = columns[2].label
+        column4 = columns[3].label
 
         system(f"{self.speech_program} Selected {column1}: {row_column1}."
-               f" {column2}: {row_column2}")
+               f" {column2}: {row_column2}. {column3}: {row_column3}. "
+               f"{column4}: {row_column4}.")
 
     @on(DescendantFocus)
     def on_focus(self, event: DescendantFocus) -> None:

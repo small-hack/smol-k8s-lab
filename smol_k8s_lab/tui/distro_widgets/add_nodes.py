@@ -1,5 +1,6 @@
 #!/usr/bin/env python3.11
 from smol_k8s_lab.constants import HOME_DIR
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.tui.util import input_field, drop_down
 from smol_k8s_lab.tui.distro_widgets.modify_node_modal import NodeModalScreen
 
@@ -7,8 +8,10 @@ from os.path import join
 from rich.text import Text
 from textual import on
 from textual.app import ComposeResult, Widget
+from textual.binding import Binding
 from textual.containers import Grid
-from textual.widgets import Label, DataTable, Button
+from textual.screen import Screen
+from textual.widgets import Label, DataTable, Header, Footer
 
 placeholder = """Add a node below for something to appear here...
 [grey53]
@@ -30,15 +33,29 @@ class AddNodesBox(Widget):
     """
     widget for adding new nodes to a local k3s cluster
     """
-    def __init__(self, nodes: dict = {}, id: str = "") -> None:
+    def __init__(self,
+                 nodes: dict = {},
+                 existing_cluster: bool = False,
+                 id: str = "") -> None:
         # this is just to take a few variables for class organizing
         self.nodes = nodes
+        self.existing_cluster = existing_cluster
+        if existing_cluster:
+            self.k8s_ctx = K8s()
+            self.existing_nodes = self.k8s_ctx.get_nodes()
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
-        with Grid(id="add-nodes-box"):
+        # this resizes based on how big the screen realestate we have is
+        if self.existing_cluster:
+            box_class = "add-nodes-box-full-screen"
+        else:
+            box_class = "add-nodes-box-widget"
+
+        with Grid(id="add-nodes-box", classes=box_class):
             yield Label(placeholder, id="nodes-placeholder")
-            yield Label("🖥️ Add a new node", id="new-node-text")
+            yield Label(" 🖥️ [#ffaff9]Add[/] a [i]new[/i] [#C1FF87]node[/]",
+                        id="new-node-text")
             yield self.add_node_row()
 
     def on_mount(self) -> None:
@@ -62,6 +79,8 @@ class AddNodesBox(Widget):
 
         # then fill in the cluster table
         data_table.add_column(Text("Node", justify="center"))
+        if self.existing_cluster:
+            data_table.add_column(Text("Status", justify="center"))
         data_table.add_column(Text("Type", justify="center"))
         data_table.add_column(Text("SSH Port", justify="center"))
         data_table.add_column(Text("SSH Key", justify="center"))
@@ -91,12 +110,24 @@ class AddNodesBox(Widget):
                 else:
                     taints = ""
 
-            row = [node,
-                   metadata['node_type'],
-                   metadata['ssh_port'],
-                   metadata['ssh_key'],
-                   labels,
-                   taints]
+            if not self.existing_cluster:
+                row = [node,
+                       metadata['node_type'],
+                       metadata['ssh_port'],
+                       metadata['ssh_key'],
+                       labels,
+                       taints]
+            else:
+                # if the cluster already exists, get current node data
+                node_info = self.k8s_ctx.get_node(node)
+                row = [node,
+                       node_info.get('status', 'Not Found'),
+                       metadata['node_type'],
+                       metadata['ssh_port'],
+                       metadata['ssh_key'],
+                       labels,
+                       taints]
+
             # we use an extra line to center the rows vertically
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
 
@@ -222,10 +253,10 @@ class AddNodesBox(Widget):
                 )
         ssh_port = node_dict.get('ssh_port', default_ssh_port)
         ssh_port_input = input_field(label="ssh_port",
-                                    initial_value=ssh_port,
-                                    name="ssh_port",
-                                    placeholder="SSH port to connect to host",
-                                    tooltip=ssh_port_label_tooltip)
+                                     initial_value=ssh_port,
+                                     name="ssh_port",
+                                     placeholder="SSH port to connect to host",
+                                     tooltip=ssh_port_label_tooltip)
 
         # ssh key label and input
         default_ssh_key = join(HOME_DIR, ".ssh/id_rsa")
@@ -266,43 +297,105 @@ class AddNodesBox(Widget):
                 placeholder="taints to apply to this node",
                 tooltip=taints_label_tooltip)
 
-        # submit button
-        submit = Button("➕ new node", id="new-node-button")
-        submit.tooltip = "Submit new node to cluster to be joined on cluster creation"
-
-        return Grid(host_input, node_type_dropdown, ssh_port_input, ssh_key_input,
-                    node_labels_input, taints_input, submit,
+        return Grid(host_input, node_type_dropdown,
+                    ssh_port_input, ssh_key_input,
+                    node_labels_input, taints_input,
                     id=f"{hostname}-row", classes="k3s-node-input-row")
 
-    @on(Button.Pressed)
-    def submit_new_node(self, event: Button.Pressed):
+    def action_press_new_node_button(self) -> None:
         """
-        submit new node to cluster
+        this is a hidden "button" if you will that will add a new node
+        based on the inputs in the "🖥️Add a new node" section
         """
-        if event.button.id == "new-node-button":
-            host = self.get_widget_by_id("host").value
-            node_type = self.get_widget_by_id("node-type").value
-            ssh_key = self.get_widget_by_id("ssh-key").value
-            ssh_port = self.get_widget_by_id("ssh-key").value
-            node_labels = self.get_widget_by_id("node-labels").value
-            taints = self.get_widget_by_id("node-taints").value
-            node_metadata = {"node_type": node_type,
-                             "ssh_key": ssh_key,
-                             "ssh_port": ssh_port,
-                             "node_labels": node_labels,
-                             "node_taints": taints}
+        host = self.get_widget_by_id("host").value
+        node_type = self.get_widget_by_id("node-type").value
+        ssh_key = self.get_widget_by_id("ssh-key").value
+        ssh_port = self.get_widget_by_id("ssh-key").value
+        node_labels = self.get_widget_by_id("node-labels").value
+        taints = self.get_widget_by_id("node-taints").value
+        node_metadata = {"node_type": node_type,
+                         "ssh_key": ssh_key,
+                         "ssh_port": ssh_port,
+                         "node_labels": node_labels,
+                         "node_taints": taints}
 
-            if not self.nodes:
-                self.nodes = {host: node_metadata}
-                self.generate_nodes_table()
-                self.get_widget_by_id("nodes-placeholder").display = False
-            else:
-                self.nodes[host] = node_metadata
-                data_table = self.get_widget_by_id("nodes-data-table")
-                row = [host, node_type, ssh_port, ssh_key, node_labels, taints]
-                # we use an extra line to center the rows vertically
-                styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
-                # we add extra height to make the rows more readable
-                data_table.add_row(*styled_row, height=3, key=row[0])
+        if not self.nodes:
+            self.nodes = {host: node_metadata}
+            self.generate_nodes_table()
+            self.get_widget_by_id("nodes-placeholder").display = False
+        else:
+            self.nodes[host] = node_metadata
+            data_table = self.get_widget_by_id("nodes-data-table")
+            row = [host, node_type, ssh_port, ssh_key, node_labels, taints]
+            # we use an extra line to center the rows vertically
+            styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
+            # we add extra height to make the rows more readable
+            data_table.add_row(*styled_row, height=3, key=row[0])
 
-            self.update_parent_yaml(host, node_metadata)
+        self.update_parent_yaml(host, node_metadata)
+
+
+class NodesConfigScreen(Screen):
+    """
+    Textual screen to configure nodes for an existing cluster
+    """
+    CSS_PATH = ["../css/distro_config.tcss",
+                "../css/add_nodes_widget.tcss",
+                "../css/k3s.tcss"]
+
+    BINDINGS = [Binding(key="b,q,escape",
+                        key_display="b",
+                        action="app.pop_screen",
+                        description="Back"),
+                Binding(key="alt+a",
+                        key_display="alt+a",
+                        action="add_node",
+                        description="add new node")]
+
+    def __init__(self,
+                 nodes: dict,
+                 existing_cluster: bool = False,
+                 id: str = "") -> None:
+        """.git/
+        gather nodes info and if this is an existing_cluster
+        """
+        self.nodes = nodes
+        self.existing_cluster = existing_cluster
+        if self.existing_cluster:
+            self.node_box_id = "existing-cluster-node-config-box"
+        else:
+            self.node_box_id = "node-config-box"
+        self.show_footer = self.app.cfg['smol_k8s_lab']['tui']['show_footer']
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        """
+        Compose app with tabbed content.
+        """
+        # header to be cute
+        yield Header()
+
+        # Footer to show keys
+        footer = Footer()
+        if not self.show_footer:
+            footer.display = False
+        yield footer
+
+        with Grid(id="node-config-screen"):
+            yield AddNodesBox(nodes=self.nodes,
+                              existing_cluster=self.existing_cluster,
+                              id=self.node_box_id)
+
+    def on_mount(self) -> None:
+        """
+        screen and box border styling
+        """
+        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
+        sub_title = f"Kubernetes nodes config for {self.app.current_cluster}"
+        self.sub_title = sub_title
+
+    def action_add_node(self) -> None:
+        """
+        trigger the add new node button
+        """
+        self.get_widget_by_id(self.node_box_id).action_press_new_node_button()

@@ -39,7 +39,7 @@ def check_all_contexts() -> list:
                 if fields[0] and fields[0] != "*":
                     cluster_name = fields[0]
                     # change context only if it isn't already the current-context
-                    subproc([f"kubectl config set-context {cluster_name}"])
+                    subproc([f"kubectl config use-context {cluster_name}"])
                 else:
                     cluster_name = fields[1]
 
@@ -66,7 +66,7 @@ def check_all_contexts() -> list:
                 return_contexts.append(context_tuple)
 
         # set the cluster back to the starting context if we changed it
-        subproc([f"kubectl config set-context {start_context}"])
+        subproc([f"kubectl config use-context {start_context}"])
 
     return return_contexts
 

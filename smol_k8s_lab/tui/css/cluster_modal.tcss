@@ -35,6 +35,9 @@ $navy: rgb(35,35,54);
     background: $navy 75%;
     border: round $cornflower;
     padding: 1;
+    border-subtitle-color: $lavender;
+    link-background-hover: $navy;
+    link-color-hover: $orange;
 }
 
 #modal-button-box {

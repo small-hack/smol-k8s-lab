@@ -18,15 +18,23 @@ $navy: rgb(35,35,54);
 #add-nodes-box {
     background: $navy 60%;
     padding-left: 1;
-    grid-rows: 0.9fr 0.1fr 0.55fr;
+    padding-right: 1;
     align: center middle;
     content-align: center middle;
+}
+
+.add-nodes-box-widget {
+    grid-rows: 0.8fr 0.1fr 0.6fr;
+}
+
+.add-nodes-box-full-screen {
+    grid-rows: 0.9fr 0.1fr 0.5fr;
 }
 
 #nodes-data-table {
 }
 
-#nodes-tab {
+#nodes-tab-nodes-widget {
     width: auto;
     height: auto;
 }
@@ -39,7 +47,7 @@ $navy: rgb(35,35,54);
 
 .k3s-node-input-row {
     grid-size: 2;
-    grid-gutter: 1;
+    grid-gutter: 0 2;
 }
 
 #new-node-button {

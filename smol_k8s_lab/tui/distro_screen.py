@@ -51,10 +51,10 @@ class DistroConfigScreen(Screen):
                         key_display="n",
                         action="app.request_apps_cfg",
                         description="Next"),
-                Binding(key="a",
-                        key_display="a",
+                Binding(key="ctrl+n",
+                        key_display="ctrl+n",
                         action="screen.launch_new_option_modal",
-                        description="add new option")]
+                        description="add new")]
 
     def __init__(self, config: dict) -> None:
         """
@@ -185,6 +185,13 @@ class DistroConfigScreen(Screen):
             self.app.write_yaml()
 
             self.current_distro = distro
+
+    def action_add_node_to_widget(self) -> None:
+        """
+        call the add new node button action for the AddNodesBox widget
+        """
+        nodes_box = self.get_widget_by_id("nodes-tab-nodes-widget")
+        nodes_box.action_press_new_node_button()
 
     def action_launch_new_option_modal(self) -> None:
         """
