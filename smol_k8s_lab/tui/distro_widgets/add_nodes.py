@@ -324,7 +324,7 @@ class AddNodesBox(Widget):
 
         node_type = self.get_widget_by_id("node-type").value
         ssh_key = self.get_widget_by_id("ssh-key").value
-        ssh_port = self.get_widget_by_id("ssh-key").value
+        ssh_port = self.get_widget_by_id("ssh-port").value
         node_labels = self.get_widget_by_id("node-labels").value
         taints = self.get_widget_by_id("node-taints").value
         node_metadata = {"node_type": node_type,
@@ -341,7 +341,10 @@ class AddNodesBox(Widget):
         else:
             self.nodes[host_value] = node_metadata
             data_table = self.get_widget_by_id("nodes-data-table")
-            row = [host_value, node_type, ssh_port, ssh_key, node_labels, taints]
+            if not self.existing_cluster:
+                row = [host_value, node_type, ssh_port, ssh_key, node_labels, taints]
+            else:
+                row = [host_value, "pending", node_type, ssh_port, ssh_key, node_labels, taints]
             # we use an extra line to center the rows vertically
             styled_row = [Text(str("\n" + cell), justify="center") for cell in row]
             # we add extra height to make the rows more readable
@@ -351,7 +354,9 @@ class AddNodesBox(Widget):
 
         # if this is an existing cluster, go ahead and join the new node right away
         if self.existing_cluster:
+            self.notify(f"Joining {host_value} to the cluster. Please hold.")
             join_k3s_nodes(new_node_dict)
+            self.notify(f"{host_value} [i]should[/i] be joined now!")
 
 
 class NodesConfigScreen(Screen):
