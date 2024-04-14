@@ -1,3 +1,4 @@
+# internal smol-k8s-lab libraries
 from ..k8s_tools.k8s_lib import K8s
 from ..utils.rich_cli.console_logging import sub_header, header
 from ..utils.subproc import subproc
@@ -6,24 +7,27 @@ from .kind import create_kind_cluster, delete_kind_cluster
 from .k3d import create_k3d_cluster, delete_k3d_cluster
 from .k3s import install_k3s_cluster, uninstall_k3s
 
+# external libraries from standard lib
 from sys import exit
+from json import loads
 
 
 def check_all_contexts() -> list:
     """
-    gets current context and if any have smol-k8s-lab returns and dict of 
-    {"context": context_name, "cluster": cluster_name, "user": auto_info}
-
-    returns False if there's no clusters with smol-k8s-lab as the context
+    gets current context and returns and list of tuples like:
+        [(cluster_name, distro, version, platform)]
     """
-    contexts = subproc(["kubectl config get-contexts --no-headers"],
-                       error_ok=True, quiet=True)
+    start_context = subproc(["kubectl config current-context"],
+                            error_ok=True, quiet=True)
+    print(f"Current context at the start is {start_context}")
 
+    all_contexts = subproc(["kubectl config get-contexts --no-headers"],
+                           error_ok=True, quiet=True)
     return_contexts = []
 
-    if contexts:
+    if all_contexts:
         # split all contexts outputs into a list of context lines
-        for k8s_context in contexts.split('\n'):
+        for k8s_context in all_contexts.split('\n'):
 
             # split each context into fields
             fields = k8s_context.split()
@@ -34,23 +38,40 @@ def check_all_contexts() -> list:
                 # set the cluster name, making sure to not get the * context
                 if fields[0] and fields[0] != "*":
                     cluster_name = fields[0]
+                    # change context only if it isn't already the current-context
+                    subproc([f"kubectl config set-context {cluster_name}"])
                 else:
                     cluster_name = fields[1]
 
-                # determine the distro of k8s we're using
-                for distro_name in "kind", "k3d", "k3s", "gke", "aks", "eks":
-                    if distro_name in cluster_name:
-                        distro = distro_name
-                        break
+                # get the version info for the distro and platform
+                version_json = loads(subproc(["kubectl version -o json"]))
+                version = version_json['serverVersion']['gitVersion']
+                platform = version_json['serverVersion']['platform']
 
-                context_tuple = (cluster_name, distro)
+                # if k3s is in the git version, it could be k3s OR k3d
+                if "k3s" in version:
+                    if "k3d" in cluster_name:
+                        distro = "k3d"
+                    else:
+                        distro = "k3s"
+                else:
+                    # if distro not k3s/k3d, we kinda guess :)
+                    for distro_name in ["kind", "gke", "aks", "eks"]:
+                        if distro_name in cluster_name:
+                            distro = distro_name
+                            break
+
+                context_tuple = (cluster_name, distro, version, platform)
 
                 return_contexts.append(context_tuple)
+
+        # set the cluster back to the starting context if we changed it
+        subproc([f"kubectl config set-context {start_context}"])
 
     return return_contexts
 
 
-def check_contexts_for_cluster(cluster_name: str = "smol-k8s-lab",
+def check_contexts_for_cluster(cluster_name: str,
                                distro: str = "") -> dict:
     """
     gets current context and if any have {cluster_name} and {distro} returns and
