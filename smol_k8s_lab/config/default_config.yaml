@@ -16,17 +16,23 @@ smol_k8s_lab:
         # ring the built in terminal bell when something is wrong
         on_error: true
       text_to_speech:
-        # use a specific program for text to speech - needs to be a full path
-        # macOS default: say
-        speech_program: say
-        # read aloud the screen title and description
+        # currently only english (en) and nederlands (nl) are available, but if you know
+        # other languages, please help us translate (open an issue or discussion
+        # on github 💙)
+        language: "en"
+        # use a specific cli program for text to speech - needs to be a full path
+        # if it isn't in your default path. default is "" which means we'll use
+        # pre-recorded audio files
+        speech_program: "auto"
+        # read aloud the screen title
         screen_titles: true
+        # read aloud the screen description
+        screen_descriptions: true
         # read aloud the element id, value, and tooltip each time you switch focus
         on_focus: false
         # press f5 to read the element id and selected row of DataTables
         on_key_press: true
 
-    # enable text to speech
     # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
     k9s:
       # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s

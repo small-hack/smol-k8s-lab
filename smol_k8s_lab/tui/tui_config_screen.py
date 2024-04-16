@@ -51,9 +51,7 @@ class TuiConfigScreen(Screen):
         screen and box border styling and read the screen title aloud
         """
         self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        sub_title = (
-                "Screen title: Configure Terminal UI and Accessibility features"
-                )
+        sub_title = "Configure Terminal UI and Accessibility features"
         self.sub_title = sub_title
 
         # turn on the footer if it's enabled in the root app cfg
@@ -61,12 +59,7 @@ class TuiConfigScreen(Screen):
             self.query_one(Footer).display = True
 
         if self.app.speak_screen_titles:
-            self.app.action_say(
-                    self.sub_title + ". There are 2 boxes on the screen. Box 1: "
-                    "Configure Terminal UI. Box 2: Configure Accessibility. Focus"
-                    " starts on Box 1."
-                    )
-
+            self.app.play_screen_audio("tui_config")
 
 class TuiConfig(Widget):
     def __init__(self, config: dict) -> None:
@@ -158,7 +151,7 @@ class TuiConfig(Widget):
 
 class AccessibilityWidget(Widget):
     def __init__(self, config: dict) -> None:
-        """ 
+        """
         Accessibility widget to allow for configuring the bell and text to speech
         """
         self.cfg = config

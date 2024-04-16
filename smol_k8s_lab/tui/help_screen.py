@@ -44,12 +44,7 @@ class HelpScreen(ModalScreen):
                 )
 
         if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say(
-                    "Screen title: Help Screen. Use your mouse to click anything"
-                    " in the UI ✨ Or use the following key bindings. For "
-                    "additional help, checkout smol dash k8s dot org."
-                    )
+            self.app.play_screen_audio("help")
 
         self.build_help_table()
 
@@ -82,7 +77,7 @@ class HelpScreen(ModalScreen):
                 }
 
         for key_binding, description in help_dict.items():
-            # we use an extra line to center the rows vertically 
+            # we use an extra line to center the rows vertically
             styled_row = [
                     Text(str("\n" + key_binding)),
                     Text(str("\n" + description))

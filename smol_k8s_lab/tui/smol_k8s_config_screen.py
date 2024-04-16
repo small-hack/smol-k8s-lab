@@ -79,8 +79,7 @@ class SmolK8sLabConfig(Screen):
         self.sub_title = sub_title
 
         if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say("Screen title: " + sub_title)
+            self.app.play_screen_audio("config")
 
 
 class LoggingConfig(Widget):

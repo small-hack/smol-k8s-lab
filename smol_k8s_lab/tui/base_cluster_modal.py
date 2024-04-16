@@ -72,13 +72,10 @@ class ClusterModalScreen(ModalScreen):
         """
         say the title if that self.app.speak_screen_titles is set to True
         """
-        if self.app.speak_screen_titles:
-            self.app.action_say(
-                    f"Screen title: What would you like to do with {self.cluster}?"
-                    " To quit this screen, press Q or B."
-                    )
         question_box = self.get_widget_by_id("cluster-question-box")
         question_box.border_subtitle = "[@click=screen.cancel_button]cancel[/]"
+
+        self.app.play_screen_audio("cluster_modal")
 
     def action_cancel_button(self):
         subproc([f"kubectl config use-context {self.start_current_context}"])
@@ -104,8 +101,7 @@ class ClusterModalScreen(ModalScreen):
             confirm_txt = ('Are you [b][i]sure[/][/] you want to [#ffaff9]delete[/]'
                            f' [#C1FF87]{self.cluster}[/]?')
             self.get_widget_by_id("cluster-modal-text").update(confirm_txt)
-            if self.app.speak_screen_titles:
-                self.app.action_say(f"Are you sure you want to delete {self.cluster}?")
+            self.app.play_screen_audio(screen="cluster_modal", alt=True, say_title=False)
 
             # are you sure, the button
             sure_button = Button("🚮 Yes", id="delete-button-second-try")
@@ -149,9 +145,6 @@ class ClusterModalScreen(ModalScreen):
 
             question = f'What would you like to do with [#C1FF87]{self.cluster}[/]?'
             self.get_widget_by_id("cluster-modal-text").update(question)
-            if self.app.bell_on_error:
-                self.app.action_say(
-                        f"What would you like to do with {self.cluster}?"
-                        )
+            self.app.play_screen_audio("cluster_modal")
 
             self.get_widget_by_id("delete-cluster-first-try").display = True

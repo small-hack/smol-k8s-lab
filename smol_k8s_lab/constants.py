@@ -43,7 +43,6 @@ VERSION = get_version('smol-k8s-lab')
 # grabs the default packaged config file from default dot files
 DEFAULT_CONFIG_FILE = path.join(PWD, 'config/default_config.yaml')
 
-
 def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
     """
     load config yaml files for smol-k8s-lab and return as dicts
@@ -61,6 +60,11 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
 
 DEFAULT_CONFIG = load_yaml(DEFAULT_CONFIG_FILE)
 INITIAL_USR_CONFIG = load_yaml()
+
+# sets the default speech files and loads them for each language
+# if you don't see your language, please submit a PR :)
+SPEECH_TEXT = path.join(PWD, 'config/speech')
+SPEECH_MP3_DIR = path.join(PWD, 'speech')
 
 DEFAULT_DISTRO_OPTIONS = DEFAULT_CONFIG['k8s_distros']
 

@@ -154,7 +154,7 @@ class AddNodesBox(Widget):
         check which row was selected to read it aloud
         """
         if self.app.speak_on_focus:
-            self.say_row(event.data_table)
+            self.app.say_row(event.data_table)
 
     @on(DataTable.RowSelected)
     def node_row_selected(self, event: DataTable.RowSelected) -> None:
@@ -417,6 +417,8 @@ class NodesConfigScreen(Screen):
         self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
         sub_title = f"Kubernetes nodes config for {self.app.current_cluster}"
         self.sub_title = sub_title
+
+        self.call_after_refresh(self.app.play_screen_audio, screen="nodes")
 
     def action_add_node(self) -> None:
         """

@@ -97,8 +97,7 @@ class ConfirmConfig(Screen):
         self.sub_title = sub_title
 
         if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say("Screen title: Review your configuration last step")
+            self.app.play_screen_audio("confirm")
 
         # confirm box title styling
         confirm_box = self.query_one(TabbedContent)

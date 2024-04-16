@@ -1,5 +1,6 @@
 # smol-k8s-lab libraries
-from smol_k8s_lab.constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
+from smol_k8s_lab.constants import (INITIAL_USR_CONFIG, XDG_CONFIG_FILE,
+                                    SPEECH_TEXT, SPEECH_MP3_DIR, load_yaml)
 from smol_k8s_lab.k8s_distros import check_all_contexts
 from smol_k8s_lab.tui.apps_screen import AppsConfig
 from smol_k8s_lab.tui.base_cluster_modal import ClusterModalScreen
@@ -13,12 +14,13 @@ from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
 # external libraries
-from os import environ, system
+from os import environ, system, path
+from playsound import playsound
 from pyfiglet import Figlet
 import random
 from rich.text import Text
 from ruamel.yaml import YAML
-from textual import on
+from textual import on, work
 from textual.app import App, ComposeResult
 from textual.events import DescendantFocus
 from textual.binding import Binding
@@ -26,6 +28,7 @@ from textual.containers import Grid
 from textual.validation import Length
 from textual.widgets import (Footer, Button, DataTable, Input, Static, Label,
                              Switch, Select, _collapsible)
+from textual.worker import Worker, get_current_worker
 
 # list of approved words for nouns
 CUTE_NOUNS = [
@@ -91,10 +94,20 @@ class BaseApp(App):
         tts = accessibility_opts['text_to_speech']
         self.speak_on_focus = tts['on_focus']
         self.speak_screen_titles = tts['screen_titles']
+        self.speak_screen_desc = tts['screen_descriptions']
         self.speak_on_key_press = tts['on_key_press']
         self.speech_program = tts['speech_program']
+        lang = tts['language']
+        if not self.speech_program:
+            self.tts_files = path.join(SPEECH_MP3_DIR, f'{lang}/')
+        else:
+            self.tts_texts = load_yaml(path.join(SPEECH_TEXT, f'{lang}.yaml'))
         self.bell_on_focus = accessibility_opts['bell']['on_focus']
         self.bell_on_error = accessibility_opts['bell']['on_error']
+
+        # turn off blocking by default
+        self.audio_worker = None
+
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -123,6 +136,7 @@ class BaseApp(App):
     def on_mount(self) -> None:
         """
         screen and box border styling
+
         """
         # main box title
         title = "[#ffaff9]Create[/] a [i]new[/] [#C1FF87]cluster[/] with the name below"
@@ -133,14 +147,13 @@ class BaseApp(App):
 
         if clusters:
             self.generate_cluster_table(clusters)
-            if self.speak_screen_titles:
-                self.action_say("Welcome to smol-k8s-lab. Press C to configure "
-                                "accessibility options.")
+            # self.play_screen_audio(screen="base", alt=True)
+            self.call_after_refresh(self.play_screen_audio,
+                                    screen="base", alt=True)
         else:
             self.get_widget_by_id("base-screen-container").add_class("no-cluster-table")
-            if self.speak_screen_titles:
-                self.action_say("Welcome to smol-k8s-lab. Press tab, then C, to configure "
-                                "accessibility options.")
+            self.play_screen_audio(screen="base")
+
 
     def generate_cluster_table(self, clusters: list) -> None:
         """
@@ -182,7 +195,6 @@ class BaseApp(App):
         cluster_container = self.get_widget_by_id("cluster-boxes")
         self.get_widget_by_id("base-screen-container").add_class("with-cluster-table")
         cluster_container.mount(main_grid, before="#base-new-cluster-input-box-grid")
-
 
     @on(DataTable.RowSelected)
     def cluster_row_selected(self, event: DataTable.RowSelected) -> None:
@@ -327,30 +339,76 @@ class BaseApp(App):
         with open(config_file, 'w') as smol_k8s_config:
             yaml.dump(self.cfg, smol_k8s_config)
 
-    def action_say(self, text_for_speech: str = "") -> None:
+    def play_screen_audio(self,
+                          screen: str,
+                          alt: bool = False,
+                          say_title: bool = True) -> None:
+        """
+        plays out the screen title for the base screen
+        """
+        title = "title"
+        description = "description"
+        if alt:
+            title = "alt_title"
+            description = "alt_description"
+
+        if self.speak_screen_titles:
+            if say_title:
+                if self.speech_program:
+                    title_txt = self.tts_texts[f'{screen}_screen'][title]
+                    self.action_say(text=title_txt)
+                else:
+                    audio_file = path.join(self.tts_files,
+                                           f'{screen}_screen_{title}.wav')
+                    self.action_say(audio_file=audio_file)
+
+        if self.speak_screen_desc:
+            if self.speech_program:
+                desc_txt = self.tts_texts[f'{screen}_screen'][description]
+                self.action_say(text=desc_txt)
+            else:
+                audio_file = path.join(self.tts_files,
+                                       f'{screen}_screen_{description}.wav')
+                self.action_say(audio_file=audio_file)
+
+    @work(thread=True)
+    def action_say(self, text: str = "", audio_file: str = "") -> None:
         """
         Use the configured speech program to read a string aloud. If no string
         is passed in, and self.speak_on_key_press is True, we read the currently
-        focused element id
+        focused element ID
         """
-        say = self.speech_program
-        if text_for_speech:
-            text_for_speech = text_for_speech.replace("(", "").replace(")", "")
-            text_for_speech = text_for_speech.replace("[i]", "").replace("[/]", "")
-            system(f"{say} {text_for_speech}")
+        if audio_file:
+            worker = get_current_worker()
+            if not worker.is_cancelled:
+                while len(self.workers) > 1:
+                    self.log("waiting")
+                playsound(audio_file)
+                # self.call_from_thread(playsound, audio_file)
+        else:
+            say = self.speech_program
+            if say:
+                if text:
+                    text_for_speech = text.replace("(", "").replace(")", "")
+                    tts = text_for_speech.replace("[i]", "").replace("[/]", "")
+                    system(f"{say} {tts}")
 
-        elif not text_for_speech:
-            # if the use pressed f5, the key to read the widget id aloud
-            if self.speak_on_key_press:
-                focused = self.app.focused
-                if isinstance(focused, _collapsible.CollapsibleTitle):
-                    system(f"{say} element is a Collapsible called {focused.label}.")
-                else:
-                    system(f"{say} element is {focused.id}")
+                elif not text:
+                    # if the use pressed f5, the key to read the widget id aloud
+                    if self.speak_on_key_press:
+                        focused = self.app.focused
+                        if isinstance(focused, _collapsible.CollapsibleTitle):
+                            system(f"{say} element is a Collapsible called {focused.label}.")
+                        else:
+                            system(f"{say} element is {focused.id}")
 
-                # if it's a data table, read out the row content
-                if isinstance(focused, DataTable):
-                    self.say_row(focused)
+                        # if it's a data table, read out the row content
+                        if isinstance(focused, DataTable):
+                            self.say_row(focused)
+
+    def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
+        """Called when the worker state changes."""
+        self.log(event)
 
     def say_row(self, data_table: DataTable) -> None:
         """

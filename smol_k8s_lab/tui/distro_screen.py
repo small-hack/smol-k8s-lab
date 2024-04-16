@@ -115,8 +115,7 @@ class DistroConfigScreen(Screen):
         main_box = self.get_widget_by_id("distro-config-screen")
 
         if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say("Screen title: " + sub_title)
+            self.app.play_screen_audio("distro")
 
         if self.current_distro == 'kind':
             main_box.mount(

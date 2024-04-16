@@ -118,12 +118,8 @@ class AppsConfig(Screen):
         select_apps_widget.border_title = "[#ffaff9]♥[/] [i]select[/] [#C1FF87]apps"
         select_apps_widget.border_subtitle = "[@click=screen.launch_new_app_modal]✨ [i]new[/] [#C1FF87]app[/][/]"
 
-        if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say(
-                    "Screen title: Apps Configuration, now with more squid. "
-                    "Here you can select and configure Argo CD directory-type apps."
-                    )
+        # if text to speech is on, read screen title
+        self.call_after_refresh(self.app.play_screen_audio, screen="apps")
 
         # scroll down to specific app if requested
         if self.initial_app:
