@@ -127,11 +127,20 @@ class SmolAudio(Widget):
         """Called when the worker state changes."""
         self.log(event)
 
-    def speak_element_app_name(self, element_id: str, trim_text: str):
+    def speak_element_app_name(self,
+                               element_id: str,
+                               trim_text: str|list):
         """
         trims the end of the element to play just the app's name audio
         """
-        app_name = element_id.replace(trim_text, "")
+        if isinstance(trim_text, str):
+            app_name = element_id.replace(trim_text, "")
+
+        elif isinstance(trim_text, list):
+            app_name = element_id
+            for text_to_trim in trim_text:
+                app_name = app_name.replace(text_to_trim, "")
+
         playsound(path.join(self.apps_audio, f'{app_name}.wav'))
 
     @work(exclusive=True, thread=True)
@@ -214,8 +223,8 @@ class SmolAudio(Widget):
                 elif focused_id.endswith("_password_input"):
                     self.speak_element_app_name(focused_id, "_password_input")
                     playsound(path.join(self.phrase_audio, 'password_input.wav'))
-                elif focused_id.endswith("_user_name_input"):
-                    self.speak_element_app_name(focused_id, "_user_name_input")
+                elif focused_id.endswith("_user_name_input") or focused_id.endswith("_username_input"):
+                    self.speak_element_app_name(focused_id, ["_user_name_input", "_username_input"])
                     playsound(path.join(self.phrase_audio, 'user_name_input.wav'))
                 elif focused_id.endswith("_name_input"):
                     self.speak_element_app_name(focused_id, "_name_input")
