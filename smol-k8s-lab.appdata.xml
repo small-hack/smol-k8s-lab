@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+	<id>smol-k8s-lab.desktop</id>
+	<metadata_license>AGPL-3.0</metadata_license>
+	<project_license>AGPL-3.0</project_license>
+	<name>smol-k8s-lab</name>
+	<summary>CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD</summary>
+	<description>
+        <p>CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD</p>
+	</description>
+        <url type="homepage">https://github.com/small-hack/smol-k8s-lab</url>
+        <url type="help">https://small-hack.github.io/smol-k8s-lab</url>
+	<url type="bugtracker">https://github.com/small-hack/smol-k8s-lab/issues</url>
+	<project_group>smol-k8s-lab</project_group>
+	<developer_name>Jesse Hitch</developer_name>
+</component>

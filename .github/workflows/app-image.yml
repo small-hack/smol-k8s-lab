@@ -16,16 +16,10 @@ jobs:
           python_version: "3.12.0"
           pypi_token: ${{ secrets.DEPLOY_FROM_GITHUB_SMOL_K8S_LAB }}
 
-      - name: Create an appimage for smol-k8s-lab for use with brew
-        # see https://github.com/AppImageCommunity/pkg2appimage for more info
-        run: |
-            wget -c $(wget -q https://api.github.com/repos/AppImageCommunity/pkg2appimage/releases -O - | grep "pkg2appimage-.*-x86_64.AppImage" | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
-            chmod +x ./pkg2appimage-*.AppImage
-            ./pkg2appimage-*.AppImage smol-k8s-lab.yaml
-
       - name: Create a Release on GitHub
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           generate_release_notes: true
-          files: smol-k8s-lab.AppImage
+
+

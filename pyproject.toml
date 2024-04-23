@@ -11,9 +11,9 @@ homepage      = "https://small-hack.github.io/smol-k8s-lab"
 repository    = "http://github.com/small-hack/smol-k8s-lab"
 documentation = "https://small-hack.github.io/smol-k8s-lab"
 keywords      = ["kubernetes", "homelab", "kind", "k3s", "k8s"]
-# "Programming Language :: Python :: 3.12",
 classifiers   = ["Development Status :: 4 - Beta",
                  "Programming Language :: Python :: 3.11",
+                 "Programming Language :: Python :: 3.12",
                  "Operating System :: MacOS :: MacOS X",
                  "Operating System :: POSIX :: Linux",
                  "Intended Audience :: End Users/Desktop",
@@ -60,7 +60,6 @@ pytest-textual-snapshot = "^0.4"
 optional = true
 
 [tool.poetry.group.audio.dependencies]
-# coqui-tts             = {git = "https://github.com/idiap/coqui-ai-TTS"}
 coqui-tts               = "^0.23.1"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
