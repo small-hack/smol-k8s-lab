@@ -96,8 +96,7 @@ class ConfirmConfig(Screen):
         sub_title = f"Review your configuration for {self.app.current_cluster} (last step!)"
         self.sub_title = sub_title
 
-        if self.app.speak_screen_titles:
-            self.app.play_screen_audio("confirm")
+        self.call_after_refresh(self.app.play_screen_audio, screen="confirm")
 
         # confirm box title styling
         confirm_box = self.query_one(TabbedContent)

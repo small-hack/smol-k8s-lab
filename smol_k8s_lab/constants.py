@@ -6,11 +6,11 @@ DESC: everything to do with initial configuration of a new environment
 
 from getpass import getuser
 from importlib.metadata import version as get_version
-from os import environ, path, uname
+from os import environ, path, uname, makedirs
 from pathlib import Path
 from ruamel.yaml import YAML
 from shutil import copyfile
-from xdg_base_dirs import xdg_cache_home, xdg_config_home
+from xdg_base_dirs import xdg_cache_home, xdg_config_home, xdg_data_home
 
 # env
 SYSINFO = uname()
@@ -63,8 +63,12 @@ INITIAL_USR_CONFIG = load_yaml()
 
 # sets the default speech files and loads them for each language
 # if you don't see your language, please submit a PR :)
-SPEECH_TEXT = path.join(PWD, 'config/speech')
-SPEECH_MP3_DIR = path.join(PWD, 'speech')
+SPEECH_TEXT = path.join(PWD, '../smol_tts/config')
+
+# we default save all generated speech files to your XDG_DATA_HOME env var
+SPEECH_MP3_DIR = path.join(xdg_data_home(), 'smol-k8s-lab/audio_files')
+if not path.exists(SPEECH_MP3_DIR):
+    makedirs(SPEECH_MP3_DIR, exist_ok=True)
 
 DEFAULT_DISTRO_OPTIONS = DEFAULT_CONFIG['k8s_distros']
 

@@ -1,0 +1,241 @@
+screens:
+  base:
+    title: |
+      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. Press tab, then press "C" to configure accessibility options.
+    alt_title: |
+      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. Press "C" to configure accessibility options.
+    description: |
+      Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below there is one box. The box title is Create a new cluster with the name below. The box contains an input file for the name of your cluster with a submit button to the right that says sparkles emoji new cluster.
+    alt_description: |
+      Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below that are two boxes. Box one title is Select a row to modify or delete an existing cluster. Box one contains a data table with columns for Cluster, Distro, Version, and Platform for each cluster. Box two title is "Create a new cluster with the name below". Box two contains an input fiel for the name of your cluster. To the right of the input field is a button that says "sparkles emoji new cluster".
+
+
+  distro:
+    title: |
+      Kubernetes distribution config screen.
+
+
+  apps:
+    title: |
+       Applications Configuration screen (now with more squid). Here you can select and configure Argo C.D. directory type apps.
+
+  new_app:
+    title: |
+       New Application modal screen
+
+  modify_globals:
+    title: |
+      Modify globally available Argo C.D. Application Set templating values. You can press escape to close this modal screen.
+
+  config:
+    title: |
+      Configure logging and password manager screen.
+
+
+  nodes:
+    title: |
+      Add or delete nodes screen.
+
+
+  tui_config:
+    title: |
+      Configure Terminal U.I. and Accessibility features screen.
+    description: |
+      Description. There are two boxes on the screen. Box one. Configure Terminal U.I. Box two. Configure Accessibility Features. Focus starts on Box one.
+
+
+  help:
+    title: Help Screen.
+    description: |
+      Use your mouse to click anything in the UI ✨ Or use the following key bindings: arrow keys for navigation within a widget, tab for navigation between widgets. For additional help, checkout https://small-hack.github.io/smol-k8s-lab.
+
+
+  confirm:
+    title: Confirm screen
+    description: |
+      This is the last step and screen to review your configuration.
+
+
+  cluster_modal:
+    title: What would you like to do with this cluster?
+    description: |
+      To quit this screen, press Q or B.
+    alt_description: |
+      Are you sure you want to delete this cluster?
+
+apps:
+  argo_cd: "argo C.D."
+  cert_manager: "cert manager"
+  cilium: "cilium"
+  cnpg_operator: "C.N.P.G. operator"
+  external_secrets_operator: "external secrets operator"
+  generic_app: "generic app"
+  generic_device_plugin: "generic device plugin"
+  home_assistant: "home assistant"
+  infisical: "infisical"
+  ingress_nginx: "ingress engine X."
+  k8tz: "K. eight T.Z."
+  k8up: "K. eight up"
+  kepler: "kepler"
+  kubevirt: "kube virt"
+  kyverno: "kyverno"
+  longhorn: "long horn"
+  mastodon: "mastodon"
+  matrix: "matrix"
+  metallb: "metal L.B."
+  minio_operator: "min I.O. operator"
+  minio_tenant: "min I.O. tenant"
+  netmaker: "net maker"
+  nextcloud: "next cloud"
+  postgres_operator: "post gres operator"
+  prometheus_crds: "prometheus C.Are.D.s"
+  prometheus: "prometheus"
+  seaweedfs: "seaweed F.S."
+  seaweedfs_csi_driver: "seaweed F.S. C.S.I. driver"
+  vault: "vault"
+  vouch: "va-ouch"
+  zitadel: "zit-ah-del"
+
+cluster_names:
+  k8s: K. eights
+  k3s: K. threes
+  k3d: K. three Dee
+  kind: kind
+  bunny: bunny
+  hoglet: hoglet
+  puppy: puppy
+  kitten: kitten
+  friend: friend
+  raccoon: raccoon
+  lovely: lovely
+  adorable: adorable
+  cute: cute
+  friendly: friendly
+  nice: nice
+  cool: cool
+  soft: soft
+  smol: smole
+  small: small
+  default: default
+  linux_amd: linux "A" "M" "Dee" sixty-four bit
+  linux_arm: linux arm sixty-four bit
+
+numbers:
+  1: one
+  2: two
+  3: three
+  4: four
+  5: five
+  6: six
+  7: seven
+  8: eight
+  9: nine
+  10: ten
+  11: eleven
+  22: twenty-two
+  27: twenty-seven
+  28: twenty-eight
+  29: twenty-nine
+  30: thirty
+  32: thirty-two
+  36: thirty-six
+  150: one hundred fifty
+  200: two hundred
+
+phrases:
+  v: Version
+  point: point
+  element: Element is
+  element_collapsible: Element is a collapsible called
+  element_tab: Selected tab is
+  value: Current value is
+  row: Selected row is
+  highlighted: Highlighted app is
+  cluster: Cluster
+  distro: Distribution
+  version: Version
+  platform: Platform
+  clusters_data_table: clusters data table
+  cluster_name_input: cluster name input
+  new_cluster_button: new cluster button
+  tui_enabled: Terminal U.I. switch
+  footer: footer switch
+  k9s: k nines switch
+  k9s_command: k nines command
+  bell_on_focus: bell on focus switch
+  bell_on_error: bell on error switch
+  screen_titles: text to speech screen titles switch
+  screen_descriptions: text to speech screen descriptions switch
+  on_key_press: text to speech on F5 key press switch
+  on_focus: text to speech on focus switch
+  speech_program: text to speech program input
+  distro_drop_down: Kubernetes distribution drop down menu
+  name_input: name input
+  name: name input
+  user_name_input: user name input
+  language_input: language input
+  password_input: password input
+  host: host name input
+  hostname: host name input
+  secrets_ecryption_input: secrets encryption input
+  secrets_encryption_delete_button: secrets encryption delete button
+  tabbed_content: tabbed content
+  yaml_tab: yaml
+  kubelet_tab: kubelet config options
+  nodes_tab: Add remote nodes config
+  node_type: node type drop down menu
+  worker: worker
+  control_plane: control plane
+  ssh_port: S.S.H. port input
+  ssh_key: S.S.H. key input
+  node_labels: node labels input
+  node_taints: node taints input
+  kubelet_max_pods_input: Kubelet max pods input
+  select_add_apps: Select and add apps list container. Press tab again to use the selection list, then  use arrow keys to navigate the list
+  selection_list_of_apps: Selection list of Kubernetes apps.
+  modify_globals: modify globals button
+  app_inputs_pane: app inputs pane
+  inputs: inputs container
+  argo_config_container: Argo C.D. config container
+  init_switch: Enable initialization switch
+  init_values: Initialization values
+  repo: repository input
+  path: repository path input
+  revision: revision input, such as a git branch, commit hash, or tag
+  namespace: name space input to deploy application to
+  directory_recursion: directory recursion enabled switch
+  email_input: email input
+  cert_manager_cluster_issuer_acme_challenge_solver_input: cert manager cluster issuer acme challenge solver input
+  cert_manager_cluster_issuer_acme_dns01_provider_input: cert manager cluster issuer acme D.N.S. oh one provider input
+  cert_manager_cloudflare_api_token_input: cert manager cloud flare A.P.I. token input
+  oidc_provider: O.I.D.C. provider
+  um: umm, a word I don't know yet
+  project_name: name of project input
+  project_namespaces: comma separated list of allowed name spaces input for project
+  project_source_repos: input for comma separated list of project source repos
+  s3_hostname: S. three host name input
+  s3_endpoint: S. three end point input
+  s3_region: S. three region input
+  s3_bucket: S. three bucket input
+  port: port input
+  new_secret: new secret input
+  new_secret_button: new secret button
+  country: country input
+  currency: currency input
+  longitude: longitude input
+  latitude: latitude input
+  elevation: elevation input
+  unit_system: unit system input
+  temperature_unit: temperature unit input, please enter either F. or C.
+  toleration_key: toleration key input
+  toleration_value: toleration value input
+  toleration_operator: toleration operator input
+  toleration_effect: toleration effect input
+  affinity_key: affinity key
+  affinity_value: affinity value
+  usb_device_path: U.S.B. device path
+  usb_device_mount: U.S.B. device mount path
+  usb_device_index: U.S.B. device index
+  bluetooth_device_path: bluetooth device path
+  bluetooth_device_mount_path: bluetooth device mount path
+  bluetooth_device_index: bluetooth device index

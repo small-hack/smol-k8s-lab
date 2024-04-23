@@ -114,9 +114,6 @@ class DistroConfigScreen(Screen):
 
         main_box = self.get_widget_by_id("distro-config-screen")
 
-        if self.app.speak_screen_titles:
-            self.app.play_screen_audio("distro")
-
         if self.current_distro == 'kind':
             main_box.mount(
                     KindConfigWidget(
@@ -133,6 +130,8 @@ class DistroConfigScreen(Screen):
                         id=self.current_distro + "-pseudo-screen"
                         )
                     )
+
+        self.call_after_refresh(self.app.play_screen_audio, screen="distro")
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:

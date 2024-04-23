@@ -10,7 +10,7 @@ from textual.screen import ModalScreen
 from textual.validation import Length
 from textual.widgets import Button, Input, Label, Static
 
-                    
+
 class ModifyAppGlobals(Static):
     """
     tiny widget with a "modify globals" button to launch a modal screen to modify
@@ -31,7 +31,7 @@ class ModifyAppGlobals(Static):
 
 class ModifyAppGlobalsScreen(ModalScreen):
     """
-    modal screen with inputs to modify globally available templating parameters 
+    modal screen with inputs to modify globally available templating parameters
     for argocd that are passed to the argocd appset secrets plugin helm chart
     """
     CSS_PATH = ["../css/base_modal.tcss",
@@ -87,11 +87,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
         question_box = self.get_widget_by_id("modify-globals-question-box")
         question_box.border_subtitle = "[@click=app.pop_screen]close[/]"
 
-        if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say("Screen title: Modify globally available Argo CD"
-                                " ApplicationSet templating values. You can press "
-                                "escape to close this modal screen.")
+        self.call_after_refresh(self.app.play_screen_audio, screen="modify_globals")
 
     def generate_secret_key_row(self,
                                 secret_key: str,

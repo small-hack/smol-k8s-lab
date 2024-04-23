@@ -17,7 +17,7 @@ from textual.widgets.data_table import RowKey
 
 
 class ClusterModalScreen(ModalScreen):
-    CSS_PATH = ["./css/cluster_modal.tcss"]
+    CSS_PATH = ["../css/cluster_modal.tcss"]
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="cancel_button",
@@ -75,7 +75,7 @@ class ClusterModalScreen(ModalScreen):
         question_box = self.get_widget_by_id("cluster-question-box")
         question_box.border_subtitle = "[@click=screen.cancel_button]cancel[/]"
 
-        self.app.play_screen_audio("cluster_modal")
+        self.call_after_refresh(self.app.play_screen_audio, screen="cluster_modal")
 
     def action_cancel_button(self):
         subproc([f"kubectl config use-context {self.start_current_context}"])

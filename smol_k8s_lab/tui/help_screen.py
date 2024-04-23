@@ -43,8 +43,7 @@ class HelpScreen(ModalScreen):
                 "https://github.com/Textualize/textual]textual[/][/][/]"
                 )
 
-        if self.app.speak_screen_titles:
-            self.app.play_screen_audio("help")
+        self.call_after_refresh(self.app.play_screen_audio, screen="help")
 
         self.build_help_table()
 

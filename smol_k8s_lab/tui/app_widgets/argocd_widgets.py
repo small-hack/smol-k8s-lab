@@ -32,7 +32,7 @@ class ArgoCDApplicationConfig(Static):
                 "Argo CD Application Configuration[/]"
                 )
 
-        # Label on the top 
+        # Label on the top
         argo_app_label = Label(help_text, classes=f"{self.app_name} argo-config-header")
         argo_app_label.tooltip = (
                 "Configure parameters for an Argo CD Application. Designed "
@@ -115,6 +115,7 @@ class ArgoCDProjectConfig(Static):
             classes = f"{self.app_name} argo-config-input argo-proj-name"
             yield Input(placeholder="Enter the name of your project",
                         name="name",
+                        id="project-name",
                         validators=Length(minimum=2),
                         value=value,
                         classes=classes)
@@ -134,6 +135,7 @@ class ArgoCDProjectConfig(Static):
             classes = f"{self.app_name} argo-config-input argo-proj-ns"
             yield Input(placeholder="Enter comma seperated list of namespaces",
                         name="namespaces",
+                        id="project-namespaces",
                         validators=Length(minimum=2),
                         value=value,
                         classes=classes)
@@ -154,12 +156,13 @@ class ArgoCDProjectConfig(Static):
             yield Input(placeholder="Enter comma seperated list of source repos",
                         value=value,
                         name="source_repos",
+                        id="project-source-repos",
                         validators=Length(minimum=5),
                         classes=classes)
 
     @on(Input.Changed)
     def update_base_yaml(self, event: Input.Changed) -> None:
-        """ 
+        """
         if the input is valid, write the input as a list to the base yaml
         """
         if event.validation_result.is_valid:

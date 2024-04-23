@@ -11,16 +11,18 @@ homepage      = "https://small-hack.github.io/smol-k8s-lab"
 repository    = "http://github.com/small-hack/smol-k8s-lab"
 documentation = "https://small-hack.github.io/smol-k8s-lab"
 keywords      = ["kubernetes", "homelab", "kind", "k3s", "k8s"]
+# "Programming Language :: Python :: 3.12",
 classifiers   = ["Development Status :: 4 - Beta",
                  "Programming Language :: Python :: 3.11",
-                 "Programming Language :: Python :: 3.12",
                  "Operating System :: MacOS :: MacOS X",
                  "Operating System :: POSIX :: Linux",
                  "Intended Audience :: End Users/Desktop",
                  "Topic :: System :: Installation/Setup",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
 include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
-                 "smol_k8s_lab/config/default_config.yaml"]
+                 "smol_k8s_lab/config/default_config.yaml",
+                 "text_to_speech/config/en.yml",
+                 "text_to_speech/config/nl.yml"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "http://github.com/small-hack/smol-k8s-lab/issues"
@@ -33,9 +35,7 @@ kubernetes         = "^29"
 minio              = "^7.2"
 pyfiglet           = "^1.0"
 pyjwt              = "^2.8"
-# python             = ">=3.11,<4.0"
-python             = ">=3.11,<3.12"
-TTS                = "0.22.0"
+python             = ">=3.11,<3.13"
 pyyaml             = "^6.0"
 requests           = "^2.28"
 rich               = "^13.0"
@@ -43,7 +43,9 @@ ruamel-yaml        = "^0.18"
 ruamel-yaml-string = "^0.1"
 textual            = "^0.56"
 xdg-base-dirs      = "^6.0"
-playsound = {git = "https://github.com/taconi/playsound"}
+playsound          = {git = "https://github.com/taconi/playsound"}
+# requires installing local packages such as: https://stackoverflow.com/a/66065656
+# pygobject          = {platform = "linux", version = "^3.48"}
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = "^9.5"
@@ -54,16 +56,20 @@ deptry                  = "^0.16"
 textual-dev             = "^1.1"
 pytest-textual-snapshot = "^0.4"
 
-# [tool.poetry.group.audio.dependencies]
-# TTS     = "0.22.0"
-# python             = ">=3.11,<3.12"
+[tool.poetry.group.audio]
+optional = true
+
+[tool.poetry.group.audio.dependencies]
+# coqui-tts             = {git = "https://github.com/idiap/coqui-ai-TTS"}
+coqui-tts               = "^0.23.1"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
+"smol-tts"     = "smol_tts:tts_gen"
 
 [tool.poetry.scripts]
 smol-k8s-lab = "smol_k8s_lab:main"
-smol-tts     = "smol_k8s_lab:tts"
+smol-tts     = "smol_tts:tts_gen"
 
 [build-system]
 requires      = ["poetry-core"]

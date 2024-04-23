@@ -1290,6 +1290,38 @@ apps:
           namespaces:
             - kube-system
 
+  renovate:
+    description: |
+      [magenta]DEMO - UNTESTED[/magenta]
+
+      [link=https://docs.renovatebot.com/]Renovate[/link] is a tool for automated dependency updates. It's Multi-platform and multi-language. This is a simple helm chart for running a self-hosted RenovateBot.
+
+    enabled: false
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys: {}
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important! This
+      # is an app of apps. Change to "monitoring/kube-prometheus-stack/" to
+      # only install kube-prometheus-stack (foregoing loki and push gateway)
+      path: demo/renovate/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # namespace to install the k8s app in
+      namespace: "renovate"
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: renovate
+        source_repos:
+          - "https://docs.renovatebot.com/helm-charts"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - renovate
+
   seaweedfs:
     enabled: false
     description: |

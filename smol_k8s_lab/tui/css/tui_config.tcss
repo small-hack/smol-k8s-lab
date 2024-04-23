@@ -109,24 +109,34 @@ $navy: rgb(35,35,54);
     padding-top: 1;
     padding-left: 1;
     padding-right: 2;
-    grid-rows: 0.2fr 0.5fr 0.45fr 0.45fr;
+    grid-rows: 0.4fr 0.5fr 0.5fr;
     border: round $cornflower;
     border-title-color: $sky_blue;
     background: $navy 60%;
     align: center middle;
-    grid-gutter: 1;
 }
 
 /* bell config row */
 #bell-row {
     grid-size: 2;
     padding-left: 1;
+    margin-bottom: 0;
 }
 
-/* text to speech config row */
+/* text to speech config rows */
 #tts-row {
+    margin-top: 0;
+    border-top: panel $dark_gray 50%;
+    border-title-color: $light_cornflower;
+    padding-top: 1;
     grid-size: 3;
     padding-left: 1;
+}
+
+#tts-input-bool-row {
+    grid-size: 2;
+    padding-left: 1;
+    grid-columns: 0.5fr 1fr;
 }
 
 #accessibility-config .input-row-label {

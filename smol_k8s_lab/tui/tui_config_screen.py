@@ -58,8 +58,8 @@ class TuiConfigScreen(Screen):
         if self.app.cfg['smol_k8s_lab']['tui']['show_footer']:
             self.query_one(Footer).display = True
 
-        if self.app.speak_screen_titles:
-            self.app.play_screen_audio("tui_config")
+        self.app.play_screen_audio("tui_config")
+
 
 class TuiConfig(Widget):
     def __init__(self, config: dict) -> None:
@@ -76,7 +76,7 @@ class TuiConfig(Widget):
                         classes="soft-text")
             with Grid(classes="triple-switch-row"):
                 yield bool_option(
-                        label="enabled",
+                        label="tui enabled",
                         name="enabled",
                         switch_value=self.cfg['enabled'],
                         tooltip=("Enable tui mode by default. Otherwise, you"
@@ -163,14 +163,10 @@ class AccessibilityWidget(Widget):
         """
         with Grid(id="accessibility-config"):
 
-            yield Label("These parameters are all related to accessibility, "
-                        "both in the TUI and CLI.",
-                        classes="soft-text")
-
             with Grid(id="bell-row"):
 
                 yield bool_option(
-                        label="bell_on_focus",
+                        label="bell on focus",
                         name="bell-on_focus",
                         switch_value=self.cfg['bell']['on_focus'],
                         tooltip=(
@@ -179,7 +175,7 @@ class AccessibilityWidget(Widget):
                         )
 
                 yield bool_option(
-                        label="bell_on_error",
+                        label="bell on error",
                         name="bell-on_error",
                         switch_value=self.cfg['bell']['on_error'],
                         tooltip=(
@@ -190,16 +186,25 @@ class AccessibilityWidget(Widget):
 
             with Grid(id="tts-row"):
                 yield bool_option(
-                        label="TTS_screen_titles",
+                        label="screen titles",
                         name="text-to-speech-screen_titles",
                         switch_value=self.cfg['text_to_speech']['screen_titles'],
                         tooltip=(
-                            "Read aloud each screen title and description aloud."
+                            "Read aloud each screen title."
                             )
                         )
 
                 yield bool_option(
-                        label="TTS_on_key_press",
+                        label="screen descriptions",
+                        name="text-to-speech-screen_descriptions",
+                        switch_value=self.cfg['text_to_speech']['screen_descriptions'],
+                        tooltip=(
+                            "Read aloud each screen description."
+                            )
+                        )
+
+                yield bool_option(
+                        label="on key press",
                         name="text-to-speech-on_key_press",
                         switch_value=self.cfg['text_to_speech']['on_key_press'],
                         tooltip=(
@@ -208,8 +213,9 @@ class AccessibilityWidget(Widget):
                             )
                         )
 
+            with Grid(id="tts-input-bool-row"):
                 yield bool_option(
-                        label="TTS_on_focus",
+                        label="on focus",
                         name="text-to-speech-on_focus",
                         switch_value=self.cfg['text_to_speech']['on_focus'],
                         tooltip=(
@@ -219,24 +225,25 @@ class AccessibilityWidget(Widget):
                             )
                         )
 
-            yield input_field(
-                    label="speech_program",
-                    name="text-to-speech-speech_program",
-                    initial_value=self.cfg['text_to_speech']['speech_program'],
-                    placeholder="name of program for speech",
-                    tooltip=(
-                        "If text to speech is enabled, this is the name of"
-                        " the command line interface speech program. On "
-                        "macOS, we default to 'say'. On Linux we default to espeak"
+                yield input_field(
+                        label="speech program",
+                        name="text-to-speech-speech_program",
+                        initial_value=self.cfg['text_to_speech']['speech_program'],
+                        placeholder="name of program for speech",
+                        tooltip=(
+                            "If text to speech is enabled, this is the name of"
+                            " the command line interface speech program. If not "
+                            "provided, we use pre-generated audio files"
+                            )
                         )
-                    )
 
     def on_mount(self) -> None:
         """
         box border styling
         """
-        title = "♿️ [i]Configure[/] [#C1FF87]Accessibility"
+        title = "♿️ [i]Configure[/] [#C1FF87]Accessibility Features"
         self.get_widget_by_id("accessibility-config").border_title = title
+        self.get_widget_by_id("tts-row").border_title = "Text to Speech Config"
 
     @on(Switch.Changed)
     def update_parent_config_for_switch(self, event: Switch.Changed) -> None:

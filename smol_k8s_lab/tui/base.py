@@ -1,45 +1,30 @@
 # smol-k8s-lab libraries
-from smol_k8s_lab.constants import (INITIAL_USR_CONFIG, XDG_CONFIG_FILE,
-                                    SPEECH_TEXT, SPEECH_MP3_DIR, load_yaml)
+from smol_k8s_lab.constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
 from smol_k8s_lab.k8s_distros import check_all_contexts
+from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsScreen
 from smol_k8s_lab.tui.apps_screen import AppsConfig
-from smol_k8s_lab.tui.base_cluster_modal import ClusterModalScreen
+from smol_k8s_lab.tui.base_widgets.audio_widget import SmolAudio
+from smol_k8s_lab.tui.base_widgets.cluster_modal import ClusterModalScreen
+from smol_k8s_lab.tui.base_widgets.new_cluster_input import NewClusterInput
 from smol_k8s_lab.tui.confirm_screen import ConfirmConfig
 from smol_k8s_lab.tui.distro_screen import DistroConfigScreen
 from smol_k8s_lab.tui.distro_widgets.add_nodes import NodesConfigScreen
 from smol_k8s_lab.tui.help_screen import HelpScreen
-from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsScreen
 from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
 from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
-from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 
 # external libraries
-from os import environ, system, path
-from playsound import playsound
+from os import environ
 from pyfiglet import Figlet
-import random
 from rich.text import Text
 from ruamel.yaml import YAML
-from textual import on, work
+from textual import on
 from textual.app import App, ComposeResult
 from textual.events import DescendantFocus
 from textual.binding import Binding
 from textual.containers import Grid
-from textual.validation import Length
-from textual.widgets import (Footer, Button, DataTable, Input, Static, Label,
-                             Switch, Select, _collapsible)
-from textual.worker import Worker, get_current_worker
+from textual.widgets import Footer, DataTable, Label
 
-# list of approved words for nouns
-CUTE_NOUNS = [
-        "bunny", "hoglet", "puppy", "kitten", "knuffel", "friend", "egel",
-        "meerkoet", "raccoon", "wasbeertje"
-        ]
-
-CUTE_ADJECTIVE = [
-        "lovely", "adorable", "cute", "friendly", "nice", "leuke", "mooie",
-        "vriendelijke", "cool", "soft", "smol", "small", "klein"
-        ]
 
 class BaseApp(App):
     BINDINGS = [
@@ -62,7 +47,7 @@ class BaseApp(App):
             Binding(key="f5",
                     key_display="f5",
                     description="Speak",
-                    action="app.say",
+                    action="app.speak_element",
                     show=True),
             Binding(key="n",
                     key_display="n",
@@ -71,8 +56,7 @@ class BaseApp(App):
                     show=True)
             ]
 
-    CSS_PATH = ["./css/base.tcss",
-                "./css/help.tcss"]
+    CSS_PATH = ["./css/base.tcss", "./css/help.tcss"]
 
     def __init__(self, user_config: dict = INITIAL_USR_CONFIG) -> None:
         self.cfg = user_config
@@ -88,25 +72,8 @@ class BaseApp(App):
                 'postgres_operator': {},
                 'zitadel': {}
                 }
-
-        # configure global accessibility
-        accessibility_opts = self.cfg['smol_k8s_lab']['tui']['accessibility']
-        tts = accessibility_opts['text_to_speech']
-        self.speak_on_focus = tts['on_focus']
-        self.speak_screen_titles = tts['screen_titles']
-        self.speak_screen_desc = tts['screen_descriptions']
-        self.speak_on_key_press = tts['on_key_press']
-        self.speech_program = tts['speech_program']
-        lang = tts['language']
-        if not self.speech_program:
-            self.tts_files = path.join(SPEECH_MP3_DIR, f'{lang}/')
-        else:
-            self.tts_texts = load_yaml(path.join(SPEECH_TEXT, f'{lang}.yaml'))
-        self.bell_on_focus = accessibility_opts['bell']['on_focus']
-        self.bell_on_error = accessibility_opts['bell']['on_error']
-
-        # turn off blocking by default
-        self.audio_worker = None
+        accessibility = self.cfg['smol_k8s_lab']['tui']['accessibility']
+        self.speak_on_focus = accessibility['text_to_speech']['on_focus']
 
         super().__init__()
 
@@ -133,10 +100,15 @@ class BaseApp(App):
                     with Grid(id="cluster-input-row"):
                         yield NewClusterInput()
 
+        audio = SmolAudio(self.cfg['smol_k8s_lab']['tui']['accessibility'])
+        audio.display = False
+        yield audio
+        self.audio = audio
+
     def on_mount(self) -> None:
         """
-        screen and box border styling
-
+        screen and box border styling + new cluster input + cluster table if clusters exists
+        Also says the screen title outloud if there that feature is enabled
         """
         # main box title
         title = "[#ffaff9]Create[/] a [i]new[/] [#C1FF87]cluster[/] with the name below"
@@ -147,13 +119,10 @@ class BaseApp(App):
 
         if clusters:
             self.generate_cluster_table(clusters)
-            # self.play_screen_audio(screen="base", alt=True)
-            self.call_after_refresh(self.play_screen_audio,
-                                    screen="base", alt=True)
+            self.call_after_refresh(self.play_screen_audio, screen="base", alt=True)
         else:
             self.get_widget_by_id("base-screen-container").add_class("no-cluster-table")
-            self.play_screen_audio(screen="base")
-
+            self.call_after_refresh(self.play_screen_audio, screen="base")
 
     def generate_cluster_table(self, clusters: list) -> None:
         """
@@ -244,8 +213,9 @@ class BaseApp(App):
         """
         check which row was selected to launch a modal screen
         """
-        if self.app.speak_on_focus:
-            self.say_row(event.data_table)
+        if self.speak_on_focus:
+            smol_audio = self.query_one(SmolAudio)
+            smol_audio.say_row(event.data_table)
 
     def action_new_cluster(self):
         """
@@ -342,136 +312,35 @@ class BaseApp(App):
     def play_screen_audio(self,
                           screen: str,
                           alt: bool = False,
-                          say_title: bool = True) -> None:
+                          say_title: bool = True,
+                          say_desc: bool = True) -> None:
         """
-        plays out the screen title for the base screen
+        play the screen title and/or the screen description
         """
-        title = "title"
-        description = "description"
-        if alt:
-            title = "alt_title"
-            description = "alt_description"
+        # smol_audio = self.app.query_one(SmolAudio)
+        self.audio.play_screen_audio(screen, alt, say_title, say_desc)
 
-        if self.speak_screen_titles:
-            if say_title:
-                if self.speech_program:
-                    title_txt = self.tts_texts[f'{screen}_screen'][title]
-                    self.action_say(text=title_txt)
-                else:
-                    audio_file = path.join(self.tts_files,
-                                           f'{screen}_screen_{title}.wav')
-                    self.action_say(audio_file=audio_file)
-
-        if self.speak_screen_desc:
-            if self.speech_program:
-                desc_txt = self.tts_texts[f'{screen}_screen'][description]
-                self.action_say(text=desc_txt)
-            else:
-                audio_file = path.join(self.tts_files,
-                                       f'{screen}_screen_{description}.wav')
-                self.action_say(audio_file=audio_file)
-
-    @work(thread=True)
     def action_say(self, text: str = "", audio_file: str = "") -> None:
         """
-        Use the configured speech program to read a string aloud. If no string
-        is passed in, and self.speak_on_key_press is True, we read the currently
-        focused element ID
+        Use the configured speech program to read a string aloud.
         """
-        if audio_file:
-            worker = get_current_worker()
-            if not worker.is_cancelled:
-                while len(self.workers) > 1:
-                    self.log("waiting")
-                playsound(audio_file)
-                # self.call_from_thread(playsound, audio_file)
-        else:
-            say = self.speech_program
-            if say:
-                if text:
-                    text_for_speech = text.replace("(", "").replace(")", "")
-                    tts = text_for_speech.replace("[i]", "").replace("[/]", "")
-                    system(f"{say} {tts}")
+        # smol_audio = self.app.query_one(SmolAudio)
+        self.audio.say(text, audio_file)
 
-                elif not text:
-                    # if the use pressed f5, the key to read the widget id aloud
-                    if self.speak_on_key_press:
-                        focused = self.app.focused
-                        if isinstance(focused, _collapsible.CollapsibleTitle):
-                            system(f"{say} element is a Collapsible called {focused.label}.")
-                        else:
-                            system(f"{say} element is {focused.id}")
-
-                        # if it's a data table, read out the row content
-                        if isinstance(focused, DataTable):
-                            self.say_row(focused)
-
-    def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
-        """Called when the worker state changes."""
-        self.log(event)
-
-    def say_row(self, data_table: DataTable) -> None:
+    def action_speak_element(self):
         """
-        get the column names and row content of a DataTable and read aloud
+        speak the currently focused element ID, if the user pressed f5
         """
-        row_index = data_table.cursor_row
-        row = data_table.get_row_at(row_index)
-
-        # get the row's first column and remove whitespace
-        row_column1 = row[0].plain.strip()
-
-        # change ? to question mark so it reads aloud well
-        if row_column1 == "?":
-            row_column1 = "question mark"
-
-        row_column2 = row[1].plain.strip()
-        row_column3 = row[2].plain.strip()
-        row_column4 = row[3].plain.strip()
-
-        # get the column names
-        columns = list(data_table.columns.values())
-        column1 = columns[0].label
-        column2 = columns[1].label
-        column3 = columns[2].label
-        column4 = columns[3].label
-
-        system(f"{self.speech_program} Selected {column1}: {row_column1}."
-               f" {column2}: {row_column2}. {column3}: {row_column3}. "
-               f"{column4}: {row_column4}.")
+        # smol_audio = self.app.query_one(SmolAudio)
+        self.audio.speak_element()
 
     @on(DescendantFocus)
     def on_focus(self, event: DescendantFocus) -> None:
         """
         on focus, say the id of each element and the value or label if possible
         """
-        if self.speak_on_focus:
-            id = event.widget.id
-            self.action_say(f"element is {id}")
-
-            # input fields
-            if isinstance(event.widget, Input):
-                content = event.widget.value
-                placeholder = event.widget.placeholder
-                if content:
-                    self.action_say(f"value is {content}")
-                elif placeholder:
-                    self.action_say(f"place holder text is {placeholder}")
-
-            # buttons
-            elif isinstance(event.widget, Button):
-                self.action_say(f"button text is {event.widget.label}")
-
-            # switches
-            elif isinstance(event.widget, Switch) or isinstance(event.widget, Select):
-                self.action_say(f"value is {event.widget.value}")
-
-            # also read the tooltip if there is one
-            tooltip = event.widget.tooltip
-            if tooltip:
-                self.action_say(f"tooltip is {tooltip}")
-
-        if self.bell_on_focus:
-            self.app.bell()
+        # smol_audio = self.app.query_one(SmolAudio)
+        self.audio.on_focus(event)
 
     def check_for_invalid_inputs(self, apps_dict: dict = {}) -> list:
         """
@@ -556,69 +425,6 @@ class BaseApp(App):
                 self.sensitive_values[app][item.lower()] = value
 
         return set(prompt_values)
-
-
-class NewClusterInput(Static):
-    """
-    small widget with an input and button that takes the names of a cluster,
-    and changes the
-    """
-    def compose(self) -> ComposeResult:
-        with Grid(id="new-cluster-button-container"):
-            input = Input(validators=[
-                              Length(minimum=2),
-                              CheckIfNameAlreadyInUse(self.app.cluster_names)
-                              ],
-                          placeholder="Name of your new cluster",
-                          id="cluster-name-input")
-            input.tooltip = ("Name of your ✨ [i]new[/] cluster. Note: The k8s distro"
-                             " (selected on the next screen) will be pre-pended to the "
-                             "name of the cluster by default.")
-            yield input
-
-            new_button = Button("✨ New Cluster", id="new-cluster-button")
-            new_button.tooltip = "Add a new cluster managed by smol-k8s-lab"
-            yield new_button
-
-    def on_mount(self) -> None:
-        input = self.get_widget_by_id("cluster-name-input")
-        input.value = random.choice(CUTE_ADJECTIVE) + '-' + random.choice(CUTE_NOUNS)
-
-    @on(Input.Changed)
-    @on(Input.Submitted)
-    def input_validation(self, event: Input.Changed | Input.Submitted) -> None:
-        """
-        Takes events matching Input.Changed and Input.Submitted events, and
-        checks if input is valid. If the user presses enter (Input.Submitted),
-        and the input is valid, we also press the button for them.
-        """
-        new_cluster_button = self.get_widget_by_id("new-cluster-button")
-
-        if event.validation_result.is_valid:
-            # if result is valid, enable the submit button
-            new_cluster_button.disabled = False
-
-            # if the user pressed enter, we also press the submit button ✨
-            if isinstance(event, Input.Submitted):
-                new_cluster_button.action_press()
-        else:
-            # if result is not valid, notify the user why
-            self.notify("\n".join(event.validation_result.failure_descriptions),
-                        timeout=8,
-                        severity="warning",
-                        title="⚠️ Input Validation Error\n")
-
-            # and disable the submit button
-            new_cluster_button.disabled = True
-
-    @on(Button.Pressed)
-    def button_pressed(self, event: Button.Pressed) -> None:
-        """
-        get pressed button (Button.Pressed event) and change current screen to
-        the k8s distro config screen
-        """
-        self.app.current_cluster = self.get_widget_by_id("cluster-name-input").value
-        self.app.action_request_distro_cfg()
 
 
 if __name__ == "__main__":

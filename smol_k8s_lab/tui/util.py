@@ -275,7 +275,7 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
 
     input_dict = {"placeholder": placeholder,
                   "classes": "input-row-input",
-                  "id": label.replace("_","-"),
+                  "id": label.replace("_","-").replace(" ", "-"),
                   "name": name}
     if initial_value:
         input_dict["value"] = initial_value

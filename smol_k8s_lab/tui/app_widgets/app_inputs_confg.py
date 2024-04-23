@@ -197,7 +197,8 @@ class AppsetSecretValues(Static):
         input_keys = {"placeholder": placeholder_grammar(key_label),
                       "classes": input_class,
                       "name": secret_key,
-                      "validators": [Length(minimum=2)]}
+                      "validators": [Length(minimum=2)],
+                      "id": secret_key}
 
         if value:
             # handle ruamel commented sequence (dict from yaml with comments)

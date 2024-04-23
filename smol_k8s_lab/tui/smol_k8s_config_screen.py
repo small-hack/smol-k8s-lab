@@ -78,8 +78,7 @@ class SmolK8sLabConfig(Screen):
         sub_title = "Configure logging and password manager"
         self.sub_title = sub_title
 
-        if self.app.speak_screen_titles:
-            self.app.play_screen_audio("config")
+        self.call_after_refresh(self.app.play_screen_audio, screen="config")
 
 
 class LoggingConfig(Widget):
