@@ -36,10 +36,17 @@ class ModifyAppGlobalsScreen(ModalScreen):
     """
     CSS_PATH = ["../css/base_modal.tcss",
                 "../css/modify_globals_modal.tcss"]
-    BINDINGS = [Binding(key="b,escape,q",
-                        key_display="b",
-                        action="app.pop_screen",
-                        description="Back")]
+    BINDINGS = [
+            Binding(key="b,escape,q",
+                    key_display="b",
+                    action="app.pop_screen",
+                    description="Back"),
+            Binding(key="f5",
+                    key_display="f5",
+                    description="Speak",
+                    action="app.speak_element",
+                    show=True)
+            ]
 
     def __init__(self) -> None:
         self.global_params = self.app.cfg["apps_global_config"]
@@ -55,7 +62,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
             with Grid(id="modify-globals-question-box"):
                 yield Label(question, id="modal-text")
 
-                yield VerticalScroll(id="scroll-container")
+                yield VerticalScroll(id="scroll-container-for-globals")
 
                 key_input = Input(placeholder="new key name",
                                   id="new-secret",
@@ -79,7 +86,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
 
     def on_mount(self,):
         if self.global_params:
-            scroll_container = self.get_widget_by_id("scroll-container")
+            scroll_container = self.get_widget_by_id("scroll-container-for-globals")
             # iterate through the app's secret keys
             for secret_key, value in self.global_params.items():
                 scroll_container.mount(self.generate_secret_key_row(secret_key, value))
@@ -107,6 +114,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
         input_keys = {"placeholder": placeholder_grammar(key_label),
                       "classes": "app-secret-key-input",
                       "name": secret_key,
+                      "id": secret_key,
                       "validators": [Length(minimum=2)]}
 
         if value:
@@ -125,7 +133,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
         add a new input row for secret stuff
         """
         if event.button.id == "new-secret-button":
-            inputs_box = self.get_widget_by_id("scroll-container")
+            inputs_box = self.get_widget_by_id("scroll-container-for-globals")
             input = self.get_widget_by_id("new-secret")
 
             # add new secret key row
@@ -142,7 +150,7 @@ class ModifyAppGlobalsScreen(ModalScreen):
             if event.validation_result.is_valid:
                 self.get_widget_by_id("new-secret-button").disabled = False
             else:
-                if self.app.bell_on_error:
+                if self.app.cfg['smol_k8s_lab']['tui']['accessibility']['bell']['on_error']:
                     self.app.bell()
                 # if result is not valid, notify the user why
                 self.notify("\n".join(event.validation_result.failure_descriptions),

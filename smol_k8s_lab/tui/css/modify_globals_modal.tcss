@@ -34,7 +34,7 @@ $navy: rgb(35,35,54);
     grid-rows: 0.45fr 0.9fr 0.45fr;
 }
 
-#scroll-container {
+#scroll-container-for-globals {
    scrollbar-background: $dark_gray;
    scrollbar-background-active: $dark_gray;
    scrollbar-background-hover: $dark_gray;

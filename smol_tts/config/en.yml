@@ -143,20 +143,21 @@ numbers:
   200: two hundred
 
 phrases:
-  v: Version
-  point: point
   element: Element is
   element_collapsible: Element is a collapsible called
   element_tab: Selected tab is
   value: Current value is
   row: Selected row is
-  highlighted: Highlighted app is
+  # welcome screen
+  v: Version
+  point: point
   cluster: Cluster
   distro: Distribution
   version: Version
   platform: Platform
   clusters_data_table: clusters data table
   new_cluster_button: new cluster button
+  # tui config screen
   tui_enabled: Terminal U.I. switch
   footer: footer switch
   k9s: k nines switch
@@ -168,15 +169,9 @@ phrases:
   descriptions: descriptions
   on_key_press: text to speech on F5 key press switch
   on_focus: text to speech on focus switch
-  key: key
   speech_program: text to speech program input
+  # distro screen
   distro_drop_down: Kubernetes distribution drop down menu
-  name: name input
-  last: last
-  first: first
-  user: user name input
-  language: language input
-  password: password input
   host: host name input
   hostname: host name input
   secrets_ecryption: secrets encryption input
@@ -193,12 +188,23 @@ phrases:
   node_labels: node labels input
   node_taints: node taints input
   kubelet_max_pods_input: Kubelet max pods input
+  # apps screens
+  description_input: description input
+  app_submit: submit button for creating a new app in smol K. eights lab
+  app_name_input: name of new application input
+  highlighted: Highlighted app is
   select_add_apps: Select and add apps list container. Press tab again to use the selection list, then  use arrow keys to navigate the list
   selection_list_of_apps: Selection list of Kubernetes apps.
   modify_globals: modify globals button
   app_inputs_pane: app inputs pane
   inputs: inputs container
   argo_config_container: Argo C.D. config container
+  name: name input
+  last: last
+  first: first
+  user: user name input
+  language: language input
+  password: password input
   init_switch: Enable initialization switch
   init_values: Initialization values
   repo: repository input
@@ -257,6 +263,7 @@ phrases:
   emails: input for coma separated list of domains
   metallb_address_pool_input: Metal L.B. I.P. address pool input
   backup_schedule: backup schedule input. takes cron syntax
+  # logging and password config screen
   log_level_select: logging level drop down menu
   info: informational
   debug: debug
@@ -268,6 +275,33 @@ phrases:
   edit: edit
   ask: ask
   no_action: no action
+  # modify global variables
+  cluster_issuer: cluster issuer input
+  time_zone: time zone input
+  external_secrets: external secrets provider input
+  pvc_storage_class: P.V.C. storage class input
+  # confirm screen
+  confirm_button: confirm button
+  back_button: back button
+  confirm_container: confirm container
+  confirm_tabbed: confirm tabbed content container
+  maintenance_mode_on_schedule: next cloud maintenance mode on schedule input. uses cron syntax
+  maintenance_mode_off_schedule: next cloud maintenance mode off schedule input. uses cron syntax
+  files_storage: files storage size in tebibytes, gibibyes, or mebibytes
+  config_storage: config storage size in tebibytes, gibibyes, or mebibytes
+  smol_k8s_lab_cfg: smol k. eights lab config tab
+  smol_k8s_lab_cfg_scrolling_container: smol k. eights lab config scrolling container
+  k8s_distro_cfg: kubernetes distro config tab
+  k8s_distro_cfg_scrolling_container: kubernetes distro config scrolling container
+  apps_cfg: apps config tab
+  apps_cfg_scrolling_container: apps config scrolling container
+  global_apps_cfg: global apps variables config tab
+  global_apps_cfg_scrolling_container: global apps variables config scrolling container
+  # cluster modal screen
+  modify_apps_button: modify applications button
+  modify_nodes_button: modify nodes button
+  delete_cluster_first_try: delete cluster button
+  scroll_container_for_globals: scollable container for global variable inputs
   # these are all for the help screen
   key_mappings_table: key mappings table
   meta_plus_click: |

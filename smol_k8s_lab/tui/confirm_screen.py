@@ -62,22 +62,26 @@ class ConfirmConfig(Screen):
             with TabbedContent(initial="smol-k8s-lab-cfg", id="confirm-tabbed"):
                 # tab 1 - smol-k8s-lab
                 with TabPane("Core Config", id="smol-k8s-lab-cfg"):
-                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container",
+                                        id="smol-k8s-lab-cfg-scrolling-container"):
                         yield Label("", id="pretty-yaml-smol-k8s-lab")
 
                 # tab 2 - k8s_distros
                 with TabPane("K8s Distro Config", id="k8s-distro-cfg"):
-                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container",
+                                        id="pretty-yaml-scrolling-container"):
                         yield Label("", id="pretty-yaml-k8s-distro")
 
                 # tab 3 - apps
                 with TabPane("Apps Config", id="apps-cfg"):
-                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container",
+                                        id="pretty-yaml-scrolling-container"):
                         yield Label("", id="pretty-yaml-apps")
 
                 # tab 3 - apps
                 with TabPane("Global Parameters Config", id="global-apps-cfg"):
-                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container",
+                                        id="pretty-yaml-scrolling-container"):
                         yield Label("", id="pretty-yaml-global-apps")
 
         # final confirmation button before running smol-k8s-lab

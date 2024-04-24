@@ -1,7 +1,9 @@
+# NOTE: this will only work if you already have ffmpeg installed
 from .constants import DEFAULT_SAVE_PATH, SPEECH_TEXT_DIRECTORY
 
 # external libs
-from os import path, makedirs
+from os import path, makedirs, remove
+from pydub import AudioSegment
 from ruamel.yaml import YAML
 import torch
 from TTS.api import TTS
@@ -19,7 +21,7 @@ TTS_MODELS = {'en': "tts_models/en/jenny/jenny",
 class AudioGenerator():
     """
     for each file in the speech config directory, open the file and generate .wav
-    files. takes two optional args:
+    files before converting them all to smaller mp3s. takes two optional args:
       languages:  list of 2 character language codes like ["en","nl"]
       categories: str of specific category for generation of audio, e.g. screens
       save_path:  defaults to XDG_DATA_HOME (~/.local/share/smol-k8s-lab)
@@ -175,10 +177,16 @@ class AudioGenerator():
                                          file_name: str,
                                          text_to_speak: str):
         """
-        generate an audio .wav format for a single string
+        generate an audio .wav format for a single string and then converts it to an mp3
+        # NOTE: this will only work if you already have ffmpeg installed
         """
         save_path = path.join(save_path_base, f"{file_name}.wav")
         tts.tts_to_file(text=text_to_speak, file_path=save_path)
+        # may consider adding codec="libmp3lame"
+        AudioSegment.from_wav(save_path).export(save_path.replace(".wav", ".mp3"),
+                                                format="mp3",
+                                                bitrate="64k")
+        remove(save_path)
 
     async def generate_audio_files_from_dict(self,
                                              tts: TTS,
@@ -186,7 +194,9 @@ class AudioGenerator():
                                              text_dict: dict,
                                              prefix: str = ""):
         """
-        generate an audio .wav format for each thing in a dictionary
+        generate an audio .wav format and then converts it to an mp3 for each
+        thing in a dictionary
+        # NOTE: this will only work if you already have ffmpeg installed
         """
         for text_category, text in text_dict.items():
             if prefix:
@@ -195,3 +205,8 @@ class AudioGenerator():
                 sound_file = f"{text_category}.wav"
             save_path = path.join(save_path_base, sound_file)
             tts.tts_to_file(text=text, file_path=save_path)
+            AudioSegment.from_wav(save_path).export(save_path.replace(".wav",
+                                                                      ".mp3"),
+                                                    format="mp3",
+                                                    bitrate="64k")
+            remove(save_path)

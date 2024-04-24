@@ -12,16 +12,23 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid
 from textual.screen import ModalScreen
-from textual.widgets import Button, Label, Pretty
+from textual.widgets import Button, Label
 from textual.widgets.data_table import RowKey
 
 
 class ClusterModalScreen(ModalScreen):
     CSS_PATH = ["../css/cluster_modal.tcss"]
-    BINDINGS = [Binding(key="b,escape,q",
-                        key_display="b",
-                        action="cancel_button",
-                        description="Back")]
+    BINDINGS = [
+            Binding(key="b,escape,q",
+                    key_display="b",
+                    action="cancel_button",
+                    description="Back"),
+            Binding(key="f5",
+                    key_display="f5",
+                    description="Speak",
+                    action="app.speak_element",
+                    show=True)
+            ]
 
     def __init__(self, cluster: str, distro: str, row_key: RowKey) -> None:
         self.cluster = cluster

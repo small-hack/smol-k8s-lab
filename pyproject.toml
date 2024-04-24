@@ -60,7 +60,9 @@ pytest-textual-snapshot = "^0.4"
 optional = true
 
 [tool.poetry.group.audio.dependencies]
-coqui-tts               = "^0.23.1"
+coqui-tts     = "^0.23.1"
+# note: this still requires you to install ffmpeg
+pydub         = "^0.25.1"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
