@@ -302,6 +302,8 @@ phrases:
   modify_nodes_button: modify nodes button
   delete_cluster_first_try: delete cluster button
   scroll_container_for_globals: scollable container for global variable inputs
+  nope_button: nope button to cancel cluster deletion
+  delete_button_second_try: very sure delete cluster button
   # these are all for the help screen
   key_mappings_table: key mappings table
   meta_plus_click: |

@@ -292,7 +292,7 @@ class SmolAudio(Widget):
             else:
                 self.say_phrase('cluster.mp3')
 
-            self.say_phrase('name_input.mp3')
+            self.say_phrase('name.mp3')
 
         elif focused_id.endswith("_language_input"):
             self.say_app(focused_id, "_language_input")
@@ -469,7 +469,6 @@ class SmolAudio(Widget):
                        f"{column2}: {row_column2}. {column3}: {row_column3}. "
                        f"{column4}: {row_column4}.")
             else:
-                self.say_phrase('clusters_data_table.mp3')
                 self.say_phrase('row.mp3')
                 # cluster name
                 self.say_phrase('cluster.mp3')
