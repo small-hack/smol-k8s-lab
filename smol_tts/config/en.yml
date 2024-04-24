@@ -254,3 +254,4 @@ phrases:
   domains: input for coma separated list of domains
   emails: input for coma separated list of domains
   metallb_address_pool_input: Metal L.B. I.P. address pool input
+  backup_schedule: backup schedule input. takes cron syntax
