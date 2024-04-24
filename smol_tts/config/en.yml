@@ -165,8 +165,10 @@ phrases:
   bell_on_error: bell on error switch
   screen_titles: text to speech screen titles switch
   screen_descriptions: text to speech screen descriptions switch
+  descriptions: descriptions
   on_key_press: text to speech on F5 key press switch
   on_focus: text to speech on focus switch
+  key: key
   speech_program: text to speech program input
   distro_drop_down: Kubernetes distribution drop down menu
   name: name input
@@ -211,7 +213,7 @@ phrases:
   cert_manager_cloudflare_api_token_input: cert manager cloud flare A.P.I. token input
   oidc: O.I.D.C.
   provider: provider input
-  um: ummm, a word I don't know yet
+  um: ummm, a word I don't know yet. sorry, I'm not great under pressure.
   project: project
   namespaces: comma separated list of allowed name spaces input
   source_repos: comma separated list of source repos input
@@ -256,3 +258,39 @@ phrases:
   metallb_address_pool_input: Metal L.B. I.P. address pool input
   backup_schedule: backup schedule input. takes cron syntax
   log_level_select: logging level drop down menu
+  info: informational
+  debug: debug
+  warn: warning
+  error: error
+  file: file input
+  enabled: enabled switch
+  duplicate_strategy_select: password manager duplicate strategy drop down menu
+  edit: edit
+  ask: ask
+  no_action: no action
+  # these are all for the help screen
+  key_mappings_table: key mappings table
+  meta_plus_click: |
+    Meta key plus left click. Description: opens a link; this is terminal dependent, so meta can be shift, option, windows Key, command, or control
+  right_arrow: |
+    Right arrow key. Description: auto-complete suggestion in input field
+  up_and_down_arrows: |
+    Up and down arrow keys. Description: navigate up or down selection lists and data tables
+  tab: |
+    Tab key. Description: focus next element
+  shift_plus_tab: |
+    Shift key plus tab key. Description: focus previous element
+  enter: |
+    Enter key. Description: save input and or press button
+  question_mark_or_h: |
+    Question mark key or H. key. Description: toggle help screen
+  spacebar: |
+    Space bar key. Description: select selection option
+  escape_or_q: |
+    Escape key or Q. key. Description: leave current screen and go home
+  c: |
+    C. key. Description: launch the config screen
+  f5: |
+    F. five key. Description: read aloud current focused element I.D.
+  f: |
+    F key. Description: toggle showing the footer

@@ -183,6 +183,131 @@ class SmolAudio(Widget):
             # say the SMTP noun such as hostname or user
             self.say_phrase(f"{noun}.wav")
 
+    def say_input(self, focused_id: str):
+        """
+        deal with any input fields by saying them with playsound()
+        """
+        if focused_id == "hostname":
+            self.say_phrase('hostname.wav')
+
+        elif focused_id.endswith("_repo"):
+            self.say_app(focused_id, "_repo")
+
+        elif focused_id.endswith("_path") and "usb" not in focused_id \
+        and "bluetooth" not in focused_id:
+                self.say_app(focused_id, "_path")
+
+        elif focused_id.endswith("_revision"):
+            self.say_app(focused_id, "_revision")
+
+        elif "project" in focused_id:
+            self.say_phrase("project.wav")
+            self.say_phrase(focused_id.lstrip("project_") + ".wav")
+
+        elif focused_id.endswith("_namespace"):
+            self.say_app(focused_id, "_namespace")
+
+        elif focused_id.endswith("_email_input"):
+            if "admin" in focused_id:
+                self.say_app(focused_id, "_admin_email_input", say_trimmed=False)
+                self.say_phrase('admin.wav')
+            else:
+                self.say_app(focused_id, "_email_input", say_trimmed=False)
+
+            self.say_phrase('email_input.wav')
+
+        elif focused_id.endswith("_emails_input"):
+            self.say_app(focused_id, "_emails_input")
+
+        elif "oidc" in focused_id:
+            self.say_phrase("oidc.wav")
+            self.say_phrase("provider.wav")
+
+        elif focused_id.endswith("_domains_input"):
+            self.say_app(focused_id, "_domains_input")
+
+        elif focused_id.endswith("_new_secret"):
+            self.say_app(focused_id, "_new_secret")
+
+        elif focused_id.endswith("_gender"):
+            self.say_app(focused_id, "_gender")
+
+        # handle all S3 values at once
+        elif "s3" in focused_id:
+            # split string on _ into list of words
+            sections = focused_id.split("_")
+
+            # remove _input from final string immediately
+            if "input" in sections:
+                sections.pop()
+
+            # get the index of "s3" in the list
+            s3_index = sections.index("s3")
+
+            # say "s three"
+            self.say_phrase("s3.wav")
+
+            if "backup" not in sections:
+                s3_index += 1
+            else:
+                self.say_phrase("backup.wav")
+                s3_index += 2
+
+            # rejoin any remaining words with _ into one string
+            noun = "_".join(sections[s3_index:])
+            self.say_phrase(f"{noun}.wav")
+
+        # handle all mail values at once
+        elif "smtp" in focused_id:
+            self.say_app(focused_id, smtp=True)
+
+        elif focused_id.endswith("restic_repo_password_input"):
+            self.say_app(focused_id, "_restic_repo_password_input")
+
+        elif focused_id.endswith("_password_input"):
+            self.say_app(focused_id, "_password_input")
+
+        elif "user" in focused_id:
+            if "admin" in focused_id:
+                self.say_phrase('admin.wav')
+            elif "root" in focused_id:
+                self.say_app(focused_id, "_root_user_input", say_trimmed=False)
+                self.say_phrase('root.wav')
+            else:
+                self.say_app(focused_id, "_user_input", say_trimmed=False)
+            self.say_phrase('user.wav')
+
+        elif "name" in focused_id:
+            if "cluster" not in focused_id:
+                self.say_app(focused_id, ["_last", "_first", "_admin"
+                                          "_name_input"], say_trimmed=False)
+                if "admin" in focused_id:
+                    self.say_phrase('admin.wav')
+
+                if "last" in focused_id:
+                    self.say_phrase('last.wav')
+
+                elif "first" in focused_id:
+                    self.say_phrase('first.wav')
+            else:
+                self.say_phrase('cluster.wav')
+
+            self.say_phrase('name_input.wav')
+
+        elif focused_id.endswith("_language_input"):
+            self.say_app(focused_id, "_language_input")
+
+        elif focused_id.endswith("_toleration_key_input"):
+            self.say_app(focused_id, "_toleration_key_input")
+
+        elif focused_id.endswith("_toleration_value_input"):
+            self.say_app(focused_id, "_toleration_value_input")
+
+        elif focused_id.endswith("_toleration_effect_input"):
+            self.say_app(focused_id, "_toleration_effect_input")
+        else:
+            self.say_phrase(f'{focused_id}.wav')
+
     @work(exclusive=True, thread=True)
     def speak_element(self):
         """
@@ -245,126 +370,7 @@ class SmolAudio(Widget):
                 focused_id = focused_id.replace("k3s_", "")
 
             if isinstance(focused, Input):
-                if focused_id == "hostname":
-                    self.say_phrase('hostname.wav')
-
-                elif focused_id.endswith("_repo"):
-                    self.say_app(focused_id, "_repo")
-
-                elif focused_id.endswith("_path") and "usb" not in focused_id \
-                and "bluetooth" not in focused_id:
-                        self.say_app(focused_id, "_path")
-
-                elif focused_id.endswith("_revision"):
-                    self.say_app(focused_id, "_revision")
-
-                elif "project" in focused_id:
-                    self.say_phrase("project.wav")
-                    self.say_phrase(focused_id.lstrip("project_") + ".wav")
-
-                elif focused_id.endswith("_namespace"):
-                    self.say_app(focused_id, "_namespace")
-
-                elif focused_id.endswith("_email_input"):
-                    if "admin" in focused_id:
-                        self.say_app(focused_id, "_admin_email_input", say_trimmed=False)
-                        self.say_phrase('admin.wav')
-                    else:
-                        self.say_app(focused_id, "_email_input", say_trimmed=False)
-
-                    self.say_phrase('email_input.wav')
-
-                elif focused_id.endswith("_emails_input"):
-                    self.say_app(focused_id, "_emails_input")
-
-                elif "oidc" in focused_id:
-                    self.say_phrase("oidc.wav")
-                    self.say_phrase("provider.wav")
-
-                elif focused_id.endswith("_domains_input"):
-                    self.say_app(focused_id, "_domains_input")
-
-                elif focused_id.endswith("_new_secret"):
-                    self.say_app(focused_id, "_new_secret")
-
-                elif focused_id.endswith("_gender"):
-                    self.say_app(focused_id, "_gender")
-
-                # handle all S3 values at once
-                elif "s3" in focused_id:
-                    # split string on _ into list of words
-                    sections = focused_id.split("_")
-
-                    # remove _input from final string immediately
-                    if "input" in sections:
-                        sections.pop()
-
-                    # get the index of "s3" in the list
-                    s3_index = sections.index("s3")
-
-                    # say "s three"
-                    self.say_phrase("s3.wav")
-
-                    if "backup" not in sections:
-                        s3_index += 1
-                    else:
-                        self.say_phrase("backup.wav")
-                        s3_index += 2
-
-                    # rejoin any remaining words with _ into one string
-                    noun = "_".join(sections[s3_index:])
-                    self.say_phrase(f"{noun}.wav")
-
-                # handle all mail values at once
-                elif "smtp" in focused_id:
-                    self.say_app(focused_id, smtp=True)
-
-                elif focused_id.endswith("restic_repo_password_input"):
-                    self.say_app(focused_id, "_restic_repo_password_input")
-
-                elif focused_id.endswith("_password_input"):
-                    self.say_app(focused_id, "_password_input")
-
-                elif "user" in focused_id:
-                    if "admin" in focused_id:
-                        self.say_phrase('admin.wav')
-                    elif "root" in focused_id:
-                        self.say_app(focused_id, "_root_user_input", say_trimmed=False)
-                        self.say_phrase('root.wav')
-                    else:
-                        self.say_app(focused_id, "_user_input", say_trimmed=False)
-                    self.say_phrase('user.wav')
-
-                elif "name" in focused_id:
-                    if "cluster" not in focused_id:
-                        self.say_app(focused_id, ["_last", "_first", "_admin"
-                                                  "_name_input"], say_trimmed=False)
-                        if "admin" in focused_id:
-                            self.say_phrase('admin.wav')
-
-                        if "last" in focused_id:
-                            self.say_phrase('last.wav')
-
-                        elif "first" in focused_id:
-                            self.say_phrase('first.wav')
-                    else:
-                        self.say_phrase('cluster.wav')
-
-                    self.say_phrase('name_input.wav')
-
-                elif focused_id.endswith("_language_input"):
-                    self.say_app(focused_id, "_language_input")
-
-                elif focused_id.endswith("_toleration_key_input"):
-                    self.say_app(focused_id, "_toleration_key_input")
-
-                elif focused_id.endswith("_toleration_value_input"):
-                    self.say_app(focused_id, "_toleration_value_input")
-
-                elif focused_id.endswith("_toleration_effect_input"):
-                    self.say_app(focused_id, "_toleration_effect_input")
-                else:
-                    self.say_phrase(f'{focused_id}.wav')
+                self.say_input(focused_id)
 
             elif isinstance(focused, Button):
                 if focused_id.endswith("_new_secret_button"):
@@ -394,7 +400,7 @@ class SmolAudio(Widget):
 
             # if this is a dropdown menu, we need to read out the value
             elif isinstance(focused, Select):
-                self.say_phrase(focused_id)
+                self.say_phrase(f"{focused_id}.wav")
                 self.say_phrase("value.wav")
                 if focused_id == "distro_drop_down":
                     SAY(path.join(self.cluster_audio, f'{focused.value}.wav'))
@@ -414,6 +420,7 @@ class SmolAudio(Widget):
 
             # if this is a datatable, just call self.say_row
             elif isinstance(focused, DataTable):
+                self.say_phrase(f'{focused_id}.wav')
                 self.say_row(focused)
 
             # if not any special element then play the id of the element
@@ -430,30 +437,38 @@ class SmolAudio(Widget):
 
         # get the row's first column and remove whitespace
         row_column1 = row[0].plain.strip()
-
         # change ? to question mark so it reads aloud well
         if row_column1 == "?":
             row_column1 = "question mark"
-
         row_column2 = row[1].plain.strip()
-        row_column3 = row[2].plain.strip()
-        row_column4 = row[3].plain.strip()
 
         # get the column names
         columns = list(data_table.columns.values())
         column1 = columns[0].label
         column2 = columns[1].label
-        column3 = columns[2].label
-        column4 = columns[3].label
 
-        if self.speech_program:
-            system(f"{self.speech_program} Selected {column1}: {row_column1}."
-                   f" {column2}: {row_column2}. {column3}: {row_column3}. "
-                   f"{column4}: {row_column4}.")
+        # then play the row of the table
+        if data_table.id == "key-mappings-table":
+            self.say_phrase('row.wav')
+            key_binding = row_column1.replace(" ", "_").replace("+","_plus_")
+            if "?" in key_binding:
+                self.say_phrase("question_mark_or_h.wav")
+            else:
+                self.say_phrase(f"{key_binding}.wav")
 
-        else:
-            # then play the row of the table
-            if data_table.id == "clusters-data-table":
+        # then play the row of the table
+        elif data_table.id == "clusters-data-table":
+            row_column3 = row[2].plain.strip()
+            row_column4 = row[3].plain.strip()
+            column3 = columns[2].label
+            column4 = columns[3].label
+
+            if self.speech_program:
+                system(f"{self.speech_program} Selected row is "
+                       f"{column1}: {row_column1}. "
+                       f"{column2}: {row_column2}. {column3}: {row_column3}. "
+                       f"{column4}: {row_column4}.")
+            else:
                 self.say_phrase('clusters_data_table.wav')
                 self.say_phrase('row.wav')
                 # cluster name
@@ -482,8 +497,8 @@ class SmolAudio(Widget):
                     SAY(path.join(self.cluster_audio, 'linux_arm.wav'))
                 elif row_column4 == "linux/amd64":
                     SAY(path.join(self.cluster_audio, 'linux_amd.wav'))
-            else:
-                self.say_phrase('row.wav')
+        else:
+            self.say_phrase('row.wav')
 
     def on_focus(self, event: DescendantFocus) -> None:
         """
