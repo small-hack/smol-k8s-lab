@@ -179,7 +179,7 @@ def configure_zitadel(k8s_obj: K8s,
                     )
             try:
                 zitadel.set_user_by_login_name(
-                        config_dict['init']['values']['username']
+                        config_dict['init']['values']['admin_user']
                         )
             except Exception as e:
                 log.error(e)
@@ -254,7 +254,7 @@ def initialize_zitadel(k8s_obj: K8s,
       k8s_obj:           K8s(), kubrenetes client for creating secrets
       zitadel_hostname:  str, the hostname of Zitadel
       api_tls_verify:    bool, whether or not to verify the TLS cert on request to api
-      user_dict:         dict of initial username, email, first name, last name
+      user_dict:         dict of initial admin_user, email, first name, last name
                          gender, and project to create
       argocd_hostname:   str, the hostname of Argo CD for oidc app
       bitwarden:         BwCLI obj, [optional] session to use for bitwarden
@@ -317,7 +317,7 @@ def initialize_zitadel(k8s_obj: K8s,
     # create zitadel admin user that the project is setup
     header("Creating a Zitadel user...")
     user_id = zitadel.create_user(bitwarden=bitwarden, **user_dict)
-    zitadel.set_user_by_login_name(user_dict['username'])
+    zitadel.set_user_by_login_name(user_dict['admin_user'])
     try:
         zitadel.create_user_grant(['argocd_administrators'])
     except Exception as e:

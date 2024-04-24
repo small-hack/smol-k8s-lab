@@ -3,8 +3,8 @@ from smol_k8s_lab.constants import SPEECH_TEXT, SPEECH_MP3_DIR, load_yaml
 
 # external libraries
 from os import system, path
-from playsound import playsound, PlaysoundException
-# from textual import on, work
+from playsound import playsound as SAY
+from playsound import PlaysoundException
 from textual import work
 from textual.app import Widget
 from textual.containers import VerticalScroll
@@ -31,21 +31,16 @@ class SmolAudio(Widget):
         self.speak_screen_desc = tts['screen_descriptions']
         self.speak_on_key_press = tts['on_key_press']
         self.speech_program = tts['speech_program']
-        lang = tts['language']
         self.bell_on_focus = self.cfg['bell']['on_focus']
-        self.bell_on_error = self.cfg['bell']['on_error']
 
         # core audio files
-        self.tts_files = path.join(SPEECH_MP3_DIR, f'{lang}/')
-        self.tts_texts = load_yaml(path.join(SPEECH_TEXT, f'{lang}.yml'))
+        self.tts_files = path.join(SPEECH_MP3_DIR, f"{tts['language']}")
+        self.tts_texts = load_yaml(path.join(SPEECH_TEXT, f"{tts['language']}.yml"))
         self.screen_audio = path.join(self.tts_files, 'screens')
-        self.phrase_audio = path.join(self.tts_files, 'phrases')
         self.apps_audio = path.join(self.tts_files, 'apps')
-        self.highlighted_audio = path.join(self.tts_files, 'phrases/highlighted.wav')
+        self.cluster_audio = path.join(self.tts_files, 'cluster_names')
+        self.k3s_audio = path.join(self.cluster_audio, 'k3s.wav')
         self.element_audio = path.join(self.tts_files, 'phrases/element.wav')
-        self.value_audio = path.join(self.tts_files, 'phrases/value.wav')
-        self.k3s_audio = path.join(self.tts_files, 'cluster_names/k3s.wav')
-        self.um_audio = path.join(self.phrase_audio, 'um.wav')
         super().__init__()
 
     # def on_mount(self) -> None:
@@ -59,12 +54,11 @@ class SmolAudio(Widget):
         """
         plays out the screen title for the given screen
         """
+        title = "title"
+        desc = "description"
         if alt:
             title = "alt_title"
             desc = "alt_description"
-        else:
-            title = "title"
-            desc = "description"
 
         if self.speak_screen_titles and say_title:
             if not self.speech_program:
@@ -120,28 +114,90 @@ class SmolAudio(Widget):
                         if worker_obj != worker and worker_obj.group == "say-workers":
                             await self.workers.wait_for_complete([worker_obj])
 
-                self.app.call_from_thread(playsound, sound=audio_file)
-                # playsound(audio_file)
+                self.app.call_from_thread(SAY, sound=audio_file)
+                # SAY(audio_file)
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
         self.log(event)
 
-    def speak_element_app_name(self,
-                               element_id: str,
-                               trim_text: str|list):
+    def say_phrase(self, phrase: str):
+        """
+        say a phrase and if it can't be found, say um
+        """
+        try:
+            SAY(path.join(self.tts_files, f"phrases/{phrase}"))
+        except PlaysoundException:
+            self.log(f"{phrase} was not found")
+            SAY(path.join(self.tts_files, 'phrases/um.wav'))
+
+    def say_app(self,
+                element_id: str,
+                trim_text: str|list = None,
+                say_trimmed: bool = True,
+                s3: bool = False,
+                smtp: bool = False):
         """
         trims the end of the element to play just the app's name audio
+        if say_trimmed, s3, or smtp is true, also says the rest of the element
         """
-        if isinstance(trim_text, str):
-            app_name = element_id.replace(trim_text, "")
+        if trim_text:
+            if isinstance(trim_text, str):
+                app_name = element_id.replace(trim_text, "")
 
-        elif isinstance(trim_text, list):
-            app_name = element_id
-            for text_to_trim in trim_text:
-                app_name = app_name.replace(text_to_trim, "")
+            elif isinstance(trim_text, list):
+                app_name = element_id
+                for text_to_trim in trim_text:
+                    app_name = app_name.replace(text_to_trim, "")
 
-        playsound(path.join(self.apps_audio, f'{app_name}.wav'))
+            SAY(path.join(self.apps_audio, f'{app_name}.wav'))
+
+            # say the element without the app if requested
+            if say_trimmed:
+                self.say_phrase(trim_text.lstrip("_").strip("_input") + ".wav")
+
+        elif s3 or smtp:
+            # split string on _ into list of words
+            sections = element_id.split("_")
+
+            # remove _input from final string immediately
+            if "input" in sections:
+                sections.pop()
+
+            if s3:
+                # get the index of "s3" in the list
+                s3_index = sections.index("s3")
+
+                # say name of app by joining indexes of list that come after s3
+                SAY(path.join(self.apps_audio,
+                              f'{"_".join(sections[:s3_index])}.wav'))
+
+                # say "s three"
+                self.say_phrase("s3.wav")
+
+                if "backup" not in sections:
+                    s3_index += 1
+                else:
+                    self.say_phrase("backup.wav")
+                    s3_index += 2
+
+                # rejoin any remaining words with _ into one string
+                noun = "_".join(sections[s3_index:])
+
+            elif smtp:
+                # get the index of "smtp" in the list
+                smtp_index = sections.index("smtp")
+
+                # say name of app by joining indexes of list that come after smtp
+                SAY(path.join(self.apps_audio,
+                              f'{"_".join(sections[:smtp_index])}.wav'))
+
+                # say S.M.T.P.
+                self.say_phrase("smtp.wav")
+                noun = sections[smtp_index + 1:][0]
+
+            # say the SMTP or S3 noun such as hostname or user
+            self.say_phrase(f"{noun}.wav")
 
     @work(exclusive=True, thread=True)
     def speak_element(self):
@@ -164,137 +220,171 @@ class SmolAudio(Widget):
 
             # play the basic beginning of the sentence "Collapsible element is..."
             if isinstance(focused, _collapsible.CollapsibleTitle):
-                playsound(path.join(self.phrase_audio, 'element_collapsible.wav'))
+                self.say_phrase('element_collapsible.wav')
+
                 if focused_id.endswith("_init_values_collapsible"):
-                    self.speak_element_app_name(focused_id, "_init_values_collapsible")
-                    playsound(path.join(self.phrase_audio, "init_values.wav"))
+                    self.say_app(focused_id, "_init_values_collapsible")
+                    self.say_phrase('init_values.wav')
             else:
                 # play phrase "Element is..."
-                playsound(self.element_audio)
+                SAY(self.element_audio)
 
                 if "k3s" in focused_id:
-                    playsound(self.k3s_audio)
+                    SAY(self.k3s_audio)
                     clean_id = focused_id.replace("k3s_", "")
 
                 # state the ID of the tabbed content out loud
-                playsound(path.join(self.phrase_audio, f'{clean_id}.wav'))
+                self.say_phrase(f'{clean_id}.wav')
 
                 # state the phrase for "selected tab is" ID of the tab
-                playsound(path.join(self.phrase_audio, 'element_tab.wav'))
+                self.say_phrase('element_tab.wav')
 
                 focused_id = focused.parent.active_pane.id.replace("-", "_")
                 if "k3s" in focused_id:
-                    playsound(self.k3s_audio)
+                    SAY(self.k3s_audio)
                     focused_id = focused_id.replace("k3s_", "")
 
                 # state the ID of the tabbed content out loud
-                playsound(path.join(self.phrase_audio, f'{focused_id}.wav'))
+                self.say_phrase(f'{focused_id}.wav')
         else:
             # play the basic beginning of the sentence "Element is..."
-            playsound(self.element_audio)
+            SAY(self.element_audio)
             # if k3s is in the text to play, play that seperately
             if "k3s" in focused_id:
-                playsound(self.k3s_audio)
+                SAY(self.k3s_audio)
                 focused_id = focused_id.replace("k3s_", "")
 
             if isinstance(focused, Input):
                 if focused_id.endswith("_repo"):
-                    self.speak_element_app_name(focused_id, "_repo")
-                    playsound(path.join(self.phrase_audio, 'repo.wav'))
+                    self.say_app(focused_id, "_repo")
+                    self.say_phrase('repo.wav')
+
                 elif focused_id.endswith("_path") and "usb" not in focused_id \
                 and "bluetooth" not in focused_id:
-                        self.speak_element_app_name(focused_id, "_path")
-                        playsound(path.join(self.phrase_audio, 'path.wav'))
+                        self.say_app(focused_id, "_path")
+
                 elif focused_id.endswith("_revision"):
-                    self.speak_element_app_name(focused_id, "_revision")
-                    playsound(path.join(self.phrase_audio, 'revision.wav'))
+                    self.say_app(focused_id, "_revision")
+
                 elif focused_id.endswith("_namespace"):
-                    self.speak_element_app_name(focused_id, "_namespace")
-                    playsound(path.join(self.phrase_audio, 'namespace.wav'))
+                    self.say_app(focused_id, "_namespace")
+
                 elif focused_id.endswith("_email_input"):
-                    self.speak_element_app_name(focused_id, "_email_input")
-                    playsound(path.join(self.phrase_audio, 'email_input.wav'))
+                    if "admin" in focused_id:
+                        self.say_app(focused_id, "_admin_email_input", say_trimmed=False)
+                        self.say_phrase('admin.wav')
+                    else:
+                        self.say_app(focused_id, "_email_input", say_trimmed=False)
+
+                    self.say_phrase('email_input.wav')
+
+                elif focused_id.endswith("_emails_input"):
+                    self.say_app(focused_id, "_emails_input")
+
+                elif focused_id.endswith("_domains_input"):
+                    self.say_app(focused_id, "_domains_input")
+
                 elif focused_id.endswith("_new_secret"):
-                    self.speak_element_app_name(focused_id, "_new_secret")
-                    playsound(path.join(self.phrase_audio, 'new_secret.wav'))
-                elif focused_id.endswith("_language_input"):
-                    self.speak_element_app_name(focused_id, "_language_input")
-                    playsound(path.join(self.phrase_audio, 'language_input.wav'))
+                    self.say_app(focused_id, "_new_secret")
+
+                elif focused_id.endswith("_gender"):
+                    self.say_app(focused_id, "_gender")
+
+                # handle all S3 values at once
+                elif "s3" in focused_id:
+                    self.say_app(focused_id, s3=True)
+
+                # handle all mail values at once
+                elif "smtp" in focused_id:
+                    self.say_app(focused_id, smtp=True)
+
+                elif focused_id.endswith("restic_repo_password_input"):
+                    self.say_app(focused_id, "_restic_repo_password_input")
+
                 elif focused_id.endswith("_password_input"):
-                    self.speak_element_app_name(focused_id, "_password_input")
-                    playsound(path.join(self.phrase_audio, 'password_input.wav'))
-                elif focused_id.endswith("_user_name_input") or focused_id.endswith("_username_input"):
-                    self.speak_element_app_name(focused_id, ["_user_name_input", "_username_input"])
-                    playsound(path.join(self.phrase_audio, 'user_name_input.wav'))
-                elif focused_id.endswith("_name_input"):
-                    self.speak_element_app_name(focused_id, "_name_input")
-                    playsound(path.join(self.phrase_audio, 'name_input.wav'))
+                    self.say_app(focused_id, "_password_input")
+
+                elif "user" in focused_id:
+                    if "admin" in focused_id:
+                        self.say_app(focused_id, "_admin_user_input", say_trimmed=False)
+                        self.say_phrase('admin.wav')
+                    elif "root" in focused_id:
+                        self.say_app(focused_id, "_root_user_input", say_trimmed=False)
+                        self.say_phrase('root.wav')
+                    else:
+                        self.say_app(focused_id, "_user_input", say_trimmed=False)
+                    self.say_phrase('user.wav')
+
+                elif "name" in focused_id:
+                    if "cluster" not in focused_id:
+                        self.say_app(focused_id, ["_last", "_first",
+                                                  "_name_input"], say_trimmed=False)
+                        if "last" in focused_id:
+                            self.say_phrase('last.wav')
+
+                        elif "first" in focused_id:
+                            self.say_phrase('first.wav')
+                    else:
+                        self.say_phrase('cluster.wav')
+
+                    self.say_phrase('name_input.wav')
+
+                elif focused_id.endswith("_language_input"):
+                    self.say_app(focused_id, "_language_input")
+
                 elif focused_id.endswith("_toleration_key_input"):
-                    self.speak_element_app_name(focused_id, "_toleration_key_input")
-                    playsound(path.join(self.phrase_audio, 'toleration_key_input.wav'))
+                    self.say_app(focused_id, "_toleration_key_input")
+
                 elif focused_id.endswith("_toleration_value_input"):
-                    self.speak_element_app_name(focused_id, "_toleration_value_input")
-                    playsound(path.join(self.phrase_audio, 'toleration_value_input.wav'))
+                    self.say_app(focused_id, "_toleration_value_input")
+
                 elif focused_id.endswith("_toleration_effect_input"):
-                    self.speak_element_app_name(focused_id, "_toleration_effect_input")
-                    playsound(path.join(self.phrase_audio, 'toleration_effect_input.wav'))
+                    self.say_app(focused_id, "_toleration_effect_input")
                 else:
-                    try:
-                        playsound(path.join(self.phrase_audio, f'{focused_id}.wav'))
-                    except PlaysoundException:
-                        playsound(self.um_audio)
+                    self.say_phrase(f'{focused_id}.wav')
 
             elif isinstance(focused, Button):
                 if focused_id.endswith("_new_secret_button"):
-                    self.speak_element_app_name(focused_id, "_new_secret_button")
-                    playsound(path.join(self.phrase_audio, 'new_secret_button.wav'))
+                    self.say_app(focused_id, "_new_secret_button")
                 else:
-                    try:
-                        playsound(path.join(self.phrase_audio, f'{focused_id}.wav'))
-                    except PlaysoundException:
-                        playsound(self.um_audio)
+                    self.say_phrase(f'{focused_id}.wav')
 
             # if this is a switch of any kind
             elif isinstance(focused, Switch):
                 # if it's an application initialization enabled switch...
                 if focused_id.endswith("_init_switch"):
-                    self.speak_element_app_name(focused_id, "_init_switch")
-                    playsound(path.join(self.phrase_audio, 'init_switch.wav'))
+                    self.say_app(focused_id, "_init_switch")
                 elif focused_id.endswith("_directory_recursion"):
-                    self.speak_element_app_name(focused_id, "_directory_recursion")
-                    playsound(path.join(self.phrase_audio, 'directory_recursion.wav'))
+                    self.say_app(focused_id, "_directory_recursion")
                 else:
-                    playsound(path.join(self.phrase_audio, f'{focused_id}.wav'))
+                    self.say_phrase(f'{focused_id}.wav')
 
             # if this is an app inputs widget container, we need to get the app
             # name and then read that first before the name of the vertical scroll
             elif isinstance(focused, VerticalScroll):
                 if focused_id.endswith("_inputs"):
-                    self.speak_element_app_name(focused_id, "_inputs")
-                    playsound(path.join(self.phrase_audio, 'inputs.wav'))
+                    self.say_app(focused_id, "_inputs")
                 elif focused_id.endswith("_argo_config_container"):
-                    self.speak_element_app_name(focused_id, "_argo_config_container")
-                    playsound(path.join(self.phrase_audio, 'argo_config_container.wav'))
+                    self.say_app(focused_id, "_argo_config_container")
                 else:
-                    playsound(path.join(self.phrase_audio, f'{focused_id}.wav'))
+                    self.say_phrase(f'{focused_id}.wav')
 
             # if this is a dropdown menu, we need to read out the value
             elif isinstance(focused, Select):
-                playsound(self.value_audio)
+                self.say_phrase("value.wav")
                 if focused_id == "distro_drop_down":
-                    playsound(path.join(self.tts_files,
-                                        f'cluster_names/{focused.value}.wav'))
+                    SAY(path.join(self.cluster_audio, f'{focused.value}.wav'))
                 if focused_id == "node_type":
-                    playsound(path.join(self.phrase_audio, f'{focused.value}.wav'))
+                    self.say_phrase(f'{focused.value}.wav')
 
             # if this is a selection list, such as the apps list
             elif isinstance(focused, SelectionList):
-                playsound(self.highlighted_audio)
+                self.say_phrase("highlighted.wav")
                 # get the actual highlighted app
                 highlighted_idx = focused.highlighted
                 highlighted_app = focused.get_option_at_index(highlighted_idx).value
                 # say name of app
-                playsound(path.join(self.apps_audio, f'{highlighted_app}.wav'))
+                SAY(path.join(self.apps_audio, f'{highlighted_app}.wav'))
 
             # if this is a datatable, just call self.say_row
             elif isinstance(focused, DataTable):
@@ -302,12 +392,7 @@ class SmolAudio(Widget):
 
             # if not any special element then play the id of the element
             else:
-                try:
-                    playsound(path.join(self.phrase_audio, f'{focused_id}.wav'))
-                except PlaysoundException:
-                    self.log(f"{focused_id}.wav was not found")
-                    playsound(self.um_audio)
-
+                self.say_phrase(f'{focused_id}.wav')
 
     @work(exclusive=True, thread=True)
     def say_row(self, data_table: DataTable) -> None:
@@ -342,46 +427,34 @@ class SmolAudio(Widget):
 
         else:
             # then play the row of the table
-            element_audio = path.join(self.phrase_audio, 'row.wav')
-            playsound(element_audio)
+            self.say_phrase('row.wav')
             if data_table.id == "clusters-data-table":
                 # cluster name
-                element_audio = path.join(self.phrase_audio, 'cluster.wav')
-                playsound(element_audio)
+                self.say_phrase('cluster.wav')
                 for name in row_column1.split("-"):
                     if name:
-                        element_audio = path.join(self.tts_files,
-                                                  f'cluster_names/{name}.wav')
-                        playsound(element_audio)
+                        SAY(path.join(self.cluster_audio, f'{name}.wav'))
 
                 # distro name
-                element_audio = path.join(self.phrase_audio, 'distro.wav')
-                playsound(element_audio)
-                element_audio = path.join(self.tts_files,
-                                          f'cluster_names/{row_column2}.wav')
-                playsound(element_audio)
+                self.say_phrase('distro.wav')
+                SAY(path.join(self.cluster_audio, f'{row_column2}.wav'))
 
                 # version
-                element_audio = path.join(self.phrase_audio, 'version.wav')
-                playsound(element_audio)
-                version = row_column3.replace("+k3s1","").replace("v", "").split(".")
+                self.say_phrase('version.wav')
+                version = row_column3.strip("+k3s1").lstrip("v").split(".")
                 last_item = version[-1]
                 for number in version:
-                    element_audio = path.join(self.tts_files, f'numbers/{number}.wav')
-                    playsound(element_audio)
+                    SAY(path.join(self.tts_files, f'numbers/{number}.wav'))
+                    # say "point" between numbers
                     if number != last_item:
-                        element_audio = path.join(self.phrase_audio, 'point.wav')
-                        playsound(element_audio)
+                        self.say_phrase('point.wav')
 
                 # platform
-                element_audio = path.join(self.phrase_audio, 'platform.wav')
-                playsound(element_audio)
+                self.say_phrase('platform.wav')
                 if row_column4 == "linux/arm64":
-                    element_audio = path.join(self.tts_files, 'cluster_names/linux_arm.wav')
-                    playsound(element_audio)
+                    SAY(path.join(self.cluster_audio, 'linux_arm.wav'))
                 elif row_column4 == "linux/amd64":
-                    element_audio = path.join(self.tts_files, 'cluster_names/linux_amd.wav')
-                    playsound(element_audio)
+                    SAY(path.join(self.cluster_audio, 'linux_amd.wav'))
 
     def on_focus(self, event: DescendantFocus) -> None:
         """

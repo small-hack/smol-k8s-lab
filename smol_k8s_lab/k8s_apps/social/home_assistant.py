@@ -47,8 +47,8 @@ def configure_home_assistant(k8s_obj: K8s,
         # grab all possile init values
         init_values = config_dict['init'].get('values', None)
         if init_values:
-            admin_name = init_values.get('name', 'admin')
-            admin_user = init_values.get('user_name', 'admin')
+            admin_name = init_values.get('admin_name', 'admin')
+            admin_user = init_values.get('admin_user', 'admin')
             admin_password = init_values.get('password', create_password())
             admin_language = init_values.get('language', 'en')
 

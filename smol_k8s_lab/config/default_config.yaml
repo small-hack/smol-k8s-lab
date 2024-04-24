@@ -435,9 +435,9 @@ apps:
       enabled: true
       values:
         # -- owner user's name
-        name: "admin"
+        admin_name: "admin"
         # -- owner user's username
-        user_name: "admin"
+        admin_user: "admin"
         # -- owner user's language, default is english
         language: "en"
       sensitive_values:
@@ -1505,7 +1505,7 @@ apps:
           seaweedfs_master_id: ""
       values:
         # initial human user's usename
-        username: ""
+        admin_user: ""
         # initial human user's email
         email: ""
         # initial human's first name

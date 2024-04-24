@@ -94,7 +94,7 @@ apps:
   seaweedfs_csi_driver: "seaweed F.S. C.S.I. driver"
   vault: "vault"
   vouch: "va-ouch"
-  zitadel: "zit-ah-del"
+  zitadel: "zit-a-del"
 
 cluster_names:
   k8s: K. eights
@@ -156,7 +156,6 @@ phrases:
   version: Version
   platform: Platform
   clusters_data_table: clusters data table
-  cluster_name_input: cluster name input
   new_cluster_button: new cluster button
   tui_enabled: Terminal U.I. switch
   footer: footer switch
@@ -170,14 +169,15 @@ phrases:
   on_focus: text to speech on focus switch
   speech_program: text to speech program input
   distro_drop_down: Kubernetes distribution drop down menu
-  name_input: name input
   name: name input
-  user_name_input: user name input
-  language_input: language input
-  password_input: password input
+  last: last
+  first: first
+  user: user name input
+  language: language input
+  password: password input
   host: host name input
   hostname: host name input
-  secrets_ecryption_input: secrets encryption input
+  secrets_ecryption: secrets encryption input
   secrets_encryption_delete_button: secrets encryption delete button
   tabbed_content: tabbed content
   yaml_tab: yaml
@@ -201,23 +201,32 @@ phrases:
   init_values: Initialization values
   repo: repository input
   path: repository path input
+  zitadel_project_input: zitadel project input
   revision: revision input, such as a git branch, commit hash, or tag
   namespace: name space input to deploy application to
   directory_recursion: directory recursion enabled switch
-  email_input: email input
+  email: email input
   cert_manager_cluster_issuer_acme_challenge_solver_input: cert manager cluster issuer acme challenge solver input
   cert_manager_cluster_issuer_acme_dns01_provider_input: cert manager cluster issuer acme D.N.S. oh one provider input
   cert_manager_cloudflare_api_token_input: cert manager cloud flare A.P.I. token input
   oidc_provider: O.I.D.C. provider
-  um: umm, a word I don't know yet
+  um: uhmmm, a word I don't know yet
   project_name: name of project input
   project_namespaces: comma separated list of allowed name spaces input for project
   project_source_repos: input for comma separated list of project source repos
-  s3_hostname: S. three host name input
-  s3_endpoint: S. three end point input
-  s3_region: S. three region input
-  s3_bucket: S. three bucket input
+  backup: backup
+  s3: S. three
+  access_id: access I.D.
+  secret_key: secret key
+  endpoint: end point input
+  region: region input
+  bucket: bucket input
+  pvc_capacity: P.V.C capacity input
+  restic_repo_password: restic repository password input
+  smtp: S.M.T.P.
   port: port input
+  root: root
+  admin: admin
   new_secret: new secret input
   new_secret_button: new secret button
   country: country input
@@ -239,3 +248,7 @@ phrases:
   bluetooth_device_path: bluetooth device path
   bluetooth_device_mount_path: bluetooth device mount path
   bluetooth_device_index: bluetooth device index
+  gender: gender input
+  domains: input for coma separated list of domains
+  emails: input for coma separated list of domains
+  metallb_address_pool_input: Metal L.B. I.P. address pool input
