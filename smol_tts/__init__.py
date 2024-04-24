@@ -128,6 +128,8 @@ def tts_gen(category: str = "", language: str = "", save_path: str = ""):
 
         # start the timer
         s = time.perf_counter()
+
+        print(f"💾 Saving files to {save_path}")
         lang_obj = AudioGenerator(languages=language,
                                   category=category,
                                   save_path=save_path)
@@ -135,7 +137,7 @@ def tts_gen(category: str = "", language: str = "", save_path: str = ""):
 
         # print how long everything took
         elapsed = time.perf_counter() - s
-        print(f"{__file__} executed in {elapsed:0.2f} seconds.")
+        print(f"⏱️ smol-tts executed in {elapsed:0.2f} seconds.")
 
 
 if __name__ == "__main__":
