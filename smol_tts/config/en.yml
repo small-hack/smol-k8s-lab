@@ -209,11 +209,12 @@ phrases:
   cert_manager_cluster_issuer_acme_challenge_solver_input: cert manager cluster issuer acme challenge solver input
   cert_manager_cluster_issuer_acme_dns01_provider_input: cert manager cluster issuer acme D.N.S. oh one provider input
   cert_manager_cloudflare_api_token_input: cert manager cloud flare A.P.I. token input
-  oidc_provider: O.I.D.C. provider
-  um: uhmmm, a word I don't know yet
-  project_name: name of project input
-  project_namespaces: comma separated list of allowed name spaces input for project
-  project_source_repos: input for comma separated list of project source repos
+  oidc: O.I.D.C.
+  provider: provider input
+  um: ummm, a word I don't know yet
+  project: project
+  namespaces: comma separated list of allowed name spaces input
+  source_repos: comma separated list of source repos input
   backup: backup
   s3: S. three
   access_id: access I.D.
@@ -224,6 +225,7 @@ phrases:
   pvc_capacity: P.V.C capacity input
   restic_repo_password: restic repository password input
   smtp: S.M.T.P.
+  sensitive: sensitive
   port: port input
   root: root
   admin: admin

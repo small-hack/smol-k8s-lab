@@ -135,11 +135,10 @@ class SmolAudio(Widget):
                 element_id: str,
                 trim_text: str|list = None,
                 say_trimmed: bool = True,
-                s3: bool = False,
                 smtp: bool = False):
         """
         trims the end of the element to play just the app's name audio
-        if say_trimmed, s3, or smtp is true, also says the rest of the element
+        if say_trimmed, or smtp is true, also says the rest of the element
         """
         if trim_text:
             if isinstance(trim_text, str):
@@ -154,9 +153,15 @@ class SmolAudio(Widget):
 
             # say the element without the app if requested
             if say_trimmed:
-                self.say_phrase(trim_text.lstrip("_").strip("_input") + ".wav")
+                # clear cruft around the word we want to say
+                self.log(trim_text)
+                trim_text = trim_text.lstrip("_")
+                if trim_text.endswith("input"):
+                    trim_text = trim_text.rstrip("_input")
+                self.log(trim_text)
+                self.say_phrase(f"{trim_text}.wav")
 
-        elif s3 or smtp:
+        elif smtp:
             # split string on _ into list of words
             sections = element_id.split("_")
 
@@ -164,39 +169,18 @@ class SmolAudio(Widget):
             if "input" in sections:
                 sections.pop()
 
-            if s3:
-                # get the index of "s3" in the list
-                s3_index = sections.index("s3")
+            # get the index of "smtp" in the list
+            smtp_index = sections.index("smtp")
 
-                # say name of app by joining indexes of list that come after s3
-                SAY(path.join(self.apps_audio,
-                              f'{"_".join(sections[:s3_index])}.wav'))
+            # say name of app by joining indexes of list that come after smtp
+            SAY(path.join(self.apps_audio,
+                          f'{"_".join(sections[:smtp_index])}.wav'))
 
-                # say "s three"
-                self.say_phrase("s3.wav")
+            # say S.M.T.P.
+            self.say_phrase("smtp.wav")
+            noun = sections[smtp_index + 1:][0]
 
-                if "backup" not in sections:
-                    s3_index += 1
-                else:
-                    self.say_phrase("backup.wav")
-                    s3_index += 2
-
-                # rejoin any remaining words with _ into one string
-                noun = "_".join(sections[s3_index:])
-
-            elif smtp:
-                # get the index of "smtp" in the list
-                smtp_index = sections.index("smtp")
-
-                # say name of app by joining indexes of list that come after smtp
-                SAY(path.join(self.apps_audio,
-                              f'{"_".join(sections[:smtp_index])}.wav'))
-
-                # say S.M.T.P.
-                self.say_phrase("smtp.wav")
-                noun = sections[smtp_index + 1:][0]
-
-            # say the SMTP or S3 noun such as hostname or user
+            # say the SMTP noun such as hostname or user
             self.say_phrase(f"{noun}.wav")
 
     @work(exclusive=True, thread=True)
@@ -223,7 +207,13 @@ class SmolAudio(Widget):
                 self.say_phrase('element_collapsible.wav')
 
                 if focused_id.endswith("_init_values_collapsible"):
-                    self.say_app(focused_id, "_init_values_collapsible")
+                    if "sensitive" in focused_id:
+                        self.say_app(focused_id,
+                                     "_sensitive_init_values_collapsible",
+                                     say_trimmed=False)
+                        self.say_phrase('sensitive.wav')
+                    else:
+                        self.say_app(focused_id, "_init_values_collapsible")
                     self.say_phrase('init_values.wav')
             else:
                 # play phrase "Element is..."
@@ -255,9 +245,11 @@ class SmolAudio(Widget):
                 focused_id = focused_id.replace("k3s_", "")
 
             if isinstance(focused, Input):
-                if focused_id.endswith("_repo"):
+                if focused_id == "hostname":
+                    self.say_phrase('hostname.wav')
+
+                elif focused_id.endswith("_repo"):
                     self.say_app(focused_id, "_repo")
-                    self.say_phrase('repo.wav')
 
                 elif focused_id.endswith("_path") and "usb" not in focused_id \
                 and "bluetooth" not in focused_id:
@@ -265,6 +257,10 @@ class SmolAudio(Widget):
 
                 elif focused_id.endswith("_revision"):
                     self.say_app(focused_id, "_revision")
+
+                elif "project" in focused_id:
+                    self.say_phrase("project.wav")
+                    self.say_phrase(focused_id.lstrip("project_") + ".wav")
 
                 elif focused_id.endswith("_namespace"):
                     self.say_app(focused_id, "_namespace")
@@ -281,6 +277,10 @@ class SmolAudio(Widget):
                 elif focused_id.endswith("_emails_input"):
                     self.say_app(focused_id, "_emails_input")
 
+                elif "oidc" in focused_id:
+                    self.say_phrase("oidc.wav")
+                    self.say_phrase("provider.wav")
+
                 elif focused_id.endswith("_domains_input"):
                     self.say_app(focused_id, "_domains_input")
 
@@ -292,7 +292,28 @@ class SmolAudio(Widget):
 
                 # handle all S3 values at once
                 elif "s3" in focused_id:
-                    self.say_app(focused_id, s3=True)
+                    # split string on _ into list of words
+                    sections = focused_id.split("_")
+
+                    # remove _input from final string immediately
+                    if "input" in sections:
+                        sections.pop()
+
+                    # get the index of "s3" in the list
+                    s3_index = sections.index("s3")
+
+                    # say "s three"
+                    self.say_phrase("s3.wav")
+
+                    if "backup" not in sections:
+                        s3_index += 1
+                    else:
+                        self.say_phrase("backup.wav")
+                        s3_index += 2
+
+                    # rejoin any remaining words with _ into one string
+                    noun = "_".join(sections[s3_index:])
+                    self.say_phrase(f"{noun}.wav")
 
                 # handle all mail values at once
                 elif "smtp" in focused_id:
@@ -306,7 +327,6 @@ class SmolAudio(Widget):
 
                 elif "user" in focused_id:
                     if "admin" in focused_id:
-                        self.say_app(focused_id, "_admin_user_input", say_trimmed=False)
                         self.say_phrase('admin.wav')
                     elif "root" in focused_id:
                         self.say_app(focused_id, "_root_user_input", say_trimmed=False)
@@ -317,8 +337,11 @@ class SmolAudio(Widget):
 
                 elif "name" in focused_id:
                     if "cluster" not in focused_id:
-                        self.say_app(focused_id, ["_last", "_first",
+                        self.say_app(focused_id, ["_last", "_first", "_admin"
                                                   "_name_input"], say_trimmed=False)
+                        if "admin" in focused_id:
+                            self.say_phrase('admin.wav')
+
                         if "last" in focused_id:
                             self.say_phrase('last.wav')
 
@@ -427,8 +450,9 @@ class SmolAudio(Widget):
 
         else:
             # then play the row of the table
-            self.say_phrase('row.wav')
             if data_table.id == "clusters-data-table":
+                self.say_phrase('clusters_data_table.wav')
+                self.say_phrase('row.wav')
                 # cluster name
                 self.say_phrase('cluster.wav')
                 for name in row_column1.split("-"):
@@ -441,7 +465,7 @@ class SmolAudio(Widget):
 
                 # version
                 self.say_phrase('version.wav')
-                version = row_column3.strip("+k3s1").lstrip("v").split(".")
+                version = row_column3.rstrip("+k3s1").lstrip("v").split(".")
                 last_item = version[-1]
                 for number in version:
                     SAY(path.join(self.tts_files, f'numbers/{number}.wav'))
@@ -455,6 +479,8 @@ class SmolAudio(Widget):
                     SAY(path.join(self.cluster_audio, 'linux_arm.wav'))
                 elif row_column4 == "linux/amd64":
                     SAY(path.join(self.cluster_audio, 'linux_amd.wav'))
+            else:
+                self.say_phrase('row.wav')
 
     def on_focus(self, event: DescendantFocus) -> None:
         """
