@@ -394,10 +394,13 @@ class SmolAudio(Widget):
 
             # if this is a dropdown menu, we need to read out the value
             elif isinstance(focused, Select):
+                self.say_phrase(focused_id)
                 self.say_phrase("value.wav")
                 if focused_id == "distro_drop_down":
                     SAY(path.join(self.cluster_audio, f'{focused.value}.wav'))
-                if focused_id == "node_type":
+                elif focused_id == "node_type":
+                    self.say_phrase(f'{focused.value}.wav')
+                elif focused_id == "log_level_select":
                     self.say_phrase(f'{focused.value}.wav')
 
             # if this is a selection list, such as the apps list
