@@ -79,6 +79,11 @@ Switch.-on > .switch--slider {
     color: $spacechalk_lime 90%;
 }
 
+/* sets the color of the focused slider */
+Switch:focus {
+    border: tall $light_cornflower 70%;
+}
+
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
     background: $navy 40%;
