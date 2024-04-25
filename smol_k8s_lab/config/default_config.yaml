@@ -193,6 +193,8 @@ apps:
       path: "argocd/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "argocd"
       # recurse directories in the provided git repo, if true, we also deploy the appset secret plugin
@@ -250,6 +252,8 @@ apps:
       path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "cert-manager"
       # recurse directories in the provided git repo
@@ -282,6 +286,8 @@ apps:
       path: "demo/cilium/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "cilium"
       # recurse directories in the provided git repo
@@ -310,6 +316,8 @@ apps:
       path: postgres/operators/cloud-native-postgres/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: cnpg-system
       # recurse directories in the provided git repo
@@ -350,6 +358,8 @@ apps:
       path: external-secrets-operator/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: external-secrets
       # recurse directories in the provided git repo
@@ -387,6 +397,8 @@ apps:
       repo: https://github.com/small-hack/argocd-apps
       path: generic-app/
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # you can change this your app's name
       namespace: generic-app
       directory_recursion: false
@@ -409,6 +421,8 @@ apps:
       repo: https://github.com/small-hack/argocd-apps
       path: generic-device-plugin/
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       namespace: kube-system
       directory_recursion: false
       project:
@@ -480,6 +494,8 @@ apps:
       repo: https://github.com/small-hack/argocd-apps
       path: home-assistant/toleration_and_affinity/
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       namespace: home-assistant
       directory_recursion: false
       project:
@@ -510,6 +526,8 @@ apps:
       path: "demo/infisical/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "infisical"
       # recurse directories in the provided git repo
@@ -539,6 +557,8 @@ apps:
       path: "ingress-nginx/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "ingress-nginx"
       # recurse directories in the provided git repo
@@ -572,6 +592,8 @@ apps:
       path: "k8tz/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "k8tz"
       # recurse directories in the provided git repo
@@ -601,6 +623,8 @@ apps:
       path: "k8up/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "k8up"
       # recurse directories in the provided git repo
@@ -631,6 +655,8 @@ apps:
       path: "demo/kepler/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "kepler"
       # recurse directories in the provided git repo
@@ -660,6 +686,8 @@ apps:
       path: kubevirt/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: kubevirt
       # recurse directories in the provided git repo
@@ -694,6 +722,8 @@ apps:
       path: "kyverno/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "kyvero"
       # recurse directories in the provided git repo
@@ -719,6 +749,8 @@ apps:
       path: demo/longhorn/helm/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: longhorn-system
       # recurse directories in the provided git repo
@@ -790,6 +822,8 @@ apps:
       path: mastodon/small-hack/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: mastodon
       # recurse directories in the git repo
@@ -905,6 +939,8 @@ apps:
       path: matrix/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: matrix
       # recurse directories in the git repo
@@ -946,6 +982,8 @@ apps:
       path: "metallb/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "metallb-system"
       # recurse directories in the provided git repo
@@ -977,6 +1015,8 @@ apps:
       path: "minio/operator/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "minio"
       # recurse directories in the provided git repo
@@ -1017,6 +1057,8 @@ apps:
       path: "minio/tenant/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "minio"
       # recurse directories in the provided git repo
@@ -1053,6 +1095,8 @@ apps:
       path: netmaker/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: netmaker
       # recurse directories in the provided git repo
@@ -1150,6 +1194,8 @@ apps:
       path: nextcloud/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: nextcloud
       # recurse directories in the provided git repo
@@ -1202,6 +1248,8 @@ apps:
       path: postgres/operators/zalando/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: postgres-operator
       # recurse directories in the provided git repo
@@ -1233,6 +1281,8 @@ apps:
       path: prometheus/crds/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: prometheus
       # recurse directories in the provided git repo
@@ -1274,6 +1324,8 @@ apps:
       path: prometheus/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "prometheus"
       # recurse directories in the provided git repo
@@ -1308,6 +1360,8 @@ apps:
       path: demo/renovate/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "renovate"
       # recurse directories in the provided git repo
@@ -1346,6 +1400,8 @@ apps:
       path: seaweedfs/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: seaweedfs
       # recurse directories in the provided git repo
@@ -1378,6 +1434,8 @@ apps:
       path: demo/seaweedfs/app_of_apps/csi_driver/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: seaweedfs
       # recurse directories in the provided git repo
@@ -1411,6 +1469,8 @@ apps:
       path: demo/vault/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: vault
       # recurse directories in the provided git repo
@@ -1452,6 +1512,8 @@ apps:
       path: "vouch-proxy/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "vouch"
       # recurse directories in the provided git repo
@@ -1548,6 +1610,8 @@ apps:
       path: "zitadel/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "zitadel"
       # recurse directories in the provided git repo

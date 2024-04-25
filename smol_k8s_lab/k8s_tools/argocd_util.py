@@ -2,6 +2,7 @@
 import logging as log
 from .k8s_lib import K8s
 from ..utils.subproc import subproc
+from json import loads
 
 
 def check_if_argocd_app_exists(app: str) -> bool:
@@ -36,6 +37,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
     path = argo_dict['path']
     revision = argo_dict['revision']
     app_namespace = argo_dict['namespace']
+    app_cluster = argo_dict.get('cluster', 'https://kubernetes.default.svc')
     proj_namespaces = argo_dict['project']['destination']['namespaces']
     proj_namespaces.append(app_namespace)
     if 'argocd' not in proj_namespaces:
@@ -53,6 +55,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
                           argo_dict['project'].get('name', app),
                           app,
                           set(proj_namespaces),
+                          app_cluster,
                           set(source_repos))
 
     cmd = (f"argocd app create {app} --upsert "
@@ -63,7 +66,7 @@ def install_with_argocd(k8s_obj: K8s, app: str, argo_dict: dict) -> None:
            "--sync-option ApplyOutOfSyncOnly=true "
            "--self-heal "
            f"--dest-namespace {app_namespace} "
-           "--dest-server https://kubernetes.default.svc")
+           f"--dest-server {app_cluster}")
 
     if argo_dict['directory_recursion']:
         cmd += " --directory-recurse"
@@ -97,6 +100,7 @@ def create_argocd_project(k8s_obj: K8s,
                           project_name: str,
                           app: str,
                           namespaces: set,
+                          clusters: str|list,
                           source_repos: set) -> True:
     """
     create an argocd project
@@ -129,13 +133,20 @@ def create_argocd_project(k8s_obj: K8s,
         "status": {}
     }
 
-    for namespace in namespaces:
-        extra_namespace = {
-                    "name": "in-cluster",
-                    "namespace": namespace,
-                    "server": "https://kubernetes.default.svc"
-                }
-        argocd_proj['spec']['destinations'].append(extra_namespace)
+    # if the user has passed in a single cluster... todo: handle multiple clusters
+    if isinstance(clusters, str):
+        if clusters == "https://kubernetes.default.svc":
+            name = "in-cluster"
+        elif clusters == "in-cluster":
+            server = "https://kubernetes.default.svc"
+        else:
+            cluster_json = loads(subproc(f"argocd cluster get {clusters} -o json"))
+            name = cluster_json["name"]
+            server = cluster_json["server"]
+
+        for namespace in namespaces:
+            extra_dest = {"name": name, "namespace": namespace, "server": server}
+            argocd_proj['spec']['destinations'].append(extra_dest)
 
     try:
         k8s_obj.apply_custom_resources([argocd_proj])
@@ -144,7 +155,7 @@ def create_argocd_project(k8s_obj: K8s,
 
 
 def update_argocd_appset_secret(k8s_obj: K8s, fields: dict) -> None:
-    """ 
+    """
     pass in k8s context and dict of fields to add to the argocd appset secret
     and reload the deployment
     """

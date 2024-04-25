@@ -13,7 +13,8 @@ ARGO_TOOLTIPS = {
         'path': 'Path in a git repo to resources you want to deploy. Trailing' +
                 ' slash is important.',
         'revision': 'Git branch or tag to point to in the repo.',
-        'namespace': 'Kubernetes namespace to deploy the Argo CD App in.',
+        'namespace': 'Kubernetes namespace to deploy the Argo CD App to.',
+        'cluster': 'Kubernetes cluster to deploy the Argo CD App to.',
         'directory_recursion': 'Recurse [i]all[/i] directories of the git repo to ' +
                                'apply any k8s manifests found in each directory.'
         }
@@ -43,8 +44,9 @@ class ArgoCDApplicationConfig(Static):
         # create a label and input row for each argo value, excedpt directory_recursion
         for key, value in ARGO_TOOLTIPS.items():
             if key != "directory_recursion":
+                input_value = self.argo_params.get(key, "")
                 input = Input(placeholder=f"Enter a {key}",
-                              value=self.argo_params[key],
+                              value=input_value,
                               name=key,
                               validators=[Length(minimum=2)],
                               id=f"{self.app_name}-{key}",
