@@ -140,7 +140,6 @@ class BaseApp(App):
         data_table.add_column(Text("Distro", justify="center"))
         data_table.add_column(Text("Version", justify="center"))
         data_table.add_column(Text("Platform", justify="center"))
-        data_table.add_column(Text("Environment", justify="center"))
 
         for row in clusters:
             # we use an extra line to center the rows vertically
