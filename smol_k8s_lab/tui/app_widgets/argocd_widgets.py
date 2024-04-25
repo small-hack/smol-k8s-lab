@@ -2,9 +2,9 @@
 from smol_k8s_lab.tui.util import create_sanitized_list
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Grid
 from textual.validation import Length
-from textual.widgets import Input, Label, Static, Switch
+from textual.widgets import Input, Label, Static, Switch, Collapsible
 
 
 ARGO_TOOLTIPS = {
@@ -13,8 +13,8 @@ ARGO_TOOLTIPS = {
         'path': 'Path in a git repo to resources you want to deploy. Trailing' +
                 ' slash is important.',
         'revision': 'Git branch or tag to point to in the repo.',
-        'namespace': 'Kubernetes namespace to deploy the Argo CD App to.',
         'cluster': 'Kubernetes cluster to deploy the Argo CD App to.',
+        'namespace': 'Kubernetes namespace to deploy the Argo CD App to.',
         'directory_recursion': 'Recurse [i]all[/i] directories of the git repo to ' +
                                'apply any k8s manifests found in each directory.'
         }
@@ -28,47 +28,56 @@ class ArgoCDApplicationConfig(Static):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        help_text = (
-                "[link=https://argo-cd.readthedocs.io/en/stable/user-guide/directory/]"
-                "Argo CD Application Configuration[/]"
-                )
+        """
+        commented code from before this was a collapsible
+        # help_text = (
+        #         "[link=https://argo-cd.readthedocs.io/en/stable/user-guide/directory/]"
+        #         "Argo CD Application Configuration[/]"
+        #         )
+        """
 
-        # Label on the top
-        argo_app_label = Label(help_text, classes=f"{self.app_name} argo-config-header")
-        argo_app_label.tooltip = (
+        with Collapsible(collapsed=False,
+                         title="Argo CD Application Configuration",
+                         id=f"{self.app_name}-argo-config-collapsible"):
+            with Grid(classes="collapsible-updateable-grid"):
+                # create a label and input row for each argo value, excedpt directory_recursion
+                for key, value in ARGO_TOOLTIPS.items():
+                    if key != "directory_recursion":
+                        input_value = self.argo_params.get(key, "")
+                        input = Input(placeholder=f"Enter a {key}",
+                                      value=input_value,
+                                      name=key,
+                                      validators=[Length(minimum=2)],
+                                      id=f"{self.app_name}-{key}",
+                                      classes=f"{self.app_name} argo-config-input")
+                        input.validate(self.argo_params[key])
+
+                        argo_label = Label(f"{key}:", classes="argo-config-label")
+                        argo_label.tooltip = value
+
+                        yield Horizontal(argo_label, input, classes="argo-config-row")
+
+                # directory_recursion is a boolean, so we have a seperate process for it
+                bool_label = Label("directory recursion:", classes="argo-config-label")
+                bool_label.tooltip = ARGO_TOOLTIPS['directory_recursion']
+
+                switch = Switch(value=self.argo_params['directory_recursion'],
+                                classes="bool-switch-row-switch",
+                                name="directory_recursion",
+                                id=f"{self.app_name}-directory_recursion")
+                switch.tooltip = ARGO_TOOLTIPS['directory_recursion']
+
+                yield Horizontal(bool_label, switch, classes="argo-switch-row")
+
+    def on_mount(self) -> None:
+        """
+        add tool tip for collapsible
+        """
+        header = self.get_widget_by_id(f"{self.app_name}-argo-config-collapsible")
+
+        header.tooltip = (
                 "Configure parameters for an Argo CD Application. Designed "
-                "to accomadate [i]directory-type[/] applications. Click for "
-                "more info.")
-        yield argo_app_label
-
-        # create a label and input row for each argo value, excedpt directory_recursion
-        for key, value in ARGO_TOOLTIPS.items():
-            if key != "directory_recursion":
-                input_value = self.argo_params.get(key, "")
-                input = Input(placeholder=f"Enter a {key}",
-                              value=input_value,
-                              name=key,
-                              validators=[Length(minimum=2)],
-                              id=f"{self.app_name}-{key}",
-                              classes=f"{self.app_name} argo-config-input")
-                input.validate(self.argo_params[key])
-
-                argo_label = Label(f"{key}:", classes="argo-config-label")
-                argo_label.tooltip = value
-
-                yield Horizontal(argo_label, input, classes="argo-config-row")
-
-        # directory_recursion is a boolean, so we have a seperate process for it
-        bool_label = Label("directory recursion:", classes="argo-config-label")
-        bool_label.tooltip = ARGO_TOOLTIPS['directory_recursion']
-
-        switch = Switch(value=self.argo_params['directory_recursion'],
-                        classes="bool-switch-row-switch",
-                        name="directory_recursion",
-                        id=f"{self.app_name}-directory_recursion")
-        switch.tooltip = ARGO_TOOLTIPS['directory_recursion']
-
-        yield Horizontal(bool_label, switch, classes="argo-switch-row")
+                "to accomadate [i]directory-type[/] applications.")
 
     @on(Input.Changed)
     def update_base_yaml_for_input(self, event: Input.Changed) -> None:
