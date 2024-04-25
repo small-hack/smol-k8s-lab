@@ -43,10 +43,6 @@ class AppInputs(Static):
 
             yield AppsetSecretValues(self.app_name, secret_keys)
 
-            # argocd project configuration
-            yield Label("Advanced Argo CD Project Configuration",
-                        classes=f"{self.app_name} argo-config-header")
-
             yield ArgoCDProjectConfig(self.app_name, self.argo_params['project'])
 
 
