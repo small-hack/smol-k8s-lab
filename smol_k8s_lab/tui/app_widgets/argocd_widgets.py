@@ -7,20 +7,11 @@ from textual.validation import Length
 from textual.widgets import Input, Label, Static, Switch, Collapsible
 
 
-ARGO_TOOLTIPS = {
-        'repo': 'URL to a git repository where you have k8s manifests ' +
-                '(including Argo resources) to deploy',
-        'path': 'Path in a git repo to resources you want to deploy. Trailing' +
-                ' slash is important.',
-        'revision': 'Git branch or tag to point to in the repo.',
-        'cluster': 'Kubernetes cluster to deploy the Argo CD App to.',
-        'namespace': 'Kubernetes namespace to deploy the Argo CD App to.',
-        'directory_recursion': 'Recurse [i]all[/i] directories of the git repo to ' +
-                               'apply any k8s manifests found in each directory.'
-        }
-
-
 class ArgoCDApplicationConfig(Static):
+    """
+    An Argo CD directory type application creation textual widget
+    ref: https://argo-cd.readthedocs.io/en/stable/user-guide/directory/
+    """
 
     def __init__(self, app_name: str, argo_params: dict) -> None:
         self.app_name = app_name
@@ -28,16 +19,9 @@ class ArgoCDApplicationConfig(Static):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        """
-        commented code from before this was a collapsible
-        perhaps we make this a normal label somewhere? 🤔
-        # help_text = (
-        #         "[link=https://argo-cd.readthedocs.io/en/stable/user-guide/directory/]"
-        #         "Argo CD Application Configuration[/]"
-        #         )
-        """
         with Collapsible(collapsed=False,
                          title="Argo CD Application Configuration",
+                         classes="collapsible-with-some-room",
                          id=f"{self.app_name}-argo-config-collapsible"):
             yield Grid(classes="collapsible-updateable-grid",
                        id=f"{self.app_name}-collapsible-updateable-grid")
@@ -50,21 +34,34 @@ class ArgoCDApplicationConfig(Static):
 
         header.tooltip = (
                 "Configure parameters for an Argo CD Application. Designed "
-                "to accomadate [i]directory-type[/] applications.")
+                "to accomadate [i]directory-type[/] applications. Learn more at "
+                "https://argo-cd.readthedocs.io/en/stable/user-guide/directory/"
+                )
 
         self.generate_rows()
 
     def generate_rows(self) -> None:
         """
-        self.get_widget_by_id(f"kubelet-config-scroll-{self.distro}").mount(
-                Grid(label, param_value_input, del_button,
-                     classes="label-input-delete-row")
-                )
+        generate all the rows for all the parameters we support for a directory
+        type app
         """
         grid = self.get_widget_by_id(f"{self.app_name}-collapsible-updateable-grid")
 
+        tooltips = {
+                'repo': 'URL to a git repository where you have k8s manifests' +
+                        ' (including Argo resources) to deploy',
+                'path': 'Path in a git repo to resources you want to deploy. ' +
+                        'Trailing slash is important',
+                'revision': 'Git branch or tag to point to in the repo',
+                'cluster': 'Kubernetes cluster to deploy the Argo CD App to',
+                'namespace': 'Kubernetes namespace to deploy the Argo CD App to',
+                'directory_recursion': 'Recurse [i]all[/i] directories of the' +
+                                       ' git repo to apply any k8s manifests ' +
+                                       'found in each directory.'
+                }
+
         # create a label and input row for each argo value, excedpt directory_recursion
-        for key, value in ARGO_TOOLTIPS.items():
+        for key, value in tooltips.items():
             if key != "directory_recursion":
                 input_value = self.argo_params.get(key, "")
                 input = Input(placeholder=f"Enter a {key}",
@@ -82,13 +79,13 @@ class ArgoCDApplicationConfig(Static):
 
         # directory_recursion is a boolean, so we have a seperate process for it
         bool_label = Label("directory recursion:", classes="argo-config-label")
-        bool_label.tooltip = ARGO_TOOLTIPS['directory_recursion']
+        bool_label.tooltip = tooltips['directory_recursion']
 
         switch = Switch(value=self.argo_params['directory_recursion'],
                         classes="bool-switch-row-switch",
                         name="directory_recursion",
                         id=f"{self.app_name}-directory_recursion")
-        switch.tooltip = ARGO_TOOLTIPS['directory_recursion']
+        switch.tooltip = tooltips['directory_recursion']
 
         grid.mount(Horizontal(bool_label, switch, classes="argo-switch-row"))
 
@@ -128,6 +125,7 @@ class ArgoCDProjectConfig(Static):
     def compose(self) -> ComposeResult:
         with Collapsible(collapsed=False,
                          title="Advanced Argo CD Project Configuration",
+                         classes="collapsible-with-some-room",
                          id=f"{self.app_name}-argo-proj-config-collapsible"):
             yield Grid(classes=f"collapsible-updateable-grid {self.app_name}",
                        id=f"{self.app_name}-proj-collapsible-updateable-grid")

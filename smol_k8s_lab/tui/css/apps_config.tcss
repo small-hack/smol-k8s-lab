@@ -175,7 +175,8 @@ CollapsibleTitle:focus {
    background: $blue_gray 20%;
    color: $light_cornflower;
    height: 3;
-   margin-bottom: 1;
+   padding-top: 1;
+   padding-bottom: 1;
 }
 
 .argo-config-row {
@@ -183,19 +184,23 @@ CollapsibleTitle:focus {
    height: auto;
    grid-size: 2;
    grid-columns: 0.5fr 1.5fr;
-   padding-bottom: 1;
    padding-left: 2;
    padding-right: 1;
 }
 
 .argo-switch-row {
    layout: grid;
-   height: 5;
+   height: 3;
    grid-size: 2;
    grid-columns: 0.5fr 1.5fr;
-   padding-bottom: 1;
    padding-left: 2;
    padding-right: 1;
+}
+
+.argo-switch {
+    height: 3;
+    width: auto;
+    content-align: left middle;
 }
 
 .argo-config-label {
@@ -211,15 +216,9 @@ CollapsibleTitle:focus {
    content-align: left middle;
 }
 
-/* divider between secret keys and the rest of the argo inputs */
-.secret-key-divider {
-   color: $light_cornflower;
-   height: 3;
-   padding-left: 1;
-   width: 100%;
-   background: $blue_gray 18%;
-   content-align: left middle;
-   margin-bottom: 1;
+/* adding a little extra padding between collapsibles */
+.collapsible-with-some-room {
+    padding-bottom: 1;
 }
 
 /* blurb to let users know that we don't have secret keys for this app, but they can add some */

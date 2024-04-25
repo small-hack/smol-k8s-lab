@@ -4,6 +4,7 @@
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
 from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInputsWidget
+from smol_k8s_lab.tui.app_widgets.restore_widget import RestoreAppConfig
 from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
 # external libraries
@@ -13,6 +14,8 @@ from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, VerticalScroll, Grid
 from textual.validation import Length
 from textual.widgets import Input, Label, Button, Switch, Static, Collapsible
+
+RESTOREABLE = ["seaweedfs", "nextcloud", "matrix", "mastodon", "home_assistant"]
 
 
 class AppInputs(Static):
@@ -33,6 +36,14 @@ class AppInputs(Static):
 
             if self.init:
                 yield InitValues(self.app_name, self.init)
+
+                # if we support restorations for this app, mount restore widget
+                if self.app_name in RESTOREABLE:
+                    yield RestoreAppConfig(
+                            self.app_name,
+                            self.init.get("restore", {"enabled": False}),
+                            id=f"{self.app_name}-restore-widget"
+                            )
 
             yield ArgoCDApplicationConfig(self.app_name, self.argo_params)
 
@@ -128,8 +139,10 @@ class InitValues(Static):
         truthy_value = event.value
 
         if self.init_values and event.switch.id == f"{self.app_name}-init-switch":
-           app_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
-           app_inputs.display = truthy_value
+           app_init_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
+           app_init_inputs.display = truthy_value
+           restore_inputs = self.screen.get_widget_by_id(f"{self.app_name}-restore-widget")
+           restore_inputs.display = truthy_value
 
            self.app.cfg['apps'][self.app_name]['init']['enabled'] = truthy_value
            self.app.write_yaml()
@@ -149,6 +162,7 @@ class AppsetSecretValues(Static):
     def compose(self) -> ComposeResult:
         with Collapsible(collapsed=False,
                          title="Template values for Argo CD ApplicationSet",
+                         classes="collapsible-with-some-room",
                          id=f"{self.app_name}-secret-keys-collapsible"):
             yield Grid(
                     classes="collapsible-updateable-grid",

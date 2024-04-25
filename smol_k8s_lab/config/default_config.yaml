@@ -1130,21 +1130,21 @@ apps:
       restore:
         # set to true to run a restic restore via a k8up job for:
         # seaweedfs pvcs and nextcloud files pvc
-        enabled: true
-        # for Cloudnative postgres operator cluster restores only
+        enabled: false
+        # for Cloudnative Postgres operator "cluster" CRD type resources
         cnpg_restore: true
-        # the restic snapshot IDs of the PVC snapshots you want to restore
+        # restic snapshot ID for each PVC
         restic_snapshot_ids:
-          # seaweedFS volume pvc snapshot id. if not given, we use the latest
-          seaweedfs_volume: ""
-          # seaweedFS filer pvc snapshot id. if not given, we use the latest
-          seaweedfs_filer: ""
-          # seaweedFS master pvc snapshot id. if not given, we use the latest
-          seaweedfs_master: ""
-          # nextcloud-files pvc snapshot id. if not given, we use the latest
-          nextcloud_files: ""
-          # nextcloud-config pvc snapshot id. if not given, we use the latest
-          nextcloud_config: ""
+          # seaweedFS volume pvc snapshot id
+          seaweedfs_volume: "latest"
+          # seaweedFS filer pvc snapshot id
+          seaweedfs_filer: "latest"
+          # seaweedFS master pvc snapshot id
+          seaweedfs_master: "latest"
+          # nextcloud-files pvc snapshot id
+          nextcloud_files: "latest"
+          # nextcloud-config pvc snapshot id - if you enabled config pvc, you can uncomment this
+          # nextcloud_config: "latest"
       values:
         # change the name of your admin user to whatever you like. This is used in an admin credentials k8s secret
         admin_user: "nextcloud_admin"
