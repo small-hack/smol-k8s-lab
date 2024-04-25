@@ -19,6 +19,11 @@ class InvalidAppsScreen(Screen):
                         key_display="b",
                         action="app.pop_screen",
                         description="⬅️ Back"),
+                Binding(key="f5",
+                        key_display="f5",
+                        description="Speak",
+                        action="app.speak_element",
+                        show=True),
                 Binding(key="n",
                         show=False,
                         action="app.bell")]
@@ -42,20 +47,21 @@ class InvalidAppsScreen(Screen):
         yield footer
 
         # warning label if there's invalid apps
-        warning_label = Label(
-                "\nClick the app links below to fix the errors or disable them.",
-                classes="help-text"
-                )
-        yield Grid(warning_label, id="invalid-apps")
+        data_table = DataTable(zebra_stripes=True,
+                               id="invalid-apps-table",
+                               cursor_type="row")
+        yield Grid(data_table, id="invalid-apps")
 
     def on_mount(self) -> None:
         # invalid apps error title styling
         invalid_box = self.get_widget_by_id("invalid-apps")
         border_title = "⚠️ The following app fields are empty"
         invalid_box.border_title = border_title
+        subtitle = "Click the app links above to fix the errors or disable them"
+        invalid_box.border_subtitle = subtitle
 
-        if self.app.speak_screen_titles:
-            self.app.action_say("Screen title: " + border_title)
+        self.call_after_refresh(self.app.play_screen_audio,
+                                screen="invalid_apps")
 
         self.build_pretty_nope_table()
 
@@ -65,18 +71,15 @@ class InvalidAppsScreen(Screen):
 
         This is just a grid of apps to update if a user leaves a field blank
         """
-        nope_container = self.get_widget_by_id("invalid-apps")
-
-        data_table = DataTable(zebra_stripes=True,
-                               id="invalid-apps-table",
-                               cursor_type="row")
+        # nope_container = self.get_widget_by_id("invalid-apps")
+        data_table = self.get_widget_by_id("invalid-apps-table")
 
         # then fill in the cluster table
         data_table.add_column(Text("Application", justify="center"))
         data_table.add_column(Text("Invalid Fields"))
 
         for app, fields in self.invalid_apps.items():
-            # we use an extra line to center the rows vertically 
+            # we use an extra line to center the rows vertically
             styled_row = [
                     Text(str("\n" + app)),
                     Text(str("\n" + ", ".join(fields)))
@@ -85,12 +88,16 @@ class InvalidAppsScreen(Screen):
             # we add extra height to make the rows more readable
             data_table.add_row(*styled_row, height=3, key=app)
 
-        nope_container.mount(Grid(data_table, id="invalid-apps-table-row"))
+        # add the newly created datatable to the main grid
+        # nope_container.mount(Grid(data_table, id="invalid-apps-table-row"))
+
+        # immediately set the focus to this data table
+        self.app.set_focus(data_table)
 
     @on(DataTable.RowSelected)
     def app_row_selected(self, event: DataTable.RowSelected) -> None:
         """
-        check which row was selected to launch a app config screen for app 
+        check which row was selected to launch a app config screen for app
         """
         row_index = event.cursor_row
         row = event.data_table.get_row_at(row_index)

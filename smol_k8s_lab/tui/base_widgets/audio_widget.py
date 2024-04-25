@@ -294,6 +294,9 @@ class SmolAudio(Widget):
 
             self.say_phrase('name.mp3')
 
+        elif "cloudflare_api_token" in focused_id:
+            self.say_phrase('cloudflare_api_token.mp3')
+
         elif focused_id.endswith("_language_input"):
             self.say_app(focused_id, "_language_input")
 
@@ -314,9 +317,15 @@ class SmolAudio(Widget):
         speak the currently focused element ID, if the user pressed f5
         """
         focused = self.app.focused
-        focused_id = focused.id.replace("-","_") if focused.id else None
         self.log("😘🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶")
         self.log(focused)
+
+        # every now and then nothing is focused for some reason...
+        if not focused:
+            self.log("nothing is focused")
+            return
+
+        focused_id = focused.id.replace("-","_") if focused.id else None
         self.log(focused_id)
         self.log("😘🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶🐶")
 
@@ -447,8 +456,63 @@ class SmolAudio(Widget):
         column1 = columns[0].label
         column2 = columns[1].label
 
-        # then play the row of the table
-        if data_table.id == "key-mappings-table":
+        if data_table.id == "invalid-apps-table":
+            # then play the row of the table
+            self.say_phrase('row.mp3')
+
+            # say the application field
+            application = row_column1.replace(" ", "_")
+            SAY(path.join(self.apps_audio, f"{application}.mp3"))
+
+            # say the invalid fields
+            self.say_phrase("invalid_fields.mp3")
+            invalid_fields = row_column2.split(", ")
+            for field in invalid_fields:
+                if "smtp" in field:
+                    # split string on _ into list of words
+                    sections = field.split("_")
+
+                    # remove _input from final string immediately
+                    if "input" in sections:
+                        sections.pop()
+
+                    # get the index of "smtp" in the list
+                    smtp_index = sections.index("smtp")
+
+                    # say S.M.T.P.
+                    self.say_phrase("smtp.mp3")
+                    noun = sections[smtp_index + 1:][0]
+
+                    # say the SMTP noun such as hostname or user
+                    self.say_phrase(f"{noun}.mp3")
+                elif "s3" in field:
+                    # split string on _ into list of words
+                    sections = field.split("_")
+
+                    # remove _input from final string immediately
+                    if "input" in sections:
+                        sections.pop()
+
+                    # get the index of "s3" in the list
+                    s3_index = sections.index("s3")
+
+                    # say "s three"
+                    self.say_phrase("s3.mp3")
+
+                    if "backup" not in sections:
+                        s3_index += 1
+                    else:
+                        self.say_phrase("backup.mp3")
+                        s3_index += 2
+
+                    # rejoin any remaining words with _ into one string
+                    noun = "_".join(sections[s3_index:])
+                    self.say_phrase(f"{noun}.mp3")
+                else:
+                    self.say_phrase(f"{field}.mp3")
+
+        elif data_table.id == "key-mappings-table":
+            # then play the row of the table
             self.say_phrase('row.mp3')
             key_binding = row_column1.replace(" ", "_").replace("+","_plus_")
             if "?" in key_binding:
@@ -496,8 +560,6 @@ class SmolAudio(Widget):
                     SAY(path.join(self.cluster_audio, 'linux_arm.mp3'))
                 elif row_column4 == "linux/amd64":
                     SAY(path.join(self.cluster_audio, 'linux_amd.mp3'))
-        else:
-            self.say_phrase('row.mp3')
 
     def on_focus(self, event: DescendantFocus) -> None:
         """

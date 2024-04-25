@@ -35,10 +35,13 @@ class ClusterModalScreen(ModalScreen):
         self.distro = distro
         self.row_key = row_key
         # keep the current context in memory in case the user cancels
-        self.start_current_context = subproc(["kubectl config current-context"])
+        self.start_current_context = subproc(["kubectl config current-context"],
+                                             spinner=False, quiet=True)
 
         # set the context to the current cluster so we can operate on it
-        system(f"kubectl config use-context {self.cluster}")
+        # system(f"kubectl config use-context {self.cluster}")
+        subproc([f"kubectl config use-context {self.cluster}"], spinner=False,
+                quiet=True)
         self.k8s_ctx = K8s()
 
         super().__init__()

@@ -13,29 +13,44 @@ screens:
   distro:
     title: |
       Kubernetes distribution config screen.
-
+    description: |
+       Here you can select a Kubernetes distro, configure nodes, and kubelet args
 
   apps:
     title: |
-       Applications Configuration screen (now with more squid). Here you can select and configure Argo C.D. directory type apps.
+       Applications Configuration screen (now with more squid).
+    description: |
+      Here you can select and configure Argo C.D. directory type apps. The screen contains two main panels on the upper three fourths of the screen, with a final panel on the bottom portion of the screen. The first panel on the left is a scrollable list of applications that can be selected to be enabled. The panel has a title of heart select apps, and a subtitle of "new app". The "new app" subtitle can be clicked to launch a modal screen to create a new app. You can also press the "A." key to do the same thing. Directly below the first panel is a button called "modify globals" for modifying global variables. The second panel is called "configure parameters for Argo C.D." and it will always have the configuration for the currently selected application. The bottom border contains a button that says "sync" only if you are modifying an existing cluster. The final panel at the bottom is a description box that says "Argo C.D. notes" with information about the application.
 
   new_app:
     title: |
        New Application modal screen
+    description: |
+       Here you create a new Argo C.D. application for smol k. eights lab to deploy for you. This screen contains a header asking you to filling the two vertically stacked inputs. The top input is for the name of the app. The bottom input is for a description of the app which can be formatted with rich text. Below that is a submit button. To exit this screen, press the escape key.
 
   modify_globals:
     title: |
-      Modify globally available Argo C.D. Application Set templating values. You can press escape to close this modal screen.
+      Modify globally available Argo C.D. Application Set templating values.
+    description: |
+      You can press escape to close this modal screen. This screen contains a header that says "Modify globally available Argo C.D. Application Set templating values". Below that is a scrollable container of input fields for global variables such as cluster issuer, time zone, and external secrets. Below that is a new key name input field with a plus button the left side of it to add a new variable name.
+
+  invalid_apps:
+    title: |
+      Apps with invalid fields Screen.
+    description: |
+      This screen contains a data table with a border title that says "The following applications have fields that are empty or invalid". The datatable has two columns. The first column is the name of the app. The second column is a list of fields for that app that are invalid. The bottom of the border says "Click the app links above to fix the errors or disable them".
 
   config:
     title: |
       Configure logging and password manager screen.
-
+    description: |
+      This is a general smol k eights lab screen meant for configuring logging and password management. The top box is for logging to set the log level, and log file. The bottom box is for the password manager.
 
   nodes:
     title: |
       Add or delete nodes screen.
-
+    description: |
+      view exiting nodes for a given cluster and delete them, or add new ones.
 
   tui_config:
     title: |
@@ -53,7 +68,7 @@ screens:
   confirm:
     title: Confirm screen
     description: |
-      This is the last step and screen to review your configuration.
+      This is the last step and screen to review your configuration. There is one giant box with tabs for each section of the YAML config file. Below that are two buttons for confirming your configuration or going back to a previous screen
 
 
   cluster_modal:
@@ -189,6 +204,8 @@ phrases:
   node_taints: node taints input
   kubelet_max_pods_input: Kubelet max pods input
   # apps screens
+  invalid_fields: invalid fields are
+  invalid_apps_table: invalid apps data table
   description_input: description input
   app_submit: submit button for creating a new app in smol K. eights lab
   app_name_input: name of new application input
@@ -216,7 +233,7 @@ phrases:
   email: email input
   cert_manager_cluster_issuer_acme_challenge_solver_input: cert manager cluster issuer acme challenge solver input
   cert_manager_cluster_issuer_acme_dns01_provider_input: cert manager cluster issuer acme D.N.S. oh one provider input
-  cert_manager_cloudflare_api_token_input: cert manager cloud flare A.P.I. token input
+  cloudflare_api_token: cloud flare A.P.I. token input
   oidc: O.I.D.C.
   provider: provider input
   um: ummm, a word I don't know yet. sorry, I'm not great under pressure.
