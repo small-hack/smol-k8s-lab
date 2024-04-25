@@ -30,6 +30,7 @@ class ArgoCDApplicationConfig(Static):
     def compose(self) -> ComposeResult:
         """
         commented code from before this was a collapsible
+        perhaps we make this a normal label somewhere? 🤔
         # help_text = (
         #         "[link=https://argo-cd.readthedocs.io/en/stable/user-guide/directory/]"
         #         "Argo CD Application Configuration[/]"

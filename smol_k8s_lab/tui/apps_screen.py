@@ -1,7 +1,7 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
 from smol_k8s_lab.utils.subproc import subproc
-from smol_k8s_lab.k8s_apps.operators.postgres_operators import configure_postgres_operator
+# from smol_k8s_lab.k8s_apps.operators.postgres_operators import configure_postgres_operator
 from smol_k8s_lab.k8s_tools.argocd_util import sync_argocd_app, check_if_argocd_app_exists
 from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
@@ -27,18 +27,20 @@ class AppsConfig(Screen):
     CSS_PATH = ["./css/apps_config.tcss",
                 "./css/apps_init_config.tcss"]
 
-    BINDINGS = [Binding(key="b,escape,q",
-                        key_display="b",
-                        action="app.pop_screen",
-                        description="Back"),
-                Binding(key="a",
-                        key_display="a",
-                        action="screen.launch_new_app_modal",
-                        description="New App"),
-                Binding(key="n",
-                        key_display="n",
-                        action="app.request_smol_k8s_cfg",
-                        description="Next")]
+    BINDINGS = [
+            Binding(key="b,escape,q",
+                    key_display="b",
+                    action="app.pop_screen",
+                    description="Back"),
+            Binding(key="a",
+                    key_display="a",
+                    action="screen.launch_new_app_modal",
+                    description="New App"),
+            Binding(key="n",
+                    key_display="n",
+                    action="app.request_smol_k8s_cfg",
+                    description="Next")
+            ]
 
     ToggleButton.BUTTON_INNER = '♥'
 

@@ -10,9 +10,9 @@ from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 from ruamel.yaml import CommentedSeq
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal, VerticalScroll
+from textual.containers import Container, Horizontal, VerticalScroll, Grid
 from textual.validation import Length
-from textual.widgets import Input, Label, Button, Switch, Static
+from textual.widgets import Input, Label, Button, Switch, Static, Collapsible
 
 
 class AppInputs(Static):
@@ -147,23 +147,43 @@ class AppsetSecretValues(Static):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        # secret keys
-        label =  Label("Template values for Argo CD ApplicationSet ",
-                       classes="secret-key-divider",
-                       id=f"{self.app_name}-secret-key-divider")
-        label.tooltip = ("🔒[i]optional[/]: Added to k8s secret for the Argo CD "
-                         "ApplicationSet Secret Plugin Generator.")
-        yield label
+        with Collapsible(collapsed=False,
+                         title="Template values for Argo CD ApplicationSet",
+                         id=f"{self.app_name}-secret-keys-collapsible"):
+            yield Grid(
+                    classes="collapsible-updateable-grid",
+                    id=f"{self.app_name}-secret-keys-collapsible-updateable-grid"
+                    )
 
+    def on_mount(self) -> None:
+        """
+        generate all the input rows for the each secret value.
+        also add tooltip to collapsible
+        """
+        header = self.get_widget_by_id(f"{self.app_name}-secret-keys-collapsible")
+        header.tooltip = ("🔒[i]optional[/]: Added to k8s secret for the Argo CD "
+                          "ApplicationSet Secret Plugin Generator.")
+        self.generate_initial_rows()
+
+    def generate_initial_rows(self) -> None:
+        """
+        generate initial secret key input rows
+        """
+        grid = self.get_widget_by_id(
+                f"{self.app_name}-secret-keys-collapsible-updateable-grid"
+                )
+
+        # secret keys
         if self.secret_keys:
             # iterate through the app's secret keys
             for secret_key, value in self.secret_keys.items():
-                yield self.generate_secret_key_row(secret_key, value)
+                secret_row = self.generate_secret_key_row(secret_key, value)
+                grid.mount(secret_row)
         else:
             help = ("smol-k8s-lab doesn't include any templated values for"
                     " this app, but you can add some below if you're using "
                     "a custom Argo CD App repo.")
-            yield Label(help, classes="secret-key-help-text")
+            grid.mount(Label(help, classes="secret-key-help-text"))
 
         key_input = Input(placeholder="new key name",
                           id=f"{self.app_name}-new-secret",
@@ -176,7 +196,8 @@ class AppsetSecretValues(Static):
 
         button = Button("➕", id=f"{self.app_name}-new-secret-button",
                         classes="new-secret-button")
-        yield Horizontal(button, key_input, classes="app-input-row")
+        grid.mount(Horizontal(button, key_input, classes="app-input-row",
+                              id=f"{self.app_name}-new-button-row"))
 
     def generate_secret_key_row(self, secret_key: str, value: str = "") -> None:
         """
@@ -240,14 +261,16 @@ class AppsetSecretValues(Static):
         """
         add a new input row for secret stuff
         """
-        inputs_box = self.app.get_widget_by_id(f"{self.app_name}-argo-config-container")
+        grid = self.get_widget_by_id(
+                f"{self.app_name}-secret-keys-collapsible-updateable-grid"
+                )
         input = self.get_widget_by_id(f"{self.app_name}-new-secret")
 
         if len(input.value) > 1:
             # add new secret key row
-            inputs_box.mount(
+            grid.mount(
                     self.generate_secret_key_row(input.value),
-                    after=self.get_widget_by_id(f"{self.app_name}-secret-key-divider")
+                    before=self.get_widget_by_id(f"{self.app_name}-new-button-row")
                     )
             # clear the input field after we're created the new row and
             # updated the yaml
