@@ -29,15 +29,6 @@ SmolK8sLabCollapsibleInputsWidget {
     height: auto;
 }
 
-/* entire row for app label, app switch label, and switch for each app with initialization */
-.app-init-switch-and-labels-row {
-    background: $blue_gray 25%;
-    layout: grid;
-    grid-size: 4;
-    height: 3;
-    grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
-}
-
 /* label for each app in the conigure selected apps pane */
 .initialization-label {
    height: 3;
@@ -45,13 +36,6 @@ SmolK8sLabCollapsibleInputsWidget {
    content-align: left middle;
    padding-left: 1;
    color: $light_cornflower;
-}
-
-/* switch label for each app */
-.app-init-switch-label {
-   height: 3;
-   width: 100%;
-   content-align: right middle;
 }
 
 .app-init-label {

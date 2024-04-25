@@ -1,6 +1,6 @@
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Grid
+from textual.containers import Horizontal, Grid, Container
 from textual.validation import Length
 from textual.widgets import Input, Label, Static, Switch, Collapsible
 
@@ -15,10 +15,28 @@ class RestoreAppConfig(Static):
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
-        with Collapsible(collapsed=False,
-                         title="Restore Configuration",
-                         classes="collapsible-with-some-room",
-                         id=f"{self.app_name}-restore-config-collapsible"):
+        # restore enabled label
+        with Container(classes=f"app-init-switch-and-labels-row {self.app_name}"):
+            init_lbl = Label("Restore from backup", classes="initialization-label")
+            init_lbl.tooltip = ("if supported, smol-k8s-lab will perform a "
+                                "one-time initial restore of this app's PVCs "
+                                "from an s3 endpoint using restic via k8up")
+            yield init_lbl
+
+            yield Label("Enabled: ", classes="app-init-switch-label")
+
+            switch = Switch(value=self.restore_params['enabled'],
+                            id=f"{self.app_name}-restore-enabled",
+                            name="enabled",
+                            classes="app-init-switch")
+            yield switch
+
+        # Restic snapshot IDs collapsible, that gets hidden if restore
+        # is disabled with switch above
+        with Collapsible(id=f"{self.app_name}-restore-config-collapsible",
+                         collapsed=False,
+                         title="Restic Snapshot IDs",
+                         classes="collapsible-with-some-room"):
             yield Grid(classes="collapsible-updateable-grid",
                        id=f"{self.app_name}-restore-grid")
 
@@ -31,18 +49,8 @@ class RestoreAppConfig(Static):
 
         # 'cnpg_restore': 'restore a CNPG postgres cluster from backups'
         # restore enabled is a boolean, so we have a seperate process for it
-        enabled_tooltip = 'enable restoring PVCs from restic backups via k8up'
-        label = Label("enable restore:", classes="argo-config-label")
-        label.tooltip = enabled_tooltip
-
-        switch = Switch(value=self.restore_params['enabled'],
-                        classes="argo-switch",
-                        name="enabled",
-                        id=f"{self.app_name}-restore-enabled")
-        switch.tooltip = enabled_tooltip
 
         grid = self.get_widget_by_id(f"{self.app_name}-restore-grid")
-        grid.mount(Horizontal(label, switch, classes="argo-switch-row"))
 
         if self.restore_params.get("restic_snapshot_ids", None):
             self.generate_rows(grid)
@@ -51,10 +59,7 @@ class RestoreAppConfig(Static):
         """
         generate each row for the restore widget
         """
-        base_grid.mount(Grid(id=f"{self.app_name}-restic-snapshot-ids"))
-        grid = self.get_widget_by_id(f"{self.app_name}-restic-snapshot-ids")
-        grid.mount(Label("Restic Snapshot IDs", classes="argo-config-header"))
-
+        grid = self.get_widget_by_id(f"{self.app_name}-restore-grid")
         # create a label and input row for each argo value, excedpt directory_recursion
         for key, value in self.restore_params["restic_snapshot_ids"].items():
             if not value:
@@ -96,7 +101,7 @@ class RestoreAppConfig(Static):
         truthy = event.value
 
         if event.switch.id == f"{self.app_name}-restore-enabled":
-           grid = self.get_widget_by_id(f"{self.app_name}-restic-snapshot-ids")
+           grid = self.get_widget_by_id(f"{self.app_name}-restore-config-collapsible")
            grid.display = truthy
 
            self.app.cfg['apps'][self.app_name]['init']['restore']['enabled'] = truthy

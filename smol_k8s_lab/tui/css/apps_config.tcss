@@ -99,7 +99,6 @@ $navy: rgb(35,35,54);
     border: round $cornflower;
     background: $navy 60%;
     margin-right: 1;
-    grid-gutter: 1;
     link-background-hover: $navy;
     link-color-hover: $orange;
 }
@@ -139,62 +138,51 @@ CollapsibleTitle:focus {
     background: $blue_gray 20%;
 }
 
-/* this is the grid present in the SmolK8sLabCollapsibleInputs widget */
+/* this is the grid present in the SmolK8sLabCollapsibleInputs and RestoreAppConfig widgets */
 .collapsible-updateable-grid {
-    grid-gutter: 1;
     align: center top;
     height: auto;
+    grid-gutter: 1;
 }
 
 /* each app input label and input field row */
 .app-input-row {
-   layout: grid;
-   height: auto;
-   grid-size: 2;
-   grid-columns: 0.5fr 1.5fr;
-   padding-bottom: 1;
-   padding-left: 2;
-   padding-right: 1;
+    layout: grid;
+    height: auto;
+    grid-size: 2;
+    grid-columns: 0.5fr 1.5fr;
+    padding-bottom: 1;
+    padding-left: 2;
+    padding-right: 1;
 }
 
 /* argo cd config param section */
 .argo-config-container {
-   align: left top;
-   scrollbar-background: $dark_gray;
-   scrollbar-background-active: $dark_gray;
-   scrollbar-background-hover: $dark_gray;
-   scrollbar-color-active: $sky_blue;
-   scrollbar-color-hover: $light_cornflower;
-   scrollbar-color: $cornflower;
-}
-
-.argo-config-header {
-   width: 100%;
-   content-align: left middle;
-   padding-left: 1;
-   background: $blue_gray 20%;
-   color: $light_cornflower;
-   height: 3;
-   padding-top: 1;
-   padding-bottom: 1;
+    align: left top;
+    scrollbar-background: $dark_gray;
+    scrollbar-background-active: $dark_gray;
+    scrollbar-background-hover: $dark_gray;
+    scrollbar-color-active: $sky_blue;
+    scrollbar-color-hover: $light_cornflower;
+    scrollbar-color: $cornflower;
 }
 
 .argo-config-row {
-   layout: grid;
-   height: auto;
-   grid-size: 2;
-   grid-columns: 0.5fr 1.5fr;
-   padding-left: 2;
-   padding-right: 1;
+    layout: grid;
+    height: 3;
+    grid-size: 2;
+    grid-columns: 0.5fr 1.5fr;
+    padding-left: 2;
+    padding-right: 1;
 }
 
 .argo-switch-row {
-   layout: grid;
-   height: 3;
-   grid-size: 2;
-   grid-columns: 0.5fr 1.5fr;
-   padding-left: 2;
-   padding-right: 1;
+    layout: grid;
+    height: 3;
+    grid-size: 2;
+    grid-columns: 0.5fr 1.5fr;
+    padding-left: 2;
+    padding-right: 1;
 }
 
 .argo-switch {
@@ -218,7 +206,25 @@ CollapsibleTitle:focus {
 
 /* adding a little extra padding between collapsibles */
 .collapsible-with-some-room {
-    padding-bottom: 1;
+    padding-top: 1;
+}
+
+/* entire row for app label, app switch label, and switch for each app with restore enabled */
+.app-init-switch-and-labels-row {
+    background: $blue_gray 25%;
+    layout: grid;
+    grid-size: 4;
+    grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
+    grid-gutter: 1;
+    height: auto;
+}
+
+/* switch label for each app */
+.app-init-switch-label {
+    height: 3;
+    width: 100%;
+    content-align: right middle;
+    color: $sky_blue;
 }
 
 /* blurb to let users know that we don't have secret keys for this app, but they can add some */
