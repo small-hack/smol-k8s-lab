@@ -116,7 +116,7 @@ class AppsConfig(Screen):
         self.sub_title = sub_title
 
         # select-apps styling - select apps container - top left
-        select_apps_widget = self.get_widget_by_id("select-add-apps")
+        select_apps_widget = self.get_widget_by_id("selection-list-of-apps")
         select_apps_widget.border_title = "[#ffaff9]♥[/] [i]select[/] [#C1FF87]apps"
         select_apps_widget.border_subtitle = "[@click=screen.launch_new_app_modal]✨ [i]new[/] [#C1FF87]app[/][/]"
 
