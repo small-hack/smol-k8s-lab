@@ -27,9 +27,30 @@ class RestoreAppConfig(Static):
 
             switch = Switch(value=self.restore_params['enabled'],
                             id=f"{self.app_name}-restore-enabled",
-                            name="enabled",
+                            name="restore enabled",
                             classes="app-init-switch")
             yield switch
+
+        # enable or disable cnpg restore if available
+        cnpg_restore = self.restore_params.get("cnpg_restore", None)
+        if cnpg_restore and isinstance(cnpg_restore, bool):
+
+            with Container(classes=f"app-less-switch-row {self.app_name}",
+                           id=f"{self.app_name}-restore-cnpg-row"):
+                init_lbl = Label("Restore CNPG cluster",
+                                 classes="initialization-label")
+                init_lbl.tooltip = ("if supported, smol-k8s-lab will perform a "
+                                    "one-time initial restore of this app's CNPG "
+                                    "cluster from an s3 endpoint using barman")
+                yield init_lbl
+
+                yield Label("Enabled: ", classes="app-init-switch-label")
+
+                switch = Switch(value=cnpg_restore,
+                                id=f"{self.app_name}-cnpg-restore-enabled",
+                                name="cnpg restore enabled",
+                                classes="app-init-switch")
+                yield switch
 
         # Restic snapshot IDs collapsible, that gets hidden if restore
         # is disabled with switch above
@@ -103,6 +124,12 @@ class RestoreAppConfig(Static):
         if event.switch.id == f"{self.app_name}-restore-enabled":
            grid = self.get_widget_by_id(f"{self.app_name}-restore-config-collapsible")
            grid.display = truthy
+           restore_row = self.get_widget_by_id(f"{self.app_name}-restore-cnpg-row")
+           restore_row.display = truthy
 
            self.app.cfg['apps'][self.app_name]['init']['restore']['enabled'] = truthy
+           self.app.write_yaml()
+
+        if event.switch.id == f"{self.app_name}-cnpg-restore-enabled":
+           self.app.cfg['apps'][self.app_name]['init']['restore']['cnpg_restore'] = truthy
            self.app.write_yaml()
