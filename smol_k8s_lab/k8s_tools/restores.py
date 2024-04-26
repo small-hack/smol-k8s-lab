@@ -35,6 +35,7 @@ def restore_seaweedfs(k8s_obj: K8s,
                 "apiVersion": "v1",
                 "metadata": {
                   "name": "",
+                  "namespace": namespace,
                   "annotations": {"k8up.io/backup": "true"}
                   },
                 "spec": {
@@ -86,8 +87,8 @@ def restore_pvc(k8s_obj: K8s,
     restore_dict = {'apiVersion': 'k8up.io/v1',
                     'kind': 'Restore',
                     'metadata': {
-                        'name': '',
-                        'namespace': ''
+                        'name': pvc,
+                        'namespace': namespace
                         },
                     'spec': {
                         'failedJobsHistoryLimit': 5,
@@ -97,23 +98,23 @@ def restore_pvc(k8s_obj: K8s,
                             },
                         'restoreMethod': {
                             'folder': {
-                                'claimName': ''
+                                'claimName': pvc
                                 }
                             },
                         'backend': {
                             'repoPasswordSecretRef': {
-                                'name': '',
+                                'name': f"{app}-backups-credentials",
                                 'key': 'resticRepoPassword'
                                 },
                             's3': {
-                                'endpoint': '',
-                                'bucket': '',
+                                'endpoint': s3_endpoint,
+                                'bucket': s3_bucket,
                                 'accessKeyIDSecretRef': {
-                                    'name': '',
+                                    'name': f"{app}-backups-credentials",
                                     'key': 'applicationKeyId'
                                     },
                                 'secretAccessKeySecretRef': {
-                                    'name': '',
+                                    'name': f"{app}-backups-credentials",
                                     'key': 'applicationKey'
                                     }
                                 }
@@ -124,15 +125,6 @@ def restore_pvc(k8s_obj: K8s,
     # if snapshot not passed in, restic/k8up use the latest snapshot
     if snapshot_id and snapshot_id != "latest":
         restore_dict['spec']['snapshot'] = snapshot_id
-
-    restore_dict['metadata']['name'] = pvc
-    restore_dict['metadata']['namespace'] = namespace
-    restore_dict['spec']['restoreMethod']['folder']['claimName'] = pvc
-    restore_dict['spec']['backend']['repoPasswordSecretRef']['name'] = f"{app}-backups-credentials"
-    restore_dict['spec']['backend']['s3']['endpoint'] = s3_endpoint
-    restore_dict['spec']['backend']['s3']['bucket'] = s3_bucket
-    restore_dict['spec']['backend']['s3']['accessKeyIDSecretRef']['name'] = f"{app}-backups-credentials"
-    restore_dict['spec']['backend']['s3']['secretAccessKeySecretRef']['name'] = f"{app}-backups-credentials"
 
     # apply the k8up restore job
     k8s_obj.apply_custom_resources([restore_dict])
