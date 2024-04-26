@@ -41,7 +41,7 @@ class AppInputs(Static):
                     initial_tab = "argocd-tab"
                 # Add the TabbedContent widget for app config
                 with TabbedContent(initial=initial_tab,
-                                   id=f"{self.app_name}-tabbed-content"):
+                                   id="app-config-tabbed-content"):
                     # tab 1 - init options
                     yield TabPane("Initialization Config", id="init-tab")
                     # tab 2 - argo options
@@ -86,7 +86,7 @@ class AppInputs(Static):
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
-        tabbed_content = self.get_widget_by_id(f"{self.app_name}-tabbed-content")
+        tabbed_content = self.get_widget_by_id("app-config-tabbed-content")
         tabbed_content.show_tab(tab)
         tabbed_content.active = tab
 
@@ -149,13 +149,14 @@ class InitValues(Static):
                     yield init_vals
 
                 if self.sensitive_values:
-                    self.app.check_for_env_vars(self.app_name,
-                                                self.app.cfg['apps'][self.app_name])
+                    self.screen.check_for_env_vars(
+                            self.app_name, self.app.cfg['apps'][self.app_name]
+                            )
                     sensitive_init_vals = SmolK8sLabCollapsibleInputsWidget(
                             app_name=self.app_name,
                             title="Sensitive Init Values",
                             collapsible_id=f"{cid}-sensitive-init-values-collapsible",
-                            inputs=self.app.sensitive_values[self.app_name],
+                            inputs=self.screen.sensitive_values[self.app_name],
                             sensitive_inputs=True)
 
                     sensitive_init_vals.tooltip = (

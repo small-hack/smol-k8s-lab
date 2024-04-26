@@ -43,8 +43,8 @@ class SmolAudio(Widget):
         self.element_audio = path.join(self.tts_files, 'phrases/element.mp3')
         super().__init__()
 
-    # def on_mount(self) -> None:
-    #     self.log("audio widget has been mounted")
+    def on_mount(self) -> None:
+        self.log("SmolAudio widget has been mounted")
 
     def play_screen_audio(self,
                           screen: str,
@@ -131,15 +131,20 @@ class SmolAudio(Widget):
             SAY(path.join(self.tts_files, 'phrases/um.mp3'))
 
     def say_app(self,
-                element_id: str,
+                element_id: str = "",
                 trim_text: str|list = None,
                 say_trimmed: bool = True,
-                smtp: bool = False):
+                smtp: bool = False,
+                app: str = ""):
         """
         trims the end of the element to play just the app's name audio
         if say_trimmed, or smtp is true, also says the rest of the element
+
+        if you pass in a key word argument "app" we can say just the app name
         """
-        if trim_text:
+        if app:
+            SAY(path.join(self.apps_audio, f'{app}.mp3'))
+        elif trim_text:
             if isinstance(trim_text, str):
                 app_name = element_id.replace(trim_text, "")
 
@@ -345,12 +350,19 @@ class SmolAudio(Widget):
                                      "_sensitive_init_values_collapsible",
                                      say_trimmed=False)
                         self.say_phrase('sensitive.mp3')
+                        self.say_phrase('init_values.mp3')
                     else:
                         self.say_app(focused_id, "_init_values_collapsible")
-                    self.say_phrase('init_values.mp3')
                 elif focused_id.endswith("_argo_config_collapsible"):
                     self.say_app(focused_id, "_argo_config_collapsible")
-
+                elif focused_id.endswith("_secret_keys_collapsible"):
+                    self.say_app(focused_id, "_secret_keys_collapsible")
+                elif focused_id.endswith("_argo_proj_config_collapsible"):
+                    self.say_app(focused_id, "_argo_proj_config_collapsible")
+                elif focused_id.endswith("_restore_config_collapsible"):
+                    self.say_app(focused_id, "_restore_config_collapsible")
+                else:
+                    self.say_phrase(focused_id)
             else:
                 # play phrase "Element is..."
                 SAY(self.element_audio)
@@ -396,8 +408,22 @@ class SmolAudio(Widget):
                     self.say_app(focused_id, "_init_switch")
                 elif focused_id.endswith("_directory_recursion"):
                     self.say_app(focused_id, "_directory_recursion")
+                elif focused_id.endswith("_restore_enabled"):
+                    if "cnpg" in focused_id:
+                        self.say_app(focused_id, "_cnpg_restore_enabled",
+                                     say_trimmed=False)
+                        self.say_app(app="cnpg_operator")
+                        self.say_phrase("restore_enabled.mp3")
+                    else:
+                        self.say_app(focused_id, "_restore_enabled")
                 else:
                     self.say_phrase(f'{focused_id}.mp3')
+
+                # say if the switch is off or not
+                if focused.value:
+                    self.say_phrase("switch_on.mp3")
+                else:
+                    self.say_phrase("switch_off.mp3")
 
             # if this is an app inputs widget container, we need to get the app
             # name and then read that first before the name of the vertical scroll

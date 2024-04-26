@@ -6,7 +6,6 @@ from smol_k8s_lab.k8s_distros.kind import delete_kind_cluster
 from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
-from os import system
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -17,6 +16,13 @@ from textual.widgets.data_table import RowKey
 
 
 class ClusterModalScreen(ModalScreen):
+    """
+    A simple textual modal screen for asking a user what they'd like to do with
+    their cluster.
+
+    Includes a few buttons for launching apps screen, edit nodes screen, and
+    deleting clusters.
+    """
     CSS_PATH = ["../css/cluster_modal.tcss"]
     BINDINGS = [
             Binding(key="b,escape,q",
@@ -39,7 +45,6 @@ class ClusterModalScreen(ModalScreen):
                                              spinner=False, quiet=True)
 
         # set the context to the current cluster so we can operate on it
-        # system(f"kubectl config use-context {self.cluster}")
         subproc([f"kubectl config use-context {self.cluster}"], spinner=False,
                 quiet=True)
         self.k8s_ctx = K8s()

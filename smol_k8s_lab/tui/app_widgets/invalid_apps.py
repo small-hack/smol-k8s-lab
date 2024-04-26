@@ -5,11 +5,11 @@ from textual import on
 from textual.binding import Binding
 from textual.app import ComposeResult
 from textual.containers import Grid
-from textual.screen import Screen
-from textual.widgets import DataTable, Footer, Label
+from textual.screen import ModalScreen
+from textual.widgets import DataTable, Footer
 
 
-class InvalidAppsScreen(Screen):
+class InvalidAppsModalScreen(ModalScreen):
     """
     Textual app to show all invalid apps
     """
@@ -30,7 +30,7 @@ class InvalidAppsScreen(Screen):
 
     def __init__(self, invalid_apps: dict) -> None:
         """
-        takes config: dict, should be the entire smol-k8s-lab config.yaml
+        takes invalid apps dict
         """
         self.show_footer = self.app.cfg['smol_k8s_lab']['tui']['show_footer']
         self.invalid_apps = invalid_apps
@@ -38,7 +38,7 @@ class InvalidAppsScreen(Screen):
 
     def compose(self) -> ComposeResult:
         """
-        Compose app with tabbed content.
+        Compose footer and base grid with datatable
         """
         # Footer to show keys unless the footer is disabled globally
         footer = Footer()
@@ -46,7 +46,7 @@ class InvalidAppsScreen(Screen):
             footer.display = False
         yield footer
 
-        # warning label if there's invalid apps
+        # table in grid to be used for invalid apps
         data_table = DataTable(zebra_stripes=True,
                                id="invalid-apps-table",
                                cursor_type="row")
@@ -69,9 +69,10 @@ class InvalidAppsScreen(Screen):
         """
         No, but with flare ✨
 
-        This is just a grid of apps to update if a user leaves a field blank
+        This is where we populate the DataTable with all the apps to update.
+        If a user leaves a field blank it contains an invalid fields column
+        for all the fields you need to fix
         """
-        # nope_container = self.get_widget_by_id("invalid-apps")
         data_table = self.get_widget_by_id("invalid-apps-table")
 
         # then fill in the cluster table
@@ -88,9 +89,6 @@ class InvalidAppsScreen(Screen):
             # we add extra height to make the rows more readable
             data_table.add_row(*styled_row, height=3, key=app)
 
-        # add the newly created datatable to the main grid
-        # nope_container.mount(Grid(data_table, id="invalid-apps-table-row"))
-
         # immediately set the focus to this data table
         self.app.set_focus(data_table)
 
@@ -102,8 +100,9 @@ class InvalidAppsScreen(Screen):
         row_index = event.cursor_row
         row = event.data_table.get_row_at(row_index)
 
-        # get the row's first column (app) and remove whitespace
-        app = row[0].plain.strip()
-
-        # try to launch the app screen for the given app again
-        self.app.action_request_apps_cfg(app)
+        # get the row's first column (app) and remove whitespace, and then
+        # do the same for second column, only just grab the first invalid field
+        return_app_field = (row[0].plain.strip(),
+                            row[1].plain.strip().split(", ")[0])
+        # go back to the app screen and scroll to the selected app and field
+        self.dismiss(return_app_field)

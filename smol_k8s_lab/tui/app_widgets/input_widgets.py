@@ -139,7 +139,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         if event.validation_result.is_valid:
             input = event.input
             if self.sensitive:
-                self.app.sensitive_values[self.app_name][input.name] = input.value
+                self.screen.sensitive_values[self.app_name][input.name] = input.value
             else:
                 parent_yaml = self.app.cfg['apps'][self.app_name]['init']['values']
 

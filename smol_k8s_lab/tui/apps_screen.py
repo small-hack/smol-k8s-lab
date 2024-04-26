@@ -3,12 +3,14 @@
 from smol_k8s_lab.utils.subproc import subproc
 # from smol_k8s_lab.k8s_apps.operators.postgres_operators import configure_postgres_operator
 from smol_k8s_lab.k8s_tools.argocd_util import sync_argocd_app, check_if_argocd_app_exists
+from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsModalScreen
 from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
 from smol_k8s_lab.tui.util import format_description
 
 # external libraries
+from os import environ
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
@@ -20,9 +22,9 @@ from textual.widgets._toggle_button import ToggleButton
 from textual.widgets.selection_list import Selection
 
 
-class AppsConfig(Screen):
+class AppsConfigScreen(Screen):
     """
-    Textual app to smol-k8s-lab applications
+    Textual screen to display smol-k8s-lab applications for configuring
     """
     CSS_PATH = ["./css/apps_config.tcss",
                 "./css/apps_init_config.tcss"]
@@ -38,7 +40,7 @@ class AppsConfig(Screen):
                     description="New App"),
             Binding(key="n",
                     key_display="n",
-                    action="app.request_smol_k8s_cfg",
+                    action="screen.try_next_screen",
                     description="Next")
             ]
 
@@ -66,6 +68,17 @@ class AppsConfig(Screen):
 
         # inital highlight if we got here via a link
         self.initial_app = highlighted_app
+
+        # sensitive values we are prepared to take so far
+        self.sensitive_values = {
+                'cert_manager': {},
+                'nextcloud': {},
+                'home_assistant': {},
+                'matrix': {},
+                'mastodon': {},
+                'postgres_operator': {},
+                'zitadel': {}
+                }
 
         super().__init__()
 
@@ -126,15 +139,164 @@ class AppsConfig(Screen):
         if self.initial_app:
             self.scroll_to_app(self.initial_app)
 
+    def action_try_next_screen(self) -> None:
+        """
+        verify all the apps fields are valid, and if not, launch a warning
+        modal screen and don't allow continue to next screen
+
+        if all apps fields are valid, try to launch the smol_k8s_cfg screen
+        """
+        def check_invalid_apps(app_field_tuple: tuple = None):
+            """
+            process the app we get back scroll to it
+            """
+            if app_field_tuple:
+                app = app_field_tuple[0]
+                # field = app_field[1]
+                self.scroll_to_app(app)
+
+        # go check all the apps for empty inputs
+        invalid_apps = self.check_for_invalid_inputs(self.app.cfg['apps'])
+
+        if invalid_apps:
+            self.app.push_screen(InvalidAppsModalScreen(invalid_apps),
+                                 check_invalid_apps)
+        else:
+            # save our sensitive values temporarily at the app level
+            self.app.sensitive_values = self.sensitive_values
+            self.app.action_request_smol_k8s_cfg()
+
+    def check_for_invalid_inputs(self, apps_dict: dict = {}) -> list:
+        """
+        check each app for any empty init or secret key fields
+        """
+        invalid_apps = {}
+
+        if apps_dict:
+            for app, metadata in apps_dict.items():
+                if not metadata['enabled']:
+                    continue
+
+                empty_fields = []
+
+                # check for empty init fields (some apps don't support init at all)
+                init_dict = metadata.get('init', None)
+                if init_dict:
+                    # make sure init is enabled before checking
+                    if init_dict['enabled']:
+                        # regular yaml inputs
+                        init_values = init_dict.get('values', None)
+                        if init_values:
+                            for key, value in init_values.items():
+                                if not value:
+                                    empty_fields.append(key)
+
+                        # sensitive inputs
+                        init_sensitive_values = init_dict.get('sensitive_values',
+                                                              None)
+                        if init_sensitive_values:
+
+                            prompts = self.check_for_env_vars(app, metadata)
+                            if prompts:
+                                skip = False
+
+                                # cert manager is special
+                                if app == "cert_manager":
+                                    solver = init_values['cluster_issuer_acme_challenge_solver']
+                                    if solver == "http01":
+                                        skip = True
+
+                                for value in prompts:
+                                    if not self.sensitive_values[app].get(value, ""):
+                                        if not skip:
+                                            empty_fields.append(value)
+
+                # check for empty secret key fields (some apps don't have secret keys)
+                secret_keys = metadata['argo'].get('secret_keys', None)
+                if secret_keys:
+                    for key, value in secret_keys.items():
+                        if not value:
+                            empty_fields.append(key)
+
+                if empty_fields:
+                    invalid_apps[app] = empty_fields
+
+        return invalid_apps
+
+    def check_for_env_vars(self, app: str, app_cfg: dict = {}) -> list:
+        """
+        check for required env vars and return list of dict and set:
+            values found dict, set of values you need to prompt for
+        """
+        # keep track of a list of stuff to prompt for
+        prompt_values = []
+
+        env_vars = app_cfg['init']['sensitive_values']
+
+        # provided there's actually any env vars to go get...
+        if env_vars:
+            # iterate through list of env vars to check
+            for item in env_vars:
+                # check env and self.sensitive_values
+                value = environ.get(
+                        "_".join([app.replace("-", "_").upper(), item]),
+                        default=self.sensitive_values[app].get(item.lower(), ""))
+
+                if not value:
+                    # append any missing values to prompt_values
+                    prompt_values.append(item.lower())
+
+                self.sensitive_values[app][item.lower()] = value
+
+        return set(prompt_values)
+
     def action_launch_new_app_modal(self) -> None:
-        def get_new_app(app_response):
+        """
+        action bound to a key for adding a new app to launch the new app modal
+        screen.
+        """
+        def create_new_app_in_yaml(app_response):
+            """
+            after the new app modal screen is closed, if they didn't click cancel
+            it returns the name of the app and description for us to create a new
+            app in the yaml with.
+            """
             app_name = app_response[0]
             app_description = app_response[1]
 
             if app_name and app_description:
-                self.create_new_app_in_yaml(app_name, app_description)
+                underscore_name = app_name.replace(" ", "_").replace("-", "_")
 
-        self.app.push_screen(NewAppModalScreen(["argo-cd"]), get_new_app)
+                # updates the base user yaml
+                self.app.cfg['apps'][underscore_name] = {
+                    "enabled": True,
+                    "description": app_description,
+                    "argo": {
+                        "secret_keys": {},
+                        "repo": "",
+                        "path": "",
+                        "revision": "",
+                        "namespace": "",
+                        "directory_recursion": False,
+                        "project": {
+                            "source_repos": [""],
+                            "destination": {
+                                "namespaces": ["argocd"]
+                                }
+                            }
+                        }
+                    }
+
+                # adds selection to the app selection list
+                apps = self.app.get_widget_by_id("selection-list-of-apps")
+                apps.add_option(Selection(underscore_name.replace("_", "-"),
+                                          underscore_name, True))
+
+                # scroll down to the new app
+                apps.action_last()
+
+        self.app.push_screen(NewAppModalScreen(["argo-cd"]),
+                             create_new_app_in_yaml)
 
     def scroll_to_app(self, app_to_highlight: str) -> None:
         """
@@ -242,34 +404,3 @@ class AppsConfig(Screen):
             self.app.cfg['apps'][app]['enabled'] = False
 
         self.app.write_yaml()
-
-    def create_new_app_in_yaml(self, app_name: str, app_description: str = "") -> None:
-        underscore_name = app_name.replace(" ", "_").replace("-", "_")
-
-        # updates the base user yaml
-        self.app.cfg['apps'][underscore_name] = {
-            "enabled": True,
-            "description": app_description,
-            "argo": {
-                "secret_keys": {},
-                "repo": "",
-                "path": "",
-                "revision": "",
-                "namespace": "",
-                "directory_recursion": False,
-                "project": {
-                    "source_repos": [""],
-                    "destination": {
-                        "namespaces": ["argocd"]
-                        }
-                    }
-                }
-            }
-
-        # adds selection to the app selection list
-        apps = self.app.get_widget_by_id("selection-list-of-apps")
-        apps.add_option(Selection(underscore_name.replace("_", "-"),
-                                  underscore_name, True))
-
-        # scroll down to the new app
-        apps.action_last()

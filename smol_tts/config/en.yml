@@ -158,11 +158,15 @@ numbers:
   200: two hundred
 
 phrases:
+  espeak: E. Speak
+  say: say
   element: Element is
   element_collapsible: Element is a collapsible called
   element_tab: Selected tab is
   value: Current value is
   row: Selected row is
+  switch_on: switch is in the on position
+  switch_off: switch is in the off position
   # welcome screen
   v: Version
   point: point
@@ -204,6 +208,7 @@ phrases:
   node_taints: node taints input
   kubelet_max_pods_input: Kubelet max pods input
   # apps screens
+  restore_enabled: restore enabled switch
   invalid_fields: invalid fields are
   invalid_apps_table: invalid apps data table
   description_input: description input
@@ -220,6 +225,7 @@ phrases:
   argo_config_collapsible: Argo C.D. Application configuration
   secret_keys_collapsible: Template values for argo C.D. application set
   argo_proj_config_collapsible: Advanced argo C.D. project configuration
+  restore_config_collapsible: Restic Snapshot IDs
   name: name input
   last: last
   first: first
@@ -227,7 +233,7 @@ phrases:
   language: language input
   password: password input
   init_switch: Enable initialization switch
-  init_values: Initialization values
+  init_values_collapsible: Initialization values
   repo: repository input
   path: repository path input
   zitadel_project_input: zitadel project input
@@ -318,6 +324,7 @@ phrases:
   apps_cfg_scrolling_container: apps config scrolling container
   global_apps_cfg: global apps variables config tab
   global_apps_cfg_scrolling_container: global apps variables config scrolling container
+  app_config_tabbed_content: application configuration tabbed content
   # cluster modal screen
   modify_apps_button: modify applications button
   modify_nodes_button: modify nodes button

@@ -228,7 +228,7 @@ CollapsibleTitle:focus {
     grid-size: 4;
     grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
     grid-gutter: 1;
-    height: auto;
+    height: 3;
     margin-top: 1;
 }
 
