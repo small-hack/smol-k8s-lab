@@ -137,8 +137,10 @@ def create_argocd_project(k8s_obj: K8s,
     if isinstance(clusters, str):
         if clusters == "https://kubernetes.default.svc":
             name = "in-cluster"
+            server = "https://kubernetes.default.svc"
         elif clusters == "in-cluster":
             server = "https://kubernetes.default.svc"
+            name = "in-cluster"
         else:
             cluster_json = loads(subproc(f"argocd cluster get {clusters} -o json"))
             name = cluster_json["name"]
