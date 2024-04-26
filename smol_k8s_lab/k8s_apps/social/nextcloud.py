@@ -187,9 +187,12 @@ def restore_nextcloud(argocd_namespace,
         refresh_bweso(nextcloud_hostname, k8s_obj, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
+        # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+        # WARNING: change this back to main when done testing
+        # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
         external_secrets_yaml = (
                 "https://raw.githubusercontent.com/small-hack/argocd-apps"
-                "/main/nextcloud/app_of_apps/external_secrets_appset.yaml"
+                "/add-pvc-helm-chart-for-nextcloud/nextcloud/app_of_apps/external_secrets_appset.yaml"
                 )
         k8s_obj.apply_manifests(external_secrets_yaml, argocd_namespace)
 
@@ -214,7 +217,8 @@ def restore_nextcloud(argocd_namespace,
 
     # then we begin the restic restore of all the nextcloud PVCs we lost
     for pvc in ['files', 'config']:
-        if secrets.get(f'{pvc}_pvc_enabled', False):
+        pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
+        if pvc_enabled and pvc_enabled.lower() != 'false':
             pvc_dict = {
                     "kind": "PersistentVolumeClaim",
                     "apiVersion": "v1",
@@ -237,7 +241,7 @@ def restore_nextcloud(argocd_namespace,
                     }
 
             # creates the nexcloud files pvc
-            k8s_obj.apply_custom_resources(pvc_dict)
+            k8s_obj.apply_custom_resources([pvc_dict])
             s3_endpoint = secrets.get('s3_endpoint', "")
             restore_pvc(k8s_obj,
                         'nextcloud',
