@@ -13,7 +13,8 @@ from textual import on
 from textual.app import ComposeResult
 from textual.containers import Container, Horizontal, VerticalScroll, Grid
 from textual.validation import Length
-from textual.widgets import Input, Label, Button, Switch, Static, Collapsible
+from textual.widgets import (Input, Label, Button, Switch, Static, Collapsible,
+                             TabbedContent, TabPane)
 
 RESTOREABLE = ["seaweedfs", "nextcloud", "matrix", "mastodon", "home_assistant"]
 
@@ -33,33 +34,59 @@ class AppInputs(Static):
         # standard values to source an argo cd app from an external repo
         with VerticalScroll(id=f"{self.app_name}-argo-config-container",
                             classes="argo-config-container"):
-
             if self.init:
-                yield InitValues(self.app_name, self.init)
+                # Add the TabbedContent widget for app config
+                with TabbedContent(initial="init-tab",
+                                   id=f"{self.app_name}-tabbed-content"):
+                    # tab 1 - init options
+                    yield TabPane("Initialization Config", id="init-tab")
+                    # tab 2 - argo options
+                    yield TabPane("Argo CD Application Config", id="argocd-tab")
 
-                # if we support restorations for this app, mount restore widget
-                if self.app_name in RESTOREABLE:
-                    yield RestoreAppConfig(
-                            self.app_name,
-                            self.init.get("restore", {"enabled": False}),
-                            id=f"{self.app_name}-restore-widget"
-                            )
+    def on_mount(self) -> None:
+        """
+        if using a tabbed content feature, mount the widgets into the tab on mount
+        """
+        if not self.init:
+            grid = self.get_widget_by_id(f"{self.app_name}-argo-config-container")
+            grid.mount(ArgoCDApplicationConfig(self.app_name, self.argo_params))
+            grid.mount(AppsetSecretValues(self.app_name,
+                                          self.argo_params.get('secret_keys',
+                                                               False)))
+            grid.mount(ArgoCDProjectConfig(self.app_name,
+                                           self.argo_params['project']))
+        else:
+            # mount widgets into the init tab pane
+            init_pane = self.get_widget_by_id("init-tab")
+            init_pane.mount(InitValues(self.app_name, self.init))
 
-            yield ArgoCDApplicationConfig(self.app_name, self.argo_params)
+            # if we support restorations for this app, mount restore widget
+            if self.app_name in RESTOREABLE:
+                init_pane.mount(RestoreAppConfig(
+                        self.app_name,
+                        self.init.get("restore", {"enabled": False}),
+                        id=f"{self.app_name}-restore-widget"
+                        ))
 
+            # mount widgets into the argocd tab pane
+            argo_pane = self.get_widget_by_id("argocd-tab")
+            argo_pane.mount(ArgoCDApplicationConfig(self.app_name,
+                                                    self.argo_params))
             secret_keys = self.argo_params.get('secret_keys', False)
-            if not secret_keys and isinstance(secret_keys, bool):
-                self.app.cfg['apps'][self.app_name]['secret_keys'] = {}
-                self.app.write_yaml()
+            argo_pane.mount(AppsetSecretValues(self.app_name, secret_keys))
+            argo_pane.mount(ArgoCDProjectConfig(self.app_name,
+                                                self.argo_params['project']))
 
-            yield AppsetSecretValues(self.app_name, secret_keys)
-
-            yield ArgoCDProjectConfig(self.app_name, self.argo_params['project'])
+    def action_show_tab(self, tab: str) -> None:
+        """Switch to a new tab."""
+        tabbed_content = self.get_widget_by_id(f"{self.app_name}-tabbed-content")
+        tabbed_content.show_tab(tab)
+        tabbed_content.active = tab
 
 
 class InitValues(Static):
     """
-    widget to take special smol-k8s-lab init values
+    widget to take special smol-k8s-lab init and sensitive init values
     """
     CSS_PATH = "../css/apps_init_config.tcss"
 
@@ -154,8 +181,12 @@ class AppsetSecretValues(Static):
     chart. These values are saved to the base yaml in:
     self.app.cfg['apps'][app]['secret_keys']
     """
-    def __init__(self, app_name: str, secret_keys: dict = {}) -> None:
+    def __init__(self, app_name: str, secret_keys: dict|bool = False) -> None:
         self.app_name = app_name
+        # if not secret keys, make sure we write it to the yaml
+        if not secret_keys and isinstance(secret_keys, bool):
+            self.app.cfg['apps'][self.app_name]['secret_keys'] = {}
+            self.app.write_yaml()
         self.secret_keys = secret_keys
         super().__init__()
 

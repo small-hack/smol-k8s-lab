@@ -24,7 +24,7 @@ $navy: rgb(35,35,54);
     grid-rows: 0.25fr 1fr;
 }
 
-/* TabbedContent box for the kind widget */
+/* TabbedContent box for the k3s widget */
 #k3s-tabbed-content {
     border: round $cornflower;
     border-title-color: $sky_blue;
@@ -41,14 +41,26 @@ $navy: rgb(35,35,54);
     height: auto;
 }
 
+TabbedContent #--content-tab-k3s-yaml-tab.-active {
+    color: $light_cornflower;
+}
+
 /* tabpane 2 */
 #k3s-kubelet-tab {
     height: auto;
 }
 
-/* tabpane 2 */
+TabbedContent #--content-tab-k3s-kubelet-tab.-active {
+    color: $light_cornflower;
+}
+
+/* tabpane 3 */
 #k3s-nodes-tab {
     height: auto;
+}
+
+TabbedContent #--content-tab-k3s-nodes-tab.-active {
+    color: $light_cornflower;
 }
 
 /* k3s container itself */

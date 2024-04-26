@@ -72,7 +72,7 @@ class K3sConfigWidget(Static):
             self.metadata = DEFAULT_DISTRO_OPTIONS[self.distro]
 
         with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
-            # Add the TabbedContent widget for kind config
+            # Add the TabbedContent widget for k3s config
             with TabbedContent(initial="k3s-yaml-tab", id="k3s-tabbed-content"):
                 # tab 1 - networking options
                 with TabPane("k3s.yaml", id="k3s-yaml-tab"):
