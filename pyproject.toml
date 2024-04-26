@@ -41,7 +41,7 @@ requests           = "^2.28"
 rich               = "^13.0"
 ruamel-yaml        = "^0.18"
 ruamel-yaml-string = "^0.1"
-textual            = "^0.56"
+textual            = "^0.58"
 xdg-base-dirs      = "^6.0"
 playsound          = {git = "https://github.com/taconi/playsound"}
 # requires installing local packages such as: https://stackoverflow.com/a/66065656
