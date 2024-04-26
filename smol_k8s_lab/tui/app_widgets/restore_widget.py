@@ -16,6 +16,7 @@ class RestoreAppConfig(Static):
 
     def compose(self) -> ComposeResult:
         # restore enabled label
+        restore_enabled = self.restore_params['enabled']
         with Container(classes=f"app-init-switch-and-labels-row {self.app_name}"):
             init_lbl = Label("Restore from backup", classes="initialization-label")
             init_lbl.tooltip = ("if supported, smol-k8s-lab will perform a "
@@ -25,41 +26,32 @@ class RestoreAppConfig(Static):
 
             yield Label("Enabled: ", classes="app-init-switch-label")
 
-            switch = Switch(value=self.restore_params['enabled'],
+            switch = Switch(value=restore_enabled,
                             id=f"{self.app_name}-restore-enabled",
                             name="restore enabled",
                             classes="app-init-switch")
             yield switch
 
-        # enable or disable cnpg restore if available
         cnpg_restore = self.restore_params.get("cnpg_restore", None)
         if cnpg_restore and isinstance(cnpg_restore, bool):
-
-            with Container(classes=f"app-less-switch-row {self.app_name}",
-                           id=f"{self.app_name}-restore-cnpg-row"):
-                init_lbl = Label("Restore CNPG cluster",
-                                 classes="initialization-label")
-                init_lbl.tooltip = ("if supported, smol-k8s-lab will perform a "
-                                    "one-time initial restore of this app's CNPG "
-                                    "cluster from an s3 endpoint using barman")
-                yield init_lbl
-
-                yield Label("Enabled: ", classes="app-init-switch-label")
-
-                switch = Switch(value=cnpg_restore,
-                                id=f"{self.app_name}-cnpg-restore-enabled",
-                                name="cnpg restore enabled",
-                                classes="app-init-switch")
-                yield switch
+            cnpg_row = Container(classes=f"app-less-switch-row {self.app_name}",
+                                 id=f"{self.app_name}-restore-cnpg-row")
+            cnpg_row.display = restore_enabled
+            yield cnpg_row
 
         # Restic snapshot IDs collapsible, that gets hidden if restore
         # is disabled with switch above
-        with Collapsible(id=f"{self.app_name}-restore-config-collapsible",
-                         collapsed=False,
-                         title="Restic Snapshot IDs",
-                         classes="collapsible-with-some-room"):
-            yield Grid(classes="collapsible-updateable-grid",
-                       id=f"{self.app_name}-restore-grid")
+        update_grid = Grid(classes="collapsible-updateable-grid",
+                           id=f"{self.app_name}-restore-grid")
+        collapsible = Collapsible(
+                update_grid,
+                id=f"{self.app_name}-restore-config-collapsible",
+                collapsed=False,
+                title="Restic Snapshot IDs",
+                classes="collapsible-with-some-room"
+                )
+        collapsible.display = restore_enabled
+        yield collapsible
 
     def on_mount(self) -> None:
         """
@@ -68,12 +60,24 @@ class RestoreAppConfig(Static):
         header = self.get_widget_by_id(f"{self.app_name}-restore-config-collapsible")
         header.tooltip = "Configure parameters for a restore from backups."
 
-        # 'cnpg_restore': 'restore a CNPG postgres cluster from backups'
-        # restore enabled is a boolean, so we have a seperate process for it
-
-        grid = self.get_widget_by_id(f"{self.app_name}-restore-grid")
+        # enable or disable cnpg restore if available
+        cnpg_restore = self.restore_params.get("cnpg_restore", None)
+        if cnpg_restore and isinstance(cnpg_restore, bool):
+            box = self.get_widget_by_id(f"{self.app_name}-restore-cnpg-row")
+            init_lbl = Label("Restore CNPG cluster",
+                             classes="initialization-label")
+            init_lbl.tooltip = ("if supported, smol-k8s-lab will perform a "
+                                "one-time initial restore of this app's CNPG "
+                                "cluster from an s3 endpoint using barman")
+            box.mount(init_lbl)
+            box.mount(Label("Enabled: ", classes="app-init-switch-label"))
+            box.mount(Switch(value=cnpg_restore,
+                             id=f"{self.app_name}-cnpg-restore-enabled",
+                             name="cnpg restore enabled",
+                             classes="app-init-switch"))
 
         if self.restore_params.get("restic_snapshot_ids", None):
+            grid = self.get_widget_by_id(f"{self.app_name}-restore-grid")
             self.generate_rows(grid)
 
     def generate_rows(self, base_grid: Grid) -> None:

@@ -227,7 +227,7 @@ CollapsibleTitle:focus {
 
 /* entire row for app label, app switch label, and switch for each app with restore enabled */
 .app-init-switch-and-labels-row {
-    background: $blue_gray 40%;
+    background: $blue_gray 43%;
     layout: grid;
     grid-size: 4;
     grid-columns: 1.3fr 0.7fr 0.5fr 0fr;
