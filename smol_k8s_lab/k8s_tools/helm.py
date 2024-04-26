@@ -22,7 +22,7 @@ APPSET_URLS = {
         "cert-manager": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/cert-manager/cert-manager_argocd_app.yaml",
         "ingress-nginx": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/ingress-nginx/ingress-nginx_argocd_app.yaml",
         "cilium": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/alpha/cilium/cilium_argocd_appset.yaml",
-        "cnpg-cluster": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/alpha/cilium/cilium_argocd_appset.yaml"
+        "cnpg-cluster": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/nextcloud/app_of_apps/postgres_argocd_appset.yaml"
         }
 
 
