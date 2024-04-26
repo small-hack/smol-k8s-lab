@@ -115,7 +115,6 @@ class SmolAudio(Widget):
                             await self.workers.wait_for_complete([worker_obj])
 
                 self.app.call_from_thread(SAY, sound=audio_file)
-                # SAY(audio_file)
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
@@ -349,6 +348,9 @@ class SmolAudio(Widget):
                     else:
                         self.say_app(focused_id, "_init_values_collapsible")
                     self.say_phrase('init_values.mp3')
+                elif focused_id.endswith("_argo_config_collapsible"):
+                    self.say_app(focused_id, "_argo_config_collapsible")
+
             else:
                 # play phrase "Element is..."
                 SAY(self.element_audio)
@@ -420,6 +422,7 @@ class SmolAudio(Widget):
 
             # if this is a selection list, such as the apps list
             elif isinstance(focused, SelectionList):
+                self.say_phrase(f'{focused_id}.mp3')
                 self.say_phrase("highlighted.mp3")
                 # get the actual highlighted app
                 highlighted_idx = focused.highlighted

@@ -57,12 +57,7 @@ $navy: rgb(35,35,54);
     border: round $light_cornflower
 }
 
-/* matches only the left hand side of top half of screen */
-#select-add-apps {
-    height: auto;
-}
-
-/* matches the app selection list, the left button container */
+/* matches the app selection list and the left button container */
 #left-apps-container {
     grid-rows: 1fr 0.2fr;
     align: center top;

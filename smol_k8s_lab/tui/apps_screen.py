@@ -93,8 +93,7 @@ class AppsConfig(Screen):
         with Container(id="apps-config-container"):
             # top left: the SelectionList of k8s applications
             with Grid(id="left-apps-container"):
-                with VerticalScroll(id="select-add-apps"):
-                    yield selection_list
+                yield selection_list
 
                 with Grid(id="left-button-box"):
                     # yield AddAppInput()

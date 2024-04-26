@@ -210,12 +210,16 @@ phrases:
   app_submit: submit button for creating a new app in smol K. eights lab
   app_name_input: name of new application input
   highlighted: Highlighted app is
-  select_add_apps: Select and add apps list container. Press tab again to use the selection list, then  use arrow keys to navigate the list
   selection_list_of_apps: Selection list of Kubernetes apps.
   modify_globals: modify globals button
   app_inputs_pane: app inputs pane
   inputs: inputs container
+  init_tab: Initialization config tab
+  argocd_tab: Argo C.D. Application and Project configuration tab
   argo_config_container: Argo C.D. config container
+  argo_config_collapsible: Argo C.D. Application configuration
+  secret_keys_collapsible: Template values for argo C.D. application set
+  argo_proj_config_collapsible: Advanced argo C.D. project configuration
   name: name input
   last: last
   first: first
