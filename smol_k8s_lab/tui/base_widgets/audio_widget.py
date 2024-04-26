@@ -535,7 +535,6 @@ class SmolAudio(Widget):
             else:
                 self.say_phrase('row.mp3')
                 # cluster name
-                self.say_phrase('cluster.mp3')
                 for name in row_column1.split("-"):
                     if name:
                         SAY(path.join(self.cluster_audio, f'{name}.mp3'))
@@ -546,7 +545,8 @@ class SmolAudio(Widget):
 
                 # version
                 self.say_phrase('version.mp3')
-                version = row_column3.rstrip("+k3s1").lstrip("v").split(".")
+                version = row_column3.replace("+k3s1",
+                                              "").lstrip("v").split(".")
                 last_item = version[-1]
                 for number in version:
                     SAY(path.join(self.tts_files, f'numbers/{number}.mp3'))
