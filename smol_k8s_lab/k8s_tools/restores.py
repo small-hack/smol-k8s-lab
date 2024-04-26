@@ -205,9 +205,10 @@ def restore_postgresql(app: str,
     with open(values_file_name, 'w') as values_file:
         yaml.dump(restore_dict, values_file)
 
-    release_dict = {"release_name": f"{app}-postgres-cluster",
+    release_dict = {"release_name": "cnpg-cluster",
                     "namespace": namespace,
-                    "values_file": values_file_name}
+                    "values_file": values_file_name,
+                    "chart_name": "cnpg-cluster/cnpg-cluster"}
     release = Helm.chart(**release_dict)
 
     # this actually applies the helm chart release we've defined above
