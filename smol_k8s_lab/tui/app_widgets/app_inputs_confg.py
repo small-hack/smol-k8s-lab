@@ -35,8 +35,12 @@ class AppInputs(Static):
         with VerticalScroll(id=f"{self.app_name}-argo-config-container",
                             classes="argo-config-container"):
             if self.init:
+                if self.init['enabled']:
+                    initial_tab = "init-tab"
+                else:
+                    initial_tab = "argocd-tab"
                 # Add the TabbedContent widget for app config
-                with TabbedContent(initial="init-tab",
+                with TabbedContent(initial=initial_tab,
                                    id=f"{self.app_name}-tabbed-content"):
                     # tab 1 - init options
                     yield TabPane("Initialization Config", id="init-tab")
@@ -62,11 +66,14 @@ class AppInputs(Static):
 
             # if we support restorations for this app, mount restore widget
             if self.app_name in RESTOREABLE:
-                init_pane.mount(RestoreAppConfig(
+                restore_widget = RestoreAppConfig(
                         self.app_name,
                         self.init.get("restore", {"enabled": False}),
                         id=f"{self.app_name}-restore-widget"
-                        ))
+                        )
+                # only display restore widget if init is enabled
+                restore_widget.display = self.init["enabled"]
+                init_pane.mount(restore_widget)
 
             # mount widgets into the argocd tab pane
             argo_pane = self.get_widget_by_id("argocd-tab")
