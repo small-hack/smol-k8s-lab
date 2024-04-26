@@ -6,7 +6,7 @@ DESCRIPTION: restore stuff with k8up and cnpg operator
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 # internal libraries
-from smol_k8s_lab.constants import PWD, XDG_CACHE_DIR
+from smol_k8s_lab.constants import XDG_CACHE_DIR
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.utils.subproc import subproc
@@ -79,7 +79,7 @@ def restore_pvc(k8s_obj: K8s,
                 namespace: str,
                 s3_endpoint: str,
                 s3_bucket: str,
-                snapshot_id: str = ""):
+                snapshot_id: str = "latest"):
     """
     builds a k8up restore manifest and applies it
     """
@@ -122,7 +122,7 @@ def restore_pvc(k8s_obj: K8s,
                     }
 
     # if snapshot not passed in, restic/k8up use the latest snapshot
-    if snapshot_id:
+    if snapshot_id and snapshot_id != "latest":
         restore_dict['spec']['snapshot'] = snapshot_id
 
     restore_dict['metadata']['name'] = pvc
