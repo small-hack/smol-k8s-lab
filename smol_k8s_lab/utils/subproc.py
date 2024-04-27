@@ -7,6 +7,7 @@ import logging as log
 from subprocess import Popen, PIPE
 import re
 from rich.console import Console
+from rich.markup import MarkupError
 from rich.theme import Theme
 from rich.progress import Progress
 from time import sleep
@@ -133,7 +134,13 @@ def run_subprocess(command: str, decode_ascii: bool = False, **kwargs):
 
     # if quiet = True, or res_stdout is empty, we hide this
     if res_stdout and not quiet:
-        log.info(res_stdout)
+        try:
+            log.info(res_stdout)
+        except MarkupError:
+            log.debug(
+                "Rich logging errored because there's special characters in the"
+                " output and rich can't render the markdown.")
+            log.info(res_stdout, extra={"markup": False})
 
     if res_stderr and not quiet:
         log.info(res_stderr)
@@ -156,7 +163,7 @@ def run_subprocess(command: str, decode_ascii: bool = False, **kwargs):
             return output
 
 
-def simple_loading_bar(tasks: dict, time_to_wait: int = 120):
+def simple_loading_bar(tasks: dict, time_to_wait: int = 120) -> None:
     """
     Prints a small loading bar using rich.
     Accepts a dict of {"task_name": "task"}
