@@ -3949,6 +3949,17 @@ requests = ">=2.0.0"
 rsa = ["oauthlib[signedtoken] (>=3.0.0)"]
 
 [[package]]
+name = "resticpy"
+version = "1.0.4"
+description = "Restic backup Python wrapper"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "resticpy-1.0.4-py3-none-any.whl", hash = "sha256:cfcbef73c49553ed29766632fa31b7ec665eeef60ba3fcf686c27d10a0b6c783"},
+    {file = "resticpy-1.0.4.tar.gz", hash = "sha256:e64817b3acc109b7c3efe4f7876d8b2518f086eaf3100ed299a04e46170f940a"},
+]
+
+[[package]]
 name = "rich"
 version = "13.7.1"
 description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
@@ -5475,4 +5486,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "b30d7096b9041a9f7f7d3aed202d576a7ee406d9bc492698532b8d21d2a12c1c"
+content-hash = "57c7e715cd091ea468a4b7da131e6eb587b126b36eec3396e0924e14c4071247"

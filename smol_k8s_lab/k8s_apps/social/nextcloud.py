@@ -202,6 +202,9 @@ def restore_nextcloud(argocd_namespace,
     # these are the remote backups for seaweedfs
     s3_backup_endpoint = secrets['s3_backup_endpoint']
     s3_backup_bucket = secrets['s3_backup_bucket']
+    access_key_id = config_dict['init']['values']['s3_backup_access_id']
+    secret_access_key = config_dict['init']['values']['s3_backup_secret_key']
+    restic_repo_password = config_dict['init']['values']['restic_repo_password']
     s3_pvc_capacity = secrets['s3_pvc_capacity']
 
     # then we create all the seaweedfs pvcs we lost and restore them
@@ -212,6 +215,9 @@ def restore_nextcloud(argocd_namespace,
             nextcloud_namespace,
             s3_backup_endpoint,
             s3_backup_bucket,
+            access_key_id,
+            secret_access_key,
+            restic_repo_password,
             s3_pvc_capacity,
             pvc_storage_class,
             snapshot_ids['seaweedfs_volume'],
@@ -253,6 +259,9 @@ def restore_nextcloud(argocd_namespace,
                              'nextcloud',
                              s3_backup_endpoint,
                              s3_backup_bucket,
+                             access_key_id,
+                             secret_access_key,
+                             restic_repo_password,
                              snapshot_ids[f'nextcloud_{pvc}']
                              )
 

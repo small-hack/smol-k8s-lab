@@ -1,7 +1,6 @@
-#!/usr/bin/env python3.11
 """
-       Name: restores
-DESCRIPTION: restore stuff with k8up and cnpg operator
+       Name: restores.py
+DESCRIPTION: restore stuff with k8up (restic on k8s) and cnpg operator
      AUTHOR: @jessebot
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
@@ -13,7 +12,8 @@ from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
 import logging as log
-from os import path
+from os import path, environ
+import restic
 from time import sleep
 import yaml
 
@@ -23,6 +23,9 @@ def restore_seaweedfs(k8s_obj: K8s,
                       namespace: str,
                       s3_endpoint: str,
                       s3_bucket: str,
+                      access_key_id: str,
+                      secret_access_key: str,
+                      restic_repo_password: str,
                       s3_pvc_capacity: str,
                       storage_class: str = "local-path",
                       volume_snapshot_id: str = "",
@@ -73,7 +76,8 @@ def restore_seaweedfs(k8s_obj: K8s,
 
         # build a k8up restore file and apply it
         k8up_restore_pvc(k8s_obj, app, swfs_pvc, namespace,
-                         s3_endpoint, s3_bucket, snapshot_id)
+                         s3_endpoint, s3_bucket, access_key_id, secret_access_key,
+                         restic_repo_password, snapshot_id)
 
 
 def k8up_restore_pvc(k8s_obj: K8s,
@@ -82,6 +86,9 @@ def k8up_restore_pvc(k8s_obj: K8s,
                      namespace: str,
                      s3_endpoint: str,
                      s3_bucket: str,
+                     access_key_id: str,
+                     secret_access_key: str,
+                     restic_repo_password: str,
                      snapshot_id: str = "latest"):
     """
     builds a k8up restore manifest and applies it
@@ -127,6 +134,22 @@ def k8up_restore_pvc(k8s_obj: K8s,
     # if snapshot not passed in, restic/k8up use the latest snapshot
     if snapshot_id and snapshot_id != "latest":
         restore_dict['spec']['snapshot'] = snapshot_id
+    else:
+        # set restic environment variables
+        restic.repository = f"s3:{s3_endpoint}/{s3_bucket}"
+        environ.setdefault("RESTIC_PASSWORD_COMMAND",
+                           f"echo -n '{restic_repo_password}'")
+        environ.setdefault("AWS_ACCESS_KEY_ID", access_key_id)
+        environ.setdefault("AWS_SECRET_ACCESS_KEY", secret_access_key)
+
+        # get all the restic snapshots
+        snapshots = restic.snapshots(group_by='path')
+
+        for snapshot in snapshots:
+            # makes sure this is the snapshot for the correct path
+            if pvc in snapshot["group_key"]["paths"][0]:
+                # gets the long ID of the latest snapshot for this path
+                restore_dict['spec']['snapshot'] = snapshot['snapshots'][-1]['id']
 
     # apply the k8up restore job
     k8s_obj.apply_custom_resources([restore_dict])
