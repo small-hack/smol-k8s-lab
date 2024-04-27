@@ -103,19 +103,19 @@ def restore_pvc(k8s_obj: K8s,
                             },
                         'backend': {
                             'repoPasswordSecretRef': {
-                                'name': f"{app}-backups-credentials",
+                                'name': "s3-backups-credentials",
                                 'key': 'resticRepoPassword'
                                 },
                             's3': {
                                 'endpoint': s3_endpoint,
                                 'bucket': s3_bucket,
                                 'accessKeyIDSecretRef': {
-                                    'name': f"{app}-backups-credentials",
-                                    'key': 'applicationKeyId'
+                                    'name': "s3-backups-credentials",
+                                    'key': 'accessKeyID'
                                     },
                                 'secretAccessKeySecretRef': {
-                                    'name': f"{app}-backups-credentials",
-                                    'key': 'applicationKey'
+                                    'name': "s3-backups-credentials",
+                                    'key': 'secretAccessKey'
                                     }
                                 }
                             }
@@ -141,7 +141,7 @@ def restore_postgresql(app: str,
     restore a CNPG operator controlled postgresql cluster
     """
     restore_dict = {
-            "name": "cnpg",
+            "name": cluster_name,
             "instances": 1,
             "imageName": f"ghcr.io/cloudnative-pg/postgresql:{postgresql_version}",
             "bootstrap": {
@@ -176,12 +176,12 @@ def restore_postgresql(app: str,
                   "endpointURL": f"http://{s3_endpoint}",
                   "s3Credentials": {
                     "accessKeyId": {
-                      "name": f"{app}-pgsql-credentials",
-                      "key": "ACCESS_KEY_ID"
+                      "name": "s3-postgres-credentials",
+                      "key": "S3_USER"
                       },
                     "secretAccessKey": {
-                      "name": f"{app}-pgsql-credentials",
-                      "key": "ACCESS_SECRET_KEY"
+                      "name": "s3-postgres-credentials",
+                      "key": "S3_PASSWORD"
                       }
                     }
                   },
