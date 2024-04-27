@@ -3,7 +3,8 @@ from .constants import DEFAULT_SAVE_PATH
 # external libs
 import click
 from click import option, command, Choice
-from os import environ
+import tarfile
+from os import environ, path
 from rich.console import Console
 from rich.highlighter import RegexHighlighter
 from rich.panel import Panel
@@ -116,7 +117,11 @@ class RichCommand(click.Command):
         default=DEFAULT_SAVE_PATH,
         type=str,
         help="override the default path to save generated audio files to")
-def tts_gen(category: str = "", language: str = "", save_path: str = ""):
+@option("--tar", "-t",
+        is_flag=True,
+        help="tar (compress) all the sound files and put them into sound dir. Used mostly for releases")
+def tts_gen(category: str = "", language: str = "", save_path: str = "",
+            tar: bool = False):
     """
     regenerate TTS audio files and report how long it took
     """
@@ -134,6 +139,12 @@ def tts_gen(category: str = "", language: str = "", save_path: str = ""):
                                   category=category,
                                   save_path=save_path)
         asyncio.run(lang_obj.process_all_languages())
+
+        # tar the directory and save it in the release directory if needed
+        if tar:
+            tarball = tarfile.open(f"{language}.tar.gz", "w:gz")
+            tarball.add(path.join(save_path, language))
+            tar.clone()
 
         # print how long everything took
         elapsed = time.perf_counter() - s
