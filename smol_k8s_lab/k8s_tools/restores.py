@@ -215,7 +215,7 @@ def restore_postgresql(app: str,
                 "name": cluster_name,
                 "barmanObjectStore": {
                   "destinationPath": f"s3://{s3_bucket}/",
-                  "endpointURL": f"http://{s3_endpoint}",
+                  "endpointURL": f"https://{s3_endpoint}",
                   "s3Credentials": {
                     "accessKeyId": {
                       "name": "s3-postgres-credentials",
