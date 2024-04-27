@@ -286,6 +286,7 @@ def main(config: str = "",
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
                 apps.pop('matrix', {}),
+                SECRETS.get('global_pvc_storage_class', 'local-path'),
                 zitadel_hostname,
                 oidc_obj,
                 bw

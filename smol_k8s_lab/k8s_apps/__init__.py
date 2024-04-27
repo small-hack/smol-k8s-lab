@@ -208,6 +208,7 @@ def setup_federated_apps(k8s_obj: K8s,
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
                          matrix_dict: dict = {},
+                         pvc_storage_class: str = "local-path",
                          zitadel_hostname: str = "",
                          zitadel_obj: Zitadel = None,
                          bw: BwCLI = None) -> None:
@@ -218,7 +219,8 @@ def setup_federated_apps(k8s_obj: K8s,
         configure_home_assistant(k8s_obj, home_assistant_dict, api_tls_verify, bw)
 
     if nextcloud_dict.get('enabled', False):
-        configure_nextcloud(k8s_obj, nextcloud_dict, argocd_namespace, bw, zitadel_obj)
+        configure_nextcloud(k8s_obj, nextcloud_dict, argocd_namespace,
+                            pvc_storage_class, bw, zitadel_obj)
 
     if mastodon_dict.get('enabled', False):
         configure_mastodon(k8s_obj, mastodon_dict, bw)

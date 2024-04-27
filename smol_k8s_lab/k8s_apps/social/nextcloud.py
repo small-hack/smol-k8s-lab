@@ -20,6 +20,7 @@ from rich.prompt import Prompt
 def configure_nextcloud(k8s_obj: K8s,
                         config_dict: dict,
                         argocd_namespace: str,
+                        pvc_storage_class: str,
                         bitwarden: BwCLI = None,
                         zitadel: Zitadel = None) -> None:
     """
@@ -160,6 +161,7 @@ def configure_nextcloud(k8s_obj: K8s,
                               config_dict,
                               secrets,
                               restore_dict,
+                              pvc_storage_class,
                               k8s_obj,
                               bitwarden)
 
@@ -176,6 +178,7 @@ def restore_nextcloud(argocd_namespace,
                       config_dict: dict,
                       secrets: dict,
                       restore_dict: dict,
+                      pvc_storage_class: str,
                       k8s_obj: K8s,
                       bitwarden: BwCLI) -> None:
     """
@@ -210,6 +213,7 @@ def restore_nextcloud(argocd_namespace,
             s3_backup_endpoint,
             s3_backup_bucket,
             s3_pvc_capacity,
+            pvc_storage_class,
             snapshot_ids['seaweedfs_volume'],
             snapshot_ids['seaweedfs_master'],
             snapshot_ids['seaweedfs_filer']
@@ -247,8 +251,8 @@ def restore_nextcloud(argocd_namespace,
                         'nextcloud',
                         f'nextcloud-{pvc}',
                         'nextcloud',
-                        s3_endpoint,
-                        'nextcloud',
+                        s3_backup_endpoint,
+                        s3_backup_bucket,
                         snapshot_ids[f'nextcloud_{pvc}']
                         )
 
