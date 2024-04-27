@@ -250,7 +250,6 @@ phrases:
   project: project
   namespaces: comma separated list of allowed name spaces input
   source_repos: comma separated list of source repos input
-  backup: backup
   s3: S. three
   access_id: access I.D.
   secret_key: secret key
@@ -258,7 +257,6 @@ phrases:
   region: region input
   bucket: bucket input
   pvc_capacity: P.V.C capacity input
-  restic_repo_password: restic repository password input
   smtp: S.M.T.P.
   sensitive: sensitive
   port: port input
@@ -289,7 +287,16 @@ phrases:
   domains: input for coma separated list of domains
   emails: input for coma separated list of domains
   metallb_address_pool_input: Metal L.B. I.P. address pool input
+  # stuff related to backups specifically
+  backup: backup
+  restic_repo_password: restic repository password input
   backup_schedule: backup schedule input. takes cron syntax
+  # seaweedfs uses the term master, not us
+  seaweedfs_master_restic_snapshot_id: seaweed F.S. master restic snapshot I.D.
+  seaweedfs_volume_restic_snapshot_id: seaweed F.S. volume restic snapshot I.D.
+  seaweedfs_filer_restic_snapshot_id: seaweed F.S. filer restic snapshot I.D.
+  files_restic_snapshot_id: files restic snapshot I.D
+  config_restic_snapshot_id: config restic snapshot I.D
   # logging and password config screen
   log_level_select: logging level drop down menu
   info: informational

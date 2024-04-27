@@ -135,6 +135,7 @@ class SmolAudio(Widget):
                 trim_text: str|list = None,
                 say_trimmed: bool = True,
                 smtp: bool = False,
+                restic_snapshot_id: bool = False,
                 app: str = ""):
         """
         trims the end of the element to play just the app's name audio
@@ -164,7 +165,26 @@ class SmolAudio(Widget):
                     trim_text = trim_text.rstrip("_input")
                 self.log(trim_text)
                 self.say_phrase(f"{trim_text}.mp3")
-
+        elif restic_snapshot_id:
+            # if it starts with seaweedfs, then it's for seaweedfs
+            # and we have the full phrase already
+            if element_id.startswith("seaweedfs"):
+                self.say_phrase(element_id)
+            # if it has seaweedfs_ in it, we also have that phrase
+            elif "_seaweedfs_" in element_id:
+                app_name = element_id.split("_seaweedfs_")[0]
+                SAY(path.join(self.apps_audio, f'{app_name}.mp3'))
+                input_field = element_id.replace(f"{app_name}_", "") + ".mp3"
+                self.say_phrase(input_field)
+            else:
+                if "_files_" in element_id:
+                    app_name = element_id.replace("_files_restic_snapshot_id", "")
+                    SAY(path.join(self.apps_audio, f'{app_name}.mp3'))
+                    self.say_phrase("files_restic_snapshot_id.mp3")
+                elif "_config_" in element_id:
+                    app_name = element_id.replace("_config_restic_snapshot_id", "")
+                    SAY(path.join(self.apps_audio, f'{app_name}.mp3'))
+                    self.say_phrase("config_restic_snapshot_id.mp3")
         elif smtp:
             # split string on _ into list of words
             sections = element_id.split("_")
@@ -264,6 +284,9 @@ class SmolAudio(Widget):
         # handle all mail values at once
         elif "smtp" in focused_id:
             self.say_app(focused_id, smtp=True)
+
+        elif "restic_snapshot_id" in focused_id:
+            self.say_app(focused_id, restic_snapshot_id=True)
 
         elif focused_id.endswith("restic_repo_password_input"):
             self.say_app(focused_id, "_restic_repo_password_input")

@@ -40,10 +40,6 @@ class RestoreAppConfig(Static):
                                  id=f"{self.app_name}-restore-cnpg-row")
             if not restore_enabled:
                 cnpg_row.display = restore_enabled
-            else:
-                self.log("💨💨💨💨💨 cnpg_row section logged here")
-                self.log(f"💨💨💨💨💨 cnpg_row section restore enabled: {restore_enabled}")
-
             yield cnpg_row
 
         # Restic snapshot IDs collapsible, that gets hidden if restore
@@ -102,12 +98,15 @@ class RestoreAppConfig(Static):
 
             argo_label = Label(f"{key.replace('_',' ')}:", classes="argo-config-label")
             argo_label.tooltip = value
-
+            if self.app_name in key:
+                input_id = f"{key}-restic-snapshot-id"
+            else:
+                input_id = f"{self.app_name}-{key}-restic-snapshot-id"
             input = Input(placeholder=f"Enter a {key}",
                           value=input_value,
                           name=key,
                           validators=[Length(minimum=3)],
-                          id=f"{self.app_name}-{key}",
+                          id=input_id,
                           classes=f"{self.app_name} argo-config-input")
             input.validate(input_value)
 
