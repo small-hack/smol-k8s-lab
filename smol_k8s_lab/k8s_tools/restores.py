@@ -27,7 +27,7 @@ def restore_seaweedfs(k8s_obj: K8s,
                       storage_class: str = "local-path",
                       volume_snapshot_id: str = "",
                       master_snapshot_id: str = "",
-                      filer_snapshot_id: str = "
+                      filer_snapshot_id: str = ""
                       ):
     """
     recreate the seaweedfs PVCs for a given namespace and restore them via restic
