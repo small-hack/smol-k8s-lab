@@ -21,8 +21,10 @@ classifiers   = ["Development Status :: 4 - Beta",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
 include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
                  "smol_k8s_lab/config/default_config.yaml",
-                 "text_to_speech/config/en.yml",
-                 "text_to_speech/config/nl.yml"]
+                 "smol_k8s_lab/config/audio/en.yml",
+                 "smol_k8s_lab/config/audio/nl.yml",
+                 "audio/en.tar.gz",
+                 "audio/nl.tar.gz"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "http://github.com/small-hack/smol-k8s-lab/issues"
