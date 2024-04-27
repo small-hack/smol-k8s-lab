@@ -12,6 +12,7 @@ from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
+import logging as log
 from os import path
 from time import sleep
 import yaml
@@ -26,7 +27,7 @@ def restore_seaweedfs(k8s_obj: K8s,
                       storage_class: str = "local-path",
                       volume_snapshot_id: str = "",
                       master_snapshot_id: str = "",
-                      filer_snapshot_id: str = ""
+                      filer_snapshot_id: str = "
                       ):
     """
     recreate the seaweedfs PVCs for a given namespace and restore them via restic
@@ -71,17 +72,17 @@ def restore_seaweedfs(k8s_obj: K8s,
                  f"argocd.argoproj.io/instance={app}-s3-pvc"])
 
         # build a k8up restore file and apply it
-        restore_pvc(k8s_obj, app, swfs_pvc, namespace,
-                    s3_endpoint, s3_bucket, snapshot_id)
+        k8up_restore_pvc(k8s_obj, app, swfs_pvc, namespace,
+                         s3_endpoint, s3_bucket, snapshot_id)
 
 
-def restore_pvc(k8s_obj: K8s,
-                app: str,
-                pvc: str,
-                namespace: str,
-                s3_endpoint: str,
-                s3_bucket: str,
-                snapshot_id: str = "latest"):
+def k8up_restore_pvc(k8s_obj: K8s,
+                     app: str,
+                     pvc: str,
+                     namespace: str,
+                     s3_endpoint: str,
+                     s3_bucket: str,
+                     snapshot_id: str = "latest"):
     """
     builds a k8up restore manifest and applies it
     """
@@ -133,16 +134,20 @@ def restore_pvc(k8s_obj: K8s,
     # loop on check to make sure the restore is done before continuing
     check_cmd = (f"kubectl get restore -n {namespace} --no-headers -o "
                  f"custom-columns=COMPLETION:.status.finished {pvc}")
-    restore_done = subproc([check_cmd])
-    while restore_done != "true":
+    while True:
+        restore_done = subproc([check_cmd]).strip()
+        log.debug(f"restore done returns {restore_done}")
+
         pod_cmd = (f"kubectl get pods -n {namespace} --no-headers -o "
                    f"custom-columns=NAME:.metadata.name | grep {pvc}")
         pod = subproc([pod_cmd], universal_newlines=True, shell=True)
         subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"])
 
-        # sleep then try again
-        sleep(5)
-        restore_done = subproc([check_cmd])
+        if restore_done != "true":
+            # sleep then try again
+            sleep(5)
+        else:
+            break
 
 
 def restore_postgresql(app: str,

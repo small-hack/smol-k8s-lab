@@ -5,7 +5,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 check_if_argocd_app_exists,
                                                 update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
-                                             restore_pvc,
+                                             k8up_restore_pvc,
                                              restore_postgresql)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
@@ -404,17 +404,17 @@ def restore_matrix(argocd_namespace: str,
                         }
                     }
 
-            # creates the nexcloud files pvc
+            # creates the matrix files pvc
             k8s_obj.apply_custom_resources(pvc_dict)
             s3_endpoint = secrets.get('s3_endpoint', "")
-            restore_pvc(k8s_obj,
-                        'matrix',
-                        f'matrix-{pvc}',
-                        'matrix',
-                        s3_endpoint,
-                        'matrix',
-                        snapshot_ids[f'matrix_{pvc}']
-                        )
+            k8up_restore_pvc(k8s_obj,
+                             'matrix',
+                             f'matrix-{pvc}',
+                             'matrix',
+                             s3_endpoint,
+                             'matrix',
+                             snapshot_ids[f'matrix_{pvc}']
+                             )
 
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):

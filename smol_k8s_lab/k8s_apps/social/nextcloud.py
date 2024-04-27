@@ -7,7 +7,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
                                                 update_argocd_appset_secret)
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
-                                             restore_pvc,
+                                             k8up_restore_pvc,
                                              restore_postgresql)
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
@@ -247,17 +247,18 @@ def restore_nextcloud(argocd_namespace,
             # creates the nexcloud files pvc
             k8s_obj.apply_custom_resources([pvc_dict])
             s3_endpoint = secrets.get('s3_endpoint', "")
-            restore_pvc(k8s_obj,
-                        'nextcloud',
-                        f'nextcloud-{pvc}',
-                        'nextcloud',
-                        s3_backup_endpoint,
-                        s3_backup_bucket,
-                        snapshot_ids[f'nextcloud_{pvc}']
-                        )
+            k8up_restore_pvc(k8s_obj,
+                             'nextcloud',
+                             f'nextcloud-{pvc}',
+                             'nextcloud',
+                             s3_backup_endpoint,
+                             s3_backup_bucket,
+                             snapshot_ids[f'nextcloud_{pvc}']
+                             )
 
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
+        # WARNING: fix version here later before time progresses D:
         psql_version = restore_dict.get("postgresql_version", 16)
         restore_postgresql('nextcloud',
                            nextcloud_namespace,
