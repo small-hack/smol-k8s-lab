@@ -38,7 +38,7 @@ jobs:
 
       - name: test smol-k8s-lab with kind
         run: |
-            source .venv/bin/activate 
+            source .venv/bin/activate
             smol-k8s-lab -c .github/smol_k8s_lab_config_kind.yaml
 
   test_k3s:
@@ -70,7 +70,7 @@ jobs:
 
       - name: test smol-k8s-lab with k3s
         run: |
-            source .venv/bin/activate 
+            source .venv/bin/activate
             export KUBECONFIG="/home/runner/.config/kube/config"
             smol-k8s-lab -c .github/smol_k8s_lab_config_k3s.yaml
 
@@ -107,6 +107,6 @@ jobs:
 
       - name: test smol-k8s-lab with k3d
         run: |
-            source .venv/bin/activate 
+            source .venv/bin/activate
             export KUBECONFIG="/home/runner/.config/kube/config"
             smol-k8s-lab -c .github/smol_k8s_lab_config_k3d.yaml
