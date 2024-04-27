@@ -11,9 +11,9 @@ from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
-from json import load
+from json import loads
 import logging as log
-from os import path
+from os import path, environ
 from time import sleep
 import yaml
 
@@ -136,12 +136,13 @@ def k8up_restore_pvc(k8s_obj: K8s,
         restore_dict['spec']['snapshot'] = snapshot_id
     else:
         # set restic environment variables
-        env = {"RESTIC_REPOSITORY": f"s3:{s3_endpoint}/{s3_bucket}",
+        env = {"PATH": environ.get("PATH"),
+               "RESTIC_REPOSITORY": f"s3:{s3_endpoint}/{s3_bucket}",
                "RESTIC_PASSWORD_COMMAND": f"echo -n '{restic_repo_password}'",
                "AWS_ACCESS_KEY_ID": access_key_id,
                "AWS_SECRET_ACCESS_KEY": secret_access_key}
 
-        snapshots = load(subproc(["restic snapshots --latest 1 --json"], env=env))
+        snapshots = loads(subproc(["restic snapshots --latest 1 --json"], env=env))
 
         for snapshot in snapshots:
             # makes sure this is the snapshot for the correct path
@@ -162,7 +163,7 @@ def k8up_restore_pvc(k8s_obj: K8s,
         pod_cmd = (f"kubectl get pods -n {namespace} --no-headers -o "
                    f"custom-columns=NAME:.metadata.name | grep {pvc}")
         pod = subproc([pod_cmd], universal_newlines=True, shell=True)
-        subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"])
+        subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"], error_ok=True)
 
         if restore_done != "true":
             # sleep then try again
