@@ -11,9 +11,9 @@ from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
+from json import load
 import logging as log
-from os import path, environ
-import restic
+from os import path
 from time import sleep
 import yaml
 
@@ -136,20 +136,18 @@ def k8up_restore_pvc(k8s_obj: K8s,
         restore_dict['spec']['snapshot'] = snapshot_id
     else:
         # set restic environment variables
-        restic.repository = f"s3:{s3_endpoint}/{s3_bucket}"
-        environ.setdefault("RESTIC_PASSWORD_COMMAND",
-                           f"echo -n '{restic_repo_password}'")
-        environ.setdefault("AWS_ACCESS_KEY_ID", access_key_id)
-        environ.setdefault("AWS_SECRET_ACCESS_KEY", secret_access_key)
+        env = {"RESTIC_REPOSITORY": f"s3:{s3_endpoint}/{s3_bucket}",
+               "RESTIC_PASSWORD_COMMAND": f"echo -n '{restic_repo_password}'",
+               "AWS_ACCESS_KEY_ID": access_key_id,
+               "AWS_SECRET_ACCESS_KEY": secret_access_key}
 
-        # get all the restic snapshots
-        snapshots = restic.snapshots(group_by='path')
+        snapshots = load(subproc("restic snapshots --latest 1 --json", env=env))
 
         for snapshot in snapshots:
             # makes sure this is the snapshot for the correct path
-            if pvc in snapshot["group_key"]["paths"][0]:
+            if pvc in snapshot["paths"][0]:
                 # gets the long ID of the latest snapshot for this path
-                restore_dict['spec']['snapshot'] = snapshot['snapshots'][-1]['id']
+                restore_dict['spec']['snapshot'] = snapshot['id']
 
     # apply the k8up restore job
     k8s_obj.apply_custom_resources([restore_dict])
