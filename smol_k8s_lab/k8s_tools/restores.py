@@ -141,7 +141,7 @@ def k8up_restore_pvc(k8s_obj: K8s,
                "AWS_ACCESS_KEY_ID": access_key_id,
                "AWS_SECRET_ACCESS_KEY": secret_access_key}
 
-        snapshots = load(subproc("restic snapshots --latest 1 --json", env=env))
+        snapshots = load(subproc(["restic snapshots --latest 1 --json"], env=env))
 
         for snapshot in snapshots:
             # makes sure this is the snapshot for the correct path
