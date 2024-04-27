@@ -12,7 +12,6 @@ from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
-import logging as log
 from os import path
 from time import sleep
 import yaml
@@ -132,14 +131,14 @@ def restore_pvc(k8s_obj: K8s,
     k8s_obj.apply_custom_resources([restore_dict])
 
     # loop on check to make sure the restore is done before continuing
-    check_cmd = ("kubectl get restore --no-headers -o "
+    check_cmd = (f"kubectl get restore -n {namespace} --no-headers -o "
                  f"custom-columns=COMPLETION:.status.finished {pvc}")
     restore_done = subproc([check_cmd])
     while restore_done != "true":
-        pod_cmd = ("kubectl get pods --no-headers -o "
+        pod_cmd = (f"kubectl get pods -n {namespace} --no-headers -o "
                    f"custom-columns=NAME:.metadata.name | grep {pvc}")
         pod = subproc([pod_cmd], universal_newlines=True, shell=True)
-        subproc([f"kubectl logs --tail=5 {pod}"])
+        subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"])
 
         # sleep then try again
         sleep(5)
