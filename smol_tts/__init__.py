@@ -142,9 +142,9 @@ def tts_gen(category: str = "", language: str = "", save_path: str = "",
 
         # tar the directory and save it in the release directory if needed
         if tar:
-            tarball = tarfile.open(f"{language}.tar.gz", "w:gz")
+            tarball = tarfile.open(f"audio-{language}.tar.gz", "w:gz")
             tarball.add(path.join(save_path, language))
-            tar.clone()
+            tarball.clone()
 
         # print how long everything took
         elapsed = time.perf_counter() - s
