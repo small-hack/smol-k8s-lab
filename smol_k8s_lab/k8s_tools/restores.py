@@ -211,6 +211,7 @@ def restore_postgresql(app: str,
                 }
               },
             "backup": [],
+            "scheduledBackup": [],
             "externalClusters": [{
                 "name": cluster_name,
                 "barmanObjectStore": {
