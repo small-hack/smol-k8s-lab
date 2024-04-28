@@ -255,4 +255,61 @@ def restore_postgresql(app: str,
     release = Helm.chart(**release_dict)
 
     # this actually applies the helm chart release we've defined above
-    release.install(True)
+    # and waits for it to be ready
+    release.install(wait=True)
+
+    recovery_job_cmd = (
+            f"kubectl get jobs -n {namespace} --no-headers -o "
+            "custom-columns=NAME:.metadata.name | grep postgres-1-full-recovery"
+            " | tail -n 1")
+
+    while True:
+        # example job we want: nextcloud-postgres-1-full-recovery
+        recovery_job = subproc(recovery_job_cmd,
+                               universal_newlines=True,
+                               error_ok=True)
+        log.debug(f"Checking recovery job: {recovery_job}")
+
+        # get both successful and failed jobs count
+        success_failures_cmd = (
+                f"kubectl get job -n {namespace} {recovery_job} --no-headers -o"
+                " custom-columns=SUCCESS:.status.succeeded,FAILURE:.status.failed"
+                )
+        status_counts = subproc(success_failures_cmd, universal_newlines=True,
+                                error_ok=True).strip().split()
+
+        # parse success jobs count
+        try:
+            successful_jobs = int(status_counts[0])
+        except ValueError:
+            log.debug(f"{recovery_job}: Success jobs query didn't return an int")
+
+        # parse failed jobs count
+        try:
+            failed_jobs = int(status_counts[1])
+        except ValueError:
+            log.debug(f"{recovery_job}: Failed jobs query didn't return an int")
+
+        # log both success and failure job rate
+        log.debug(
+                f"{recovery_job}: Successful jobs query returned: "
+                f"{successful_jobs}\n"
+                f"Failed jobs query returned: {failed_jobs}")
+
+        if successful_jobs > 0:
+            log.info("Restoring postgres has been successful 🎉")
+            # if we've had success, break the loop
+            break
+        else:
+            log.info(f"{recovery_job}: Successful jobs still not greater than 0")
+
+        if failed_jobs > 0:
+            log.warn(f"{recovery_job}: Failed jobs greater than 0 :( Tailing logs...")
+            # example pod we want nextcloud-postgres-1-full-recovery-9gwdt
+            pod_cmd = (f"kubectl get pods -n {namespace} --no-headers -o "
+                       f"custom-columns=NAME:.metadata.name | grep "
+                       "postgres-1-full-recovery")
+            pod = subproc([pod_cmd], universal_newlines=True, shell=True)
+            subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"], error_ok=True)
+
+        sleep(2)
