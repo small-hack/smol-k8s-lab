@@ -274,68 +274,14 @@ def restore_postgresql(app: str,
     # and waits for it to be ready
     release.install(wait=True)
 
-    recovery_job_cmd = (
-            f"kubectl get jobs -n {namespace} --no-headers -o "
-            "custom-columns=NAME:.metadata.name"
-            )
-
+    # check for cnpg recovery job and wait for it.
+    # example job name: nextcloud-postgres-1-full-recovery
+    wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
+                f"job/{cluster_name}-1-full-recovery")
     while True:
-        # example job we want: nextcloud-postgres-1-full-recovery
-        recovery_jobs = subproc([recovery_job_cmd], error_ok=True).split('\n')
-        recovery_job = None
-        for job in recovery_jobs:
-            if "postgres-1-full-recovery" in job:
-                recovery_job = job
-
-        if not recovery_job:
-            log.debug(f"Checking jobs for recovery job returned: {recovery_jobs}")
+        log.debug(f"Waiting on cnpg recovery job: {cluster_name}-1-full-recovery")
+        res = subproc([wait_cmd], error_ok=True)
+        if "NotFound" in res:
+            sleep(1)
         else:
-            log.debug(f"Checking recovery job: {recovery_job}")
-            # get both successful and failed jobs count
-            success_failures_cmd = (
-                    f"kubectl get job -n {namespace} {recovery_job} --no-headers -o"
-                    " custom-columns=SUCCESS:.status.succeeded,FAILURE:.status.failed"
-                    )
-            status_counts = subproc([success_failures_cmd],
-                                    universal_newlines=True,
-                                    error_ok=True).strip().split()
-
-            # parse success jobs count
-            try:
-                successful_jobs = int(status_counts[0])
-            except ValueError:
-                successful_jobs = status_counts[0]
-                log.debug(f"{recovery_job}: Success jobs query didn't return an int")
-
-            # parse failed jobs count
-            try:
-                failed_jobs = int(status_counts[1])
-            except ValueError:
-                failed_jobs = status_counts[1]
-                log.debug(f"{recovery_job}: Failed jobs query didn't return an int")
-
-            # log both success and failure job rate
-            log.debug(
-                    f"{recovery_job}: Successful jobs query returned: "
-                    f"[green]{successful_jobs}[/green]\n"
-                    f"Failed jobs query returned: [red]{failed_jobs}[/red]")
-
-            if successful_jobs > 0:
-                log.info("Restoring postgres has been successful 🎉")
-                # if we've had success, break the loop
-                break
-            else:
-                log.info(f"{recovery_job}: Successful jobs still not greater than 0")
-
-            if failed_jobs > 0:
-                log.warn(f"{recovery_job}: Failed jobs greater than 0 :( Tailing logs...")
-                # example pod we want nextcloud-postgres-1-full-recovery-9gwdt
-                pod_cmd = (f"kubectl get pods -n {namespace} --no-headers -o "
-                           f"custom-columns=NAME:.metadata.name | grep "
-                           "postgres-1-full-recovery")
-                pod = subproc([pod_cmd], universal_newlines=True, shell=True,
-                              error_ok=True)
-                subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"],
-                        error_ok=True)
-
-        sleep(2)
+            break
