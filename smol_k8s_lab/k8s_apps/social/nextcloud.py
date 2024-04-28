@@ -181,7 +181,8 @@ def restore_nextcloud(argocd_namespace,
                       restore_dict: dict,
                       pvc_storage_class: str,
                       k8s_obj: K8s,
-                      bitwarden: BwCLI) -> None:
+                      bitwarden: BwCLI,
+                      pgsql_cluster_name: str ='matrix-postgres') -> None:
     """
     restore nextcloud seaweedfs PVCs, nextcloud files and/or config PVC(s),
     and CNPG postgresql cluster
@@ -244,7 +245,7 @@ def restore_nextcloud(argocd_namespace,
                             }
                         },
                     "spec": {
-                        "storageClassName": "local-path",
+                        "storageClassName": pvc_storage_class,
                         "accessModes": [secrets[f'{pvc}_access_mode']],
                         "resources": {
                             "requests": {
@@ -273,10 +274,10 @@ def restore_nextcloud(argocd_namespace,
         psql_version = restore_dict.get("postgresql_version", 16)
         restore_postgresql('nextcloud',
                            nextcloud_namespace,
-                           'nextcloud-postgres',
+                           pgsql_cluster_name,
                            psql_version,
                            s3_endpoint,
-                           'nextcloud-postgres')
+                           pgsql_cluster_name)
 
     # todo: from here on out, this could be async to start on other tasks
     # install nextcloud as usual

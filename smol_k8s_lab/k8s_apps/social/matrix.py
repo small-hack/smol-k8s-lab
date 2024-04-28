@@ -17,6 +17,7 @@ import logging as log
 def configure_matrix(k8s_obj: K8s,
                      config_dict: dict,
                      argocd_namespace: str,
+                     pvc_storage_class: str,
                      zitadel: Zitadel,
                      bitwarden: BwCLI = None) -> bool:
     """
@@ -124,6 +125,7 @@ def configure_matrix(k8s_obj: K8s,
                            config_dict,
                            secrets,
                            restore_dict,
+                           pvc_storage_class,
                            k8s_obj,
                            bitwarden)
 
@@ -346,8 +348,10 @@ def restore_matrix(argocd_namespace: str,
                    config_dict: dict,
                    secrets: dict,
                    restore_dict: dict,
+                   pvc_storage_class: str,
                    k8s_obj: K8s,
-                   bitwarden: BwCLI) -> None:
+                   bitwarden: BwCLI,
+                   pgsql_cluster_name: str = 'matrix-postgres') -> None:
     """
     restore matrix seaweedfs PVCs, matrix files and/or config PVC(s),
     and CNPG postgresql cluster
@@ -357,15 +361,19 @@ def restore_matrix(argocd_namespace: str,
         refresh_bweso(matrix_hostname, k8s_obj, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
+        ref = "add-pvc-helm-chart-for-nextcloud"
         external_secrets_yaml = (
                 "https://raw.githubusercontent.com/small-hack/argocd-apps"
-                "/main/matrix/app_of_apps/external_secrets_appset.yaml"
+                f"/{ref}/matrix/app_of_apps/external_secrets_appset.yaml"
                 )
         k8s_obj.apply_manifests(external_secrets_yaml, argocd_namespace)
 
     # these are the remote backups for seaweedfs
     s3_backup_endpoint = secrets['s3_backup_endpoint']
     s3_backup_bucket = secrets['s3_backup_bucket']
+    access_key_id = config_dict['init']['values']['s3_backup_access_id']
+    secret_access_key = config_dict['init']['values']['s3_backup_secret_key']
+    restic_repo_password = config_dict['init']['values']['restic_repo_password']
     s3_pvc_capacity = secrets['s3_pvc_capacity']
 
     # then we create all the seaweedfs pvcs we lost and restore them
@@ -376,7 +384,11 @@ def restore_matrix(argocd_namespace: str,
             matrix_namespace,
             s3_backup_endpoint,
             s3_backup_bucket,
+            access_key_id,
+            secret_access_key,
+            restic_repo_password,
             s3_pvc_capacity,
+            pvc_storage_class,
             snapshot_ids['seaweedfs_volume'],
             snapshot_ids['seaweedfs_master'],
             snapshot_ids['seaweedfs_filer']
@@ -384,7 +396,8 @@ def restore_matrix(argocd_namespace: str,
 
     # then we begin the restic restore of all the matrix PVCs we lost
     for pvc in ['media', 'synapse_config', 'signing_key']:
-        if secrets.get(f'{pvc}_pvc_enabled', False):
+        pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
+        if pvc_enabled and pvc_enabled.lower() != 'false':
             pvc_name = pvc.replace("_","-")
             pvc_dict = {
                     "kind": "PersistentVolumeClaim",
@@ -398,7 +411,7 @@ def restore_matrix(argocd_namespace: str,
                             }
                         },
                     "spec": {
-                        "storageClassName": "local-path",
+                        "storageClassName": pvc_storage_class,
                         "accessModes": [secrets[f'{pvc}_access_mode']],
                         "resources": {
                             "requests": {
@@ -408,14 +421,17 @@ def restore_matrix(argocd_namespace: str,
                     }
 
             # creates the matrix files pvc
-            k8s_obj.apply_custom_resources(pvc_dict)
+            k8s_obj.apply_custom_resources([pvc_dict])
             s3_endpoint = secrets.get('s3_endpoint', "")
             k8up_restore_pvc(k8s_obj,
                              'matrix',
                              f'matrix-{pvc}',
                              'matrix',
-                             s3_endpoint,
-                             'matrix',
+                             s3_backup_endpoint,
+                             s3_backup_bucket,
+                             access_key_id,
+                             secret_access_key,
+                             restic_repo_password,
                              snapshot_ids[f'matrix_{pvc}']
                              )
 
@@ -424,7 +440,7 @@ def restore_matrix(argocd_namespace: str,
         psql_version = restore_dict.get("postgresql_version", 16)
         restore_postgresql('matrix',
                            matrix_namespace,
-                           'matrix-postgres',
+                           pgsql_cluster_name,
                            psql_version,
                            s3_endpoint,
-                           'matrix')
+                           pgsql_cluster_name)
