@@ -304,19 +304,21 @@ def restore_postgresql(app: str,
             try:
                 successful_jobs = int(status_counts[0])
             except ValueError:
+                successful_jobs = status_counts[0]
                 log.debug(f"{recovery_job}: Success jobs query didn't return an int")
 
             # parse failed jobs count
             try:
                 failed_jobs = int(status_counts[1])
             except ValueError:
+                failed_jobs = status_counts[1]
                 log.debug(f"{recovery_job}: Failed jobs query didn't return an int")
 
             # log both success and failure job rate
             log.debug(
                     f"{recovery_job}: Successful jobs query returned: "
-                    f"{successful_jobs}\n"
-                    f"Failed jobs query returned: {failed_jobs}")
+                    f"[green]{successful_jobs}[/green]\n"
+                    f"Failed jobs query returned: [red]{failed_jobs}[/red]")
 
             if successful_jobs > 0:
                 log.info("Restoring postgres has been successful 🎉")
@@ -331,7 +333,9 @@ def restore_postgresql(app: str,
                 pod_cmd = (f"kubectl get pods -n {namespace} --no-headers -o "
                            f"custom-columns=NAME:.metadata.name | grep "
                            "postgres-1-full-recovery")
-                pod = subproc([pod_cmd], universal_newlines=True, shell=True)
-                subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"], error_ok=True)
+                pod = subproc([pod_cmd], universal_newlines=True, shell=True,
+                              error_ok=True)
+                subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"],
+                        error_ok=True)
 
         sleep(2)
