@@ -193,9 +193,10 @@ def restore_nextcloud(argocd_namespace,
         # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
         # WARNING: change this back to main when done testing
         # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+        ref = "add-pvc-helm-chart-for-nextcloud"
         external_secrets_yaml = (
-                "https://raw.githubusercontent.com/small-hack/argocd-apps"
-                "/add-pvc-helm-chart-for-nextcloud/nextcloud/app_of_apps/external_secrets_appset.yaml"
+                "https://raw.githubusercontent.com/small-hack/argocd-apps/"
+                f"{ref}/nextcloud/app_of_apps/external_secrets_appset.yaml"
                 )
         k8s_obj.apply_manifests(external_secrets_yaml, argocd_namespace)
 
@@ -213,6 +214,7 @@ def restore_nextcloud(argocd_namespace,
             k8s_obj,
             'nextcloud',
             nextcloud_namespace,
+            argocd_namespace,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,
