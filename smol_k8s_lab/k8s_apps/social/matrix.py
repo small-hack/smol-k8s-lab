@@ -31,7 +31,7 @@ def configure_matrix(k8s_obj: K8s,
     init_enabled = config_dict['init']['enabled']
     # initial secrets to deploy this app from scratch
     if app_installed:
-        header("syncing [green]Matrix[/], so you can self host your own chat",
+        header("Syncing [green]Matrix[/], so you can self host your own chat",
                '💬')
     elif init_enabled and not app_installed:
         init_values = config_dict['init']['values']
