@@ -274,7 +274,7 @@ def restore_nextcloud(argocd_namespace,
                            'nextcloud-postgres',
                            psql_version,
                            s3_endpoint,
-                           'nextcloud')
+                           'nextcloud-postgres')
 
 
 def setup_bitwarden_items(nextcloud_hostname: str,
