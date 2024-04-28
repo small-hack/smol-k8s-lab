@@ -9,8 +9,9 @@ from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
                                              k8up_restore_pvc,
                                              restore_postgresql)
-from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
+from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
+from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
 import logging as log
@@ -164,8 +165,8 @@ def configure_nextcloud(k8s_obj: K8s,
                               pvc_storage_class,
                               k8s_obj,
                               bitwarden)
-
-        install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
+        else:
+            install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
     else:
         log.info("nextcloud already installed 🎉")
         if bitwarden and init_enabled:
@@ -269,7 +270,6 @@ def restore_nextcloud(argocd_namespace,
 
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
-        # WARNING: fix version here later before time progresses D:
         psql_version = restore_dict.get("postgresql_version", 16)
         restore_postgresql('nextcloud',
                            nextcloud_namespace,
@@ -277,6 +277,29 @@ def restore_nextcloud(argocd_namespace,
                            psql_version,
                            s3_endpoint,
                            'nextcloud-postgres')
+
+    # todo: from here on out, this could be async to start on other tasks
+    # install nextcloud as usual
+    install_with_argocd(k8s_obj, 'nextcloud', config_dict['argo'])
+
+    # verify nextcloud rolled out
+    rollout = (f"kubectl rollout status -n {nextcloud_namespace} "
+               "deployment/nextcloud-web-app --watch --timeout 10m")
+    while True:
+        rolled_out = subproc([rollout])
+        if "NotFound" not in rolled_out:
+            break
+
+    # get current nextcloud pod
+    pod = ("kubectl get pods -l=app.kubernetes.io/component=app,"
+           "app.kubernetes.io/instance=nextcloud-web-app --no-headers "
+           "-o custom-columns=NAME:.metadata.name")
+    pod = subproc([pod]).strip()
+
+    # try to update the maintenance mode of nextcloud to off
+    check_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
+                 '"php occ maintenance:mode --off"')
+    subproc([check_cmd])
 
 
 def setup_bitwarden_items(nextcloud_hostname: str,
