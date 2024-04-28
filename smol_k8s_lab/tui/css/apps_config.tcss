@@ -96,12 +96,21 @@ TabbedContent #--content-tab-argocd-tab.-active {
     color: $light_cornflower;
 }
 
+TabbedContent #--content-tab-restore-tab.-active {
+    color: $light_cornflower;
+}
+
 #init-tab {
     padding-top: 1;
     padding-left: 0;
 }
 
 #argocd-tab {
+    padding: 0;
+}
+
+#restore-tab {
+    padding-top: 1;
     padding: 0;
 }
 

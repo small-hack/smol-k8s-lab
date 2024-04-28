@@ -19,7 +19,7 @@ class RestoreAppConfig(Static):
         restore_enabled = self.restore_params['enabled']
 
         # restore enabled label
-        with Container(classes=f"app-init-switch-and-labels-row {self.app_name}"):
+        with Container(classes=f"app-less-switch-row {self.app_name}"):
             init_lbl = Label("Restore from backup", classes="initialization-label")
             init_lbl.tooltip = ("if supported, smol-k8s-lab will perform a "
                                 "one-time initial restore of this app's PVCs "

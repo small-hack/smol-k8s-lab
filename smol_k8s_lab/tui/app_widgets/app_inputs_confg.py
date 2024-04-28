@@ -47,6 +47,10 @@ class AppInputs(Static):
                     # tab 2 - argo options
                     yield TabPane("Argo CD Application Config", id="argocd-tab")
 
+                    # tab 3 - restore options (if we support them for this app)
+                    if self.app_name in RESTOREABLE:
+                        yield TabPane("Restore from backup", id="restore-tab")
+
     def on_mount(self) -> None:
         """
         if using a tabbed content feature, mount the widgets into the tab on mount
@@ -64,17 +68,6 @@ class AppInputs(Static):
             init_pane = self.get_widget_by_id("init-tab")
             init_pane.mount(InitValues(self.app_name, self.init))
 
-            # if we support restorations for this app, mount restore widget
-            if self.app_name in RESTOREABLE:
-                restore_widget = RestoreAppConfig(
-                        self.app_name,
-                        self.init.get("restore", {"enabled": False}),
-                        id=f"{self.app_name}-restore-widget"
-                        )
-                # only display restore widget if init is enabled
-                restore_widget.display = self.init["enabled"]
-                init_pane.mount(restore_widget)
-
             # mount widgets into the argocd tab pane
             argo_pane = self.get_widget_by_id("argocd-tab")
             argo_pane.mount(ArgoCDApplicationConfig(self.app_name,
@@ -83,6 +76,18 @@ class AppInputs(Static):
             argo_pane.mount(AppsetSecretValues(self.app_name, secret_keys))
             argo_pane.mount(ArgoCDProjectConfig(self.app_name,
                                                 self.argo_params['project']))
+
+            # if we support restorations for this app, mount restore widget
+            if self.app_name in RESTOREABLE:
+                restore_pane = self.get_widget_by_id("restore-tab")
+                restore_widget = RestoreAppConfig(
+                        self.app_name,
+                        self.init.get("restore", {"enabled": False}),
+                        id=f"{self.app_name}-restore-widget"
+                        )
+                # only display restore widget if init is enabled
+                restore_widget.display = self.init["enabled"]
+                restore_pane.mount(restore_widget)
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
