@@ -281,7 +281,7 @@ def restore_postgresql(app: str,
 
     while True:
         # example job we want: nextcloud-postgres-1-full-recovery
-        recovery_job = subproc(recovery_job_cmd,
+        recovery_job = subproc([recovery_job_cmd],
                                universal_newlines=True,
                                error_ok=True)
         log.debug(f"Checking recovery job: {recovery_job}")
@@ -291,7 +291,8 @@ def restore_postgresql(app: str,
                 f"kubectl get job -n {namespace} {recovery_job} --no-headers -o"
                 " custom-columns=SUCCESS:.status.succeeded,FAILURE:.status.failed"
                 )
-        status_counts = subproc(success_failures_cmd, universal_newlines=True,
+        status_counts = subproc([success_failures_cmd],
+                                universal_newlines=True,
                                 error_ok=True).strip().split()
 
         # parse success jobs count
