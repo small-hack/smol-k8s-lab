@@ -1,3 +1,4 @@
+from smol_k8s_lab.k8s_tools.backup import create_pvc_restic_backup
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Grid, Container
@@ -9,9 +10,18 @@ class BackupRestoreAppConfig(Static):
     """
     a textual widget for backing up and restoring select apps via k8up
     """
-    def __init__(self, app_name: str, restore_params: dict, id: str) -> None:
+
+    def __init__(self,
+                 app_name: str,
+                 restore_params: dict,
+                 backup_s3_endpoint: str,
+                 backup_bucket: str,
+                 id: str) -> None:
         self.app_name = app_name
         self.restore_params = restore_params
+        self.cnpg_restore = restore_params.get("cnpg_restore", "not_applicable")
+        self.backup_s3_bucket = backup_bucket
+        self.backup_s3_endpoint = backup_s3_endpoint
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
@@ -34,8 +44,7 @@ class BackupRestoreAppConfig(Static):
                             classes="app-init-switch")
             yield switch
 
-        cnpg_restore = self.restore_params.get("cnpg_restore", "not_applicable")
-        if cnpg_restore != "not_applicable":
+        if self.cnpg_restore != "not_applicable":
             cnpg_row = Container(classes=f"app-less-switch-row {self.app_name}",
                                  id=f"{self.app_name}-restore-cnpg-row")
             if not restore_enabled:
@@ -68,8 +77,7 @@ class BackupRestoreAppConfig(Static):
         header.tooltip = "Configure parameters for a restore from backups."
 
         # enable or disable cnpg restore if available
-        cnpg_restore = self.restore_params.get("cnpg_restore", None)
-        if isinstance(cnpg_restore, bool):
+        if isinstance(self.cnpg_restore, bool):
             box = self.get_widget_by_id(f"{self.app_name}-restore-cnpg-row")
             init_lbl = Label("Restore CNPG cluster",
                              classes="initialization-label")
@@ -79,7 +87,7 @@ class BackupRestoreAppConfig(Static):
                     )
             box.mount(init_lbl)
             box.mount(Label("Enabled: ", classes="app-init-switch-label"))
-            box.mount(Switch(value=cnpg_restore,
+            box.mount(Switch(value=self.cnpg_restore,
                              id=f"{self.app_name}-cnpg-restore-enabled",
                              name="cnpg restore enabled",
                              classes="app-init-switch"))
@@ -155,4 +163,7 @@ class BackupRestoreAppConfig(Static):
         """
         id = event.button.id
         if id == f"{self.app_name}-backup-button":
-            run_backup()
+            create_pvc_restic_backup(self.app_name,
+                                     bucket=self.backup_s3_bucket,
+                                     endpoint=self.backup_s3_endpoint,
+                                     cnpg_backup=self.cnpg_restore)

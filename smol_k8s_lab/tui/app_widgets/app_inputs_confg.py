@@ -55,12 +55,11 @@ class AppInputs(Static):
         """
         if using a tabbed content feature, mount the widgets into the tab on mount
         """
+        secret_keys = self.argo_params.get('secret_keys', False)
         if not self.init:
             grid = self.get_widget_by_id(f"{self.app_name}-argo-config-container")
             grid.mount(ArgoCDApplicationConfig(self.app_name, self.argo_params))
-            grid.mount(AppsetSecretValues(self.app_name,
-                                          self.argo_params.get('secret_keys',
-                                                               False)))
+            grid.mount(AppsetSecretValues(self.app_name, secret_keys))
             grid.mount(ArgoCDProjectConfig(self.app_name,
                                            self.argo_params['project']))
         else:
@@ -72,7 +71,6 @@ class AppInputs(Static):
             argo_pane = self.get_widget_by_id("argocd-tab")
             argo_pane.mount(ArgoCDApplicationConfig(self.app_name,
                                                     self.argo_params))
-            secret_keys = self.argo_params.get('secret_keys', False)
             argo_pane.mount(AppsetSecretValues(self.app_name, secret_keys))
             argo_pane.mount(ArgoCDProjectConfig(self.app_name,
                                                 self.argo_params['project']))
@@ -83,6 +81,8 @@ class AppInputs(Static):
                 restore_widget = BackupRestoreAppConfig(
                         self.app_name,
                         self.init.get("restore", {"enabled": False}),
+                        secret_keys['s3_backup_endpoint'],
+                        secret_keys['s3_backup_bucket'],
                         id=f"{self.app_name}-restore-widget"
                         )
                 # only display restore widget if init is enabled

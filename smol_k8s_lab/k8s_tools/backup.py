@@ -7,7 +7,8 @@ from time import sleep
 def create_pvc_restic_backup(app: str,
                              namespace: str,
                              bucket: str,
-                             endpoint: str) -> None:
+                             endpoint: str,
+                             cnpg_backup: bool = True) -> None:
     """
     a function to immediately run a restic backup job
     unless it's nextcloud, then we put it into maintenance_mode first...
@@ -81,7 +82,8 @@ def create_pvc_restic_backup(app: str,
         sleep(10)
 
         # do the nextcloud database backup
-        create_cnpg_cluster_backup(app, namespace)
+        if cnpg_backup:
+            create_cnpg_cluster_backup(app, namespace)
 
     # then we can do the actual backup
     k8s = K8s()
