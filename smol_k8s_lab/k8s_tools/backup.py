@@ -48,6 +48,9 @@ def create_pvc_restic_backup(app: str,
 
     # nextcloud is special and needs to be put into maintenance mode before backups
     if app == "nextcloud":
+        # nextcloud backups need to run as user 82 which is nginx
+        backup_yaml['spec']['podSecurityContext'] = {"runAsUser": 82}
+
         # get current nextcloud pod
         pod = ("kubectl get pods -l=app.kubernetes.io/component=app,"
                "app.kubernetes.io/instance=nextcloud-web-app --no-headers "
@@ -77,7 +80,8 @@ def create_pvc_restic_backup(app: str,
         # then wait for maintenance_mode to be fully on
         sleep(10)
 
-        backup_yaml['spec']['podSecurityContext'] = {"runAsUser": 82}
+        # do the nextcloud database backup
+        create_cnpg_cluster_backup(app, namespace)
 
     # then we can do the actual backup
     k8s = K8s()
@@ -87,7 +91,7 @@ def create_pvc_restic_backup(app: str,
     wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
                 f"job/{app}-onetime-backup")
     while True:
-        log.debug(f"Waiting backup job: {app}-onetime-backup")
+        log.debug(f"Waiting for backup job: {app}-onetime-backup")
         res = subproc([wait_cmd], error_ok=True)
         if "NotFound" in res:
             sleep(1)
@@ -101,11 +105,35 @@ def create_pvc_restic_backup(app: str,
     return True
 
 
-def create_cnpg_cluster_backup(app: str,
-                               namespace: str,
-                               bucket: str,
-                               endpoint: str) -> None:
+def create_cnpg_cluster_backup(app: str, namespace: str) -> None:
     """
-    creates a backup for cnpg clusters
+    creates a backup for cnpg clusters and waits for it to complete
     """
-    return True
+    cnpg_backup = {"apiVersion": "postgresql.cnpg.io/v1",
+                   "kind": "Backup",
+                   "metadata": {
+                      "name": f"{app}-cnpg-backup",
+                      "namespace": namespace
+                      },
+                   "spec": {
+                      "method": "barmanObjectStore",
+                      "cluster": {
+                        "name": f"{app}-postgresql"
+                        }
+                      }
+                   }
+
+    # then we can do the actual backup
+    k8s = K8s()
+    k8s.apply_custom_resources([cnpg_backup])
+
+    # wait for backup to complete
+    wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
+                f"job/{app}-cnpg-backup")
+    while True:
+        log.debug(f"Waiting for cnpg backup job: {app}-cnpg-backup")
+        res = subproc([wait_cmd], error_ok=True)
+        if "NotFound" in res:
+            sleep(1)
+        else:
+            break
