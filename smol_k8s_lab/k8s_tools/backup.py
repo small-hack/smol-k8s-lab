@@ -1,6 +1,7 @@
 import logging as log
 from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from time import sleep
 
 
@@ -51,32 +52,8 @@ def create_pvc_restic_backup(app: str,
     if app == "nextcloud":
         # nextcloud backups need to run as user 82 which is nginx
         backup_yaml['spec']['podSecurityContext'] = {"runAsUser": 82}
-
-        # get current nextcloud pod
-        pod = ("kubectl get pods -l=app.kubernetes.io/component=app,"
-               "app.kubernetes.io/instance=nextcloud-web-app --no-headers "
-               "-o custom-columns=NAME:.metadata.name")
-        pod = subproc([pod]).strip()
-
-        # check nextcloud maintenance mode status
-        check_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
-                     '"php occ maintenance:mode"')
-        maintenance_mode = subproc([check_cmd])
-        # scan all the current files into the database first
-        scan_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
-                    '"php occ files:scan --all"')
-        on_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
-                  '"php occ maintenance:mode --on"')
-
-        if maintenance_mode != "off":
-            # scan all files into database then turn on maintenance_mode
-            subproc([scan_cmd, on_cmd])
-        else:
-            # turn off maintenance_mode because you can only scan files when its
-            # off, then scan all files into database then turn on maintenance
-            off_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
-                       '"php occ maintenance:mode --off"')
-            subproc([off_cmd, scan_cmd, on_cmd])
+        nextcloud = Nextcloud(K8s(), namespace)
+        nextcloud.set_maintenance_mode("on")
 
         # then wait for maintenance_mode to be fully on
         sleep(10)
@@ -102,7 +79,7 @@ def create_pvc_restic_backup(app: str,
 
     if app == "nextcloud":
         # turn nextcloud maintenance_mode off after the backup
-        subproc([off_cmd])
+        nextcloud.set_maintenance_mode("off")
 
     return True
 
