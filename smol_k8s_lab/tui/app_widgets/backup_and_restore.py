@@ -2,12 +2,12 @@ from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Grid, Container
 from textual.validation import Length
-from textual.widgets import Input, Label, Static, Switch, Collapsible
+from textual.widgets import Input, Label, Static, Switch, Collapsible, Button
 
 
-class RestoreAppConfig(Static):
+class BackupRestoreAppConfig(Static):
     """
-    a textual widget for restoring select apps via k8up
+    a textual widget for backing up and restoring select apps via k8up
     """
     def __init__(self, app_name: str, restore_params: dict, id: str) -> None:
         self.app_name = app_name
@@ -49,12 +49,16 @@ class RestoreAppConfig(Static):
         collapsible = Collapsible(
                 update_grid,
                 id=f"{self.app_name}-restore-config-collapsible",
-                collapsed=False,
                 title="Restic Snapshot IDs",
                 classes="collapsible-with-some-room"
                 )
         collapsible.display = restore_enabled
         yield collapsible
+
+        with Grid(classes="backup-button-grid"):
+            yield Button("💾 Backup Now",
+                         classes="backup-button",
+                         id=f"{self.app_name}-backup-button")
 
     def on_mount(self) -> None:
         """
@@ -144,3 +148,11 @@ class RestoreAppConfig(Static):
         if event.switch.id == f"{self.app_name}-cnpg-restore-enabled":
            self.app.cfg['apps'][self.app_name]['init']['restore']['cnpg_restore'] = truthy
            self.app.write_yaml()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        get pressed button and act on it
+        """
+        id = event.button.id
+        if id == f"{self.app_name}-backup-button":
+            run_backup()

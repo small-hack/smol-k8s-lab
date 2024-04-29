@@ -297,9 +297,9 @@ def restore_nextcloud(argocd: ArgoCD,
     pod = subproc([pod]).strip()
 
     # try to update the maintenance mode of nextcloud to off
-    check_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
-                 '"php occ maintenance:mode --off"')
-    subproc([check_cmd])
+    off_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
+               '"php occ maintenance:mode --off"')
+    subproc([off_cmd])
 
 
 def setup_bitwarden_items(argocd: ArgoCD,

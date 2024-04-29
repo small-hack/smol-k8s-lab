@@ -249,6 +249,16 @@ CollapsibleTitle:focus {
     color: $sky_blue;
 }
 
+/* stuff for the backup button for instant backups */
+.backup-button-grid {
+    align: center middle;
+}
+
+.backup-button {
+    padding: 1;
+}
+
+
 /* blurb to let users know that we don't have secret keys for this app, but they can add some */
 .secret-key-help-text {
    width: 100%;

@@ -219,7 +219,7 @@ class K8s():
         subproc(cmds)
         return True
 
-    def apply_custom_resources(self, custom_resource_dict_list: dict):
+    def apply_custom_resources(self, custom_resource_dict_list: list[dict]):
         """
         Does a kube apply on a custom resource dict, and retries if it fails
         using loading bar for progress

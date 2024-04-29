@@ -4,7 +4,7 @@
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
 from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInputsWidget
-from smol_k8s_lab.tui.app_widgets.restore_widget import RestoreAppConfig
+from smol_k8s_lab.tui.app_widgets.backup_and_restore import BackupRestoreAppConfig
 from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
 # external libraries
@@ -80,7 +80,7 @@ class AppInputs(Static):
             # if we support restorations for this app, mount restore widget
             if self.app_name in RESTOREABLE:
                 restore_pane = self.get_widget_by_id("restore-tab")
-                restore_widget = RestoreAppConfig(
+                restore_widget = BackupRestoreAppConfig(
                         self.app_name,
                         self.init.get("restore", {"enabled": False}),
                         id=f"{self.app_name}-restore-widget"
