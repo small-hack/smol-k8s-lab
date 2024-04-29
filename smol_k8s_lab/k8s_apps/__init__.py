@@ -156,7 +156,7 @@ def setup_base_apps(k8s_obj: K8s,
     ingress_nginx_enabled = ingress_dict.get('enabled', False)
     cnpg_operator_enabled = cnpg_operator_dict.get('enabled', False)
     argocd_enabled = argocd_dict.get('enabled', False)
-    argo_secrets_plugin_enabled = argocd_dict['argo']['directory_recusion']
+    argo_secrets_plugin_enabled = argocd_dict['argo']['directory_recursion']
     # make sure helm is installed and the repos are up to date
     prepare_helm(k8s_distro, metallb_enabled, cilium_enabled, cnpg_operator_enabled,
                  argocd_enabled, argo_secrets_plugin_enabled)
