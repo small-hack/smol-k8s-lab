@@ -81,9 +81,9 @@ def create_pvc_restic_backup(app: str,
         # then wait for maintenance_mode to be fully on
         sleep(10)
 
-        # do the nextcloud database backup
-        if cnpg_backup:
-            create_cnpg_cluster_backup(app, namespace)
+    # do the database backup if this app has one
+    if cnpg_backup:
+        create_cnpg_cluster_backup(app, namespace)
 
     # then we can do the actual backup
     k8s = K8s()
