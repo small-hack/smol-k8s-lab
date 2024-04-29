@@ -28,7 +28,6 @@ from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
 from .k8s_distros import create_k8s_distro, delete_cluster
-from .k8s_tools.argocd_util import install_with_argocd, check_if_argocd_app_exists
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
@@ -208,26 +207,23 @@ def main(config: str = "",
 
     # check if argo is enabled
     argo_enabled = apps['argo_cd']['enabled']
-    # check if zitadel is enabled
-    zitadel_enabled = apps['zitadel']['enabled']
 
     # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager, and argocd
-    setup_base_apps(k8s_obj,
-                    distro,
-                    apps.get('cilium', {}),
-                    apps['metallb'],
-                    apps.pop('ingress_nginx', {}),
-                    apps.pop('cert_manager', {}),
-                    apps.get('cnpg_operator', {}),
-                    argo_enabled,
-                    apps['argo_cd']['argo']['directory_recursion'],
-                    SECRETS,
-                    bw)
+    argocd = setup_base_apps(k8s_obj,
+                             distro,
+                             apps.get('cilium', {}),
+                             apps['metallb'],
+                             apps.pop('ingress_nginx', {}),
+                             apps.pop('cert_manager', {}),
+                             apps.get('cnpg_operator', {}),
+                             apps['argo_cd'],
+                             SECRETS,
+                             bw)
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
         # setup k8s secrets management and secret stores
-        setup_k8s_secrets_management(k8s_obj,
+        setup_k8s_secrets_management(argocd,
                                      distro,
                                      apps.pop('external_secrets_operator', {}),
                                      SECRETS['global_external_secrets'],
@@ -244,7 +240,7 @@ def main(config: str = "",
 
         # Setup minio, our local s3 provider, is essential for creating buckets
         # and cnpg operator, our postgresql operator for creating postgres clusters
-        setup_operators(k8s_obj,
+        setup_operators(argocd,
                         apps.pop('prometheus_crds', {}),
                         apps.pop('longhorn', {}),
                         apps.pop('k8up', {}),
@@ -254,15 +250,16 @@ def main(config: str = "",
                         apps.pop('postgres_operator', {}),
                         bw)
 
+        # check if zitadel is enabled
+        zitadel_enabled = apps['zitadel']['enabled']
+
         # setup OIDC for securing all endpoints with SSO
-        oidc_obj = setup_oidc_provider(
-                k8s_obj,
-                api_tls_verify,
-                apps.pop('zitadel', {}),
-                apps.pop('vouch', {}),
-                bw,
-                SECRETS['argo_cd_hostname']
-                )
+        oidc_obj = setup_oidc_provider(argocd,
+                                       api_tls_verify,
+                                       apps.pop('zitadel', {}),
+                                       apps.pop('vouch', {}),
+                                       bw,
+                                       SECRETS['argo_cd_hostname'])
 
         # we need this for all the oidc apps we need to create
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
@@ -271,7 +268,7 @@ def main(config: str = "",
         netmaker_dict = apps.pop('netmaker', {'enabled': False})
         # only do this if the user has smol-k8s-lab init enabled
         if netmaker_dict['enabled']:
-            configure_netmaker(k8s_obj,
+            configure_netmaker(argocd,
                                netmaker_dict,
                                'zitadel',
                                zitadel_hostname,
@@ -279,9 +276,8 @@ def main(config: str = "",
                                oidc_obj)
 
         setup_federated_apps(
-                k8s_obj,
+                argocd,
                 api_tls_verify,
-                apps['argo_cd']['argo']['namespace'],
                 apps.pop('home_assistant', {}),
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
@@ -296,7 +292,7 @@ def main(config: str = "",
         # we set it up here in case other apps rely on it
         minio_tenant_config = apps.pop('minio_tenant', {})
         if minio_tenant_config and minio_tenant_config.get('enabled', False):
-            configure_minio_tenant(k8s_obj,
+            configure_minio_tenant(argocd,
                                    minio_tenant_config,
                                    api_tls_verify,
                                    zitadel_hostname,
@@ -308,11 +304,9 @@ def main(config: str = "",
         header("Installing the rest of the Argo CD apps")
         for app_key, app_meta in apps.items():
             if app_meta['enabled']:
-                app_installed = check_if_argocd_app_exists(app_key)
-                if not app_installed:
-                    argo_app = app_key.replace('_', '-')
-                    sub_header(f"Installing app: {argo_app}")
-                    install_with_argocd(k8s_obj, argo_app, app_meta['argo'])
+                argo_app = app_key.replace('_', '-')
+                sub_header(f"Installing app: {argo_app}")
+                argocd.install_app(argo_app, app_meta['argo'])
 
         # lock the bitwarden vault on the way out, to be polite :3
         if bw:

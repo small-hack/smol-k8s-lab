@@ -2,10 +2,7 @@
 
 # internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists,
-                                                update_argocd_appset_secret)
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
@@ -13,7 +10,7 @@ from smol_k8s_lab.utils.passwords import create_password
 import logging as log
 
 
-def configure_home_assistant(k8s_obj: K8s,
+def configure_home_assistant(argocd: ArgoCD,
                              config_dict: dict,
                              api_tls_verify: bool = False,
                              bitwarden: BwCLI = None) -> None:
@@ -21,14 +18,14 @@ def configure_home_assistant(k8s_obj: K8s,
     creates a home-assistant app and initializes it with secrets if you'd like :)
 
     required:
-        k8s_obj     - K8s() object with cluster credentials
+        argocd      - ArgoCD() object for argo operations
         config_dict - dictionary with at least argocd key and init key
 
     optional:
         bitwarden   - BwCLI() object with session token to create bitwarden items
     """
     # check immediately if this app is installed
-    app_installed = check_if_argocd_app_exists('home-assistant')
+    app_installed = argocd.check_if_app_exists('home-assistant')
 
     # get any secret keys passed in
     secrets = config_dict['argo']['secret_keys']
@@ -40,7 +37,7 @@ def configure_home_assistant(k8s_obj: K8s,
 
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
-        k8s_obj.create_namespace(config_dict['argo']['namespace'])
+        argocd.k8s.create_namespace(config_dict['argo']['namespace'])
         header("Setting up [green]home-assistant[/], to self host your home automation",
                '🏡')
 
@@ -75,24 +72,24 @@ def configure_home_assistant(k8s_obj: K8s,
                     )
 
             # update the home-assistant values for the argocd appset
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'home_assistant_admin_credentials_bitwarden_id': admin_id}
                     )
 
         # these are standard k8s secrets
         else:
             # home-assistant admin credentials and smtp credentials
-            k8s_obj.create_secret('home-assistant-credentials', 'home-assistant',
-                                  {"ADMIN_USERNAME": admin_user,
-                                   "ADMIN_NAME": admin_name,
-                                   "ADMIN_PASSWORD": admin_password,
-                                   "ADMIN_LANGUAGE": admin_language,
-                                   "EXTERNAL_URL": home_assistant_hostname
-                                   })
+            argocd.k8s.create_secret('home-assistant-credentials',
+                                     'home-assistant',
+                                     {"ADMIN_USERNAME": admin_user,
+                                      "ADMIN_NAME": admin_name,
+                                      "ADMIN_PASSWORD": admin_password,
+                                      "ADMIN_LANGUAGE": admin_language,
+                                      "EXTERNAL_URL": home_assistant_hostname
+                                      })
 
     if not app_installed:
-        install_with_argocd(k8s_obj, 'home-assistant', config_dict['argo'])
+        argocd.install_app('home-assistant', config_dict['argo'])
     else:
         log.info("home-assistant already installed 🎉")
 
@@ -106,7 +103,6 @@ def configure_home_assistant(k8s_obj: K8s,
                     f"home-assistant-admin-credentials-{home_assistant_hostname}"
                     )[0]['id']
 
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'home_assistant_admin_credentials_bitwarden_id': admin_id}
                     )

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
 from smol_k8s_lab.utils.subproc import subproc
-# from smol_k8s_lab.k8s_apps.operators.postgres_operators import configure_postgres_operator
-from smol_k8s_lab.k8s_tools.argocd_util import sync_argocd_app, check_if_argocd_app_exists
+from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsModalScreen
 from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
@@ -46,7 +46,8 @@ class AppsConfigScreen(Screen):
 
     ToggleButton.BUTTON_INNER = '♥'
 
-    def __init__(self, config: dict,
+    def __init__(self,
+                 config: dict,
                  highlighted_app: str = "",
                  modify_cluster: bool = False) -> None:
         # show the footer at bottom of screen or not
@@ -79,6 +80,10 @@ class AppsConfigScreen(Screen):
                 'postgres_operator': {},
                 'zitadel': {}
                 }
+
+        self.argocd = ArgoCD(K8s(),
+                             self.cfg['argo_cd']['argo']['namespace'],
+                             self.cfg['argo_cd']['argo']['secret_keys']['hostname'])
 
         super().__init__()
 
@@ -373,8 +378,8 @@ class AppsConfigScreen(Screen):
         severity = "warning"
         response = f"No Argo CD Application called [b]{app}[/b] could be found 😞"
 
-        if check_if_argocd_app_exists(app):
-            res = sync_argocd_app(app, spinner=False)
+        if self.argocd.check_if_app_exists(app):
+            res = self.argocd.sync_app(app, spinner=False)
 
             if res:
                 severity = "information"

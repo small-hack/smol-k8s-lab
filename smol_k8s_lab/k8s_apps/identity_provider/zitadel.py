@@ -3,27 +3,28 @@ from json import loads
 import logging as log
 from .zitadel_api import Zitadel
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                wait_for_argocd_app,
-                                                check_if_argocd_app_exists,
-                                                update_argocd_appset_secret)
+from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
+from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
+                                             k8up_restore_pvc,
+                                             restore_postgresql)
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 
 
-def configure_zitadel(k8s_obj: K8s,
+def configure_zitadel(argocd: ArgoCD,
                       config_dict: dict,
                       api_tls_verify: bool = False,
-                      argocd_hostname: str = "",
+                      pvc_storage_class: str = "",
                       bitwarden: BwCLI = None) -> dict | None:
     """
     Installs zitadel as a Argo CD Applications. If config_dict['init']['enabled']
     is True, it also configures Argo CD as OIDC Clients.
 
     Required Arguments:
-        k8s_obj:      K8s(), kubrenetes client for creating secrets
-        config_dict:  dict, Argo CD parameters for zitadel
+        argocd:             ArgoCD obj for doing Argo operations
+        config_dict:        dict, Argo CD parameters for zitadel
+        pvc_storage_class:  str, storage class of PVC
 
     Optional Arguments:
         argocd_hostname:  str, the hostname of Argo CD
@@ -32,22 +33,44 @@ def configure_zitadel(k8s_obj: K8s,
     If no init: Returns True if successful.
     If init AND vouch_hostname, returns vouch credentials
     """
-    header("Setting up [green]Zitadel[/], our identity management solution", "👥")
-
-    # immediately load in all the secret keys
-    secrets = config_dict['argo']['secret_keys']
-    if secrets:
-        zitadel_hostname = secrets['hostname']
-
     # check to make sure the app instead already installed with Argo CD
-    app_installed = check_if_argocd_app_exists('zitadel')
+    app_installed = argocd.check_if_app_exists('zitadel')
 
     # declare the init dict
-    init_dict = config_dict['init']
+    init_dict = config_dict.get('init',
+                                {'enabled': False,
+                                 'restore': {'enabled': False}})
 
-    if init_dict['enabled'] and not app_installed:
+    if app_installed:
+        header("Syncing [green]Zitadel[/], your identity management solution",
+               "👥")
+    elif init_dict['enabled'] and not app_installed:
         # process init and secret values
         init_values = init_dict['values']
+
+        restore_dict = config_dict['init'].get('restore', {"enabled": False})
+        restore_enabled = restore_dict['enabled']
+        if restore_enabled:
+            header_start = "Restoring"
+        else:
+            header_start = "Setting up"
+
+        header(f"{header_start} [green]Zitadel[/], for your self hosted identity management",
+               "👥")
+
+        # immediately load in all the secret keys
+        secrets = config_dict['argo']['secret_keys']
+        if secrets:
+            zitadel_hostname = secrets['hostname']
+            s3_endpoint = secrets.get('s3_endpoint', "")
+            if s3_endpoint and not restore_enabled:
+                s3_access_key = create_password()
+                # create a local alias to check and make sure nextcloud is functional
+                create_minio_alias(minio_alias="nextcloud",
+                                   minio_hostname=s3_endpoint,
+                                   access_key="nextcloud",
+                                   secret_key=s3_access_key)
+
 
         # configure backup s3 credentials
         s3_backup_access_id = init_values.get('s3_backup_access_id', 'zitadel')
@@ -56,7 +79,7 @@ def configure_zitadel(k8s_obj: K8s,
 
         # first we make sure the namespace exists
         namespace = config_dict['argo']['namespace']
-        k8s_obj.create_namespace(namespace)
+        argocd.k8s.create_namespace(namespace)
 
         if bitwarden:
             restic_repo_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
@@ -101,8 +124,7 @@ def configure_zitadel(k8s_obj: K8s,
                     )
 
             # update the zitadel values for the argocd appset
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'zitadel_core_bitwarden_id': core_id,
                      'zitadel_db_bitwarden_id': db_id,
                      'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
@@ -112,7 +134,7 @@ def configure_zitadel(k8s_obj: K8s,
 
             # reload the bitwarden ESO provider
             try:
-                k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+                argocd.k8s.reload_deployment('bitwarden-eso-provider', 'external-secrets')
             except Exception as e:
                 log.error(
                         "Couldn't scale down the [magenta]bitwarden-eso-provider[/]"
@@ -122,18 +144,18 @@ def configure_zitadel(k8s_obj: K8s,
         else:
             # create the zitadel core key
             secret_dict = {'masterkey': create_password()}
-            k8s_obj.create_secret(name="zitadel-core-key",
-                                  namespace=namespace,
-                                  str_data=secret_dict)
+            argocd.k8s.create_secret(name="zitadel-core-key",
+                                     namespace=namespace,
+                                     str_data=secret_dict)
 
             # this is just for the db username
-            k8s_obj.create_secret(name="zitadel-db-credentials",
-                                  namespace=namespace,
-                                  str_data={'username': 'zitadel'})
+            argocd.k8s.create_secret(name="zitadel-db-credentials",
+                                     namespace=namespace,
+                                     str_data={'username': 'zitadel'})
 
     # install Zitadel using ArgoCD
     if not app_installed:
-        install_with_argocd(k8s_obj, 'zitadel', config_dict['argo'])
+        argocd.install_app('zitadel', config_dict['argo'])
 
         # only continue through the rest of the function if we're initializes a
         # user and argocd client in zitadel
@@ -152,13 +174,12 @@ def configure_zitadel(k8s_obj: K8s,
                 pass
 
             # Before initialization, we need to wait for zitadel's API to be up
-            wait_for_argocd_app('zitadel', retry=True)
-            wait_for_argocd_app('zitadel-web-app', retry=True)
-            vouch_dict = initialize_zitadel(k8s_obj=k8s_obj,
+            argocd.wait_for_app('zitadel', retry=True)
+            argocd.wait_for_app('zitadel-web-app', retry=True)
+            vouch_dict = initialize_zitadel(argocd,
                                             zitadel_hostname=zitadel_hostname,
                                             api_tls_verify=api_tls_verify,
                                             user_dict=initial_user_dict,
-                                            argocd_hostname=argocd_hostname,
                                             bitwarden=bitwarden)
             return vouch_dict
     else:
@@ -166,7 +187,7 @@ def configure_zitadel(k8s_obj: K8s,
 
         if bitwarden and config_dict['init']['enabled']:
             # get the zitadel service account private key json for generating a jwt
-            adm_secret_file = k8s_obj.get_secret(
+            adm_secret_file = argocd.k8s.get_secret(
                     'zitadel-admin-sa',
                     'zitadel'
                     )['data']['zitadel-admin-sa.json']
@@ -214,15 +235,14 @@ def configure_zitadel(k8s_obj: K8s,
                     )[0]['id']
 
             argo_oidc_item = bitwarden.get_item(
-                    f"argocd-oidc-credentials-{argocd_hostname}", False
+                    f"argocd-oidc-credentials-{argocd.hostname}", False
                     )[0]
 
             argo_client_id = argo_oidc_item['login']['username']
 
             # update the zitadel values for the argocd appset
 
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {
                     'zitadel_core_bitwarden_id': core_id,
                     'zitadel_db_bitwarden_id': db_id,
@@ -236,22 +256,20 @@ def configure_zitadel(k8s_obj: K8s,
                     }
                     )
 
-            # sync_argocd_app('zitadel')
-            # sync_argocd_app('argo-cd')
+            # argocd.sync_app('zitadel')
+            # argocd.sync_app('argo-cd')
 
             return zitadel
 
 
-def initialize_zitadel(k8s_obj: K8s,
+def initialize_zitadel(argocd: ArgoCD,
                        zitadel_hostname: str,
                        api_tls_verify: bool = False,
                        user_dict: dict = {},
-                       argocd_hostname: str = "",
                        bitwarden: BwCLI = None) -> dict | None:
     """
     Sets up initial zitadel user, Argo CD client
     Arguments:
-      k8s_obj:           K8s(), kubrenetes client for creating secrets
       zitadel_hostname:  str, the hostname of Zitadel
       api_tls_verify:    bool, whether or not to verify the TLS cert on request to api
       user_dict:         dict of initial admin_user, email, first name, last name
@@ -261,6 +279,8 @@ def initialize_zitadel(k8s_obj: K8s,
 
     returns Zitadel() with admin user/admin service account created with session token
     """
+    k8s_obj = argocd.k8s
+    argocd_hostname = argocd.hostname
 
     sub_header("Configuring zitadel as your OIDC SSO for Argo CD")
 
@@ -329,6 +349,6 @@ def initialize_zitadel(k8s_obj: K8s,
     zitadel.create_iam_membership(user_id, 'IAM_OWNER')
 
     # update appset-secret-vars secret with issuer, client_id, logout_url
-    update_argocd_appset_secret(k8s_obj, fields)
+    argocd.update_appset_secret(fields)
 
     return zitadel

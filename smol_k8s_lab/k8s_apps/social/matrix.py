@@ -1,22 +1,18 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
-from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists,
-                                                update_argocd_appset_secret)
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
                                              k8up_restore_pvc,
                                              restore_postgresql)
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 import logging as log
 
 
-def configure_matrix(k8s_obj: K8s,
+def configure_matrix(argocd: ArgoCD,
                      config_dict: dict,
-                     argocd_namespace: str,
                      pvc_storage_class: str,
                      zitadel: Zitadel,
                      bitwarden: BwCLI = None) -> bool:
@@ -24,7 +20,7 @@ def configure_matrix(k8s_obj: K8s,
     creates a matrix app and initializes it with secrets if you'd like :)
     """
 
-    app_installed = check_if_argocd_app_exists('matrix')
+    app_installed = argocd.check_if_app_exists('matrix')
     secrets = config_dict['argo']['secret_keys']
     if secrets:
         matrix_hostname = secrets['hostname']
@@ -82,18 +78,19 @@ def configure_matrix(k8s_obj: K8s,
         # if the user has bitwarden enabled
         if bitwarden and not restore_enabled:
             matrix_namespace = config_dict['argo']['namespace']
-            setup_bitwarden_items(matrix_hostname, matrix_namespace,
+            setup_bitwarden_items(argocd,
+                                  matrix_hostname, matrix_namespace,
                                   s3_endpoint,
                                   s3_access_id, s3_access_key, s3_bucket,
                                   backups_s3_user, backups_s3_password,
                                   restic_repo_pass,
                                   mail_host, mail_user, mail_pass, oidc_creds,
-                                  zitadel_hostname, k8s_obj, bitwarden)
+                                  zitadel_hostname, bitwarden)
 
         # else create these as Kubernetes secrets
         else:
             # postgresql credentials
-            k8s_obj.create_secret(
+            argocd.k8s.create_secret(
                     'matrix-pgsql-credentials',
                     'matrix',
                     {"password": "we-use-tls-instead-of-password-now"}
@@ -101,14 +98,14 @@ def configure_matrix(k8s_obj: K8s,
 
             # registation key
             matrix_registration_key = create_password()
-            k8s_obj.create_secret(
+            argocd.k8s.create_secret(
                     'matrix-registration',
                     'matrix',
                     {"registrationSharedSecret": matrix_registration_key}
                     )
 
             # oidc secret
-            k8s_obj.create_secret(
+            argocd.k8s.create_secret(
                     'matrix-oidc-credentials',
                     'matrix',
                     {'user': oidc_creds['client_id'],
@@ -119,23 +116,22 @@ def configure_matrix(k8s_obj: K8s,
     if not app_installed:
         # if the user is restoring, the process is a little different
         if init_enabled and restore_enabled:
-            restore_matrix(argocd_namespace,
+            restore_matrix(argocd,
                            matrix_hostname,
                            matrix_namespace,
                            config_dict,
                            secrets,
                            restore_dict,
                            pvc_storage_class,
-                           k8s_obj,
                            bitwarden)
 
-        install_with_argocd(k8s_obj, 'matrix', config_dict['argo'])
+        argocd.install_app('matrix', config_dict['argo'])
     else:
         if bitwarden and config_dict['init']['enabled']:
-            refresh_bweso(matrix_hostname, k8s_obj, bitwarden)
+            refresh_bweso(argocd, matrix_hostname, bitwarden)
 
 
-def refresh_bweso(matrix_hostname, k8s_obj, bitwarden):
+def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
     """
     refresh the bitwarden item IDs for use with argocd-appset-secret-plugin
     """
@@ -183,8 +179,7 @@ def refresh_bweso(matrix_hostname, k8s_obj, bitwarden):
         if field['name'] == 'idp_name':
             idp_name = field['value']
 
-    update_argocd_appset_secret(
-            k8s_obj,
+    argocd.update_appset_secret(
             {'matrix_registration_credentials_bitwarden_id': reg_id,
              'matrix_smtp_credentials_bitwarden_id': smtp_id,
              'matrix_s3_admin_credentials_bitwarden_id': s3_admin_id,
@@ -197,7 +192,8 @@ def refresh_bweso(matrix_hostname, k8s_obj, bitwarden):
              'matrix_idp_id': idp_id})
 
 
-def setup_bitwarden_items(matrix_hostname: str,
+def setup_bitwarden_items(argocd: ArgoCD,
+                          matrix_hostname: str,
                           matrix_namespace: str,
                           s3_endpoint: str,
                           s3_access_id: str,
@@ -211,7 +207,6 @@ def setup_bitwarden_items(matrix_hostname: str,
                           mail_pass: str,
                           oidc_creds: str,
                           zitadel_hostname: str,
-                          k8s_obj: str,
                           bitwarden):
     """
     setup all the required secrets as items in bitwarden
@@ -222,7 +217,8 @@ def setup_bitwarden_items(matrix_hostname: str,
     if "http" not in s3_endpoint:
         s3_endpoint = "https://" + s3_endpoint
     matrix_s3_endpoint_obj = create_custom_field("s3Endpoint", s3_endpoint)
-    matrix_s3_host_obj = create_custom_field("s3Hostname", s3_endpoint.replace("https://", ""))
+    matrix_s3_host_obj = create_custom_field("s3Hostname",
+                                             s3_endpoint.replace("https://", ""))
     matrix_s3_bucket_obj = create_custom_field("s3Bucket", s3_bucket)
     s3_id = bitwarden.create_login(
             name='matrix-user-s3-credentials',
@@ -318,8 +314,7 @@ def setup_bitwarden_items(matrix_hostname: str,
                     )[0]['id']
 
     # update the matrix values for the argocd appset
-    update_argocd_appset_secret(
-            k8s_obj,
+    argocd.update_appset_secret(
             {'matrix_registration_credentials_bitwarden_id': reg_id,
              'matrix_smtp_credentials_bitwarden_id': smtp_id,
              'matrix_s3_admin_credentials_bitwarden_id': s3_admin_id,
@@ -333,7 +328,8 @@ def setup_bitwarden_items(matrix_hostname: str,
 
     # reload the bitwarden ESO provider
     try:
-        k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+        argocd.k8s.reload_deployment('bitwarden-eso-provider',
+                                     'external-secrets')
     except Exception as e:
         log.error(
                 "Couldn't scale down the [magenta]bitwarden-eso-provider[/]"
@@ -342,14 +338,13 @@ def setup_bitwarden_items(matrix_hostname: str,
                 )
 
 
-def restore_matrix(argocd_namespace: str,
+def restore_matrix(argocd: ArgoCD,
                    matrix_hostname: str,
                    matrix_namespace: str,
                    config_dict: dict,
                    secrets: dict,
                    restore_dict: dict,
                    pvc_storage_class: str,
-                   k8s_obj: K8s,
                    bitwarden: BwCLI,
                    pgsql_cluster_name: str = 'matrix-postgres') -> None:
     """
@@ -358,7 +353,7 @@ def restore_matrix(argocd_namespace: str,
     """
     # first we grab existing bitwarden items if they exist
     if bitwarden:
-        refresh_bweso(matrix_hostname, k8s_obj, bitwarden)
+        refresh_bweso(argocd, matrix_hostname, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
         ref = "add-pvc-helm-chart-for-nextcloud"
@@ -366,7 +361,7 @@ def restore_matrix(argocd_namespace: str,
                 "https://raw.githubusercontent.com/small-hack/argocd-apps"
                 f"/{ref}/matrix/app_of_apps/external_secrets_appset.yaml"
                 )
-        k8s_obj.apply_manifests(external_secrets_yaml, argocd_namespace)
+        argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
     # these are the remote backups for seaweedfs
     s3_backup_endpoint = secrets['s3_backup_endpoint']
@@ -379,7 +374,7 @@ def restore_matrix(argocd_namespace: str,
     # then we create all the seaweedfs pvcs we lost and restore them
     snapshot_ids = config_dict['init']['restore']['restic_snapshot_ids']
     restore_seaweedfs(
-            k8s_obj,
+            argocd.k8s,
             'matrix',
             matrix_namespace,
             s3_backup_endpoint,
@@ -421,9 +416,9 @@ def restore_matrix(argocd_namespace: str,
                     }
 
             # creates the matrix files pvc
-            k8s_obj.apply_custom_resources([pvc_dict])
+            argocd.k8s.apply_custom_resources([pvc_dict])
             s3_endpoint = secrets.get('s3_endpoint', "")
-            k8up_restore_pvc(k8s_obj,
+            k8up_restore_pvc(argocd.k8s,
                              'matrix',
                              f'matrix-{pvc}',
                              'matrix',

@@ -2,8 +2,7 @@ import logging as log
 import json
 from rich.prompt import Prompt
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
@@ -25,7 +24,7 @@ class Keycloak():
                     "--user KEYCLOAK_ADMIN --password $KEYCLOAK_ADMIN_PASSWORD")
 
     def create_user(self, username: str, first_name: str, last_name: str) -> None:
-        """ 
+        """
         creates a user via the keycloak cli
         """
         log.info(f"Creating a new user for {username}")
@@ -47,7 +46,7 @@ class Keycloak():
         return json.loads(subproc([self.exec_path + cmd + self.cfg]))['secret']
 
 
-def configure_keycloak(k8s_obj: K8s,
+def configure_keycloak(argocd: ArgoCD,
                        config_dict: dict,
                        bitwarden: BwCLI = None) -> True:
     """
@@ -55,8 +54,7 @@ def configure_keycloak(k8s_obj: K8s,
     is True, it also configures Argo CD as OIDC Client.
 
     Required Arguments:
-        K8s: K8s() class instance so we can create secrets and install with
-             argo using a direct connection to the cluster
+        argocd:      ArgoCD obj for making argo cd calls
         config_dict: dict, Argo CD parameters for keycloak
 
     Optional Arguments:
@@ -89,25 +87,25 @@ def configure_keycloak(k8s_obj: K8s,
         else:
             sub_header("Creating secrets in k8s")
             admin_password = create_password()
-            k8s_obj.create_secret('keycloak-admin-credentials', 'keycloak',
-                                  {'password': admin_password})
+            argocd.k8s.create_secret('keycloak-admin-credentials', 'keycloak',
+                                     {'password': admin_password})
             postgres_password = create_password()
-            k8s_obj.create_secret('keycloak-postgres-credentials', 'keycloak',
-                                  {'password': postgres_password,
-                                   'postgres-password': postgres_password})
+            argocd.k8s.create_secret('keycloak-postgres-credentials', 'keycloak',
+                                     {'password': postgres_password,
+                                      'postgres-password': postgres_password})
 
-    install_with_argocd(k8s_obj, 'keycloak', config_dict['argo'])
+    argocd.install_app('keycloak', config_dict['argo'])
 
     # only continue through the rest of the function if we're initializes a
     # user and argocd client in keycloak
     if config_dict['init']['enabled']:
         realm = secrets['default_realm']
-        initialize_keycloak(k8s_obj, realm, config_dict['init']['values'], bitwarden)
+        initialize_keycloak(realm, config_dict['init']['values'], bitwarden)
     # always return True
     return True
 
 
-def initialize_keycloak(k8s_obj: K8s,
+def initialize_keycloak(argocd: ArgoCD,
                         realm: str,
                         initial_user_dict: dict = {"username": "",
                                                    "first_name": "",
@@ -116,7 +114,7 @@ def initialize_keycloak(k8s_obj: K8s,
     """
     Sets up initial Keycloak user, Argo CD client.
     Arguments:
-      k8s_obj:           K8s object to use for creating initial secrets
+      argocd:            ArgoCD obj for making argo cd calls
       realm:             name of the keycloak realm to use
       initial_user_dict: initial user dict with username, first_name, last_name
       bitwarden:         BwCLI obj, [optional] session to use for bitwarden
@@ -138,7 +136,7 @@ def initialize_keycloak(k8s_obj: K8s,
     # create initial user
     keycloak.create_user(username, first_name, last_name)
 
-    # create intial client for 
+    # create intial client for
     argocd_client_secret = keycloak.create_client("argocd")
 
 
@@ -149,8 +147,8 @@ def initialize_keycloak(k8s_obj: K8s,
                                password=argocd_client_secret)
     else:
         # the argocd secret needs labels.app.kubernetes.io/part-of: "argocd"
-        k8s_obj.create_secret('argocd-external-oidc', 'argocd',
-                              {'user': 'argocd',
-                               'password': argocd_client_secret}, False,
-                              {'app.kubernetes.io/part-of': 'argocd'})
+        argocd.k8s.create_secret('argocd-external-oidc', 'argocd',
+                                 {'user': 'argocd',
+                                  'password': argocd_client_secret}, False,
+                                 {'app.kubernetes.io/part-of': 'argocd'})
     return True

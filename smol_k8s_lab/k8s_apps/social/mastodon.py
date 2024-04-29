@@ -2,12 +2,7 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias, BetterMinio
 from smol_k8s_lab.k8s_apps.social.mastodon_rake import generate_rake_secrets
-from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists,
-                                                wait_for_argocd_app,
-                                                sync_argocd_app,
-                                                update_argocd_appset_secret)
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.subproc import subproc
@@ -16,7 +11,7 @@ from smol_k8s_lab.utils.subproc import subproc
 import logging as log
 
 
-def configure_mastodon(k8s_obj: K8s,
+def configure_mastodon(argocd: ArgoCD,
                        config_dict: dict,
                        bitwarden: BwCLI = None,
                        minio_obj: BetterMinio = {}) -> bool:
@@ -25,14 +20,14 @@ def configure_mastodon(k8s_obj: K8s,
     """
     header("Setting up [green]Mastodon[/], so you can self host your social media"
            '🐘')
-    app_installed = check_if_argocd_app_exists('mastodon')
+    app_installed = argocd.check_if_app_exists('mastodon')
     init_enabled = config_dict['init']['enabled']
     secrets = config_dict['argo']['secret_keys']
     if secrets:
         mastodon_hostname = secrets['hostname']
 
     if init_enabled and not app_installed:
-        k8s_obj.create_namespace('mastodon')
+        argocd.k8s.create_namespace('mastodon')
 
         # declare custom values for mastodon
         init_values = config_dict['init']['values']
@@ -191,11 +186,10 @@ def configure_mastodon(k8s_obj: K8s,
                         vapid_pub_key_obj
                         ]
                     )
-            
+
             # update the mastodon values for the argocd appset
             # 'mastodon_admin_credentials_bitwarden_id': admin_id,
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,
@@ -208,7 +202,8 @@ def configure_mastodon(k8s_obj: K8s,
 
             # reload the bitwarden ESO provider
             try:
-                k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+                argocd.k8s.reload_deployment('bitwarden-eso-provider',
+                                             'external-secrets')
             except Exception as e:
                 log.error(
                         "Couldn't scale down the [magenta]bitwarden-eso-provider"
@@ -225,29 +220,29 @@ def configure_mastodon(k8s_obj: K8s,
 
             # postgres creds k8s secret
             mastodon_pgsql_password = create_password()
-            k8s_obj.create_secret('mastodon-pgsql-credentials', 'mastodon',
-                          {"password": mastodon_pgsql_password,
-                           'postrgesPassword': mastodon_pgsql_password})
+            argocd.k8s.create_secret(
+                    'mastodon-pgsql-credentials',
+                    'mastodon',
+                    {"password": mastodon_pgsql_password,
+                     'postrgesPassword': mastodon_pgsql_password})
 
             # redis creds k8s secret
             mastodon_redis_password = create_password()
-            k8s_obj.create_secret('mastodon-redis-credentials', 'mastodon',
-                                  {"password": mastodon_redis_password})
+            argocd.k8s.create_secret('mastodon-redis-credentials', 'mastodon',
+                                     {"password": mastodon_redis_password})
 
             # mastodon rake secrets
-            k8s_obj.create_secret('mastodon-server-secrets', 'mastodon',
-                                  rake_secrets)
+            argocd.k8s.create_secret('mastodon-server-secrets', 'mastodon',
+                                     rake_secrets)
 
     if not app_installed:
-        install_with_argocd(k8s_obj=k8s_obj,
-                            app='mastodon',
-                            argo_dict=config_dict['argo']
-                            )
-        if init_enabled:
+        if not init_enabled:
+            argocd.install_app('mastodon', config_dict['argo'])
+        else:
+            argocd.install_app('mastodon', config_dict['argo'], True)
             # for for all the mastodon apps to come up
-            wait_for_argocd_app('mastodon')
-            sync_argocd_app('mastodon-web-app')
-            wait_for_argocd_app('mastodon-web-app')
+            argocd.sync_app('mastodon-web-app')
+            argocd.wait_for_app('mastodon-web-app')
 
             # create admin credentials
             password = create_user(mastodon_admin_username,
@@ -312,8 +307,7 @@ def configure_mastodon(k8s_obj: K8s,
                     )[0]['id']
 
             # {'mastodon_admin_credentials_bitwarden_id': admin_id,
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
                      'mastodon_postgres_credentials_bitwarden_id': db_id,
                      'mastodon_redis_bitwarden_id': redis_id,

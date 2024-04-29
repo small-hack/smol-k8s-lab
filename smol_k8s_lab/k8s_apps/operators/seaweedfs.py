@@ -2,16 +2,11 @@ import logging as log
 
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
-from smol_k8s_lab.k8s_tools.argocd_util import (
-        install_with_argocd, 
-        wait_for_argocd_app, 
-        check_if_argocd_app_exists, 
-        update_argocd_appset_secret)
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.passwords import create_password
 
 
-def configure_seaweedfs(k8s_obj: K8s,
+def configure_seaweedfs(argocd: ArgoCD,
                         seaweedfs_config: dict,
                         bitwarden: BwCLI = None) -> None:
     """
@@ -28,8 +23,9 @@ def configure_seaweedfs(k8s_obj: K8s,
       - return a Betterseaweedfs object ready to create users, buckets, and policies
     """
 
+    k8s_obj = argocd.k8s
     seaweedfs_init_enabled = seaweedfs_config['init']['enabled']
-    argo_app_exists = check_if_argocd_app_exists('seaweedfs')
+    argo_app_exists = argocd.check_if_app_exists('seaweedfs')
 
     secrets = seaweedfs_config['argo']['secret_keys']
     if secrets:
@@ -62,14 +58,13 @@ def configure_seaweedfs(k8s_obj: K8s,
                     password=secret_key
                     )
             # update the nextcloud values for the argocd appset
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'seaweedfs_s3_credentials_bitwarden_id': s3_id}
                     )
 
     if not argo_app_exists:
         # actual installation of the seaweedfs tenant Argo CD Application
-        install_with_argocd(k8s_obj, 'seaweedfs', seaweedfs_config['argo'])
+        argocd.install_app('seaweedfs', seaweedfs_config['argo'], True)
 
 
         # while we wait for the app to come up, update the config file
@@ -78,9 +73,6 @@ def configure_seaweedfs(k8s_obj: K8s,
                                seaweedfs_hostname,
                                access_key,
                                secret_key)
-
-        # make sure the app is up before returning
-        wait_for_argocd_app('seaweedfs')
 
         # if seaweedfs_init_enabled:
         #     # immediately create an admin and readonly policy
@@ -97,8 +89,7 @@ def configure_seaweedfs(k8s_obj: K8s,
                     )[0]
 
             # update the nextcloud values for the argocd appset
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'seaweedfs_s3_credentials_bitwarden_id': creds['id']}
                     )
 

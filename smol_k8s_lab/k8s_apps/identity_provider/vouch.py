@@ -2,16 +2,13 @@ import logging as log
 from rich.prompt import Prompt
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
-from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists,
-                                                update_argocd_appset_secret)
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.passwords import create_password
 from .keycloak import Keycloak
 
 
-def configure_vouch(k8s_obj: K8s,
+def configure_vouch(argocd: ArgoCD,
                     vouch_config_dict: dict,
                     oidc_provider_name: str = "",
                     oidc_provider_hostname: str = "",
@@ -23,8 +20,8 @@ def configure_vouch(k8s_obj: K8s,
     Installs vouch-proxy as an Argo CD application on Kubernetes
 
     Required Args:
-      k8s_obj:                K8s(), for the authenticated k8s client
-      vouch_config_dict:      Argo CD parameters
+      argocd:                 ArgoCD object for argo-cd operations
+      vouch_config_dict:      Argo CD parameters dict
 
     Optional Args:
       oidc_provider_name:     OIDC provider name. options: keycloak, zitadel
@@ -32,12 +29,12 @@ def configure_vouch(k8s_obj: K8s,
       bitwarden:              BwCLI, to store k8s secrets in bitwarden
       users:                  list of user to give access to vouch app
       realm:                  str keycloak realm to use
-      zitadel:                Zitadel api object 
+      zitadel:                Zitadel api object
     """
     header("Setting up [green]Vouch[/] to use Oauth for insecure frontends", "🗝️")
 
     # make sure vouch isn't already installed
-    app_installed = check_if_argocd_app_exists("vouch")
+    app_installed = argocd.check_if_app_exists("vouch")
     # this handles the vouch-oauth-config secret data
     secrets = vouch_config_dict['argo']['secret_keys']
     if secrets:
@@ -115,15 +112,15 @@ def configure_vouch(k8s_obj: K8s,
                     )
 
             # update the vouch values for the argocd appset
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'vouch_oauth_config_bitwarden_id': oauth_id,
                      'vouch_config_bitwarden_id': vouch_id}
                     )
 
             # reload the bitwarden ESO provider
             try:
-                k8s_obj.reload_deployment('bitwarden-eso-provider', 'external-secrets')
+                argocd.k8s.reload_deployment('bitwarden-eso-provider',
+                                             'external-secrets')
             except Exception as e:
                 log.error(
                         "Couldn't scale down the [magenta]bitwarden-eso-provider[/]"
@@ -134,25 +131,27 @@ def configure_vouch(k8s_obj: K8s,
         # create vouch k8s secrets if we're not using bitwarden
         else:
             # create oauth OIDC k8s secret
-            k8s_obj.create_secret('vouch-oauth-config',
-                                  'vouch',
-                                  {'user': auth_dict['client_id'],
-                                   'password': auth_dict['client_secret'],
-                                   'authUrl': auth_dict['auth_url'],
-                                   'tokenUrl': auth_dict['token_url'],
-                                   'userInfoUrl': auth_dict['user_info_url'],
-                                   'endSessionEndpoint': auth_dict['end_session_url'],
-                                   'callbackUrls': vouch_callback_url,
-                                   'preferredDomain': preferred_domain})
+            argocd.k8s.create_secret(
+                    'vouch-oauth-config',
+                    'vouch',
+                    {'user': auth_dict['client_id'],
+                     'password': auth_dict['client_secret'],
+                     'authUrl': auth_dict['auth_url'],
+                     'tokenUrl': auth_dict['token_url'],
+                     'userInfoUrl': auth_dict['user_info_url'],
+                     'endSessionEndpoint': auth_dict['end_session_url'],
+                     'callbackUrls': vouch_callback_url,
+                     'preferredDomain': preferred_domain})
 
             # create vouch config k8s secret
-            k8s_obj.create_secret('vouch-config', 'vouch',
-                                  {'domains': domains,
-                                   'allowList': emails,
-                                   'jwtSecret': jwt_secret})
+            argocd.k8s.create_secret('vouch-config',
+                                     'vouch',
+                                     {'domains': domains,
+                                      'allowList': emails,
+                                      'jwtSecret': jwt_secret})
 
     if not app_installed:
-        install_with_argocd(k8s_obj, 'vouch', vouch_config_dict['argo'])
+        argocd.install_app('vouch', vouch_config_dict['argo'])
     else:
         log.info("vouch-proxy already installed 🎉")
 
@@ -168,8 +167,7 @@ def configure_vouch(k8s_obj: K8s,
                     )[0]['id']
 
             # update the vouch values for the argocd appset
-            update_argocd_appset_secret(
-                    k8s_obj,
+            argocd.update_appset_secret(
                     {'vouch_oauth_config_bitwarden_id': oauth_id,
                      'vouch_config_bitwarden_id': vouch_id}
                    )
@@ -188,7 +186,7 @@ def create_vouch_app(provider: str,
       provider          - either 'keycloak' or 'vouch'
       provider_hostname - hostname of keycloak or vouch
       vouch_hostname    - hostname of vouch
-      zitadel           - Zitadel api object 
+      zitadel           - Zitadel api object
       realm             - realm to use for keycloak if using keycloak
 
     returns [url, client_id, client_secret]
@@ -197,7 +195,7 @@ def create_vouch_app(provider: str,
     if provider == 'zitadel':
         log.info("Creating an OIDC application for Vouch via Zitadel...")
         vouch_dict = zitadel.create_application(
-                "vouch", 
+                "vouch",
                 f"https://{vouch_hostname}/auth",
                 [f"https://{vouch_hostname}"]
                 )

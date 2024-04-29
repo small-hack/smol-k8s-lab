@@ -9,15 +9,13 @@ from shutil import which
 from smol_k8s_lab.constants import HOME_DIR, XDG_CACHE_DIR
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
-from smol_k8s_lab.k8s_tools.argocd_util import (
-        install_with_argocd, wait_for_argocd_app, check_if_argocd_app_exists)
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.subproc import subproc
 
 
 class BetterMinio:
-    """ 
+    """
     a wrapper around the two seperate Minio and MinioAdmin clients to create
     users and buckets with basic policies
     """
@@ -179,7 +177,7 @@ class BetterMinio:
         log.info("Created minio_read only user policy for use with OIDC")
 
     def set_anonymous_download(self, bucket: str, prefix: str) -> None:
-        """ 
+        """
         sets anonymous download on a particular bucket and folder
         """
         policy = {
@@ -212,7 +210,7 @@ class BetterMinio:
         self.client.set_bucket_policy(bucket, dumps(policy))
 
 
-def configure_minio_tenant(k8s_obj: K8s,
+def configure_minio_tenant(argocd: ArgoCD,
                            minio_config: dict,
                            secure: bool = True,
                            zitadel_hostname: str = "",
@@ -236,7 +234,7 @@ def configure_minio_tenant(k8s_obj: K8s,
     """
 
     minio_init_enabled = minio_config['init']['enabled']
-    argo_app_exists = check_if_argocd_app_exists('minio-tenant')
+    argo_app_exists = argocd.check_if_app_exists('minio-tenant')
 
     secrets = minio_config['argo']['secret_keys']
     if secrets:
@@ -257,7 +255,7 @@ def configure_minio_tenant(k8s_obj: K8s,
     # if the user has enabled smol_k8s_lab init, we create an initial user
     if minio_init_enabled and not argo_app_exists:
         # the namespace probably doesn't exist yet, so we try to create it
-        k8s_obj.create_namespace(minio_config['argo']['namespace'])
+        argocd.k8s.create_namespace(minio_config['argo']['namespace'])
         access_key = minio_config['init']['values']['root_user']
         secret_key = create_password(characters=72)
 
@@ -291,8 +289,8 @@ def configure_minio_tenant(k8s_obj: K8s,
                     'config.env': f"""MINIO_ROOT_USER={access_key}
             MINIO_ROOT_PASSWORD={secret_key}"""}
 
-        k8s_obj.create_secret('default-tenant-env-config', 'minio',
-                              credentials_exports)
+        argocd.k8s.create_secret('default-tenant-env-config', 'minio',
+                                 credentials_exports)
 
         if bitwarden:
             log.info("Creating MinIO root credentials in Bitwarden")
@@ -306,9 +304,7 @@ def configure_minio_tenant(k8s_obj: K8s,
 
     if not argo_app_exists:
         # actual installation of the minio tenant Argo CD Application
-        install_with_argocd(k8s_obj,
-                            'minio-tenant',
-                            minio_config['argo'])
+        argocd.install_app('minio-tenant', minio_config['argo'], True)
 
 
         # while we wait for the app to come up, update the config file
@@ -318,9 +314,6 @@ def configure_minio_tenant(k8s_obj: K8s,
                                access_key,
                                secret_key,
                                secure)
-
-        # make sure the app is up before returning
-        wait_for_argocd_app('minio-tenant')
 
         if minio_init_enabled:
             # immediately create an admin and readonly policy
@@ -344,19 +337,6 @@ def configure_minio_tenant(k8s_obj: K8s,
                                minio_hostname,
                                access_key,
                                secret_key)
-
-
-def configure_minio_operator(k8s_obj: K8s, minio_config: dict) -> None:
-    """
-    setup the MinIO operator as an Argo CD Application
-    """
-    # check if minio is using smol_k8s_lab init and if already present in Argo CD
-    if not check_if_argocd_app_exists('minio'):
-        # actual installation of the minio app
-        install_with_argocd(k8s_obj,
-                            'minio',
-                            minio_config['argo'])
-        wait_for_argocd_app('minio')
 
 
 def create_minio_alias(minio_alias: str,

@@ -10,18 +10,15 @@ DESCRIPTION: configures vault app and secrets operator
                  https://github.com/hashicorp/vault/blob/main/LICENSE
 
              smol-k8s-lab do not claim any of Vault as our own and we do not
-             provide any paid support for Vault. If support is needed for the 
-             Vault components of smol-k8s-lab, it must be done unpaid via the 
-             smol-k8s-lab community or via an official enterprise contract from 
+             provide any paid support for Vault. If support is needed for the
+             Vault components of smol-k8s-lab, it must be done unpaid via the
+             smol-k8s-lab community or via an official enterprise contract from
              official Hashicorp channels.
 """
 
 # internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_tools.argocd_util import (install_with_argocd,
-                                                check_if_argocd_app_exists,
-                                                wait_for_argocd_app)
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.subproc import subproc
 
@@ -30,33 +27,32 @@ import logging as log
 from time import sleep
 
 
-def configure_vault(k8s_obj: K8s, vault_dict: dict, bitwarden: BwCLI = None) -> None:
+def configure_vault(argocd: ArgoCD,
+                    vault_dict: dict,
+                    bitwarden: BwCLI = None) -> None:
     """
     configures the hashicorp vault helm chart
     """
-    # check immediately if this app is installed
-    app_installed = check_if_argocd_app_exists('vault')
+    argo_dict = vault_dict['argo']
 
     header("Installing the Hashicorp Vault app...", "🔑")
-    argo_dict = vault_dict['argo']
+    installed_app = argocd.install_app('vault', argo_dict, True)
 
     # get any secret keys passed in
     secrets = vault_dict['argo']['secret_keys']
     if secrets:
         vault_cluster_name = secrets['cluster_name']
 
-    if not app_installed:
-        install_with_argocd(k8s_obj, 'vault', argo_dict)
-        wait_for_argocd_app('vault')
-
     init_dict = vault_dict['init']
-    if not app_installed and init_dict['enabled']:
+    if init_dict['enabled'] and not installed_app:
         log.info("Vault init enabled. We'll proceed with the unsealing process")
-        initialize_vault(argo_dict['namespace'], bitwarden, vault_cluster_name)
+        initialize_vault(argo_dict['namespace'], vault_cluster_name, bitwarden)
 
 
-def initialize_vault(namespace: str, bitwarden: BwCLI = None, vault_cluster_name: str = ""):
-    """ 
+def initialize_vault(namespace: str,
+                     vault_cluster_name: str = "",
+                     bitwarden: BwCLI = None):
+    """
     initializes vault and sets up the keys. Puts keys in bitwarden, if BwCLI
     object is passed in
     """

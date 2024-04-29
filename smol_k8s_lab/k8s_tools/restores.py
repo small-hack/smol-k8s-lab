@@ -6,7 +6,7 @@ DESCRIPTION: restore stuff with k8up (restic on k8s) and cnpg operator
 """
 # internal libraries
 from smol_k8s_lab.constants import XDG_CACHE_DIR
-from smol_k8s_lab.k8s_tools.argocd_util import wait_for_argocd_app
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.utils.subproc import subproc
@@ -19,10 +19,9 @@ from time import sleep
 import yaml
 
 
-def restore_seaweedfs(k8s_obj: K8s,
+def restore_seaweedfs(argocd: ArgoCD,
                       app: str,
                       namespace: str,
-                      argocd_namespace: str,
                       s3_endpoint: str,
                       s3_bucket: str,
                       access_key_id: str,
@@ -71,16 +70,23 @@ def restore_seaweedfs(k8s_obj: K8s,
             pvc_dict["spec"]["resources"]["requests"]["storage"] = "5Gi"
 
         # apply the pvc_dict
-        k8s_obj.apply_custom_resources([pvc_dict])
+        argocd.k8s.apply_custom_resources([pvc_dict])
 
         # label the PVCs so Argo CD doesn't complain
         subproc([f"kubectl label pvc -n {namespace} {swfs_pvc} "
                  f"argocd.argoproj.io/instance={app}-s3-pvc"])
 
         # build a k8up restore file and apply it
-        k8up_restore_pvc(k8s_obj, app, swfs_pvc, namespace,
-                         s3_endpoint, s3_bucket, access_key_id, secret_access_key,
-                         restic_repo_password, snapshot_id)
+        k8up_restore_pvc(argocd.k8s,
+                         app,
+                         swfs_pvc,
+                         namespace,
+                         s3_endpoint,
+                         s3_bucket,
+                         access_key_id,
+                         secret_access_key,
+                         restic_repo_password,
+                         snapshot_id)
 
     # deploy the seaweedfs appset, which will use the restored PVCs above
     # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
@@ -90,10 +96,10 @@ def restore_seaweedfs(k8s_obj: K8s,
     seaweedfs_appset = (
             f"https://raw.githubusercontent.com/small-hack/argocd-apps/{ref}/"
             f"{app}/app_of_apps/s3_provider_argocd_appset.yaml")
-    k8s_obj.apply_manifests(seaweedfs_appset, argocd_namespace)
+    argocd.k8s.apply_manifests(seaweedfs_appset, argocd.namespace)
 
     # and finally wait for the seaweedfs helm chart app to be ready
-    wait_for_argocd_app(f"{app}-seaweedfs", retry=True)
+    argocd.wait_for_app(f"{app}-seaweedfs", retry=True)
 
 
 def k8up_restore_pvc(k8s_obj: K8s,

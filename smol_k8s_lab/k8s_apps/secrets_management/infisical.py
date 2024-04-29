@@ -9,19 +9,18 @@ DESCRIPTION: configures infisical app and secrets operator
 """
 from rich.prompt import Prompt
 from random import randbytes
-from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.utils.passwords import create_password
-from smol_k8s_lab.utils.rich_cli.console_logging import header
 
 
-def configure_infisical(k8s_obj: K8s, infisical_dict: dict):
+def configure_infisical(argocd: ArgoCD, infisical_dict: dict):
     """
     - configures the infisical app by asking for smtp credentials
     - configures backendEnvironmentVariables secrets to sign JWT tokens
     """
-    header("Installing the Infisical app and Secrets operator...")
-    k8s_obj.create_namespace('infisical')
+    k8s_obj = argocd.k8s
+    argocd.k8s.create_namespace('infisical')
 
     argo_dict = infisical_dict['argo']
 
@@ -33,8 +32,7 @@ def configure_infisical(k8s_obj: K8s, infisical_dict: dict):
                                   mongo_password,
                                   argo_dict['secret_keys']['hostname'])
 
-    install_with_argocd(k8s_obj, 'infisical', argo_dict)
-    return True
+    argocd.install_app(k8s_obj, 'infisical', argo_dict)
 
 
 def create_backend_secret(k8s_obj: K8s,

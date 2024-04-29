@@ -10,19 +10,18 @@ import logging as log
 from os import path
 import yaml
 from ..constants import XDG_CACHE_DIR
-from ..k8s_tools.argocd_util import check_if_argocd_app_exists
+from ..k8s_tools.argocd_util import ArgoCD
 from ..k8s_tools.helm import Helm
 from ..k8s_tools.k8s_lib import K8s
 from ..bitwarden.bw_cli import BwCLI
-from ..utils.subproc import subproc
 from ..utils.passwords import create_password
 from ..utils.rich_cli.console_logging import header, sub_header
 
 
 def configure_argocd(k8s_obj: K8s,
-                     bitwarden: BwCLI = None,
-                     plugin_secret_creation: bool = False,
-                     secret_dict: dict = {}) -> None:
+                     argocd_config_dict: dict = {},
+                     secret_dict: dict = {},
+                     bitwarden: BwCLI = None) -> ArgoCD:
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
@@ -35,11 +34,12 @@ def configure_argocd(k8s_obj: K8s,
     header("Installing [green]Argo CD[/green] for managing your Kubernetes apps",
            "🦑")
 
+    namespace = argocd_config_dict['argo']['namespace']
     # this is needed for helm but also setting argo to use the current k8s context
     argo_cd_domain = secret_dict['argo_cd_hostname']
 
     # immediately start building helm object to check if helm release exists
-    release_dict = {"release_name": "argo-cd", "namespace": "argocd"}
+    release_dict = {"release_name": "argo-cd", "namespace": namespace}
     release = Helm.chart(**release_dict)
 
     if not release.check_existing():
@@ -99,16 +99,16 @@ def configure_argocd(k8s_obj: K8s,
         release = Helm.chart(**release_dict)
         release.install(True)
 
-    if plugin_secret_creation:
-        configure_secret_plugin_generator(k8s_obj, secret_dict)
+    argocd = ArgoCD(k8s_obj, namespace, argo_cd_domain)
+    if argocd_config_dict['argo']['directory_recursion']:
+        configure_secret_plugin_generator(argocd, k8s_obj, secret_dict)
 
-    # setup Argo CD to talk directly to k8s
-    log.debug("setting namespace to argocd and configuring argocd to use k8s for auth")
-    subproc(['kubectl config set-context --current --namespace=argocd',
-             f'argocd login {argo_cd_domain} --core'])
+    return argocd
 
 
-def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
+def configure_secret_plugin_generator(argocd: ArgoCD,
+                                      k8s_obj: K8s,
+                                      secret_dict: dict):
     """
     configures the applicationset secret plugin generator
 
@@ -118,7 +118,7 @@ def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
     k8s_obj.create_secret('appset-secret-vars', 'argocd', secret_dict,
                           'secret_vars.yaml')
 
-    if not check_if_argocd_app_exists('appset-secrets-plugin'):
+    if not argocd.check_if_app_exists('appset-secrets-plugin'):
         msg = "🔌 Installing the ApplicationSet Secret Plugin Generator for Argo CD..."
         sub_header(msg)
 
