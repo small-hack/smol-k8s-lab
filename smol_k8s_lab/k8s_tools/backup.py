@@ -97,7 +97,7 @@ def create_cnpg_cluster_backup(app: str, namespace: str) -> None:
                    "spec": {
                       "method": "barmanObjectStore",
                       "cluster": {
-                        "name": f"{app}-postgresql"
+                        "name": f"{app}-postgres"
                         }
                       }
                    }
