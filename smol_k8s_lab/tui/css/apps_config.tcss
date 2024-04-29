@@ -100,6 +100,10 @@ TabbedContent #--content-tab-restore-tab.-active {
     color: $light_cornflower;
 }
 
+TabbedContent #--content-tab-backup-tab.-active {
+    color: $light_cornflower;
+}
+
 #init-tab {
     padding-top: 1;
     padding-left: 0;
@@ -111,6 +115,10 @@ TabbedContent #--content-tab-restore-tab.-active {
 
 #restore-tab {
     padding-top: 1;
+    padding: 0;
+}
+
+#backup-tab {
     padding: 0;
 }
 
@@ -230,6 +238,18 @@ CollapsibleTitle:focus {
     height: auto;
 }
 
+/* header row for apps config panel */
+.header-row {
+    background: $blue_gray 30%;
+    height: 3;
+    width: 100%;
+    content-align: left middle;
+    margin-top: 1;
+    margin-bottom: 1;
+    padding-left: 1;
+    color: $bluish_white 90%;
+}
+
 /* this is just for the cnpg restore label */
 .app-less-switch-row {
     background: $blue_gray 25%;
@@ -252,12 +272,15 @@ CollapsibleTitle:focus {
 /* stuff for the backup button for instant backups */
 .backup-button-grid {
     align: center middle;
+    height: 9;
 }
 
 .backup-button {
-    padding: 1;
+    padding-left: 2;
+    padding-right: 2;
+    padding-top: 1;
+    padding-bottom: 1;
 }
-
 
 /* blurb to let users know that we don't have secret keys for this app, but they can add some */
 .secret-key-help-text {

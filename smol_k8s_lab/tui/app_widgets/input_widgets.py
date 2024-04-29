@@ -27,13 +27,11 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
                  collapsible_id: str,
                  inputs: dict = {},
                  tooltips: dict = {},
-                 sensitive_inputs: bool = False,
                  add_fields_button: bool = False) -> None:
 
         self.app_name = app_name
         self.title = title
         self.inputs = inputs
-        self.sensitive = sensitive_inputs
         self.tooltips = tooltips
         self.add_fields_button = add_fields_button
         self.collapsible_id = collapsible_id
@@ -83,7 +81,6 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         placeholder_txt = placeholder_grammar(key_label)
         input_keys = {"placeholder": placeholder_txt,
                       "name": key,
-                      "password": self.sensitive,
                       "id": "-".join([self.app_name, key, "input"]),
                       "validators": [Length(minimum=2)]}
 
@@ -100,6 +97,15 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
 
                 # reassign value if this is a CommentedSeq for validation later on
                 value = sequence_value
+                input_keys['password'] = False
+
+            # otherwise this is a sensitive value, and we have to get it externally
+            elif isinstance(value, dict):
+                input_keys['password'] = True
+                value = self.screen.get_value_from(value)
+            # this is probably just a plain text string
+            else:
+                input_keys['password'] = False
 
             input_keys["value"] = value
 
@@ -109,7 +115,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
         # make sure Input widget has a tooltip
         tooltip = self.tooltips.get(key, None)
         if not tooltip:
-            if self.sensitive:
+            if input_keys['password']:
                 env_var = "_".join([self.app_name.upper(), key.upper()])
                 tooltip = (f"To avoid needing to fill in this value manually, you"
                            f" can export ${env_var} as an environment variable.")
@@ -138,18 +144,28 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
     def input_validation(self, event: Input.Changed) -> None:
         if event.validation_result.is_valid:
             input = event.input
-            if self.sensitive:
-                self.screen.sensitive_values[self.app_name][input.name] = input.value
-            else:
-                parent_yaml = self.app.cfg['apps'][self.app_name]['init']['values']
+            parent_yaml = self.app.cfg['apps'][self.app_name]['init']['values']
 
-                if event.validation_result.is_valid:
-                    if self.app_name in ["metallb", "vouch"] or "," in input.value:
-                        parent_yaml[input.name] = create_sanitized_list(input.value)
-                    else:
+            if event.validation_result.is_valid:
+                # this checks if this is a sensitive input
+                password = input.password
+
+                if self.app_name in ["metallb", "vouch"] or "," in input.value:
+                    parent_yaml[input.name] = create_sanitized_list(input.value)
+                else:
+                    if not password:
                         parent_yaml[input.name] = input.value
 
+                # if this is a plain text value, write the yaml
+                if not input.password:
                     self.app.write_yaml()
+                # else, save it to a special place
+                else:
+                    self.log(f"saving special value for {input.name} to screen cache")
+                    self.screen.sensitive_values[self.app_name][input.name] = input.value
+                    self.log("🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙")
+                    self.log(self.screen.sensitive_values)
+                    self.log("🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙")
         else:
             if self.app.bell_on_error:
                 self.app.bell()

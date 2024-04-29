@@ -123,7 +123,7 @@ class ArgoCDProjectConfig(Static):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        with Collapsible(collapsed=False,
+        with Collapsible(collapsed=True,
                          title="Advanced Argo CD Project Configuration",
                          classes="collapsible-with-some-room",
                          id=f"{self.app_name}-argo-proj-config-collapsible"):

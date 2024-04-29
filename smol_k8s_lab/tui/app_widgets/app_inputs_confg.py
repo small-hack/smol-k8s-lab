@@ -4,7 +4,7 @@
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
 from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInputsWidget
-from smol_k8s_lab.tui.app_widgets.backup_and_restore import BackupRestoreAppConfig
+from smol_k8s_lab.tui.app_widgets.backup_and_restore import BackupWidget, RestoreAppConfig
 from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
 # external libraries
@@ -16,7 +16,8 @@ from textual.validation import Length
 from textual.widgets import (Input, Label, Button, Switch, Static, Collapsible,
                              TabbedContent, TabPane)
 
-RESTOREABLE = ["seaweedfs", "nextcloud", "matrix", "mastodon", "home_assistant"]
+RESTOREABLE = ["home_assistant", "matrix", "mastodon", "nextcloud",
+               "seaweedfs", "zitadel"]
 
 
 class AppInputs(Static):
@@ -27,6 +28,7 @@ class AppInputs(Static):
         self.app_name = app_name
         self.argo_params = config_dict['argo']
         self.init = config_dict.get('init', None)
+        self.backup_params = config_dict.get('backups', None)
         super().__init__()
 
     def compose(self) -> ComposeResult:
@@ -45,11 +47,12 @@ class AppInputs(Static):
                     # tab 1 - init options
                     yield TabPane("Initialization Config", id="init-tab")
                     # tab 2 - argo options
-                    yield TabPane("Argo CD Application Config", id="argocd-tab")
+                    yield TabPane("Argo CD App Config", id="argocd-tab")
 
-                    # tab 3 - restore options (if we support them for this app)
+                    # tab 3,4 - backup/restore options (if we support it for this app)
                     if self.app_name in RESTOREABLE:
-                        yield TabPane("Restore from backup", id="restore-tab")
+                        yield TabPane("Backup", id="backup-tab")
+                        yield TabPane("Restore", id="restore-tab")
 
     def on_mount(self) -> None:
         """
@@ -75,19 +78,29 @@ class AppInputs(Static):
             argo_pane.mount(ArgoCDProjectConfig(self.app_name,
                                                 self.argo_params['project']))
 
-            # if we support restorations for this app, mount restore widget
+            # if we support backups/restorations for this app, mount restore widget
             if self.app_name in RESTOREABLE:
-                restore_pane = self.get_widget_by_id("restore-tab")
-                restore_widget = BackupRestoreAppConfig(
+                restore_params = self.init.get("restore", {"enabled": False})
+                # mount the backup wiget into the restore tab
+                backup_widget = BackupWidget(
                         self.app_name,
-                        self.init.get("restore", {"enabled": False}),
-                        secret_keys['s3_backup_endpoint'],
-                        secret_keys['s3_backup_bucket'],
+                        self.backup_params,
+                        restore_params.get('cnpg_restore', False),
+                        id=f"{self.app_name}-restore-widget"
+                        )
+                # only display restore widget if init is enabled
+                backup_widget.display = self.init["enabled"]
+                self.get_widget_by_id("backup-tab").mount(backup_widget)
+
+                # mount the restore wiget into the restore tab
+                restore_widget = RestoreAppConfig(
+                        self.app_name,
+                        restore_params,
                         id=f"{self.app_name}-restore-widget"
                         )
                 # only display restore widget if init is enabled
                 restore_widget.display = self.init["enabled"]
-                restore_pane.mount(restore_widget)
+                self.get_widget_by_id("restore-tab").mount(restore_widget)
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""
@@ -106,7 +119,6 @@ class InitValues(Static):
         self.app_name = app_name
         self.init_enabled = init_dict['enabled']
         self.init_values = init_dict.get('values', None)
-        self.sensitive_values = init_dict.get('sensitive_values', None)
 
         super().__init__()
 
@@ -143,33 +155,14 @@ class InitValues(Static):
                             app_name=self.app_name,
                             title="Init Values",
                             collapsible_id=f"{cid}-init-values-collapsible",
-                            inputs=self.init_values,
-                            sensitive_inputs=False)
+                            inputs=self.init_values)
 
                     init_vals.tooltip = (
                                 "Init values for special one-time setup of "
                                 f"{self.app_name}. These values are [i]not[/i] "
-                                "stored in a secret for later reference  by Argo CD."
+                                "stored in a secret for later reference by Argo CD."
                                 )
                     yield init_vals
-
-                if self.sensitive_values:
-                    self.screen.check_for_env_vars(
-                            self.app_name, self.app.cfg['apps'][self.app_name]
-                            )
-                    sensitive_init_vals = SmolK8sLabCollapsibleInputsWidget(
-                            app_name=self.app_name,
-                            title="Sensitive Init Values",
-                            collapsible_id=f"{cid}-sensitive-init-values-collapsible",
-                            inputs=self.screen.sensitive_values[self.app_name],
-                            sensitive_inputs=True)
-
-                    sensitive_init_vals.tooltip = (
-                                "Sensitive Init values for special one-time setup of "
-                                f"{self.app_name}. These values can also be passed in"
-                                " via environment variables."
-                                )
-                    yield sensitive_init_vals
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:

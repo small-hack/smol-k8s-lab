@@ -55,7 +55,7 @@ def configure_zitadel(argocd: ArgoCD,
         else:
             header_start = "Setting up"
 
-        header(f"{header_start} [green]Zitadel[/], for your self hosted identity management",
+        header(f"{header_start} [green]Zitadel[/green], for your self hosted identity management",
                "👥")
 
         # immediately load in all the secret keys
@@ -66,9 +66,9 @@ def configure_zitadel(argocd: ArgoCD,
             if s3_endpoint and not restore_enabled:
                 s3_access_key = create_password()
                 # create a local alias to check and make sure nextcloud is functional
-                create_minio_alias(minio_alias="nextcloud",
+                create_minio_alias(minio_alias="zitadel",
                                    minio_hostname=s3_endpoint,
-                                   access_key="nextcloud",
+                                   access_key="zitadel",
                                    secret_key=s3_access_key)
 
 

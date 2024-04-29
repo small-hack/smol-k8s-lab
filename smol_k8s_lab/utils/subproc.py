@@ -92,14 +92,13 @@ def run_subprocess(command: str, decode_ascii: bool = False, **kwargs):
     """
     Takes a str commmand to run in BASH in a subprocess.
     Typically run from subproc, which handles output printing.
-    error_ok=False, directory="", shell=False
     Optional keyword vars:
         error_ok  - bool, catch errors, defaults to False
         cwd       - str, current working dir which is the dir to run command in
-        shell     - bool, run shell or not
         env       - environment variables you'd like to pass in
-        decode_ascii - decode ascii strings instead of the default UTF-8
+        shell     - bool, run shell or not
         text, universal_newlines - allow for "" in commands
+        decode_ascii - decode ascii strings instead of the default UTF-8
     """
     # get the values if passed in, otherwise, set defaults
     quiet = kwargs.pop('quiet', False)

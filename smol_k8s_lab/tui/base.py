@@ -13,7 +13,6 @@ from smol_k8s_lab.tui.smol_k8s_config_screen import SmolK8sLabConfig
 from smol_k8s_lab.tui.tui_config_screen import TuiConfigScreen
 
 # external libraries
-from os import environ
 from pyfiglet import Figlet
 from rich.text import Text
 from ruamel.yaml import YAML
@@ -329,4 +328,4 @@ class BaseApp(App):
 
 if __name__ == "__main__":
     app = BaseApp()
-    app.run()
+    print(app.run())

@@ -63,10 +63,12 @@ def configure_nextcloud(argocd: ArgoCD,
         init_values = config_dict['init'].get('values', None)
         if init_values:
             admin_user = init_values.get('admin_user', 'admin')
+
             # stmp config values
             mail_host = init_values.get('smtp_host', None)
             mail_user = init_values.get('smtp_user', None)
             mail_pass = init_values.get('smtp_password', None)
+
             # credentials of remote backups of s3 PVCs
             restic_repo_pass = init_values.get('restic_repo_password', "")
             backups_s3_user = init_values.get('s3_backup_access_id', "")

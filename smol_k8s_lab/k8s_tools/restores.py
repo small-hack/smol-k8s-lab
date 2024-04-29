@@ -291,3 +291,45 @@ def restore_postgresql(app: str,
             sleep(1)
         else:
             break
+
+    # fix backups after restore
+    restore_dict['Backup'] = [
+            {"barmanObjectStore": {
+                  "destinationPath": f"s3://{s3_bucket}/",
+                  "endpointURL": f"https://{s3_endpoint}",
+                  "s3Credentials": {
+                    "accessKeyId": {
+                      "name": "s3-postgres-credentials",
+                      "key": "S3_USER"
+                      },
+                    "secretAccessKey": {
+                      "name": "s3-postgres-credentials",
+                      "key": "S3_PASSWORD"
+                      }
+                    }
+                  }
+             }]
+
+    restore_dict['scheduledBackup'] = {
+            "name": f"{app}-pg-backup",
+            "spec": {
+              "schedule": "0 0 0 * * *",
+              "backupOwnerReference": "self",
+                "cluster": {
+                  "name": f"{app}-postgres"
+                }
+              }
+            }
+
+    restore_dict['bootstrap'].pop('recovery')
+
+    # this creates a values.yaml from restore_dict above
+    values_file_name = path.join(XDG_CACHE_DIR, 'cnpg_values_after_restore.yaml')
+    with open(values_file_name, 'w') as values_file:
+        yaml.dump(restore_dict, values_file)
+    release_dict = {"release_name": "cnpg-cluster",
+                    "namespace": namespace,
+                    "values_file": values_file_name,
+                    "chart_name": "cnpg-cluster/cnpg-cluster"}
+    release = Helm.chart(**release_dict)
+    release.install()

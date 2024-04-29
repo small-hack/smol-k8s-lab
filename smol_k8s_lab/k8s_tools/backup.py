@@ -68,7 +68,7 @@ def create_pvc_restic_backup(app: str,
 
     # wait for backup to complete
     wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
-                f"job/{app}-onetime-backup")
+                f"job/backup-{app}-onetime-backup-0")
     while True:
         log.debug(f"Waiting for backup job: {app}-onetime-backup")
         res = subproc([wait_cmd], error_ok=True)
@@ -107,12 +107,12 @@ def create_cnpg_cluster_backup(app: str, namespace: str) -> None:
     k8s.apply_custom_resources([cnpg_backup])
 
     # wait for backup to complete
-    wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
-                f"job/{app}-cnpg-backup")
+    wait_cmd = (f"kubectl get -n {namespace} --no-headers "
+                "-o custom-columns=PHASE:.status.phase "
+                f"backups.postgresql.cnpg.io/{app}-cnpg-backup")
     while True:
-        log.debug(f"Waiting for cnpg backup job: {app}-cnpg-backup")
+        log.error(f"Waiting on backups.postgresql.cnpg.io/{app}-cnpg-backup to complete")
         res = subproc([wait_cmd], error_ok=True)
-        if "NotFound" in res:
-            sleep(1)
-        else:
+        if "completed" in res:
             break
+        sleep(1)
