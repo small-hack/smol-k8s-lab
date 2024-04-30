@@ -1,4 +1,5 @@
 from smol_k8s_lab.k8s_tools.backup import create_pvc_restic_backup
+from smol_k8s_lab.utils.value_from import extract_secret
 from textual import on
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Grid, Container
@@ -222,7 +223,7 @@ class BackupWidget(Static):
                 sensitive = False
             else:
                 sensitive = True
-                input_val = self.screen.get_value_from(value)
+                input_val = extract_secret(value)
 
             input = Input(placeholder=f"Enter a {key}",
                           value=input_val,
@@ -239,7 +240,7 @@ class BackupWidget(Static):
         argo_label = Label("restic repo password:", classes="argo-config-label")
         argo_label.tooltip = "restic repository password for encrypting your backups"
         input_id = f"{self.app_name}-backup-restic-repository-password"
-        input_val = self.screen.get_value_from(self.backup_params['restic_repo_password'])
+        input_val = extract_secret(self.backup_params['restic_repo_password'])
 
         input = Input(placeholder="Enter a restic repo password for your encrypted backups",
                       value=input_val,

@@ -256,26 +256,6 @@ class AppsConfigScreen(Screen):
 
         return set(prompt_values)
 
-    def get_value_from(self, value) -> str:
-        """
-        process a value that has a valueFrom dict and return the value
-
-        supported valueFrom methods: env, bitwarden. coming soon: openbao
-        """
-        # get variable from env var
-        env_var = value['valueFrom'].get('env', None)
-        bitwarden_item = value['valueFrom'].get('bitwarden_item', None)
-        openbao_item = value['valueFrom'].get('openbao_item', None)
-        if env_var:
-            return environ.get(env_var, "")
-        elif bitwarden_item:
-            bitwarden_field = value['valueFrom'].get('bitwarden_field', None)
-            bw = BwCLI()
-            return bw.get_item(bitwarden_item)[0][bitwarden_field]
-        elif openbao_item:
-            self.log("openbao support not yet implemented")
-            return ""
-
     def action_launch_new_app_modal(self) -> None:
         """
         action bound to a key for adding a new app to launch the new app modal

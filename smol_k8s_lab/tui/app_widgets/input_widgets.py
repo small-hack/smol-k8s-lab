@@ -1,5 +1,6 @@
 # smol-k8s-lab libraries
-from smol_k8s_lab.tui.util import (placeholder_grammar, create_sanitized_list)
+from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
+from smol_k8s_lab.utils.value_from import extract_secret
 
 # external libraries
 from ruamel.yaml import CommentedSeq
@@ -102,7 +103,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
             # otherwise this is a sensitive value, and we have to get it externally
             elif isinstance(value, dict):
                 input_keys['password'] = True
-                value = self.screen.get_value_from(value)
+                value = extract_secret(value)
             # this is probably just a plain text string
             else:
                 input_keys['password'] = False
