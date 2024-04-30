@@ -7,6 +7,7 @@ from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
                                              k8up_restore_pvc,
                                              restore_postgresql)
 from smol_k8s_lab.utils.passwords import create_password
+from smol_k8s_lab.utils.value_from import extract_secret
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.subproc import subproc
 
@@ -24,7 +25,7 @@ def configure_nextcloud(argocd: ArgoCD,
     creates a nextcloud app and initializes it with secrets if you'd like :)
 
     required:
-        argocd            - ArgoCD() object
+        argocd            - ArgoCD() object for Argo CD operations
         config_dict       - dict, with at least argocd key and init key
         argocd_namespace  - str, namespace of Argo CD
         pvc_storage_class - str, storage class of PVC
@@ -67,12 +68,35 @@ def configure_nextcloud(argocd: ArgoCD,
             # stmp config values
             mail_host = init_values.get('smtp_host', None)
             mail_user = init_values.get('smtp_user', None)
-            mail_pass = init_values.get('smtp_password', None)
+            mail_pass = extract_secret(init_values.get('smtp_password', ""))
+        else:
+            log.warn("Strange, there's no nextcloud init values...")
+
+        # backups are their own config.yaml section
+        backup_values = config_dict.get('backups', {})
+        if backup_values:
+            backup_schedule = backup_values.get("schedule")
 
             # credentials of remote backups of s3 PVCs
-            restic_repo_pass = init_values.get('restic_repo_password', "")
-            backups_s3_user = init_values.get('s3_backup_access_id', "")
-            backups_s3_password = init_values.get('s3_backup_secret_key', "")
+            backup_s3_creds = backup_values.get("s3", {})
+
+            backup_s3_endpoint = backup_s3_creds.get('endpoint', "")
+            backup_s3_bucket = backup_s3_creds.get('bucket', "")
+            backup_s3_region = backup_s3_creds.get('region', "")
+            backups_s3_user = extract_secret(
+                    backup_s3_creds.get('access_key_id', "")
+                    )
+            backups_s3_password = extract_secret(
+                    backup_s3_creds.get('secret_access_key', "")
+                    )
+            restic_repo_pass = extract_secret(
+                    backup_s3_creds.get('restic_repo_password', "")
+                    )
+
+            argocd.update_appset_secret({"nextcloud_s3_backup_endpoint": backup_s3_endpoint,
+                                         "nextcloud_s3_backup_bucket": backup_s3_bucket,
+                                         "nextcloud_s3_backup_region": backup_s3_region,
+                                         "nextcloud_s3_backup_schedule": backup_schedule})
 
         if secrets:
             s3_endpoint = secrets.get('s3_endpoint', "")
@@ -162,10 +186,16 @@ def configure_nextcloud(argocd: ArgoCD,
             restore_nextcloud(argocd,
                               nextcloud_hostname,
                               nextcloud_namespace,
-                              config_dict,
+                              config_dict['argo'],
                               secrets,
                               restore_dict,
+                              backup_s3_endpoint,
+                              backup_s3_bucket,
+                              backups_s3_user,
+                              backups_s3_password,
+                              restic_repo_pass,
                               pvc_storage_class,
+                              'nextcloud-postgres',
                               bitwarden)
         else:
             argocd.install_app('nextcloud', config_dict['argo'])
@@ -178,12 +208,17 @@ def configure_nextcloud(argocd: ArgoCD,
 def restore_nextcloud(argocd: ArgoCD,
                       nextcloud_hostname: str,
                       nextcloud_namespace: str,
-                      config_dict: dict,
+                      argo_dict: dict,
                       secrets: dict,
                       restore_dict: dict,
+                      s3_backup_endpoint: str,
+                      s3_backup_bucket: str,
+                      access_key_id: str,
+                      secret_access_key: str,
+                      restic_repo_password: str,
                       pvc_storage_class: str,
-                      bitwarden: BwCLI,
-                      pgsql_cluster_name: str ='matrix-postgres') -> None:
+                      pgsql_cluster_name: str,
+                      bitwarden: BwCLI) -> None:
     """
     restore nextcloud seaweedfs PVCs, nextcloud files and/or config PVC(s),
     and CNPG postgresql cluster
@@ -204,15 +239,10 @@ def restore_nextcloud(argocd: ArgoCD,
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
     # these are the remote backups for seaweedfs
-    s3_backup_endpoint = secrets['s3_backup_endpoint']
-    s3_backup_bucket = secrets['s3_backup_bucket']
-    access_key_id = config_dict['init']['values']['s3_backup_access_id']
-    secret_access_key = config_dict['init']['values']['s3_backup_secret_key']
-    restic_repo_password = config_dict['init']['values']['restic_repo_password']
     s3_pvc_capacity = secrets['s3_pvc_capacity']
 
     # then we create all the seaweedfs pvcs we lost and restore them
-    snapshot_ids = config_dict['init']['restore']['restic_snapshot_ids']
+    snapshot_ids = restore_dict['restic_snapshot_ids']
     restore_seaweedfs(
             argocd.k8s,
             'nextcloud',
@@ -282,7 +312,7 @@ def restore_nextcloud(argocd: ArgoCD,
 
     # todo: from here on out, this could be async to start on other tasks
     # install nextcloud as usual
-    argocd.install_app('nextcloud', config_dict['argo'])
+    argocd.install_app('nextcloud', argo_dict)
 
     # verify nextcloud rolled out
     rollout = (f"kubectl rollout status -n {nextcloud_namespace} "
