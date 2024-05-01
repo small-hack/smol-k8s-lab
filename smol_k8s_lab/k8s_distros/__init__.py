@@ -47,12 +47,12 @@ def check_all_contexts() -> list:
                 # get the version info for the distro and platform
                 version_json = loads(subproc(["kubectl version -o json"]))
 
-                # for k3s, this is nested in semverVersion
+                # for k3s, this is nested in serverVersion
                 # for kind or k3d, it may not be present if docker is not enabled
-                semver_version = version_json.get('serverVersion', None)
-                if semver_version:
-                    version = semver_version['gitVersion']
-                    platform = semver_version['platform']
+                server_version = version_json.get('serverVersion', None)
+                if server_version:
+                    version = server_version['gitVersion']
+                    platform = server_version['platform']
                 else:
                     log.error("Couldn't get server verison or platform. Is docker running?")
                     version = "unknown"
