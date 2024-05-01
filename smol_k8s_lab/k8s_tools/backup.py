@@ -1,7 +1,11 @@
-import logging as log
+# local libs
 from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
+
+# external libs
+from datetime import datetime
+import logging as log
 from time import sleep
 
 
@@ -14,11 +18,13 @@ def create_pvc_restic_backup(app: str,
     a function to immediately run a restic backup job
     unless it's nextcloud, then we put it into maintenance_mode first...
     """
+    now = datetime.now().strftime('%Y-%m-%d-%H-%M')
+    backup_name = f"{app}-onetime-backup-{now}"
     backup_yaml = {
             "apiVersion": "k8up.io/v1",
             "kind": "Backup",
             "metadata": {
-              "name": f"{app}-onetime-backup",
+              "name": backup_name,
               "namespace": namespace
               },
             "spec": {
@@ -68,9 +74,9 @@ def create_pvc_restic_backup(app: str,
 
     # wait for backup to complete
     wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
-                f"job/backup-{app}-onetime-backup-0")
+                f"job/{backup_name}-0")
     while True:
-        log.debug(f"Waiting for backup job: {app}-onetime-backup")
+        log.debug(f"Waiting for backup job: {backup_name}-0")
         res = subproc([wait_cmd], error_ok=True)
         if "NotFound" in res:
             sleep(1)
@@ -88,10 +94,12 @@ def create_cnpg_cluster_backup(app: str, namespace: str) -> None:
     """
     creates a backup for cnpg clusters and waits for it to complete
     """
+    now = datetime.now().strftime('%Y-%m-%d-%H-%M')
+    backup_name = f"{app}-onetime-cnpg-backup-{now}"
     cnpg_backup = {"apiVersion": "postgresql.cnpg.io/v1",
                    "kind": "Backup",
                    "metadata": {
-                      "name": f"{app}-cnpg-backup",
+                      "name": backup_name,
                       "namespace": namespace
                       },
                    "spec": {
@@ -109,9 +117,9 @@ def create_cnpg_cluster_backup(app: str, namespace: str) -> None:
     # wait for backup to complete
     wait_cmd = (f"kubectl get -n {namespace} --no-headers "
                 "-o custom-columns=PHASE:.status.phase "
-                f"backups.postgresql.cnpg.io/{app}-cnpg-backup")
+                f"backups.postgresql.cnpg.io/{backup_name}")
     while True:
-        log.error(f"Waiting on backups.postgresql.cnpg.io/{app}-cnpg-backup to complete")
+        log.error(f"Waiting on backups.postgresql.cnpg.io/{backup_name} to complete")
         res = subproc([wait_cmd], error_ok=True)
         if "completed" in res:
             break
