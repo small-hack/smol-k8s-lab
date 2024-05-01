@@ -5,6 +5,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
                                              k8up_restore_pvc,
                                              restore_postgresql)
+from smol_k8s_lab.utils.value_from import process_backup_vals, extract_secret
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
@@ -12,7 +13,7 @@ import logging as log
 
 
 def configure_matrix(argocd: ArgoCD,
-                     config_dict: dict,
+                     cfg: dict,
                      pvc_storage_class: str,
                      zitadel: Zitadel,
                      bitwarden: BwCLI = None) -> bool:
@@ -21,19 +22,19 @@ def configure_matrix(argocd: ArgoCD,
     """
 
     app_installed = argocd.check_if_app_exists('matrix')
-    secrets = config_dict['argo']['secret_keys']
+    secrets = cfg['argo']['secret_keys']
     if secrets:
         matrix_hostname = secrets['hostname']
 
-    init_enabled = config_dict['init']['enabled']
+    init_enabled = cfg['init']['enabled']
     # initial secrets to deploy this app from scratch
     if app_installed:
         header("Syncing [green]Matrix[/], so you can self host your own chat",
                '💬')
     elif init_enabled and not app_installed:
-        init_values = config_dict['init']['values']
+        init_values = cfg['init']['values']
 
-        restore_dict = config_dict['init'].get('restore', {"enabled": False})
+        restore_dict = cfg['init'].get('restore', {"enabled": False})
         restore_enabled = restore_dict['enabled']
         if restore_enabled:
             header_start = "Restoring"
@@ -43,19 +44,17 @@ def configure_matrix(argocd: ArgoCD,
         header(f"{header_start} [green]Matrix[/], so you can self host your own chat",
                '💬')
 
+        backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
+
+        # configure s3 credentials
         s3_endpoint = secrets.get('s3_endpoint', "")
         s3_bucket = secrets.get('s3_bucket', "matrix")
-        # configure s3 credentials
         s3_access_id = 'matrix'
         s3_access_key = create_password()
-        # credentials of remote backups of s3 PVCs
-        restic_repo_pass = init_values.get('restic_repo_password', "")
-        backups_s3_user = init_values.get('s3_backup_access_id', "")
-        backups_s3_password = init_values.get('s3_backup_secret_key', "")
 
         # configure the smtp credentials
         mail_user = init_values['smtp_user']
-        mail_pass = init_values['smtp_password']
+        mail_pass = extract_secret(init_values['smtp_password'])
         mail_host = init_values['smtp_host']
 
         # create a local alias to check and make sure matrix is functional
@@ -77,15 +76,23 @@ def configure_matrix(argocd: ArgoCD,
 
         # if the user has bitwarden enabled
         if bitwarden and not restore_enabled:
-            matrix_namespace = config_dict['argo']['namespace']
+            matrix_namespace = cfg['argo']['namespace']
             setup_bitwarden_items(argocd,
-                                  matrix_hostname, matrix_namespace,
+                                  matrix_hostname,
+                                  matrix_namespace,
                                   s3_endpoint,
-                                  s3_access_id, s3_access_key, s3_bucket,
-                                  backups_s3_user, backups_s3_password,
-                                  restic_repo_pass,
-                                  mail_host, mail_user, mail_pass, oidc_creds,
-                                  zitadel_hostname, bitwarden)
+                                  s3_access_id,
+                                  s3_access_key,
+                                  s3_bucket,
+                                  backup_vals['s3_user'],
+                                  backup_vals['s3_password'],
+                                  backup_vals['restic_repo_pass'],
+                                  mail_host,
+                                  mail_user,
+                                  mail_pass,
+                                  oidc_creds,
+                                  zitadel_hostname,
+                                  bitwarden)
 
         # else create these as Kubernetes secrets
         else:
@@ -119,15 +126,21 @@ def configure_matrix(argocd: ArgoCD,
             restore_matrix(argocd,
                            matrix_hostname,
                            matrix_namespace,
-                           config_dict,
+                           cfg['argo'],
                            secrets,
                            restore_dict,
+                           backup_vals['endpoint'],
+                           backup_vals['bucket'],
+                           backup_vals['s3_user'],
+                           backup_vals['s3_password'],
+                           backup_vals['restic_repo_pass'],
                            pvc_storage_class,
+                           "matrix-postgres",
                            bitwarden)
 
-        argocd.install_app('matrix', config_dict['argo'])
+        argocd.install_app('matrix', cfg['argo'])
     else:
-        if bitwarden and config_dict['init']['enabled']:
+        if bitwarden and init_enabled:
             refresh_bweso(argocd, matrix_hostname, bitwarden)
 
 
@@ -341,12 +354,17 @@ def setup_bitwarden_items(argocd: ArgoCD,
 def restore_matrix(argocd: ArgoCD,
                    matrix_hostname: str,
                    matrix_namespace: str,
-                   config_dict: dict,
+                   argo_dict: dict,
                    secrets: dict,
                    restore_dict: dict,
+                   s3_backup_endpoint: str,
+                   s3_backup_bucket: str,
+                   access_key_id: str,
+                   secret_access_key: str,
+                   restic_repo_password: str,
                    pvc_storage_class: str,
-                   bitwarden: BwCLI,
-                   pgsql_cluster_name: str = 'matrix-postgres') -> None:
+                   pgsql_cluster_name: str,
+                   bitwarden: BwCLI) -> None:
     """
     restore matrix seaweedfs PVCs, matrix files and/or config PVC(s),
     and CNPG postgresql cluster
@@ -364,19 +382,15 @@ def restore_matrix(argocd: ArgoCD,
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
     # these are the remote backups for seaweedfs
-    s3_backup_endpoint = secrets['s3_backup_endpoint']
-    s3_backup_bucket = secrets['s3_backup_bucket']
-    access_key_id = config_dict['init']['values']['s3_backup_access_id']
-    secret_access_key = config_dict['init']['values']['s3_backup_secret_key']
-    restic_repo_password = config_dict['init']['values']['restic_repo_password']
     s3_pvc_capacity = secrets['s3_pvc_capacity']
 
     # then we create all the seaweedfs pvcs we lost and restore them
-    snapshot_ids = config_dict['init']['restore']['restic_snapshot_ids']
+    snapshot_ids = restore_dict['restic_snapshot_ids']
     restore_seaweedfs(
             argocd.k8s,
             'matrix',
             matrix_namespace,
+            argocd.namespace,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,
