@@ -134,6 +134,7 @@ cluster_names:
   default: default
   linux_amd: linux "A" "M" "Dee" sixty-four bit
   linux_arm: linux arm sixty-four bit
+  macos_arm: Mac O.S. arm sixty-four bit
 
 numbers:
   1: one
@@ -176,6 +177,7 @@ phrases:
   platform: Platform
   clusters_data_table: clusters data table
   new_cluster_button: new cluster button
+  unknown_version: The version of the cluster is unkown. Is docker running?
   # tui config screen
   tui_enabled: Terminal U.I. switch
   footer: footer switch

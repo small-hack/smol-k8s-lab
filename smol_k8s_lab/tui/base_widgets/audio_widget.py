@@ -597,21 +597,29 @@ class SmolAudio(Widget):
 
                 # version
                 self.say_phrase('version.mp3')
-                version = row_column3.replace("+k3s1",
-                                              "").lstrip("v").split(".")
-                last_item = version[-1]
-                for number in version:
-                    SAY(path.join(self.tts_files, f'numbers/{number}.mp3'))
-                    # say "point" between numbers
-                    if number != last_item:
-                        self.say_phrase('point.mp3')
 
-                # platform
+                if row_column3 == "unknown":
+                    SAY(path.join(self.tts_files, "phrases/unknown_version.mp3"))
+                else:
+                    version = row_column3.replace("+k3s1",
+                                                  "").lstrip("v").split(".")
+                    last_item = version[-1]
+                    for number in version:
+                        SAY(path.join(self.tts_files, f'numbers/{number}.mp3'))
+                        # say "point" between numbers
+                        if number != last_item:
+                            self.say_phrase('point.mp3')
+
+                # say what platform we're running on
                 self.say_phrase('platform.mp3')
                 if row_column4 == "linux/arm64":
                     SAY(path.join(self.cluster_audio, 'linux_arm.mp3'))
                 elif row_column4 == "linux/amd64":
                     SAY(path.join(self.cluster_audio, 'linux_amd.mp3'))
+                elif row_column4 == "Darwin/arm64":
+                    SAY(path.join(self.cluster_audio, 'macos_arm.mp3'))
+                else:
+                    SAY(path.join(self.tts_files, 'phrases/um.mp3'))
 
     def on_focus(self, event: DescendantFocus) -> None:
         """

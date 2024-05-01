@@ -8,9 +8,10 @@ from .k3d import create_k3d_cluster, delete_k3d_cluster
 from .k3s import install_k3s_cluster, uninstall_k3s
 
 # external libraries from standard lib
-from sys import exit
 from json import loads
 import logging as log
+from platform import machine, system
+from sys import exit
 
 
 def check_all_contexts() -> list:
@@ -52,18 +53,17 @@ def check_all_contexts() -> list:
                 server_version = version_json.get('serverVersion', None)
                 if server_version:
                     version = server_version['gitVersion']
-                    platform = server_version['platform']
+                    os = server_version['platform']
                 else:
                     log.error("Couldn't get server verison or platform. Is docker running?")
                     version = "unknown"
-                    platform = "unknown"
+                    os = system() + "/" + machine()
 
                 # if k3s is in the git version, it could be k3s OR k3d
-                if "k3s" in version:
-                    if "k3d" in cluster_name:
-                        distro = "k3d"
-                    else:
-                        distro = "k3s"
+                if "k3d" in cluster_name:
+                    distro = "k3d"
+                elif "k3s" in cluster_name and "k3d" not in cluster_name:
+                    distro = "k3s"
                 else:
                     # if distro not k3s/k3d, we kinda guess :)
                     for distro_name in ["kind", "gke", "aks", "eks"]:
@@ -71,7 +71,7 @@ def check_all_contexts() -> list:
                             distro = distro_name
                             break
 
-                context_tuple = (cluster_name, distro, version, platform)
+                context_tuple = (cluster_name, distro, version, os)
 
                 return_contexts.append(context_tuple)
 
