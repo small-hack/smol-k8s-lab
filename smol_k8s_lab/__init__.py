@@ -250,6 +250,9 @@ def main(config: str = "",
                         apps.pop('postgres_operator', {}),
                         bw)
 
+        # global pvc storage class
+        pvc_storage_class = SECRETS.get('global_pvc_storage_class', 'local-path')
+
         # check if zitadel is enabled
         zitadel_enabled = apps['zitadel']['enabled']
 
@@ -258,6 +261,7 @@ def main(config: str = "",
                                        api_tls_verify,
                                        apps.pop('zitadel', {}),
                                        apps.pop('vouch', {}),
+                                       pvc_storage_class,
                                        bw,
                                        SECRETS['argo_cd_hostname'])
 
@@ -282,7 +286,7 @@ def main(config: str = "",
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
                 apps.pop('matrix', {}),
-                SECRETS.get('global_pvc_storage_class', 'local-path'),
+                pvc_storage_class,
                 zitadel_hostname,
                 oidc_obj,
                 bw

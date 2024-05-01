@@ -69,6 +69,7 @@ def setup_oidc_provider(argocd: ArgoCD,
                         api_tls_verify: bool = False,
                         zitadel_dict: dict = {},
                         vouch_dict: dict = {},
+                        pvc_storage_class: str = "local-path",
                         bw: BwCLI = None,
                         argocd_fqdn: str = "") -> Zitadel | None:
     """
@@ -94,12 +95,13 @@ def setup_oidc_provider(argocd: ArgoCD,
 
     # setup zitadel if we're using that for OIDC
     if zitadel_enabled:
-        zitadel_init_enabled = zitadel_dict['init']['enabled']
+        zitadel_init_enabled = zitadel_dict['init'].get('enabled', False)
         log.debug("Setting up zitadel")
         if zitadel_init_enabled:
             zitadel_obj = configure_zitadel(
                     argocd,
                     zitadel_dict,
+                    pvc_storage_class,
                     api_tls_verify,
                     bitwarden=bw
                     )
@@ -219,14 +221,15 @@ def setup_federated_apps(argocd: ArgoCD,
     Setup any federated apps with initialization supported
     """
     if home_assistant_dict.get('enabled', False):
-        configure_home_assistant(argocd, home_assistant_dict, api_tls_verify, bw)
+        configure_home_assistant(argocd, home_assistant_dict, pvc_storage_class,
+                                 api_tls_verify, bw)
 
     if nextcloud_dict.get('enabled', False):
-        configure_nextcloud(argocd, nextcloud_dict, pvc_storage_class, bw,
-                            zitadel_obj)
+        configure_nextcloud(argocd, nextcloud_dict, pvc_storage_class,
+                            zitadel_obj, bw)
 
     if mastodon_dict.get('enabled', False):
-        configure_mastodon(argocd, mastodon_dict, bw)
+        configure_mastodon(argocd, mastodon_dict, pvc_storage_class, bw)
 
     if matrix_dict.get('enabled', False):
-        configure_matrix(argocd, matrix_dict, zitadel_obj, bw)
+        configure_matrix(argocd, matrix_dict, pvc_storage_class, zitadel_obj, bw)

@@ -19,30 +19,47 @@ def configure_matrix(argocd: ArgoCD,
                      bitwarden: BwCLI = None) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
-    """
 
+    required:
+        argocd            - ArgoCD() object for Argo CD operations
+        cfg               - dict, with at least argocd key and init key
+        pvc_storage_class - str, storage class of PVC
+
+    optional:
+        zitadel     - Zitadel() object with session token to create zitadel oidc app and roles
+        bitwarden   - BwCLI() object with session token to create bitwarden items
+    """
+    # verify immediately if matrix is installed
     app_installed = argocd.check_if_app_exists('matrix')
+
+    # verify if initialization is enabled
+    init = cfg.get('init', {'enabled': True, 'restore': {'enabled': False}})
+    init_enabled = init.get('enabled', True)
+
+    # check if we're restoring and get values for that
+    restore_dict = init.get('restore', {"enabled": False})
+    restore_enabled = restore_dict['enabled']
+
+    # figure out what header to print
+    if restore_enabled:
+        header_start = "Restoring"
+    else:
+        if app_installed:
+            header_start = "Syncing"
+        else:
+            header_start = "Setting up"
+
+    header(f"{header_start} [green]Matrix[/], so you can self host your own chat",
+           '💬')
+
     secrets = cfg['argo']['secret_keys']
     if secrets:
         matrix_hostname = secrets['hostname']
 
-    init_enabled = cfg['init']['enabled']
     # initial secrets to deploy this app from scratch
-    if app_installed:
-        header("Syncing [green]Matrix[/], so you can self host your own chat",
-               '💬')
-    elif init_enabled and not app_installed:
-        init_values = cfg['init']['values']
+    if init_enabled and not app_installed:
+        init_values = init.get('values', {})
 
-        restore_dict = cfg['init'].get('restore', {"enabled": False})
-        restore_enabled = restore_dict['enabled']
-        if restore_enabled:
-            header_start = "Restoring"
-        else:
-            header_start = "Setting up"
-
-        header(f"{header_start} [green]Matrix[/], so you can self host your own chat",
-               '💬')
 
         backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
 
