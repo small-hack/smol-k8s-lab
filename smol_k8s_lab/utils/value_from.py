@@ -1,6 +1,7 @@
 import logging as log
 from os import environ
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 
 
 def extract_secret(value: dict = {}) -> str:
@@ -37,3 +38,34 @@ def extract_secret(value: dict = {}) -> str:
 
     log.warn("No secret was found so returning empty string")
     return ""
+
+
+def process_backup_vals(backup_dict: dict,
+                        app: str = "",
+                        argocd: ArgoCD = None) -> dict:
+    """
+    return a backup value dict by processing s3 values and getting any secret data
+
+    optionally, if app name and argocd obj are passed in, we also update the
+    appset secret plugin secret with the backup values
+    """
+    s3_values = backup_dict.get('s3', {})
+
+    return_dict =  {
+            "endpoint": s3_values.get('endpoint', ""),
+            "region": s3_values.get('region', ""),
+            "bucket": s3_values.get('bucket', ""),
+            "s3_user": extract_secret(s3_values.get('access_key_id', '')),
+            "s3_password": extract_secret(s3_values.get('secret_access_key', '')),
+            "restic_repo_pass": extract_secret(s3_values.get('restic_repo_password', '')),
+            "schedule": backup_dict.get('schedule', "0 0 * * *")
+            }
+
+    if app and argocd:
+        argocd.update_appset_secret({
+            f"{app}_s3_backup_endpoint": return_dict['endpoint'],
+            f"{app}_s3_backup_bucket": return_dict['bucket'],
+            f"{app}_s3_backup_region": return_dict['region'],
+            f"{app}_s3_backup_schedule": return_dict['schedule']})
+
+    return return_dict
