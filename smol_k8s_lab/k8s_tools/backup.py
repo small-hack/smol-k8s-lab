@@ -4,6 +4,7 @@ from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 
 # external libs
+# import asyncio
 from datetime import datetime
 import logging as log
 from time import sleep
@@ -11,8 +12,8 @@ from time import sleep
 
 def create_pvc_restic_backup(app: str,
                              namespace: str,
-                             bucket: str,
                              endpoint: str,
+                             bucket: str,
                              cnpg_backup: bool = True) -> None:
     """
     a function to immediately run a restic backup job
@@ -73,11 +74,13 @@ def create_pvc_restic_backup(app: str,
     k8s.apply_custom_resources([backup_yaml])
 
     # wait for backup to complete
-    wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
-                f"job/{backup_name}-0")
+    wait_cmd = (f"kubectl wait job -n {namespace} --for=condition=complete "
+                f"backup-{backup_name}-0 --timeout=15m")
+    print(wait_cmd)
     while True:
-        log.debug(f"Waiting for backup job: {backup_name}-0")
+        log.debug(f"Waiting for backup job: backup-{backup_name}-0")
         res = subproc([wait_cmd], error_ok=True)
+        log.error(res)
         if "NotFound" in res:
             sleep(1)
         else:
@@ -121,6 +124,7 @@ def create_cnpg_cluster_backup(app: str, namespace: str) -> None:
     while True:
         log.error(f"Waiting on backups.postgresql.cnpg.io/{backup_name} to complete")
         res = subproc([wait_cmd], error_ok=True)
+        log.error(res)
         if "completed" in res:
             break
         sleep(1)

@@ -7,6 +7,145 @@ from textual.validation import Length
 from textual.widgets import Input, Label, Static, Switch, Collapsible, Button
 
 
+class BackupWidget(Static):
+    """
+    a textual widget for backing up select apps via k8up
+    """
+
+    def __init__(self,
+                 app_name: str,
+                 backup_params: dict,
+                 cnpg_restore: bool,
+                 id: str) -> None:
+        self.app_name = app_name
+        self.backup_params = backup_params
+        self.cnpg_restore = cnpg_restore
+        self.backup_s3_bucket = backup_params['s3']['bucket']
+        self.backup_s3_endpoint = backup_params['s3']['endpoint']
+        super().__init__(id=id)
+
+    def compose(self) -> ComposeResult:
+        yield Grid(classes="backup-button-grid",
+                   id=f"{self.app_name}-backup-button-grid")
+
+        yield Label("⏲ Scheduled backups", classes="header-row")
+        # first put in the schedule
+        argo_label = Label("PVC schedule:", classes="argo-config-label")
+        argo_label.tooltip = "schedule for recurring backup, takes cron syntax"
+        input_id = f"{self.app_name}-backup-schedule"
+        schedule_val = self.backup_params.get('schedule', "0 0 * * *")
+        input = Input(placeholder="Enter a cron syntax schedule for backups",
+                      value=schedule_val,
+                      name='cron syntax schedule',
+                      validators=[Length(minimum=5)],
+                      id=input_id,
+                      classes=f"{self.app_name} argo-config-input")
+        input.validate(schedule_val)
+        yield Horizontal(argo_label, input, classes="argo-config-row")
+
+
+        # Collapsible with grid for backup values
+        yield Collapsible(
+                Grid(classes="collapsible-updateable-grid",
+                     id=f"{self.app_name}-backup-grid"),
+                id=f"{self.app_name}-backup-config-collapsible",
+                title="S3 Configuration",
+                classes="collapsible-with-some-room",
+                collapsed=False
+                )
+
+    def on_mount(self) -> None:
+        """
+        add button and generate all the backup option input rows
+        """
+
+        button = Button("💾 Backup Now",
+                        classes="backup-button",
+                        id=f"{self.app_name}-backup-button")
+        button.tooltip = f"Press to perform a one-time backup of {self.app_name}"
+        grid = self.get_widget_by_id(f"{self.app_name}-backup-button-grid")
+        grid.mount(button)
+
+        self.generate_s3_rows()
+
+    def generate_s3_rows(self) -> None:
+        """
+        generate each row for the backup widget
+        """
+        grid = self.get_widget_by_id(f"{self.app_name}-backup-grid")
+
+        # create a label and input row for each argo value, excedpt directory_recursion
+        for key, value in self.backup_params['s3'].items():
+            argo_label = Label(f"{key.replace('_',' ')}:",
+                               classes="argo-config-label")
+            argo_label.tooltip = value
+            input_id = f"{self.app_name}-backup-s3-{key}"
+            if isinstance(value, str):
+                input_val = value
+                sensitive = False
+            else:
+                sensitive = True
+                input_val = extract_secret(value)
+
+            input = Input(placeholder=f"Enter a {key}",
+                          value=input_val,
+                          name=key,
+                          validators=[Length(minimum=3)],
+                          id=input_id,
+                          password=sensitive,
+                          classes=f"{self.app_name} argo-config-input")
+            input.validate(input_val)
+
+            grid.mount(Horizontal(argo_label, input, classes="argo-config-row"))
+
+        # finally we need the restic repository password
+        argo_label = Label("restic repo password:", classes="argo-config-label")
+        argo_label.tooltip = "restic repository password for encrypting your backups"
+        input_id = f"{self.app_name}-backup-restic-repository-password"
+        input_val = extract_secret(self.backup_params['restic_repo_password'])
+
+        input = Input(placeholder="Enter a restic repo password for your encrypted backups",
+                      value=input_val,
+                      name="restic_repo_password",
+                      validators=[Length(minimum=5)],
+                      id=input_id,
+                      password=True,
+                      classes=f"{self.app_name} argo-config-input")
+        input.validate(input_val)
+
+        grid.mount(Horizontal(argo_label, input, classes="argo-config-row"))
+
+    @on(Input.Changed)
+    def update_base_yaml_for_input(self, event: Input.Changed) -> None:
+        """
+        whenever any of our inputs change, we update the base app's saved config.yaml
+        """
+        input = event.input
+        sensitive = input.password
+        if not sensitive:
+            if "s3" in input.name:
+                self.app.cfg['apps'][self.app_name]['backups']['s3'][input.name] = input.value
+            else:
+                self.app.cfg['apps'][self.app_name]['backups'][input.name] = input.value
+            self.app.write_yaml()
+        else:
+            self.log(f"saving special value for {input.name} to screen cache")
+            self.screen.sensitive_values[self.app_name][input.name] = input.value
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """
+        get pressed button and act on it
+        """
+        id = event.button.id
+        if id == f"{self.app_name}-backup-button":
+            namespace = self.screen.cfg[self.app_name]['argo']['namespace']
+            create_pvc_restic_backup(self.app_name,
+                                     namespace=namespace,
+                                     endpoint=self.backup_s3_endpoint,
+                                     bucket=self.backup_s3_bucket,
+                                     cnpg_backup=self.cnpg_restore)
+
+
 class RestoreAppConfig(Static):
     """
     a textual widget for restoring select apps via k8up
@@ -143,142 +282,3 @@ class RestoreAppConfig(Static):
         if event.switch.id == f"{self.app_name}-cnpg-restore-enabled":
            self.app.cfg['apps'][self.app_name]['init']['restore']['cnpg_restore'] = truthy
            self.app.write_yaml()
-
-
-class BackupWidget(Static):
-    """
-    a textual widget for backing up select apps via k8up
-    """
-
-    def __init__(self,
-                 app_name: str,
-                 backup_params: dict,
-                 cnpg_restore: bool,
-                 id: str) -> None:
-        self.app_name = app_name
-        self.backup_params = backup_params
-        self.cnpg_restore = cnpg_restore
-        self.backup_s3_bucket = backup_params['s3']['bucket']
-        self.backup_s3_endpoint = backup_params['s3']['endpoint']
-        super().__init__(id=id)
-
-    def compose(self) -> ComposeResult:
-        yield Grid(classes="backup-button-grid",
-                   id=f"{self.app_name}-backup-button-grid")
-
-        yield Label("⏲ Scheduled backups", classes="header-row")
-        # first put in the schedule
-        argo_label = Label("PVC schedule:", classes="argo-config-label")
-        argo_label.tooltip = "schedule for recurring backup, takes cron syntax"
-        input_id = f"{self.app_name}-backup-schedule"
-        schedule_val = self.backup_params.get('schedule', "0 0 * * *")
-        input = Input(placeholder="Enter a cron syntax schedule for backups",
-                      value=schedule_val,
-                      name='cron syntax schedule',
-                      validators=[Length(minimum=5)],
-                      id=input_id,
-                      classes=f"{self.app_name} argo-config-input")
-        input.validate(schedule_val)
-        yield Horizontal(argo_label, input, classes="argo-config-row")
-
-
-        # Collapsible with grid for backup values
-        yield Collapsible(
-                Grid(classes="collapsible-updateable-grid",
-                     id=f"{self.app_name}-backup-grid"),
-                id=f"{self.app_name}-backup-config-collapsible",
-                title="S3 Configuration",
-                classes="collapsible-with-some-room",
-                collapsed=False
-                )
-
-    def on_mount(self) -> None:
-        """
-        add button and generate all the backup option input rows
-        """
-
-        button = Button("💾 Backup Now",
-                        classes="backup-button",
-                        id=f"{self.app_name}-backup-button")
-        button.tooltip = f"Press to perform a one-time backup of {self.app_name}"
-        grid = self.get_widget_by_id(f"{self.app_name}-backup-button-grid")
-        grid.mount(button)
-
-        self.generate_s3_rows()
-
-    def generate_s3_rows(self) -> None:
-        """
-        generate each row for the backup widget
-        """
-        grid = self.get_widget_by_id(f"{self.app_name}-backup-grid")
-
-        # create a label and input row for each argo value, excedpt directory_recursion
-        for key, value in self.backup_params['s3'].items():
-            argo_label = Label(f"{key.replace('_',' ')}:",
-                               classes="argo-config-label")
-            argo_label.tooltip = value
-            input_id = f"{self.app_name}-backup-s3-{key}"
-            if isinstance(value, str):
-                input_val = value
-                sensitive = False
-            else:
-                sensitive = True
-                input_val = extract_secret(value)
-
-            input = Input(placeholder=f"Enter a {key}",
-                          value=input_val,
-                          name=key,
-                          validators=[Length(minimum=3)],
-                          id=input_id,
-                          password=sensitive,
-                          classes=f"{self.app_name} argo-config-input")
-            input.validate(input_val)
-
-            grid.mount(Horizontal(argo_label, input, classes="argo-config-row"))
-
-        # finally we need the restic repository password
-        argo_label = Label("restic repo password:", classes="argo-config-label")
-        argo_label.tooltip = "restic repository password for encrypting your backups"
-        input_id = f"{self.app_name}-backup-restic-repository-password"
-        input_val = extract_secret(self.backup_params['restic_repo_password'])
-
-        input = Input(placeholder="Enter a restic repo password for your encrypted backups",
-                      value=input_val,
-                      name="restic_repo_password",
-                      validators=[Length(minimum=5)],
-                      id=input_id,
-                      password=True,
-                      classes=f"{self.app_name} argo-config-input")
-        input.validate(input_val)
-
-        grid.mount(Horizontal(argo_label, input, classes="argo-config-row"))
-
-    @on(Input.Changed)
-    def update_base_yaml_for_input(self, event: Input.Changed) -> None:
-        """
-        whenever any of our inputs change, we update the base app's saved config.yaml
-        """
-        input = event.input
-        sensitive = input.password
-        if not sensitive:
-            if "s3" in input.name:
-                self.app.cfg['apps'][self.app_name]['backups']['s3'][input.name] = input.value
-            else:
-                self.app.cfg['apps'][self.app_name]['backups'][input.name] = input.value
-            self.app.write_yaml()
-        else:
-            self.log(f"saving special value for {input.name} to screen cache")
-            self.screen.sensitive_values[self.app_name][input.name] = input.value
-
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        """
-        get pressed button and act on it
-        """
-        id = event.button.id
-        if id == f"{self.app_name}-backup-button":
-            namespace = self.screen.cfg[self.app_name]['argo']['namespace']
-            create_pvc_restic_backup(self.app_name,
-                                     namespace=namespace,
-                                     bucket=self.backup_s3_bucket,
-                                     endpoint=self.backup_s3_endpoint,
-                                     cnpg_backup=self.cnpg_restore)
