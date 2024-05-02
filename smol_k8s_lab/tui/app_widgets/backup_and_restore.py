@@ -163,6 +163,9 @@ class BackupWidget(Static):
         """
         id = event.button.id
         if id == f"{self.app_name}-backup-button":
+            self.app.notify("Your backup has been kicked off as a background job",
+                            title=f"💾 Backup for {self.app_name} started",
+                            timeout=8)
             self.trigger_backup()
 
     @work(thread=True, group="backup-worker")
@@ -174,18 +177,26 @@ class BackupWidget(Static):
 
         self.log(
                 f"💾 kicking off backup for {self.app_name} in the {namespace}"
-                f"namespace to the bucket: {self.backup_s3_bucket} at the "
+                f" namespace to the bucket: {self.backup_s3_bucket} at the "
                 f" endpoint: {self.backup_s3_endpoint}."
                 )
         worker = get_current_worker()
         if not worker.is_cancelled:
-                self.app.call_from_thread(create_pvc_restic_backup,
-                                          app=self.app_name,
-                                          namespace=namespace,
-                                          endpoint=self.backup_s3_endpoint,
-                                          bucket=self.backup_s3_bucket,
-                                          cnpg_backup=self.cnpg_restore)
-                self.log(f"💾 backup of {self.app_name} has completed.")
+            create_pvc_restic_backup(app=self.app_name,
+                                     namespace=namespace,
+                                     endpoint=self.backup_s3_endpoint,
+                                     bucket=self.backup_s3_bucket,
+                                     cnpg_backup=self.cnpg_restore,
+                                     quiet=True)
+            # self.app.call_from_thread(create_pvc_restic_backup,
+            #                           app=self.app_name,
+            #                           namespace=namespace,
+            #                           endpoint=self.backup_s3_endpoint,
+            #                           bucket=self.backup_s3_bucket,
+            #                           cnpg_backup=self.cnpg_restore)
+            self.app.notify("Success 🎉",
+                            title=f"💾 backup of {self.app_name} has completed.",
+                            timeout=8)
 
 class RestoreApp(Static):
     """

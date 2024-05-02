@@ -10,9 +10,14 @@ class Nextcloud():
     https://docs.nextcloud.com/server/20/admin_manual/configuration_server/occ_command.html
     """
 
-    def __init__(self, k8s_obj: K8s, namespace: str = "nextcloud") -> None:
+    def __init__(self,
+                 k8s_obj: K8s,
+                 namespace: str = "nextcloud",
+                 quiet: bool = False) -> None:
         """
         setup base occ commands to run
+
+        pass in quiet=True to disable spinners
         """
         # namespace where nextcloud is installed
         self.namespace = namespace
@@ -23,11 +28,12 @@ class Nextcloud():
                 "app.kubernetes.io/component=app "
                 "--no-headers "
                 "-o custom-columns=NAME:.metadata.name")
-        self.pod = subproc([pod_cmd]).rstrip()
+        self.pod = subproc([pod_cmd], spinner=quiet).rstrip()
         self.occ_cmd = (
                 f'kubectl exec -n {self.namespace} {self.pod} -c nextcloud -- '
                 ' /bin/sh -c "php occ'
                 )
+        self.quiet = quiet
 
     def install_apps(self, apps: list) -> None:
         """
@@ -59,7 +65,8 @@ class Nextcloud():
         """
         res = subproc([f'{self.occ_cmd} maintenance:mode"'],
                       shell=True,
-                      universal_newlines=True)
+                      universal_newlines=True,
+                      spinner=self.quiet)
         log.info(res)
 
         if "disabled" in res:
@@ -85,10 +92,12 @@ class Nextcloud():
                     self.scan_files()
                 else:
                     log.info("nextcloud maintenance mode is already on")
+                    return
 
             res = subproc([f'{self.occ_cmd} maintenance:mode --{mode}"'],
                           shell=True,
-                          universal_newlines=True)
+                          universal_newlines=True,
+                          spinner=self.quiet)
             log.info(res)
 
     def scan_files(self) -> None:

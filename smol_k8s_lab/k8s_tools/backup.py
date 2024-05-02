@@ -14,7 +14,8 @@ def create_pvc_restic_backup(app: str,
                              namespace: str,
                              endpoint: str,
                              bucket: str,
-                             cnpg_backup: bool = True) -> None:
+                             cnpg_backup: bool = True,
+                             quiet: bool = False) -> None:
     """
     a function to immediately run a restic backup job
     unless it's nextcloud, then we put it into maintenance_mode first...
@@ -59,7 +60,7 @@ def create_pvc_restic_backup(app: str,
     if app == "nextcloud":
         # nextcloud backups need to run as user 82 which is nginx
         backup_yaml['spec']['podSecurityContext'] = {"runAsUser": 82}
-        nextcloud = Nextcloud(K8s(), namespace)
+        nextcloud = Nextcloud(K8s(), namespace, quiet)
         nextcloud.set_maintenance_mode("on")
 
         # then wait for maintenance_mode to be fully on
@@ -79,8 +80,8 @@ def create_pvc_restic_backup(app: str,
     print(wait_cmd)
     while True:
         log.debug(f"Waiting for backup job: backup-{backup_name}-0")
-        res = subproc([wait_cmd], error_ok=True)
-        log.error(res)
+        res = subproc([wait_cmd], error_ok=True, spinner=quiet)
+        log.debug(res)
         if "NotFound" in res:
             sleep(1)
         else:
