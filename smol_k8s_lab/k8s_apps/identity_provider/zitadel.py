@@ -44,22 +44,23 @@ def configure_zitadel(argocd: ArgoCD,
     if secrets:
         zitadel_hostname = secrets['hostname']
 
-    if app_installed:
-        header("Syncing [green]Zitadel[/], your identity management solution",
-               "👥")
-    elif init_enabled and not app_installed:
+    restore_dict = cfg['init'].get('restore', {"enabled": False})
+    restore_enabled = restore_dict['enabled']
+    if restore_enabled:
+        prefix = "Restoring"
+    else:
+        if app_installed:
+            prefix = "Syncing"
+        else:
+            prefix = "Setting up"
+
+    header(f"{prefix} [green]Zitadel[/], for your self hosted identity management",
+           "👥")
+
+    if init_enabled and not app_installed:
         # process init and secret values
         init_values = init_dict['values']
 
-        restore_dict = cfg['init'].get('restore', {"enabled": False})
-        restore_enabled = restore_dict['enabled']
-        if restore_enabled:
-            header_start = "Restoring"
-        else:
-            header_start = "Setting up"
-
-        header(f"{header_start} [green]Zitadel[/green], for your self hosted identity management",
-               "👥")
 
         s3_endpoint = secrets.get('s3_endpoint', "")
         if s3_endpoint and not restore_enabled:
