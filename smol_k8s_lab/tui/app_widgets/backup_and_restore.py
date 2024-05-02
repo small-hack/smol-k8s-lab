@@ -26,23 +26,16 @@ class BackupWidget(Static):
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
+        """
+        compose grid skelleton for backup widget
+        """
+        # first the grid for the backup button
         yield Grid(classes="backup-button-grid",
                    id=f"{self.app_name}-backup-button-grid")
 
+        # second put in the schedule
         yield Label("⏲ Scheduled backups", classes="header-row")
-        # first put in the schedule
-        argo_label = Label("PVC schedule:", classes="argo-config-label")
-        argo_label.tooltip = "schedule for recurring backup, takes cron syntax"
-        input_id = f"{self.app_name}-backup-schedule"
-        schedule_val = self.backup_params.get('schedule', "0 0 * * *")
-        input = Input(placeholder="Enter a cron syntax schedule for backups",
-                      value=schedule_val,
-                      name='cron syntax schedule',
-                      validators=[Length(minimum=5)],
-                      id=input_id,
-                      classes=f"{self.app_name} argo-config-input")
-        input.validate(schedule_val)
-        yield Horizontal(argo_label, input, classes="argo-config-row")
+        yield Horizontal(id=f"{self.app_name}-schedule", classes="argo-config-row")
 
 
         # Collapsible with grid for backup values
@@ -63,9 +56,40 @@ class BackupWidget(Static):
         button = Button("💾 Backup Now",
                         classes="backup-button",
                         id=f"{self.app_name}-backup-button")
-        button.tooltip = f"Press to perform a one-time backup of {self.app_name}"
+        if not self.cnpg_restore:
+            button.tooltip = (
+                    "Press to perform a one-time backup of "
+                    f"[i]{self.app_name}[/i]'s PVC(s) via restic to the s3 "
+                    "endpoint you've configured below"
+                    )
+        else:
+            button.tooltip = (
+                    f"Press to perform a one-time backup of {self.app_name}'s"
+                    " CNPG postgres database with [b]barman[/b], as well as a "
+                    f"backup of {self.app_name}'s PVC(s) via [b]restic[/] to the"
+                    " s3 endpoint you've configured below"
+                    )
         grid = self.get_widget_by_id(f"{self.app_name}-backup-button-grid")
         grid.mount(button)
+
+        # first put in the schedule
+        h_grid = self.get_widget_by_id(f"{self.app_name}-schedule")
+        argo_label = Label("PVC schedule:", classes="argo-config-label")
+        input_id = f"{self.app_name}-backup-schedule"
+        schedule_val = self.backup_params.get('schedule', "0 0 * * *")
+        input = Input(placeholder="Enter a cron syntax schedule for backups.",
+                      value=schedule_val,
+                      name='cron syntax schedule',
+                      validators=[Length(minimum=5)],
+                      id=input_id,
+                      classes=f"{self.app_name} argo-config-input")
+        input.validate(schedule_val)
+        tip = ("Schedule for recurring backup. If you're new to"
+               " cron sytax, check out crontab.guru")
+        argo_label.tooltip = tip
+        input.tooltip = tip
+        h_grid.mount(argo_label)
+        h_grid.mount(input)
 
         self.generate_s3_rows()
 
