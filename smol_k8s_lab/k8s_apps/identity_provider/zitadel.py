@@ -36,9 +36,13 @@ def configure_zitadel(argocd: ArgoCD,
     app_installed = argocd.check_if_app_exists('zitadel')
 
     # declare the init dict
-    init_dict = cfg.get('init', {'enabled': False,
-                                 'restore': {'enabled': False}})
+    init_dict = cfg.get('init', {'enabled': False, 'restore': {'enabled': False}})
     init_enabled = init_dict['enabled']
+
+    # immediately load in all the secret keys
+    secrets = cfg['argo']['secret_keys']
+    if secrets:
+        zitadel_hostname = secrets['hostname']
 
     if app_installed:
         header("Syncing [green]Zitadel[/], your identity management solution",
@@ -57,18 +61,14 @@ def configure_zitadel(argocd: ArgoCD,
         header(f"{header_start} [green]Zitadel[/green], for your self hosted identity management",
                "👥")
 
-        # immediately load in all the secret keys
-        secrets = cfg['argo']['secret_keys']
-        if secrets:
-            zitadel_hostname = secrets['hostname']
-            s3_endpoint = secrets.get('s3_endpoint', "")
-            if s3_endpoint and not restore_enabled:
-                s3_access_key = create_password()
-                # create a local alias to check and make sure nextcloud is functional
-                create_minio_alias(minio_alias="zitadel",
-                                   minio_hostname=s3_endpoint,
-                                   access_key="zitadel",
-                                   secret_key=s3_access_key)
+        s3_endpoint = secrets.get('s3_endpoint', "")
+        if s3_endpoint and not restore_enabled:
+            s3_access_key = create_password()
+            # create a local alias to check and make sure nextcloud is functional
+            create_minio_alias(minio_alias="zitadel",
+                               minio_hostname=s3_endpoint,
+                               access_key="zitadel",
+                               secret_key=s3_access_key)
 
         # configure backup s3 credentials
         backup_vals = process_backup_vals(cfg.get('backups', ''), 'zitadel', argocd)
