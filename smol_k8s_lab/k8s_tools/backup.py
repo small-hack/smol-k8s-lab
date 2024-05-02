@@ -23,7 +23,7 @@ def create_pvc_restic_backup(app: str,
     pass in quiet=True to disable loading spinners for logging
     """
     now = datetime.now().strftime('%Y-%m-%d-%H-%M')
-    backup_name = f"{app}-onetime-backup-{now}"
+    backup_name = f"{app}-smol-k8s-lab-{now}"
     backup_yaml = {
             "apiVersion": "k8up.io/v1",
             "kind": "Backup",
@@ -105,7 +105,7 @@ def create_cnpg_cluster_backup(app: str,
     pass in quiet=True to disable loading spinners for logging
     """
     now = datetime.now().strftime('%Y-%m-%d-%H-%M')
-    backup_name = f"{app}-onetime-cnpg-backup-{now}"
+    backup_name = f"{app}-smol-k8s-lab-cnpg-backup-{now}"
     cnpg_backup = {"apiVersion": "postgresql.cnpg.io/v1",
                    "kind": "Backup",
                    "metadata": {

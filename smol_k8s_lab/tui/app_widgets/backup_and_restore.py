@@ -173,8 +173,8 @@ class BackupWidget(Static):
             self.app.notify(
                     "\nYour backup has been kicked off as a background job. "
                     "We'll notify you when it's done 👍",
-                    title=f"💾 Backup for {self.app_name} started",
-                    timeout=8)
+                    title=f"💾 Backup of {self.app_name} started",
+                    timeout=10)
 
     @work(thread=True, group="backup-worker")
     def trigger_backup(self) -> None:
@@ -198,9 +198,9 @@ class BackupWidget(Static):
                                      quiet=True)
             self.get_widget_by_id(f"{self.app_name}-backup-button").display = True
             self.get_widget_by_id(f"{self.app_name}-backup-running").display = False
-            self.app.notify("\nSuccess 🎉",
-                            title=f"💾 backup of {self.app_name} has completed.",
-                            timeout=8)
+            self.app.notify("\nSuccessfully backed up! 🎉",
+                            title=f"💾 backup of {self.app_name} completed",
+                            timeout=10)
 
 
 class RestoreApp(Static):
