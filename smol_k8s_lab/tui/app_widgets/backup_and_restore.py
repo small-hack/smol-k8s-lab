@@ -107,7 +107,7 @@ class BackupWidget(Static):
         for key, value in self.backup_params['s3'].items():
             argo_label = Label(f"{key.replace('_',' ')}:",
                                classes="argo-config-label")
-            argo_label.tooltip = value
+            argo_label.tooltip = f"{key} for backups to S3"
             input_id = f"{self.app_name}-backup-s3-{key}"
             if isinstance(value, str):
                 input_val = value
