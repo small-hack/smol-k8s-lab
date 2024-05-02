@@ -1,10 +1,11 @@
 from smol_k8s_lab.k8s_tools.backup import create_pvc_restic_backup
 from smol_k8s_lab.utils.value_from import extract_secret
-from textual import on
+from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Grid, Container
 from textual.validation import Length
 from textual.widgets import Input, Label, Static, Switch, Collapsible, Button
+from textual.worker import get_current_worker
 
 
 class BackupWidget(Static):
@@ -138,13 +139,29 @@ class BackupWidget(Static):
         """
         id = event.button.id
         if id == f"{self.app_name}-backup-button":
-            namespace = self.screen.cfg[self.app_name]['argo']['namespace']
-            create_pvc_restic_backup(self.app_name,
-                                     namespace=namespace,
-                                     endpoint=self.backup_s3_endpoint,
-                                     bucket=self.backup_s3_bucket,
-                                     cnpg_backup=self.cnpg_restore)
+            self.trigger_backup()
 
+    @work(thread=True, group="backup-worker")
+    def trigger_backup(self) -> None:
+        """
+        run backup of an app in a thread so we don't lock up the UI
+        """
+        namespace = self.screen.cfg[self.app_name]['argo']['namespace']
+
+        self.log(
+                f"💾 kicking off backup for {self.app_name} in the {namespace}"
+                f"namespace to the bucket: {self.backup_s3_bucket} at the "
+                f" endpoint: {self.backup_s3_endpoint}."
+                )
+        worker = get_current_worker()
+        if not worker.is_cancelled:
+                self.app.call_from_thread(create_pvc_restic_backup,
+                                          app=self.app_name,
+                                          namespace=namespace,
+                                          endpoint=self.backup_s3_endpoint,
+                                          bucket=self.backup_s3_bucket,
+                                          cnpg_backup=self.cnpg_restore)
+                self.log(f"💾 backup of {self.app_name} has completed.")
 
 class RestoreAppConfig(Static):
     """
