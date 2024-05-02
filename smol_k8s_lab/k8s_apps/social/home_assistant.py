@@ -245,5 +245,5 @@ def refresh_bitwarden(argocd: ArgoCD,
 
     argocd.update_appset_secret(
             {'home_assistant_admin_credentials_bitwarden_id': admin_id,
-             'home-assistant_s3_backups_credentials_bitwarden_id': s3_backups_id}
+             'home_assistant_s3_backups_credentials_bitwarden_id': s3_backups_id}
             )
