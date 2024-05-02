@@ -60,9 +60,8 @@ class K8s():
         pretty = True
 
         try:
-            res = self.core_v1_api.create_namespaced_secret(namespace, body,
-                                                            pretty=pretty)
-            log.debug(res)
+            self.core_v1_api.create_namespaced_secret(namespace, body,
+                                                      pretty=pretty)
         except ApiException as e:
             log.error("Exception when calling "
                       f"CoreV1Api->create_namespaced_secret: {e}")
@@ -70,8 +69,8 @@ class K8s():
             # delete the secret if it already exists
             try:
                 self.core_v1_api.delete_namespaced_secret(name, namespace)
-                res = self.core_v1_api.create_namespaced_secret(namespace, body,
-                                                                pretty=pretty)
+                self.core_v1_api.create_namespaced_secret(namespace, body,
+                                                          pretty=pretty)
             except ApiException as e:
                 log.error("Exception when calling "
                           f"CoreV1Api->create_namespaced_secret: {e}")
