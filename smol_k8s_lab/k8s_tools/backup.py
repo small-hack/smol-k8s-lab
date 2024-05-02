@@ -23,6 +23,8 @@ def create_pvc_restic_backup(app: str,
     pass in quiet=True to disable loading spinners for logging
     """
     now = datetime.now().strftime('%Y-%m-%d-%H-%M')
+    # make sure we don't have any _, as some kubectl commands don't like them
+    app = app.replace("_","-")
     backup_name = f"{app}-smol-k8s-lab-{now}"
     backup_yaml = {
             "apiVersion": "k8up.io/v1",

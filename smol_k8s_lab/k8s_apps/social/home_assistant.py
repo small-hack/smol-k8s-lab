@@ -144,11 +144,11 @@ def restore_home_assistant(argocd: ArgoCD,
             "kind": "PersistentVolumeClaim",
             "apiVersion": "v1",
             "metadata": {
-                "name": "home_assistant",
+                "name": "home-assistant",
                 "namespace": home_assistant_namespace,
                 "annotations": {"k8up.io/backup": "true"},
                 "labels": {
-                    "argocd.argoproj.io/instance": "home_assistant-pvc"
+                    "argocd.argoproj.io/instance": "home-assistant-pvc"
                     }
                 },
             "spec": {
