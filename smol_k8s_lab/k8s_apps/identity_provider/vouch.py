@@ -5,14 +5,13 @@ from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.passwords import create_password
-from .keycloak import Keycloak
+# from .keycloak import Keycloak
 
 
 def configure_vouch(argocd: ArgoCD,
                     cfg: dict,
                     oidc_provider_hostname: str = "",
                     bitwarden: BwCLI = None,
-                    users: list = [],
                     zitadel: Zitadel = None) -> None:
     """
     Installs vouch-proxy as an Argo CD application on Kubernetes
@@ -24,7 +23,6 @@ def configure_vouch(argocd: ArgoCD,
     Optional Args:
       oidc_provider_hostname: OIDC provider hostname e.g. zitadel.example.com
       bitwarden:              BwCLI, to store k8s secrets in bitwarden
-      users:                  list of user to give access to vouch app
       zitadel:                Zitadel api object
 
     Disabled Args because we're not supporting keycloak right now:
@@ -53,7 +51,6 @@ def configure_vouch(argocd: ArgoCD,
         auth_dict = create_vouch_app(provider='zitadel',
                                      provider_hostname=oidc_provider_hostname,
                                      vouch_hostname=vouch_hostname,
-                                     users=users,
                                      zitadel=zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
         # trying to create a string of ""
@@ -183,7 +180,6 @@ def configure_vouch(argocd: ArgoCD,
 
 def create_vouch_app(provider_hostname: str,
                      vouch_hostname: str = "",
-                     users: list = [],
                      zitadel: Zitadel = None) -> list:
     """
     Creates an OIDC application, for vouch-proxy, in either Keycloak or Zitadel

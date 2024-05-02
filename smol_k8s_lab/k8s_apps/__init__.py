@@ -107,6 +107,7 @@ def setup_oidc_provider(argocd: ArgoCD,
                     )
         else:
             configure_zitadel(argocd, zitadel_dict, bitwarden=bw)
+        zitadel_hostname = zitadel_dict['argo']['secret_keys']['hostname']
 
     if vouch_enabled:
         log.debug("Setting up vouch")
@@ -122,10 +123,9 @@ def setup_oidc_provider(argocd: ArgoCD,
         #        realm=realm)
         if zitadel_enabled:
             configure_vouch(argocd=argocd,
-                            vouch_config_dict=vouch_dict,
-                            oidc_provider_hostname=zitadel_dict['argo']['secret_keys']['hostname'],
+                            cfg=vouch_dict,
+                            oidc_provider_hostname=zitadel_hostname,
                             bitwarden=bw,
-                            users=[],
                             zitadel=zitadel_obj)
         else:
             configure_vouch(argocd, vouch_dict, '', '', bw)
