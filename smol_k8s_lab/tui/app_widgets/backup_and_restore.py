@@ -163,7 +163,7 @@ class BackupWidget(Static):
                                           cnpg_backup=self.cnpg_restore)
                 self.log(f"💾 backup of {self.app_name} has completed.")
 
-class RestoreAppConfig(Static):
+class RestoreApp(Static):
     """
     a textual widget for restoring select apps via k8up
     """
@@ -239,7 +239,7 @@ class RestoreAppConfig(Static):
                              name="cnpg restore enabled",
                              classes="app-init-switch"))
 
-        if self.restic_snapshot_ids:
+        if self.snapshots:
             self.generate_snapshot_id_rows()
 
     def generate_snapshot_id_rows(self,) -> None:
@@ -248,7 +248,7 @@ class RestoreAppConfig(Static):
         """
         grid = self.get_widget_by_id(f"{self.app_name}-restore-grid")
         # create a label and input row for each restic snapshot ID
-        for key, value in self.restic_snapshot_ids.items():
+        for key, value in self.snapshots.items():
             if not value:
                 value = "latest"
 
@@ -276,7 +276,7 @@ class RestoreAppConfig(Static):
         input = event.input
 
         # update our local cache of snapshot IDs
-        self.restic_snapshot_ids[input.name] = input.value
+        self.snapshots[input.name] = input.value
 
         # update self.app's config with input that has changed
         parent_app_yaml = self.app.cfg
