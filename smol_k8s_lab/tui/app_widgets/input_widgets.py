@@ -41,18 +41,21 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
 
     def compose(self) -> ComposeResult:
         with Collapsible(collapsed=False, title=self.title, id=self.collapsible_id):
-            with Grid(classes="collapsible-updateable-grid"):
-                if self.inputs:
-                    for key, value in self.inputs.items():
-                        yield self.generate_row(key, value)
+            if self.inputs:
+                yield Grid(classes="collapsible-updateable-grid")
 
     def on_mount(self) -> None:
         """
         update the grid for all new inputs
         """
+        grid = self.query_one(".collapsible-updateable-grid")
+
+        if self.inputs:
+            for key, value in self.inputs.items():
+                grid.mount(self.generate_row(key, value))
+
         if self.add_fields_button:
-            self.query_one(".collapsible-updateable-grid").mount(
-                    Button("➕ new field"))
+            grid.mount(Button("➕ new field"))
 
     def generate_row(self, key: str, value: str | bool) -> Grid | Horizontal:
         # if key == 'create_minio_tenant':
@@ -164,9 +167,6 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
                 else:
                     self.log(f"saving special value for {input.name} to screen cache")
                     self.screen.sensitive_values[self.app_name][input.name] = input.value
-                    self.log("🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙")
-                    self.log(self.screen.sensitive_values)
-                    self.log("🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙🦙")
         else:
             if self.app.bell_on_error:
                 self.app.bell()
