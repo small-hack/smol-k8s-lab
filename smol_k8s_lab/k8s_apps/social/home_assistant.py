@@ -110,6 +110,7 @@ def configure_home_assistant(argocd: ArgoCD,
                                    backup_vals['s3_user'],
                                    backup_vals['s3_password'],
                                    backup_vals['restic_repo_pass'],
+                                   secrets['pvc_capacity'],
                                    secrets.get('pvc_access_mode', 'ReadWriteOnce'),
                                    pvc_storage_class,
                                    bitwarden)
@@ -134,6 +135,7 @@ def restore_home_assistant(argocd: ArgoCD,
                            access_key_id: str,
                            secret_access_key: str,
                            restic_repo_password: str,
+                           pvc_capacity: str,
                            pvc_access_mode: str,
                            pvc_storage_class: str,
                            bitwarden: BwCLI) -> None:
@@ -156,7 +158,7 @@ def restore_home_assistant(argocd: ArgoCD,
                 "accessModes": [pvc_access_mode],
                 "resources": {
                     "requests": {
-                        "storage": pvc_storage_class}
+                        "storage": pvc_capacity}
                     }
                 }
             }
