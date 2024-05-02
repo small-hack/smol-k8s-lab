@@ -35,6 +35,10 @@ Button {
     border-bottom: tall $dark_gray 50%;
 }
 
+LoadingIndicator {
+    color: $orange;
+}
+
 Input {
     background: $bluish_white 8%;
     color: white 75%;

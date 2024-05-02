@@ -4,7 +4,7 @@ from textual import on, work
 from textual.app import ComposeResult
 from textual.containers import Horizontal, Grid, Container
 from textual.validation import Length
-from textual.widgets import Input, Label, Static, Switch, Collapsible, Button
+from textual.widgets import Input, Label, Static, Switch, Collapsible, Button, LoadingIndicator
 from textual.worker import get_current_worker
 
 
@@ -71,6 +71,9 @@ class BackupWidget(Static):
                     )
         grid = self.get_widget_by_id(f"{self.app_name}-backup-button-grid")
         grid.mount(button)
+        loader = LoadingIndicator(id=f"{self.app_name}-backup-running")
+        loader.display = False
+        grid.mount(loader)
 
         # first put in the schedule
         h_grid = self.get_widget_by_id(f"{self.app_name}-schedule")
@@ -163,10 +166,14 @@ class BackupWidget(Static):
         """
         id = event.button.id
         if id == f"{self.app_name}-backup-button":
-            self.app.notify("Your backup has been kicked off as a background job",
-                            title=f"💾 Backup for {self.app_name} started",
-                            timeout=8)
             self.trigger_backup()
+            event.button.display = False
+            self.get_widget_by_id(f"{self.app_name}-backup-running").display = True
+            self.app.notify(
+                    "Your backup has been kicked off as a background job. We'll"
+                    " notify you when it's done 👍",
+                    title=f"💾 Backup for {self.app_name} started",
+                    timeout=8)
 
     @work(thread=True, group="backup-worker")
     def trigger_backup(self) -> None:
@@ -194,6 +201,8 @@ class BackupWidget(Static):
             #                           endpoint=self.backup_s3_endpoint,
             #                           bucket=self.backup_s3_bucket,
             #                           cnpg_backup=self.cnpg_restore)
+            self.get_widget_by_id(f"{self.app_name}-backup-button").display = True
+            self.get_widget_by_id(f"{self.app_name}-backup-running").display = False
             self.app.notify("Success 🎉",
                             title=f"💾 backup of {self.app_name} has completed.",
                             timeout=8)
