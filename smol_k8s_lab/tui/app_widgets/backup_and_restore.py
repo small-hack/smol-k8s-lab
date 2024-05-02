@@ -83,7 +83,7 @@ class BackupWidget(Static):
         schedule_val = self.backup_params.get('schedule', "0 0 * * *")
         input = Input(placeholder="Enter a cron syntax schedule for backups.",
                       value=schedule_val,
-                      name='cron syntax schedule',
+                      name='schedule',
                       validators=[Length(minimum=5)],
                       id=input_id,
                       classes=f"{self.app_name} argo-config-input")
