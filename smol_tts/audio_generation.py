@@ -10,8 +10,6 @@ import torch
 from TTS.api import TTS
 
 
-
-
 if uname().machine == "arm64":
     DEVICE = "mps"
 else:
@@ -37,12 +35,18 @@ class AudioGenerator():
     def __init__(self,
                  languages: list|str = None,
                  category: str = "all",
-                 save_path: str = DEFAULT_SAVE_PATH):
-        # immediately initialize a dict of TTS models to use
+                 save_path: str = DEFAULT_SAVE_PATH,
+                 cached_cfg: str = ""):
         self.category = category
         self.languages = languages
         self.save_path = save_path
+        self.cached_dir = cached_cfg
+        self.cached_cfg = {}
+
+        # immediately initialize a dict of TTS models to use
         self.tts = {}
+
+        # this is using yaml
         self.yaml = YAML()
 
     async def process_all_languages(self,):
@@ -62,49 +66,72 @@ class AudioGenerator():
                 await self.process_audio_config(self.languages, self.category)
 
     async def process_audio_config(self,
-                                   language: str = "",
+                                   lang: str = "",
                                    category: str = None) -> None:
         """
         process an audio config file for a given language and category
         """
         # open the list of things to generate speech files for
-        language_file_path = path.join(SPEECH_TEXT_DIRECTORY, f"{language}.yml")
-        header(f"Opening {language_file_path} to process speech text categories...")
-        with open(language_file_path, 'r') as yaml_file:
+        lang_file_path = path.join(SPEECH_TEXT_DIRECTORY, f"{lang}.yml")
+        # this is for comparing the old config
+        try:
+            with open(path.join(self.cached_cfg, f"{lang}.yml"), 'r') as yml_f:
+                self.cached_cfg = self.yaml.load(yml_f)
+        except Exception as e:
+            self.cached_cfg = {}
+
+        header(f"Opening {lang_file_path} to process speech text categories...")
+        with open(lang_file_path, 'r') as yaml_file:
             yaml_obj = self.yaml.load(yaml_file)
 
             if not category or category == "apps":
                 # generate audio files for apps
-                apps  = yaml_obj.get('apps', None)
+                apps = yaml_obj.get('apps', None)
                 if apps:
-                    header(f"Processing apps category for {language} language.")
-                    await self.process_apps(language, apps)
+                    header(f"Processing [green]apps[/] category for {lang} lang.")
+                    if apps != self.cached_cfg.get('apps', {}):
+                        await self.process_apps(lang, apps)
+                    else:
+                        sub_header("Looks like the apps category hasn't actually changed, so moving on...")
 
             if not category or category == "cluster_names":
                 # generate audio files for cluster names
                 cluster_names = yaml_obj.get('cluster_names', None)
                 if cluster_names:
-                    header(f"processing cluster_names category for {language} language.")
-                    await self.process_cluster_names(language, cluster_names)
+                    header(f"processing [green]cluster_names[/] category for {lang} lang.")
+                    if cluster_names != self.cached_cfg.get('cluster_names', {}):
+                        await self.process_cluster_names(lang, cluster_names)
+                    else:
+                        sub_header("Looks like the cluster_names category hasn't actually changed, so moving on...")
 
             if not category or category == "screens":
                 # generate audio files for screens
-                header(f"processing screens category for {language} language.")
-                await self.process_screens(language, yaml_obj['screens'])
+                header(f"processing [green]screens[/] category for {lang} lang.")
+                screens = yaml_obj.get('screens', {})
+                if screens != self.cached_cfg.get('screens', {}):
+                    await self.process_screens(lang, screens)
+                else:
+                    sub_header("Looks like the screens category hasn't actually changed, so moving on...")
 
             if not category or category == "phrases":
                 # generate audio files for phrases
-                phrases = yaml_obj.get('phrases', None)
+                phrases = yaml_obj.get('phrases', {})
                 if phrases:
-                    header(f"processing phrases category for {language} language.")
-                    await self.process_phrases(language, phrases)
+                    header(f"processing [green]phrases[/] category for {lang} lang.")
+                    if phrases != self.cached_cfg.get('phrases', {}):
+                        await self.process_phrases(lang, phrases)
+                    else:
+                        sub_header("Looks like the phrases category hasn't actually changed, so moving on...")
 
             if not category or category == "numbers":
                 # generate audio files for phrases
-                numbers = yaml_obj.get('numbers', None)
+                numbers = yaml_obj.get('numbers', {})
                 if numbers:
-                    header(f"processing numbers category for {language} language.")
-                    await self.process_numbers(language, numbers)
+                    header(f"processing [green]numbers[/] category for {lang} lang.")
+                    if numbers != self.cached_cfg.get('numbers', {}):
+                        await self.process_numbers(lang, numbers)
+                    else:
+                        sub_header("Looks like the numbers category hasn't actually changed, so moving on...")
 
     async def process_apps(self, language: str, apps: dict):
         """
@@ -117,7 +144,11 @@ class AudioGenerator():
 
         # for each screen and it's titles,
         for app, app_text in apps.items():
-            if not path.exists(path.join(save_path_base, f"{app}.mp3")):
+
+            mp3_exists = path.exists(path.join(save_path_base, f"{app}.mp3"))
+            cached_app = self.cached_cfg.get('apps', {}).get(app, "") == app
+
+            if not mp3_exists or not cached_app:
                 await self.generate_single_audio_file(self.tts[language],
                                                       save_path_base,
                                                       app,
@@ -218,8 +249,7 @@ class AudioGenerator():
 
             if not path.exists(mp3_file):
                 tts.tts_to_file(text=text, file_path=save_path)
-                AudioSegment.from_wav(save_path).export(save_path.replace(".wav",
-                                                                          ".mp3"),
+                AudioSegment.from_wav(save_path).export(mp3_file,
                                                         format="mp3",
                                                         bitrate="64k")
                 remove(save_path)

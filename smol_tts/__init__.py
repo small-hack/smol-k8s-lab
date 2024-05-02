@@ -1,16 +1,18 @@
-from .constants import DEFAULT_SAVE_PATH
+from .constants import DEFAULT_SAVE_PATH, SPEECH_TEXT_DIRECTORY
 
 # external libs
 import click
 from click import option, command, Choice
 import tarfile
-from os import environ, path
+from os import environ, path, system
 from rich.console import Console
 from rich.highlighter import RegexHighlighter
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
+from smol_k8s_lab.utils.rich_cli.console_logging import header, sub_header
+from xdg_base_dirs import xdg_cache_home
 
 
 # Get device and decide if we're using the GPU for this
@@ -134,10 +136,13 @@ def tts_gen(category: str = "", language: str = "", save_path: str = "",
         # start the timer
         s = time.perf_counter()
 
-        print(f"\n💾 Saving files to {save_path}")
+        header(f"Saving files to {save_path}", "💾")
+
+        cached_cfg_path = path.join(xdg_cache_home(), "smol_tts")
         lang_obj = AudioGenerator(languages=language,
                                   category=category,
-                                  save_path=save_path)
+                                  save_path=save_path,
+                                  cached_cfg=cached_cfg_path)
         asyncio.run(lang_obj.process_all_languages())
 
         # tar the directory and save it in the release directory if needed
@@ -148,7 +153,12 @@ def tts_gen(category: str = "", language: str = "", save_path: str = "",
 
         # print how long everything took
         elapsed = time.perf_counter() - s
-        print(f"\n⏱️ smol-tts executed in {elapsed:0.2f} seconds.")
+        header(f"smol-tts executed in {elapsed:0.2f} seconds.", "🕐")
+
+        sub_header("Caching config for checking diff next time.")
+        lang_path = path.join(SPEECH_TEXT_DIRECTORY, f"{language}.yml")
+        system(f"cp {lang_path} {cached_cfg_path}")
+        header("Afgewerkt.")
 
 
 if __name__ == "__main__":
