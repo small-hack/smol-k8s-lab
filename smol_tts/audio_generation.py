@@ -5,6 +5,7 @@ from .constants import DEFAULT_SAVE_PATH, SPEECH_TEXT_DIRECTORY
 from os import path, makedirs, remove, uname
 from pydub import AudioSegment
 from ruamel.yaml import YAML
+from smol_k8s_lab.utils.rich_cli.console_logging import header, sub_header
 import torch
 from TTS.api import TTS
 
@@ -68,7 +69,7 @@ class AudioGenerator():
         """
         # open the list of things to generate speech files for
         language_file_path = path.join(SPEECH_TEXT_DIRECTORY, f"{language}.yml")
-        print(f"Opening {language_file_path} to process speech text categories...")
+        header(f"Opening {language_file_path} to process speech text categories...")
         with open(language_file_path, 'r') as yaml_file:
             yaml_obj = self.yaml.load(yaml_file)
 
@@ -76,33 +77,33 @@ class AudioGenerator():
                 # generate audio files for apps
                 apps  = yaml_obj.get('apps', None)
                 if apps:
-                    print(f"processing apps category for {language} language.")
+                    header(f"Processing apps category for {language} language.")
                     await self.process_apps(language, apps)
 
             if not category or category == "cluster_names":
                 # generate audio files for cluster names
                 cluster_names = yaml_obj.get('cluster_names', None)
                 if cluster_names:
-                    print(f"processing cluster_names category for {language} language.")
+                    header(f"processing cluster_names category for {language} language.")
                     await self.process_cluster_names(language, cluster_names)
 
             if not category or category == "screens":
                 # generate audio files for screens
-                print(f"processing screens category for {language} language.")
+                header(f"processing screens category for {language} language.")
                 await self.process_screens(language, yaml_obj['screens'])
 
             if not category or category == "phrases":
                 # generate audio files for phrases
                 phrases = yaml_obj.get('phrases', None)
                 if phrases:
-                    print(f"processing phrases category for {language} language.")
+                    header(f"processing phrases category for {language} language.")
                     await self.process_phrases(language, phrases)
 
             if not category or category == "numbers":
                 # generate audio files for phrases
                 numbers = yaml_obj.get('numbers', None)
                 if numbers:
-                    print(f"processing numbers category for {language} language.")
+                    header(f"processing numbers category for {language} language.")
                     await self.process_numbers(language, numbers)
 
     async def process_apps(self, language: str, apps: dict):
@@ -111,15 +112,16 @@ class AudioGenerator():
         """
         save_path_base = path.join(self.save_path, f"{language}/apps")
         if not path.exists(save_path_base):
-            print(f"{save_path_base} didn't exist, so we're creating it now...")
+            sub_header(f"{save_path_base} didn't exist, so we're creating it now...")
             makedirs(save_path_base, exist_ok=True)
 
         # for each screen and it's titles,
         for app, app_text in apps.items():
-            await self.generate_single_audio_file(self.tts[language],
-                                                  save_path_base,
-                                                  app,
-                                                  app_text)
+            if not path.exists(path.join(save_path_base, f"{app}.mp3")):
+                await self.generate_single_audio_file(self.tts[language],
+                                                      save_path_base,
+                                                      app,
+                                                      app_text)
 
     async def process_cluster_names(self, language: str, cluster_names: dict):
         """
@@ -127,7 +129,7 @@ class AudioGenerator():
         """
         save_path_base = path.join(self.save_path, f"{language}/cluster_names")
         if not path.exists(save_path_base):
-            print(f"{save_path_base} didn't exist, so we're creating it now...")
+            sub_header(f"{save_path_base} didn't exist, so we're creating it now...")
             makedirs(save_path_base, exist_ok=True)
 
         await self.generate_audio_files_from_dict(self.tts[language],
@@ -140,7 +142,7 @@ class AudioGenerator():
         """
         save_path_base = path.join(self.save_path, f"{language}/numbers")
         if not path.exists(save_path_base):
-            print(f"{save_path_base} didn't exist, so we're creating it now...")
+            sub_header(f"{save_path_base} didn't exist, so we're creating it now...")
             makedirs(save_path_base, exist_ok=True)
 
         await self.generate_audio_files_from_dict(self.tts[language],
@@ -153,7 +155,7 @@ class AudioGenerator():
         """
         save_path_base = path.join(self.save_path, f"{language}/phrases")
         if not path.exists(save_path_base):
-            print(f"{save_path_base} didn't exist, so we're creating it now...")
+            sub_header(f"{save_path_base} didn't exist, so we're creating it now...")
             makedirs(save_path_base, exist_ok=True)
 
         await self.generate_audio_files_from_dict(self.tts[language],
@@ -167,7 +169,7 @@ class AudioGenerator():
         """
         save_path_base = path.join(self.save_path, f"{language}/screens")
         if not path.exists(save_path_base):
-            print(f"{save_path_base} didn't exist, so we're creating it now...")
+            sub_header(f"{save_path_base} didn't exist, so we're creating it now...")
             makedirs(save_path_base, exist_ok=True)
 
         # for each screen and it's titles,
@@ -183,11 +185,12 @@ class AudioGenerator():
                                          file_name: str,
                                          text_to_speak: str):
         """
-        generate an audio .wav format for a single string and then converts it to an mp3
-        # NOTE: this will only work if you already have ffmpeg installed
+        generate an audio .wav format for a single string and then converts it to
+        an mp3 # NOTE: this will only work if you already have ffmpeg installed
         """
         save_path = path.join(save_path_base, f"{file_name}.wav")
         tts.tts_to_file(text=text_to_speak, file_path=save_path)
+        # convert the .wav to .mp3
         # may consider adding codec="libmp3lame"
         AudioSegment.from_wav(save_path).export(save_path.replace(".wav", ".mp3"),
                                                 format="mp3",
@@ -209,10 +212,16 @@ class AudioGenerator():
                 sound_file = f"{prefix}_{text_category}.wav"
             else:
                 sound_file = f"{text_category}.wav"
+
             save_path = path.join(save_path_base, sound_file)
-            tts.tts_to_file(text=text, file_path=save_path)
-            AudioSegment.from_wav(save_path).export(save_path.replace(".wav",
-                                                                      ".mp3"),
-                                                    format="mp3",
-                                                    bitrate="64k")
-            remove(save_path)
+            mp3_file = save_path.replace("wav", "mp3")
+
+            if not path.exists(mp3_file):
+                tts.tts_to_file(text=text, file_path=save_path)
+                AudioSegment.from_wav(save_path).export(save_path.replace(".wav",
+                                                                          ".mp3"),
+                                                        format="mp3",
+                                                        bitrate="64k")
+                remove(save_path)
+            else:
+                sub_header(f"{mp3_file} already exists, continuing...")
