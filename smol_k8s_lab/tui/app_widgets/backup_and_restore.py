@@ -56,7 +56,7 @@ class BackupWidget(Static):
         button = Button("💾 Backup Now",
                         classes="backup-button",
                         id=f"{self.app_name}-backup-button")
-        if not self.cnpg_restore:
+        if not self.cnpg_restore or self.cnpg_restore == "not_applicable":
             button.tooltip = (
                     "Press to perform a one-time backup of "
                     f"[i]{self.app_name}[/i]'s PVC(s) via restic to the s3 "
@@ -190,11 +190,15 @@ class BackupWidget(Static):
                 )
         worker = get_current_worker()
         if not worker.is_cancelled:
+            if self.cnpg_restore == "not_applicable":
+                cnpg_backup = False
+            else:
+                cnpg_backup = self.cnpg_restore
             create_pvc_restic_backup(app=self.app_name,
                                      namespace=namespace,
                                      endpoint=self.backup_s3_endpoint,
                                      bucket=self.backup_s3_bucket,
-                                     cnpg_backup=self.cnpg_restore,
+                                     cnpg_backup=cnpg_backup,
                                      quiet=True)
             self.get_widget_by_id(f"{self.app_name}-backup-button").display = True
             self.get_widget_by_id(f"{self.app_name}-backup-running").display = False

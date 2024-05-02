@@ -85,7 +85,7 @@ class AppInputs(Static):
                 backup_widget = BackupWidget(
                         self.app_name,
                         self.backup_params,
-                        restore_params.get('cnpg_restore', False),
+                        restore_params.get('cnpg_restore', "not_applicable"),
                         id=f"{self.app_name}-restore-widget"
                         )
                 # only display restore widget if init is enabled
