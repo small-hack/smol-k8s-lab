@@ -2,15 +2,21 @@
 from .constants import DEFAULT_SAVE_PATH, SPEECH_TEXT_DIRECTORY
 
 # external libs
-from os import path, makedirs, remove
+from os import path, makedirs, remove, uname
 from pydub import AudioSegment
 from ruamel.yaml import YAML
 import torch
 from TTS.api import TTS
 
 
-# Get device and decide if we're using the GPU for this
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
+
+if uname().machine == "arm64":
+    DEVICE = "mps"
+else:
+    # Get device and decide if we're using the GPU for this
+    DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+
 # for nl but too fast = tts_models/nl/css10/vits
 # doesn't work for nl = tts_models/nl/mai/tacotron2-DDC
 # we love jenny. she's our favorite English speaking model
