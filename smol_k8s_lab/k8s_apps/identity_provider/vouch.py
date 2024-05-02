@@ -37,7 +37,7 @@ def configure_vouch(argocd: ArgoCD,
     else:
         header_start = "Setting up"
 
-    header(f"{header_start} [green]Vouch[/] to use Oauth for insecure frontends",
+    header(f"{header_start} [green]Vouch[/] to use OAuth for insecure frontends",
            "🗝️")
 
     # this handles the vouch-oauth-config secret data
