@@ -82,9 +82,11 @@ def configure_home_assistant(argocd: ArgoCD,
                                   admin_user,
                                   admin_name,
                                   admin_language,
+                                  backup_vals['s3_user'],
+                                  backup_vals['s3_password'],
+                                  backup_vals['restic_repo_pass'],
                                   api_tls_verify,
                                   bitwarden)
-
         # these are standard k8s secrets
         else:
             # home-assistant admin credentials and smtp credentials
@@ -179,6 +181,9 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           admin_user: str,
                           admin_name: str,
                           admin_language: str,
+                          backups_s3_user: str,
+                          backups_s3_password: str,
+                          restic_repo_pass: str,
                           api_tls_verify: bool,
                           bitwarden: BwCLI) -> None:
     """
@@ -204,9 +209,20 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[admin_name_field, admin_lang_field, external_url_field]
             )
 
+    # credentials for remote backups of the s3 PVC
+    restic_repo_pass_obj = create_custom_field("resticRepoPassword", restic_repo_pass)
+    s3_backups_id = bitwarden.create_login(
+            name='home-assistant-backups-s3-credentials',
+            item_url=home_assistant_hostname,
+            user=backups_s3_user,
+            password=backups_s3_password,
+            fields=[restic_repo_pass_obj]
+            )
+
     # update the home-assistant values for the argocd appset
     argocd.update_appset_secret(
-            {'home_assistant_admin_credentials_bitwarden_id': admin_id}
+            {'home_assistant_admin_credentials_bitwarden_id': admin_id,
+             'home-assistant_s3_backups_credentials_bitwarden_id': s3_backups_id}
             )
 
 
@@ -223,6 +239,11 @@ def refresh_bitwarden(argocd: ArgoCD,
             f"home-assistant-admin-credentials-{home_assistant_hostname}"
             )[0]['id']
 
+    s3_backups_id = bitwarden.get_item(
+            f"home-assistant-backups-s3-credentials-{home_assistant_hostname}", False
+            )[0]['id']
+
     argocd.update_appset_secret(
-            {'home_assistant_admin_credentials_bitwarden_id': admin_id}
+            {'home_assistant_admin_credentials_bitwarden_id': admin_id,
+             'home-assistant_s3_backups_credentials_bitwarden_id': s3_backups_id}
             )
