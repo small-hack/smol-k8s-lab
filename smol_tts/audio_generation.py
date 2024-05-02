@@ -58,7 +58,7 @@ class AudioGenerator():
                                    language: str = "",
                                    category: str = None) -> None:
         """
-        process an audio config file for a given language
+        process an audio config file for a given language and category
         """
         # open the list of things to generate speech files for
         language_file_path = path.join(SPEECH_TEXT_DIRECTORY, f"{language}.yml")
