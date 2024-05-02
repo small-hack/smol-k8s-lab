@@ -52,6 +52,11 @@ def configure_home_assistant(argocd: ArgoCD,
     header(f"{header_start} [green]home-assistant[/], to self host your home automation",
            '🏡')
 
+    # backups are their own config.yaml section
+    backup_vals = process_backup_vals(cfg.get('backups', {}),
+                                      'home_assistant',
+                                      argocd)
+
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         # immediately create namespace
@@ -69,11 +74,6 @@ def configure_home_assistant(argocd: ArgoCD,
             if not restore_enabled:
                 if not admin_password:
                     admin_password = create_password()
-
-        # backups are their own config.yaml section
-        backup_vals = process_backup_vals(cfg.get('backups', {}),
-                                          'home_assistant',
-                                          argocd)
 
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden and not restore_enabled:

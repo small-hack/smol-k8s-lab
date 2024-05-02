@@ -66,6 +66,6 @@ def process_backup_vals(backup_dict: dict,
             f"{app}_s3_backup_endpoint": return_dict['endpoint'],
             f"{app}_s3_backup_bucket": return_dict['bucket'],
             f"{app}_s3_backup_region": return_dict['region'],
-            f"{app}_s3_backup_schedule": return_dict['schedule']})
+            f"{app}_backup_schedule": return_dict['schedule']})
 
     return return_dict
