@@ -164,9 +164,9 @@ def restore_home_assistant(argocd: ArgoCD,
     # creates the nexcloud files pvc
     argocd.k8s.apply_custom_resources([pvc_dict])
     k8up_restore_pvc(argocd.k8s,
-                     'home_assistant',
-                     'home_assistant',
-                     'home_assistant',
+                     'home-assistant',
+                     'home-assistant',
+                     'home-assistant',
                      s3_backup_endpoint,
                      s3_backup_bucket,
                      access_key_id,
