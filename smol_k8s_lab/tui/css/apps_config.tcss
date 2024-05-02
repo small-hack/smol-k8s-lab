@@ -247,7 +247,7 @@ CollapsibleTitle:focus {
     margin-top: 1;
     margin-bottom: 1;
     padding-left: 1;
-    color: $bluish_white 90%;
+    color: $light_cornflower 90%;
 }
 
 /* this is just for the cnpg restore label */
