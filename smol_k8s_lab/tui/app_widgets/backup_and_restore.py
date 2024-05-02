@@ -288,14 +288,20 @@ class RestoreAppConfig(Static):
         truthy = event.value
 
         if event.switch.id == f"{self.app_name}-restore-enabled":
-           grid = self.get_widget_by_id(f"{self.app_name}-restore-config-collapsible")
-           grid.display = truthy
-           restore_row = self.get_widget_by_id(f"{self.app_name}-restore-cnpg-row")
-           restore_row.display = truthy
+            # enable/disable display for cnpg restore switch row
+            if self.cnpg_restore != "not_applicable":
+                cnpg_grid = self.get_widget_by_id(f"{self.app_name}-restore-cnpg-row")
+                cnpg_grid.display = truthy
 
-           self.app.cfg['apps'][self.app_name]['init']['restore']['enabled'] = truthy
-           self.app.write_yaml()
+            # enable/disable display for snapshots grid
+            label = self.get_widget_by_id(f"{self.app_name}-snapshots-header")
+            label.display = truthy
+            snapshots = self.get_widget_by_id(f"{self.app_name}-restore-grid")
+            snapshots.display = truthy
+
+            self.app.cfg['apps'][self.app_name]['init']['restore']['enabled'] = truthy
+            self.app.write_yaml()
 
         if event.switch.id == f"{self.app_name}-cnpg-restore-enabled":
-           self.app.cfg['apps'][self.app_name]['init']['restore']['cnpg_restore'] = truthy
-           self.app.write_yaml()
+            self.app.cfg['apps'][self.app_name]['init']['restore']['cnpg_restore'] = truthy
+            self.app.write_yaml()
