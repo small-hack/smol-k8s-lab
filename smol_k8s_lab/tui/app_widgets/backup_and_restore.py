@@ -210,10 +210,14 @@ class RestoreAppConfig(Static):
 
         # Restic snapshot IDs collapsible, that gets hidden if restore
         # is disabled with switch above
-        yield Label("Restic Snapshot IDs", classes="header-row",
-                    id=f"{self.app_name}-snapshots-header")
-        yield Grid(classes="collapsible-updateable-grid",
-                   id=f"{self.app_name}-restore-grid")
+        label = Label("Restic Snapshot IDs", classes="header-row",
+                      id=f"{self.app_name}-snapshots-header")
+        snaphots_grid = Grid(classes="collapsible-updateable-grid",
+                             id=f"{self.app_name}-restore-grid")
+        label.display = restore_enabled
+        snaphots_grid.display = restore_enabled
+        yield label
+        yield snaphots_grid
 
     def on_mount(self) -> None:
         """
