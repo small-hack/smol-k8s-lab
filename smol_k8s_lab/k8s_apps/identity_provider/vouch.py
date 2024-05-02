@@ -9,50 +9,58 @@ from .keycloak import Keycloak
 
 
 def configure_vouch(argocd: ArgoCD,
-                    vouch_config_dict: dict,
-                    oidc_provider_name: str = "",
+                    cfg: dict,
                     oidc_provider_hostname: str = "",
                     bitwarden: BwCLI = None,
                     users: list = [],
-                    realm: str = "",
                     zitadel: Zitadel = None) -> None:
     """
     Installs vouch-proxy as an Argo CD application on Kubernetes
 
     Required Args:
-      argocd:                 ArgoCD object for argo-cd operations
-      vouch_config_dict:      Argo CD parameters dict
+      argocd:         ArgoCD object for argo-cd operations
+      cfg:            Full smol_k8s_lab app dict for vouch
 
     Optional Args:
-      oidc_provider_name:     OIDC provider name. options: keycloak, zitadel
       oidc_provider_hostname: OIDC provider hostname e.g. zitadel.example.com
       bitwarden:              BwCLI, to store k8s secrets in bitwarden
       users:                  list of user to give access to vouch app
-      realm:                  str keycloak realm to use
       zitadel:                Zitadel api object
-    """
-    header("Setting up [green]Vouch[/] to use Oauth for insecure frontends", "🗝️")
 
+    Disabled Args because we're not supporting keycloak right now:
+      oidc_provider_name:     OIDC provider name. options: keycloak, zitadel, disabled
+      realm:                  str keycloak realm to use, not functional right now
+    """
     # make sure vouch isn't already installed
     app_installed = argocd.check_if_app_exists("vouch")
+
+    if app_installed:
+        header_start = "Syncing"
+    else:
+        header_start = "Setting up"
+
+    header(f"{header_start} [green]Vouch[/] to use Oauth for insecure frontends",
+           "🗝️")
+
     # this handles the vouch-oauth-config secret data
-    secrets = vouch_config_dict['argo']['secret_keys']
+    secrets = cfg['argo']['secret_keys']
     if secrets:
         vouch_hostname = secrets['hostname']
 
-    if vouch_config_dict['init']['enabled'] and not app_installed:
-        auth_dict = create_vouch_app(provider=oidc_provider_name,
+    init_enabled = cfg['init']['enabled']
+
+    if init_enabled and not app_installed:
+        auth_dict = create_vouch_app(provider='zitadel',
                                      provider_hostname=oidc_provider_hostname,
                                      vouch_hostname=vouch_hostname,
                                      users=users,
-                                     zitadel=zitadel,
-                                     realm=realm)
+                                     zitadel=zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
         # trying to create a string of ""
         preferred_domain = '\"\"'
 
         # this is handling the vouch-config secret
-        emails = vouch_config_dict['init']['values']['emails']
+        emails = cfg['init']['values']['emails']
         if not emails:
             m = ("[green]Please enter a comma seperated list of [yellow]emails[/]"
                  " that are allowed to access domains behind Vouch")
@@ -61,7 +69,7 @@ def configure_vouch(argocd: ArgoCD,
             emails = ','.join(emails)
         log.debug(f"Allowing vouch to be accessed by emails: {emails}")
 
-        domains = vouch_config_dict['init']['values']['domains']
+        domains = cfg['init']['values']['domains']
         if not domains:
             m = ("[green]Please enter a comma seperated list of [yellow]domains[/]"
                  " that are allowed to use Vouch")
@@ -151,12 +159,12 @@ def configure_vouch(argocd: ArgoCD,
                                       'jwtSecret': jwt_secret})
 
     if not app_installed:
-        argocd.install_app('vouch', vouch_config_dict['argo'])
+        argocd.install_app('vouch', cfg['argo'])
     else:
         log.info("vouch-proxy already installed 🎉")
 
         # we need to still update the bitwarden IDs if bitwarden and init is enabled
-        if vouch_config_dict['init']['enabled'] and bitwarden:
+        if init_enabled and bitwarden:
             log.debug("Updating vouch bitwarden IDs in the appset secret")
             oauth_id = bitwarden.get_item(
                     f"vouch-oauth-config-{vouch_hostname}"
@@ -173,55 +181,57 @@ def configure_vouch(argocd: ArgoCD,
                    )
 
 
-def create_vouch_app(provider: str,
-                     provider_hostname: str,
+def create_vouch_app(provider_hostname: str,
                      vouch_hostname: str = "",
                      users: list = [],
-                     zitadel: Zitadel = None,
-                     realm: str = "default") -> list:
+                     zitadel: Zitadel = None) -> list:
     """
     Creates an OIDC application, for vouch-proxy, in either Keycloak or Zitadel
 
     Arguments:
-      provider          - either 'keycloak' or 'vouch'
       provider_hostname - hostname of keycloak or vouch
       vouch_hostname    - hostname of vouch
       zitadel           - Zitadel api object
-      realm             - realm to use for keycloak if using keycloak
+
+
+    Disabled Arguments because we don't supprot keycloak right now:
+      provider          - either 'keycloak' or 'zitadel'
+      realm             - realm to use for keycloak if using keycloak,
+                          default is 'default'
 
     returns [url, client_id, client_secret]
     """
     # create Vouch OIDC Application
-    if provider == 'zitadel':
-        log.info("Creating an OIDC application for Vouch via Zitadel...")
-        vouch_dict = zitadel.create_application(
-                "vouch",
-                f"https://{vouch_hostname}/auth",
-                [f"https://{vouch_hostname}"]
-                )
-        zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
-        zitadel.update_user_grant(['vouch_users'])
+    # if provider == 'zitadel':
+    log.info("Creating an OIDC application for Vouch via Zitadel...")
+    vouch_dict = zitadel.create_application(
+            "vouch",
+            f"https://{vouch_hostname}/auth",
+            [f"https://{vouch_hostname}"]
+            )
+    zitadel.create_role("vouch_users", "Vouch Users", "vouch_users")
+    zitadel.update_user_grant(['vouch_users'])
 
-        client_id = vouch_dict['client_id']
-        client_secret = vouch_dict['client_secret']
-        auth_url = f'https://{provider_hostname}/oauth/v2/authorize'
-        token_url = f'https://{provider_hostname}/oauth/v2/token'
-        user_info_url = f'https://{provider_hostname}/oidc/v1/userinfo'
-        end_session_url = f'https://{provider_hostname}/oidc/v1/end_session'
+    client_id = vouch_dict['client_id']
+    client_secret = vouch_dict['client_secret']
+    auth_url = f'https://{provider_hostname}/oauth/v2/authorize'
+    token_url = f'https://{provider_hostname}/oauth/v2/token'
+    user_info_url = f'https://{provider_hostname}/oidc/v1/userinfo'
+    end_session_url = f'https://{provider_hostname}/oidc/v1/end_session'
 
-    elif provider == 'keycloak':
-        keycloak = Keycloak()
-        # create a vouch client
-        client_secret = keycloak.create_client('vouch')
-        client_id = 'vouch'
-        url = f"https://{provider_hostname}/realms/{realm}/protocol/openid-connect"
-        auth_url = f'{url}/auth'
-        token_url = f'{url}/token'
-        user_info_url = f'{url}/userinfo'
-        end_session_url = f'{url}/end_session'
-    else:
-        log.error("niether zitadel nor keycloak was passed into create_vouch_app,"
-                  f" got {provider} instead.")
+    # elif provider == 'keycloak':
+    #     keycloak = Keycloak()
+    #     # create a vouch client
+    #     client_secret = keycloak.create_client('vouch')
+    #     client_id = 'vouch'
+    #     url = f"https://{provider_hostname}/realms/{realm}/protocol/openid-connect"
+    #     auth_url = f'{url}/auth'
+    #     token_url = f'{url}/token'
+    #     user_info_url = f'{url}/userinfo'
+    #     end_session_url = f'{url}/end_session'
+    # else:
+    #     log.error("niether zitadel nor keycloak was passed into create_vouch_app,"
+    #               f" got {provider} instead.")
 
     auth_dict = {"auth_url": auth_url,
                  "token_url": token_url,

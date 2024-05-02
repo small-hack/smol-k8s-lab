@@ -38,22 +38,26 @@ def configure_home_assistant(argocd: ArgoCD,
     # verify if initialization is enabled
     init_enabled = cfg['init']['enabled']
 
+    # process restore dict
+    restore_dict = cfg['init'].get('restore', {"enabled": False})
+    restore_enabled = restore_dict['enabled']
+    if restore_enabled:
+        header_start = "Restoring"
+    else:
+        if app_installed:
+            header_start = "Syncing"
+        else:
+            header_start = "Setting up"
+
+    header(f"{header_start} [green]home-assistant[/], to self host your home automation",
+           '🏡')
+
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         # immediately create namespace
         home_assistant_namespace = cfg['argo']['namespace']
         argocd.k8s.create_namespace(home_assistant_namespace)
 
-        # process restore dict
-        restore_dict = cfg['init'].get('restore', {"enabled": False})
-        restore_enabled = restore_dict['enabled']
-        if restore_enabled:
-            header_start = "Restoring"
-        else:
-            header_start = "Setting up"
-
-        header(f"{header_start} [green]home-assistant[/], to self host your home automation",
-               '🏡')
 
         # grab all possile init values
         init_values = cfg['init'].get('values', None)

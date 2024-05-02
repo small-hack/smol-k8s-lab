@@ -123,11 +123,9 @@ def setup_oidc_provider(argocd: ArgoCD,
         if zitadel_enabled:
             configure_vouch(argocd=argocd,
                             vouch_config_dict=vouch_dict,
-                            oidc_provider_name='zitadel',
                             oidc_provider_hostname=zitadel_dict['argo']['secret_keys']['hostname'],
                             bitwarden=bw,
                             users=[],
-                            realm="",
                             zitadel=zitadel_obj)
         else:
             configure_vouch(argocd, vouch_dict, '', '', bw)
