@@ -168,18 +168,15 @@ class RestoreAppConfig(Static):
     a textual widget for restoring select apps via k8up
     """
 
-    def __init__(self,
-                 app_name: str,
-                 restore_params: dict,
-                 id: str) -> None:
+    def __init__(self, app_name: str, restore_params: dict, id: str) -> None:
         self.app_name = app_name
-        self.restore_params = restore_params
+        self.restore_enabled = restore_params.get('enabled', False)
+        self.snapshots = restore_params.get('restic_snapshot_ids', {})
         self.cnpg_restore = restore_params.get("cnpg_restore", "not_applicable")
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
         # verify restore is enabled
-        restore_enabled = self.restore_params['enabled']
 
         # restore enabled label switch row
         with Container(classes=f"app-less-switch-row {self.app_name}"):
@@ -194,7 +191,7 @@ class RestoreAppConfig(Static):
 
             # right hand side: Enabled label and switch
             yield Label("Enabled: ", classes="app-init-switch-label")
-            switch = Switch(value=restore_enabled,
+            switch = Switch(value=self.restore_enabled,
                             id=f"{self.app_name}-restore-enabled",
                             name="restore enabled",
                             classes="app-init-switch")
@@ -204,8 +201,8 @@ class RestoreAppConfig(Static):
         if self.cnpg_restore != "not_applicable":
             cnpg_row = Container(classes=f"app-less-switch-row {self.app_name}",
                                  id=f"{self.app_name}-restore-cnpg-row")
-            if not restore_enabled:
-                cnpg_row.display = restore_enabled
+            if not self.restore_enabled:
+                cnpg_row.display = self.restore_enabled
             yield cnpg_row
 
         # Restic snapshot IDs collapsible, that gets hidden if restore
@@ -214,8 +211,8 @@ class RestoreAppConfig(Static):
                       id=f"{self.app_name}-snapshots-header")
         snaphots_grid = Grid(classes="collapsible-updateable-grid",
                              id=f"{self.app_name}-restore-grid")
-        label.display = restore_enabled
-        snaphots_grid.display = restore_enabled
+        label.display = self.restore_enabled
+        snaphots_grid.display = self.restore_enabled
         yield label
         yield snaphots_grid
 
@@ -242,7 +239,7 @@ class RestoreAppConfig(Static):
                              name="cnpg restore enabled",
                              classes="app-init-switch"))
 
-        if self.restore_params.get("restic_snapshot_ids", None):
+        if self.restic_snapshot_ids:
             self.generate_snapshot_id_rows()
 
     def generate_snapshot_id_rows(self,) -> None:
@@ -251,7 +248,7 @@ class RestoreAppConfig(Static):
         """
         grid = self.get_widget_by_id(f"{self.app_name}-restore-grid")
         # create a label and input row for each restic snapshot ID
-        for key, value in self.restore_params["restic_snapshot_ids"].items():
+        for key, value in self.restic_snapshot_ids.items():
             if not value:
                 value = "latest"
 
@@ -277,10 +274,13 @@ class RestoreAppConfig(Static):
         whenever any of our inputs change, we update the base app's saved config.yaml
         """
         input = event.input
+
+        # update our local cache of snapshot IDs
+        self.restic_snapshot_ids[input.name] = input.value
+
+        # update self.app's config with input that has changed
         parent_app_yaml = self.app.cfg
-
         parent_app_yaml['apps'][self.app_name]['init']['restore']['restic_snapshot_ids'][input.name] = input.value
-
         self.app.write_yaml()
 
     @on(Switch.Changed)
@@ -303,9 +303,16 @@ class RestoreAppConfig(Static):
             snapshots = self.get_widget_by_id(f"{self.app_name}-restore-grid")
             snapshots.display = truthy
 
+            # update this widget's restore.enabled variable
+            self.restore_enabled = truthy
+
+            # update the base app's init.restore.enabled variable
             self.app.cfg['apps'][self.app_name]['init']['restore']['enabled'] = truthy
             self.app.write_yaml()
 
         if event.switch.id == f"{self.app_name}-cnpg-restore-enabled":
+            # update this widget's cnpg_restore.enabled variable
+            self.cnpg_restore = truthy
+            # update the base app's init.restore.cnpg_restore.enabled variable
             self.app.cfg['apps'][self.app_name]['init']['restore']['cnpg_restore'] = truthy
             self.app.write_yaml()
