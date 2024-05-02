@@ -19,6 +19,8 @@ def create_pvc_restic_backup(app: str,
     """
     a function to immediately run a restic backup job
     unless it's nextcloud, then we put it into maintenance_mode first...
+
+    pass in quiet=True to disable loading spinners for logging
     """
     now = datetime.now().strftime('%Y-%m-%d-%H-%M')
     backup_name = f"{app}-onetime-backup-{now}"
@@ -68,7 +70,7 @@ def create_pvc_restic_backup(app: str,
 
     # do the database backup if this app has one
     if cnpg_backup:
-        create_cnpg_cluster_backup(app, namespace)
+        create_cnpg_cluster_backup(app, namespace, quiet=quiet)
 
     # then we can do the actual backup
     k8s = K8s()
@@ -94,9 +96,13 @@ def create_pvc_restic_backup(app: str,
     return True
 
 
-def create_cnpg_cluster_backup(app: str, namespace: str) -> None:
+def create_cnpg_cluster_backup(app: str,
+                               namespace: str,
+                               quiet: bool = False) -> None:
     """
     creates a backup for cnpg clusters and waits for it to complete
+
+    pass in quiet=True to disable loading spinners for logging
     """
     now = datetime.now().strftime('%Y-%m-%d-%H-%M')
     backup_name = f"{app}-onetime-cnpg-backup-{now}"
@@ -124,7 +130,7 @@ def create_cnpg_cluster_backup(app: str, namespace: str) -> None:
                 f"backups.postgresql.cnpg.io/{backup_name}")
     while True:
         log.error(f"Waiting on backups.postgresql.cnpg.io/{backup_name} to complete")
-        res = subproc([wait_cmd], error_ok=True)
+        res = subproc([wait_cmd], error_ok=True, spinner=quiet)
         log.error(res)
         if "completed" in res:
             break

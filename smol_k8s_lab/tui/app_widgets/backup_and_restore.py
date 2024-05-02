@@ -195,17 +195,12 @@ class BackupWidget(Static):
                                      bucket=self.backup_s3_bucket,
                                      cnpg_backup=self.cnpg_restore,
                                      quiet=True)
-            # self.app.call_from_thread(create_pvc_restic_backup,
-            #                           app=self.app_name,
-            #                           namespace=namespace,
-            #                           endpoint=self.backup_s3_endpoint,
-            #                           bucket=self.backup_s3_bucket,
-            #                           cnpg_backup=self.cnpg_restore)
             self.get_widget_by_id(f"{self.app_name}-backup-button").display = True
             self.get_widget_by_id(f"{self.app_name}-backup-running").display = False
             self.app.notify("Success 🎉",
                             title=f"💾 backup of {self.app_name} has completed.",
                             timeout=8)
+
 
 class RestoreApp(Static):
     """
