@@ -57,7 +57,7 @@ def process_backup_vals(backup_dict: dict,
             "bucket": s3_values.get('bucket', ""),
             "s3_user": extract_secret(s3_values.get('access_key_id', '')),
             "s3_password": extract_secret(s3_values.get('secret_access_key', '')),
-            "restic_repo_pass": extract_secret(s3_values.get('restic_repo_password', '')),
+            "restic_repo_pass": extract_secret(backup_dict.get('restic_repo_password', '')),
             "schedule": backup_dict.get('schedule', "0 0 * * *")
             }
 
