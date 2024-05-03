@@ -747,13 +747,13 @@ server = ["flask (>=2.0.1)"]
 
 [[package]]
 name = "coqui-tts-trainer"
-version = "0.1.0"
+version = "0.1.1"
 description = "General purpose model trainer for PyTorch that is more flexible than it should be, by 🐸Coqui."
 optional = false
 python-versions = "<3.13,>=3.6.0"
 files = [
-    {file = "coqui-tts-trainer-0.1.0.tar.gz", hash = "sha256:4fac6486e1309c974aefca412abd5b998ba5e659880c4dbfd8bcd59197fbfa47"},
-    {file = "coqui_tts_trainer-0.1.0-py3-none-any.whl", hash = "sha256:9464667405228b5ceddb9d3e230bde77c06c3ca4dafef369392eb56d04807fec"},
+    {file = "coqui_tts_trainer-0.1.1-py3-none-any.whl", hash = "sha256:ffff1bbeca300c86c42e75baf427f3dd96851a141d9c7a8829634ec92e5a109f"},
+    {file = "coqui_tts_trainer-0.1.1.tar.gz", hash = "sha256:c8c73e76e48b3e5c5e348e356ffff29176a1a7646ec4087c2714d144647655d6"},
 ]
 
 [package.dependencies]
@@ -765,8 +765,8 @@ tensorboard = "*"
 torch = ">=1.7"
 
 [package.extras]
-all = ["accelerate", "black", "coqpit", "coverage", "fsspec", "isort", "psutil", "pylint", "pytest", "soundfile", "tensorboard", "torch (>=1.7)", "torchvision"]
-dev = ["accelerate", "black", "coverage", "isort", "pylint", "pytest"]
+all = ["accelerate", "black (==24.2.0)", "coqpit", "coverage", "fsspec", "isort", "psutil", "pylint", "pytest", "soundfile", "tensorboard", "torch (>=1.7)", "torchvision"]
+dev = ["accelerate", "black (==24.2.0)", "coverage", "isort", "pylint", "pytest"]
 test = ["torchvision"]
 
 [[package]]
@@ -1814,13 +1814,13 @@ test = ["pytest (>=7.4)", "pytest-cov (>=4.1)"]
 
 [[package]]
 name = "librosa"
-version = "0.10.1"
+version = "0.10.2"
 description = "Python module for audio and music processing"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "librosa-0.10.1-py3-none-any.whl", hash = "sha256:7ab91d9f5fcb75ea14848a05d3b1f825cf8d0c42ca160d19ae6874f2de2d8223"},
-    {file = "librosa-0.10.1.tar.gz", hash = "sha256:832f7d150d6dd08ed2aa08c0567a4be58330635c32ddd2208de9bc91300802c7"},
+    {file = "librosa-0.10.2-py3-none-any.whl", hash = "sha256:469470592c51533e22d3caa1356c735de9bb0a2e9d29345ab4a1ed52e85f7dc8"},
+    {file = "librosa-0.10.2.tar.gz", hash = "sha256:444693b66b675f7e2f209cfc4f1226f54a3461f8568816e5a1add068101c3888"},
 ]
 
 [package.dependencies]
@@ -1831,7 +1831,7 @@ lazy-loader = ">=0.1"
 msgpack = ">=1.0"
 numba = ">=0.51.0"
 numpy = ">=1.20.3,<1.22.0 || >1.22.0,<1.22.1 || >1.22.1,<1.22.2 || >1.22.2"
-pooch = ">=1.0"
+pooch = ">=1.1"
 scikit-learn = ">=0.20.0"
 scipy = ">=1.2.0"
 soundfile = ">=0.12.1"
@@ -1840,7 +1840,7 @@ typing-extensions = ">=4.1.1"
 
 [package.extras]
 display = ["matplotlib (>=3.3.0)"]
-docs = ["ipython (>=7.0)", "matplotlib (>=3.3.0)", "mir-eval (>=0.5)", "numba (>=0.51)", "numpydoc", "presets", "sphinx (!=1.3.1)", "sphinx-gallery (>=0.7)", "sphinx-multiversion (>=0.2.3)", "sphinx-rtd-theme (>=1.2.0)", "sphinxcontrib-svg2pdfconverter"]
+docs = ["ipython (>=7.0)", "matplotlib (>=3.3.0)", "mir-eval (>=0.5)", "numba (>=0.51)", "numpydoc", "presets", "sphinx (!=1.3.1)", "sphinx-copybutton (>=0.5.2)", "sphinx-gallery (>=0.7)", "sphinx-multiversion (>=0.2.3)", "sphinx-rtd-theme (>=1.2.0)", "sphinxcontrib-svg2pdfconverter"]
 tests = ["matplotlib (>=3.3.0)", "packaging (>=20.0)", "pytest", "pytest-cov", "pytest-mpl", "resampy (>=0.2.2)", "samplerate", "types-decorator"]
 
 [[package]]
@@ -1967,6 +1967,7 @@ files = [
     {file = "lxml-5.2.1-cp36-cp36m-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:c38d7b9a690b090de999835f0443d8aa93ce5f2064035dfc48f27f02b4afc3d0"},
     {file = "lxml-5.2.1-cp36-cp36m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5670fb70a828663cc37552a2a85bf2ac38475572b0e9b91283dc09efb52c41d1"},
     {file = "lxml-5.2.1-cp36-cp36m-manylinux_2_28_x86_64.whl", hash = "sha256:958244ad566c3ffc385f47dddde4145088a0ab893504b54b52c041987a8c1863"},
+    {file = "lxml-5.2.1-cp36-cp36m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:b6241d4eee5f89453307c2f2bfa03b50362052ca0af1efecf9fef9a41a22bb4f"},
     {file = "lxml-5.2.1-cp36-cp36m-musllinux_1_1_aarch64.whl", hash = "sha256:2a66bf12fbd4666dd023b6f51223aed3d9f3b40fef06ce404cb75bafd3d89536"},
     {file = "lxml-5.2.1-cp36-cp36m-musllinux_1_1_ppc64le.whl", hash = "sha256:9123716666e25b7b71c4e1789ec829ed18663152008b58544d95b008ed9e21e9"},
     {file = "lxml-5.2.1-cp36-cp36m-musllinux_1_1_s390x.whl", hash = "sha256:0c3f67e2aeda739d1cc0b1102c9a9129f7dc83901226cc24dd72ba275ced4218"},
@@ -1991,7 +1992,6 @@ files = [
     {file = "lxml-5.2.1-cp37-cp37m-musllinux_1_2_x86_64.whl", hash = "sha256:9e2addd2d1866fe112bc6f80117bcc6bc25191c5ed1bfbcf9f1386a884252ae8"},
     {file = "lxml-5.2.1-cp37-cp37m-win32.whl", hash = "sha256:f51969bac61441fd31f028d7b3b45962f3ecebf691a510495e5d2cd8c8092dbd"},
     {file = "lxml-5.2.1-cp37-cp37m-win_amd64.whl", hash = "sha256:b0b58fbfa1bf7367dde8a557994e3b1637294be6cf2169810375caf8571a085c"},
-    {file = "lxml-5.2.1-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:3e183c6e3298a2ed5af9d7a356ea823bccaab4ec2349dc9ed83999fd289d14d5"},
     {file = "lxml-5.2.1-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:804f74efe22b6a227306dd890eecc4f8c59ff25ca35f1f14e7482bbce96ef10b"},
     {file = "lxml-5.2.1-cp38-cp38-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:08802f0c56ed150cc6885ae0788a321b73505d2263ee56dad84d200cab11c07a"},
     {file = "lxml-5.2.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:0f8c09ed18ecb4ebf23e02b8e7a22a05d6411911e6fabef3a36e4f371f4f2585"},
@@ -3146,21 +3146,6 @@ test = ["appdirs (==1.4.4)", "covdefaults (>=2.3)", "pytest (>=7.4.3)", "pytest-
 type = ["mypy (>=1.8)"]
 
 [[package]]
-name = "playsound"
-version = "1.3.0"
-description = "Pure Python, cross platform, single function module with no dependencies for playing sounds."
-optional = false
-python-versions = "*"
-files = []
-develop = false
-
-[package.source]
-type = "git"
-url = "https://github.com/taconi/playsound"
-reference = "HEAD"
-resolved_reference = "92385c78ec05c2fc3afad1afc5edc9d1282aa1e5"
-
-[[package]]
 name = "pluggy"
 version = "1.5.0"
 description = "plugin and hook calling mechanisms for python"
@@ -3497,6 +3482,17 @@ python-versions = ">=3.9"
 files = [
     {file = "pyfiglet-1.0.2-py3-none-any.whl", hash = "sha256:889b351d79c99e50a3f619c8f8e6ffdb27fd8c939fc43ecbd7559bd57d5f93ea"},
     {file = "pyfiglet-1.0.2.tar.gz", hash = "sha256:758788018ab8faaddc0984e1ea05ff330d3c64be663c513cc1f105f6a3066dab"},
+]
+
+[[package]]
+name = "pyglet"
+version = "2.0.15"
+description = "pyglet is a cross-platform games and multimedia package."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "pyglet-2.0.15-py3-none-any.whl", hash = "sha256:9e4cc16efc308106fd3a9ff8f04e7a6f4f6a807c6ac8a331375efbbac8be85af"},
+    {file = "pyglet-2.0.15.tar.gz", hash = "sha256:42085567cece0c7f1c14e36eef799938cbf528cfbb0150c484b984f3ff1aa771"},
 ]
 
 [[package]]
@@ -4983,13 +4979,13 @@ torch = "2.3.0"
 
 [[package]]
 name = "tqdm"
-version = "4.66.2"
+version = "4.66.4"
 description = "Fast, Extensible Progress Meter"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "tqdm-4.66.2-py3-none-any.whl", hash = "sha256:1ee4f8a893eb9bef51c6e35730cebf234d5d0b6bd112b0271e10ed7c24a02bd9"},
-    {file = "tqdm-4.66.2.tar.gz", hash = "sha256:6cd52cdf0fef0e0f543299cfc96fec90d7b8a7e88745f411ec33eb44d5ed3531"},
+    {file = "tqdm-4.66.4-py3-none-any.whl", hash = "sha256:b75ca56b413b030bc3f00af51fd2c1a1a5eac6a0c1cca83cbb37a5c52abce644"},
+    {file = "tqdm-4.66.4.tar.gz", hash = "sha256:e4d936c9de8727928f3be6079590e97d9abfe8d39a590be678eb5919ffc186bb"},
 ]
 
 [package.dependencies]
@@ -5452,4 +5448,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "b30d7096b9041a9f7f7d3aed202d576a7ee406d9bc492698532b8d21d2a12c1c"
+content-hash = "1cdc3672934c6f52dad6afb951ce57fc332f9a7200be5fbd554268ee43343b71"

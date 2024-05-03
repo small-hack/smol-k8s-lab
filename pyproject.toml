@@ -45,9 +45,7 @@ ruamel-yaml        = "^0.18"
 ruamel-yaml-string = "^0.1"
 textual            = "^0.58"
 xdg-base-dirs      = "^6.0"
-playsound          = {git = "https://github.com/taconi/playsound"}
-# requires installing local packages such as: https://stackoverflow.com/a/66065656
-# pygobject          = {platform = "linux", version = "^3.48"}
+pyglet             = "^2.0"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = "^9.5"
