@@ -48,13 +48,6 @@ class SmolAudio(Widget):
     def on_mount(self) -> None:
         self.log("SmolAudio widget has been mounted")
 
-    def say(self, sound_file) -> None:
-        """
-        say anything using pyglet
-        """
-        music = media.load(sound_file)
-        music.play()
-
     def play_screen_audio(self,
                           screen: str,
                           alt: bool = False,
@@ -113,19 +106,22 @@ class SmolAudio(Widget):
                     if isinstance(focused, DataTable):
                         self.say_row(focused)
         else:
-            worker = get_current_worker()
-            if not worker.is_cancelled:
-                # don't play a sound if there's already a sound playing
-                number_of_workers = len(self.workers)
-                desc_audio = "description.mp3" in audio_file
-                if desc_audio or "/screens/" not in audio_file and number_of_workers > 1:
-                    self.log(f"say: number of workers is {number_of_workers}"
-                             f" and we must wait to play {audio_file}")
-                    for worker_obj in self.workers:
-                        if worker_obj != worker and worker_obj.group == "say-workers":
-                            await self.workers.wait_for_complete([worker_obj])
-
-                self.app.call_from_thread(self.say, sound=audio_file)
+            sound = media.load(audio_file)
+            if "screens" in audio_file:
+                worker = get_current_worker()
+                if not worker.is_cancelled:
+                    # don't play a sound if there's already a sound playing
+                    number_of_workers = len(self.workers)
+                    desc_audio = "description.mp3" in audio_file
+                    if desc_audio or "/screens/" not in audio_file and number_of_workers > 1:
+                        self.log(f"say: number of workers is {number_of_workers}"
+                                 f" and we must wait to play {audio_file}")
+                        for worker_obj in self.workers:
+                            if worker_obj != worker and worker_obj.group == "say-workers":
+                                await self.workers.wait_for_complete([worker_obj])
+                self.app.call_from_thread(sound.play)
+            else:
+                sound.play()
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
