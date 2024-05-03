@@ -141,6 +141,16 @@ def restore_home_assistant(argocd: ArgoCD,
                            bitwarden: BwCLI) -> None:
     if bitwarden:
         refresh_bitwarden(argocd, home_assistant_hostname, bitwarden)
+        # apply the external secrets so we can immediately use them for restores
+        # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+        # WARNING: change this back to main when done testing
+        # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+        ref = "add-pvc-helm-chart-for-nextcloud"
+        external_secrets_yaml = (
+                "https://raw.githubusercontent.com/small-hack/argocd-apps/"
+                f"{ref}/home-assistant/toleration_and_affinity_app_of_apps/external_secrets_appset.yaml"
+                )
+        argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
     pvc_dict = {
             "kind": "PersistentVolumeClaim",
