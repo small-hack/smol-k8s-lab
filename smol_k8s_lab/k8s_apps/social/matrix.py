@@ -394,7 +394,7 @@ def restore_matrix(argocd: ArgoCD,
         ref = "add-pvc-helm-chart-for-nextcloud"
         external_secrets_yaml = (
                 "https://raw.githubusercontent.com/small-hack/argocd-apps"
-                f"/{ref}/matrix/app_of_apps/external_secrets_appset.yaml"
+                f"/{ref}/matrix/app_of_apps/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
