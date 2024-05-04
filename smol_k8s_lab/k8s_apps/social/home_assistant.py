@@ -99,20 +99,21 @@ def configure_home_assistant(argocd: ArgoCD,
                                       "EXTERNAL_URL": home_assistant_hostname
                                       })
 
-    if not app_installed:
-        if restore_enabled:
-            restore_home_assistant(argocd,
-                                   home_assistant_hostname,
-                                   home_assistant_namespace,
-                                   restore_dict,
-                                   backup_vals['endpoint'],
-                                   backup_vals['bucket'],
-                                   backup_vals['s3_user'],
-                                   backup_vals['s3_password'],
-                                   backup_vals['restic_repo_pass'],
-                                   pvc_storage_class,
-                                   bitwarden)
+    if init_enabled and restore_enabled:
+        restore_home_assistant(argocd,
+                               home_assistant_hostname,
+                               home_assistant_namespace,
+                               restore_dict,
+                               backup_vals['endpoint'],
+                               backup_vals['bucket'],
+                               backup_vals['s3_user'],
+                               backup_vals['s3_password'],
+                               backup_vals['restic_repo_pass'],
+                               pvc_storage_class,
+                               app_installed,
+                               bitwarden)
 
+    if not app_installed:
         # then install the app as normal
         argocd.install_app('home-assistant', cfg['argo'])
     else:
@@ -135,7 +136,14 @@ def restore_home_assistant(argocd: ArgoCD,
                            secret_access_key: str,
                            restic_repo_password: str,
                            pvc_storage_class: str,
+                           app_installed: bool,
                            bitwarden: BwCLI) -> None:
+    """
+    restore home assistant's external secrets and PVC, then if app_installed=True,
+    reload the deployment and if not just end the function
+
+    only works if using home_assistant app with init.enabled=True
+    """
     if bitwarden:
         refresh_bitwarden(argocd, home_assistant_hostname, bitwarden)
         # apply the external secrets so we can immediately use them for restores
@@ -248,7 +256,7 @@ def refresh_bitwarden(argocd: ArgoCD,
                       home_assistant_hostname: str,
                       bitwarden: BwCLI) -> None:
     """
-    refresh bitwarden item in appset secret plugin
+    refresh bitwardens item in the appset secret plugin
     """
     log.debug("Making sure home-assistant Bitwarden item IDs are in appset "
               "secret plugin secret")
