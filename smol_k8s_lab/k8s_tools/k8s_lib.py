@@ -159,7 +159,9 @@ class K8s():
         currently only works with one pod
         """
         # check the current pod name
-        pod_name = self.get_pod_names(name)[0]
+        pods = self.get_pod_names(name, namespace)
+        if pods:
+            pod_name = pods[0]
 
         # scale deployment down
         subproc([f"kubectl scale deploy -n {namespace} {name} --replicas=0",
@@ -169,22 +171,22 @@ class K8s():
         while True:
             if not pod_name:
                 break
-            if pod_name not in self.get_pod_names(name):
+            if pod_name not in self.get_pod_names(name, namespace):
                 break
 
         # scale deployment back up
         subproc([f"kubectl scale deploy -n {namespace} {name} --replicas={replicas}",
-                 f"kubectl rollout status deployment -n {namespace} {name}",
-                 f"kubectl wait pod --for=condition=Ready -l app.kubernetes.io/instance={name}"])
+                 f"kubectl rollout status deployment -n {namespace} {name}"])
 
-    def get_pod_names(self, name: str) -> list:
+    def get_pod_names(self, name: str, namespace: str) -> list:
         """
         get the pod name from a deployment or job based on the label
         """
-        pod_cmd = ("kubectl get pods --no-headers -l "
-                   f"app.kubernetes.io/instance={name} -o "
+        pod_cmd = (f"kubectl get pods -n {namespace} --no-headers "
+                   f"-l app.kubernetes.io/instance={name} -o "
                    "custom-columns=NAME:.metadata.name")
         pods = subproc([pod_cmd])
+
         if pods:
             if "\n" in pods:
                 return pods.split('\n')
