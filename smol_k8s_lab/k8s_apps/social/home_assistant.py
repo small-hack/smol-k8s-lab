@@ -172,10 +172,11 @@ def restore_home_assistant(argocd: ArgoCD,
     else:
         tolerations = {}
 
+    # recreates the PVC and runs a k8s restic restore job to populate it
     create_resitc_restore_job(argocd.k8s,
                              'home-assistant',
                              'home-assistant',
-                             'home-assistant',
+                             home_assistant_namespace,
                              secrets['pvc_capacity'],
                              'home-assistant-pvc',
                              s3_backup_endpoint,
@@ -189,6 +190,8 @@ def restore_home_assistant(argocd: ArgoCD,
                              '/config',
                              affinity,
                              tolerations)
+
+    argocd.k8s.reload_deployment('home-assistant', home_assistant_namespace)
 
 
 def setup_bitwarden_items(argocd: ArgoCD,
