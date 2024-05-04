@@ -145,7 +145,7 @@ class InitValues(Static):
         if self.init_values and not self.init_enabled:
             inputs_container.display = False
 
-        if self.init_values or self.sensitive_values:
+        if self.init_values or self.screen.sensitive_values:
             with inputs_container:
                 cid = f"{self.app_name}"
                 if self.init_values:

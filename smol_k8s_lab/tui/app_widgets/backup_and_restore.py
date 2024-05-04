@@ -131,7 +131,7 @@ class BackupWidget(Static):
         argo_label = Label("restic repo password:", classes="argo-config-label")
         argo_label.tooltip = "restic repository password for encrypting your backups"
         input_id = f"{self.app_name}-backup-restic-repository-password"
-        input_val = extract_secret(self.backup_params['restic_repo_password'])
+        input_val = extract_secret(self.backup_params.get('restic_repo_password', ''))
 
         input = Input(placeholder="Enter a restic repo password for your encrypted backups",
                       value=input_val,
