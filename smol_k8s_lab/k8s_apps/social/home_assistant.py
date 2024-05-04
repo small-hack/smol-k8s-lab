@@ -57,12 +57,13 @@ def configure_home_assistant(argocd: ArgoCD,
                                       'home_assistant',
                                       argocd)
 
+    # we need namespace no matter the install type
+    home_assistant_namespace = cfg['argo']['namespace']
+
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         # immediately create namespace
-        home_assistant_namespace = cfg['argo']['namespace']
         argocd.k8s.create_namespace(home_assistant_namespace)
-
 
         # grab all possile init values
         init_values = cfg['init'].get('values', None)
@@ -101,6 +102,7 @@ def configure_home_assistant(argocd: ArgoCD,
 
     if init_enabled and restore_enabled:
         restore_home_assistant(argocd,
+                               secrets,
                                home_assistant_hostname,
                                home_assistant_namespace,
                                restore_dict,
@@ -172,11 +174,11 @@ def restore_home_assistant(argocd: ArgoCD,
     else:
         affinity = {}
 
-    if secrets['tolerations_key']:
-        tolerations = [{"effect": secrets['tolerations_effect'],
-                        "key": secrets['tolerations_key'],
-                        "operator": secrets['tolerations_operator'],
-                        "value": secrets['tolerations_value']}]
+    if secrets['toleration_key']:
+        tolerations = [{"effect": secrets['toleration_effect'],
+                        "key": secrets['toleration_key'],
+                        "operator": secrets['toleration_operator'],
+                        "value": secrets['toleration_value']}]
     else:
         tolerations = {}
 
