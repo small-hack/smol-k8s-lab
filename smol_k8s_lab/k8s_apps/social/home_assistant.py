@@ -186,6 +186,7 @@ def restore_home_assistant(argocd: ArgoCD,
                              pvc_storage_class,
                              secrets.get('pvc_access_mode', 'ReadWriteOnce'),
                              restore_dict['restic_snapshot_ids']['home_assistant'],
+                             '/config',
                              affinity,
                              tolerations)
 

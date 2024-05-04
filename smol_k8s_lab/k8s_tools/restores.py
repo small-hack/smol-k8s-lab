@@ -12,6 +12,7 @@ from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.utils.subproc import subproc
 
 # external libraries
+from datetime import datetime
 from json import loads
 import logging as log
 from os import path, environ
@@ -102,10 +103,12 @@ def k8up_restore_pvc(k8s_obj: K8s,
     builds a k8up restore manifest and applies it
     """
 
+    # we timestamp this restore job just in case there's others around
+    now = datetime.now().strftime('%Y-%m-%d-%H-%M')
     restore_dict = {'apiVersion': 'k8up.io/v1',
                     'kind': 'Restore',
                     'metadata': {
-                        'name': pvc,
+                        'name': f"{pvc}-{now}",
                         'namespace': namespace
                         },
                     'spec': {
@@ -392,6 +395,7 @@ def create_restic_restore_job(k8s_obj: K8s,
                               storage_class: str = "local-path",
                               access_mode: str = "ReadWriteOnce",
                               snapshot_id: str = "latest",
+                              mount_path: str = "/config",
                               affinity_dict: dict = {},
                               tolerations_dict: dict = {}):
     """
@@ -417,11 +421,15 @@ def create_restic_restore_job(k8s_obj: K8s,
                                        secret_access_key,
                                        restic_repo_password)
 
+    # timestamp the job, for easier finding if there's been a lot of trial/error
+    now = datetime.now().strftime('%Y-%m-%d-%H-%M')
+
+    # k8s job to run: restic restore $SNAPSHOT_ID:/data/$pvc --target $mount_path
     restore_job = {
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
-        "name": f"{app}-restic-restore-TIMESTAMP"
+        "name": f"{app}-restic-restore-{now}"
       },
       "spec": {
         "template": {
@@ -436,6 +444,12 @@ def create_restic_restore_job(k8s_obj: K8s,
                 "secret": {
                   "secretName": "s3-backups-credentials"
                 }
+              },
+              {
+                "name": app,
+                "persistentVolumeClaim": {
+                  "claimName": app
+                }
               }
             ],
             "containers": [
@@ -445,22 +459,22 @@ def create_restic_restore_job(k8s_obj: K8s,
                 "command": [
                   "restic",
                   "restore",
-                  "$SNAPSHOT",
+                  f"{snapshot}:/data/{pvc}",
                   "--target",
-                  "/tmp"
+                  mount_path
                 ],
                 "volumeMounts": [
                   {
                     "name": "restic-repo-password",
                     "readOnly": True,
                     "mountPath": "/secrets/"
+                  },
+                  {
+                    "name": app,
+                    "mountPath": mount_path
                   }
                 ],
                 "env": [
-                  {
-                    "name": "SNAPSHOT",
-                    "value": snapshot
-                  },
                   {
                     "name": "RESTIC_REPOSITORY",
                     "value": f"s3:{s3_endpoint}/{s3_bucket}"
