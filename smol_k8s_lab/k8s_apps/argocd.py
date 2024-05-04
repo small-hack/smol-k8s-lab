@@ -101,30 +101,28 @@ def configure_argocd(k8s_obj: K8s,
 
     argocd = ArgoCD(k8s_obj, namespace, argo_cd_domain)
     if argocd_config_dict['argo']['directory_recursion']:
-        configure_secret_plugin_generator(argocd, k8s_obj, secret_dict)
+        configure_secret_plugin_generator(argocd, secret_dict)
 
     return argocd
 
 
-def configure_secret_plugin_generator(argocd: ArgoCD,
-                                      k8s_obj: K8s,
-                                      secret_dict: dict):
+def configure_secret_plugin_generator(argocd: ArgoCD, secret_dict: dict) -> None:
     """
     configures the applicationset secret plugin generator
 
     (._. ) <-- who are they?
     """
-    # creates the secret vars secret with all the key/values for each appset
-    k8s_obj.create_secret('appset-secret-vars', 'argocd', secret_dict,
-                          'secret_vars.yaml')
-
     if not argocd.check_if_app_exists('appset-secrets-plugin'):
+        # creates the secret vars secret with all the key/values for each appset
+        argocd.k8s.create_secret('appset-secret-vars', 'argocd', secret_dict,
+                                 'secret_vars.yaml')
+
         msg = "🔌 Installing the ApplicationSet Secret Plugin Generator for Argo CD..."
         sub_header(msg)
 
         # creates only the token for authentication
         token = create_password()
-        k8s_obj.create_secret('appset-secret-token', 'argocd', {'token': token})
+        argocd.k8s.create_secret('appset-secret-token', 'argocd', {'token': token})
 
         # this creates a values.yaml from this dict
         set_opts = {'secretVars.existingSecret': 'appset-secret-vars',
@@ -140,4 +138,4 @@ def configure_secret_plugin_generator(argocd: ArgoCD,
         release.install(True)
     else:
         log.info("Reloading deployment for Argo CD Appset Secret Plugin")
-        k8s_obj.reload_deployment('appset-secret-plugin', 'argocd')
+        argocd.update_appset_secret(secret_dict)

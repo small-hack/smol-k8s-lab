@@ -30,16 +30,28 @@ class ArgoCD():
         else:
             return False
 
-    def sync_app(self, app: str, spinner: bool = True):
+    def sync_app(self,
+                 app: str,
+                 spinner: bool = True,
+                 replace: bool = False,
+                 force: bool = False
+                 ):
         """
         syncs an argocd app and returns the result
         """
-        if not spinner:
-            subproc(['kubectl config set-context --current --namespace=argocd'],
-                    spinner=False, error_ok=True)
-            return subproc([f"argocd app sync {app}"], spinner=False, error_ok=True)
+        # build sync command
+        cmd = "argocd app sync --retry-limit 3 "
+        if replace:
+            cmd += "--replace "
+        if force:
+            cmd += "--force "
+        cmd += app
+
+        # run sync command
+        if spinner:
+            return subproc([cmd])
         else:
-            return subproc([f"argocd app sync {app}"])
+            return subproc([cmd], spinner=False, error_ok=True)
 
     def install_app(self, app: str, argo_dict: dict, wait: bool = False) -> bool|None:
         """
@@ -47,7 +59,7 @@ class ArgoCD():
         app and argo_dict which should have str keys for repo, path, and namespace
         """
         if self.check_if_app_exists(app):
-            log.debug(f"There's already an Argo CD app called {app} installed :)")
+            log.debug(f"An Argo CD app called [green]{app}[/] already [green]exists[/] :)")
             return True
         else:
             log.info(f"Installing an Argo CD app called {app} :)")
@@ -185,21 +197,9 @@ class ArgoCD():
                                    'secret_vars.yaml')
 
         # reload the argocd appset secret plugin
-        try:
-            self.k8s.reload_deployment('appset-secret-plugin', 'argocd')
-        except Exception as e:
-            log.error(
-                    "Couldn't scale down the "
-                    "[magenta]argocd-appset-secret-plugin[/] deployment "
-                    f"in [green]{self.namespace}[/] namespace. Recieved: {e}"
-                    )
+        self.sync_app('appset-secrets-plugin', spinner=True, replace=True, force=True)
+        self.wait_for_app('appset-secrets-plugin')
 
         # reload the bitwarden ESO provider
-        try:
-            self.k8s.reload_deployment('bitwarden-eso-provider', 'external-secrets')
-        except Exception as e:
-            log.error(
-                    "Couldn't scale down the [magenta]"
-                    "bitwarden-eso-provider[/] deployment in [green]"
-                    f"external-secrets[/] namespace. Recieved: {e}"
-                    )
+        self.sync_app('bitwarden-eso-provider', spinner=True, replace=True, force=True)
+        self.wait_for_app('bitwarden-eso-provider')
