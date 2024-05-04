@@ -3,7 +3,7 @@
 # internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
-from smol_k8s_lab.k8s_tools.restores import k8up_restore_pvc
+from smol_k8s_lab.k8s_tools.restores import create_resitc_restore_job
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.value_from import extract_secret, process_backup_vals
@@ -110,8 +110,6 @@ def configure_home_assistant(argocd: ArgoCD,
                                    backup_vals['s3_user'],
                                    backup_vals['s3_password'],
                                    backup_vals['restic_repo_pass'],
-                                   secrets['pvc_capacity'],
-                                   secrets.get('pvc_access_mode', 'ReadWriteOnce'),
                                    pvc_storage_class,
                                    bitwarden)
 
@@ -127,6 +125,7 @@ def configure_home_assistant(argocd: ArgoCD,
 
 
 def restore_home_assistant(argocd: ArgoCD,
+                           secrets: dict,
                            home_assistant_hostname: str,
                            home_assistant_namespace: str,
                            restore_dict: dict,
@@ -135,8 +134,6 @@ def restore_home_assistant(argocd: ArgoCD,
                            access_key_id: str,
                            secret_access_key: str,
                            restic_repo_password: str,
-                           pvc_capacity: str,
-                           pvc_access_mode: str,
                            pvc_storage_class: str,
                            bitwarden: BwCLI) -> None:
     if bitwarden:
@@ -148,44 +145,49 @@ def restore_home_assistant(argocd: ArgoCD,
         ref = "add-pvc-helm-chart-for-nextcloud"
         external_secrets_yaml = (
                 "https://raw.githubusercontent.com/small-hack/argocd-apps/"
-                f"{ref}/home-assistant/toleration_and_affinity_app_of_apps/external_secrets_argocd_appset.yaml"
+                f"{ref}/home-assistant/toleration_and_affinity_app_of_apps/"
+                "external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
-    pvc_dict = {
-            "kind": "PersistentVolumeClaim",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "home-assistant",
-                "namespace": home_assistant_namespace,
-                "annotations": {"k8up.io/backup": "true"},
-                "labels": {
-                    "argocd.argoproj.io/instance": "home-assistant-pvc"
+    if secrets['affinity_key']:
+        affinity = {"nodeAffinity": {
+                      "requiredDuringSchedulingIgnoredDuringExecution": {
+                        "nodeSelectorTerms": [
+                          {"matchExpressions": [{"key": secrets['affinity_key'],
+                                                 "operator": "In",
+                                                 "values": [secrets['affinity_value']]}]}
+                        ]
+                      }
                     }
-                },
-            "spec": {
-                "storageClassName": pvc_storage_class,
-                "accessModes": [pvc_access_mode],
-                "resources": {
-                    "requests": {
-                        "storage": pvc_capacity}
-                    }
-                }
-            }
+                  }
+    else:
+        affinity = {}
 
-    # creates the nexcloud files pvc
-    argocd.k8s.apply_custom_resources([pvc_dict])
-    k8up_restore_pvc(argocd.k8s,
-                     'home-assistant',
-                     'home-assistant',
-                     'home-assistant',
-                     s3_backup_endpoint,
-                     s3_backup_bucket,
-                     access_key_id,
-                     secret_access_key,
-                     restic_repo_password,
-                     restore_dict['restic_snapshot_ids']['home_assistant']
-                     )
+    if secrets['tolerations_key']:
+        tolerations = [{"effect": secrets['tolerations_effect'],
+                        "key": secrets['tolerations_key'],
+                        "operator": secrets['tolerations_operator'],
+                        "value": secrets['tolerations_value']}]
+    else:
+        tolerations = {}
+
+    create_resitc_restore_job(argocd.k8s,
+                             'home-assistant',
+                             'home-assistant',
+                             'home-assistant',
+                             secrets['pvc_capacity'],
+                             'home-assistant-pvc',
+                             s3_backup_endpoint,
+                             s3_backup_bucket,
+                             access_key_id,
+                             secret_access_key,
+                             restic_repo_password,
+                             pvc_storage_class,
+                             secrets.get('pvc_access_mode', 'ReadWriteOnce'),
+                             restore_dict['restic_snapshot_ids']['home_assistant'],
+                             affinity,
+                             tolerations)
 
 
 def setup_bitwarden_items(argocd: ArgoCD,

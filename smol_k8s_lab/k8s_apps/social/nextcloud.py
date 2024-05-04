@@ -250,6 +250,7 @@ def restore_nextcloud(argocd: ArgoCD,
             restic_repo_password,
             s3_pvc_capacity,
             pvc_storage_class,
+            "ReadWriteOnce",
             snapshot_ids['seaweedfs_volume'],
             snapshot_ids['seaweedfs_master'],
             snapshot_ids['seaweedfs_filer']
