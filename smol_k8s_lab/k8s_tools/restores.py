@@ -159,13 +159,13 @@ def k8up_restore_pvc(k8s_obj: K8s,
 
     # loop on check to make sure the restore is done before continuing
     check_cmd = (f"kubectl get restore -n {namespace} --no-headers -o "
-                 f"custom-columns=COMPLETION:.status.finished {pvc}")
+                 f"custom-columns=COMPLETION:.status.finished {pvc}-{now}")
     while True:
         restore_done = subproc([check_cmd]).strip()
         log.debug(f"restore done returns {restore_done}")
 
         pod_cmd = (f"kubectl get pods -n {namespace} --no-headers -o "
-                   f"custom-columns=NAME:.metadata.name | grep {pvc}")
+                   f"custom-columns=NAME:.metadata.name | grep {pvc}-{now}")
         pod = subproc([pod_cmd], universal_newlines=True, shell=True)
         subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"], error_ok=True)
 
@@ -518,3 +518,22 @@ def create_restic_restore_job(k8s_obj: K8s,
 
     # creates the restore job
     k8s_obj.apply_custom_resources([restore_job])
+
+    # wait for restore job to complete
+    wait_cmd = (f"kubectl wait job -n {namespace} --for=condition=complete "
+                f"{app}-restic-restore-{now} --timeout=15m")
+    pod_cmd = (f"kubectl get pods -n {namespace} --no-headers -o "
+               f"custom-columns=NAME:.metadata.name | grep {app}-restic-restore-{now}")
+    log.info(wait_cmd)
+    while True:
+        log.debug(f"Waiting for restore job: {app}-restic-restore-{now}")
+        res = subproc([wait_cmd], error_ok=True)
+        log.debug(res)
+
+        if "NotFound" in res:
+            sleep(1)
+        else:
+            # tail the logs out for the pod if we're done
+            pod = subproc([pod_cmd], universal_newlines=True, shell=True)
+            subproc([f"kubectl logs -n {namespace} --tail=5 {pod}"], error_ok=True)
+            break
