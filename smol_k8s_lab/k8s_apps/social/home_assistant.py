@@ -3,7 +3,7 @@
 # internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
-from smol_k8s_lab.k8s_tools.restores import create_resitc_restore_job
+from smol_k8s_lab.k8s_tools.restores import create_restic_restore_job
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.value_from import extract_secret, process_backup_vals
@@ -181,7 +181,7 @@ def restore_home_assistant(argocd: ArgoCD,
         tolerations = {}
 
     # recreates the PVC and runs a k8s restic restore job to populate it
-    create_resitc_restore_job(argocd.k8s,
+    create_restic_restore_job(argocd.k8s,
                              'home-assistant',
                              'home-assistant',
                              home_assistant_namespace,
