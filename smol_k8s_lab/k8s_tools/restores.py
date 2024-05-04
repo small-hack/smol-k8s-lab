@@ -187,6 +187,7 @@ def get_latest_snapshot(pvc: str,
     """
     # set restic environment variables
     env = {"PATH": environ.get("PATH"),
+           "HOME": environ.get("HOME"),
            "RESTIC_REPOSITORY": f"s3:{s3_endpoint}/{s3_bucket}",
            "RESTIC_PASSWORD_COMMAND": f"echo -n '{restic_repo_password}'",
            "AWS_ACCESS_KEY_ID": access_key_id,
@@ -429,7 +430,8 @@ def create_restic_restore_job(k8s_obj: K8s,
       "apiVersion": "batch/v1",
       "kind": "Job",
       "metadata": {
-        "name": f"{app}-restic-restore-{now}"
+        "name": f"{app}-restic-restore-{now}",
+        "namespace": namespace
       },
       "spec": {
         "template": {
