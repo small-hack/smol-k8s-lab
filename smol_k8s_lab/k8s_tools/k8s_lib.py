@@ -153,18 +153,45 @@ class K8s():
         else:
             log.debug(f"Namespace, {name}, already exists")
 
-    def reload_deployment(self, name: str, namespace: str) -> None:
+    def reload_deployment(self, name: str, namespace: str, replicas: int = 1) -> None:
         """
         restart a deployment's pod scaling it up and then down again
         currently only works with one pod
         """
-        # HACK: there's got to be a better way, but I don't have time to fix
-        subproc([
-            f"kubectl scale deploy -n {namespace} {name} --replicas=0",
-            "sleep 3",
-            f"kubectl scale deploy -n {namespace} {name} --replicas=1",
-            f"kubectl rollout status deployment -n {namespace} {name}"
-                 ])
+        # check the current pod name
+        pod_name = self.get_pod_names(name)[0]
+
+        # scale deployment down
+        subproc([f"kubectl scale deploy -n {namespace} {name} --replicas=0",
+                 f"kubectl rollout status deployment -n {namespace} {name}"])
+
+        # make sure the old pod is gone
+        while True:
+            if not pod_name:
+                break
+            if pod_name not in self.get_pod_names(name):
+                break
+
+        # scale deployment back up
+        subproc([f"kubectl scale deploy -n {namespace} {name} --replicas={replicas}",
+                 f"kubectl rollout status deployment -n {namespace} {name}",
+                 f"kubectl wait pod --for=condition=Ready -l app.kubernetes.io/instance={name}"])
+
+    def get_pod_names(self, name: str) -> list:
+        """
+        get the pod name from a deployment or job based on the label
+        """
+        pod_cmd = ("kubectl get pods --no-headers -l "
+                   f"app.kubernetes.io/instance={name} -o "
+                   "custom-columns=NAME:.metadata.name")
+        pods = subproc([pod_cmd])
+        if pods:
+            if "\n" in pods:
+                return pods.split('\n')
+            else:
+                return [pods.strip()]
+        else:
+            return []
 
     # def create_from_manifest_dict(self,
     #                               api_group: str = "",

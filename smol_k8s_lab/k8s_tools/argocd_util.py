@@ -180,7 +180,7 @@ class ArgoCD():
         and reload the deployment
         """
         self.k8s.update_secret_key('appset-secret-vars',
-                                   'argocd',
+                                   self.namespace,
                                    fields,
                                    'secret_vars.yaml')
 
@@ -191,7 +191,7 @@ class ArgoCD():
             log.error(
                     "Couldn't scale down the "
                     "[magenta]argocd-appset-secret-plugin[/] deployment "
-                    f"in [green]argocd[/] namespace. Recieved: {e}"
+                    f"in [green]{self.namespace}[/] namespace. Recieved: {e}"
                     )
 
         # reload the bitwarden ESO provider
