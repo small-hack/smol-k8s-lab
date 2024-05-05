@@ -15,7 +15,6 @@ from pygame import mixer
 CORE_MIXER = mixer
 CORE_MIXER.init()
 
-
 class SmolAudio(Widget):
     """
     widget to handle the audio of smol-k8s-lab. we handle beeps and
@@ -51,7 +50,17 @@ class SmolAudio(Widget):
     def on_mount(self) -> None:
         self.log("SmolAudio widget has been mounted")
 
-    #@work(group="say-workers")
+    @work(group="pygame-play-workers")
+    async def pyg_play(self, audio_file: str):
+        """
+        play audio file with pygame
+        """
+        audio = CORE_MIXER.Sound(audio_file)
+        while True:
+            if not CORE_MIXER.get_busy():
+                break
+        audio.play()
+
     def say(self, text: str = "", audio_file: str = "") -> None:
         """
         Use the configured speech program to read a string aloud.
@@ -76,8 +85,19 @@ class SmolAudio(Widget):
                     if isinstance(focused, DataTable):
                         self.say_row(focused)
         else:
-            CORE_MIXER.music.load(audio_file)
-            CORE_MIXER.music.play()
+            self.pyg_play(audio_file)
+            # worker = get_current_worker()
+            # if not worker.is_cancelled:
+            #     # # don't play a sound if there's already a sound playing
+            #     number_of_workers = len(self.workers)
+            #     self.log(f"say: number of workers is {number_of_workers}"
+            #              f" and we must wait to play {audio_file}")
+            #     for worker_obj in self.workers:
+            #         if worker_obj != worker and worker_obj.group == "say-workers":
+            #             await self.workers.wait_for_complete([worker_obj])
+
+            #     self.app.call_from_thread(self.pyg_play, audio_file)
+
             # if "screens" in audio_file:
             #     worker = get_current_worker()
             #     if not worker.is_cancelled:
@@ -91,7 +111,6 @@ class SmolAudio(Widget):
             #                 if worker_obj != worker and worker_obj.group == "say-workers":
             #                     await self.workers.wait_for_complete([worker_obj])
             #     self.app.call_from_thread(sound.play)
-            # else:
 
     def play_screen_audio(self,
                           screen: str,
