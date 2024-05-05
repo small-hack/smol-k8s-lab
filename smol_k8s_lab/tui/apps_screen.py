@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
 from smol_k8s_lab.utils.subproc import subproc
-from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsModalScreen
@@ -362,9 +361,15 @@ class AppsConfigScreen(Screen):
 
         self.previous_app = highlighted_app
 
-        if self.modify_cluster and self.cfg[highlighted_app]['enabled']:
+        # verify the app is enabled in the cfg
+        app_enabled = self.cfg[highlighted_app]['enabled']
+        # verify app is actually in Argo CD
+        app_exists = self.argocd.check_if_app_exists(highlighted_app)
+
+        if self.modify_cluster and app_enabled and app_exists:
             app_inputs_pane.border_subtitle = (
-                    "[@click=screen.sync_argocd_app]🔁 sync[/]"
+                    "[@click=screen.sync_argocd_app]🔁 sync[/] / "
+                    "[@click=screen.delete_app]🗑️delete[/]"
                     )
         else:
             app_inputs_pane.border_subtitle = ""
@@ -375,27 +380,49 @@ class AppsConfigScreen(Screen):
         """
         app = self.previous_app.replace("_","-")
 
-        # default response
-        severity = "warning"
-        response = f"No Argo CD Application called [b]{app}[/b] could be found 😞"
+        # sync the app
+        res = self.argocd.sync_app(app, spinner=False)
 
-        if self.argocd.check_if_app_exists(app):
-            res = self.argocd.sync_app(app, spinner=False)
-
-            if res:
-                severity = "information"
-                if isinstance(res, list):
-                    response = "\n".join(res)
-                else:
-                    response = res
+        if res:
+            severity = "information"
+            if isinstance(res, list):
+                response = "\n".join(res)
             else:
-                response = "No response recieved from Argo CD sync... 🤔"
+                response = res
+        else:
+            response = "No response recieved from Argo CD sync app... 🤔"
+            severity = "warning"
 
         # if result is not valid, notify the user why
         self.notify(response,
                     timeout=10,
                     severity=severity,
-                    title="🦑 Argo CD Sync Response\n")
+                    title=f"🦑 Argo CD Sync [green]{self.previous_app}[/] Response\n")
+
+    def action_delete_argocd_app(self) -> None:
+        """
+        deletes an existing Argo CD application
+        """
+        app = self.previous_app.replace("_","-")
+
+        # sync the app
+        res = self.argocd.delete_app(app, spinner=False)
+
+        if res:
+            severity = "information"
+            if isinstance(res, list):
+                response = "\n".join(res)
+            else:
+                response = res
+        else:
+            response = "No response recieved from Argo CD delete app... 🤔"
+            severity = "warning"
+
+        # if result is not valid, notify the user why
+        self.notify(response,
+                    timeout=10,
+                    severity=severity,
+                    title=f"🦑 Argo CD Delete [green]{self.previous_app}[/] Response\n")
 
     @on(SelectionList.SelectionToggled)
     def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:

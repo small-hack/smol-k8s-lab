@@ -34,8 +34,7 @@ class ArgoCD():
                  app: str,
                  spinner: bool = True,
                  replace: bool = False,
-                 force: bool = False
-                 ):
+                 force: bool = False) -> str:
         """
         syncs an argocd app and returns the result
         """
@@ -43,6 +42,25 @@ class ArgoCD():
         cmd = "argocd app sync --retry-limit 3 "
         if replace:
             cmd += "--replace "
+        if force:
+            cmd += "--force "
+        cmd += app
+
+        # run sync command
+        if spinner:
+            return subproc([cmd])
+        else:
+            return subproc([cmd], spinner=False, error_ok=True)
+
+    def delete_app(self,
+                   app: str,
+                   spinner: bool = True,
+                   force: bool = False) -> str:
+        """
+        delete an argocd app and returns the result
+        """
+        # build delete command
+        cmd = "argocd app delete -y "
         if force:
             cmd += "--force "
         cmd += app
