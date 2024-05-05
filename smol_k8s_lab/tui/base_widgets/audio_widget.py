@@ -9,7 +9,7 @@ from textual.containers import VerticalScroll
 from textual.events import DescendantFocus
 from textual.widgets import (Button, DataTable, Input, Switch, Select,
                              SelectionList, _collapsible)
-from textual.worker import Worker, get_current_worker
+from textual.worker import Worker
 from pygame import mixer
 
 CORE_MIXER = mixer
@@ -86,31 +86,6 @@ class SmolAudio(Widget):
                         self.say_row(focused)
         else:
             self.pyg_play(audio_file)
-            # worker = get_current_worker()
-            # if not worker.is_cancelled:
-            #     # # don't play a sound if there's already a sound playing
-            #     number_of_workers = len(self.workers)
-            #     self.log(f"say: number of workers is {number_of_workers}"
-            #              f" and we must wait to play {audio_file}")
-            #     for worker_obj in self.workers:
-            #         if worker_obj != worker and worker_obj.group == "say-workers":
-            #             await self.workers.wait_for_complete([worker_obj])
-
-            #     self.app.call_from_thread(self.pyg_play, audio_file)
-
-            # if "screens" in audio_file:
-            #     worker = get_current_worker()
-            #     if not worker.is_cancelled:
-            #         # don't play a sound if there's already a sound playing
-            #         number_of_workers = len(self.workers)
-            #         desc_audio = "description.mp3" in audio_file
-            #         if desc_audio or "/screens/" not in audio_file and number_of_workers > 1:
-            #             self.log(f"say: number of workers is {number_of_workers}"
-            #                      f" and we must wait to play {audio_file}")
-            #             for worker_obj in self.workers:
-            #                 if worker_obj != worker and worker_obj.group == "say-workers":
-            #                     await self.workers.wait_for_complete([worker_obj])
-            #     self.app.call_from_thread(sound.play)
 
     def play_screen_audio(self,
                           screen: str,
