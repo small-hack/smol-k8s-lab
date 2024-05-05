@@ -369,7 +369,7 @@ class AppsConfigScreen(Screen):
         if self.modify_cluster and app_enabled and app_exists:
             app_inputs_pane.border_subtitle = (
                     "[@click=screen.sync_argocd_app]🔁 sync[/] / "
-                    "[@click=screen.delete_app]🗑️delete[/]"
+                    "[@click=screen.delete_app]🗑️ delete[/]"
                     )
         else:
             app_inputs_pane.border_subtitle = ""
