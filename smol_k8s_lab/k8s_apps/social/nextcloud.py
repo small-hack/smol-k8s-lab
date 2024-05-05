@@ -239,10 +239,9 @@ def restore_nextcloud(argocd: ArgoCD,
     # then we create all the seaweedfs pvcs we lost and restore them
     snapshot_ids = restore_dict['restic_snapshot_ids']
     restore_seaweedfs(
-            argocd.k8s,
+            argocd,
             'nextcloud',
             nextcloud_namespace,
-            argocd.namespace,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,
@@ -313,7 +312,7 @@ def restore_nextcloud(argocd: ArgoCD,
     rollout = (f"kubectl rollout status -n {nextcloud_namespace} "
                "deployment/nextcloud-web-app --watch --timeout 10m")
     while True:
-        rolled_out = subproc([rollout])
+        rolled_out = subproc([rollout], error_ok=True)
         if "NotFound" not in rolled_out:
             break
 
