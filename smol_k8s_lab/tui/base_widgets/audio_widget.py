@@ -3,7 +3,6 @@ from smol_k8s_lab.constants import SPEECH_TEXT, SPEECH_MP3_DIR, load_yaml
 
 # external libraries
 from os import system, path
-from pyglet import media
 from textual import work
 from textual.app import Widget
 from textual.containers import VerticalScroll
@@ -11,6 +10,10 @@ from textual.events import DescendantFocus
 from textual.widgets import (Button, DataTable, Input, Switch, Select,
                              SelectionList, _collapsible)
 from textual.worker import Worker, get_current_worker
+from pygame import mixer
+
+CORE_MIXER = mixer
+CORE_MIXER.init()
 
 
 class SmolAudio(Widget):
@@ -48,6 +51,48 @@ class SmolAudio(Widget):
     def on_mount(self) -> None:
         self.log("SmolAudio widget has been mounted")
 
+    #@work(group="say-workers")
+    def say(self, text: str = "", audio_file: str = "") -> None:
+        """
+        Use the configured speech program to read a string aloud.
+        """
+        say = self.speech_program
+        if say:
+            if text:
+                text_for_speech = text.replace("(", "").replace(")", "")
+                tts = text_for_speech.replace("[i]", "").replace("[/]", "")
+                system(f"{say} {tts}")
+
+            elif not text:
+                # if the use pressed f5, the key to read the widget ID aloud
+                if self.speak_on_key_press:
+                    focused = self.app.focused
+                    if isinstance(focused, _collapsible.CollapsibleTitle):
+                        system(f"{say} element is a Collapsible called {focused.label}.")
+                    else:
+                        system(f"{say} element is {focused.id}")
+
+                    # if it's a data table, read out the row content
+                    if isinstance(focused, DataTable):
+                        self.say_row(focused)
+        else:
+            CORE_MIXER.music.load(audio_file)
+            CORE_MIXER.music.play()
+            # if "screens" in audio_file:
+            #     worker = get_current_worker()
+            #     if not worker.is_cancelled:
+            #         # don't play a sound if there's already a sound playing
+            #         number_of_workers = len(self.workers)
+            #         desc_audio = "description.mp3" in audio_file
+            #         if desc_audio or "/screens/" not in audio_file and number_of_workers > 1:
+            #             self.log(f"say: number of workers is {number_of_workers}"
+            #                      f" and we must wait to play {audio_file}")
+            #             for worker_obj in self.workers:
+            #                 if worker_obj != worker and worker_obj.group == "say-workers":
+            #                     await self.workers.wait_for_complete([worker_obj])
+            #     self.app.call_from_thread(sound.play)
+            # else:
+
     def play_screen_audio(self,
                           screen: str,
                           alt: bool = False,
@@ -81,47 +126,6 @@ class SmolAudio(Widget):
             else:
                 self.say(text=self.tts_texts['screens'][f'{screen}'][desc])
 
-    @work(thread=True, group="say-workers")
-    async def say(self, text: str = "", audio_file: str = "") -> None:
-        """
-        Use the configured speech program to read a string aloud.
-        """
-        say = self.speech_program
-        if say:
-            if text:
-                text_for_speech = text.replace("(", "").replace(")", "")
-                tts = text_for_speech.replace("[i]", "").replace("[/]", "")
-                system(f"{say} {tts}")
-
-            elif not text:
-                # if the use pressed f5, the key to read the widget ID aloud
-                if self.speak_on_key_press:
-                    focused = self.app.focused
-                    if isinstance(focused, _collapsible.CollapsibleTitle):
-                        system(f"{say} element is a Collapsible called {focused.label}.")
-                    else:
-                        system(f"{say} element is {focused.id}")
-
-                    # if it's a data table, read out the row content
-                    if isinstance(focused, DataTable):
-                        self.say_row(focused)
-        else:
-            sound = media.load(audio_file)
-            if "screens" in audio_file:
-                worker = get_current_worker()
-                if not worker.is_cancelled:
-                    # don't play a sound if there's already a sound playing
-                    number_of_workers = len(self.workers)
-                    desc_audio = "description.mp3" in audio_file
-                    if desc_audio or "/screens/" not in audio_file and number_of_workers > 1:
-                        self.log(f"say: number of workers is {number_of_workers}"
-                                 f" and we must wait to play {audio_file}")
-                        for worker_obj in self.workers:
-                            if worker_obj != worker and worker_obj.group == "say-workers":
-                                await self.workers.wait_for_complete([worker_obj])
-                self.app.call_from_thread(sound.play)
-            else:
-                sound.play()
 
     def on_worker_state_changed(self, event: Worker.StateChanged) -> None:
         """Called when the worker state changes."""
@@ -132,11 +136,11 @@ class SmolAudio(Widget):
         say a phrase and if it can't be found, say um
         """
         try:
-            self.say(path.join(self.tts_files, f"phrases/{phrase}"))
+            self.say(audio_file=path.join(self.tts_files, f"phrases/{phrase}"))
         except Exception as e:
             self.log(e)
             self.log(f"{phrase} was not found")
-            self.say(path.join(self.tts_files, 'phrases/um.mp3'))
+            self.say(audio_file=path.join(self.tts_files, 'phrases/um.mp3'))
 
     def say_app(self,
                 element_id: str = "",
@@ -152,7 +156,7 @@ class SmolAudio(Widget):
         if you pass in a key word argument "app" we can say just the app name
         """
         if app:
-            self.say(path.join(self.apps_audio, f'{app}.mp3'))
+            self.say(audio_file=path.join(self.apps_audio, f'{app}.mp3'))
         elif trim_text:
             if isinstance(trim_text, str):
                 app_name = element_id.replace(trim_text, "")
@@ -181,19 +185,19 @@ class SmolAudio(Widget):
             # if it has seaweedfs_ in it, we also have that phrase
             elif "_seaweedfs_" in element_id:
                 app_name = element_id.split("_seaweedfs_")[0]
-                self.say(path.join(self.apps_audio, f'{app_name}.mp3'))
+                self.say(audio_file=path.join(self.apps_audio, f'{app_name}.mp3'))
                 input_field = element_id.replace(f"{app_name}_", "") + ".mp3"
                 self.say_phrase(input_field)
             else:
                 if "_files_" in element_id:
                     app_name = element_id.replace("_files_restic_snapshot_id",
                                                   "")
-                    self.say(path.join(self.apps_audio, f'{app_name}.mp3'))
+                    self.say(audio_file=path.join(self.apps_audio, f'{app_name}.mp3'))
                     self.say_phrase("files_restic_snapshot_id.mp3")
                 elif "_config_" in element_id:
                     app_name = element_id.replace("_config_restic_snapshot_id",
                                                   "")
-                    self.say(path.join(self.apps_audio, f'{app_name}.mp3'))
+                    self.say(audio_file=path.join(self.apps_audio, f'{app_name}.mp3'))
                     self.say_phrase("config_restic_snapshot_id.mp3")
         elif smtp:
             # split string on _ into list of words
@@ -207,7 +211,7 @@ class SmolAudio(Widget):
             smtp_index = sections.index("smtp")
 
             # say name of app by joining indexes of list that come after smtp
-            self.say(path.join(self.apps_audio,
+            self.say(audio_file=path.join(self.apps_audio,
                           f'{"_".join(sections[:smtp_index])}.mp3'))
 
             # say S.M.T.P.
@@ -398,10 +402,10 @@ class SmolAudio(Widget):
                     self.say_phrase(focused_id)
             else:
                 # play phrase "Element is..."
-                self.say(self.element_audio)
+                self.say(audio_file=self.element_audio)
 
                 if "k3s" in focused_id:
-                    self.say(self.k3s_audio)
+                    self.say(audio_file=self.k3s_audio)
                     focused_id = focused_id.replace("k3s_", "")
 
                 # state the ID of the tabbed content out loud
@@ -412,17 +416,17 @@ class SmolAudio(Widget):
 
                 focused_id = focused.parent.active_pane.id.replace("-", "_")
                 if "k3s" in focused_id:
-                    self.say(self.k3s_audio)
+                    self.say(audio_file=self.k3s_audio)
                     focused_id = focused_id.replace("k3s_", "")
 
                 # state the ID of the tabbed content out loud
                 self.say_phrase(f'{focused_id}.mp3')
         else:
             # play the basic beginning of the sentence "Element is..."
-            self.say(self.element_audio)
+            self.say(audio_file=self.element_audio)
             # if k3s is in the text to play, play that seperately
             if "k3s" in focused_id:
-                self.say(self.k3s_audio)
+                self.say(audio_file=self.k3s_audio)
                 focused_id = focused_id.replace("k3s_", "")
 
             if isinstance(focused, Input):
@@ -473,7 +477,7 @@ class SmolAudio(Widget):
                 self.say_phrase(f"{focused_id}.mp3")
                 self.say_phrase("value.mp3")
                 if focused_id == "distro_drop_down":
-                    self.say(path.join(self.cluster_audio,
+                    self.say(audio_file=path.join(self.cluster_audio,
                                        f'{focused.value}.mp3'))
                 elif focused_id == "node_type":
                     self.say_phrase(f'{focused.value}.mp3')
@@ -488,7 +492,7 @@ class SmolAudio(Widget):
                 highlighted_idx = focused.highlighted
                 highlighted_app = focused.get_option_at_index(highlighted_idx).value
                 # say name of app
-                self.say(path.join(self.apps_audio, f'{highlighted_app}.mp3'))
+                self.say(audio_file=path.join(self.apps_audio, f'{highlighted_app}.mp3'))
 
             # if this is a datatable, just call self.say_row
             elif isinstance(focused, DataTable):
@@ -525,7 +529,7 @@ class SmolAudio(Widget):
 
             # say the application field
             application = row_column1.replace(" ", "_")
-            self.say(path.join(self.apps_audio, f"{application}.mp3"))
+            self.say(audio_file=path.join(self.apps_audio, f"{application}.mp3"))
 
             # say the invalid fields
             self.say_phrase("invalid_fields.mp3")
@@ -600,24 +604,24 @@ class SmolAudio(Widget):
                 # cluster name
                 for name in row_column1.split("-"):
                     if name:
-                        self.say(path.join(self.cluster_audio, f'{name}.mp3'))
+                        self.say(audio_file=path.join(self.cluster_audio, f'{name}.mp3'))
 
                 # distro name
                 self.say_phrase('distro.mp3')
-                self.say(path.join(self.cluster_audio, f'{row_column2}.mp3'))
+                self.say(audio_file=path.join(self.cluster_audio, f'{row_column2}.mp3'))
 
                 # version
                 self.say_phrase('version.mp3')
 
                 if row_column3 == "unknown":
-                    self.say(path.join(self.tts_files,
+                    self.say(audio_file=path.join(self.tts_files,
                                        "phrases/unknown_version.mp3"))
                 else:
                     version = row_column3.replace("+k3s1",
                                                   "").lstrip("v").split(".")
                     last_item = version[-1]
                     for number in version:
-                        self.say(path.join(self.tts_files,
+                        self.say(audio_file=path.join(self.tts_files,
                                            f'numbers/{number}.mp3'))
                         # say "point" between numbers
                         if number != last_item:
@@ -626,13 +630,13 @@ class SmolAudio(Widget):
                 # say what platform we're running on
                 self.say_phrase('platform.mp3')
                 if row_column4 == "linux/arm64":
-                    self.say(path.join(self.cluster_audio, 'linux_arm.mp3'))
+                    self.say(audio_file=path.join(self.cluster_audio, 'linux_arm.mp3'))
                 elif row_column4 == "linux/amd64":
-                    self.say(path.join(self.cluster_audio, 'linux_amd.mp3'))
+                    self.say(audio_file=path.join(self.cluster_audio, 'linux_amd.mp3'))
                 elif row_column4 == "Darwin/arm64":
-                    self.say(path.join(self.cluster_audio, 'macos_arm.mp3'))
+                    self.say(audio_file=path.join(self.cluster_audio, 'macos_arm.mp3'))
                 else:
-                    self.say(path.join(self.tts_files, 'phrases/um.mp3'))
+                    self.say(audio_file=path.join(self.tts_files, 'phrases/um.mp3'))
 
     def on_focus(self, event: DescendantFocus) -> None:
         """
@@ -642,29 +646,29 @@ class SmolAudio(Widget):
         if self.bell_on_focus:
             self.app.bell()
 
-        if self.speak_on_focus:
+        if self.speak_on_focus and self.speech_program:
             id = event.widget.id
-            self.say(f"element is {id}")
+            self.say(text=f"element is {id}")
 
             # input fields
             if isinstance(event.widget, Input):
                 content = event.widget.value
                 placeholder = event.widget.placeholder
                 if content:
-                    self.say(f"value is {content}")
+                    self.say(text=f"value is {content}")
                 elif placeholder:
-                    self.say(f"place holder text is {placeholder}")
+                    self.say(text=f"place holder text is {placeholder}")
 
             # buttons
             elif isinstance(event.widget, Button):
-                self.say(f"button text is {event.widget.label}")
+                self.say(text=f"button text is {event.widget.label}")
 
             # switches
             elif isinstance(event.widget, Switch) or isinstance(event.widget,
                                                                 Select):
-                self.say(f"value is {event.widget.value}")
+                self.say(text=f"value is {event.widget.value}")
 
             # also read the tooltip if there is one
             tooltip = event.widget.tooltip
             if tooltip:
-                self.say(f"tooltip is {tooltip}")
+                self.say(text=f"tooltip is {tooltip}")
