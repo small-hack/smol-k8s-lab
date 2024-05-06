@@ -57,6 +57,9 @@ def configure_matrix(argocd: ArgoCD,
     if secrets:
         matrix_hostname = secrets['hostname']
 
+    # always declare matrix namespace immediately
+    matrix_namespace = cfg['argo']['namespace']
+
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
         init_values = init.get('values', {})
@@ -94,7 +97,6 @@ def configure_matrix(argocd: ArgoCD,
 
         # if the user has bitwarden enabled
         if bitwarden and not restore_enabled:
-            matrix_namespace = cfg['argo']['namespace']
             setup_bitwarden_items(argocd,
                                   matrix_hostname,
                                   matrix_namespace,
