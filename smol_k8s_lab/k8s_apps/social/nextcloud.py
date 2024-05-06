@@ -316,11 +316,15 @@ def restore_nextcloud(argocd: ArgoCD,
         if "NotFound" not in rolled_out:
             break
 
-    # get current nextcloud pod
-    pod = ("kubectl get pods -l=app.kubernetes.io/component=app,"
-           "app.kubernetes.io/instance=nextcloud-web-app --no-headers "
-           "-o custom-columns=NAME:.metadata.name")
-    pod = subproc([pod]).strip()
+    pod_names = argocd.k8s.get_pod_names('nextcloud',
+                                         nextcloud_namespace,
+                                         "app.kubernetes.io/component=app")
+
+    if pod_names:
+        pod = pod_names[0]
+    else:
+        log.warn("Something went wrong with disabling maintenance mode for nextcloud")
+        return
 
     # try to update the maintenance mode of nextcloud to off
     off_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
