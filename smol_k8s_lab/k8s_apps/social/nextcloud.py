@@ -4,6 +4,7 @@ from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
+                                             recreate_pvc,
                                              k8up_restore_pvc,
                                              restore_postgresql)
 from smol_k8s_lab.utils.passwords import create_password
@@ -255,33 +256,33 @@ def restore_nextcloud(argocd: ArgoCD,
             snapshot_ids['seaweedfs_filer']
             )
 
+    # then we finally can restore the postgres database :D
+    if restore_dict.get("cnpg_restore", False):
+        psql_version = restore_dict.get("postgresql_version", 16)
+        restore_postgresql(argocd.k8s,
+                           'nextcloud',
+                           nextcloud_namespace,
+                           pgsql_cluster_name,
+                           psql_version,
+                           seaweedf_s3_endpoint,
+                           pgsql_cluster_name)
+
     # then we begin the restic restore of all the nextcloud PVCs we lost
     for pvc in ['files', 'config']:
         pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
-            pvc_dict = {
-                    "kind": "PersistentVolumeClaim",
-                    "apiVersion": "v1",
-                    "metadata": {
-                        "name": f"nextcloud-{pvc}",
-                        "namespace": nextcloud_namespace,
-                        "annotations": {"k8up.io/backup": "true"},
-                        "labels": {
-                            "argocd.argoproj.io/instance": "nextcloud-pvc"
-                            }
-                        },
-                    "spec": {
-                        "storageClassName": pvc_storage_class,
-                        "accessModes": [secrets[f'{pvc}_access_mode']],
-                        "resources": {
-                            "requests": {
-                                "storage": secrets[f'{pvc}_storage']}
-                            }
-                        }
-                    }
+            # creates the nexcloud pvc
+            recreate_pvc(argocd.k8s,
+                         'nextcloud',
+                         f'nextcloud-{pvc}',
+                         nextcloud_namespace,
+                         secrets[f'{pvc}_storage'],
+                         pvc_storage_class,
+                         secrets[f'{pvc}_access_mode'],
+                         "nextcloud-pvc"
+                         )
 
-            # creates the nexcloud files pvc
-            argocd.k8s.apply_custom_resources([pvc_dict])
+            # restores the nextcloud pvc
             k8up_restore_pvc(argocd.k8s,
                              'nextcloud',
                              f'nextcloud-{pvc}',
@@ -293,16 +294,6 @@ def restore_nextcloud(argocd: ArgoCD,
                              restic_repo_password,
                              snapshot_ids[f'nextcloud_{pvc}']
                              )
-
-    # then we finally can restore the postgres database :D
-    if restore_dict.get("cnpg_restore", False):
-        psql_version = restore_dict.get("postgresql_version", 16)
-        restore_postgresql('nextcloud',
-                           nextcloud_namespace,
-                           pgsql_cluster_name,
-                           psql_version,
-                           seaweedf_s3_endpoint,
-                           pgsql_cluster_name)
 
     # todo: from here on out, this could be async to start on other tasks
     # install nextcloud as usual

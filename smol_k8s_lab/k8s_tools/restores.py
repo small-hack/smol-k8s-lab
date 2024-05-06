@@ -183,7 +183,7 @@ def get_latest_snapshot(pvc: str,
                         secret_access_key: str,
                         restic_repo_password: str) -> str:
     """
-    gets the latest snapshot for a pvc via restic and return the ID of it
+    gets the latest snapshot for a pvc via restic and returns the ID of it
     """
     # set restic environment variables
     env = {"PATH": environ.get("PATH"),
@@ -203,7 +203,8 @@ def get_latest_snapshot(pvc: str,
             return snapshot['id']
 
 
-def restore_postgresql(app: str,
+def restore_postgresql(k8s_obj: K8s,
+                       app: str,
                        namespace: str,
                        cluster_name: str,
                        postgresql_version: float,
@@ -290,17 +291,24 @@ def restore_postgresql(app: str,
     # and waits for it to be ready
     release.install(wait=True)
 
+    recover_job = f"{cluster_name}-1-full-recovery"
+
     # check for cnpg recovery job and wait for it.
     # example job name: nextcloud-postgres-1-full-recovery
     wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
-                f"job/{cluster_name}-1-full-recovery")
+                f"job/{recover_job}")
+    wait_msg = f"Waiting on cnpg recovery job: {recover_job}"
     while True:
-        log.debug(f"Waiting on cnpg recovery job: {cluster_name}-1-full-recovery")
+        log.debug(wait_msg)
         res = subproc([wait_cmd], error_ok=True)
         if "NotFound" in res:
             sleep(1)
         else:
-            break
+            pods = k8s_obj.get_pod_names(recover_job, namespace)
+            if pods:
+                tail_out = subproc([f"kubectl tail -n {namespace} {pods[0]}"])
+                log.info(tail_out)
+                break
 
     # fix backups after restore
     restore_dict['Backup'] = [

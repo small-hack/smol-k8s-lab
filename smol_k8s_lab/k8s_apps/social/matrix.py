@@ -4,6 +4,7 @@ from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
                                              k8up_restore_pvc,
+                                             recreate_pvc,
                                              restore_postgresql)
 from smol_k8s_lab.utils.value_from import process_backup_vals, extract_secret
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
@@ -404,10 +405,9 @@ def restore_matrix(argocd: ArgoCD,
     # then we create all the seaweedfs pvcs we lost and restore them
     snapshot_ids = restore_dict['restic_snapshot_ids']
     restore_seaweedfs(
-            argocd.k8s,
+            argocd,
             'matrix',
             matrix_namespace,
-            argocd.namespace,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,
@@ -421,35 +421,34 @@ def restore_matrix(argocd: ArgoCD,
             snapshot_ids['seaweedfs_filer']
             )
 
+    # then we finally can restore the postgres database :D
+    if restore_dict.get("cnpg_restore", False):
+        psql_version = restore_dict.get("postgresql_version", 16)
+        s3_endpoint = secrets.get('s3_endpoint', "")
+        restore_postgresql(argocd.k8s,
+                           'matrix',
+                           matrix_namespace,
+                           pgsql_cluster_name,
+                           psql_version,
+                           s3_endpoint,
+                           pgsql_cluster_name)
+
     # then we begin the restic restore of all the matrix PVCs we lost
     for pvc in ['media', 'synapse_config', 'signing_key']:
         pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
             pvc_name = pvc.replace("_","-")
-            pvc_dict = {
-                    "kind": "PersistentVolumeClaim",
-                    "apiVersion": "v1",
-                    "metadata": {
-                        "name": f"matrix-{pvc_name}",
-                        "namespace": matrix_namespace,
-                        "annotations": {"k8up.io/backup": "true"},
-                        "labels": {
-                            "argocd.argoproj.io/instance": "matrix-pvc"
-                            }
-                        },
-                    "spec": {
-                        "storageClassName": pvc_storage_class,
-                        "accessModes": [secrets[f'{pvc}_access_mode']],
-                        "resources": {
-                            "requests": {
-                                "storage": secrets[f'{pvc}_storage']}
-                            }
-                        }
-                    }
+            # creates the matrix pvc
+            recreate_pvc(argocd.k8s,
+                         'matrix',
+                         f"matrix-{pvc_name}",
+                         matrix_namespace,
+                         secrets[f'{pvc}_storage'],
+                         pvc_storage_class,
+                         secrets[f'{pvc}_access_mode'],
+                         "matrix-pvc")
 
-            # creates the matrix files pvc
-            argocd.k8s.apply_custom_resources([pvc_dict])
-            s3_endpoint = secrets.get('s3_endpoint', "")
+            # restores the restic backup to this pvc
             k8up_restore_pvc(argocd.k8s,
                              'matrix',
                              f'matrix-{pvc}',
@@ -461,13 +460,3 @@ def restore_matrix(argocd: ArgoCD,
                              restic_repo_password,
                              snapshot_ids[f'matrix_{pvc}']
                              )
-
-    # then we finally can restore the postgres database :D
-    if restore_dict.get("cnpg_restore", False):
-        psql_version = restore_dict.get("postgresql_version", 16)
-        restore_postgresql('matrix',
-                           matrix_namespace,
-                           pgsql_cluster_name,
-                           psql_version,
-                           s3_endpoint,
-                           pgsql_cluster_name)
