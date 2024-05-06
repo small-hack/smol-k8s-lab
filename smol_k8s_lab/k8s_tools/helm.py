@@ -140,7 +140,10 @@ class Helm:
             go get the version of the helm chart installed by the live appset
             """
             # get the contents of the remote url
-            res = requests.get(APPSET_URLS[self.release_name]).text
+            if "postgres-cluster" in self.release_name:
+                res = requests.get(APPSET_URLS['cnpg-cluster']).text
+            else:
+                res = requests.get(APPSET_URLS[self.release_name]).text
 
             # use the ruamel.yaml library to load the yaml
             yaml = YAML()
