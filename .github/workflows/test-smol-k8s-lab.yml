@@ -36,6 +36,10 @@ jobs:
             sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
             rm argocd-linux-amd64
 
+      - name: Install alsa libs
+        run: |
+            apt install libasound2 libasound2-plugins
+
       - name: test smol-k8s-lab with kind
         run: |
             source .venv/bin/activate
