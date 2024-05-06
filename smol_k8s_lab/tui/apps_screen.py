@@ -367,9 +367,10 @@ class AppsConfigScreen(Screen):
         app_exists = self.argocd.check_if_app_exists(highlighted_app)
 
         if self.modify_cluster and app_enabled and app_exists:
+            self.log(f"Displaying sync and delete buttons for {self.previous_app}")
             app_inputs_pane.border_subtitle = (
                     "[@click=screen.sync_argocd_app]🔁 sync[/] / "
-                    "[@click=screen.delete_app]🗑️ delete[/]"
+                    "[@click=screen.delete_argocd_app]🗑️ delete[/]"
                     )
         else:
             app_inputs_pane.border_subtitle = ""
@@ -381,6 +382,7 @@ class AppsConfigScreen(Screen):
         app = self.previous_app.replace("_","-")
 
         # sync the app
+        self.log(f"♻️ Syncing {app} via the TUI...")
         res = self.argocd.sync_app(app, spinner=False)
 
         if res:
@@ -406,6 +408,7 @@ class AppsConfigScreen(Screen):
         app = self.previous_app.replace("_","-")
 
         # sync the app
+        self.log(f"🗑️  Deleting {app} via the TUI...")
         res = self.argocd.delete_app(app, spinner=False)
 
         if res:
