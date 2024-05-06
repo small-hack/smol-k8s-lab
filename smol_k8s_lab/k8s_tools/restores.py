@@ -241,7 +241,26 @@ def restore_postgresql(k8s_obj: K8s,
               },
             "backup": {},
             "scheduledBackup": {},
-            "externalClusters": [{"name": cluster_name}],
+            "externalClusters": [{
+                "name": cluster_name,
+                "barmanObjectStore": {
+                    "destinationPath": f"s3://{s3_bucket}",
+                    "endpointURL": f"https://{s3_endpoint}",
+                    "s3Credentials": {
+                      "accessKeyId": {
+                        "name": "s3-postgres-credentials",
+                        "key": "S3_USER"
+                        },
+                      "secretAccessKey": {
+                        "name": "s3-postgres-credentials",
+                        "key": "S3_PASSWORD"
+                        }
+                      },
+                    "wal": {
+                      "maxParallel": 8
+                      }
+                  }
+                }],
             "monitoring": {
               "enablePodMonitor": False
               },
@@ -252,25 +271,6 @@ def restore_postgresql(k8s_obj: K8s,
               "enabled": False
               }
             }
-
-    barman_obj = {"destinationPath": f"s3://{s3_bucket}",
-                  "endpointURL": f"https://{s3_endpoint}",
-                  "s3Credentials": {
-                    "accessKeyId": {
-                      "name": "s3-postgres-credentials",
-                      "key": "S3_USER"
-                      },
-                    "secretAccessKey": {
-                      "name": "s3-postgres-credentials",
-                      "key": "S3_PASSWORD"
-                      }
-                    },
-                  "wal": {
-                    "maxParallel": 8
-                    }
-                  }
-
-    restore_dict['externalClusters'][0]['barmanObjectStore'] = barman_obj
 
     # this creates a values.yaml from restore_dict above
     values_file_name = path.join(XDG_CACHE_DIR,
@@ -308,10 +308,22 @@ def restore_postgresql(k8s_obj: K8s,
 
     # fix backups after restore
     restore_dict['bootstrap'].pop('recovery')
-    recovery_barman_obj = barman_obj.copy()
-    recovery_barman_obj.pop("wal")
-    restore_dict['backup'] = {"barmanObjectStore": recovery_barman_obj,
-                              "retentionPolicy": "30d"}
+    restore_dict['backup'] = {
+            "barmanObjectStore": {
+                "destinationPath": f"s3://{s3_bucket}",
+                "endpointURL": f"https://{s3_endpoint}",
+                "s3Credentials": {
+                  "accessKeyId": {
+                    "name": "s3-postgres-credentials",
+                    "key": "S3_USER"
+                    },
+                  "secretAccessKey": {
+                    "name": "s3-postgres-credentials",
+                    "key": "S3_PASSWORD"
+                    }
+                  }
+                },
+            "retentionPolicy": "30d"}
 
     restore_dict['scheduledBackup'] = {
             "name": f"{app}-pg-backup",
