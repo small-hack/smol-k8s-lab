@@ -295,6 +295,8 @@ class RestoreApp(Static):
         for key, value in self.snapshots.items():
             if not value:
                 value = "latest"
+            elif isinstance(value, int):
+                value = str(value)
 
             argo_label = Label(f"{key.replace('_',' ')}:", classes="argo-config-label")
             argo_label.tooltip = f"restic snapshot ID for {self.app_name} {key}"
