@@ -308,6 +308,7 @@ def restore_postgresql(k8s_obj: K8s,
 
     # fix backups after restore
     restore_dict['bootstrap'].pop('recovery')
+    restore_dict['externalClusters'] = []
     restore_dict['backup'] = {
             "barmanObjectStore": {
                 "destinationPath": f"s3://{s3_bucket}",
