@@ -113,7 +113,7 @@ def configure_matrix(argocd: ArgoCD,
                                   bitwarden)
 
         # else create these as Kubernetes secrets
-        else:
+        elif not bitwarden and not restore_enabled:
             # postgresql credentials
             argocd.k8s.create_secret(
                     'matrix-pgsql-credentials',
