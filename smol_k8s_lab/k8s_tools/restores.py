@@ -245,26 +245,7 @@ def restore_postgresql(k8s_obj: K8s,
               },
             "backup": [],
             "scheduledBackup": [],
-            "externalClusters": [{
-                "name": cluster_name,
-                "barmanObjectStore": {
-                  "destinationPath": f"s3://{s3_bucket}/",
-                  "endpointURL": f"https://{s3_endpoint}",
-                  "s3Credentials": {
-                    "accessKeyId": {
-                      "name": "s3-postgres-credentials",
-                      "key": "S3_USER"
-                      },
-                    "secretAccessKey": {
-                      "name": "s3-postgres-credentials",
-                      "key": "S3_PASSWORD"
-                      }
-                    }
-                  },
-                  "wal": {
-                    "maxParallel": 8
-                    }
-                  }],
+            "externalClusters": [{"name": cluster_name}],
             "monitoring": {
               "enablePodMonitor": False
               },
@@ -276,8 +257,28 @@ def restore_postgresql(k8s_obj: K8s,
               }
             }
 
+    barman_obj = {"destinationPath": f"s3://{s3_bucket}",
+                  "endpointURL": f"https://{s3_endpoint}",
+                  "s3Credentials": {
+                    "accessKeyId": {
+                      "name": "s3-postgres-credentials",
+                      "key": "S3_USER"
+                      },
+                    "secretAccessKey": {
+                      "name": "s3-postgres-credentials",
+                      "key": "S3_PASSWORD"
+                      }
+                    },
+                  "wal": {
+                    "maxParallel": 8
+                    }
+                  }
+
+    restore_dict['externalClusters'][0]['barmanObjectStore'] = barman_obj
+
     # this creates a values.yaml from restore_dict above
-    values_file_name = path.join(XDG_CACHE_DIR, 'cnpg_restore_values.yaml')
+    values_file_name = path.join(XDG_CACHE_DIR,
+                                 f'{app}_cnpg_restore_values.yaml')
     with open(values_file_name, 'w') as values_file:
         yaml.dump(restore_dict, values_file)
 
@@ -291,10 +292,9 @@ def restore_postgresql(k8s_obj: K8s,
     # and waits for it to be ready
     release.install(wait=True)
 
-    recover_job = f"{cluster_name}-1-full-recovery"
-
     # check for cnpg recovery job and wait for it.
     # example job name: nextcloud-postgres-1-full-recovery
+    recover_job = f"{cluster_name}-1-full-recovery"
     wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
                 f"job/{recover_job}")
     wait_msg = f"Waiting on cnpg recovery job: {recover_job}"
@@ -311,22 +311,9 @@ def restore_postgresql(k8s_obj: K8s,
                 break
 
     # fix backups after restore
-    restore_dict['Backup'] = [
-            {"barmanObjectStore": {
-                  "destinationPath": f"s3://{s3_bucket}/",
-                  "endpointURL": f"https://{s3_endpoint}",
-                  "s3Credentials": {
-                    "accessKeyId": {
-                      "name": "s3-postgres-credentials",
-                      "key": "S3_USER"
-                      },
-                    "secretAccessKey": {
-                      "name": "s3-postgres-credentials",
-                      "key": "S3_PASSWORD"
-                      }
-                    }
-                  }
-             }]
+    restore_dict['bootstrap'].pop('recovery')
+    barman_obj.pop("wal")
+    restore_dict['Backup'] = [{"barmanObjectStore": barman_obj}]
 
     restore_dict['scheduledBackup'] = {
             "name": f"{app}-pg-backup",
@@ -339,10 +326,9 @@ def restore_postgresql(k8s_obj: K8s,
               }
             }
 
-    restore_dict['bootstrap'].pop('recovery')
-
     # this creates a values.yaml from restore_dict above
-    values_file_name = path.join(XDG_CACHE_DIR, 'cnpg_values_after_restore.yaml')
+    values_file_name = path.join(XDG_CACHE_DIR,
+                                 f'{app}_cnpg_values_after_restore.yaml')
     with open(values_file_name, 'w') as values_file:
         yaml.dump(restore_dict, values_file)
     release_dict = {"release_name": "cnpg-cluster",
