@@ -310,8 +310,8 @@ def restore_postgresql(k8s_obj: K8s,
     restore_dict['bootstrap'].pop('recovery')
     recovery_barman_obj = barman_obj.copy()
     recovery_barman_obj.pop("wal")
-    restore_dict['backup']["barmanObjectStore"] = recovery_barman_obj
-    restore_dict['backup']["retentionPolicy"] = "30d"
+    restore_dict['backup'] = {"barmanObjectStore": recovery_barman_obj,
+                              "retentionPolicy": "30d"}
 
     restore_dict['scheduledBackup'] = {
             "name": f"{app}-pg-backup",
