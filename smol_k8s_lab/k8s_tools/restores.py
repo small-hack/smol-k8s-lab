@@ -296,7 +296,7 @@ def restore_postgresql(k8s_obj: K8s,
     # example job name: nextcloud-postgres-1-full-recovery
     recover_job = f"{cluster_name}-1-full-recovery"
     wait_cmd = (f"kubectl wait -n {namespace} --for=condition=complete "
-                f"job/{recover_job}")
+                f"--timeout=30m job/{recover_job}")
     wait_msg = f"Waiting on cnpg recovery job: {recover_job}"
     while True:
         log.debug(wait_msg)
@@ -308,7 +308,7 @@ def restore_postgresql(k8s_obj: K8s,
             if pods:
                 tail_out = subproc([f"kubectl tail -n {namespace} {pods[0]}"])
                 log.info(tail_out)
-                break
+            break
 
     # fix backups after restore
     restore_dict['bootstrap'].pop('recovery')
