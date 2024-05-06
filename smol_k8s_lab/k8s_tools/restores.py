@@ -282,7 +282,7 @@ def restore_postgresql(k8s_obj: K8s,
     with open(values_file_name, 'w') as values_file:
         yaml.dump(restore_dict, values_file)
 
-    release_dict = {"release_name": "cnpg-cluster",
+    release_dict = {"release_name": f"{app}-postgres-cluster",
                     "namespace": namespace,
                     "values_file": values_file_name,
                     "chart_name": "cnpg-cluster/cnpg-cluster"}
@@ -331,7 +331,7 @@ def restore_postgresql(k8s_obj: K8s,
                                  f'{app}_cnpg_values_after_restore.yaml')
     with open(values_file_name, 'w') as values_file:
         yaml.dump(restore_dict, values_file)
-    release_dict = {"release_name": "cnpg-cluster",
+    release_dict = {"release_name": f"{app}-postgres-cluster",
                     "namespace": namespace,
                     "values_file": values_file_name,
                     "chart_name": "cnpg-cluster/cnpg-cluster"}
