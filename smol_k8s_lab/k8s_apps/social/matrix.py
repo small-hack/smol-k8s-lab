@@ -439,11 +439,11 @@ def restore_matrix(argocd: ArgoCD,
     for pvc in ['media', 'synapse_config', 'signing_key']:
         pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
-            pvc_name = pvc.replace("_","-")
+            pvc_name = "matrix-" + pvc.replace("_","-")
             # creates the matrix pvc
             recreate_pvc(argocd.k8s,
                          'matrix',
-                         f"matrix-{pvc_name}",
+                         pvc_name,
                          matrix_namespace,
                          secrets[f'{pvc}_storage'],
                          pvc_storage_class,
@@ -453,7 +453,7 @@ def restore_matrix(argocd: ArgoCD,
             # restores the restic backup to this pvc
             k8up_restore_pvc(argocd.k8s,
                              'matrix',
-                             f'matrix-{pvc}',
+                             pvc_name,
                              'matrix',
                              s3_backup_endpoint,
                              s3_backup_bucket,
