@@ -178,13 +178,20 @@ class K8s():
         subproc([f"kubectl scale deploy -n {namespace} {name} --replicas={replicas}",
                  f"kubectl rollout status deployment -n {namespace} {name}"])
 
-    def get_pod_names(self, name: str, namespace: str) -> list:
+    def get_pod_names(self,
+                      name: str,
+                      namespace: str,
+                      extra_label: str = "") -> list:
         """
         get the pod name from a deployment or job based on the label
         """
-        pod_cmd = (f"kubectl get pods -n {namespace} --no-headers "
-                   f"-l app.kubernetes.io/instance={name} -o "
-                   "custom-columns=NAME:.metadata.name")
+        pod_cmd = (f"kubectl get pods -n {namespace} --no-headers"
+                   " -o custom-columns=NAME:.metadata.name"
+                   f" -l app.kubernetes.io/instance={name}")
+
+        if extra_label:
+            pod_cmd += "," + extra_label
+
         pods = subproc([pod_cmd])
 
         if pods:
