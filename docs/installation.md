@@ -37,6 +37,7 @@ smol-k8s-lab --help
 - [`kubectl`](https://kubernetes.io/docs/tasks/tools/)
 - [`helm`](https://helm.sh/docs/intro/install/)
 - [`argocd`](https://argo-cd.readthedocs.io/en/stable/cli_installation/)
+- on Debian only: [libasound2 and libasound2-plugins](https://wiki.debian.org/ALSA#Packages)
 
 #### Optional
 
