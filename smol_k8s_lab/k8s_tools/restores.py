@@ -243,8 +243,8 @@ def restore_postgresql(k8s_obj: K8s,
                 "username": ["app"]
                 }
               },
-            "backup": [],
-            "scheduledBackup": [],
+            "backup": {},
+            "scheduledBackup": {},
             "externalClusters": [{"name": cluster_name}],
             "monitoring": {
               "enablePodMonitor": False
@@ -312,8 +312,10 @@ def restore_postgresql(k8s_obj: K8s,
 
     # fix backups after restore
     restore_dict['bootstrap'].pop('recovery')
-    barman_obj.pop("wal")
-    restore_dict['Backup'] = [{"barmanObjectStore": barman_obj}]
+    recovery_barman_obj = barman_obj.copy()
+    recovery_barman_obj.pop("wal")
+    restore_dict['backup']["barmanObjectStore"] = recovery_barman_obj
+    restore_dict['backup']["retentionPolicy"] = "30d"
 
     restore_dict['scheduledBackup'] = {
             "name": f"{app}-pg-backup",
