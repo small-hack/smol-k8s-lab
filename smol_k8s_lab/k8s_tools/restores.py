@@ -228,15 +228,11 @@ def restore_postgresql(k8s_obj: K8s,
             "certificates": {
               "server": {
                 "enabled": True,
-                "generate": True,
-                "serverTLSSecret": "",
-                "serverCASecret": ""
+                "generate": True
                 },
               "client": {
                 "enabled": True,
-                "generate": True,
-                "clientCASecret": "",
-                "replicationTLSSecret": ""
+                "generate": True
                 },
               "user": {
                 "enabled": True,
