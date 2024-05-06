@@ -240,7 +240,7 @@ def restore_postgresql(k8s_obj: K8s,
                 },
               "user": {
                 "enabled": True,
-                "username": ["app"]
+                "username": [app]
                 }
               },
             "backup": {},
