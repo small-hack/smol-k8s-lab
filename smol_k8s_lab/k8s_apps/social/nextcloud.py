@@ -2,6 +2,7 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
+from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
                                              recreate_pvc,
@@ -296,10 +297,10 @@ def restore_nextcloud(argocd: ArgoCD,
                              )
 
     # todo: from here on out, this could be async to start on other tasks
-    # install nextcloud as usual
-    argocd.install_app('nextcloud', argo_dict)
+    # install nextcloud as usual, but wait on it this time
+    argocd.install_app('nextcloud', argo_dict, True)
 
-    # verify nextcloud rolled out
+    # verify nextcloud rolled out completely, just in case
     rollout = (f"kubectl rollout status -n {nextcloud_namespace} "
                "deployment/nextcloud-web-app --watch --timeout 10m")
     while True:
@@ -307,20 +308,9 @@ def restore_nextcloud(argocd: ArgoCD,
         if "NotFound" not in rolled_out:
             break
 
-    pod_names = argocd.k8s.get_pod_names('nextcloud',
-                                         nextcloud_namespace,
-                                         "app.kubernetes.io/component=app")
-
-    if pod_names:
-        pod = pod_names[0]
-    else:
-        log.warn("Something went wrong with disabling maintenance mode for nextcloud")
-        return
-
     # try to update the maintenance mode of nextcloud to off
-    off_cmd = (f'kubectl exec -it {pod} -- /bin/sh -c '
-               '"php occ maintenance:mode --off"')
-    subproc([off_cmd])
+    nextcloud_obj = Nextcloud(argocd.k8s, nextcloud_namespace)
+    nextcloud_obj.set_maintenance_mode("off")
 
 
 def setup_bitwarden_items(argocd: ArgoCD,
