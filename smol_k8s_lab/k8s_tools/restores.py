@@ -221,23 +221,15 @@ def restore_postgresql(k8s_obj: K8s,
             "imageName": f"ghcr.io/cloudnative-pg/postgresql:{postgresql_version}",
             "bootstrap": {
               "initdb": [],
-              "recovery": {
-                "source": cluster_name
-                }
+              "recovery": {"source": cluster_name}
              },
             "certificates": {
-              "server": {
-                "enabled": True,
-                "generate": True
-                },
-              "client": {
-                "enabled": True,
-                "generate": True
-                },
-              "user": {
-                "enabled": True,
-                "username": [app]
-                }
+              "server": {"enabled": True,
+                         "generate": True},
+              "client": {"enabled": True,
+                         "generate": True},
+              "user": {"enabled": True,
+                       "username": [app]}
               },
             "backup": {},
             "scheduledBackup": {},
@@ -256,20 +248,12 @@ def restore_postgresql(k8s_obj: K8s,
                         "key": "S3_PASSWORD"
                         }
                       },
-                    "wal": {
-                      "maxParallel": 8
-                      }
+                    "wal": {"maxParallel": 8}
                   }
                 }],
-            "monitoring": {
-              "enablePodMonitor": False
-              },
-            "storage": {
-              "size": "1Gi"
-              },
-            "testApp": {
-              "enabled": False
-              }
+            "monitoring": {"enablePodMonitor": False},
+            "storage": {"size": "1Gi"},
+            "testApp": {"enabled": False}
             }
 
     # this creates a values.yaml from restore_dict above
@@ -322,7 +306,8 @@ def restore_postgresql(k8s_obj: K8s,
                     "name": "s3-postgres-credentials",
                     "key": "S3_PASSWORD"
                     }
-                  }
+                  },
+                "wal": {"maxParallel": 2}
                 },
             "retentionPolicy": "30d"}
 
