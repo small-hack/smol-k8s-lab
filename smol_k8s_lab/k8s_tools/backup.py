@@ -2,6 +2,7 @@
 from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
+from smol_k8s_lab.utils.minio_lib import BetterMinio
 
 # external libs
 # import asyncio
@@ -100,6 +101,9 @@ def create_pvc_restic_backup(app: str,
 
 def create_cnpg_cluster_backup(app: str,
                                namespace: str,
+                               s3_endpoint: str,
+                               access_key_id: str,
+                               secret_access_key: str,
                                quiet: bool = False) -> None:
     """
     creates a backup for cnpg clusters and waits for it to complete
@@ -108,6 +112,7 @@ def create_cnpg_cluster_backup(app: str,
     """
     now = datetime.now().strftime('%Y-%m-%d-%H-%M')
     backup_name = f"{app}-smol-k8s-lab-cnpg-backup-{now}"
+    cluster_name = f"{app}-postgres"
     cnpg_backup = {"apiVersion": "postgresql.cnpg.io/v1",
                    "kind": "Backup",
                    "metadata": {
@@ -117,7 +122,7 @@ def create_cnpg_cluster_backup(app: str,
                    "spec": {
                       "method": "barmanObjectStore",
                       "cluster": {
-                        "name": f"{app}-postgres"
+                        "name": cluster_name
                         }
                       }
                    }
@@ -137,3 +142,29 @@ def create_cnpg_cluster_backup(app: str,
         if "completed" in res:
             break
         sleep(1)
+
+    # after the backup is completed, check which wal archive it says is the last one
+    end_wal_cmd = (f"kubectl get backups.postgresql.cnpg.io/{backup_name} -o "
+                   "custom-columns=endwal:.status.endWal --no-headers")
+    end_wal = subproc([end_wal_cmd])
+    end_wal_folder = f"{cluster_name}/wals/{end_wal[:16]}"
+    log.debug(f"{end_wal_folder} is the Wal folder we expect for {cluster_name} backup")
+
+    # wait till that wal archive is actually available before declaring the
+    # function complete
+    s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
+    while True:
+        # after the backup is completed, wait for the final wal archive to complete
+        try:
+            wal_files = s3.list_object(cluster_name,
+                                       end_wal_folder,
+                                       recursive=True)
+        except Exception as e:
+            log.debug(e)
+            log.debug(f"{end_wal_folder} still not found")
+            continue
+
+        for wal_obj in wal_files:
+            if end_wal in wal_obj.object_name:
+                log.info(f"Found ending wal archive, {end_wal}, so cnpg backup for {app} is now complete.")
+                break
