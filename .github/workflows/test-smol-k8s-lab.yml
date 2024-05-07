@@ -36,10 +36,6 @@ jobs:
             sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
             rm argocd-linux-amd64
 
-      - name: Install alsa libs
-        run: |
-            sudo apt install libasound2 libasound2-plugins
-
       - name: test smol-k8s-lab with kind
         run: |
             source .venv/bin/activate
@@ -108,10 +104,6 @@ jobs:
             curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
             sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
             rm argocd-linux-amd64
-
-      - name: Install alsa libs
-        run: |
-            sudo apt install libasound2 libasound2-plugins
 
       - name: Install k3d
         run: |

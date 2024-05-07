@@ -10,10 +10,14 @@ from textual.events import DescendantFocus
 from textual.widgets import (Button, DataTable, Input, Switch, Select,
                              SelectionList, _collapsible)
 from textual.worker import Worker
-from pygame import mixer
+from pygame import mixer, error
+import logging as log
 
 CORE_MIXER = mixer
-CORE_MIXER.init()
+try:
+    CORE_MIXER.init()
+except error:
+    log.info()
 
 class SmolAudio(Widget):
     """
