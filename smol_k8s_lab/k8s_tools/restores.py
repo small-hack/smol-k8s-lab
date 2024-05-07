@@ -248,8 +248,7 @@ def restore_postgresql(k8s_obj: K8s,
                         "key": "S3_PASSWORD"
                         }
                       },
-                    "wal": {"maxParallel": 8,
-                            "compression": "gzip"}
+                    "wal": {"maxParallel": 8}
                   }
                 }],
             "monitoring": {"enablePodMonitor": False},
@@ -308,8 +307,7 @@ def restore_postgresql(k8s_obj: K8s,
                     "key": "S3_PASSWORD"
                     }
                   },
-                "wal": {"maxParallel": 8,
-                        "compression": "gzip"}
+                "wal": {"maxParallel": 8}
                 },
             "retentionPolicy": "30d"}
 
