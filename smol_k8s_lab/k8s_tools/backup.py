@@ -144,8 +144,10 @@ def create_cnpg_cluster_backup(app: str,
         sleep(1)
 
     # after the backup is completed, check which wal archive it says is the last one
-    end_wal_cmd = (f"kubectl get backups.postgresql.cnpg.io/{backup_name} -o "
-                   "custom-columns=endwal:.status.endWal --no-headers")
+    end_wal_cmd = (
+            f"kubectl get -n {namespace} backups.postgresql.cnpg.io/{backup_name}"
+            f" -o custom-columns=endwal:.status.endWal --no-headers"
+            )
     end_wal = subproc([end_wal_cmd])
     end_wal_folder = f"{cluster_name}/wals/{end_wal[:16]}"
     log.debug(f"{end_wal_folder} is the Wal folder we expect for {cluster_name} backup")
