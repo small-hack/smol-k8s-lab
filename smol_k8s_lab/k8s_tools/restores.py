@@ -214,15 +214,17 @@ def restore_postgresql(k8s_obj: K8s,
     """
     restore a CNPG operator controlled postgresql cluster
     """
-
     restore_dict = {
             "name": cluster_name,
             "instances": 1,
             "imageName": f"ghcr.io/cloudnative-pg/postgresql:{postgresql_version}",
             "bootstrap": {
               "initdb": [],
-              "recovery": {"source": cluster_name}
-             },
+              "recovery": {
+                  "source": cluster_name,
+                  "recoveryTarget": {"targetImmediate": True}
+                  }
+              },
             "certificates": {
               "server": {"enabled": True,
                          "generate": True},
@@ -248,7 +250,7 @@ def restore_postgresql(k8s_obj: K8s,
                         "key": "S3_PASSWORD"
                         }
                       },
-                    "wal": {"maxParallel": 4}
+                    "wal": {"maxParallel": 8}
                   }
                 }],
             "monitoring": {"enablePodMonitor": False},
@@ -307,9 +309,9 @@ def restore_postgresql(k8s_obj: K8s,
                     "key": "S3_PASSWORD"
                     }
                   },
-                "wal": {"maxParallel": 4}
+                "wal": {"maxParallel": 8}
                 },
-            "retentionPolicy": "30d"}
+            "retentionPolicy": "2d"}
 
     restore_dict['scheduledBackup'] = {
             "name": f"{app}-pg-backup",
