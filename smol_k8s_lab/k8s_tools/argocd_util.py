@@ -10,7 +10,8 @@ class ArgoCD():
     class for common Argo CD functions
     """
 
-    def __init__(self, k8s_obj: K8s, namespace: str, argo_cd_domain: str) -> None:
+    def __init__(self, namespace: str, argo_cd_domain: str,
+                 k8s_obj: K8s|None = None) -> None:
         # setup Argo CD to talk directly to k8s
         log.debug(f"setting namespace to {namespace} and configuring argocd "
                   "to use k8s for auth")

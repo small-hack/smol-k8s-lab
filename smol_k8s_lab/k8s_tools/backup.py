@@ -164,6 +164,7 @@ def create_cnpg_cluster_backup(app: str,
             log.debug(f"{end_wal_folder} still not found")
             continue
 
+        # make sure the specific wal file we want is present
         for wal_obj in wal_files:
             if end_wal in wal_obj.object_name:
                 log.info(f"Found ending wal archive, {end_wal}, so cnpg backup for {app} is now complete.")

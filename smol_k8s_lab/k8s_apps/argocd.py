@@ -99,7 +99,7 @@ def configure_argocd(k8s_obj: K8s,
         release = Helm.chart(**release_dict)
         release.install(True)
 
-    argocd = ArgoCD(k8s_obj, namespace, argo_cd_domain)
+    argocd = ArgoCD(namespace, argo_cd_domain, k8s_obj)
     if argocd_config_dict['argo']['directory_recursion']:
         configure_secret_plugin_generator(argocd, secret_dict)
 

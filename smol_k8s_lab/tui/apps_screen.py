@@ -10,6 +10,7 @@ from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
 from smol_k8s_lab.tui.util import format_description
 
 # external libraries
+from kubernetes.config import ConfigException
 from os import environ
 from textual import on
 from textual.app import ComposeResult
@@ -81,9 +82,15 @@ class AppsConfigScreen(Screen):
                 'zitadel': {}
                 }
 
-        self.argocd = ArgoCD(K8s(),
-                             self.cfg['argo_cd']['argo']['namespace'],
-                             self.cfg['argo_cd']['argo']['secret_keys']['hostname'])
+        try:
+            k8s_obj = K8s()
+        except ConfigException:
+            self.log("hmph, we don't have a cluster yet...")
+            k8s_obj = None
+
+        self.argocd = ArgoCD(self.cfg['argo_cd']['argo']['namespace'],
+                             self.cfg['argo_cd']['argo']['secret_keys']['hostname'],
+                             k8s_obj)
 
         super().__init__()
 
