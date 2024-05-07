@@ -10,6 +10,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.utils.subproc import subproc
+from smol_k8s_lab.utils.minio_lib import BetterMinio
 
 # external libraries
 from datetime import datetime
@@ -209,11 +210,33 @@ def restore_postgresql(k8s_obj: K8s,
                        cluster_name: str,
                        postgresql_version: float,
                        s3_endpoint: str,
+                       access_key_id: str,
+                       secret_access_key: str,
                        s3_bucket: str
                        ):
     """
     restore a CNPG operator controlled postgresql cluster
     """
+    # need to first get the backup ID
+    s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
+    s3_files = s3.list_object(s3_bucket, f"{s3_bucket}/base", recursive=True)
+
+    possible_files = []
+    for backup_file in s3_files:
+        if "backup.info" in backup_file.object_name:
+            # will be like: matrix-postgres/base/20240507T122317/backup.info
+            possible_files.append(backup_file.object_name)
+
+    # get the oldest object and save it to our cache dir for inspection later
+    save_path = path.join(XDG_CACHE_DIR, f'{app}_backup.info')
+    s3.get_object(s3_bucket, possible_files[-1], save_path)
+
+    # get the backup name to use with the restore dict below
+    with open(save_path, 'r') as backup_info_file:
+        for line in backup_info_file:
+            if "backup_name" in line:
+                backup_id = line.split("=")[1].strip()
+
     restore_dict = {
             "name": cluster_name,
             "instances": 1,
@@ -222,7 +245,8 @@ def restore_postgresql(k8s_obj: K8s,
               "initdb": [],
               "recovery": {
                   "source": cluster_name,
-                  "recoveryTarget": {"targetImmediate": True}
+                  "recoveryTarget": {"targetImmediate": True,
+                                     "backupID": backup_id}
                   }
               },
             "certificates": {

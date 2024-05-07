@@ -1,14 +1,236 @@
-from json import load, dump
+from json import load, dump, dumps
 import logging as log
 from os.path import exists, join
 from os import makedirs
+from minio import Minio, MinioAdmin
+from minio.credentials.providers import MinioClientConfigProvider
+from shutil import which
 
-from smol_k8s_lab.constants import HOME_DIR
+from smol_k8s_lab.constants import HOME_DIR, XDG_CACHE_DIR
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.passwords import create_password
-from smol_k8s_lab.utils.minio_lib import BetterMinio
+from smol_k8s_lab.utils.subproc import subproc
+
+
+class BetterMinio:
+    """
+    a wrapper around the two seperate Minio and MinioAdmin clients to create
+    users and buckets with basic policies
+    """
+
+    def __init__(self,
+                 minio_alias: str,
+                 api_hostname: str,
+                 access_key: str,
+                 secret_key: str) -> None:
+        self.root_user = access_key
+        self.root_password = secret_key
+        minio_config_dir = join(HOME_DIR, ".mc/")
+        minio_config_file = join(minio_config_dir, "config.json")
+        log.debug(f"Checking for config file in {minio_config_file}")
+        minio_provider = MinioClientConfigProvider(minio_config_file, minio_alias)
+        self.admin_client = MinioAdmin(api_hostname, minio_provider)
+        self.client = Minio(api_hostname, access_key, secret_key)
+
+    def get_object(self, bucket: str, s3_object: str, save_file: str = ""):
+        """
+        get an s3_object from an s3 endpoint
+        """
+        if not save_file:
+            file_name = s3_object.split("/")[-1]
+            save_file = join(XDG_CACHE_DIR, f"smol-k8s-lab/{file_name}")
+
+        return self.client.fget_object(bucket, s3_object, save_file)
+
+    def list_object(self,
+                    bucket: str,
+                    s3_object_path: str = "",
+                    recursive: bool = False):
+        """
+        list an s3_object dir from an s3 endpoint
+        """
+        obj_args = {"bucket_name": bucket,
+                    "prefix": s3_object_path,
+                    "recursive": recursive}
+
+        return self.client.list_objects(**obj_args)
+
+    def create_access_credentials(self, access_key: str) -> str:
+        """
+        given an access key name, we create minio access credentials
+        using the mc admin client
+        return secret_key
+        """
+        if which("brew") and not which("mc"):
+            # try to install minio-mc with brew
+            subproc("brew install minio-mc")
+
+        # Create a client with the MinIO hostname, its access key and secret key.
+        log.info(f"About to create the minio credentials for user {access_key}")
+
+        # similar to mc admin user add
+        secret_key = create_password()
+        self.admin_client.user_add(access_key, secret_key)
+
+        log.info(f"Creation of minio credentials for user {access_key} completed.")
+        return secret_key
+
+    def create_bucket(self, bucket_name: str, access_key: str) -> None:
+        """
+        Takes bucket_name and access_key of user to assign bucket to
+        creates a bucket via the minio sdk
+        """
+        # Make bucket if it does not exist already
+        log.info(f'Check for bucket "{bucket_name}"...')
+        found = self.client.bucket_exists(bucket_name)
+
+        if not found:
+            log.info(f'Creating bucket "{bucket_name}"...')
+            self.client.make_bucket(bucket_name)
+
+            # policy for bucket
+            log.info(f"Adding a readwrite policy for bucket, {bucket_name}")
+            policy_name = self.create_bucket_policy(bucket_name)
+            self.admin_client.policy_set(policy_name, access_key)
+        else:
+            log.info(f'Bucket "{bucket_name}" already exists')
+
+    def create_bucket_policy(self, bucket: str) -> str:
+        """
+        creates a readwrite policy for a given bucket and returns the policy name
+        """
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:GetBucketLocation",
+                        "s3:GetObject",
+                        "s3:ListBucket"
+                    ],
+                    "Resource": [
+                        f"arn:aws:s3:::{bucket}",
+                        f"arn:aws:s3:::{bucket}/*"
+                    ]
+                }
+            ]
+        }
+
+        # we write out the policy, because minio admin client requires it
+        policy_file_name = XDG_CACHE_DIR + f'minio_{bucket}_policy.json'
+        with open(policy_file_name, 'w') as policy_file:
+            dump(policy, policy_file)
+
+        # actually create the policy
+        policy_name = f'{bucket}BucketReadWrite'
+        self.admin_client.policy_add(policy_name, policy_file_name)
+
+        return policy_name
+
+    def create_admin_group_policy(self) -> None:
+        """
+        creates an admin policy for OIDC called minio_admins
+        """
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "admin:*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "kms:*"
+                    ]
+                },
+                {
+                    "Effect": "Allow",
+                    "Action": [
+                        "s3:*"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::*"
+                    ]
+                }
+            ]
+        }
+
+        # we write out the policy, because minio admin client requires it
+        policy_file_name = XDG_CACHE_DIR + 'minio_oidc_admin_policy.json'
+        with open(policy_file_name, 'w') as policy_file:
+            dump(policy, policy_file)
+
+        # actually create the policy
+        self.admin_client.policy_add('minio_admins', policy_file_name)
+        log.info("Created minio_admin policy for use with OIDC")
+
+    def create_read_user_group_policy(self) -> None:
+        """
+        creates a readonly policy for OIDC called minio_read_users
+        """
+        policy = {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Action": [
+                            "s3:GetBucketLocation",
+                            "s3:GetObject"
+                            ],
+                        "Resource": [
+                            "arn:aws:s3:::*"
+                            ]
+                        }
+                    ]
+                }
+
+        # we write out the policy, because minio admin client requires it
+        policy_file_name = XDG_CACHE_DIR + 'minio_oidc_user_readonly_policy.json'
+        with open(policy_file_name, 'w') as policy_file:
+            dump(policy, policy_file)
+
+        # actually create the policy
+        self.admin_client.policy_add('minio_read_users', policy_file_name)
+        log.info("Created minio_read only user policy for use with OIDC")
+
+    def set_anonymous_download(self, bucket: str, prefix: str) -> None:
+        """
+        sets anonymous download on a particular bucket and folder
+        """
+        policy = {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": ["s3:GetBucketLocation"],
+                    "Resource": f"arn:aws:s3:::{bucket}",
+                },
+                {
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": ["s3:ListBucket"],
+                    "Condition": {
+                        "StringEquals": {"s3:prefix": [prefix]}
+                    },
+                    "Resource": f"arn:aws:s3:::{bucket}",
+                },
+                {
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": "s3:GetObject",
+                    "Resource": f"arn:aws:s3:::{bucket}/{prefix}*",
+                },
+            ],
+        }
+
+        self.client.set_bucket_policy(bucket, dumps(policy))
 
 
 def configure_minio_tenant(argocd: ArgoCD,

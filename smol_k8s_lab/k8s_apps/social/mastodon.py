@@ -8,6 +8,7 @@ from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.subproc import subproc
 from smol_k8s_lab.utils.value_from import extract_secret, process_backup_vals
+from smol_k8s_lab.utils.minio_lib import BetterMinio
 
 # external libraries
 import logging as log

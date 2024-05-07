@@ -149,11 +149,7 @@ def configure_matrix(argocd: ArgoCD,
                            cfg['argo'],
                            secrets,
                            restore_dict,
-                           backup_vals['endpoint'],
-                           backup_vals['bucket'],
-                           backup_vals['s3_user'],
-                           backup_vals['s3_password'],
-                           backup_vals['restic_repo_pass'],
+                           backup_vals,
                            pvc_storage_class,
                            "matrix-postgres",
                            bitwarden)
@@ -377,11 +373,7 @@ def restore_matrix(argocd: ArgoCD,
                    argo_dict: dict,
                    secrets: dict,
                    restore_dict: dict,
-                   s3_backup_endpoint: str,
-                   s3_backup_bucket: str,
-                   access_key_id: str,
-                   secret_access_key: str,
-                   restic_repo_password: str,
+                   backup_dict: dict,
                    pvc_storage_class: str,
                    pgsql_cluster_name: str,
                    bitwarden: BwCLI) -> None:
@@ -389,6 +381,16 @@ def restore_matrix(argocd: ArgoCD,
     restore matrix seaweedfs PVCs, matrix files and/or config PVC(s),
     and CNPG postgresql cluster
     """
+
+
+
+    # this is the info for the REMOTE backups
+    s3_backup_endpoint = backup_dict['endpoint']
+    s3_backup_bucket = backup_dict['bucket']
+    access_key_id = backup_dict["s3_user"]
+    secret_access_key = backup_dict["s3_password"]
+    restic_repo_password = backup_dict['restic_repo_pass']
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bweso(argocd, matrix_hostname, bitwarden)
@@ -400,6 +402,14 @@ def restore_matrix(argocd: ArgoCD,
                 f"/{ref}/matrix/app_of_apps/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
+
+        # postgresql s3 ID
+        s3_db_creds = bitwarden.get_item(
+                f"matrix-postgres-s3-credentials-{matrix_hostname}", False
+                )[0]['login']
+
+        pg_access_key_id = s3_db_creds["username"]
+        pg_secret_access_key = s3_db_creds["password"]
 
     # these are the remote backups for seaweedfs
     s3_pvc_capacity = secrets['s3_pvc_capacity']
@@ -433,6 +443,8 @@ def restore_matrix(argocd: ArgoCD,
                            pgsql_cluster_name,
                            psql_version,
                            s3_endpoint,
+                           pg_access_key_id,
+                           pg_secret_access_key,
                            pgsql_cluster_name)
 
     # then we begin the restic restore of all the matrix PVCs we lost
