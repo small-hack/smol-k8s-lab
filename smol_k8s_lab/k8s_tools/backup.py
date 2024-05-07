@@ -155,8 +155,8 @@ def create_cnpg_cluster_backup(app: str,
     # wait till that wal archive is actually available before declaring the
     # function completed
     credentials = k8s.get_secret("s3-postgres-credentials", namespace)
-    access_key_id = base64.b64decode(credentials['data']['S3_USER'])
-    secret_access_key = base64.b64decode(credentials['data']['S3_PASSWORD'])
+    access_key_id = base64.b64decode(credentials['data']['S3_USER']).decode('utf-8')
+    secret_access_key = base64.b64decode(credentials['data']['S3_PASSWORD']).decode('utf-8')
     s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
     while True:
         # after the backup is completed, wait for the final wal archive to complete
