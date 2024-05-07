@@ -148,29 +148,26 @@ def create_cnpg_cluster_backup(app: str,
             f"kubectl get -n {namespace} backups.postgresql.cnpg.io/{backup_name}"
             f" -o custom-columns=endwal:.status.endWal --no-headers"
             )
-    end_wal = subproc([end_wal_cmd])
-    end_wal_folder = f"{cluster_name}/wals/{end_wal[:16]}"
-    log.debug(f"{end_wal_folder} is the Wal folder we expect for {cluster_name} backup")
+    end_wal = subproc([end_wal_cmd]).strip()
+    end_wal_folder = f"{cluster_name}/wals/{end_wal[:16]}/{end_wal}"
+    log.error(f"{end_wal_folder} is the Wal folder we expect for {cluster_name} backup")
 
     # wait till that wal archive is actually available before declaring the
     # function completed
     credentials = k8s.get_secret("s3-postgres-credentials", namespace)
     access_key_id = base64.b64decode(credentials['data']['S3_USER']).decode('utf-8')
     secret_access_key = base64.b64decode(credentials['data']['S3_PASSWORD']).decode('utf-8')
+    log.error("got credentials and about to check s3")
     s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
     while True:
+        log.error("Checking if file is available")
         # after the backup is completed, wait for the final wal archive to complete
         try:
-            wal_files = s3.list_object(cluster_name,
-                                       end_wal_folder,
-                                       recursive=True)
+            s3.list_object(cluster_name, end_wal_folder, recursive=True)
+            log.error(f"{end_wal_folder} was found")
+            break
         except Exception as e:
-            log.debug(e)
-            log.debug(f"{end_wal_folder} still not found")
+            log.error(e)
+            log.error(f"{end_wal_folder} still not found. Sleeping 15 seconds.")
+            sleep(15)
             continue
-
-        # make sure the specific wal file we want is present
-        for wal_obj in wal_files:
-            if end_wal in wal_obj.object_name:
-                log.info(f"Found ending wal archive, {end_wal}, so cnpg backup for {app} is now complete.")
-                break

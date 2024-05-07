@@ -35,11 +35,10 @@ class BackupWidget(Static):
                        id=f"{self.app_name}-backup-button-grid")
 
         # second put in the schedule
-        yield Label("⏲ Scheduled backups", classes="header-row")
+        yield Label("📆 Scheduled backups", classes="header-row")
         yield Horizontal(id=f"{self.app_name}-schedule", classes="argo-config-row")
 
-
-        # Collapsible with grid for backup values
+        # Collapsible with grid for remote s3 backup values
         yield Collapsible(
                 Grid(classes="collapsible-updateable-grid",
                      id=f"{self.app_name}-backup-grid"),
@@ -48,6 +47,11 @@ class BackupWidget(Static):
                 classes="collapsible-with-some-room",
                 collapsed=False
                 )
+
+        # second put in the schedule
+        yield Label("🔒Backup Encryption", classes="header-row")
+        yield Horizontal(id=f"{self.app_name}-repo-password", classes="argo-config-row")
+
 
     def on_mount(self) -> None:
         """
@@ -98,6 +102,26 @@ class BackupWidget(Static):
 
         self.generate_s3_rows()
 
+        repo_grid = self.get_widget_by_id(f"{self.app_name}-repo-password")
+        # finally we need the restic repository password
+        repo_pw_labl = Label("restic repo password:", classes="argo-config-label")
+        repo_pw_labl.tooltip = "restic repository password for encrypting your backups"
+        input_id = f"{self.app_name}-backup-restic-repository-password"
+        input_val = extract_secret(self.backup_params.get('restic_repo_password', ''))
+
+        repo_pw_input = Input(
+                placeholder="Enter a restic repo password for your encrypted backups",
+                value=input_val,
+                name="restic_repo_password",
+                validators=[Length(minimum=5)],
+                id=input_id,
+                password=True,
+                classes=f"{self.app_name} argo-config-input"
+                )
+        input.validate(input_val)
+        repo_grid.mount(repo_pw_labl)
+        repo_grid.mount(repo_pw_input)
+
     def generate_s3_rows(self) -> None:
         """
         generate each row for the backup widget
@@ -127,23 +151,6 @@ class BackupWidget(Static):
             input.validate(input_val)
 
             grid.mount(Horizontal(argo_label, input, classes="argo-config-row"))
-
-        # finally we need the restic repository password
-        argo_label = Label("restic repo password:", classes="argo-config-label")
-        argo_label.tooltip = "restic repository password for encrypting your backups"
-        input_id = f"{self.app_name}-backup-restic-repository-password"
-        input_val = extract_secret(self.backup_params.get('restic_repo_password', ''))
-
-        input = Input(placeholder="Enter a restic repo password for your encrypted backups",
-                      value=input_val,
-                      name="restic_repo_password",
-                      validators=[Length(minimum=5)],
-                      id=input_id,
-                      password=True,
-                      classes=f"{self.app_name} argo-config-input")
-        input.validate(input_val)
-
-        grid.mount(Horizontal(argo_label, input, classes="argo-config-row"))
 
     @on(Input.Changed)
     def update_base_yaml_for_input(self, event: Input.Changed) -> None:
