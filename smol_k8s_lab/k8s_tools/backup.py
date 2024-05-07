@@ -6,6 +6,7 @@ from smol_k8s_lab.utils.minio_lib import BetterMinio
 
 # external libs
 # import asyncio
+import base64
 from datetime import datetime
 import logging as log
 from time import sleep
@@ -16,6 +17,7 @@ def create_pvc_restic_backup(app: str,
                              endpoint: str,
                              bucket: str,
                              cnpg_backup: bool = True,
+                             cnpg_s3_endpoint: str = "",
                              quiet: bool = False) -> None:
     """
     a function to immediately run a restic backup job
@@ -73,7 +75,7 @@ def create_pvc_restic_backup(app: str,
 
     # do the database backup if this app has one
     if cnpg_backup:
-        create_cnpg_cluster_backup(app, namespace, quiet=quiet)
+        create_cnpg_cluster_backup(app, namespace, cnpg_s3_endpoint, quiet=quiet)
 
     # then we can do the actual backup
     k8s = K8s()
@@ -102,8 +104,6 @@ def create_pvc_restic_backup(app: str,
 def create_cnpg_cluster_backup(app: str,
                                namespace: str,
                                s3_endpoint: str,
-                               access_key_id: str,
-                               secret_access_key: str,
                                quiet: bool = False) -> None:
     """
     creates a backup for cnpg clusters and waits for it to complete
@@ -151,7 +151,10 @@ def create_cnpg_cluster_backup(app: str,
     log.debug(f"{end_wal_folder} is the Wal folder we expect for {cluster_name} backup")
 
     # wait till that wal archive is actually available before declaring the
-    # function complete
+    # function completed
+    credentials = k8s.get_secret("s3-postgres-credentials", namespace)
+    access_key_id = base64.b64decode(credentials['data']['S3_USER'])
+    secret_access_key = base64.b64decode(credentials['data']['S3_PASSWORD'])
     s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
     while True:
         # after the backup is completed, wait for the final wal archive to complete
