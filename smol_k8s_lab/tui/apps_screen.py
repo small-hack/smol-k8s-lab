@@ -65,6 +65,17 @@ class AppsConfigScreen(Screen):
             subproc(['kubectl config set-context --current --namespace='
                      f'{argo_namespace}'])
 
+            try:
+                k8s_obj = K8s()
+            except ConfigException:
+                self.log("hmph, we don't have a cluster yet...")
+                k8s_obj = None
+
+            self.argocd = ArgoCD(self.cfg['argo_cd']['argo']['namespace'],
+                                 self.cfg['argo_cd']['argo']['secret_keys']['hostname'],
+                                 k8s_obj)
+
+
         # this is state storage
         self.previous_app = ''
 
@@ -81,16 +92,6 @@ class AppsConfigScreen(Screen):
                 'postgres_operator': {},
                 'zitadel': {}
                 }
-
-        try:
-            k8s_obj = K8s()
-        except ConfigException:
-            self.log("hmph, we don't have a cluster yet...")
-            k8s_obj = None
-
-        self.argocd = ArgoCD(self.cfg['argo_cd']['argo']['namespace'],
-                             self.cfg['argo_cd']['argo']['secret_keys']['hostname'],
-                             k8s_obj)
 
         super().__init__()
 
@@ -371,16 +372,17 @@ class AppsConfigScreen(Screen):
         # verify the app is enabled in the cfg
         app_enabled = self.cfg[highlighted_app]['enabled']
         # verify app is actually in Argo CD
-        app_exists = self.argocd.check_if_app_exists(highlighted_app)
+        if self.modify_cluster:
+            app_exists = self.argocd.check_if_app_exists(highlighted_app)
 
-        if self.modify_cluster and app_enabled and app_exists:
-            self.log(f"Displaying sync and delete buttons for {self.previous_app}")
-            app_inputs_pane.border_subtitle = (
-                    "[@click=screen.sync_argocd_app]🔁 sync[/] / "
-                    "[@click=screen.delete_argocd_app]🗑️ delete[/]"
-                    )
-        else:
-            app_inputs_pane.border_subtitle = ""
+            if self.modify_cluster and app_enabled and app_exists:
+                self.log(f"Displaying sync and delete buttons for {self.previous_app}")
+                app_inputs_pane.border_subtitle = (
+                        "[@click=screen.sync_argocd_app]🔁 sync[/] / "
+                        "[@click=screen.delete_argocd_app]🗑️ delete[/]"
+                        )
+            else:
+                app_inputs_pane.border_subtitle = ""
 
     def action_sync_argocd_app(self) -> None:
         """
