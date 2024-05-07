@@ -192,13 +192,16 @@ class BackupWidget(Static):
         if not worker.is_cancelled:
             if self.cnpg_restore == "not_applicable":
                 cnpg_backup = False
+                cnpg_endpoint = ""
             else:
                 cnpg_backup = self.cnpg_restore
+                cnpg_endpoint = self.screen.cfg[self.app_name]['argo']['secret_keys']['s3_endpoint']
             create_pvc_restic_backup(app=self.app_name,
                                      namespace=namespace,
                                      endpoint=self.backup_s3_endpoint,
                                      bucket=self.backup_s3_bucket,
                                      cnpg_backup=cnpg_backup,
+                                     cnpg_s3_endpoint=cnpg_endpoint,
                                      quiet=True)
             self.get_widget_by_id(f"{self.app_name}-backup-button").display = True
             self.get_widget_by_id(f"{self.app_name}-backup-running").display = False
