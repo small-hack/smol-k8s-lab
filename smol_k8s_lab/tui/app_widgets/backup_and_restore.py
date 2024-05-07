@@ -29,9 +29,10 @@ class BackupWidget(Static):
         """
         compose grid skelleton for backup widget
         """
-        # first the grid for the backup button
-        yield Grid(classes="backup-button-grid",
-                   id=f"{self.app_name}-backup-button-grid")
+        if self.screen.modify_cluster:
+            # first the grid for the backup button
+            yield Grid(classes="backup-button-grid",
+                       id=f"{self.app_name}-backup-button-grid")
 
         # second put in the schedule
         yield Label("⏲ Scheduled backups", classes="header-row")
@@ -52,29 +53,29 @@ class BackupWidget(Static):
         """
         add button and generate all the backup option input rows
         """
-
-        button = Button("💾 Backup Now",
-                        classes="backup-button",
-                        id=f"{self.app_name}-backup-button")
-        if not self.cnpg_restore or self.cnpg_restore == "not_applicable":
-            button.tooltip = (
-                    "Press to perform a one-time backup of "
-                    f"[i]{self.app_name}[/i]'s PVC(s) via restic to the s3 "
-                    "endpoint you've configured below"
-                    )
-        else:
-            button.tooltip = (
-                    f"Press to perform a one-time backup of {self.app_name}'s"
-                    " CNPG postgres database with [b]barman[/b], as well as a "
-                    f"backup of {self.app_name}'s PVC(s) via [b]restic[/] to the"
-                    " s3 endpoint you've configured below"
-                    )
-        grid = self.get_widget_by_id(f"{self.app_name}-backup-button-grid")
-        grid.mount(button)
-        loader = LoadingIndicator(id=f"{self.app_name}-backup-running")
-        loader.tooltip = "A backup is running. We'll notify you when it's completed."
-        loader.display = False
-        grid.mount(loader)
+        if self.screen.modify_cluster:
+            button = Button("💾 Backup Now",
+                            classes="backup-button",
+                            id=f"{self.app_name}-backup-button")
+            if not self.cnpg_restore or self.cnpg_restore == "not_applicable":
+                button.tooltip = (
+                        "Press to perform a one-time backup of "
+                        f"[i]{self.app_name}[/i]'s PVC(s) via restic to the s3 "
+                        "endpoint you've configured below"
+                        )
+            else:
+                button.tooltip = (
+                        f"Press to perform a one-time backup of {self.app_name}'s"
+                        " CNPG postgres database with [b]barman[/b], as well as a "
+                        f"backup of {self.app_name}'s PVC(s) via [b]restic[/] to the"
+                        " s3 endpoint you've configured below"
+                        )
+            grid = self.get_widget_by_id(f"{self.app_name}-backup-button-grid")
+            grid.mount(button)
+            loader = LoadingIndicator(id=f"{self.app_name}-backup-running")
+            loader.tooltip = "A backup is running. We'll notify you when it's completed."
+            loader.display = False
+            grid.mount(loader)
 
         # first put in the schedule
         h_grid = self.get_widget_by_id(f"{self.app_name}-schedule")
