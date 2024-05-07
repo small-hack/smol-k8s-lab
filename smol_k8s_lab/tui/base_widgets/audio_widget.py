@@ -17,7 +17,7 @@ CORE_MIXER = mixer
 try:
     CORE_MIXER.init()
 except error:
-    log.info()
+    log.info("No audio device found")
 
 class SmolAudio(Widget):
     """
