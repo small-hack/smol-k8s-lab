@@ -107,12 +107,7 @@ def configure_zitadel(argocd: ArgoCD,
                         cfg['argo'],
                         secrets,
                         restore_dict,
-                        s3_endpoint,
-                        backup_vals['endpoint'],
-                        backup_vals['bucket'],
-                        backup_vals['s3_user'],
-                        backup_vals['s3_password'],
-                        backup_vals['restic_repo_pass'],
+                        backup_vals,
                         pvc_storage_class,
                         'zitadel-postgres',
                         bitwarden)
@@ -397,12 +392,7 @@ def restore_zitadel(argocd: ArgoCD,
                     argo_dict: dict,
                     secrets: dict,
                     restore_dict: dict,
-                    seaweedfs_s3_endpoint: str,
-                    s3_backup_endpoint: str,
-                    s3_backup_bucket: str,
-                    access_key_id: str,
-                    secret_access_key: str,
-                    restic_repo_password: str,
+                    backup_dict: dict,
                     pvc_storage_class: str,
                     pgsql_cluster_name: str,
                     bitwarden: BwCLI) -> None:
@@ -410,6 +400,14 @@ def restore_zitadel(argocd: ArgoCD,
     restore zitadel seaweedfs PVCs, zitadel files and/or config PVC(s),
     and CNPG postgresql cluster
     """
+    # this is the info for the REMOTE backups
+    s3_backup_endpoint = backup_dict['endpoint']
+    s3_backup_bucket = backup_dict['bucket']
+    access_key_id = backup_dict["s3_user"]
+    secret_access_key = backup_dict["s3_password"]
+    restic_repo_password = backup_dict['restic_repo_pass']
+    cnpg_backup_schedule = backup_dict['postgres_schedule']
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bitwarden(argocd, zitadel_hostname, bitwarden)
@@ -424,6 +422,14 @@ def restore_zitadel(argocd: ArgoCD,
                 f"{ref}/zitadel/app_of_apps/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
+
+        # postgresql s3 ID
+        s3_db_creds = bitwarden.get_item(
+                f"zitadel-postgres-s3-credentials-{zitadel_hostname}", False
+                )[0]['login']
+
+        pg_access_key_id = s3_db_creds["username"]
+        pg_secret_access_key = s3_db_creds["password"]
 
     # these are the remote backups for seaweedfs
     s3_pvc_capacity = secrets['s3_pvc_capacity']
@@ -451,9 +457,13 @@ def restore_zitadel(argocd: ArgoCD,
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
+        s3_endpoint = secrets.get('s3_endpoint', "")
         restore_cnpg_cluster('zitadel',
-                           zitadel_namespace,
-                           pgsql_cluster_name,
-                           psql_version,
-                           seaweedfs_s3_endpoint,
-                           pgsql_cluster_name)
+                             zitadel_namespace,
+                             pgsql_cluster_name,
+                             psql_version,
+                             s3_endpoint,
+                             pg_access_key_id,
+                             pg_secret_access_key,
+                             pgsql_cluster_name,
+                             cnpg_backup_schedule)

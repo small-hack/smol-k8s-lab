@@ -213,7 +213,8 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                          s3_endpoint: str,
                          access_key_id: str,
                          secret_access_key: str,
-                         s3_bucket: str
+                         s3_bucket: str,
+                         scheduled_backup: str = "0 0 0 * * *"
                          ):
     """
     restore a CNPG operator controlled postgresql cluster
@@ -369,7 +370,7 @@ def restore_cnpg_cluster(k8s_obj: K8s,
     restore_dict['scheduledBackup'] = {
             "name": f"{app}-pg-backup",
             "spec": {
-              "schedule": "0 0 0 * * *",
+              "schedule": scheduled_backup,
               "backupOwnerReference": "self",
                 "cluster": {
                   "name": f"{app}-postgres"

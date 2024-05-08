@@ -381,15 +381,13 @@ def restore_matrix(argocd: ArgoCD,
     restore matrix seaweedfs PVCs, matrix files and/or config PVC(s),
     and CNPG postgresql cluster
     """
-
-
-
     # this is the info for the REMOTE backups
     s3_backup_endpoint = backup_dict['endpoint']
     s3_backup_bucket = backup_dict['bucket']
     access_key_id = backup_dict["s3_user"]
     secret_access_key = backup_dict["s3_password"]
     restic_repo_password = backup_dict['restic_repo_pass']
+    cnpg_backup_schedule = backup_dict['postgres_schedule']
 
     # first we grab existing bitwarden items if they exist
     if bitwarden:
@@ -438,14 +436,15 @@ def restore_matrix(argocd: ArgoCD,
         psql_version = restore_dict.get("postgresql_version", 16)
         s3_endpoint = secrets.get('s3_endpoint', "")
         restore_cnpg_cluster(argocd.k8s,
-                           'matrix',
-                           matrix_namespace,
-                           pgsql_cluster_name,
-                           psql_version,
-                           s3_endpoint,
-                           pg_access_key_id,
-                           pg_secret_access_key,
-                           pgsql_cluster_name)
+                             'matrix',
+                             matrix_namespace,
+                             pgsql_cluster_name,
+                             psql_version,
+                             s3_endpoint,
+                             pg_access_key_id,
+                             pg_secret_access_key,
+                             pgsql_cluster_name,
+                             cnpg_backup_schedule)
 
     # then we begin the restic restore of all the matrix PVCs we lost
     for pvc in ['media', 'synapse_config', 'signing_key']:

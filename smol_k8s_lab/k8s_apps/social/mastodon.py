@@ -135,7 +135,16 @@ def configure_mastodon(argocd: ArgoCD,
 
     if not app_installed:
         if restore_enabled:
-            restore_mastodon()
+            restore_mastodon(argocd,
+                             mastodon_hostname,
+                             mastodon_namespace,
+                             cfg['argo'],
+                             secrets,
+                             restore_dict,
+                             backup_vals,
+                             pvc_storage_class,
+                             'mastodon-postgres',
+                             bitwarden)
 
         if not init_enabled:
             argocd.install_app('mastodon', cfg['argo'])
@@ -435,11 +444,7 @@ def restore_mastodon(argocd: ArgoCD,
                      secrets: dict,
                      restore_dict: dict,
                      seaweedf_s3_endpoint: str,
-                     s3_backup_endpoint: str,
-                     s3_backup_bucket: str,
-                     access_key_id: str,
-                     secret_access_key: str,
-                     restic_repo_password: str,
+                     backup_dict: dict,
                      pvc_storage_class: str,
                      pgsql_cluster_name: str,
                      bitwarden: BwCLI) -> None:
@@ -447,6 +452,14 @@ def restore_mastodon(argocd: ArgoCD,
     restore mastodon seaweedfs PVCs, mastodon files and/or config PVC(s),
     and CNPG postgresql cluster
     """
+    # this is the info for the REMOTE backups
+    s3_backup_endpoint = backup_dict['endpoint']
+    s3_backup_bucket = backup_dict['bucket']
+    access_key_id = backup_dict["s3_user"]
+    secret_access_key = backup_dict["s3_password"]
+    restic_repo_password = backup_dict['restic_repo_pass']
+    cnpg_backup_schedule = backup_dict['postgres_schedule']
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bweso(argocd, mastodon_hostname, bitwarden)
@@ -461,6 +474,14 @@ def restore_mastodon(argocd: ArgoCD,
                 f"{ref}/mastodon/app_of_apps/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
+
+        # postgresql s3 ID
+        s3_db_creds = bitwarden.get_item(
+                f"mastodon-postgres-s3-credentials-{mastodon_hostname}", False
+                )[0]['login']
+
+        pg_access_key_id = s3_db_creds["username"]
+        pg_secret_access_key = s3_db_creds["password"]
 
     # these are the remote backups for seaweedfs
     s3_pvc_capacity = secrets['s3_pvc_capacity']
@@ -488,12 +509,17 @@ def restore_mastodon(argocd: ArgoCD,
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
+        s3_endpoint = secrets.get('s3_endpoint', "")
         restore_cnpg_cluster('mastodon',
-                           mastodon_namespace,
-                           pgsql_cluster_name,
-                           psql_version,
-                           seaweedf_s3_endpoint,
-                           pgsql_cluster_name)
+                             mastodon_namespace,
+                             pgsql_cluster_name,
+                             psql_version,
+                             s3_endpoint,
+                             pg_access_key_id,
+                             pg_secret_access_key,
+                             seaweedf_s3_endpoint,
+                             pgsql_cluster_name,
+                             cnpg_backup_schedule)
 
     # todo: from here on out, this could be async to start on other tasks
     # install mastodon as usual
