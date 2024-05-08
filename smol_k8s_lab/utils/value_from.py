@@ -58,7 +58,8 @@ def process_backup_vals(backup_dict: dict,
             "s3_user": extract_secret(s3_values.get('access_key_id', '')),
             "s3_password": extract_secret(s3_values.get('secret_access_key', '')),
             "restic_repo_pass": extract_secret(backup_dict.get('restic_repo_password', '')),
-            "schedule": backup_dict.get('schedule', "0 0 * * *")
+            "pvc_schedule": backup_dict.get('pvc_schedule', "15 0 * * *"),
+            "postgres_schedule": backup_dict.get('postgres_schedule', "0 0 * * *")
             }
 
     if app and argocd:
@@ -66,6 +67,7 @@ def process_backup_vals(backup_dict: dict,
             f"{app}_s3_backup_endpoint": return_dict['endpoint'],
             f"{app}_s3_backup_bucket": return_dict['bucket'],
             f"{app}_s3_backup_region": return_dict['region'],
-            f"{app}_backup_schedule": return_dict['schedule']})
+            f"{app}_pvc_backup_schedule": return_dict['pvc_schedule'],
+            f"{app}_postgres_backup_schedule": return_dict['postgres_schedule']})
 
     return return_dict

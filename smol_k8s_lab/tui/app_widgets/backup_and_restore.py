@@ -36,7 +36,9 @@ class BackupWidget(Static):
 
         # second put in the schedule
         yield Label("📆 Scheduled backups", classes="header-row")
-        yield Horizontal(id=f"{self.app_name}-schedule", classes="argo-config-row")
+        yield Horizontal(id=f"{self.app_name}-pvc-schedule", classes="argo-config-row")
+        if self.cnpg_restore != "not_applicable":
+            yield Horizontal(id=f"{self.app_name}-postgres-schedule", classes="argo-config-row")
 
         # Collapsible with grid for remote s3 backup values
         yield Collapsible(
@@ -81,24 +83,44 @@ class BackupWidget(Static):
             loader.display = False
             grid.mount(loader)
 
-        # first put in the schedule
-        h_grid = self.get_widget_by_id(f"{self.app_name}-schedule")
-        argo_label = Label("PVC schedule:", classes="argo-config-label")
-        input_id = f"{self.app_name}-backup-schedule"
-        schedule_val = self.backup_params.get('schedule', "0 0 * * *")
+        # first put in the PVC schedule
+        h_grid = self.get_widget_by_id(f"{self.app_name}-pvc-schedule")
+        argo_label = Label("📁 PVC schedule:", classes="argo-config-label")
+        input_id = f"{self.app_name}-pvc-backup-schedule"
+        schedule_val = self.backup_params.get('pvc_schedule', "10 0 * * *")
         input = Input(placeholder="Enter a cron syntax schedule for backups.",
                       value=schedule_val,
-                      name='schedule',
+                      name='pvc_schedule',
                       validators=[Length(minimum=5)],
                       id=input_id,
                       classes=f"{self.app_name} argo-config-input")
         input.validate(schedule_val)
-        tip = ("Schedule for recurring backup. If you're new to"
-               " cron sytax, check out crontab.guru")
+        tip = ("Cron syntax schedule for recurring backup. If you're new to"
+               " cron sytax, check out crontab.guru. Must be at least 7 minutes "
+               "after postgres backup")
         argo_label.tooltip = tip
         input.tooltip = tip
         h_grid.mount(argo_label)
         h_grid.mount(input)
+
+        if self.cnpg_restore != "not_applicable":
+            h_grid = self.get_widget_by_id(f"{self.app_name}-postgres-schedule")
+            argo_label = Label("🐘 postgresql schedule:", classes="argo-config-label")
+            input_id = f"{self.app_name}-postgres-backup-schedule"
+            schedule_val = self.backup_params.get('postgres_schedule', "0 0 0 * * *")
+            input = Input(placeholder="Enter a cron syntax schedule for postgres database backups.",
+                          value=schedule_val,
+                          name='postgres_schedule',
+                          validators=[Length(minimum=5)],
+                          id=input_id,
+                          classes=f"{self.app_name} argo-config-input")
+            input.validate(schedule_val)
+            tip = ("Schedule for recurring postgres backup that includes a seconds field."
+                   " This backup must be at least 7 minutes before the PVC backup.")
+            argo_label.tooltip = tip
+            input.tooltip = tip
+            h_grid.mount(argo_label)
+            h_grid.mount(input)
 
         self.generate_s3_rows()
 
@@ -160,7 +182,7 @@ class BackupWidget(Static):
         input = event.input
         sensitive = input.password
         if not sensitive:
-            if "s3" in input.name:
+            if "s3" in input.id:
                 self.app.cfg['apps'][self.app_name]['backups']['s3'][input.name] = input.value
             else:
                 self.app.cfg['apps'][self.app_name]['backups'][input.name] = input.value
@@ -281,7 +303,7 @@ class RestoreApp(Static):
         # enable or disable cnpg restore if available
         if isinstance(self.cnpg_restore, bool):
             box = self.get_widget_by_id(f"{self.app_name}-restore-cnpg-row")
-            init_lbl = Label("Restore CNPG cluster", classes="initialization-label")
+            init_lbl = Label("Restore 🐘 CNPG cluster", classes="initialization-label")
             init_lbl.tooltip = (
                     "if supported, smol-k8s-lab will perform a one-time initial"
                     f" restore of this {self.app_name}'s CNPG cluster from an "

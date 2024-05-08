@@ -23,7 +23,7 @@ smol_k8s_lab:
         # use a specific cli program for text to speech - needs to be a full path
         # if it isn't in your default path. default is "" which means we'll use
         # pre-recorded audio files
-        speech_program: "auto"
+        speech_program: ""
         # read aloud the screen title
         screen_titles: true
         # read aloud the screen description
@@ -81,7 +81,8 @@ k8s_distros:
       secrets-encryption: true
       # disables traefik so we can enable ingress-nginx, remove if you're using traefik
       disable:
-      - "traefik"
+      - traefik
+      - servicelb
       node-label:
       - "ingress-ready=true"
       kubelet-arg:
@@ -782,6 +783,13 @@ apps:
     enabled: false
     init:
       enabled: true
+      restore:
+        enabled: true
+        cnpg_restore: true
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
+          seaweedfs_master: latest
       values:
         # admin user
         admin_user: "tootadmin"
@@ -791,12 +799,31 @@ apps:
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
         smtp_user: "change me to enable mail"
-      sensitive_values:
-        # these can be passed in as env vars if you pre-pend MASTODON_ to each one
-        - SMTP_PASSWORD
-        - S3_BACKUP_ACCESS_ID
-        - S3_BACKUP_SECRET_KEY
-        - RESTIC_REPO_PASSWORD
+        smtp_password:
+          valueFrom:
+            env: MASTODON_SMTP_PASSWORD
+    backups:
+      # cronjob syntax schedule to run mastodon pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for mastodon postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the backup shows as completed before
+      # it actually is
+      postgres_schedule: 0 45 23 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: ""
+        bucket: ""
+        region: ""
+        secret_access_key:
+          valueFrom:
+            env: MASTODON_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: MASTODON_S3_BACKUP_ACCESS_ID
+        restic_repo_password:
+          valueFrom:
+            env: MASTODON_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -811,11 +838,6 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
-        # Remote S3 configuration, for pushing remote backups of your local postgresql backups
-        # these are done only nightly right now, for speed and cost optimization
-        s3_backup_endpoint: ""
-        s3_backup_region: ""
-        s3_backup_bucket: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -871,25 +893,42 @@ apps:
         # the restic snapshot IDs of the PVC snapshots you want to restore
         restic_snapshot_ids:
           # seaweedFS volume pvc snapshot id. if not given, we use the latest
-          seaweedfs_volume_id: ""
+          seaweedfs_volume: ""
           # seaweedFS filer pvc snapshot id. if not given, we use the latest
-          seaweedfs_filer_id: ""
+          seaweedfs_filer: ""
           # seaweedFS master pvc snapshot id. if not given, we use the latest
-          seaweedfs_master_id: ""
+          seaweedfs_master: ""
           # signing key snapshot id. if not given, we use the latest
-          signing_key_id: ""
+          signing_key: ""
           # media snapshot id. if not given, we use the latest
-          media_id: ""
+          media: ""
           # synapse config snapshot id. if not given, we use the latest
-          synapse_config_id: ""
+          synapse_config: ""
       values:
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
-      sensitive_values:
-        - SMTP_PASSWORD
-        - S3_BACKUP_ACCESS_ID
-        - S3_BACKUP_SECRET_KEY
-        - RESTIC_REPO_PASSWORD
+    backups:
+      # cronjob syntax schedule to run matrix pvc backups
+      pvc_schedule: 0 0 * * *
+      # cronjob syntax (with SECONDS field) for matrix postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the backup shows as completed before
+      # it actually is
+      postgres_schedule: 0 45 23 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: ""
+        bucket: ""
+        region: ""
+        secret_access_key:
+          valueFrom:
+            env: MATRIX_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: MATRIX_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        valueFrom:
+          env: MATRIX_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -929,10 +968,6 @@ apps:
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 100Gi
         s3_region: eu-west-1
-        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
-        s3_backup_endpoint: ""
-        s3_backup_bucket: ""
-        s3_backup_region: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -1150,11 +1185,32 @@ apps:
         admin_user: "nextcloud_admin"
         smtp_user: "change me to enable mail"
         smtp_host: "change-me-to-real-email@to-enable.mail"
-      sensitive_values:
-        - SMTP_PASSWORD
-        - S3_BACKUP_ACCESS_ID
-        - S3_BACKUP_SECRET_KEY
-        - RESTIC_REPO_PASSWORD
+        smtp_password:
+          valueFrom:
+            env: NEXTCLOUD_SMTP_PASSWORD
+    backups:
+      # cronjob syntax schedule to run nextcloud pvc backups
+      pvc_schedule: 0 0 * * *
+      # cronjob syntax (with SECONDS field) for nextcloud postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the cnpg backup shows as completed
+      # before it actually is, due to the wal archive it lists as it's end not
+      # being in the backup yet
+      postgres_schedule: 0 45 23 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: ""
+        bucket: ""
+        region: ""
+        secret_access_key:
+          valueFrom:
+            env: NEXTCLOUD_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: NEXTCLOUD_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        valueFrom:
+          env: NEXTCLOUD_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -1178,16 +1234,10 @@ apps:
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 100Gi
         s3_region: eu-west-1
-        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
-        s3_backup_endpoint: ""
-        s3_backup_bucket: ""
-        s3_backup_region: ""
         # cronjob schedule to turn on nextcloud maintenance mode for backups
         maintenance_mode_on_schedule: "0 1 * * *"
         # cronjob schedule to turn off nextcloud maintenance mode after backups
         maintenance_mode_off_schedule: "30 1 * * *"
-        # cronjob syntax schedule to run nextcloud backups, defaults to 1:10AM
-        backup_schedule: "10 1 * * *"
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -1560,11 +1610,11 @@ apps:
         # the restic snapshot IDs of the PVC snapshots you want to restore
         restic_snapshot_ids:
           # seaweedFS volume pvc snapshot id. if not given, we use the latest
-          seaweedfs_volume_id: ""
+          seaweedfs_volume: ""
           # seaweedFS filer pvc snapshot id. if not given, we use the latest
-          seaweedfs_filer_id: ""
+          seaweedfs_filer: ""
           # seaweedFS master pvc snapshot id. if not given, we use the latest
-          seaweedfs_master_id: ""
+          seaweedfs_master: ""
       values:
         # initial human user's usename
         admin_user: ""
@@ -1579,13 +1629,29 @@ apps:
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
-      sensitive_values:
-      # sensitive values to provide via environment variables or via the TUI
-      - S3_BACKUP_ACCESS_ID
-      - S3_BACKUP_SECRET_KEY
-      - RESTIC_REPO_PASSWORD
-      # coming soon after we refactor a bit
-      # - SMTP_PASSWORD
+    backups:
+      # cronjob syntax schedule to run zitadel seaweedfs pvc backups
+      pvc_schedule: 0 0 * * *
+      # cronjob syntax (with SECONDS field) for zitadel postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the cnpg backup shows as completed
+      # before it actually is, due to the wal archive it lists as it's end not
+      # being in the backup yet
+      postgres_schedule: 0 45 23 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: ""
+        bucket: ""
+        region: ""
+        secret_access_key:
+          valueFrom:
+            env: ZITADEL_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: ZITADEL_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        valueFrom:
+          env: ZITADEL_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -1597,11 +1663,6 @@ apps:
         s3_endpoint: ""
         # capacity for the PVC backing your local s3 instance
         s3_pvc_capacity: 2Gi
-        # Remote S3 configuration, for pushing remote backups of your local postgresql backups
-        # these are done only nightly right now, for speed and cost optimization
-        s3_backup_endpoint: ""
-        s3_backup_region: ""
-        s3_backup_bucket: ""
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
