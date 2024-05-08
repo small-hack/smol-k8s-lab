@@ -141,6 +141,14 @@ def configure_secret_plugin_generator(argocd: ArgoCD,
                 )
         release.install(True)
 
+        # gotta make sure the project already exists
+        log.info("Creating argocd project if it does not exist...")
+        argocd.create_project(argocd_config['argo']['project']['name'],
+                              "Argo CD",
+                              [argocd.namespace, "prometheus"],
+                              argocd_config['argo']['cluster'],
+                              set(argocd_config['argo']['source_repos']))
+
         # immediately install the argocd appset plugin
         log.info("Immediately installing the appset secret plugin via Argo CD")
         repo_url = argocd_config['argo']['repo'].replace("https://","").replace("http://","")
@@ -157,6 +165,7 @@ def configure_secret_plugin_generator(argocd: ArgoCD,
                 f"{ref}/{path}appset_secret_plugin/"
                 "appset_secret_plugin_generator_argocd_app.yaml"
                 )
+
         log.info(f"applying {appset_secrets_yaml}")
         argocd.k8s.apply_manifests(appset_secrets_yaml, argocd.namespace)
     else:
