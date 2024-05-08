@@ -134,7 +134,7 @@ def k8up_restore_pvc(k8s_obj: K8s,
                                 'bucket': s3_bucket,
                                 'accessKeyIDSecretRef': {
                                     'name': "s3-backups-credentials",
-                                    'key': 'accessKeyID'
+                                    'key': 'accessKeyId'
                                     },
                                 'secretAccessKeySecretRef': {
                                     'name': "s3-backups-credentials",
@@ -534,7 +534,7 @@ def create_restic_restore_job(k8s_obj: K8s,
                     "name": "AWS_ACCESS_KEY_ID",
                     "valueFrom": {
                       "secretKeyRef": {
-                        "key": "accessKeyID",
+                        "key": "accessKeyId",
                         "name": "s3-backups-credentials"
                       }
                     }

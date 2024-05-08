@@ -47,7 +47,7 @@ def create_pvc_restic_backup(app: str,
                 },
                 "s3": {
                   "accessKeyIDSecretRef": {
-                    "key": "accessKeyID",
+                    "key": "accessKeyId",
                     "name": "s3-backups-credentials",
                     "optional": False
                     },
@@ -145,7 +145,7 @@ def create_cnpg_cluster_backup(app: str,
 
     # get credentials and setup s3 object to check if all wal archives are there
     credentials = k8s.get_secret("s3-postgres-credentials", namespace)
-    access_key_id = base64.b64decode(credentials['data']['accessKeyID']).decode('utf-8')
+    access_key_id = base64.b64decode(credentials['data']['accessKeyId']).decode('utf-8')
     secret_access_key = base64.b64decode(credentials['data']['secretAccessKey']).decode('utf-8')
     log.error("got credentials and about to check s3")
     s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
