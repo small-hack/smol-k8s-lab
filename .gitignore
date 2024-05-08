@@ -21,3 +21,6 @@ site/**
 # not this time, world!
 **/*tls.yaml
 **/*tls.yml
+
+# don't check in any personal logs
+logs/**
