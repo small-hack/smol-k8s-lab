@@ -48,8 +48,7 @@ def configure_vouch(argocd: ArgoCD,
     init_enabled = cfg['init']['enabled']
 
     if init_enabled and not app_installed:
-        auth_dict = create_vouch_app(provider='zitadel',
-                                     provider_hostname=oidc_provider_hostname,
+        auth_dict = create_vouch_app(provider_hostname=oidc_provider_hostname,
                                      vouch_hostname=vouch_hostname,
                                      zitadel=zitadel)
         vouch_callback_url = f'https://{vouch_hostname}/auth'
