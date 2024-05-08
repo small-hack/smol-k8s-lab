@@ -224,6 +224,8 @@ def restore_cnpg_cluster(k8s_obj: K8s,
     while True:
         try:
             s3_files = s3.list_object(s3_bucket, base_folder, recursive=True)
+            log.info(f"Found {base_folder} in {s3_bucket}, continuing...")
+            break
         except Exception as e:
             log.info(e)
             log.info("S3 not up yet, so couldn't find base folder: "
