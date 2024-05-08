@@ -238,7 +238,8 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                     # will be like: matrix-postgres/base/20240507T122317/backup.info
                     possible_files.append(backup_file.object_name)
         except InvalidResponseError:
-            log.info("We got a not found error... trying again")
+            log.info("We got a not found error... trying again in 5 seconds")
+            sleep(5)
             continue
         else:
             break
