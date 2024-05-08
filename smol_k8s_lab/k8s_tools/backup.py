@@ -150,8 +150,6 @@ def create_cnpg_cluster_backup(app: str,
     log.error("got credentials and about to check s3")
     s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
     all_wals = f"{cluster_name}/wals"
-    total_wals = get_total_wals(s3, cluster_name, all_wals)
-    log.error(f"Total number of wals to start is {str(total_wals)}")
 
     # after the backup is completed, check which wal archive it says is the last one
     end_wal_cmd = (
@@ -160,28 +158,29 @@ def create_cnpg_cluster_backup(app: str,
             )
     end_wal = subproc([end_wal_cmd]).strip()
     end_wal_folder = f"{all_wals}/{end_wal[:16]}/{end_wal}"
-    log.error(f"{end_wal_folder} is the Wal folder we expect for {cluster_name} backup")
+    log.error(f"Wal folder we expect for {cluster_name} backup is: '{end_wal_folder}'")
+    check_for_specific_wal(s3, cluster_name, all_wals, end_wal)
 
     # wait till that wal archive is actually available before declaring the
     # function completed
-    while True:
-        log.error("Checking if file is available")
-        # after the backup is completed, wait for the final wal archive to complete
-        try:
-            wal_file = s3.list_object(cluster_name, end_wal_folder, recursive=True)
-            for sub_obj in wal_file:
-                log.info(sub_obj.object_name)
-            log.error(f"{end_wal_folder} was found. Sleeping for 15 seconds just in case.")
-            sleep(15)
-            break
-        except Exception as e:
-            log.error(e)
-            log.error(f"{end_wal_folder} still not found. Sleeping 5 seconds.")
-            sleep(5)
-            continue
+    # while True:
+    #     log.error("Checking if file is available")
+    #     # after the backup is completed, wait for the final wal archive to complete
+    #     try:
+    #         wal_file = s3.list_object(cluster_name, end_wal_folder, recursive=True)
+    #         for sub_obj in wal_file:
+    #             log.info(sub_obj.object_name)
+    #         log.error(f"{end_wal_folder} was found. Sleeping for 15 seconds just in case.")
+    #         sleep(15)
+    #         break
+    #     except Exception as e:
+    #         log.error(e)
+    #         log.error(f"{end_wal_folder} still not found. Sleeping 5 seconds.")
+    #         sleep(5)
+    #         continue
 
-    new_total_wals = get_total_wals(s3, cluster_name, all_wals)
-    log.error(f"New total number of wals after is {str(new_total_wals)}")
+    # new_total_wals = get_total_wals(s3, cluster_name, all_wals)
+    # log.error(f"New total number of wals after is {str(new_total_wals)}")
     # verify the wal is absolutely completed by waiting for the next one
     # while True:
     #     new_total_wals = get_total_wals(s3, cluster_name, all_wals)
@@ -197,14 +196,26 @@ def create_cnpg_cluster_backup(app: str,
     #                   ", so we will wait 10 seconds")
     #         sleep(10)
 
-def get_total_wals(s3: BetterMinio, cluster_name: str, all_wals_dir: str):
+def check_for_specific_wal(s3: BetterMinio,
+                           cluster_name: str,
+                           all_wals_dir: str,
+                           wall_to_chck: str):
     """
     count the number of wals in s3 for this cluster and log them each
     """
-    log.error("Doing a quick calculation of how many wals there are...")
-    wal_files = s3.list_object(cluster_name, all_wals_dir, recursive=True)
-    total_wals = 0
-    for wal in wal_files:
-        total_wals += 1
-        log.error(f"{str(total_wals)}: Found a wal called {wal.object_name}")
-    return total_wals
+
+    while True:
+        wal_files = s3.list_object(cluster_name, all_wals_dir, recursive=True)
+        total_wals = 0
+        for wal in wal_files:
+            total_wals += 1
+            log.error(f"{str(total_wals)}: Found a wal called {wal.object_name}")
+
+            # return if we found the correct wal
+            if wall_to_chck in wal.object_name:
+                log.error("wal to check present 🎉")
+                sleep(2)
+                return True
+
+        log.error(f"found {str(total_wals)} total wal files, but not the one we wanted: {wall_to_chck}. Sleeping 10 seconds...")
+        sleep(10)
