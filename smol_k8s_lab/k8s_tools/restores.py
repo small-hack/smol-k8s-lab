@@ -217,21 +217,29 @@ def restore_postgresql(k8s_obj: K8s,
     """
     restore a CNPG operator controlled postgresql cluster
     """
-    # need to first get the correct backup.info file
-    # s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
-    # s3_files = s3.list_object(s3_bucket, f"{s3_bucket}/base", recursive=True)
+    # need to first get the correct backup.info file and make sure s3 is up
+    s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
+    base_folder = f"{s3_bucket}/base"
+    while True:
+        try:
+            s3_files = s3.list_object(s3_bucket, base_folder, recursive=True)
+        except Exception as e:
+            log.info(e)
+            log.info("S3 not up yet, so couldn't find base folder: "
+                     f"{base_folder} in bucket: {s3_bucket}")
 
-    # possible_files = []
-    # for backup_file in s3_files:
-    #     if "backup.info" in backup_file.object_name:
-    #         # will be like: matrix-postgres/base/20240507T122317/backup.info
-    #         possible_files.append(backup_file.object_name)
+    possible_files = []
+    for backup_file in s3_files:
+        if "backup.info" in backup_file.object_name:
+            # will be like: matrix-postgres/base/20240507T122317/backup.info
+            possible_files.append(backup_file.object_name)
 
-    # backup_id = possible_files[-1].split('/')[2]
+    backup_id = possible_files[-1].split('/')[2]
+    log.info(f"backup_id is {backup_id}")
 
     # get the oldest object and save it to our cache dir for inspection later
-    # save_path = path.join(XDG_CACHE_DIR, f'{app}_backup.info')
-    # s3.get_object(s3_bucket, possible_files[-1], save_path)
+    save_path = path.join(XDG_CACHE_DIR, f'{app}_backup.info.env')
+    s3.get_object(s3_bucket, possible_files[-1], save_path)
 
     # get the backup name to use with the restore dict below
     # with open(save_path, 'r') as backup_info_file:
@@ -242,7 +250,6 @@ def restore_postgresql(k8s_obj: K8s,
     #         # try number one - results in restored backup, but can't start postgres
     #         if "backup_name" in line:
     #             backup_id = line.split("=")[1].split('-')[1].strip()
-
 
     # try number one - results in restored backup, but can't start postgres
     #              "recoveryTarget": {"targetImmediate": True,
