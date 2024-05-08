@@ -100,13 +100,17 @@ def configure_argocd(k8s_obj: K8s,
         release.install(True)
 
     argocd = ArgoCD(namespace, argo_cd_domain, k8s_obj)
-    if argocd_config_dict['argo']['directory_recursion']:
-        configure_secret_plugin_generator(argocd, secret_dict)
-
+    if "small-hack/argocd-apps" in argocd_config_dict['argo']['repo']:
+        if argocd_config_dict['argo']['directory_recursion']:
+            configure_secret_plugin_generator(argocd,
+                                              argocd_config_dict,
+                                              secret_dict)
     return argocd
 
 
-def configure_secret_plugin_generator(argocd: ArgoCD, secret_dict: dict) -> None:
+def configure_secret_plugin_generator(argocd: ArgoCD,
+                                      argocd_config: dict,
+                                      secret_dict: dict) -> None:
     """
     configures the applicationset secret plugin generator
 
@@ -136,6 +140,23 @@ def configure_secret_plugin_generator(argocd: ArgoCD, secret_dict: dict) -> None
                 set_options=set_opts
                 )
         release.install(True)
+
+        # immediately install the argocd appset plugin
+        log.info("Immediately installing the appset secret plugin via Argo CD")
+        repo_url = argocd_config['argo']['repo'].replace("https://","").replace("http://","")
+        if "github.com" in repo_url:
+            ref = argocd_config['argo']['revision']
+            url_sections = repo_url.split('/')
+            owner = url_sections[0].replace("github.com","")
+            repo_name = url_sections[1].replace(".git", "")
+            path = argocd_config['argo']['path']
+            if not path.endswith("/"):
+                path += "/"
+            appset_secrets_yaml = (
+                    f"https://raw.githubusercontent.com/{owner}/{repo_name}/"
+                    f"{ref}/{path}argocd_appset.yaml"
+                    )
+            argocd.k8s.apply_manifests(appset_secrets_yaml, argocd.namespace)
     else:
         log.info("Reloading deployment for Argo CD Appset Secret Plugin")
         argocd.update_appset_secret(secret_dict)

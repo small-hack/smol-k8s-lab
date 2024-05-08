@@ -53,7 +53,8 @@ class ArgoCD():
         counter = 0
         while True:
             if counter == 10:
-                log.error("Something has gone wrong with syncs!")
+                log.error("Something has gone wrong with syncs! we tried 10 times!")
+                break
             # run sync command
             if spinner:
                 res = subproc([cmd], error_ok=True)
@@ -217,7 +218,7 @@ class ArgoCD():
         except Exception as e:
             log.warn(e)
 
-    def update_appset_secret(self, fields: dict) -> None:
+    def update_appset_secret(self, fields: dict, argo_managed: bool = True) -> None:
         """
         pass in k8s context and dict of fields to add to the argocd appset secret
         and reload the deployment
@@ -227,9 +228,12 @@ class ArgoCD():
                                    fields,
                                    'secret_vars.yaml')
 
-        # reload the argocd appset secret plugin
-        self.sync_app('appset-secrets-plugin', spinner=True, replace=True, force=True)
-        self.wait_for_app('appset-secrets-plugin')
+        if argo_managed:
+            # reload the argocd appset secret plugin
+            self.sync_app('appset-secrets-plugin', spinner=True, replace=True, force=True)
+            self.wait_for_app('appset-secrets-plugin')
+        else:
+            self.k8s.reload_deployment("appset-secrets-plugin", self.namespace)
 
         # reload the bitwarden ESO provider
         self.sync_app('bitwarden-eso-provider', spinner=True, replace=True, force=True)
