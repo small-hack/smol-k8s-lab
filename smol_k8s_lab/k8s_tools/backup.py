@@ -164,7 +164,8 @@ def create_cnpg_cluster_backup(app: str,
         # after the backup is completed, wait for the final wal archive to complete
         try:
             s3.list_object(cluster_name, end_wal_folder, recursive=True)
-            log.error(f"{end_wal_folder} was found")
+            log.error(f"{end_wal_folder} was found. Sleeping for 30 seconds just in case.")
+            sleep(30)
             break
         except Exception as e:
             log.error(e)
