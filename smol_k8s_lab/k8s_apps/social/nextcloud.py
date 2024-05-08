@@ -171,8 +171,8 @@ def configure_nextcloud(argocd: ArgoCD,
 
             # s3 credentials creation
             argocd.k8s.create_secret('nextcloud-s3-credentials', 'nextcloud',
-                                     {"S3_USER": "nextcloud",
-                                      "S3_PASSWORD": s3_access_key,
+                                     {"accessKeyId": "nextcloud",
+                                      "secretAccessKey": s3_access_key,
                                       "S3_ENDPOINT": s3_endpoint})
 
     if not app_installed:
