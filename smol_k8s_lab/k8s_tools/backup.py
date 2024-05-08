@@ -143,32 +143,68 @@ def create_cnpg_cluster_backup(app: str,
             break
         sleep(1)
 
+    # get credentials and setup s3 object to check if all wal archives are there
+    credentials = k8s.get_secret("s3-postgres-credentials", namespace)
+    access_key_id = base64.b64decode(credentials['data']['S3_USER']).decode('utf-8')
+    secret_access_key = base64.b64decode(credentials['data']['S3_PASSWORD']).decode('utf-8')
+    log.error("got credentials and about to check s3")
+    s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
+    all_wals = f"{cluster_name}/wals"
+    total_wals = get_total_wals(s3, cluster_name, all_wals)
+    log.error(f"Total number of wals to start is {str(total_wals)}")
+
     # after the backup is completed, check which wal archive it says is the last one
     end_wal_cmd = (
             f"kubectl get -n {namespace} backups.postgresql.cnpg.io/{backup_name}"
             f" -o custom-columns=endwal:.status.endWal --no-headers"
             )
     end_wal = subproc([end_wal_cmd]).strip()
-    end_wal_folder = f"{cluster_name}/wals/{end_wal[:16]}/{end_wal}"
+    end_wal_folder = f"{all_wals}/{end_wal[:16]}/{end_wal}"
     log.error(f"{end_wal_folder} is the Wal folder we expect for {cluster_name} backup")
 
     # wait till that wal archive is actually available before declaring the
     # function completed
-    credentials = k8s.get_secret("s3-postgres-credentials", namespace)
-    access_key_id = base64.b64decode(credentials['data']['S3_USER']).decode('utf-8')
-    secret_access_key = base64.b64decode(credentials['data']['S3_PASSWORD']).decode('utf-8')
-    log.error("got credentials and about to check s3")
-    s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
     while True:
         log.error("Checking if file is available")
         # after the backup is completed, wait for the final wal archive to complete
         try:
-            s3.list_object(cluster_name, end_wal_folder, recursive=True)
-            log.error(f"{end_wal_folder} was found. Sleeping for 30 seconds just in case.")
-            sleep(30)
+            wal_file = s3.list_object(cluster_name, end_wal_folder, recursive=True)
+            for sub_obj in wal_file:
+                log.info(sub_obj.object_name)
+            log.error(f"{end_wal_folder} was found. Sleeping for 15 seconds just in case.")
+            sleep(15)
             break
         except Exception as e:
             log.error(e)
-            log.error(f"{end_wal_folder} still not found. Sleeping 15 seconds.")
-            sleep(15)
+            log.error(f"{end_wal_folder} still not found. Sleeping 5 seconds.")
+            sleep(5)
             continue
+
+    new_total_wals = get_total_wals(s3, cluster_name, all_wals)
+    log.error(f"New total number of wals after is {str(new_total_wals)}")
+    # verify the wal is absolutely completed by waiting for the next one
+    # while True:
+    #     new_total_wals = get_total_wals(s3, cluster_name, all_wals)
+    #     log.error(f"New total number of wals after is {str(new_total_wals)}")
+    #     if new_total_wals > total_wals:
+    #         log.error(f"New Total number of wals is {str(new_total_wals)} which"
+    #                   f"is more than our starting wal count: {str(total_wals)}"
+    #                   ", so we break and return")
+    #         return
+    #     else:
+    #         log.error(f"Total number of wals is {str(new_total_wals)} which is "
+    #                   f"not more than our starting wal count: {str(total_wals)}"
+    #                   ", so we will wait 10 seconds")
+    #         sleep(10)
+
+def get_total_wals(s3: BetterMinio, cluster_name: str, all_wals_dir: str):
+    """
+    count the number of wals in s3 for this cluster and log them each
+    """
+    log.error("Doing a quick calculation of how many wals there are...")
+    wal_files = s3.list_object(cluster_name, all_wals_dir, recursive=True)
+    total_wals = 0
+    for wal in wal_files:
+        total_wals += 1
+        log.error(f"{str(total_wals)}: Found a wal called {wal.object_name}")
+    return total_wals

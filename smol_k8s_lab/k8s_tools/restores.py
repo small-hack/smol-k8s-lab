@@ -16,6 +16,7 @@ from smol_k8s_lab.utils.minio_lib import BetterMinio
 from datetime import datetime
 from json import loads
 import logging as log
+from minio.error import InvalidResponseError
 from os import path, environ
 from time import sleep
 import yaml
@@ -224,18 +225,23 @@ def restore_cnpg_cluster(k8s_obj: K8s,
     while True:
         try:
             s3_files = s3.list_object(s3_bucket, base_folder, recursive=True)
-            log.info(f"Found {base_folder} in {s3_bucket}, continuing...")
-            break
+            log.info(f"Found folder: {base_folder} in bucket: {s3_bucket}, continuing...")
         except Exception as e:
             log.info(e)
             log.info("S3 not up yet, so couldn't find base folder: "
                      f"{base_folder} in bucket: {s3_bucket}")
 
-    possible_files = []
-    for backup_file in s3_files:
-        if "backup.info" in backup_file.object_name:
-            # will be like: matrix-postgres/base/20240507T122317/backup.info
-            possible_files.append(backup_file.object_name)
+        possible_files = []
+        try:
+            for backup_file in s3_files:
+                if "backup.info" in backup_file.object_name:
+                    # will be like: matrix-postgres/base/20240507T122317/backup.info
+                    possible_files.append(backup_file.object_name)
+        except InvalidResponseError:
+            log.info("We got a not found error... trying again")
+            continue
+        else:
+            break
 
     backup_id = possible_files[-1].split('/')[2]
     log.info(f"backup_id is {backup_id}")
@@ -265,7 +271,11 @@ def restore_cnpg_cluster(k8s_obj: K8s,
             "imageName": f"ghcr.io/cloudnative-pg/postgresql:{postgresql_version}",
             "bootstrap": {
               "initdb": [],
-              "recovery": {"source": cluster_name}
+              "recovery": {
+                  "source": cluster_name,
+                  "recoveryTarget": {"targetImmediate": True,
+                                     "backupID": backup_id}
+                  }
               },
             "certificates": {
               "server": {"enabled": True,
