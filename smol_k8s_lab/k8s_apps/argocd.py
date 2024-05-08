@@ -144,10 +144,10 @@ def configure_secret_plugin_generator(argocd: ArgoCD,
         # immediately install the argocd appset plugin
         log.info("Immediately installing the appset secret plugin via Argo CD")
         repo_url = argocd_config['argo']['repo'].replace("https://","").replace("http://","")
-        ref = argocd_config['argo']['revision']
-        url_sections = repo_url.split('/')
-        owner = url_sections[0].replace("github.com","")
+        url_sections = repo_url.replace("github.com/", "").split('/')
+        owner = url_sections[0]
         repo_name = url_sections[1].replace(".git", "")
+        ref = argocd_config['argo']['revision']
         path = argocd_config['argo']['path']
         if not path.endswith("/"):
             path += "/"
@@ -157,6 +157,7 @@ def configure_secret_plugin_generator(argocd: ArgoCD,
                 f"{ref}/{path}appset_secret_plugin/"
                 "appset_secret_plugin_generator_argocd_app.yaml"
                 )
+        log.info(f"applying {appset_secrets_yaml}")
         argocd.k8s.apply_manifests(appset_secrets_yaml, argocd.namespace)
     else:
         log.info("Reloading deployment for Argo CD Appset Secret Plugin")
