@@ -7,7 +7,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
                                              recreate_pvc,
                                              k8up_restore_pvc,
-                                             restore_postgresql)
+                                             restore_cnpg_cluster)
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.subproc import subproc

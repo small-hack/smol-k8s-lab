@@ -3,7 +3,7 @@ from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias, BetterMinio
 from smol_k8s_lab.k8s_apps.social.mastodon_rake import generate_rake_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
-from smol_k8s_lab.k8s_tools.restores import restore_seaweedfs, restore_postgresql
+from smol_k8s_lab.k8s_tools.restores import restore_seaweedfs, restore_cnpg_cluster
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.subproc import subproc
