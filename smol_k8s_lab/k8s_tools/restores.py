@@ -387,7 +387,7 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                     "values_file": values_file_name,
                     "chart_name": "cnpg-cluster/cnpg-cluster"}
     release = Helm.chart(**release_dict)
-    release.install()
+    release.install(wait=True, upgrade=True)
 
 
 def recreate_pvc(k8s_obj: K8s,

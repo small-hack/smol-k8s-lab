@@ -97,7 +97,7 @@ def configure_argocd(k8s_obj: K8s,
         release_dict['chart_name'] = 'argo-cd/argo-cd'
 
         release = Helm.chart(**release_dict)
-        release.install(True)
+        release.install(wait=True)
 
     argocd = ArgoCD(namespace, argo_cd_domain, k8s_obj)
     if "github.com/small-hack/argocd-apps" in argocd_config_dict['argo']['repo']:
@@ -139,7 +139,7 @@ def configure_secret_plugin_generator(argocd: ArgoCD,
                 namespace='argocd',
                 set_options=set_opts
                 )
-        release.install(True)
+        release.install(wait=True)
 
         # gotta make sure the project already exists
         log.info("Creating argocd project if it does not exist...")

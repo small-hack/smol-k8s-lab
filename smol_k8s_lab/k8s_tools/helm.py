@@ -96,36 +96,46 @@ class Helm:
             return subproc([cmd], quiet=True)
 
 
-        def install(self, wait: bool = False) -> True:
+        def install(self,
+                    wait: bool = False,
+                    release_name: str = "",
+                    chart_name: str = "",
+                    chart_version: str = "",
+                    namespace: str = "",
+                    values_file: str = "",
+                    set_options: dict = {},
+                    upgrade: bool = False,
+                    ) -> True:
             """
             Installs helm chart to current k8s context, takes optional wait arg
             Defaults to False, if True, will wait till deployments are up
-            keyword args:
-                - release_name:  str to call this installation
-                - chart_name:    str of helm chart to use (repo/chart)
-                - chart_version: version of the chart to install
-                - namespace:     str of namespace to deploy release to
-                - values_file:   str of a file to use with --values
-                - set_options:   dict of key/values to be passed with --set
+            args:
+              - release_name:  str to call this installation
+              - chart_name:    str of helm chart to use (repo/chart)
+              - chart_version: version of the chart to install
+              - namespace:     str of namespace to deploy release to
+              - values_file:   str of a file to use with --values
+              - set_options:   dict of key/values to be passed with --set
             """
-            if self.check_existing():
-                log.info(f"{self.release_name} is already installed :)")
-                return True
+            if not upgrade:
+                if self.check_existing():
+                    log.info(f"{self.release_name} is already installed :)")
+                    return True
 
             cmd = (f'helm upgrade {self.release_name} {self.chart_name}'
                    f' --install -n {self.namespace} --create-namespace')
             # f' --atomic')
 
-            if self.__dict__.get('chart_version', False):
-                cmd += f' --version {self.chart_version}'
+            if chart_version:
+                cmd += f' --version {chart_version}'
             else:
                 version = self.get_appset_version()
                 cmd += f' --version {version}'
 
-            if self.__dict__.get('values_file', False):
+            if values_file:
                 cmd += f' --values {self.values_file}'
 
-            if self.__dict__.get('set_options', False):
+            if set_options:
                 for key, value in self.set_options.items():
                     cmd += f' --set {key}={value}'
 
@@ -133,7 +143,6 @@ class Helm:
                 cmd += ' --wait --wait-for-jobs'
 
             subproc([cmd])
-            return True
 
         def get_appset_version(self) -> str:
             """

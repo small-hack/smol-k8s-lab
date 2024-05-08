@@ -22,7 +22,7 @@ def configure_cert_manager(k8s_obj: K8s,
                          chart_name='jetstack/cert-manager',
                          namespace='cert-manager',
                          set_options={'installCRDs': 'true'})
-    release.install(True)
+    release.install(wait=True)
 
     if init_dict['enabled']:
         init_values = init_dict['values']
@@ -34,7 +34,7 @@ def create_cluster_issuers(init_values: dict, k8s_obj: K8s = None) -> None:
     create ClusterIssuers for cert manager
     """
     solver = init_values.get('cluster_issuer_acme_challenge_solver', "http01").lower()
-    if solver == "dns01": 
+    if solver == "dns01":
         # create the cloudflare api token secret
         provider = init_values.get("cluster_issuer_acme_dns01_provider", "")
         if provider == "cloudflare":
@@ -46,8 +46,8 @@ def create_cluster_issuers(init_values: dict, k8s_obj: K8s = None) -> None:
                             "apiTokenSecretRef": {
                                 "name": "cloudflare-api-token",
                                 "key": "token"
-                                } 
-                            } 
+                                }
+                            }
                         }
         else:
             log.error("We currently only support cloudflare as the DNS "
