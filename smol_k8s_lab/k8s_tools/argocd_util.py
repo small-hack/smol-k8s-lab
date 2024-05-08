@@ -10,8 +10,11 @@ class ArgoCD():
     class for common Argo CD functions
     """
 
-    def __init__(self, namespace: str, argo_cd_domain: str,
+    def __init__(self,
+                 namespace: str,
+                 argo_cd_domain: str,
                  k8s_obj: K8s|None = None) -> None:
+
         # setup Argo CD to talk directly to k8s
         log.debug(f"setting namespace to {namespace} and configuring argocd "
                   "to use k8s for auth")
@@ -47,11 +50,20 @@ class ArgoCD():
             cmd += "--force "
         cmd += app
 
-        # run sync command
-        if spinner:
-            return subproc([cmd])
-        else:
-            return subproc([cmd], spinner=False, error_ok=True)
+        counter = 0
+        while True:
+            if counter == 10:
+                log.error("Something has gone wrong with syncs!")
+            # run sync command
+            if spinner:
+                res = subproc([cmd], error_ok=True)
+            else:
+                res = subproc([cmd], spinner=False, error_ok=True)
+
+            if "permission denied" not in res:
+                return res
+
+            counter += 1
 
     def delete_app(self,
                    app: str,
