@@ -488,7 +488,7 @@ def restore_mastodon(argocd: ArgoCD,
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
-        restore_postgresql('mastodon',
+        restore_cnpg_cluster('mastodon',
                            mastodon_namespace,
                            pgsql_cluster_name,
                            psql_version,

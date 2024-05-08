@@ -451,7 +451,7 @@ def restore_zitadel(argocd: ArgoCD,
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
-        restore_postgresql('zitadel',
+        restore_cnpg_cluster('zitadel',
                            zitadel_namespace,
                            pgsql_cluster_name,
                            psql_version,

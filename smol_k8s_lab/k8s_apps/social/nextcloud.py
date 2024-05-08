@@ -260,7 +260,7 @@ def restore_nextcloud(argocd: ArgoCD,
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
-        restore_postgresql(argocd.k8s,
+        restore_cnpg_cluster(argocd.k8s,
                            'nextcloud',
                            nextcloud_namespace,
                            pgsql_cluster_name,

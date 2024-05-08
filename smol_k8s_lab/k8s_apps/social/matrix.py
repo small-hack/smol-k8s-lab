@@ -437,7 +437,7 @@ def restore_matrix(argocd: ArgoCD,
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
         s3_endpoint = secrets.get('s3_endpoint', "")
-        restore_postgresql(argocd.k8s,
+        restore_cnpg_cluster(argocd.k8s,
                            'matrix',
                            matrix_namespace,
                            pgsql_cluster_name,

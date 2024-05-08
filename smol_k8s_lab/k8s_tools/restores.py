@@ -204,19 +204,20 @@ def get_latest_snapshot(pvc: str,
             return snapshot['id']
 
 
-def restore_postgresql(k8s_obj: K8s,
-                       app: str,
-                       namespace: str,
-                       cluster_name: str,
-                       postgresql_version: float,
-                       s3_endpoint: str,
-                       access_key_id: str,
-                       secret_access_key: str,
-                       s3_bucket: str
-                       ):
+def restore_cnpg_cluster(k8s_obj: K8s,
+                         app: str,
+                         namespace: str,
+                         cluster_name: str,
+                         postgresql_version: float,
+                         s3_endpoint: str,
+                         access_key_id: str,
+                         secret_access_key: str,
+                         s3_bucket: str
+                         ):
     """
     restore a CNPG operator controlled postgresql cluster
     """
+    log.info(f"Beginning the restoration cnpg cluster, {cluster_name}.")
     # need to first get the correct backup.info file and make sure s3 is up
     s3 = BetterMinio("", s3_endpoint, access_key_id, secret_access_key)
     base_folder = f"{s3_bucket}/base"
