@@ -143,11 +143,18 @@ def configure_secret_plugin_generator(argocd: ArgoCD,
 
         # gotta make sure the project already exists
         log.info("Creating argocd project if it does not exist...")
+
+        # get project namespaces
+        proj_ns = argocd_config['argo']['project']['destination']['namespaces']
+        if argocd.namespace not in proj_ns:
+            proj_ns.append(argocd.namespace)
+
+        # create argocd project
         argocd.create_project(argocd_config['argo']['project']['name'],
                               "Argo CD",
-                              [argocd.namespace, "prometheus"],
+                              proj_ns,
                               argocd_config['argo']['cluster'],
-                              set(argocd_config['argo']['source_repos']))
+                              set(argocd_config['argo']['project']['source_repos']))
 
         # immediately install the argocd appset plugin
         log.info("Immediately installing the appset secret plugin via Argo CD")
