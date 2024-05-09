@@ -160,6 +160,8 @@ apps:
         hostname: "argocd.test.com"
         # which oidc provider to use for Argo CD: defaults to Zitadel
         oidc_provider: "zitadel"
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
