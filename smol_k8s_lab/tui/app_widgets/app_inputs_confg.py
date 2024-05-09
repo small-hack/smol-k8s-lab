@@ -3,7 +3,7 @@
 # smol-k8s-lab libraries
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
-from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInputsWidget
+from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabInputsWidget
 from smol_k8s_lab.tui.app_widgets.backup_and_restore import BackupWidget, RestoreApp
 from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
@@ -145,16 +145,16 @@ class InitValues(Static):
         if self.init_values and not self.init_enabled:
             inputs_container.display = False
 
-        if self.init_values or self.screen.sensitive_values:
+        if self.init_values:
             with inputs_container:
                 cid = f"{self.app_name}"
                 if self.init_values:
                     # these are special values that are only set up via
                     # smol-k8s-lab and do not live in a secret on the k8s cluster
-                    init_vals =  SmolK8sLabCollapsibleInputsWidget(
+                    init_vals =  SmolK8sLabInputsWidget(
                             app_name=self.app_name,
                             title="Init Values",
-                            collapsible_id=f"{cid}-init-values-collapsible",
+                            id=f"{cid}-init-values-collapsible",
                             inputs=self.init_values)
 
                     init_vals.tooltip = (

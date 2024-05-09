@@ -30,17 +30,16 @@ class BackupWidget(Static):
         compose grid skelleton for backup widget
         """
         if self.screen.modify_cluster:
-            # first the grid for the backup button
+            # first the grid for the backup button if this is an existing cluster
             yield Grid(classes="backup-button-grid",
                        id=f"{self.app_name}-backup-button-grid")
 
-        # second put in the schedule
+        # second put in the schedule row
         yield Label("📆 Scheduled backups", classes="header-row")
-        yield Horizontal(id=f"{self.app_name}-pvc-schedule", classes="argo-config-row")
-        if self.cnpg_restore != "not_applicable":
-            yield Horizontal(id=f"{self.app_name}-postgres-schedule", classes="argo-config-row")
+        yield Grid(id=f"{self.app_name}-backup-schedules-grid",
+                   classes="backups-grid")
 
-        # Collapsible with grid for remote s3 backup values
+        # third: add Collapsible with grid for remote s3 backup values
         yield Collapsible(
                 Grid(classes="collapsible-updateable-grid",
                      id=f"{self.app_name}-backup-grid"),
@@ -50,7 +49,7 @@ class BackupWidget(Static):
                 collapsed=False
                 )
 
-        # second put in the schedule
+        # fourth put in the restic password row
         yield Label("🔒Backup Encryption", classes="header-row")
         yield Horizontal(id=f"{self.app_name}-repo-password", classes="argo-config-row")
 
@@ -83,44 +82,7 @@ class BackupWidget(Static):
             loader.display = False
             grid.mount(loader)
 
-        # first put in the PVC schedule
-        h_grid = self.get_widget_by_id(f"{self.app_name}-pvc-schedule")
-        argo_label = Label("📁 PVC schedule:", classes="argo-config-label")
-        input_id = f"{self.app_name}-pvc-backup-schedule"
-        schedule_val = self.backup_params.get('pvc_schedule', "10 0 * * *")
-        input = Input(placeholder="Enter a cron syntax schedule for backups.",
-                      value=schedule_val,
-                      name='pvc_schedule',
-                      validators=[Length(minimum=5)],
-                      id=input_id,
-                      classes=f"{self.app_name} argo-config-input")
-        input.validate(schedule_val)
-        tip = ("Cron syntax schedule for recurring backup. If you're new to"
-               " cron sytax, check out crontab.guru. Must be at least 7 minutes "
-               "after postgres backup")
-        argo_label.tooltip = tip
-        input.tooltip = tip
-        h_grid.mount(argo_label)
-        h_grid.mount(input)
-
-        if self.cnpg_restore != "not_applicable":
-            h_grid = self.get_widget_by_id(f"{self.app_name}-postgres-schedule")
-            argo_label = Label("🐘 postgresql schedule:", classes="argo-config-label")
-            input_id = f"{self.app_name}-postgres-backup-schedule"
-            schedule_val = self.backup_params.get('postgres_schedule', "0 0 0 * * *")
-            input = Input(placeholder="Enter a cron syntax schedule for postgres database backups.",
-                          value=schedule_val,
-                          name='postgres_schedule',
-                          validators=[Length(minimum=5)],
-                          id=input_id,
-                          classes=f"{self.app_name} argo-config-input")
-            input.validate(schedule_val)
-            tip = ("Schedule for recurring postgres backup that includes a seconds field."
-                   " This backup must be at least 7 minutes before the PVC backup.")
-            argo_label.tooltip = tip
-            input.tooltip = tip
-            h_grid.mount(argo_label)
-            h_grid.mount(input)
+        self.add_schedule_rows()
 
         self.generate_s3_rows()
 
@@ -140,9 +102,57 @@ class BackupWidget(Static):
                 password=True,
                 classes=f"{self.app_name} argo-config-input"
                 )
-        input.validate(input_val)
+        repo_pw_input.validate(input_val)
         repo_grid.mount(repo_pw_labl)
         repo_grid.mount(repo_pw_input)
+
+    def add_schedule_rows(self) -> None:
+        """
+        add schedule input rows for pvc and postgres backups
+        """
+        # first put in the PVC schedule
+        b_grid = self.get_widget_by_id(id=f"{self.app_name}-backup-schedules-grid")
+        argo_label = Label("📁 PVC schedule:", classes="argo-config-label")
+        input_id = f"{self.app_name}-pvc-backup-schedule"
+        schedule_val = self.backup_params.get('pvc_schedule', "10 0 * * *")
+        input = Input(placeholder="Enter a cron syntax schedule for backups.",
+                      value=schedule_val,
+                      name='pvc_schedule',
+                      validators=[Length(minimum=5)],
+                      id=input_id,
+                      classes=f"{self.app_name} argo-config-input")
+        input.validate(schedule_val)
+        tip = ("Cron syntax schedule for recurring backup. If you're new to"
+               " cron sytax, check out crontab.guru. Must be at least 7 minutes "
+               "after postgres backup. Defaults to '10 0 * * *' which is ten "
+               "minutes after midnight.")
+        argo_label.tooltip = tip
+        input.tooltip = tip
+        b_grid.mount(Horizontal(argo_label, input,
+                                id=f"{self.app_name}-pvc-schedule",
+                                classes="argo-config-row"))
+
+        # then put in the postgres schedule, if it's enabled
+        if self.cnpg_restore != "not_applicable":
+            argo_label = Label("🐘 DB schedule:", classes="argo-config-label")
+            input_id = f"{self.app_name}-postgres-backup-schedule"
+            schedule_val = self.backup_params.get('postgres_schedule', "0 0 0 * * *")
+            input = Input(placeholder="Enter a cron syntax schedule for postgres database backups.",
+                          value=schedule_val,
+                          name='postgres_schedule',
+                          validators=[Length(minimum=5)],
+                          id=input_id,
+                          classes=f"{self.app_name} argo-config-input")
+            input.validate(schedule_val)
+            tip = ("Schedule for recurring postgresql backup that includes a seconds field."
+                   " This backup must be at least 7 minutes before the PVC backup."
+                   " Defaults to '0 0 0 * * *' which runs when the clock strikes"
+                   " midnight. 🎃")
+            argo_label.tooltip = tip
+            input.tooltip = tip
+            b_grid.mount(Horizontal(argo_label, input,
+                                    id=f"{self.app_name}-postgres-schedule",
+                                    classes="argo-config-row"))
 
     def generate_s3_rows(self) -> None:
         """

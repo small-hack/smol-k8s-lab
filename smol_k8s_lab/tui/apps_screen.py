@@ -12,7 +12,7 @@ from smol_k8s_lab.tui.util import format_description
 # external libraries
 from kubernetes.config import ConfigException
 from os import environ
-from textual import on
+from textual import on, work
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import VerticalScroll, Container, Grid
@@ -369,13 +369,13 @@ class AppsConfigScreen(Screen):
 
         self.previous_app = highlighted_app
 
-        # verify the app is enabled in the cfg
-        app_enabled = self.cfg[highlighted_app]['enabled']
+        self.update_border_buttons(app_inputs_pane, highlighted_app)
+
+    @work(group="check-app-exists-workers")
+    async def update_border_buttons(self, app_inputs_pane, app) -> None:
         # verify app is actually in Argo CD
         if self.modify_cluster:
-            app_exists = self.argocd.check_if_app_exists(highlighted_app)
-
-            if self.modify_cluster and app_enabled and app_exists:
+            if self.argocd.check_if_app_exists(app):
                 self.log(f"Displaying sync and delete buttons for {self.previous_app}")
                 app_inputs_pane.border_subtitle = (
                         "[@click=screen.sync_argocd_app]🔁 sync[/] / "

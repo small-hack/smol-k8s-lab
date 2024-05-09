@@ -122,6 +122,11 @@ TabbedContent #--content-tab-backup-tab.-active {
     padding: 0;
 }
 
+.backups-grid {
+    height: auto;
+    grid-gutter: 1;
+}
+
 /* each collapsible in the app config panel */
 Collapsible {
     background: $navy 60%;
@@ -319,3 +324,4 @@ CollapsibleTitle:focus {
    padding-top: 1;
    color: $bluish_white 60%;
 }
+
