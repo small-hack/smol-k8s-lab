@@ -315,14 +315,13 @@ def restore_cnpg_cluster(k8s_obj: K8s,
             }
 
     # this creates a values.yaml from restore_dict above
-    values_file_name = path.join(XDG_CACHE_DIR,
-                                 f'{app}_cnpg_restore_values.yaml')
-    with open(values_file_name, 'w') as values_file:
-        yaml.dump(restore_dict, values_file)
+    values_file = path.join(XDG_CACHE_DIR, f'{app}_cnpg_restore_values.yaml')
+    with open(values_file, 'w') as val_file:
+        yaml.dump(restore_dict, val_file)
 
     release_dict = {"release_name": f"{app}-postgres-cluster",
                     "namespace": namespace,
-                    "values_file": values_file_name,
+                    "values_file": values_file,
                     "chart_name": "cnpg-cluster/cnpg-cluster"}
     release = Helm.chart(**release_dict)
 
