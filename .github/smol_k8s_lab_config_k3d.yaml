@@ -15,7 +15,7 @@ smol_k8s_lab:
         on_focus: true
         # ring the built in terminal bell when something is wrong
         on_error: true
-      text_to_speech: 
+      text_to_speech:
         # use a specific program for text to speech - needs to be a full path
         # macOS default: say
         speech_program: say
@@ -68,7 +68,7 @@ k8s_distros:
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. If you enable cilium, we
-    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    # automatically pass in flannel-backend: none and disable-network-policy: true
     k3s_yaml:
       # if you enable MetalLB, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
@@ -87,7 +87,7 @@ k8s_distros:
     enabled: true
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. if you enable cilium, we
-    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    # automatically pass in flannel-backend: none and disable-network-policy: true
     k3s_yaml:
       # if you enable MetalLB, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
@@ -170,6 +170,7 @@ apps:
       directory_recursion: true
       # source repos for Argo CD argo-cd Project (in addition to argo_cd.argo.repo)
       project:
+        name: argo-cd
         source_repos:
           - https://argoproj.github.io/argo-helm
           - https://small-hack.github.io/appset-secret-plugin
@@ -482,7 +483,7 @@ apps:
   kubevirt:
     description: |
       [link=https://kubevirt.io/]kubevirt[/link] lets you manage virtual machines via Kubernetes.
-  
+
     # default disabled while a helm chart is being actively developed
     enabled: false
     argo:
@@ -500,7 +501,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
-        source_repos: 
+        source_repos:
           - "https://github.com/small-hack/argocd-apps"
         destination:
           # automatically includes the app's namespace and argocd's namespace
@@ -567,7 +568,7 @@ apps:
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
-        # set the local s3 provider for mastodon's public data in one bucket 
+        # set the local s3 provider for mastodon's public data in one bucket
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
@@ -609,7 +610,7 @@ apps:
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
 
       smol-k8s-lab supports initialization by creating initial secrets for your:
-        - matrix, element, and federation hostnames, 
+        - matrix, element, and federation hostnames,
         - credentials for: postgresql, admin user, S3 storage, and SMTP
 
       smol-k8s-lab also sets up an OIDC application via Zitadel.
