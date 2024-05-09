@@ -364,9 +364,9 @@ class K8s():
         # keep retrying till we find the thing...
         while True:
             if not quiet:
-                res = subproc([wait_cmd])
+                res = subproc([wait_cmd], error_ok=True)
             else:
-                res = subproc([wait_cmd], quiet=True)
+                res = subproc([wait_cmd], error_ok=True, quiet=True)
 
             if "no matching resources found" not in res:
                 log.info("found resource and waited on it")

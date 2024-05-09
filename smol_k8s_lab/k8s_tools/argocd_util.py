@@ -43,7 +43,7 @@ class ArgoCD():
         syncs an argocd app and returns the result
         """
         # build sync command
-        cmd = "argocd app sync --retry-limit 3 "
+        cmd = "argocd app sync --retry-limit 3 --loglevel warn"
         if replace:
             cmd += "--replace "
         if force:
@@ -149,7 +149,7 @@ class ArgoCD():
             # while error still equals True, keep retrying the command
             while error:
                 try:
-                    subproc([f"argocd app wait {app} --health"])
+                    subproc([f"argocd app wait {app} --health --loglevel warn"])
                 except Exception as e:
                     log.debug(e)
                     error = True
@@ -157,7 +157,7 @@ class ArgoCD():
                 else:
                     error = False
         else:
-            subproc([f"argocd app wait {app}"])
+            subproc([f"argocd app wait {app} --health --loglevel warn"])
 
     def create_project(self,
                        project_name: str,
