@@ -3,7 +3,6 @@ from .constants import DEFAULT_SAVE_PATH, SPEECH_TEXT_DIRECTORY
 # external libs
 import click
 from click import option, command, Choice
-import tarfile
 from os import environ, path, system
 from rich.console import Console
 from rich.highlighter import RegexHighlighter
@@ -112,7 +111,6 @@ class RichCommand(click.Command):
 @option("--language", "-l",
         metavar="LANGUAGE",
         type=Choice(["all", "en", "nl"], case_sensitive=False),
-        required=True,
         help='2 character language')
 @option("--save_path", "-s",
         metavar="PATH",
@@ -122,10 +120,14 @@ class RichCommand(click.Command):
 @option("--tar", "-t",
         is_flag=True,
         help="tar (compress) all the sound files and put them into sound dir. Used mostly for releases")
+@option("--untar", "-u",
+        is_flag=True,
+        help="untar (decompress) all the sound files and put them into sound dir. Used mostly for releases")
 def tts_gen(category: str = "",
             language: str = "",
             save_path: str = "",
-            tar: bool = False):
+            tar: bool = False,
+            untar: bool = False):
     """
     regenerate TTS audio files and report how long it took
     """
@@ -149,8 +151,12 @@ def tts_gen(category: str = "",
 
         # tar the directory and save it in the release directory if needed
         if tar:
-            tarball = tarfile.open(f"audio-{language}.tar.gz", "w:gz")
-            tarball.add(path.join(save_path, language))
+            import tarfile
+            tarball = tarfile.open(path.join(DEFAULT_SAVE_PATH,
+                                             f"audio-{language}.tar.gz"),
+                                   "w:gz")
+            tar_path = path.join(save_path, language)
+            tarball.add(tar_path, arcname=path.basename(tar_path))
             tarball.close()
 
         # print how long everything took
@@ -161,6 +167,19 @@ def tts_gen(category: str = "",
         lang_path = path.join(SPEECH_TEXT_DIRECTORY, f"{language}.yml")
         system(f"cp {lang_path} {cached_cfg_path}")
         header("Afgewerkt.")
+    elif untar:
+        # import tarfile
+        import tarfile
+
+        if not language:
+            language = "en"
+
+        # open file
+        file = tarfile.open(path.join(DEFAULT_SAVE_PATH, f"audio-{language}.tar.gz"))
+        # extracting file
+        file.extractall(DEFAULT_SAVE_PATH)
+        # close file
+        file.close()
 
 
 if __name__ == "__main__":
