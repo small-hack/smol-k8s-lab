@@ -7,6 +7,7 @@ from kubernetes.client.rest import ApiException
 import logging as log
 from os import path
 from ruamel.yaml import YAML
+from time import sleep
 
 # internal libraries
 from ..constants import XDG_CACHE_DIR
@@ -360,7 +361,16 @@ class K8s():
             log.error("Expected [i]name[/i] or [i]instance[/i] for wait command")
             return
 
-        if not quiet:
-            subproc([wait_cmd])
-        else:
-            subproc([wait_cmd], quiet=True)
+        # keep retrying till we find the thing...
+        while True:
+            if not quiet:
+                res = subproc([wait_cmd])
+            else:
+                res = subproc([wait_cmd], quiet=True)
+
+            if "no matching resources found" not in res:
+                log.info("found resource and waited on it")
+                return res
+            else:
+                log.debug("No matching resource found, waiting 3 seconds...")
+                sleep(3)
