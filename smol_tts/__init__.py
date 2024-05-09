@@ -11,6 +11,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 from smol_k8s_lab.utils.rich_cli.console_logging import header, sub_header
+import time
 from xdg_base_dirs import xdg_cache_home
 
 
@@ -111,6 +112,7 @@ class RichCommand(click.Command):
 @option("--language", "-l",
         metavar="LANGUAGE",
         type=Choice(["all", "en", "nl"], case_sensitive=False),
+        default="en",
         help='2 character language')
 @option("--save_path", "-s",
         metavar="PATH",
@@ -131,14 +133,29 @@ def tts_gen(category: str = "",
     """
     regenerate TTS audio files and report how long it took
     """
-    if language:
+    # start the timer for how long this took
+    s = time.perf_counter()
+
+    if untar:
+        # import tarfile
+        import tarfile
+
+        if not language:
+            language = "en"
+
+        # open file
+        file = tarfile.open(path.join(DEFAULT_SAVE_PATH,
+                                      f"audio-{language}.tar.gz"))
+        # extracting file
+        file.extractall(DEFAULT_SAVE_PATH)
+        # close file
+        file.close()
+        header("De untar is klaar.")
+
+    if not untar:
         # internal libs
         from .audio_generation import AudioGenerator
         import asyncio
-        import time
-
-        # start the timer
-        s = time.perf_counter()
 
         header(f"Saving files to {save_path}", "💾")
 
@@ -159,27 +176,19 @@ def tts_gen(category: str = "",
             tarball.add(tar_path, arcname=path.basename(tar_path))
             tarball.close()
 
-        # print how long everything took
-        elapsed = time.perf_counter() - s
-        header(f"smol-tts executed in {elapsed:0.2f} seconds.", "🕐")
 
         sub_header("Caching config for checking diff next time.")
         lang_path = path.join(SPEECH_TEXT_DIRECTORY, f"{language}.yml")
         system(f"cp {lang_path} {cached_cfg_path}")
-        header("Afgewerkt.")
-    elif untar:
-        # import tarfile
-        import tarfile
 
-        if not language:
-            language = "en"
 
-        # open file
-        file = tarfile.open(path.join(DEFAULT_SAVE_PATH, f"audio-{language}.tar.gz"))
-        # extracting file
-        file.extractall(DEFAULT_SAVE_PATH)
-        # close file
-        file.close()
+    # print how long everything took
+    elapsed = time.perf_counter() - s
+
+    if language == "en":
+        header(f"smol-tts is finished. It took {elapsed:0.2f} seconds.")
+    elif language == "nl":
+        header(f"smol-tts is klaar. Het duurde {elapsed:0.2f} seconden.")
 
 
 if __name__ == "__main__":
