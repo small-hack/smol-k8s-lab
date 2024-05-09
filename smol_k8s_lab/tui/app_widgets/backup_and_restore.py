@@ -270,7 +270,7 @@ class RestoreApp(Static):
             # left hand side: base label with tool tip
             init_lbl = Label("Restore from backup", classes="initialization-label")
             init_lbl.tooltip = (
-                "If enabled, smol-k8s-lab will [magenta]restore[/magenta] "
+                "If enabled, smol-k8s-lab will [#ffaff9]restore[/magenta] "
                 f"{self.app_name}'s PVCs from an [b]s3[/b] compatible endpoint "
                 "using [b]restic[/b] via [b]k8up[/b]. (Optionally, we can also "
                 "restore a CNPG cluster)")

@@ -77,7 +77,7 @@ class ClusterModalScreen(ModalScreen):
 
                     # delete button deletes the cluster
                     delete_button = Button("🚮 Delete", id="delete-cluster-first-try")
-                    delete_button.tooltip = "[magenta]Delete[/] the existing cluster 😱"
+                    delete_button.tooltip = "[#ffaff9]Delete[/] the existing cluster 😱"
                     # we can only delete the following k8s distro types
                     if self.distro not in ["kind", "k3d", "k3s"]:
                         delete_button.disabled = False

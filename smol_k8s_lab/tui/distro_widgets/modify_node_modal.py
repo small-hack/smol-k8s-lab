@@ -38,7 +38,7 @@ class NodeModalScreen(ModalScreen):
 
                     # delete button deletes the node
                     delete_button = Button("🚮 Delete", id="delete-node-first-try")
-                    delete_button.tooltip = "[magenta]Delete[/] the node 😱"
+                    delete_button.tooltip = "[#ffaff9]Delete[/] the node 😱"
                     yield delete_button
 
                     cancel = Button("🤷 Cancel", id="cancel")
