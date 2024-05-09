@@ -169,7 +169,6 @@ phrases:
   switch_on: switch is in the on position
   switch_off: switch is in the off position
   # welcome screen
-  v: Version
   point: point
   cluster: Cluster
   distro: Distribution
@@ -177,7 +176,7 @@ phrases:
   platform: Platform
   clusters_data_table: clusters data table
   new_cluster_button: new cluster button
-  unknown_version: The version of the cluster is unkown. Is docker running?
+  unknown_version: The version of the cluster is unkown. If it's a K. three D. or kind cluster, docker may not be running?
   # tui config screen
   tui_enabled: Terminal U.I. switch
   footer: footer switch
@@ -343,6 +342,8 @@ phrases:
   delete_button_second_try: very sure delete cluster button
   # these are all for the help screen
   key_mappings_table: key mappings table
+
+keys:
   meta_plus_click: |
     Meta key plus left click. Description: opens a link; this is terminal dependent, so meta can be shift, option, windows Key, command, or control
   right_arrow: |
