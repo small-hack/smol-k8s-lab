@@ -100,6 +100,8 @@ def configure_argocd(k8s_obj: K8s,
         release.install(wait=True)
 
     argocd = ArgoCD(namespace, argo_cd_domain, k8s_obj)
+
+    # install the appset secret plugin generator if we're using that
     if "github.com/small-hack/argocd-apps" in argocd_config_dict['argo']['repo']:
         if argocd_config_dict['argo']['directory_recursion']:
             configure_secret_plugin_generator(argocd,
