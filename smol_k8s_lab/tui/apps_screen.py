@@ -408,7 +408,7 @@ class AppsConfigScreen(Screen):
         self.notify(response,
                     timeout=10,
                     severity=severity,
-                    title=f"🦑 Argo CD Sync [green]{self.previous_app}[/] Response\n")
+                    title=f"🦑 Argo CD Sync [#87ff89]{self.previous_app}[/] Response\n")
 
     def action_delete_argocd_app(self) -> None:
         """
@@ -434,7 +434,7 @@ class AppsConfigScreen(Screen):
         self.notify(response,
                     timeout=10,
                     severity=severity,
-                    title=f"🦑 Argo CD Delete [green]{self.previous_app}[/] Response\n")
+                    title=f"🦑 Argo CD Delete [#87ff89]{self.previous_app}[/] Response\n")
 
     @on(SelectionList.SelectionToggled)
     def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:
