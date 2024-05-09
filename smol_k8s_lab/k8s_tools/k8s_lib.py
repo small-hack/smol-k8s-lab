@@ -248,7 +248,7 @@ class K8s():
                        f"deployment/{deployment}")
 
             cmds.append("kubectl wait --for=condition=ready pod --selector="
-                       f"{selector} --timeout=90s -n {namespace}")
+                       f"{selector} --timeout=5m -n {namespace}")
 
         # loops with progress bar until this succeeds
         subproc(cmds)
@@ -314,7 +314,10 @@ class K8s():
             self.delete_secret(secret_name, secret_namespace)
             self.create_secret(secret_name, secret_namespace, secret_data)
 
-    def run_k8s_cmd(self, pod_name: str, namespace: str, command: str,
+    def run_k8s_cmd(self,
+                    pod_name: str,
+                    namespace: str,
+                    command: str,
                     container: str = "") -> str:
         """
         run a given command for a given pod in a given namespace and return the result
@@ -329,3 +332,35 @@ class K8s():
             run_dict['container'] = container
 
         return self.core_v1_api.connect_get_namespaced_pod_exec(**run_dict)
+
+
+    def wait(self,
+             namespace: str,
+             name: str = "",
+             instance: str = "",
+             quiet: bool = False) -> str:
+        """
+        wait for a given deployment, statefulset, pod, or job to complete or be ready.
+        must pass in either name or instance args.
+
+        args:
+            namespace  - str, namespace of resource to wait on
+            name       - str, optional name of resource to wait on
+            instance   - str, optional value for app.kubernetes.io/instance label
+        """
+        wait_cmd = (
+                f'kubectl wait pod -n {namespace} --for=condition=ready --timeout=10m'
+                )
+
+        if instance:
+            wait_cmd += f" -l app.kubernetes.io/instance={instance}"
+        elif name:
+            wait_cmd += f" {name}"
+        else:
+            log.error("Expected [i]name[/i] or [i]instance[/i] for wait command")
+            return
+
+        if not quiet:
+            subproc([wait_cmd])
+        else:
+            subproc([wait_cmd], quiet=True)

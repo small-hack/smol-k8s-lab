@@ -90,6 +90,9 @@ def restore_seaweedfs(argocd: ArgoCD,
     # and finally wait for the seaweedfs helm chart app to be ready
     argocd.wait_for_app(f"{app}-seaweedfs", retry=True)
 
+    # but then wait again on the pods, just in case...
+    argocd.k8s.wait(namespace, instance=f"{app}-seaweedfs")
+
 
 def k8up_restore_pvc(k8s_obj: K8s,
                      app: str,
@@ -104,7 +107,6 @@ def k8up_restore_pvc(k8s_obj: K8s,
     """
     builds a k8up restore manifest and applies it
     """
-
     # we timestamp this restore job just in case there's others around
     now = datetime.now().strftime('%Y-%m-%d-%H-%M')
     restore_dict = {'apiVersion': 'k8up.io/v1',
@@ -239,8 +241,8 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                     # will be like: matrix-postgres/base/20240507T122317/backup.info
                     possible_files.append(backup_file.object_name)
         except InvalidResponseError:
-            log.info("We got a not found error... trying again in 5 seconds")
-            sleep(5)
+            log.info("We got a not found error... trying again in 10 seconds")
+            sleep(10)
             continue
         else:
             break
