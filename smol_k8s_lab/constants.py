@@ -17,6 +17,9 @@ SYSINFO = uname()
 # this will be something like ('Darwin', 'x86_64')
 OS = (SYSINFO.sysname, SYSINFO.machine)
 
+# don't show pygame hello message
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
+
 HOME_DIR = environ["HOME"]
 USER = getuser()
 
