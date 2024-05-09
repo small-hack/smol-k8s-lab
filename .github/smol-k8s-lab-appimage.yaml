@@ -11,6 +11,10 @@ ingredients:
     - deb http://us.archive.ubuntu.com/ubuntu/ bookworm-security main universe
   packages:
     - python3.12-venv
+    # these are for making sound work
+    - libasound2-data
+    - libasound2-plugins
+    - libasound2
   script:
     -  wget -c https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/smol-k8s-lab.png
     -  wget -c https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/smol_k8s_lab/config/smol-k8s-lab.appdata.xml

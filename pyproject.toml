@@ -55,6 +55,7 @@ mkdocs-video    = "^1.5"
 deptry                  = "^0.16"
 textual-dev             = "^1.1"
 pytest-textual-snapshot = "^0.4"
+# poetry-plugin-appimage  = "^0.0.4"
 
 [tool.poetry.group.audio]
 optional = true
@@ -71,6 +72,11 @@ pydub         = "^0.25.1"
 [tool.poetry.scripts]
 smol-k8s-lab = "smol_k8s_lab:main"
 smol-tts     = "smol_tts:tts_gen"
+
+# [tool.poetry-plugin-appimage]
+# miniconda = "24.3.0"
+# python = "3.12"
+# categories = "ConsoleOnly;"
 
 [build-system]
 requires      = ["poetry-core"]
