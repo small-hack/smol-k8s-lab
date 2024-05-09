@@ -24,3 +24,7 @@ site/**
 
 # don't check in any personal logs
 logs/**
+
+
+smol_k8s_lab/audio/en/**
+smol_k8s_lab/audio/nl/**
