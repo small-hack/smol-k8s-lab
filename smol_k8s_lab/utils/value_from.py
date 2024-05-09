@@ -59,7 +59,7 @@ def process_backup_vals(backup_dict: dict,
             "s3_password": extract_secret(s3_values.get('secret_access_key', '')),
             "restic_repo_pass": extract_secret(backup_dict.get('restic_repo_password', '')),
             "pvc_schedule": backup_dict.get('pvc_schedule', "15 0 * * *"),
-            "postgres_schedule": backup_dict.get('postgres_schedule', "0 0 * * *")
+            "postgres_schedule": backup_dict.get('postgres_schedule', "0 0 0 * * *")
             }
 
     if app and argocd:
