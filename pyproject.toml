@@ -55,11 +55,13 @@ mkdocs-video    = "^1.5"
 deptry                  = "^0.16"
 textual-dev             = "^1.1"
 pytest-textual-snapshot = "^0.4"
+# for creating app images: https://pypi.org/project/poetry-plugin-appimage/
 # poetry-plugin-appimage  = "^0.0.4"
 
 [tool.poetry.group.audio]
 optional = true
 
+# this group is only needed for development
 [tool.poetry.group.audio.dependencies]
 coqui-tts     = "^0.23.1"
 # note: this still requires you to install ffmpeg
@@ -73,6 +75,7 @@ pydub         = "^0.25.1"
 smol-k8s-lab = "smol_k8s_lab:main"
 smol-tts     = "smol_tts:tts_gen"
 
+# for creating app images: https://pypi.org/project/poetry-plugin-appimage/
 # [tool.poetry-plugin-appimage]
 # miniconda = "24.3.0"
 # python = "3.12"

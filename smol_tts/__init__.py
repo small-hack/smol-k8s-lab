@@ -122,7 +122,9 @@ class RichCommand(click.Command):
 @option("--tar", "-t",
         is_flag=True,
         help="tar (compress) all the sound files and put them into sound dir. Used mostly for releases")
-def tts_gen(category: str = "", language: str = "", save_path: str = "",
+def tts_gen(category: str = "",
+            language: str = "",
+            save_path: str = "",
             tar: bool = False):
     """
     regenerate TTS audio files and report how long it took
