@@ -169,11 +169,14 @@ class SmolAudio(Widget):
             # say the element without the app if requested
             if say_trimmed:
                 # clear cruft around the word we want to say
+                self.log("💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁")
                 self.log(trim_text)
+                self.log("💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁")
                 trim_text = trim_text.lstrip("_")
                 if trim_text.endswith("input"):
                     trim_text = trim_text.rstrip("_input")
                 self.log(trim_text)
+                self.log("💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁💁")
                 self.say_phrase(f"{trim_text}.mp3")
         elif restic_snapshot_id:
             # if it starts with seaweedfs, then it's for seaweedfs
@@ -485,9 +488,13 @@ class SmolAudio(Widget):
             # if this is a selection list, such as the apps list
             elif isinstance(focused, SelectionList):
                 self.say_phrase(f'{focused_id}.mp3')
-                self.say_phrase("highlighted.mp3")
                 # get the actual highlighted app
                 highlighted_idx = focused.highlighted
+                if not highlighted_idx:
+                    highlighted_idx = 0
+                    self.say_phrase("first_app_is.mp3")
+                else:
+                    self.say_phrase("highlighted.mp3")
                 highlighted_app = focused.get_option_at_index(highlighted_idx).value
                 # say name of app
                 self.say(audio_file=path.join(self.apps_audio, f'{highlighted_app}.mp3'))
