@@ -59,7 +59,12 @@ class SmolAudio(Widget):
         """
         play audio file with pygame
         """
-        audio = CORE_MIXER.Sound(audio_file)
+        try:
+            audio = CORE_MIXER.Sound(audio_file)
+        except FileNotFoundError:
+            self.log(f"audio file not found :( audio file is '{audio_file}'")
+            audio = CORE_MIXER.Sound(path.join(self.tts_files, 'phrases/um.mp3'))
+
         while True:
             if not CORE_MIXER.get_busy():
                 break
@@ -391,8 +396,8 @@ class SmolAudio(Widget):
                         self.say_phrase('init_values.mp3')
                     else:
                         self.say_app(focused_id, "_init_values_collapsible")
-                elif focused_id.endswith("_argo_config_collapsible"):
-                    self.say_app(focused_id, "_argo_config_collapsible")
+                elif focused_id.endswith("_argocd_app_config"):
+                    self.say_app(focused_id, "_argocd_app_config")
                 elif focused_id.endswith("_secret_keys_collapsible"):
                     self.say_app(focused_id, "_secret_keys_collapsible")
                 elif focused_id.endswith("_argo_proj_config_collapsible"):
@@ -423,6 +428,9 @@ class SmolAudio(Widget):
                 # state the ID of the tabbed content out loud
                 self.say_phrase(f'{focused_id}.mp3')
         else:
+            self.log("🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗")
+            self.log(focused_id)
+            self.log("🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗")
             # play the basic beginning of the sentence "Element is..."
             self.say(audio_file=self.element_audio)
             # if k3s is in the text to play, play that seperately
@@ -430,7 +438,12 @@ class SmolAudio(Widget):
                 self.say(audio_file=self.k3s_audio)
                 focused_id = focused_id.replace("k3s_", "")
 
-            if isinstance(focused, Input):
+            if focused_id.endswith("_app_widget"):
+                self.log("🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗")
+                self.say_app(focused_id, "_app_widget")
+                self.log("🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗")
+
+            elif isinstance(focused, Input):
                 self.say_input(focused_id)
 
             elif isinstance(focused, Button):
@@ -466,9 +479,7 @@ class SmolAudio(Widget):
             # if this is an app inputs widget container, we need to get the app
             # name and then read that first before the name of the vertical scroll
             elif isinstance(focused, VerticalScroll):
-                if focused_id.endswith("_app_widget"):
-                    self.say_app(focused_id, "_app_widget")
-                elif focused_id.endswith("_argo_config_container"):
+                if focused_id.endswith("_argo_config_container"):
                     self.say_app(focused_id, "_argo_config_container")
                 else:
                     self.say_phrase(f'{focused_id}.mp3')

@@ -225,7 +225,7 @@ phrases:
   init_tab: Initialization config tab
   argocd_tab: Argo C.D. Application and Project configuration tab
   argo_config_container: Argo C.D. config container
-  argo_config_collapsible: Argo C.D. Application configuration
+  argocd_app_config: Argo C.D. Application configuration
   secret_keys_collapsible: Template values for argo C.D. application set
   argo_proj_config_collapsible: Advanced argo C.D. project configuration
   restore_config_collapsible: Restic Snapshot IDs

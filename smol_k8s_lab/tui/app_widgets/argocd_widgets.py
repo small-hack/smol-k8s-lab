@@ -24,13 +24,13 @@ class ArgoCDApplicationConfig(Static):
                           collapsed=False,
                           title="Argo CD Application Configuration",
                           classes="collapsible-with-some-room",
-                          id=f"{self.app_name}-argo-config-collapsible")
+                          id=f"{self.app_name}-argocd-app-config")
 
     def on_mount(self) -> None:
         """
         add tool tip for collapsible and generate all the argocd input rows
         """
-        header = self.get_widget_by_id(f"{self.app_name}-argo-config-collapsible")
+        header = self.get_widget_by_id(f"{self.app_name}-argocd-app-config")
 
         header.tooltip = (
                 "Configure parameters for an Argo CD Application. Designed "

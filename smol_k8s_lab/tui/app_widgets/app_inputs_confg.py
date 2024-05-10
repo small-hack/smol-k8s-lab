@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.11
-
 # smol-k8s-lab libraries
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
@@ -11,7 +9,7 @@ from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 from ruamel.yaml import CommentedSeq
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal, VerticalScroll, Grid
+from textual.containers import Container, Horizontal, Grid
 from textual.validation import Length
 from textual.widgets import (Input, Label, Button, Switch, Static, Collapsible,
                              TabbedContent, TabPane)
@@ -32,27 +30,24 @@ class AppInputs(Static):
         super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
-
         # standard values to source an argo cd app from an external repo
-        with VerticalScroll(id=f"{self.app_name}-argo-config-container",
-                            classes="argo-config-container"):
-            if self.init:
-                if self.init['enabled']:
-                    initial_tab = "init-tab"
-                else:
-                    initial_tab = "argocd-tab"
-                # Add the TabbedContent widget for app config
-                with TabbedContent(initial=initial_tab,
-                                   id="app-config-tabbed-content"):
-                    # tab 1 - init options
-                    yield TabPane("Initialization Config", id="init-tab")
-                    # tab 2 - argo options
-                    yield TabPane("Argo CD App Config", id="argocd-tab")
+        if self.init:
+            if self.init['enabled']:
+                initial_tab = "init-tab"
+            else:
+                initial_tab = "argocd-tab"
+            # Add the TabbedContent widget for app config
+            with TabbedContent(initial=initial_tab,
+                               id="app-config-tabbed-content"):
+                # tab 1 - init options
+                yield TabPane("Initialization Config", id="init-tab")
+                # tab 2 - argo options
+                yield TabPane("Argo CD App Config", id="argocd-tab")
 
-                    # tab 3,4 - backup/restore options (if we support it for this app)
-                    if self.app_name in RESTOREABLE:
-                        yield TabPane("Backup", id="backup-tab")
-                        yield TabPane("Restore", id="restore-tab")
+                # tab 3,4 - backup/restore options (if we support it for this app)
+                if self.app_name in RESTOREABLE:
+                    yield TabPane("Backup", id="backup-tab")
+                    yield TabPane("Restore", id="restore-tab")
 
     def on_mount(self) -> None:
         """
@@ -90,10 +85,9 @@ class AppInputs(Static):
         """
         create a custom app widget for the app-config-pane
         """
-        grid = self.get_widget_by_id(f"{self.app_name}-argo-config-container")
-        grid.mount(ArgoCDApplicationConfig(self.app_name, self.argo_params))
-        grid.mount(AppsetSecretValues(self.app_name, secret_keys))
-        grid.mount(ArgoCDProjectConfig(self.app_name,
+        self.mount(ArgoCDApplicationConfig(self.app_name, self.argo_params))
+        self.mount(AppsetSecretValues(self.app_name, secret_keys))
+        self.mount(ArgoCDProjectConfig(self.app_name,
                                        self.argo_params['project']))
 
     def create_backup_and_restore_widgets(self):
