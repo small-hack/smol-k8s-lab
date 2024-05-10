@@ -43,7 +43,7 @@ class ArgoCD():
         syncs an argocd app and returns the result
         """
         # build sync command
-        cmd = "argocd app sync --retry-limit 3 --loglevel warn"
+        cmd = "argocd app sync --retry-limit 3 --loglevel warn "
         if replace:
             cmd += "--replace "
         if force:
