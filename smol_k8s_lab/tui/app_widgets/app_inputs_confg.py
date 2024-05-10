@@ -24,12 +24,12 @@ class AppInputs(Static):
     """
     Display inputs for given smol-k8s-lab supported application
     """
-    def __init__(self, app_name: str, config_dict: dict) -> None:
+    def __init__(self, app_name: str, config_dict: dict, id: str = "") -> None:
         self.app_name = app_name
         self.argo_params = config_dict['argo']
         self.init = config_dict.get('init', None)
         self.backup_params = config_dict.get('backups', None)
-        super().__init__()
+        super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
 

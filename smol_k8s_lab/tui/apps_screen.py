@@ -364,9 +364,9 @@ class AppsConfigScreen(Screen):
             app_input.display = True
         except NoMatches:
             app_metadata = self.cfg[highlighted_app]
-            app_input = VerticalScroll(AppInputs(highlighted_app, app_metadata),
-                                       id=f"{highlighted_app}-app-widget",
-                                       classes="single-app-inputs")
+            app_input = AppInputs(highlighted_app, app_metadata,
+                                  id=f"{highlighted_app}-app-widget")
+
             self.get_widget_by_id("app-config-pane").mount(app_input)
 
         # select-apps styling - bottom
