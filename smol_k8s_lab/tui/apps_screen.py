@@ -114,7 +114,7 @@ class AppsConfigScreen(Screen):
                 yield Grid(ModifyAppGlobals(), id="left-button-box")
 
             # top right: vertically scrolling container for all inputs
-            yield VerticalScroll(id='app-inputs-pane')
+            yield VerticalScroll(id='app-config-pane')
 
             # Bottom half of the screen for select-apps
             with VerticalScroll(id="app-notes-container"):
@@ -352,22 +352,22 @@ class AppsConfigScreen(Screen):
         # styling for the select-apps - configure apps container - right
         app_title = highlighted_app.replace("_", " ").title()
         app_cfg_title = f"🔧 [i]configure[/] parameters for [#C1FF87]{app_title}"
-        app_inputs_pane = self.get_widget_by_id("app-inputs-pane")
+        app_inputs_pane = self.get_widget_by_id("app-config-pane")
         app_inputs_pane.border_title = app_cfg_title
 
         if self.previous_app != "":
-            app_input = self.get_widget_by_id(f"{self.previous_app}-inputs")
+            app_input = self.get_widget_by_id(f"{self.previous_app}-app-widget")
             app_input.display = False
 
         try:
-            app_input = self.get_widget_by_id(f"{highlighted_app}-inputs")
+            app_input = self.get_widget_by_id(f"{highlighted_app}-app-widget")
             app_input.display = True
         except NoMatches:
             app_metadata = self.cfg[highlighted_app]
             app_input = VerticalScroll(AppInputs(highlighted_app, app_metadata),
-                                       id=f"{highlighted_app}-inputs",
+                                       id=f"{highlighted_app}-app-widget",
                                        classes="single-app-inputs")
-            self.get_widget_by_id("app-inputs-pane").mount(app_input)
+            self.get_widget_by_id("app-config-pane").mount(app_input)
 
         # select-apps styling - bottom
         app_desc = self.get_widget_by_id("app-notes-container")

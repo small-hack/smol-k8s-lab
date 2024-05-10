@@ -56,51 +56,68 @@ class AppInputs(Static):
 
     def on_mount(self) -> None:
         """
-        if using a tabbed content feature, mount the widgets into the tab on mount
+        mount either a custom app widget or a default app widget
         """
         secret_keys = self.argo_params.get('secret_keys', False)
+
+        # different process for custom apps that don't support init
         if not self.init:
-            grid = self.get_widget_by_id(f"{self.app_name}-argo-config-container")
-            grid.mount(ArgoCDApplicationConfig(self.app_name, self.argo_params))
-            grid.mount(AppsetSecretValues(self.app_name, secret_keys))
-            grid.mount(ArgoCDProjectConfig(self.app_name,
-                                           self.argo_params['project']))
+            self.create_custom_app_widget(secret_keys)
         else:
-            # mount widgets into the init tab pane
-            init_pane = self.get_widget_by_id("init-tab")
-            init_pane.mount(InitValues(self.app_name, self.init))
+            self.create_default_app_widget(secret_keys)
 
-            # mount widgets into the argocd tab pane
-            argo_pane = self.get_widget_by_id("argocd-tab")
-            argo_pane.mount(ArgoCDApplicationConfig(self.app_name,
-                                                    self.argo_params))
-            argo_pane.mount(AppsetSecretValues(self.app_name, secret_keys))
-            argo_pane.mount(ArgoCDProjectConfig(self.app_name,
-                                                self.argo_params['project']))
+    def create_default_app_widget(self, secret_keys: dict|bool):
+        """
+        using a tabbed content feature, mount the widgets into the tab on mount
+        """
+        # mount widgets into the init tab pane
+        init_pane = self.get_widget_by_id("init-tab")
+        init_pane.mount(InitValues(self.app_name, self.init))
 
-            # if we support backups/restorations for this app, mount restore widget
-            if self.app_name in RESTOREABLE:
-                restore_params = self.init.get("restore", {"enabled": False})
-                # mount the backup wiget into the restore tab
-                backup_widget = BackupWidget(
-                        self.app_name,
-                        self.backup_params,
-                        restore_params.get('cnpg_restore', "not_applicable"),
-                        id=f"{self.app_name}-restore-widget"
-                        )
-                # only display restore widget if init is enabled
-                backup_widget.display = self.init["enabled"]
-                self.get_widget_by_id("backup-tab").mount(backup_widget)
+        # mount widgets into the argocd tab pane
+        argo_pane = self.get_widget_by_id("argocd-tab")
+        argo_pane.mount(ArgoCDApplicationConfig(self.app_name,
+                                                self.argo_params))
+        argo_pane.mount(AppsetSecretValues(self.app_name, secret_keys))
+        argo_pane.mount(ArgoCDProjectConfig(self.app_name,
+                                            self.argo_params['project']))
 
-                # mount the restore wiget into the restore tab
-                restore_widget = RestoreApp(
-                        self.app_name,
-                        restore_params,
-                        id=f"{self.app_name}-restore-widget"
-                        )
-                # only display restore widget if init is enabled
-                restore_widget.display = self.init["enabled"]
-                self.get_widget_by_id("restore-tab").mount(restore_widget)
+        # if we support backups/restorations for this app, mount restore widget
+        if self.app_name in RESTOREABLE:
+            self.create_backup_and_restore_widgets()
+
+    def create_custom_app_widget(self, secret_keys: dict|bool):
+        """
+        create a custom app widget for the app-config-pane
+        """
+        grid = self.get_widget_by_id(f"{self.app_name}-argo-config-container")
+        grid.mount(ArgoCDApplicationConfig(self.app_name, self.argo_params))
+        grid.mount(AppsetSecretValues(self.app_name, secret_keys))
+        grid.mount(ArgoCDProjectConfig(self.app_name,
+                                       self.argo_params['project']))
+
+    def create_backup_and_restore_widgets(self):
+        restore_params = self.init.get("restore", {"enabled": False})
+        # mount the backup wiget into the restore tab
+        backup_widget = BackupWidget(
+                self.app_name,
+                self.backup_params,
+                restore_params.get('cnpg_restore', "not_applicable"),
+                id=f"{self.app_name}-restore-widget"
+                )
+        # only display restore widget if init is enabled
+        backup_widget.display = self.init["enabled"]
+        self.get_widget_by_id("backup-tab").mount(backup_widget)
+
+        # mount the restore wiget into the restore tab
+        restore_widget = RestoreApp(
+                self.app_name,
+                restore_params,
+                id=f"{self.app_name}-restore-widget"
+                )
+        # only display restore widget if init is enabled
+        restore_widget.display = self.init["enabled"]
+        self.get_widget_by_id("restore-tab").mount(restore_widget)
 
     def action_show_tab(self, tab: str) -> None:
         """Switch to a new tab."""

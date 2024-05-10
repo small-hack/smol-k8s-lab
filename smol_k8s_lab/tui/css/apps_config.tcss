@@ -78,7 +78,7 @@ $navy: rgb(35,35,54);
 /* ---------------------- RIGHT TOP HALF OF SCREEN ------------------------- */
 
 /* Matches the "Configure parameters for {app}" input list pane itself */
-#app-inputs-pane {
+#app-config-pane {
     border-title-color: $sky_blue;
     border-subtitle-color: $sky_blue;
     border: round $cornflower;

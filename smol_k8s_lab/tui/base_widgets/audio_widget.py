@@ -466,8 +466,8 @@ class SmolAudio(Widget):
             # if this is an app inputs widget container, we need to get the app
             # name and then read that first before the name of the vertical scroll
             elif isinstance(focused, VerticalScroll):
-                if focused_id.endswith("_inputs"):
-                    self.say_app(focused_id, "_inputs")
+                if focused_id.endswith("_app_widget"):
+                    self.say_app(focused_id, "_app_widget")
                 elif focused_id.endswith("_argo_config_container"):
                     self.say_app(focused_id, "_argo_config_container")
                 else:

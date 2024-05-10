@@ -219,7 +219,8 @@ phrases:
   first_app_is: First app in the list is
   selection_list_of_apps: Selection list of Kubernetes apps.
   modify_globals: modify globals button
-  app_inputs_pane: app inputs pane
+  app_config_pane: selected app configuration pane
+  app_widget: config widget
   inputs: inputs container
   init_tab: Initialization config tab
   argocd_tab: Argo C.D. Application and Project configuration tab
