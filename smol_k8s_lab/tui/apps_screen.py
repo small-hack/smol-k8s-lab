@@ -75,7 +75,6 @@ class AppsConfigScreen(Screen):
                                  self.cfg['argo_cd']['argo']['secret_keys']['hostname'],
                                  k8s_obj)
 
-
         # this is state storage
         self.previous_app = ''
 
@@ -108,22 +107,11 @@ class AppsConfigScreen(Screen):
             footer.display = False
         yield footer
 
-        full_list = []
-        for app, app_meta in self.cfg.items():
-            item = Selection(app.replace("_","-"), app, app_meta['enabled'])
-            full_list.append(item)
-
-        selection_list = SelectionList[str](*full_list,
-                                            id='selection-list-of-apps')
-
         with Container(id="apps-config-container"):
             # top left: the SelectionList of k8s applications
             with Grid(id="left-apps-container"):
-                yield selection_list
-
-                with Grid(id="left-button-box"):
-                    # yield AddAppInput()
-                    yield ModifyAppGlobals()
+                yield SelectionList[str](id='selection-list-of-apps')
+                yield Grid(ModifyAppGlobals(), id="left-button-box")
 
             # top right: vertically scrolling container for all inputs
             yield VerticalScroll(id='app-inputs-pane')
@@ -140,10 +128,7 @@ class AppsConfigScreen(Screen):
         sub_title = f"Apps Configuration for {self.app.current_cluster} (now with more 🦑)"
         self.sub_title = sub_title
 
-        # select-apps styling - select apps container - top left
-        select_apps_widget = self.get_widget_by_id("selection-list-of-apps")
-        select_apps_widget.border_title = "[#ffaff9]♥[/] [i]select[/] [#C1FF87]apps"
-        select_apps_widget.border_subtitle = "[@click=screen.launch_new_app_modal]✨ [i]new[/] [#C1FF87]app[/][/]"
+        self.generate_app_selection_list()
 
         # if text to speech is on, read screen title
         self.call_after_refresh(self.app.play_screen_audio, screen="apps")
@@ -151,6 +136,24 @@ class AppsConfigScreen(Screen):
         # scroll down to specific app if requested
         if self.initial_app:
             self.scroll_to_app(self.initial_app)
+        else:
+            self.update_highlighted_app_view("argo_cd")
+
+    def generate_app_selection_list(self) -> None:
+        """
+        populate the selection list and modify global button for apps screen
+        """
+        app_list = self.get_widget_by_id("selection-list-of-apps")
+
+        for app, app_meta in self.cfg.items():
+            item = Selection(app.replace("_","-"), app, app_meta['enabled'])
+            app_list.add_option(item)
+
+        app_list.border_title = "[#ffaff9]♥[/] [i]select[/] [#C1FF87]apps"
+        app_list.border_subtitle = (
+                "[@click=screen.launch_new_app_modal]✨ [i]new[/] "
+                "[#C1FF87]app[/][/]"
+                )
 
     def action_try_next_screen(self) -> None:
         """
@@ -327,7 +330,7 @@ class AppsConfigScreen(Screen):
             highlight_app = apps.get_option_at_index(apps.highlighted).value
 
     @on(SelectionList.SelectionHighlighted)
-    def update_highlighted_app_view(self) -> None:
+    def capture_selection_highlighted_event(self) -> None:
         selection_list = self.query_one(SelectionList)
 
         # only the highlighted index
@@ -339,6 +342,9 @@ class AppsConfigScreen(Screen):
         if self.app.speak_on_focus:
             self.app.action_say(f"highlighted app is {highlighted_app}")
 
+        self.update_highlighted_app_view(highlighted_app)
+
+    def update_highlighted_app_view(self, highlighted_app: str) -> None:
         # update the bottom app description to the highlighted_app's description
         blurb = format_description(self.cfg[highlighted_app]['description'])
         self.get_widget_by_id('app-description').update(blurb)

@@ -19,12 +19,12 @@ class ArgoCDApplicationConfig(Static):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        with Collapsible(collapsed=False,
-                         title="Argo CD Application Configuration",
-                         classes="collapsible-with-some-room",
-                         id=f"{self.app_name}-argo-config-collapsible"):
-            yield Grid(classes="collapsible-updateable-grid",
-                       id=f"{self.app_name}-collapsible-updateable-grid")
+        yield Collapsible(Grid(classes="collapsible-updateable-grid",
+                               id=f"{self.app_name}-collapsible-updateable-grid"),
+                          collapsed=False,
+                          title="Argo CD Application Configuration",
+                          classes="collapsible-with-some-room",
+                          id=f"{self.app_name}-argo-config-collapsible")
 
     def on_mount(self) -> None:
         """
@@ -123,12 +123,13 @@ class ArgoCDProjectConfig(Static):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        with Collapsible(collapsed=True,
-                         title="Advanced Argo CD Project Configuration",
-                         classes="collapsible-with-some-room",
-                         id=f"{self.app_name}-argo-proj-config-collapsible"):
-            yield Grid(classes=f"collapsible-updateable-grid {self.app_name}",
-                       id=f"{self.app_name}-proj-collapsible-updateable-grid")
+        yield Collapsible(
+                Grid(classes=f"collapsible-updateable-grid {self.app_name}",
+                     id=f"{self.app_name}-proj-collapsible-updateable-grid"),
+                collapsed=True,
+                title="Advanced Argo CD Project Configuration",
+                classes="collapsible-with-some-room",
+                id=f"{self.app_name}-argo-proj-config-collapsible")
 
     def on_mount(self):
         """
