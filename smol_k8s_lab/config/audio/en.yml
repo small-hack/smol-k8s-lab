@@ -216,6 +216,7 @@ phrases:
   app_submit: submit button for creating a new app in smol K. eights lab
   app_name_input: name of new application input
   highlighted: Highlighted app is
+  first_app_is: First app in the list is
   selection_list_of_apps: Selection list of Kubernetes apps.
   modify_globals: modify globals button
   app_inputs_pane: app inputs pane
