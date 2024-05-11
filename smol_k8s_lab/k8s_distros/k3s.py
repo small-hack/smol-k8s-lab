@@ -8,7 +8,7 @@ DESCRIPTION: install k3s :D not affiliated with rancher, suse, or k3s
 # local libraries
 from ..constants import USER, KUBECONFIG
 from ..constants import XDG_CACHE_DIR
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 
 # external libraries
 import logging as log

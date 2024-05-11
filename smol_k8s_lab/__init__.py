@@ -31,6 +31,7 @@ from .k8s_distros import create_k8s_distro, delete_cluster
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
+from .utils.run.final_cmd import run_final_cmd
 
 
 HELP = options_help()
@@ -107,11 +108,16 @@ def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
 @option("--version", "-v",
         is_flag=True,
         help=HELP['version'])
+@option("--final_cmd", "-f",
+        type=str,
+        default="",
+        help=HELP['command'])
 def main(config: str = "",
          delete: bool = False,
          log_file: str = "",
          version: bool = False,
-         interactive: bool = False):
+         interactive: bool = False,
+         final_cmd: str = ""):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
@@ -373,6 +379,9 @@ def main(config: str = "",
                         subtitle='♥ [cyan]Have a nice day[/] ♥',
                         border_style="cornflower_blue"))
     print("")
+    if final_cmd:
+        k8s_distros = USR_CFG['smol_k8s_lab']
+        run_final_cmd(final_cmd)
 
 
 if __name__ == '__main__':

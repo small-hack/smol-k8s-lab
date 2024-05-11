@@ -3,7 +3,7 @@ from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_distros.k3d import delete_k3d_cluster
 from smol_k8s_lab.k8s_distros.k3s import uninstall_k3s
 from smol_k8s_lab.k8s_distros.kind import delete_kind_cluster
-from smol_k8s_lab.utils.subproc import subproc
+from smol_k8s_lab.utils.run.subproc import subproc
 
 # external libraries
 from textual import on

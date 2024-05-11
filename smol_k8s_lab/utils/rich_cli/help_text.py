@@ -40,6 +40,9 @@ def options_help():
         'interactive':
         '⚙️ Interactively configures smol-k8s-lab',
 
+        'command':
+        'Run command immediately after smol-k8s-lab before main cli phase',
+
         'version':
         f'Print the version of smol-k8s-lab (v{VERSION})'
         }

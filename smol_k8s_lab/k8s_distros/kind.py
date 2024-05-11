@@ -7,7 +7,7 @@ DESCRIPTION: create or delete a kind cluster, part of smol-k8s-lab
 """
 from ..constants import XDG_CACHE_DIR
 from ..utils.rich_cli.console_logging import sub_header
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 import logging as log
 from os import path
 from ruamel.yaml import YAML

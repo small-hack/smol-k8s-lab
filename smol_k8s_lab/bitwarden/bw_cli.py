@@ -19,7 +19,7 @@ from rich.prompt import Prompt
 from shutil import which
 from sys import exit
 from os import environ as env
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 from .tui.bitwarden_existing_item_app import AskUserForDuplicateStrategy
 
 

@@ -1,7 +1,7 @@
 # it was only a matter of time before I had to query argocd directly
 import logging as log
 from .k8s_lib import K8s
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 from json import loads
 
 

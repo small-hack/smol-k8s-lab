@@ -11,7 +11,7 @@ from time import sleep
 
 # internal libraries
 from ..constants import XDG_CACHE_DIR
-from ..utils.subproc import subproc, simple_loading_bar
+from ..utils.run.subproc import subproc, simple_loading_bar
 
 
 class K8s():

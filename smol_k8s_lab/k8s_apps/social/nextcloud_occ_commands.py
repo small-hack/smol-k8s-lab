@@ -1,4 +1,4 @@
-from smol_k8s_lab.utils.subproc import subproc
+from smol_k8s_lab.utils.run.subproc import subproc
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from json import dumps
 import logging as log

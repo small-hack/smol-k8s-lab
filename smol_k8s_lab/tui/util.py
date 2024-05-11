@@ -265,8 +265,13 @@ def drop_down(values: list,
         return Horizontal(select, classes=f"{extra_class}")
 
 
-def input_field(label: str, initial_value: str, name: str, placeholder: str,
-                tooltip: str = "", validate_empty: bool = False) -> Horizontal:
+def input_field(label: str,
+                initial_value: str,
+                name: str,
+                placeholder: str,
+                tooltip: str = "",
+                validate_empty: bool = False,
+                extra_row_class: str = "") -> Horizontal:
     """
     returns an input label and field within a Horizontal container
     """
@@ -288,4 +293,9 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
     input = Input(**input_dict)
     input.tooltip = tooltip
 
-    return Horizontal(input_label, input, classes="input-row")
+    if extra_row_class:
+        classes = f"input-row {extra_row_class}"
+    else:
+        classes = "input-row"
+
+    return Horizontal(input_label, input, classes=classes)

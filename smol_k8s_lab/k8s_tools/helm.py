@@ -5,7 +5,7 @@ LICENSE: AGPLv4
 """
 
 # internal libraries
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 from ..utils.rich_cli.console_logging import header, sub_header
 
 # external libraries

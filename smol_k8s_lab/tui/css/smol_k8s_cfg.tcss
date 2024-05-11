@@ -22,12 +22,12 @@ $navy: rgb(35,35,54);
     align: center middle;
     width: 90%;
     height: 92%;
+    grid-gutter: 1;
 }
 
 /* logging config box */
 #logging-config {
     padding: 1;
-    margin-bottom: 2;
     grid-rows: 0.5fr 1fr;
     border: round $cornflower;
     border-title-color: $sky_blue;
@@ -156,4 +156,18 @@ $navy: rgb(35,35,54);
     width: 100%;
     padding-left: 1;
     padding-top: 1;
+}
+
+RunCommandConfig {
+    padding: 1;
+    margin-bottom: 1;
+    border: round $cornflower;
+    border-title-color: $sky_blue;
+    background: $navy 60%;
+    align: left middle;
+    content-align: left middle;
+}
+
+#run-command-config-row-grid {
+    grid-size: 2;
 }

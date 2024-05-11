@@ -1,7 +1,7 @@
 # internal smol-k8s-lab libraries
 from ..k8s_tools.k8s_lib import K8s
 from ..utils.rich_cli.console_logging import sub_header, header
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 
 from .kind import create_kind_cluster, delete_kind_cluster
 from .k3d import create_k3d_cluster, delete_k3d_cluster

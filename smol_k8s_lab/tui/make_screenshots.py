@@ -21,6 +21,7 @@ async def make_base_screenshots() -> None:
     async with BaseApp().run_test(size=(87, 47)) as pilot:
         pilot.app.save_screenshot(f"{screenshot_path}/start_screen.svg")
 
+    async with BaseApp().run_test(size=(99, 47)) as pilot:
         # press the "tab" key followed by the "c" key
         await pilot.press("tab", "c")
         pilot.app.save_screenshot(f"{screenshot_path}/tui_config_screen.svg")

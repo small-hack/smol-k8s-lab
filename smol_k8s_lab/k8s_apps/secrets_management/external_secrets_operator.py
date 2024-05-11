@@ -9,7 +9,7 @@ DESCRIPTION: configures external secrets, currently only with Bitwarden and GitL
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.utils.subproc import subproc
+from smol_k8s_lab.utils.run.subproc import subproc
 
 
 def configure_external_secrets(argocd: ArgoCD,

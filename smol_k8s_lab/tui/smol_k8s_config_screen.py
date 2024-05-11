@@ -70,6 +70,9 @@ class SmolK8sLabConfig(Screen):
             # local password manager config for enabled, name, and duplicate strategy
             yield PasswordManagerConfig(self.cfg['local_password_manager'])
 
+            # configure command to run after tui phase
+            yield RunCommandConfig(self.cfg['run_command'])
+
     def on_mount(self) -> None:
         """
         screen and box border styling
@@ -195,4 +198,80 @@ class PasswordManagerConfig(Widget):
     def update_parent_for_select(self, event: Select.Changed) -> None:
         password_cfg = self.app.cfg['smol_k8s_lab']['local_password_manager']
         password_cfg['duplicate_strategy'] = str(event.value)
+        self.app.write_yaml()
+
+
+class RunCommandConfig(Widget):
+    def __init__(self, config: dict) -> None:
+        self.cfg = config
+        super().__init__()
+
+    def compose(self) -> ComposeResult:
+        """
+        Compose widget for configuring run-command
+        """
+        # run-command config for log.level and log.file
+        with Grid(id="run-command-config"):
+            yield Label("Configure run-command for all of smol-k8s-lab.",
+                        classes="soft-text")
+
+            with Grid(id="run-command-config-row-grid"):
+                with Grid(classes="selection-row"):
+                    label = Label("terminal:", classes="selection-label")
+                    label.tooltip = (
+                            "terminal to use for running command in split pane,"
+                            " new tab, or new window. Not used if window "
+                            "behavior set to default"
+                            )
+                    yield label
+
+                    yield Select(((line, line) for line in ['wezterm']),
+                                 id="terminal-select",
+                                 name="terminal",
+                                 value='wezterm')
+
+                window_behavior_list = ['default', 'split-left', 'split-right',
+                                        'split-top', 'split-bottom', 'new-tab',
+                                        'new-window']
+
+                with Grid(classes="selection-row"):
+                    label = Label("window behavior:", classes="selection-label")
+                    label.tooltip = (
+                            "terminal to use for running command in split pane,"
+                            " new tab, or new window. Not used if window "
+                            "behavior set to default"
+                            )
+                    yield label
+
+                    yield Select(((line, line) for line in window_behavior_list),
+                                 id="window-behavior-select",
+                                 value='default')
+
+            yield input_field(label="command",
+                              initial_value=self.cfg['command'],
+                              name="command",
+                              placeholder="command to run after config stage",
+                              tooltip="Command to run at start of CLI phase")
+
+    def on_mount(self) -> None:
+        """
+        box border styling
+        """
+        log_title = "💻 [i]Configure[/] [#C1FF87]run-command"
+        self.get_widget_by_id("run-command-config").border_title = log_title
+
+    @on(Select.Changed)
+    def update_parent_for_select(self, event: Select.Changed) -> None:
+        if event.select.name == "terminal":
+            self.app.cfg['smol_k8s_lab']['run_command']['terminal'] = str(event.value)
+        else:
+            self.app.cfg['smol_k8s_lab']['run_command']['window_behavior'] = str(event.value)
+        self.app.write_yaml()
+
+    @on(Input.Changed)
+    def update_parent_config_for_input(self, event: Input.Changed) -> None:
+        """
+        update self and parent app self config with changed input field
+        """
+        self.app.cfg['smol_k8s_lab']['run_command'][event.input.name] = event.input.value
         self.app.write_yaml()

@@ -180,8 +180,6 @@ phrases:
   # tui config screen
   tui_enabled: Terminal U.I. switch
   footer: footer switch
-  k9s: k nines switch
-  k9s_command: k nines command
   bell_on_focus: bell on focus switch
   bell_on_error: bell on error switch
   screen_titles: text to speech screen titles switch
