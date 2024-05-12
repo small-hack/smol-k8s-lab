@@ -37,6 +37,9 @@ smol_k8s_lab:
     # command to run after smol-k8s-lab is completed
     command: "k9s --command applications.argoproj.io"
     # tell me which terminal you use if you'd like to use split or tab features
+    # options: wezterm, zellij (if you want other terminals, please submit a
+    # feature request and/or PR with the commands for your favorite terminal, or
+    # as a work around, let this to "none" and set full command above
     terminal: "wezterm"
     # where to run the command, options: "",
     # split-left, split-right, split-top, split-bottom, new-tab, new-window

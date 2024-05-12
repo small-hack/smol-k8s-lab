@@ -257,8 +257,7 @@ class RunCommandConfig(Widget):
         """
         box border styling
         """
-        log_title = "💻 [i]Configure[/] [#C1FF87]run-command"
-        self.get_widget_by_id("run-command-config").border_title = log_title
+        self.border_title = "💻 [i]Configure[/] [#C1FF87]command to run after config"
 
     @on(Select.Changed)
     def update_parent_for_select(self, event: Select.Changed) -> None:

@@ -171,3 +171,7 @@ RunCommandConfig {
 #run-command-config-row-grid {
     grid-size: 2;
 }
+
+#run-command-config-row-grid .selection-row {
+    grid-columns: 0.5fr 1fr;
+}
