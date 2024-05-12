@@ -88,6 +88,14 @@ Switch:focus {
     border: tall $light_cornflower 70%;
 }
 
+Select:focus {
+    border: none;
+}
+
+SelectCurrent:focus {
+    border: solid red;
+}
+
 /* Matches the "Select apps to install on k8s" Selection List */
 SelectionList {
     background: $navy 40%;
