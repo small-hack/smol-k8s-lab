@@ -211,6 +211,16 @@ def main(config: str = "",
     k8s_obj = create_k8s_distro(cluster_name, selected_distro, metadata,
                                 metallb_enabled, cilium_enabled)
 
+    # run the final command immediately after k8s is up, if it's running in a
+    # new tab, window, or pane
+    window_behavior = USR_CFG['smol_k8s_lab']['run_command']['window_behavior']
+    terminal = USR_CFG['smol_k8s_lab']['run_command']['terminal']
+    if not final_cmd:
+        final_cmd = USR_CFG['smol_k8s_lab']['run_command']['command']
+
+    if final_cmd and window_behavior != "same window":
+        run_final_cmd(final_cmd, terminal, window_behavior)
+
     # check if argo is enabled
     argo_enabled = apps['argo_cd']['enabled']
 
@@ -379,9 +389,10 @@ def main(config: str = "",
                         subtitle='♥ [cyan]Have a nice day[/] ♥',
                         border_style="cornflower_blue"))
     print("")
-    if final_cmd:
-        k8s_distros = USR_CFG['smol_k8s_lab']
-        run_final_cmd(final_cmd)
+
+    # run final command after it all ends
+    if final_cmd and window_behavior == "same-window":
+        run_final_cmd(final_cmd, terminal, window_behavior)
 
 
 if __name__ == '__main__':
