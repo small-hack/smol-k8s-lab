@@ -26,16 +26,16 @@ smol_k8s_lab:
         # press f5 to read the element id and selected row of DataTables
         on_key_press: true
 
-    # enable text to speech
-    # k9s is a terminal UI dashboard and interface for interacting with Kubernetes
-    k9s:
-      # when set to true, if smol-k8s-lab is in interactive mode, it runs k9s
-      # immediately after the cluster is up and enabled apps have been installed
-      enabled: false
-      # default command to run when k9s launches. Defaults to application.argoproj.io
-      # so that you can view the status of all of your argo apps immediately. This
-      # default results in running: k9s --command applications.argoproj.io
-      command: applications.argoproj.io
+  run_command:
+    # command to run after smol-k8s-lab tui is done or immediately when running
+    command: echo 'we did it'
+    # tell me which terminal you use if you'd like to use split or tab features
+    terminal: wezterm
+    # where to run the command, options: same window, new window, new tab,
+    # split left, split right, split top, split bottom
+    # if set to "same window", we just run it in the same window after we're
+    # done the entire smol-k8s-lab cli run
+    window_behavior: same window
 
   # logging config for the smol-k8s-lab CLI
   log:

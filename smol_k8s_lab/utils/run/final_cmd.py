@@ -28,7 +28,7 @@ def run_zellij_command(command: str, window_behavior: str = ""):
     """
     run a command in zellij either in the same pane or a different one
     """
-    if not window_behavior:
+    if not window_behavior or window_behavior == "same window":
         cmd = command
 
     elif window_behavior == "split right":
@@ -56,7 +56,7 @@ def run_wezterm_command(command: str, window_behavior: str = ""):
     """
     run a command in wezterm either in the same pane or a different tab/window
     """
-    if not window_behavior:
+    if not window_behavior or window_behavior == "same window":
         cmd = command
 
     elif window_behavior == "split right":
