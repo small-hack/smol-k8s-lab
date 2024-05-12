@@ -88,12 +88,12 @@ Switch:focus {
     border: tall $light_cornflower 70%;
 }
 
-Select:focus {
-    border: none;
+Select:focus > SelectCurrent {
+    border: tall $light_cornflower 70%;
 }
 
-SelectCurrent:focus {
-    border: solid red;
+Select.-expanded > SelectCurrent {
+    border: tall $light_cornflower 70%;
 }
 
 /* Matches the "Select apps to install on k8s" Selection List */

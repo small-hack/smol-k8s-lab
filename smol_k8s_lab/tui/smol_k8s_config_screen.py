@@ -220,17 +220,18 @@ class RunCommandConfig(Widget):
                     label = Label("terminal:", classes="selection-label")
                     label.tooltip = (
                             "terminal to use for running command in split pane,"
-                            " new tab, or new window. Not used if window "
-                            "behavior set to default"
+                            " new tab, or new window. Not used if [b]window "
+                            "behavior[/b] set to [b]same-window[/b]"
                             )
                     yield label
 
-                    yield Select(((line, line) for line in ['wezterm']),
+                    yield Select(((line, line) for line in ['wezterm', 'zellij']),
                                  id="terminal-select",
                                  name="terminal",
-                                 value='wezterm')
+                                 value=self.cfg['terminal'],
+                                 allow_blank=False)
 
-                window_behavior_list = ['default', 'split-left', 'split-right',
+                window_behavior_list = ['same-window', 'split-left', 'split-right',
                                         'split-top', 'split-bottom', 'new-tab',
                                         'new-window']
 
@@ -245,7 +246,8 @@ class RunCommandConfig(Widget):
 
                     yield Select(((line, line) for line in window_behavior_list),
                                  id="window-behavior-select",
-                                 value='default')
+                                 value=self.cfg['window_behavior'],
+                                 allow_blank=False)
 
             yield input_field(label="command",
                               initial_value=self.cfg['command'],
