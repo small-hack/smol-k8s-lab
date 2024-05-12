@@ -74,6 +74,10 @@ $navy: rgb(35,35,54);
     align: center middle;
 }
 
+#modify-globals-button {
+    width: 22;
+}
+
 /* ---------------------- RIGHT TOP HALF OF SCREEN ------------------------- */
 
 /* Matches the "Configure parameters for {app}" input list pane itself */
