@@ -41,10 +41,11 @@ smol_k8s_lab:
     # feature request and/or PR with the commands for your favorite terminal, or
     # as a work around, let this to "none" and set full command above
     terminal: "wezterm"
-    # where to run the command, options: same-window, new-window, new-tab,
-    # split-left, split-right, split-top, split-bottom
-    # if set to "", we just run it in the same window after we're done everything else.
-    window_behavior: "same-window"
+    # where to run the command, options: same window, new window, new tab,
+    # split left, split right, split top, split bottom
+    # if set to "same window", we just run it in the same window after we're
+    # done the entire smol-k8s-lab cli run
+    window_behavior: "same window"
 
   # logging config for the smol-k8s-lab CLI
   log:

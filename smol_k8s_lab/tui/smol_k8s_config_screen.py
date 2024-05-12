@@ -210,10 +210,12 @@ class RunCommandConfig(Widget):
         """
         Compose widget for configuring run-command
         """
+        tip = ("If window behavior is set to same window, command runs "
+               "[i]after[/i] smol-k8s-lab has completed.")
         # run-command config for log.level and log.file
         with Grid(id="run-command-config"):
-            yield Label("Configure run-command for all of smol-k8s-lab.",
-                        classes="soft-text")
+
+            yield Label(tip, classes="soft-text")
 
             with Grid(id="run-command-config-row-grid"):
                 with Grid(classes="selection-row"):
@@ -221,7 +223,7 @@ class RunCommandConfig(Widget):
                     label.tooltip = (
                             "terminal to use for running command in split pane,"
                             " new tab, or new window. Not used if [b]window "
-                            "behavior[/b] set to [b]same-window[/b]"
+                            "behavior[/b] set to [b]same window[/b]"
                             )
                     yield label
 
@@ -231,9 +233,9 @@ class RunCommandConfig(Widget):
                                  value=self.cfg['terminal'],
                                  allow_blank=False)
 
-                window_behavior_list = ['same-window', 'split-left', 'split-right',
-                                        'split-top', 'split-bottom', 'new-tab',
-                                        'new-window']
+                window_behavior_list = ['same window', 'split left', 'split right',
+                                        'split top', 'split bottom', 'new tab',
+                                        'new window']
 
                 with Grid(classes="selection-row"):
                     label = Label("window behavior:", classes="selection-label")
