@@ -234,6 +234,12 @@ class SmolAudio(Widget):
         if focused_id == "hostname":
             self.say_phrase('hostname.mp3')
 
+        elif focused_id.endswith("control_plane_nodes_input"):
+            self.say_phrase('control_plane_nodes_input')
+
+        elif focused_id.endswith("worker_nodes_input"):
+            self.say_phrase('worker_nodes_input')
+
         elif focused_id.endswith("_repo"):
             self.say_app(focused_id, "_repo")
 

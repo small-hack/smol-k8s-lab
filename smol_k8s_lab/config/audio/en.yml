@@ -198,6 +198,8 @@ phrases:
   speech_program: text to speech program input
   # distro screen
   distro_drop_down: Kubernetes distribution drop down menu
+  control_plane_nodes_input: control plane nodes input
+  worker_nodes_input: worker nodes input
   host: host name input
   hostname: host name input
   secrets_ecryption: secrets encryption input
