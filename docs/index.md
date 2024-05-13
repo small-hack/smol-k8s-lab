@@ -1,5 +1,5 @@
 <h1 align="center">
-🧸 Smol K8s Lab 
+🧸 Smol K8s Lab
 </h1>
 
 `smol-k8s-lab` leverages Argo CD and slim k8s distributions like K3s to create production-like environments via a declarative workflow. Batteries and 🦑 included.
@@ -138,7 +138,7 @@ We also utilize the [Bitwarden cli], for a password manager so you never have to
 [Prometheus Stack]: https://github.com/small-hack/argocd-apps/tree/main/prometheus
 [promtail]: https://grafana.com/docs/loki/latest/send-data/promtail/
 [seaweedfs]: https://github.com/seaweedfs/seaweedfs
-[Vouch]: https://github.com/jessebot/vouch-helm-chart
+[Vouch]: https://github.com/small-hack/vouch-helm-chart
 [ZITADEL]: https://github.com/zitadel/zitadel-charts/tree/main
 
 <!-- k8s tooling reference -->

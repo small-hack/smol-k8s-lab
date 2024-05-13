@@ -6,7 +6,7 @@ We use the Bitwarden ESO Provider along side the [external-secrets-operator](/k8
 
 `smol-k8s-lab` stores any sensitive user specific data about applications in your Bitwarden vault. Some examples include admin credentials, database credentials, and OIDC credentials.
 
-Head over to the [Bitarden ESO Provider helm chart](https://github.com/jessebot/bitwarden-eso-provider/) to learn more, and then see how it is configured at [small-hack/argocd-apps](https://github.com/small-hack/argocd-apps/blob/main/external-secrets-operator/bitwarden/bitwarden_argocd_app.yaml).
+Head over to the [Bitarden ESO Provider helm chart](https://github.com/small-hack/bitwarden-eso-provider/) to learn more, and then see how it is configured at [small-hack/argocd-apps](https://github.com/small-hack/argocd-apps/blob/main/external-secrets-operator/bitwarden/bitwarden_argocd_app.yaml).
 
 ## Sensitive values
 To use the Bitwarden provider, we need your Client Secret, Client ID, _and_ your Bitwarden password. You can choose to provide these as one time values each time your run smol-k8s-lab, or you can export the following environment variables before running `smol-k8s-lab`:
@@ -32,7 +32,7 @@ apps:
 
       To deploy the Bitwarden provider, please set apps_global_config.external_secrets to "bitwarden".
 
-      The [link="https://github.com/jessebot/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
+      The [link="https://github.com/small-hack/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
 
       smol-k8s-lab support initialization by creating a Kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
 

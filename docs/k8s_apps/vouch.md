@@ -8,7 +8,7 @@
 
 Learn more about our:
 
-- [Vouch helm chart fork](https://jessebot.github.io/vouch-helm-chart)
+- [Vouch helm chart fork](https://small-hack.github.io/vouch-helm-chart)
 - [Vouch Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/vouch-proxy)
 
 
@@ -62,7 +62,7 @@ apps:
       project:
         name: vouch
         source_repos:
-          - https://jessebot.github.io/vouch-helm-chart
+          - https://small-hack.github.io/vouch-helm-chart
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
