@@ -286,19 +286,19 @@ phrases:
   latitude: latitude input
   elevation: elevation input
   unit_system: unit system input
-  temperature_unit: temperature unit input, please enter either F. or C.
+  temperature_unit: temperature unit input, please enter either F. for fahrenheit or C. for celcius.
   toleration_key: toleration key input
   toleration_value: toleration value input
   toleration_operator: toleration operator input
   toleration_effect: toleration effect input
-  affinity_key: affinity key
-  affinity_value: affinity value
-  usb_device_path: U.S.B. device path
-  usb_device_mount: U.S.B. device mount path
-  usb_device_index: U.S.B. device index
-  bluetooth_device_path: bluetooth device path
-  bluetooth_device_mount_path: bluetooth device mount path
-  bluetooth_device_index: bluetooth device index
+  affinity_key: affinity key input
+  affinity_value: affinity value input
+  usb_device_path: U.S.B. device path input
+  usb_device_mount: U.S.B. device mount path input
+  usb_device_index: U.S.B. device index input
+  bluetooth_device_path: bluetooth device path input
+  bluetooth_device_mount_path: bluetooth device mount path input
+  bluetooth_device_index: bluetooth device index input
   gender: gender input
   domains: input for coma separated list of domains
   emails: input for coma separated list of domains
@@ -309,11 +309,11 @@ phrases:
   pvc_backup_schedule: P.V.C. backup schedule input. takes cron syntax
   postgres_backup_schedule: post gres "Q" "L" backup schedule input. takes cron syntax with extra field for seconds
   # seaweedfs uses the term master, not us
-  seaweedfs_master_restic_snapshot_id: seaweed F.S. master restic snapshot I.D.
-  seaweedfs_volume_restic_snapshot_id: seaweed F.S. volume restic snapshot I.D.
-  seaweedfs_filer_restic_snapshot_id: seaweed F.S. filer restic snapshot I.D.
-  files_restic_snapshot_id: files restic snapshot I.D
-  config_restic_snapshot_id: config restic snapshot I.D
+  seaweedfs_master_restic_snapshot_id: seaweed F.S. master restic snapshot I.D. input field
+  seaweedfs_volume_restic_snapshot_id: seaweed F.S. volume restic snapshot I.D. input field
+  seaweedfs_filer_restic_snapshot_id: seaweed F.S. filer restic snapshot I.D. input field
+  files_restic_snapshot_id: files restic snapshot I.D input field
+  config_restic_snapshot_id: config restic snapshot I.D input field
   # logging and password config screen
   log_level_select: logging level drop down menu
   info: informational
@@ -338,8 +338,8 @@ phrases:
   confirm_tabbed: confirm tabbed content container
   maintenance_mode_on_schedule: next cloud maintenance mode on schedule input. uses cron syntax
   maintenance_mode_off_schedule: next cloud maintenance mode off schedule input. uses cron syntax
-  files_storage: files storage size in tebibytes, gibibyes, or mebibytes
-  config_storage: config storage size in tebibytes, gibibyes, or mebibytes
+  files_storage: files storage input. size should be in tebibytes, gibibyes, or mebibytes
+  config_storage: config storage input. size in should be in tebibytes, gibibyes, or mebibytes
   smol_k8s_lab_cfg: smol k. eights lab config tab
   smol_k8s_lab_cfg_scrolling_container: smol k. eights lab config scrolling container
   k8s_distro_cfg: kubernetes distro config tab
