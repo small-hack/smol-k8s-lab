@@ -292,25 +292,31 @@ class SmolAudio(Widget):
         elif "s3" in focused_id:
             # split string on _ into list of words
             sections = focused_id.split("_")
+            self.log("🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊")
+            self.log(sections)
+            self.log("🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊")
 
             # remove _input from final string immediately
             if "input" in sections:
                 sections.pop()
 
-            # get the index of "s3" in the list
-            s3_index = sections.index("s3")
-
             # say "s three"
             self.say_phrase("s3.mp3")
+            sections.pop(sections.index("s3"))
 
-            if "backup" not in sections:
-                s3_index += 1
-            else:
+            if "backup" in sections:
                 self.say_phrase("backup.mp3")
-                s3_index += 2
+                sections.pop(sections.index("backup"))
+
+
+            self.say_app(app=sections[0])
+            sections.pop(0)
 
             # rejoin any remaining words with _ into one string
-            noun = "_".join(sections[s3_index:])
+            noun = "_".join(sections)
+            self.log("🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊")
+            self.log(noun)
+            self.log("🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊🥊")
             self.say_phrase(f"{noun}.mp3")
 
         # handle all mail values at once
@@ -320,8 +326,8 @@ class SmolAudio(Widget):
         elif "restic_snapshot_id" in focused_id:
             self.say_app(focused_id, restic_snapshot_id=True)
 
-        elif focused_id.endswith("restic_repo_password_input"):
-            self.say_app(focused_id, "_restic_repo_password_input")
+        elif focused_id.endswith("restic_repository_password_input"):
+            self.say_app(focused_id, "_restic_repository_password_input")
 
         elif focused_id.endswith("_password_input"):
             self.say_app(focused_id, "_password_input")

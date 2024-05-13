@@ -265,7 +265,8 @@ phrases:
   namespaces: comma separated list of allowed name spaces input
   source_repos: comma separated list of source repos input
   s3: S. three
-  access_id: access I.D.
+  access_key_id: access key I.D.
+  secret_acces_key: secret access key
   secret_key: secret key
   endpoint: end point input
   region: region input
