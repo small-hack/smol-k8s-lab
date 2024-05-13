@@ -378,8 +378,8 @@ class NodesConfigScreen(Screen):
                         key_display="b",
                         action="app.pop_screen",
                         description="Back"),
-                Binding(key="alt+a",
-                        key_display="alt+a",
+                Binding(key="ctrl+n",
+                        key_display="ctrl+n",
                         action="add_node",
                         description="add new node")]
 

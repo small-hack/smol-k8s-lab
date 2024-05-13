@@ -53,6 +53,21 @@ To delete a cluster, you can either click the `Delete` button, or use your `tab`
 [<img src="../../assets/images/screenshots/delete_cluster_confirmation.svg" alt="terminal screenshot showing smol-k8s-lab after selecting delete button. Shows a deletion confirmation modal screen that says 'Are you sure?' and it has two buttons: button 1: yes, button 2: cancel">](../../assets/images/screenshots/delete_cluster_confirmation.svg)
 
 
-#### Modify a Cluster
+#### Modify a Cluster's Apps
 
-To modify a cluster, from the start screen, select your cluster from the list in the first box, and then on the modal screen that appears, select the `modify` button. This will then automatically send you to the [apps config screen](/apps_screen) where you can modify or add applications to your cluster.
+To modify a cluster's apps, from the start screen, select your cluster from the list in the first box, and then on the modal screen that appears, select the `modify apps` button. This will then automatically send you to the [apps config screen](/apps_screen) where you can modify or add applications to your cluster.
+
+#### Modify a Cluster's Nodes (k3s only)
+
+For k3s clusters, we support deleting nodes, or adding new nodes. To do this, fromt he start screen, select the cluster you'd like to modify from the list in the first box, and then on the modal screen that appears, select `Modify Nodes`. That will launch this screen:
+
+
+[<img src="../../assets/images/screenshots/modify_nodes_screen.svg" alt="terminal screenshot showing smol-k8s-lab after selecting modify nodes button on cluster modal screen. The screen shows a title that says smol-k8s-lab - Kubernetes nodes config for k3s-lovely-bunny. Below that is a datatable with nodes. There is one node in the table with the following fields: node: smol-node, status: ready, type: worker, ssh port: 2222, ssh key: id_rsa, labels: reserved=iot, taints: reserved=iot:NoSchedule. Below the table is a header that says 🖥️Add a new node. Below that are a series of fields for a new node. The fields are: host input, node type drop down set to worker by default, ssh port input set to 22 by default, ssh key set to id_rsa by default, node labels input, node taints input. Below that is a footer with key binding hints. The hints are B for back, ctrl+n for add a new node, ? for help, c for config, f for hide footer, f5 for speak, and n for new cluster">](../../assets/images/screenshots/modify_nodes_screen.svg)
+
+There you can select a node by clicking on it or hitting the ++enter++ key. When you do that it will display another modal screen like this:
+[<img src="../../assets/images/screenshots/modify_node_modal_screen.svg" alt="terminal screenshot showing smol-k8s-lab after selecting a node. It is a small modal overlayed ontop of the previous screen. The text says: What would you like to do with smol-node? Below that text are three buttons. Buttons from the left: modify, delete, cancel.">](../../assets/images/screenshots/modify_node_modal_screen.svg)
+
+You can select the modify or delete buttons to proceed. If you select delete you'll see this screen:
+[<img src="../../assets/images/screenshots/delete_node_confirm_modal_screen.svg" alt="terminal screenshot showing smol-k8s-lab after selecting a node to delete. it is a small modal that says are you sure you want to delete smol-node? and below that it has a yes button and a cancel button.">](../../assets/images/screenshots/delete_node_confirm_modal_screen.svg)
+
+To add a new node, just fill in the fields at the bottom and then hit ++ctrl++ + ++n++.
