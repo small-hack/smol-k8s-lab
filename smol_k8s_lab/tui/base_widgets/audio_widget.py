@@ -235,10 +235,10 @@ class SmolAudio(Widget):
             self.say_phrase('hostname.mp3')
 
         elif focused_id.endswith("control_plane_nodes_input"):
-            self.say_phrase('control_plane_nodes_input')
+            self.say_phrase('control_plane_nodes_input.mp3')
 
         elif focused_id.endswith("worker_nodes_input"):
-            self.say_phrase('worker_nodes_input')
+            self.say_phrase('worker_nodes_input.mp3')
 
         elif focused_id.endswith("_repo"):
             self.say_app(focused_id, "_repo")
@@ -419,6 +419,9 @@ class SmolAudio(Widget):
                 if "k3s" in focused_id:
                     self.say(audio_file=self.k3s_audio)
                     focused_id = focused_id.replace("k3s_", "")
+                if "kind" in focused_id:
+                    self.say(audio_file=path.join(self.cluster_audio, 'kind.mp3'))
+                    focused_id = focused_id.replace("kind_", "")
 
                 # state the ID of the tabbed content out loud
                 self.say_phrase(f'{focused_id}.mp3')
@@ -430,6 +433,9 @@ class SmolAudio(Widget):
                 if "k3s" in focused_id:
                     self.say(audio_file=self.k3s_audio)
                     focused_id = focused_id.replace("k3s_", "")
+                if "kind" in focused_id:
+                    self.say(audio_file=path.join(self.cluster_audio, 'kind.mp3'))
+                    focused_id = focused_id.replace("kind_", "")
 
                 # state the ID of the tabbed content out loud
                 self.say_phrase(f'{focused_id}.mp3')
