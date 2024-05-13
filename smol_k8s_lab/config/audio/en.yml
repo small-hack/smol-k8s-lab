@@ -304,7 +304,7 @@ phrases:
   metallb_address_pool_input: Metal L.B. I.P. address pool input
   # stuff related to backups specifically
   backup: backup
-  restic_repo_password: restic repository password input
+  restic_repository_password: restic repository password input
   pvc_backup_schedule: P.V.C. backup schedule input. takes cron syntax
   postgres_backup_schedule: post gres "Q" "L" backup schedule input. takes cron syntax with extra field for seconds
   # seaweedfs uses the term master, not us
