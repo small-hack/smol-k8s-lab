@@ -238,12 +238,14 @@ def drop_down(values: list,
               name: str,
               tooltip: str,
               select_value: str = "",
-              label: str = "") -> Horizontal:
+              label: str = "",
+              extra_row_class: str = "") -> Horizontal:
     """
     returns a label and switch row in a Horizontal container
     """
     if label:
-        select_label = Label(label.replace("_", " ") + ":", classes="input-row-label")
+        select_label = Label(label.replace("_", " ") + ":",
+                             classes="input-row-label")
         select_label.tooltip = tooltip
         id = label.replace("_", "-")
     else:
@@ -257,13 +259,15 @@ def drop_down(values: list,
                                 )
     select.tooltip = tooltip
 
-    extra_class = name.replace('_',"-")
-    if label:
-        return Horizontal(select_label, select,
-                          classes=f"{extra_class}")
+    if extra_row_class:
+        classes = f"input-row {name.replace('_',"-")} {extra_row_class}"
     else:
-        return Horizontal(select, classes=f"{extra_class}")
+        classes = f"input-row {name.replace('_',"-")}"
 
+    if label:
+        return Horizontal(select_label, select, classes=classes)
+    else:
+        return Horizontal(select, classes=classes)
 
 def input_field(label: str,
                 initial_value: str,

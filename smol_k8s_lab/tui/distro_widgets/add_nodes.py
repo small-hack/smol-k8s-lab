@@ -50,13 +50,15 @@ class AddNodesBox(Widget):
         # this resizes based on how big the screen realestate we have is
         if self.existing_cluster:
             box_class = "add-nodes-box-full-screen"
+            label_class = "new-node-text-full-screen"
         else:
             box_class = "add-nodes-box-widget"
+            label_class = "new-node-text-widget"
 
         with Grid(id="add-nodes-box", classes=box_class):
             yield Label(placeholder, id="nodes-placeholder")
-            yield Label(" 🖥️ [#ffaff9]Add[/] a [i]new[/i] [#C1FF87]node[/]",
-                        id="new-node-text")
+            yield Label(" 🖥️  [#ffaff9]Add[/] a [i]new[/i] [#C1FF87]node[/]",
+                        id="new-node-text", classes=label_class)
             yield self.add_node_row()
 
     def on_mount(self) -> None:
@@ -233,7 +235,8 @@ class AddNodesBox(Widget):
                                  name="host",
                                  placeholder="hostname or ip address",
                                  tooltip=host_label_tooltip,
-                                 validate_empty=True)
+                                 validate_empty=True,
+                                 extra_row_class="input-row-equal")
 
         # node type label and input
         node_type_tooltip = ("The type for this Kubernetes node. "
@@ -244,8 +247,8 @@ class AddNodesBox(Widget):
                 select_value=node_dict.get('node_type', 'worker'),
                 name="node_type",
                 tooltip=node_type_tooltip,
-                label="node_type"
-                )
+                label="node_type",
+                extra_row_class="input-row-equal")
 
         # ssh port label and input
         default_ssh_port = "22"
@@ -258,7 +261,8 @@ class AddNodesBox(Widget):
                                      initial_value=ssh_port,
                                      name="ssh_port",
                                      placeholder="SSH port to connect to host",
-                                     tooltip=ssh_port_label_tooltip)
+                                     tooltip=ssh_port_label_tooltip,
+                                     extra_row_class="input-row-equal")
 
         # ssh key label and input
         default_ssh_key = join(HOME_DIR, ".ssh/id_rsa")
@@ -271,7 +275,8 @@ class AddNodesBox(Widget):
                                     initial_value=ssh_key,
                                     name="ssh_key",
                                     placeholder="SSH key to connect to host",
-                                    tooltip=ssh_key_label_tooltip)
+                                    tooltip=ssh_key_label_tooltip,
+                                    extra_row_class="input-row-equal")
 
         # node labels label and input
         node_labels_label_tooltip = (
@@ -284,7 +289,8 @@ class AddNodesBox(Widget):
                 initial_value=node_labels,
                 name="node_labels",
                 placeholder="labels to apply to this node",
-                tooltip=node_labels_label_tooltip)
+                tooltip=node_labels_label_tooltip,
+                extra_row_class="input-row-equal")
 
         # taints label and input
         taints_label_tooltip = (
@@ -297,7 +303,8 @@ class AddNodesBox(Widget):
                 initial_value=taints,
                 name="node_taints",
                 placeholder="taints to apply to this node",
-                tooltip=taints_label_tooltip)
+                tooltip=taints_label_tooltip,
+                extra_row_class="input-row-equal")
 
         return Grid(host_input, node_type_dropdown,
                     ssh_port_input, ssh_key_input,
