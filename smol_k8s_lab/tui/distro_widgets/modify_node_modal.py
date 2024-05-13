@@ -46,13 +46,10 @@ class NodeModalScreen(ModalScreen):
                     yield cancel
 
     def on_mount(self):
-        """ 
-        say the title if that self.app.speak_screen_titles is set to True
         """
-        if self.app.speak_screen_titles:
-            self.app.action_say(
-                    f"Screen title: What would you like to do with {self.node}?"
-                    )
+        say the title if that tui.tts.screen_titles is set to True
+        """
+        self.call_after_refresh(self.app.play_screen_audio, screen="modify_node_modal")
 
     def action_press_cancel(self) -> None:
         """
@@ -74,8 +71,7 @@ class NodeModalScreen(ModalScreen):
             confirm_txt = ('Are you [b][i]sure[/][/] you want to [#ffaff9]delete[/]'
                            f' [#C1FF87]{self.node}[/]?')
             self.get_widget_by_id("node-modal-text").update(confirm_txt)
-            if self.app.speak_screen_titles:
-                self.app.action_say(f"Are you sure you want to delete {self.node}?")
+            self.app.play_screen_audio(screen="modify_node_modal", alt=True)
 
             # are you sure, the button
             sure_button = Button("🚮 Yes", id="delete-button-second-try")

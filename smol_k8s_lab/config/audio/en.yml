@@ -34,6 +34,14 @@ screens:
     description: |
       You can press escape to close this modal screen. This screen contains a header that says "Modify globally available Argo C.D. Application Set templating values". Below that is a scrollable container of input fields for global variables such as cluster issuer, time zone, and external secrets. Below that is a new key name input field with a plus button the left side of it to add a new variable name.
 
+  modify_node_modal:
+    title: |
+      Modify or delete node modal
+    alt_title: |
+      Are you sure you want to delete this node?
+    description: |
+      a screen asking you if you're sure you'd like to delete this node, followed by two buttons. Button one shows a person throwing trash in a wastebasket and says yes. Button two shows a person shrugging emoji and the word cancel.
+
   invalid_apps:
     title: |
       Apps with invalid fields Screen.
