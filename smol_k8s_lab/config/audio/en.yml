@@ -205,7 +205,7 @@ phrases:
   secrets_ecryption: secrets encryption input
   secrets_encryption_delete_button: secrets encryption delete button
   tabbed_content: tabbed content
-  networking_tab: networking tab
+  networking_tab: networking options tab
   yaml_tab: yaml
   kubelet_tab: kubelet config options
   nodes_tab: Add remote nodes config
