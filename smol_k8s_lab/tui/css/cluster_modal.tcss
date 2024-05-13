@@ -21,6 +21,19 @@ $navy: rgb(35,35,54);
     align: center middle;
 }
 
+/* individual buttons */
+#modify-apps-button {
+    width: 17;
+}
+
+#modify-nodes-button {
+    width: 18;
+}
+
+#delete-cluster-first-try {
+    width: 10;
+}
+
 .modify-delete-size {
     height: 14;
 }
