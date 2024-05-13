@@ -169,7 +169,7 @@ class SmolAudio(Widget):
                 for text_to_trim in trim_text:
                     app_name = app_name.replace(text_to_trim, "")
 
-            self.say(path.join(self.apps_audio, f'{app_name}.mp3'))
+            self.say(audio_file=path.join(self.apps_audio, f'{app_name}.mp3'))
 
             # say the element without the app if requested
             if say_trimmed:
