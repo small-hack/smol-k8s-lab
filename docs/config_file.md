@@ -102,11 +102,7 @@ Currently you can only deploy one distro at a time.
 
 For k3s, we use a [config file](https://docs.k3s.io/installation/configuration#configuration-file) for [all the options](https://docs.k3s.io/cli/server) that get passed to the k3s install script. We define them under `k8s_distros.k3s.k3s_yaml` in the `smol-k8s-lab` config file.
 
-!!! NOTE
-    You cannot adjust the k3s node count at this time
-
 ```yaml
-# which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind is available on macOS at this time
 k8s_distros:
   k3s:
@@ -131,10 +127,12 @@ k8s_distros:
     nodes:
       # name can be a hostname or ip address
       serverfriend1.lan:
-        # change ssh_key to the name of a local private key to use
-        ssh_key: id_rsa
         # must be node type of "worker" or "control_plane"
         node_type: worker
+        # change this if not using default port 22
+        ssh_port: 22
+        # change ssh_key to the name of a local private key to use if id_rsa is not preferred
+        ssh_key: id_rsa
         # labels are optional, but may be useful for pod node affinity
         node_labels:
           - iot=true
@@ -209,14 +207,18 @@ smol_k8s_lab:
     # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
     # If you're missing any of these, smol-k8s-lab will prompt for them
     name: bitwarden
-    # if existing items are found in your password manager, do one of:
-    #
-    # ask: (default in tui mode) display a dialog window asking you how to proceed
-    # edit: edit item, if there's one item found, ask if multiple found
-    # duplicate: create an additional item with the same name
-    # no_action: don't do anything, just continue on with the script
+    # if existing items are found in your password manager, do this:
     duplicate_strategy: ask
 ```
+
+For `smol_k8s_lab.local_password_manager.duplicate_strategy`, you can choose one of the following strategies:
+
+| strategy  | description                                                             |
+|-----------|-------------------------------------------------------------------------|
+| ask       | (default in tui mode) display a dialog window asking you how to proceed |
+| edit      | edit item, if there's one item found, ask if multiple found             |
+| duplicate | create an additional item with the same name                            |
+| no_action | don't do anything, just continue on with the script                     |
 
 ## Applications
 

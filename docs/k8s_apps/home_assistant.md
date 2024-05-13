@@ -83,6 +83,8 @@ apps:
       repo: https://github.com/small-hack/argocd-apps
       path: home-assistant/toleration_and_affinity/
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       namespace: home-assistant
       directory_recursion: false
       project:
@@ -135,6 +137,8 @@ apps:
       repo: https://github.com/small-hack/argocd-apps
       path: home-assistant/
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       namespace: home-assistant
       directory_recursion: false
       project:

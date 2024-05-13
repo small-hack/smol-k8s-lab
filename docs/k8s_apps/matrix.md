@@ -1,4 +1,4 @@
-[Matrix](https://matrix.org/) is an open protocol for decentralised, secure communications. 
+[Matrix](https://matrix.org/) is an open protocol for decentralised, secure communications.
 
 `smol-k8s-lab` deploys a matrix synapse server, element (a web frontend), and a turn server (voice server).
 
@@ -27,7 +27,7 @@ apps:
       This deploys a matrix synapse server, element (web frontend), and turn server (voice)
 
       smol-k8s-lab supports initialization by creating initial secrets for your:
-        - matrix, element, and federation hostnames, 
+        - matrix, element, and federation hostnames,
         - credentials for: postgresql, admin user, S3 storage, and SMTP
 
       smol-k8s-lab also sets up an OIDC application via Zitadel.
@@ -79,7 +79,9 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "matrix/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: "main"
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "matrix"
       # recurse directories in the git repo

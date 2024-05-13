@@ -93,7 +93,9 @@ apps:
       # if you want to use cockroachdb, change to zitadel/zitadel_and_cockroachdb
       path: zitadel/app_of_apps/
       # either the branch or tag to point at in the argo repo above
-      ref: main
+      revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: zitadel
       # recurse directories in the provided git repo

@@ -1,4 +1,4 @@
-We use the Cloud Native PostgeSQL Operator to create postgresql clusters and manage backups to S3. 
+We use the Cloud Native PostgeSQL Operator to create postgresql clusters and manage backups to S3.
 
 <a href="../../assets/images/cnpg_operator_screenshot.png">
 <img src="../../assets/images/cnpg_operator_screenshot.png" alt="Screenshot of Argo CD's web interface showing the CNPG Operator Application in tree view mode. This includes configmap s for monitoring and manager config, webhook-service, cnpg-validating-webhook-config, backups CRD, clusters CRD, poolers CRD, scheduledBackups CRD, operator deployment, and 3 cluster roles. the cnpg-webhook-service is branching to the cnpg-webhook-service endpoint. The cnpg-validating-webhook-config is branching to an endpoint slice of the same name. the deployment has two children: cnpg-webhook-cert and cnpg-operator replicaset. the replicaset feeds into a single pod called cnpg-operator">
@@ -24,6 +24,8 @@ apps:
       path: postgres/operators/cloud-native-postgres/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: cnpg-system
       # recurse directories in the provided git repo

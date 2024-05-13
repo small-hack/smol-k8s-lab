@@ -5,7 +5,7 @@ Argo CD exclusively powers _most_ of the applications that `smol-k8s-lab` suppor
 Argo CD is one of the most complex applications we deploy for you. We follow this procedure:
 
 1. Install Argo CD first with helm using some bare minimum options that include setting up your initial admin password.
-   The reason we set up a password for you instead of letting Argo CD generate it for you, is so that we can store it in your password manager for later use. 
+   The reason we set up a password for you instead of letting Argo CD generate it for you, is so that we can store it in your password manager for later use.
 2. Deploy the [appset-secret-plugin](https://github.com/small-hack/appset-secret-plugin).
 3. Optionally deploy an OIDC provider ([Zitadel](/k8s_apps/zitadel.md))
 4. Create an Argo CD Application for Argo to manage itself
@@ -54,6 +54,8 @@ apps:
       path: "argocd/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "argocd"
       # recurse directories in the provided git repo, if true, we also deploy the appset secret plugin

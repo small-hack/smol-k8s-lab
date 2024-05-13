@@ -1,4 +1,4 @@
-We use [cert-manager](https://cert-manager.io) to generate TLS certs for the web frontends of any apps we install. 
+We use [cert-manager](https://cert-manager.io) to generate TLS certs for the web frontends of any apps we install.
 
 <a href="../../assets/images/screenshots/certmanager_screenshot.png">
 <img src="../..//assets/images/screenshots/certmanager_screenshot.png" alt="Argo CD web interface screenshot of cert manager in tree view mode showing cert-manager-helm-chart with three of its children. The screenshot does not show the entire Argo CD application because it contains well over 10 different roles and cluster roles and does not fit on one page, so instead we've chosen to show only the deployment children which are cert-manager, cert-manager-caininjector, and cert-manager-webhook each with their own replicasets and pods.">
@@ -60,6 +60,8 @@ apps:
       path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "cert-manager"
       # recurse directories in the provided git repo
@@ -125,6 +127,8 @@ apps:
       path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "cert-manager"
       # recurse directories in the provided git repo
