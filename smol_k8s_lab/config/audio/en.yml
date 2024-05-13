@@ -304,7 +304,8 @@ phrases:
   # stuff related to backups specifically
   backup: backup
   restic_repo_password: restic repository password input
-  backup_schedule: backup schedule input. takes cron syntax
+  pvc_backup_schedule: PVC backup schedule input. takes cron syntax
+  postgres_backup_schedule: post gres "Q" "L" backup schedule input. takes cron syntax with extra field for seconds
   # seaweedfs uses the term master, not us
   seaweedfs_master_restic_snapshot_id: seaweed F.S. master restic snapshot I.D.
   seaweedfs_volume_restic_snapshot_id: seaweed F.S. volume restic snapshot I.D.

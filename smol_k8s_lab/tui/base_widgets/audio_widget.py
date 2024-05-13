@@ -282,6 +282,12 @@ class SmolAudio(Widget):
         elif focused_id.endswith("_gender"):
             self.say_app(focused_id, "_gender")
 
+        elif focused_id.endswith("postgres_backup_schedule"):
+            self.say_app(focused_id, "_postgres_backup_schedule")
+
+        elif focused_id.endswith("pvc_backup_schedule"):
+            self.say_app(focused_id, "_pvc_backup_schedule")
+
         # handle all S3 values at once
         elif "s3" in focused_id:
             # split string on _ into list of words
