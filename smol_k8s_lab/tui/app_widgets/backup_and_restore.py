@@ -90,7 +90,7 @@ class BackupWidget(Static):
         # finally we need the restic repository password
         repo_pw_labl = Label("restic repo password:", classes="argo-config-label")
         repo_pw_labl.tooltip = "restic repository password for encrypting your backups"
-        input_id = f"{self.app_name}-backup-restic-repository-password"
+        input_id = f"{self.app_name}-restic-repository-password"
         input_val = extract_secret(self.backup_params.get('restic_repo_password', ''))
 
         repo_pw_input = Input(
@@ -270,7 +270,7 @@ class RestoreApp(Static):
             # left hand side: base label with tool tip
             init_lbl = Label("Restore from backup", classes="initialization-label")
             init_lbl.tooltip = (
-                "If enabled, smol-k8s-lab will [#ffaff9]restore[/magenta] "
+                "If enabled, smol-k8s-lab will [#ffaff9]restore[/#ffaff9] "
                 f"{self.app_name}'s PVCs from an [b]s3[/b] compatible endpoint "
                 "using [b]restic[/b] via [b]k8up[/b]. (Optionally, we can also "
                 "restore a CNPG cluster)")

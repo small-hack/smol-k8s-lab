@@ -326,8 +326,8 @@ class SmolAudio(Widget):
         elif "restic_snapshot_id" in focused_id:
             self.say_app(focused_id, restic_snapshot_id=True)
 
-        elif focused_id.endswith("restic_repository_password_input"):
-            self.say_app(focused_id, "_restic_repository_password_input")
+        elif focused_id.endswith("restic_repository_password"):
+            self.say_app(focused_id, "_restic_repository_password")
 
         elif focused_id.endswith("_password_input"):
             self.say_app(focused_id, "_password_input")
