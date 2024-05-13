@@ -19,6 +19,25 @@ To use the default `smol-k8s-lab` Argo CD Application, you'll need to provide on
 And you'll also need to provide the following values to be templated for your personal installation:
 
 - `hostname`
+- `default_phone_region`
+
+*These determine how you'd like to set up persistence for nextcloud. We recommend just files enabled for now*
+- `files_pvc_enabled`
+- `files_storage`
+- `files_access_mode`
+- `config_pvc_enabled`
+- `config_storage`
+- `config_access_mode`
+
+*These are used for local backups in the same cluster to a nextcloud namespaced seaweedfs instance*
+- `s3_provider`
+- `s3_endpoint`
+- `s3_pvc_capacity`
+- `s3_region`
+
+*For backups, you must put nextcloud into maintenance_mode. This sets a time to do that*
+- `maintenance_mode_on_schedule`
+- `maintenance_mode_off_schedule`
 
 
 ## Required Sensitive Values
@@ -69,31 +88,72 @@ apps:
     # initialize the app by setting up new k8s secrets and/or Bitwarden items
     init:
       enabled: true
+      restore:
+        enabled: true
+        cnpg_restore: true
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
+          seaweedfs_master: latest
+          nextcloud_files: latest
       values:
         admin_user: 'mycooladminuser'
         smtp_user: 'mycoolsmtpusername'
         smtp_host: 'mail.cooldogs.net'
-      sensitive_values:
-        - SMTP_PASSWORD
-        - S3_BACKUP_ACCESS_KEY
-        - S3_BACKUP_ACCESS_ID
-        - RESTIC_REPO_PASSWORD
+        smtp_password:
+          valueFrom:
+            env: NEXTCLOUD_SMTP_PASSWORD
+    backups:
+      # cronjob syntax schedule to run nextcloud pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for nextcloud postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the cnpg backup shows as completed
+      # before it actually is, due to the wal archive it lists as it's end not
+      # being in the backup yet
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-nextcloud-bucket
+        region: eu-central-003
+        secret_access_key:
+          valueFrom:
+            env: NEXTCLOUD_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: NEXTCLOUD_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        valueFrom:
+          env: NEXTCLOUD_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         hostname: "cloud.cooldogs.net"
+        default_phone_region: NL
+        # enable persistent volume claim for nextcloud files storage
+        files_pvc_enabled: 'true'
+        # size of files pvc storage
+        files_storage: 100Gi
+        files_access_mode: ReadWriteOnce
+        # enable persistent volume claim for nextcloud config storage
+        config_pvc_enabled: 'false'
+        # size of config pvc storage
+        config_storage: 20Gi
+        config_access_mode: ReadWriteOnce
         # choose S3 as the local primary object store from either: seaweedfs, or minio
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
         s3_provider: seaweedfs
         # the endpoint you'd like to use for your minio or SeaweedFS instance
-        s3_endpoint: 'nextcloud-s3.cooldogs.net'
+        s3_endpoint: cloud-s3.cooldogs.net
         # how large the backing pvc's capacity should be for minio or seaweedfs
-        s3_pvc_capacity: 100Gi
+        s3_pvc_capacity: 10Gi
         s3_region: eu-west-1
-        s3_backup_endpoint: "s3.us-east-1.cooldogs.net"
-        s3_backup_bucket: "my-cool-backup-bucket"
-        s3_backup_region: "us-east-1"
+        # cronjob schedule to turn on nextcloud maintenance mode for backups
+        maintenance_mode_on_schedule: 30 23 * * *
+        # cronjob schedule to turn off nextcloud maintenance mode after backups
+        maintenance_mode_off_schedule: 30 1 * * *
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!

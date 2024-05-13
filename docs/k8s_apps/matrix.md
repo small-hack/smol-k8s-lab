@@ -40,14 +40,44 @@ apps:
     enabled: false
     init:
       enabled: true
+      restore:
+        enabled: false
+        cnpg_restore: true
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
+          seaweedfs_master: latest
+          matrix_media: latest
+          matrix_synapse_config: latest
+          matrix_signing_key: latest
       values:
         smtp_user: change me to enable mail
         smtp_host: enable.mail
-      sensitive_values:
-        - SMTP_PASSWORD
-        - S3_BACKUP_ACCESS_ID
-        - S3_BACKUP_SECRET_KEY
-        - RESTIC_REPO_PASSWORD
+        smtp_password:
+          valueFrom:
+            env: MATRIX_SMTP_PASSWORD
+    backups:
+      # cronjob syntax schedule to run matrix pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for matrix postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the backup shows as completed before
+      # it actually is
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-matrix-backup-bucket
+        region: eu-central-003
+        secret_access_key:
+          valueFrom:
+            env: MATRIX_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: MATRIX_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        valueFrom:
+          env: MATRIX_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -59,6 +89,21 @@ apps:
         federation_hostname: 'chat-federation.beepboopfordogsnoots.city'
         # email for of the admin user
         admin_email: 'notadog@coolcats.com'
+        # enable signing key backups
+        signing_key_pvc_enabled: 'true'
+        # size of signing key pvc storage
+        signing_key_storage: 1Mi
+        signing_key_access_mode: ReadWriteOnce
+        # enable persistent volume claim for matrix media storage
+        media_pvc_enabled: 'true'
+        # size of media pvc storage
+        media_storage: 20Gi
+        media_access_mode: ReadWriteOnce
+        # enable persistent volume claim for matrix synapse config storage
+        synapse_config_pvc_enabled: 'true'
+        # size of synapse config pvc storage
+        synapse_config_storage: 2Mi
+        synapse_config_access_mode: ReadWriteOnce
         # choose S3 as the local primary object store from either: seaweedfs, or minio
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
@@ -66,14 +111,10 @@ apps:
         # local s3 provider bucket name
         s3_bucket: matrix
         # the endpoint you'd like to use for your minio or SeaweedFS instance
-        s3_endpoint: 'matrix-s3.beepboopfordogsnoots.city'
+        s3_endpoint: matrix-s3.vleermuis.tech
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 100Gi
         s3_region: eu-west-1
-        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
-        s3_backup_endpoint: 'my-remote-s3-hostname.com'
-        s3_backup_bucket: 'matrix'
-        s3_backup_region: 'eu-west-1'
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!

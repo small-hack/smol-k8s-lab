@@ -29,29 +29,29 @@ Note: this project is not officially affiliated with any of the below tooling or
 ## Supported k8s distributions
 We always install the latest version of Kubernetes that is available from the distro's startup script.
 
-|  Distro    |         Description              |
-|:----------:|:------------------------------------------------------|
-| [<img src="assets/images/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
-| [<img src="assets/images/icons/k3d.png" width="26">][k3d] <br /> [k3d] | K3d is k3s in Docker 🐳. <br> ⚠️ testing |
-| [<img src="assets/images/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
+|                                     Distro                                     | Description                                                                                                                                     |
+|:------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------|
+|   [<img src="assets/images/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s]  | The certified Kubernetes distribution built for IoT & Edge computing                                                                            |
+|     [<img src="assets/images/icons/k3d.png" width="26">][k3d] <br /> [k3d]     | K3d is k3s in Docker 🐳. <br> ⚠️ testing                                                                                                         |
+| [<img src="assets/images/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself. |
 
 We tend to test first on k3s first, then the other distros. k3d support coming soon.
 
 ## Default Installed Applications
 Version is the helm chart version, or manifest version. See the [Default Applications](/k8s_apps/argocd) tab for more info on each application.
 
-|           Application           |                      Description                      | Initialization Supported |
-|:-------------------------------:|:------------------------------------------------------|:------------------------:|
-| [<img src="assets/images/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb] | Loadbalancer and IP Address pool manager for metal | ✅ |
-| [<img src="assets/images/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][ingress-nginx] <br /> [ingress-nginx] | The ingress-nginx controller allows access to the cluster remotely, needed for web traffic | ❌ |
-| [<img src="assets/images/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager] | For SSL/TLS certificates | ✅ |
-| [<img src="assets/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD] | Gitops - Continuous Deployment | ✅ |
-| [<img src="assets/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD Appset Secret Plugin] <br /> [Argo CD Appset Secret Plugin] | Gitops - Continuous Deployment | ✅ |
-| [<img src="assets/images/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO] | external-secrets-operator integrates external secret management systems like Bitwarden or GitLab | ❌ |
-| [<img src="assets/images/icons/eso_icon.png" width="32" alt="ESO logo, again">][Bitwarden ESO Provider] <br /> [Bitwarden ESO Provider] | Bitwarden external-secrets-operator provider  | ✅ |
-| [<img src="assets/images/icons/zitadel.png" width="32" alt="Zitadel logo, an orange arrow pointing left">][ZITADEL] <br /> [ZITADEL] | An identity provider and OIDC provider to provide SSO | ✅ |
-| [<img src="assets/images/icons/vouch.png" width="32" alt="Vouch logo, the letter V in rainbow ">][Vouch] <br /> [Vouch] | Vouch proxy allows you to secure web pages that lack authentication e.g. prometheus | ✅ |
-| [<img src="assets/images/icons/prometheus.png" width="32" alt="Prometheus logo, a torch">][Prometheus Stack] <br /> [Prometheus Stack] | Prometheus monitoring and logging stack using [loki]/[promtail], [alert manager], and [grafana]  | ✅ |
+|                                                                                          Application                                                                                          | Description                                                                                      | Initialization Supported |
+|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:-------------------------------------------------------------------------------------------------|:------------------------:|
+|   [<img src="assets/images/icons/metallb_icon.png" width="32px" alt="metallb logo, blue arrow pointing up, with small line on one leg of arrow to show balance">][metallb] <br /> [metallb]   | Loadbalancer and IP Address pool manager for metal                                               |            ✅            |
+|                     [<img src="assets/images/icons/nginx.ico" width="32px" alt="nginx logo, white letter N with green background">][ingress-nginx] <br /> [ingress-nginx]                     | The ingress-nginx controller allows access to the cluster remotely, needed for web traffic       |            ❌            |
+|                                [<img src="assets/images/icons/cert-manager_icon.png" width="32px" alt="cert manager logo">][cert-manager] <br /> [cert-manager]                               | For SSL/TLS certificates                                                                         |            ✅            |
+|                      [<img src="assets/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD] <br /> [Argo CD]                      | Gitops - Continuous Deployment                                                                   |            ✅            |
+| [<img src="assets/images/icons/argo_icon.png" width="32" alt="argo CD logo, an organer squid wearing a fishbowl helmet">][Argo CD Appset Secret Plugin] <br /> [Argo CD Appset Secret Plugin] | Gitops - Continuous Deployment                                                                   |            ✅            |
+|                      [<img src="assets/images/icons/eso_icon.png" width="32" alt="ESO logo, outline of robot with astricks in a screen in it's belly">][ESO] <br /> [ESO]                     | external-secrets-operator integrates external secret management systems like Bitwarden or GitLab |            ❌            |
+|                            [<img src="assets/images/icons/eso_icon.png" width="32" alt="ESO logo, again">][Bitwarden ESO Provider] <br /> [Bitwarden ESO Provider]                            | Bitwarden external-secrets-operator provider                                                     |            ✅            |
+|                              [<img src="assets/images/icons/zitadel.png" width="32" alt="Zitadel logo, an orange arrow pointing left">][ZITADEL] <br /> [ZITADEL]                             | An identity provider and OIDC provider to provide SSO                                            |            ✅            |
+|                                    [<img src="assets/images/icons/vouch.png" width="32" alt="Vouch logo, the letter V in rainbow ">][Vouch] <br /> [Vouch]                                    | Vouch proxy allows you to secure web pages that lack authentication e.g. prometheus              |            ✅            |
+|                             [<img src="assets/images/icons/prometheus.png" width="32" alt="Prometheus logo, a torch">][Prometheus Stack] <br /> [Prometheus Stack]                            | Prometheus monitoring and logging stack using [loki]/[promtail], [alert manager], and [grafana]  |            ✅            |
 
 
 Minor Notes:
@@ -61,34 +61,63 @@ Minor Notes:
 
 ## Optionally Installed Applications
 
-| Application/Tool | Description | Initialization Supported |
-|:----------------:|:------------|:------------------------:|
-| [<img src="assets/images/icons/cilium.png"  width="32" alt="cilium logo">][Cilium] <br /> [Cilium]<sup>demo</sup> | Kubernetes netflow visualizer and policy editor | ✅ |
-| [<img src="assets/images/icons/home_assistant_icon.png"  width="32" alt="home assistant logo, which is a small blue house with three white tracers inside of it, making it appear as though the home is a circuit board">][Home Assistant] <br /> [Home Assistant] | Home Assistant, a self hosted, at home IoT management solution. | ✅ |
-| [<img src="assets/images/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno]<sup>alpha</sup> | Kubernetes native policy management to enforce policies on k8s resources | ❌ |
-| [<img src="assets/images/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler] | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. | ✅ |
-| [<img src="assets/images/icons/k8up.png" width="32" alt="k8up logo, a minimalist logo of a small blue hill with line starting the right going into the hill">][k8up] <br /> [k8up] | Backups operator using [restic] to backup to s3 endpoints | ✅ |
-| [<img src="assets/images/icons/k8tz.png" width="32" alt="k8tz logo, the k8s logo but with a watch in the center instead of the ship wheel">][k8tz] <br /> [k8tz] | Timezone environment variable injector for pods and cronjobs | ✅ |
-| [<img src="assets/images/icons/netmaker-icon.png" width="32" alt="netmaker logo, a purple letter N">][Netmaker] <br /> [Netmaker] | Netmaker is a self hosted vpn management tool | ✅ |
-| [<img src="assets/images/icons/nextcloud.png" width="32" alt="nextcloud logo, 3 white circles touching eachother on a blue background">][Nextcloud] <br /> [Nextcloud] | Nextcloud is a self hosted file server | ✅ |
-| [<img src="assets/images/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon] | Mastodon is a self hosted federated social media network  | ✅ |
-| [<img src="assets/images/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix] | Matrix is a self hosted chat platform  | ✅ |
-| [<img src="assets/images/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio] | Self hosted S3 Object Store operator | ✅ |
-| [<img src="assets/images/icons/seaweedfs.png" width="32" alt="seaweedfs logo, ">][seaweedfs] <br /> [seaweedfs] | Self hosted S3 Object Store | ✅ |
-| [<img src="assets/images/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s] | Terminal based dashboard for kubernetes | ✅ |
+|                                                                                                                          Application/Tool                                                                                                                          | Description                                                                                                                               | Initialization Supported |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------|:------------------------:|
+|                                                                          [<img src="assets/images/icons/cilium.png"  width="32" alt="cilium logo">][Cilium] <br /> [Cilium]<sup>demo</sup>                                                                         | Kubernetes netflow visualizer and policy editor                                                                                           |            ✅            |
+| [<img src="assets/images/icons/home_assistant_icon.png"  width="32" alt="home assistant logo, which is a small blue house with three white tracers inside of it, making it appear as though the home is a circuit board">][Home Assistant] <br /> [Home Assistant] | Home Assistant, a self hosted, at home IoT management solution.                                                                           |            ✅            |
+|                                                                     [<img src="assets/images/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno]<sup>alpha</sup>                                                                     | Kubernetes native policy management to enforce policies on k8s resources                                                                  |            ❌            |
+|                                                                                  [<img src="assets/images/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler]                                                                                 | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. |            ✅            |
+|                                         [<img src="assets/images/icons/k8up.png" width="32" alt="k8up logo, a minimalist logo of a small blue hill with line starting the right going into the hill">][k8up] <br /> [k8up]                                         | Backups operator using [restic] to backup to s3 endpoints                                                                                 |            ✅            |
+|                                                  [<img src="assets/images/icons/k8tz.png" width="32" alt="k8tz logo, the k8s logo but with a watch in the center instead of the ship wheel">][k8tz] <br /> [k8tz]                                                  | Timezone environment variable injector for pods and cronjobs                                                                              |            ✅            |
+|                                                                  [<img src="assets/images/icons/netmaker-icon.png" width="32" alt="netmaker logo, a purple letter N">][Netmaker] <br /> [Netmaker]                                                                 | Netmaker is a self hosted vpn management tool                                                                                             |            ✅            |
+|                                               [<img src="assets/images/icons/nextcloud.png" width="32" alt="nextcloud logo, 3 white circles touching eachother on a blue background">][Nextcloud] <br /> [Nextcloud]                                               | Nextcloud is a self hosted file server                                                                                                    |            ✅            |
+|                                                            [<img src="assets/images/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon]                                                            | Mastodon is a self hosted federated social media network                                                                                  |            ✅            |
+|                                                                                  [<img src="assets/images/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix]                                                                                 | Matrix is a self hosted chat platform                                                                                                     |            ✅            |
+|                                                                [<img src="assets/images/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio]                                                               | Self hosted S3 Object Store operator                                                                                                      |            ✅            |
+|                                                                           [<img src="assets/images/icons/seaweedfs.png" width="32" alt="seaweedfs logo, ">][seaweedfs] <br /> [seaweedfs]                                                                          | Self hosted S3 Object Store                                                                                                               |            ✅            |
+|                                                                 [<img src="assets/images/icons/k9s_icon.png" alt="k9s logo, outline of dog with ship wheels for eyes" width="32px">][k9s]</br>[k9s]                                                                | Terminal based dashboard for kubernetes                                                                                                   |            ✅            |
 
 
 # Status
 
 
 ## Development
-smol-k8s-lab is written in Python and built and published using [Poetry]. You can check out the `pyproject.toml` for the versions of each library we install below:
+smol-k8s-lab is written in Python and built and published using [Poetry]. You can check out the [`pyproject.toml`](https://github.com/small-hack/smol-k8s-lab/blob/main/pyproject.toml) for the versions of each library we install below.
 
-- [bcrypt] (to pass a password to argocd and automatically update your Bitwarden)
-- [rich] (this is what makes all the pretty formatted text in logs and `--help`)
-- [textual] (this is the framework used for writing the TUI)
-- [ruamel.yaml] (to handle the k8s yamls and configs while maintaining comments)
-- [click] (handles arguments for the CLI)
+### Core libraries
+
+These are installed anytime you install smol-k8s-lab as an end user:
+
+| Default Library | Description                                                                      |
+|-----------------|----------------------------------------------------------------------------------|
+| [bcrypt]        | to pass a password to argocd and automatically update your Bitwarden             |
+| [click]         | handles arguments for the CLI                                                    |
+| [kubernetes]    | for using the partially functional python sdk for kubernetes                     |
+| [minio]         | for connecting to s3 and saving credentials                                      |
+| [pyfiglet]      | uses figlet to print the ascii text banner in the tui                            |
+| [pyjwt]         | used for processing tokens from zitadel                                          |
+| [pyyaml]        | this is actively being removed in favor of ruamel.yaml                           |
+| [rich]          | makes all the pretty formatted text in logs and `--help`                         |
+| [textual]       | this is the framework used for writing the TUI                                   |
+| [ruamel.yaml]   | to handle the k8s yamls and configs while maintaining comments)                  |
+| [xdg-base-dirs] | lets us use default config and cache directories for storage  accross major OSes |
+
+### Development libraries
+
+These are installed anytime you want to develop smol-k8s-lab:
+
+| Development Library       | Description                                                      |
+|---------------------------|------------------------------------------------------------------|
+| [mkdocs-material]         | for the docs site                                                |
+| [mkdocs-video]            | for videos on the docs site                                      |
+| [deptry]                  | for purging unused libraries                                     |
+| [textual-dev]             | for consoling textual                                            |
+| [pytest-textual-snapshot] | for taking screenshots with textual                              |
+| [poethepoet]              | for running special tasks during poetry build                    |
+| [coqui-tts]               | for generating text to speech audio files                        |
+| [pydub]                   | for converting audio files from wav to mp3, requires ffmpeg      |
+| [pygame]                  | for playing audio accross different OSes, requires alsa on linux |
+
 
 We also utilize the [Bitwarden cli], for a password manager so you never have to see/know your Argo CD password.
 
@@ -150,7 +179,21 @@ We also utilize the [Bitwarden cli], for a password manager so you never have to
 [Bitwarden cli]: https://bitwarden.com/help/cli/
 [bcrypt]: https://pypi.org/project/bcrypt/
 [click]: https://pypi.org/project/click/
+[kubernetes]: https://github.com/kubernetes-client/python
+[mkdocs-material]: https://squidfunk.github.io/mkdocs-material/
+[mkdocs-video]: https://pypi.org/project/mkdocs-video/
+[deptry]: https://pypi.org/project/deptry/
+[textual-dev]: https://pypi.org/project/textual/
+[pytest-textual-snapshot]: https://pypi.org/project/pytest-textual-snapshot/
+[poethepoet]: https://pypi.org/project/poethepoet/
+[coqui-tts]: https://pypi.org/project/coqui-tts/
+[pydub]: https://pypi.org/project/pydub/
+[pyfiglet]: https://pypi.org/project/pyfiglet/
+[pygame]: https://www.pygame.org/
+[pyjwt]: https://pypi.org/project/PyJWT/
+[pyyaml]: https://pypi.org/project/PyYAML
+[Poetry]: https://python-poetry.org/
 [rich]: https://github.com/Textualize/richP
 [ruamel.yaml]: https://pypi.org/project/ruamel.yaml/
-[Poetry]: https://python-poetry.org/
 [textual]: https://github.com/Textualize/textual
+[xdg-base-dirs]: https://pypi.org/project/xdg-base-dirs/

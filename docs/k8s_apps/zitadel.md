@@ -63,11 +63,40 @@ apps:
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
-      sensitive_values:
-        # sensitive values to provide via environment variables or via the TUI
-        - S3_BACKUP_ACCESS_ID
-        - S3_BACKUP_SECRET_KEY
-        - RESTIC_REPO_PASSWORD
+        # coming soon after we refactor a bit
+        # smtp_password:
+        #   valueFrom:
+        #     env: ZITADEL_SMTP_PASSWORD
+      restore:
+        enabled: false
+        cnpg_restore: true
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
+          seaweedfs_master: latest
+    backups:
+      # cronjob syntax schedule to run zitadel seaweedfs pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for zitadel postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the cnpg backup shows as completed
+      # before it actually is, due to the wal archive it lists as it's end not
+      # being in the backup yet
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-zitadel-backup-bucket
+        region: eu-central-003
+        secret_access_key:
+          valueFrom:
+            env: ZITADEL_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: ZITADEL_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        valueFrom:
+          env: ZITADEL_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets
       secret_keys:
@@ -81,11 +110,6 @@ apps:
         s3_endpoint: 'zitadel-s3.gooddogs.com'
         # capacity for the PVC backing your local s3 instance
         s3_pvc_capacity: 2Gi
-        # Remote S3 configuration, for pushing remote backups of your local postgresql backups
-        # these are done only nightly right now, for speed and cost optimization
-        s3_backup_endpoint: ''
-        s3_backup_region: ''
-        s3_backup_bucket: 'zitadel-backups'
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps

@@ -36,6 +36,10 @@ apps:
     init:
       # enable the creation of an initial owner user
       enabled: true
+      restore:
+        enabled: false
+        restic_snapshot_ids:
+          home_assistant: latest
       values:
         # -- owner user's name
         name: "admin"
@@ -43,8 +47,26 @@ apps:
         user_name: "admin"
         # -- owner user's language, default is english
         language: "en"
-      sensitive_values:
-        - PASSWORD
+        password:
+          valueFrom:
+            env: HOME_ASSISTANT_PASSWORD
+    backups:
+      # cronjob syntax schedule to run home assistant pvc backups
+      pvc_schedule: 45 23 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-home-assistant-bucket
+        region: eu-central-003
+        secret_access_key:
+          valueFrom:
+            env: HOME_ASSISTANT_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: HOME_ASSISTANT_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        valueFrom:
+          env: HOME_ASSISTANT_RESTIC_REPO_PASSWORD
     argo:
       secret_keys:
         hostname: ""
@@ -63,17 +85,17 @@ apps:
         # longitude of your personal coordinates
         longitude: ""
         # the elevation of your house?
-        elevation: ""
+        elevation: "1"
         # you can delete these if you're not using tolerations/affinity
-        toleration_key: ""
-        toleration_operator: ""
-        toleration_value: ""
-        toleration_effect: ""
+        toleration_key: "reserved"
+        toleration_operator: "Equal"
+        toleration_value: "iot"
+        toleration_effect: "NoSchedule"
         # these are for node affinity, delete if not in use
-        affinity_key: ""
-        affinity_value: ""
+        affinity_key: "reserved"
+        affinity_value: "iot"
         # these are for passing in a USB device such as the conbee II
-        usb_device_path: ""
+        usb_device_path: "/dev/serial/by-id/usb-device-here"
         usb_device_mount_path: "/dev/ttyACM0"
         usb_device_index: "1"
         # these are for passing in a bluetooth device
@@ -106,6 +128,10 @@ apps:
       [link=https://home-assistant.io]Home Assistant[/link] is a home IOT management solution.
     init:
       enabled: true
+      restore:
+        enabled: false
+        restic_snapshot_ids:
+          home_assistant: latest
       values:
         # -- owner user's name
         name: "admin"
@@ -113,8 +139,26 @@ apps:
         user_name: "admin"
         # -- owner user's language, default is english
         language: "en"
-      sensitive_values:
-        - PASSWORD
+        password:
+          valueFrom:
+            env: HOME_ASSISTANT_PASSWORD
+    backups:
+      # cronjob syntax schedule to run home assistant pvc backups
+      pvc_schedule: 45 23 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-home-assistant-bucket
+        region: eu-central-003
+        secret_access_key:
+          valueFrom:
+            env: HOME_ASSISTANT_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          valueFrom:
+            env: HOME_ASSISTANT_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        valueFrom:
+          env: HOME_ASSISTANT_RESTIC_REPO_PASSWORD
     argo:
       secret_keys:
         hostname: ""

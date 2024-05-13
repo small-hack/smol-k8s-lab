@@ -51,7 +51,6 @@ apps:
         # only needed if cluster_issuer_challenge_solver set to dns01
         # currently only cloudflare is supported
         cluster_issuer_acme_dns01_provider: cloudflare
-      sensitive_values: []
     argo:
       secret_keys: {}
       # git repo to install the Argo CD app from
@@ -80,7 +79,7 @@ apps:
 
 ### DNS01 Challenge Solver
 
-For the DNS01 challange solver, you will need to either export `$CLOUDFLARE_API_TOKEN` as an env var, or fill in the sensitive value for it each time you run `smol-k8s-lab`.
+For the DNS01 challange solver, you will need to either export `$CERT_MANAGER_CLOUDFLARE_API_TOKEN` as an env var, or fill in the sensitive value for it each time you run `smol-k8s-lab`.
 
 ```yaml
 apps:
@@ -114,11 +113,10 @@ apps:
         # only needed if cluster_issuer_challenge_solver set to dns01
         # currently only cloudflare is supported
         cluster_issuer_acme_dns01_provider: cloudflare
-      sensitive_values:
         # you can remove this if you're not using cloudflare as your DNS01 provider
-        # can be passed in as env vars if you pre-pend CERT_MANAGER_
-        # e.g. CERT_MANAGER_CLOUDFLARE_API_TOKEN
-        - CLOUDFLARE_API_TOKEN
+        cloudflare_api_token:
+          valueFrom:
+            env: CERT_MANAGER_CLOUDFLARE_API_TOKEN
     argo:
       secret_keys: {}
       # git repo to install the Argo CD app from
