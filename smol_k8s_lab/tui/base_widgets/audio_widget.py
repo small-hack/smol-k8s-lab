@@ -422,6 +422,8 @@ class SmolAudio(Widget):
                     self.say_app(focused_id, "_argo_proj_config_collapsible")
                 elif focused_id.endswith("_restore_config_collapsible"):
                     self.say_app(focused_id, "_restore_config_collapsible")
+                elif focused_id.endswith("_s3_config_collapsible"):
+                    self.say_app(focused_id, "_s3_config_collapsible")
                 else:
                     self.say_phrase(focused_id)
             else:

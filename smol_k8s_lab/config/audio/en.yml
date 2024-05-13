@@ -240,6 +240,7 @@ phrases:
   secret_keys_collapsible: Template values for argo C.D. application set
   argo_proj_config_collapsible: Advanced argo C.D. project configuration
   restore_config_collapsible: Restic Snapshot IDs
+  s3_config_collapsible: S. Three configuration collapsible
   name: name input
   last: last
   first: first

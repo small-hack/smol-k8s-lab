@@ -43,7 +43,7 @@ class BackupWidget(Static):
         yield Collapsible(
                 Grid(classes="collapsible-updateable-grid",
                      id=f"{self.app_name}-backup-grid"),
-                id=f"{self.app_name}-backup-config-collapsible",
+                id=f"{self.app_name}-s3-config-collapsible",
                 title="S3 Configuration",
                 classes="collapsible-with-some-room",
                 collapsed=False
