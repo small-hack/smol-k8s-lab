@@ -4,6 +4,7 @@
 
 from smol_k8s_lab.tui.base import BaseApp
 import asyncio
+from time import sleep
 
 
 screenshot_path = "./docs/assets/images/screenshots"
@@ -13,13 +14,16 @@ async def make_base_screenshots() -> None:
     """
     make all the screenshots for the start screen, help screen, and TUI config screen
     """
+    async with BaseApp().run_test(size=(87, 47)) as pilot:
+        sleep(3)
+        # pilot.app.save_screenshot(f"{screenshot_path}/start_screen.svg")
+        await pilot.press("enter")
+        pilot.app.save_screenshot(f"{screenshot_path}/modify_cluster_modal_screen.svg")
+
     async with BaseApp().run_test(size=(87, 53)) as pilot:
         # press the "q" key and "h" key for the help screen
         await pilot.press("tab", "h")
         pilot.app.save_screenshot(f"{screenshot_path}/tui_help_screen.svg")
-
-    async with BaseApp().run_test(size=(87, 47)) as pilot:
-        pilot.app.save_screenshot(f"{screenshot_path}/start_screen.svg")
 
     async with BaseApp().run_test(size=(99, 47)) as pilot:
         # press the "tab" key followed by the "c" key
@@ -60,7 +64,7 @@ async def make_apps_screen_screenshots() -> None:
     """
     async with BaseApp().run_test(size=(90, 55)) as pilot:
         # press the "enter" key and then the "n" key
-        await pilot.press("enter", "n")
+        await pilot.press("enter", "enter")
         pilot.app.save_screenshot(f"{screenshot_path}/apps_screen.svg")
 
         # press the "a" key to add a new app
@@ -68,7 +72,7 @@ async def make_apps_screen_screenshots() -> None:
         pilot.app.save_screenshot(f"{screenshot_path}/new_app_modal_screen.svg")
 
         # press tab, tab, enter to get to the modify_global_parameters button
-        await pilot.press("escape","tab","tab","enter")
+        await pilot.press("escape","tab","enter")
         pilot.app.save_screenshot(f"{screenshot_path}/modify_global_parameters_modal_screen.svg")
 
 
@@ -78,7 +82,7 @@ async def make_confirmation_screen_screenshots() -> None:
     """
     async with BaseApp().run_test(size=(87, 47)) as pilot:
         # logging and password config
-        await pilot.press("enter", "n", "n", "n")
+        await pilot.press("enter", "enter", "n", "n")
         pilot.app.save_screenshot(f"{screenshot_path}/logging_password_config.svg")
 
         # confirmation screen finally
