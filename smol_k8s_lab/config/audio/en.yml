@@ -233,6 +233,8 @@ phrases:
   inputs: inputs container
   init_tab: Initialization config tab
   argocd_tab: Argo C.D. Application and Project configuration tab
+  restore_tab: Restore from backup configuration tab
+  backup_tab: Backups configuration tab
   argo_config_container: Argo C.D. config container
   argocd_app_config: Argo C.D. Application configuration
   secret_keys_collapsible: Template values for argo C.D. application set
