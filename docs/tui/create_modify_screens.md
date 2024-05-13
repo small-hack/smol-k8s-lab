@@ -21,7 +21,7 @@ That will bring you to the [distro configuration](/distro_screen) screen to begi
 
 The start screen will look like this:
 
-[<img src="../../assets/images/screenshots/start_screen_with_existing_clusters.svg" alt="terminal screenshot of the smol-k8s-lab start screen. The screen shows smol-k8s-lab spelled out in blocky letters followed by two boxes. The first box is for modifying or deleting an existing cluster with an example cluster in a table. The second box shows an input field for the name of a new cluster as well as a button next to it to submit the cluster name">](../../assets/images/screenshots/start_screen_with_existing_clusters.svg)
+[<img src="../../assets/images/screenshots/start_screen_with_existing_clusters.svg" alt="terminal screenshot of the smol-k8s-lab start screen. The screen shows a smol-k8s-lab banner spelled out in blocky letters followed by two boxes. The first box is for modifying or deleting an existing cluster with an example cluster in a table. The example cluster has the following fields: cluster: k3s-lovely-bunny, distro: k3s, version: v1.29.3+k3s1, platform: linux/amd64. The second box shows an input field for the name of a new cluster, which currently says "adorable-wasbeertje". There is a button next to it to submit the cluster name called New cluster ✨">](../../assets/images/screenshots/start_screen_with_existing_clusters.svg)
 
 
 The top section will only be present if you already have (a) Kubernetes cluster(s) in your [`$KUBECONFIG`](https://kubernetes.io/docs/concepts/configuration/organize-cluster-access-kubeconfig/#the-kubeconfig-environment-variable).
@@ -29,14 +29,20 @@ The top section will only be present if you already have (a) Kubernetes cluster(
 
 ### Modify an Existing Cluster
 
-To modify an existing cluster, select your cluster from the list of clusters (stored in a [DataTable](https://textual.textualize.io/widgets/data_table/)) in the top box. 
+To modify an existing cluster, select your cluster from the list of clusters (stored in a [DataTable](https://textual.textualize.io/widgets/data_table/)) in the top box.
 
 !!! Note
-    If you don't see a box with your clusters, the cluster is either not available in your `$KUBECONFIG` or you do not have any at this time.
+    If you don't see a box with your clusters, the cluster is either not available in your `$KUBECONFIG`, not reachable, or you do not have any at this time.
 
 You can use the `tab` key to scroll down the list of clusters and `shift`+`tab` to scroll up the list and then the `enter` key to select a cluster. You can also use your mouse to click on a cluster. After you select a cluster, you should see this "modal" (AKA pop-up) screen:
 
-[<img src="../../assets/images/screenshots/modify_cluster_modal_screen.svg" alt="terminal screenshot showing smol-k8s-lab after selecting a cluster from the list. This shows the previous screen dimmed in the background with an overlaid modal screen featuring the text 'What would you like to do with $CLUSTER_NAME' and 3 buttons. Button 1: Modify, Button 2: Delete, Button 3: Cancel">](../../assets/images/screenshots/modify_cluster_modal_screen.svg)
+[<img src="../../assets/images/screenshots/modify_cluster_modal_screen.svg" alt="terminal screenshot showing smol-k8s-lab after selecting a cluster from the list. This shows the previous screen dimmed in the background with an overlaid modal screen featuring the text 'What would you like to do with k3s-lovely-bunny' and 3 buttons. Button 1: ✏️ Modify Apps, Button 2: 🖥️Modify Nodes, Button 3: Delete. At the bottom of the border for the modal screen, it has a link that says cancel.">](../../assets/images/screenshots/modify_cluster_modal_screen.svg)
+
+To exit this screen, can either:
+
+  - select one of the buttons (modify apps, modify nodes, or delete)
+  - click the `cancel` link at the bottom of the modal border
+  - press ++b++ or ++esc++
 
 
 #### Delete an existing Cluster

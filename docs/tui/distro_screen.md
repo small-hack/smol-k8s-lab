@@ -14,7 +14,7 @@ If you're using `k3d` or `kind`, you can deploy clusters with more than one node
 
 ## Extra options for k3s or k3d
 
-If you're using k3d or k3s, you can adjust what [k3s options](https://docs.k3s.io/cli/server#k3s-server-cli-help) are passed into the [k3s config file](https://docs.k3s.io/installation/configuration#configuration-file). 
+If you're using k3d or k3s, you can adjust what [k3s options](https://docs.k3s.io/cli/server#k3s-server-cli-help) are passed into the [k3s config file](https://docs.k3s.io/installation/configuration#configuration-file).
 
 ## Extra options for kind
 
@@ -37,7 +37,7 @@ To add a new option, you can click the "➕ k3s option" link at the bottom of th
 
 ![terminal screenshot showing smol-k8s-lab "add new option" modal screen with a blue border. Header: Add *new* k3s option. The second row has an input field with placeholder text that says "new k3s option" with a button on the right hand side that says "➕ add option". The bottom border has a link that says cancel - which can be clicked or you can use the escape key](../../assets/images/screenshots/add_k3s_option_screen.svg)
 
-Enter the name of the new option you'd like to add. 
+Enter the name of the new option you'd like to add.
 
 !!! Note
     If you try to input an option that already exists, it will throw an error and make a bell sound. If you want to add an option that is already there, consider instead adding the extra values as a comma separated list.
