@@ -232,9 +232,10 @@ class SmolAudio(Widget):
         deal with any button by saying it with pyglet
         """
         if focused_id.endswith("_new_secret_button"):
-            self.say_app(focused_id, "_new_secret_button")
+            self.say_app(focused_id, "_new_secret_button", say_trimmed=False)
+            self.say_phrase('new_secret.mp3')
         else:
-            self.say_phrase(f'{focused_id}.mp3')
+            self.say_phrase(f'{focused_id.replace("_button","")}.mp3')
 
         self.say_phrase('button.mp3')
 
