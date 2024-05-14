@@ -7,7 +7,7 @@ screens:
     description: |
       Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below there is one box. The box title is Create a new cluster with the name below. The box contains an input file for the name of your cluster with a submit button to the right that says sparkles emoji new cluster.
     alt_description: |
-      Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below that are two boxes. Box one title is Select a row to modify or delete an existing cluster. Box one contains a data table with columns for Cluster, Distro, Version, and Platform for each cluster. Box two title is "Create a new cluster with the name below". Box two contains an input fiel for the name of your cluster. To the right of the input field is a button that says "sparkles emoji new cluster".
+      Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below that are two boxes. Box one title is Select a row to modify or delete an existing cluster. Box one contains a data table with columns for Cluster, Distro, Version, and Platform for each cluster. Box two title is "Create a new cluster with the name below". Box two contains an input file for the name of your cluster. To the right of the input field is a button that says "sparkles emoji new cluster".
 
 
   distro:
@@ -305,20 +305,20 @@ phrases:
   bluetooth_device_mount_path: bluetooth device mount path
   bluetooth_device_index: bluetooth device index
   gender: gender
-  domains: input for coma separated list of domains
-  emails: input for coma separated list of domains
+  domains: comma separated list of domains
+  emails: comma separated list of domains
   metallb_address_pool_input: Metal L.B. I.P. address pool
   # stuff related to backups specifically
   backup: backup
   restic_repository_password: restic repository password
-  pvc_backup_schedule: P.V.C. backup schedule input. takes cron syntax
-  postgres_backup_schedule: post gres "Q" "L" backup schedule input. takes cron syntax with extra field for seconds
+  pvc_backup_schedule: P.V.C. backup schedule which takes cron syntax
+  postgres_backup_schedule: post gres "Q" "L" backup schedule which takes cron syntax with extra field for seconds
   # seaweedfs uses the term master, not us
-  seaweedfs_master_restic_snapshot_id: seaweed F.S. master restic snapshot I.D. input field
-  seaweedfs_volume_restic_snapshot_id: seaweed F.S. volume restic snapshot I.D. input field
-  seaweedfs_filer_restic_snapshot_id: seaweed F.S. filer restic snapshot I.D. input field
-  files_restic_snapshot_id: files restic snapshot I.D input field
-  config_restic_snapshot_id: config restic snapshot I.D input field
+  seaweedfs_master_restic_snapshot_id: seaweed F.S. master restic snapshot I.D.
+  seaweedfs_volume_restic_snapshot_id: seaweed F.S. volume restic snapshot I.D.
+  seaweedfs_filer_restic_snapshot_id: seaweed F.S. filer restic snapshot I.D.
+  files_restic_snapshot_id: files restic snapshot I.D.
+  config_restic_snapshot_id: config restic snapshot I.D.
   # logging and password config screen
   log_level_select: logging level
   info: informational
@@ -343,6 +343,7 @@ phrases:
   new: new
   window: window
   tab: tab
+  command: command
   # modify global variables
   cluster_issuer: cluster issuer
   time_zone: time zone
@@ -353,10 +354,10 @@ phrases:
   back: back
   confirm_container: confirm container
   confirm_tabbed: confirm tabbed content container
-  maintenance_mode_on_schedule: next cloud maintenance mode on schedule input. uses cron syntax
-  maintenance_mode_off_schedule: next cloud maintenance mode off schedule input. uses cron syntax
-  files_storage: files storage input. size should be in tebibytes, gibibyes, or mebibytes
-  config_storage: config storage input. size in should be in tebibytes, gibibyes, or mebibytes
+  maintenance_mode_on_schedule: next cloud maintenance mode on schedule which uses cron syntax
+  maintenance_mode_off_schedule: next cloud maintenance mode off schedule which uses cron syntax
+  files_storage: files storage. size should be in tebibytes, gibibyes, or mebibytes
+  config_storage: config storage. size in should be in tebibytes, gibibyes, or mebibytes
   smol_k8s_lab_cfg: smol k. eights lab config tab
   smol_k8s_lab_cfg_scrolling_container: smol k. eights lab config scrolling container
   k8s_distro_cfg: kubernetes distro config tab
