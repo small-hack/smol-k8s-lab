@@ -1,4 +1,4 @@
-## TUI configuration
+## TUI and Accessibility configuration
 
 You can configure the TUI (Terminal User Interface) either via the config file, or via the TUI itself.
 
@@ -9,6 +9,8 @@ From any screen in the TUI, you can press ++c++ and it will bring up the TUI con
 Some options may not take effect till you return to the start screen or restart the program.
 
 To exit the TUI config, just press ++q++ or ++esc++.
+
+To checkout more information on configuring accessibility options via the config file, check out our examples [here](/config_file/#tui-and-accessibility-configuration).
 
 ### Disabling the TUI
 

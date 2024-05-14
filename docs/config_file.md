@@ -10,9 +10,9 @@ smol-k8s-lab will walk you through an initial configuration, but you can also ed
 
 You can checkout the full official current [default `config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
 
-## TUI Configuration
+## TUI and Accessibility Configuration
 
-You can checkout more about the TUI in [our tui config section](/tui/tui_config), but briefly please see the default configuration for in the yaml below:
+You can checkout more about the TUI in [our tui config section](/tui), but briefly please see the default configuration for in the yaml below:
 
 ```yaml
 smol_k8s_lab:
