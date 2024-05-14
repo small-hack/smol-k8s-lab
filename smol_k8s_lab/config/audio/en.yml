@@ -170,6 +170,8 @@ phrases:
   espeak: E. Speak
   say: say
   element: Element is
+  input: input
+  button: button
   element_collapsible: Element is a collapsible called
   element_tab: Selected tab is
   value: Current value is
@@ -183,7 +185,7 @@ phrases:
   version: Version
   platform: Platform
   clusters_data_table: clusters data table
-  new_cluster_button: new cluster button
+  new_cluster: new cluster
   unknown_version: The version of the cluster is unkown. If it's a K. three D. or kind cluster, docker may not be running?
   # tui config screen
   tui_enabled: Terminal U.I. switch
@@ -195,39 +197,41 @@ phrases:
   descriptions: descriptions
   on_key_press: text to speech on F5 key press switch
   on_focus: text to speech on focus switch
-  speech_program: text to speech program input
+  speech_program: text to speech program
   # distro screen
   distro_drop_down: Kubernetes distribution drop down menu
-  control_plane_nodes_input: control plane nodes input
-  worker_nodes_input: worker nodes input
-  host: host name input
-  hostname: host name input
-  secrets_ecryption: secrets encryption input
-  secrets_encryption_delete_button: secrets encryption delete button
+  control_plane_nodes_input: control plane nodes
+  worker_nodes_input: worker nodes
+  host: host name
+  hostname: host name
+  secrets_ecryption: secrets encryption
+  secrets_encryption_delete: secrets encryption delete
   tabbed_content: tabbed content
   networking_tab: networking options tab
   yaml_tab: yaml
   kubelet_tab: kubelet config options
   nodes_tab: Add remote nodes config
   node_type: node type drop down menu
+  node: node
   worker: worker
   control_plane: control plane
-  ssh_port: S.S.H. port input
-  ssh_key: S.S.H. key input
-  node_labels: node labels input
-  node_taints: node taints input
-  kubelet_max_pods_input: Kubelet max pods input
+  ssh_port: S.S.H. port
+  ssh_key: S.S.H. key
+  node_labels: node labels
+  node_taints: node taints
+  kubelet_max_pods_input: Kubelet max pods
+  nodes_data_table: kubernetes nodes data table
   # apps screens
   restore_enabled: restore enabled switch
   invalid_fields: invalid fields are
   invalid_apps_table: invalid apps data table
-  description_input: description input
+  description_input: description
   app_submit: submit button for creating a new app in smol K. eights lab
-  app_name_input: name of new application input
+  app_name_input: name of new application
   highlighted: Highlighted app is
   first_app_is: First app in the list is
   selection_list_of_apps: Selection list of Kubernetes apps.
-  modify_globals: modify globals button
+  modify_globals: modify globals
   app_config_pane: selected app configuration pane
   app_widget: config widget
   inputs: inputs container
@@ -241,71 +245,70 @@ phrases:
   argo_proj_config_collapsible: Advanced argo C.D. project configuration
   restore_config_collapsible: Restic Snapshot IDs
   s3_config_collapsible: S. Three configuration collapsible
-  name: name input
+  name: name
   last: last
   first: first
-  user: user name input
-  language: language input
-  password: password input
+  user: user name
+  language: language
+  password: password
   init_switch: Enable initialization switch
   init_values_collapsible: Initialization values
-  repo: repository input
-  path: repository path input
-  zitadel_project_input: zitadel project input
+  repo: repository
+  path: repository path
+  zitadel_project_input: zitadel project
   revision: revision input, such as a git branch, commit hash, or tag
   namespace: name space input to deploy application to
   directory_recursion: directory recursion enabled switch
-  email: email input
-  cert_manager_cluster_issuer_acme_challenge_solver_input: cert manager cluster issuer acme challenge solver input
-  cert_manager_cluster_issuer_acme_dns01_provider_input: cert manager cluster issuer acme D.N.S. oh one provider input
-  cloudflare_api_token: cloud flare A.P.I. token input
+  email: email
+  cert_manager_cluster_issuer_acme_challenge_solver_input: cert manager cluster issuer acme challenge solver
+  cert_manager_cluster_issuer_acme_dns01_provider_input: cert manager cluster issuer acme D.N.S. oh one provider
+  cloudflare_api_token: cloud flare A.P.I. token
   oidc: O.I.D.C.
-  provider: provider input
+  provider: provider
   um: ummm, a word I don't know yet. sorry, I'm not great under pressure.
   project: project
-  namespaces: comma separated list of allowed name spaces input
-  source_repos: comma separated list of source repos input
+  namespaces: comma separated list of allowed name spaces
+  source_repos: comma separated list of source repos
   s3: S. three
-  access_key_id: access key I.D. input
-  secret_access_key: secret access key input
+  access_key_id: access key I.D.
+  secret_access_key: secret access key
   secret_key: secret key
-  endpoint: end point input
-  region: region input
-  bucket: bucket input
-  pvc_capacity: P.V.C. capacity input
+  endpoint: end point
+  region: region
+  bucket: bucket
+  pvc_capacity: P.V.C. capacity
   smtp: S.M.T.P.
   sensitive: sensitive
-  port: port input
+  port: port
   root: root
   admin: admin
-  new_secret: new secret input
-  new_secret_button: new secret button
-  country: country input
-  currency: currency input
-  longitude: longitude input
-  latitude: latitude input
-  elevation: elevation input
-  unit_system: unit system input
+  new_secret: new secret
+  country: country
+  currency: currency
+  longitude: longitude
+  latitude: latitude
+  elevation: elevation
+  unit_system: unit system
   temperature_unit: temperature unit input, please enter either F. for fahrenheit or C. for celcius.
-  toleration_key: toleration key input
-  toleration_value: toleration value input
-  toleration_operator: toleration operator input
-  toleration_effect: toleration effect input
-  affinity_key: affinity key input
-  affinity_value: affinity value input
-  usb_device_path: U.S.B. device path input
-  usb_device_mount: U.S.B. device mount path input
-  usb_device_index: U.S.B. device index input
-  bluetooth_device_path: bluetooth device path input
-  bluetooth_device_mount_path: bluetooth device mount path input
-  bluetooth_device_index: bluetooth device index input
-  gender: gender input
+  toleration_key: toleration key
+  toleration_value: toleration value
+  toleration_operator: toleration operator
+  toleration_effect: toleration effect
+  affinity_key: affinity key
+  affinity_value: affinity value
+  usb_device_path: U.S.B. device path
+  usb_device_mount: U.S.B. device mount path
+  usb_device_index: U.S.B. device index
+  bluetooth_device_path: bluetooth device path
+  bluetooth_device_mount_path: bluetooth device mount path
+  bluetooth_device_index: bluetooth device index
+  gender: gender
   domains: input for coma separated list of domains
   emails: input for coma separated list of domains
-  metallb_address_pool_input: Metal L.B. I.P. address pool input
+  metallb_address_pool_input: Metal L.B. I.P. address pool
   # stuff related to backups specifically
   backup: backup
-  restic_repository_password: restic repository password input
+  restic_repository_password: restic repository password
   pvc_backup_schedule: P.V.C. backup schedule input. takes cron syntax
   postgres_backup_schedule: post gres "Q" "L" backup schedule input. takes cron syntax with extra field for seconds
   # seaweedfs uses the term master, not us
@@ -320,20 +323,20 @@ phrases:
   debug: debug
   warn: warning
   error: error
-  file: file input
+  file: file
   enabled: enabled switch
   duplicate_strategy_select: password manager duplicate strategy drop down menu
   edit: edit
   ask: ask
   no_action: no action
   # modify global variables
-  cluster_issuer: cluster issuer input
-  time_zone: time zone input
-  external_secrets: external secrets provider input
-  pvc_storage_class: P.V.C. storage class input
+  cluster_issuer: cluster issuer
+  time_zone: time zone
+  external_secrets: external secrets provider
+  pvc_storage_class: P.V.C. storage class
   # confirm screen
-  confirm_button: confirm button
-  back_button: back button
+  confirm: confirm
+  back: back
   confirm_container: confirm container
   confirm_tabbed: confirm tabbed content container
   maintenance_mode_on_schedule: next cloud maintenance mode on schedule input. uses cron syntax
@@ -350,12 +353,12 @@ phrases:
   global_apps_cfg_scrolling_container: global apps variables config scrolling container
   app_config_tabbed_content: application configuration tabbed content
   # cluster modal screen
-  modify_apps_button: modify applications button
-  modify_nodes_button: modify nodes button
-  delete_cluster_first_try: delete cluster button
+  modify_apps: modify applications
+  modify_nodes: modify nodes
+  delete_cluster_first_try: delete cluster
   scroll_container_for_globals: scollable container for global variable inputs
-  nope_button: nope button to cancel cluster deletion
-  delete_button_second_try: very sure delete cluster button
+  nope: nope button to cancel cluster deletion
+  delete_button_second_try: very sure delete cluster
   # these are all for the help screen
   key_mappings_table: key mappings table
 
