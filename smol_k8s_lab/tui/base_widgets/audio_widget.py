@@ -227,6 +227,17 @@ class SmolAudio(Widget):
             # say the SMTP noun such as hostname or user
             self.say_phrase(f"{noun}.mp3")
 
+    def say_button(self, focused_id: str):
+        """
+        deal with any button by saying it with pyglet
+        """
+        if focused_id.endswith("_new_secret_button"):
+            self.say_app(focused_id, "_new_secret_button")
+        else:
+            self.say_phrase(f'{focused_id}.mp3')
+
+        self.say_phrase('button.mp3')
+
     def say_input(self, focused_id: str):
         """
         deal with any input fields by saying them with pyglet
@@ -475,10 +486,7 @@ class SmolAudio(Widget):
                 self.say_input(focused_id)
 
             elif isinstance(focused, Button):
-                if focused_id.endswith("_new_secret_button"):
-                    self.say_app(focused_id, "_new_secret_button")
-                else:
-                    self.say_phrase(f'{focused_id}.mp3')
+                self.say_button(focused_id)
 
             # if this is a switch of any kind
             elif isinstance(focused, Switch):
