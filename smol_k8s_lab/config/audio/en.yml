@@ -173,6 +173,7 @@ phrases:
   input: input
   button: button
   drop_down: drop down menu
+  switch: switch
   element_collapsible: Element is a collapsible called
   element_tab: Selected tab is
   value: Current value is
