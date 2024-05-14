@@ -50,9 +50,9 @@ screens:
 
   config:
     title: |
-      Configure logging and password manager screen.
+      Configure logging and password manager and run command screen.
     description: |
-      This is a general smol k eights lab screen meant for configuring logging and password management. The top box is for logging to set the log level, and log file. The bottom box is for the password manager.
+      This is a general smol k eights lab screen meant for configuring logging, password management, and the final run command. There are three boxes on the screen. The top box is for logging to set the log level, and log file. The middle box is for the password manager. The final box is for configuring the command to run after the config phase and kubernetes cluster creation phase.
 
   nodes:
     title: |
@@ -62,9 +62,9 @@ screens:
 
   tui_config:
     title: |
-      Configure Terminal U.I. and Accessibility features screen.
+      Configure Accessibility features and Terminal U.I. screen.
     description: |
-      Description. There are two boxes on the screen. Box one. Configure Terminal U.I. Box two. Configure Accessibility Features. Focus starts on Box one.
+      Description. There are two boxes on the screen. Box one title is Configure Accessibility Features. The top portion contains two switches for bell on focus and bell on error. The rest of box one is dedicated to text to speech configuration including speech program input, read element on key press switch, read element on focus switch, read screen titles enabled switch, and read screen descriptions switch. Box two title is Configure Terminal U.I which contains two switches: termin U.I. enabled switch and footer enabled switch.
 
 
   help:
