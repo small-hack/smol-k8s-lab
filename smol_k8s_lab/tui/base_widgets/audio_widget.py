@@ -376,6 +376,8 @@ class SmolAudio(Widget):
         else:
             self.say_phrase(f'{focused_id}.mp3')
 
+        self.say_phrase('input.mp3')
+
     @work(exclusive=True, thread=True)
     def speak_element(self):
         """
@@ -565,7 +567,56 @@ class SmolAudio(Widget):
         column1 = columns[0].label
         column2 = columns[1].label
 
-        if data_table.id == "invalid-apps-table":
+        # TODO: make node name, node labels, and node taints more capable
+        # right now just says um i don't know that word
+        if data_table.id == "nodes-data-table":
+            # then play the row of the table
+            self.say_phrase('row.mp3')
+
+            row_column3 = row[2].plain.strip()
+            row_column4 = row[3].plain.strip()
+            row_column5 = row[4].plain.strip()
+            row_column6 = row[5].plain.strip()
+            column3 = columns[2].label
+            column4 = columns[3].label
+            column5 = columns[4].label
+            column6 = columns[5].label
+
+            # node name
+            self.say_phrase('node.mp3')
+            self.say_phrase('um.mp3')
+
+            # node type
+            self.say_phrase('node_type.mp3')
+            if row_column2 == "worker":
+                self.say_phrase("worker.mp3")
+            elif row_column2 == "control_plane":
+                self.say_phrase("control_plane.mp3")
+
+            # ssh port
+            self.say_phrase('ssh_port.mp3')
+            if len(row_column3) == 4:
+                # split into two numbers
+                first_num = row_column3[:2]
+                second_num = row_column3[2:]
+                self.say(audio_file=path.join(self.tts_files, f'numbers/{first_num}.mp3'))
+                self.say(audio_file=path.join(self.tts_files, f'numbers/{second_num}.mp3'))
+            else:
+                self.say(audio_file=path.join(self.tts_files, f'numbers/{column3}.mp3'))
+
+            # ssh key
+            self.say_phrase('ssh_key.mp3')
+            self.say_phrase(f'{column4}.mp3')
+
+            # node labels
+            self.say_phrase('node_labels.mp3')
+            self.say_phrase('um.mp3')
+
+            # node taints
+            self.say_phrase('node_taints.mp3')
+            self.say_phrase('um.mp3')
+
+        elif data_table.id == "invalid-apps-table":
             # then play the row of the table
             self.say_phrase('row.mp3')
 
