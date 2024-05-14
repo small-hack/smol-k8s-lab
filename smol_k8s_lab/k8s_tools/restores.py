@@ -78,12 +78,8 @@ def restore_seaweedfs(argocd: ArgoCD,
                          snapshot_id)
 
     # deploy the seaweedfs appset, which will use the restored PVCs above
-    # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
-    # WARNING: change this back to main when done testing
-    # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
-    ref = "add-pvc-helm-chart-for-nextcloud"
     seaweedfs_appset = (
-            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{ref}/"
+            "https://raw.githubusercontent.com/small-hack/argocd-apps/main/"
             f"{app}/app_of_apps/s3_provider_argocd_appset.yaml")
     argocd.k8s.apply_manifests(seaweedfs_appset, argocd.namespace)
 
