@@ -189,15 +189,15 @@ phrases:
   new_cluster: new cluster
   unknown_version: The version of the cluster is unkown. If it's a K. three D. or kind cluster, docker may not be running?
   # tui config screen
-  tui_enabled: Terminal U.I. switch
-  footer: footer switch
-  bell_on_focus: bell on focus switch
-  bell_on_error: bell on error switch
-  screen_titles: text to speech screen titles switch
-  screen_descriptions: text to speech screen descriptions switch
+  tui_enabled: Terminal U.I.
+  footer: footer
+  bell_on_focus: bell on focus
+  bell_on_error: bell on error
+  screen_titles: text to speech screen titles
+  screen_descriptions: text to speech screen descriptions
   descriptions: descriptions
-  on_key_press: text to speech on F5 key press switch
-  on_focus: text to speech on focus switch
+  on_key_press: text to speech on F5 key press
+  on_focus: text to speech on focus
   speech_program: text to speech program
   # distro screen
   distro_drop_down: Kubernetes distribution
@@ -223,7 +223,7 @@ phrases:
   kubelet_max_pods_input: Kubelet max pods
   nodes_data_table: kubernetes nodes data table
   # apps screens
-  restore_enabled: restore enabled switch
+  restore_enabled: restore enabled
   invalid_fields: invalid fields are
   invalid_apps_table: invalid apps data table
   description_input: description
@@ -252,14 +252,14 @@ phrases:
   user: user name
   language: language
   password: password
-  init_switch: Enable initialization switch
+  init: Enable initialization
   init_values_collapsible: Initialization values
   repo: repository
   path: repository path
   zitadel_project_input: zitadel project
   revision: revision input, such as a git branch, commit hash, or tag
   namespace: name space input to deploy application to
-  directory_recursion: directory recursion enabled switch
+  directory_recursion: directory recursion enabled
   email: email
   cert_manager_cluster_issuer_acme_challenge_solver_input: cert manager cluster issuer acme challenge solver
   cert_manager_cluster_issuer_acme_dns01_provider_input: cert manager cluster issuer acme D.N.S. oh one provider
@@ -325,7 +325,7 @@ phrases:
   warn: warning
   error: error
   file: file
-  enabled: enabled switch
+  enabled: enabled
   duplicate_strategy_select: password manager duplicate strategy
   edit: edit
   ask: ask

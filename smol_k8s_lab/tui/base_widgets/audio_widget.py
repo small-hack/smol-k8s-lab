@@ -252,6 +252,35 @@ class SmolAudio(Widget):
         else:
             self.say_phrase(f'{focused_value}.mp3')
 
+    def say_switch(self, focused_id: str, focused_value: bool):
+        """
+        deal with any button by saying it with pyglet
+        """
+        # if it's an application initialization enabled switch...
+        if focused_id.endswith("_init_switch"):
+            self.say_app(focused_id, "_init_switch")
+        elif focused_id.endswith("_directory_recursion"):
+            self.say_app(focused_id, "_directory_recursion")
+        elif focused_id.endswith("_restore_enabled"):
+            if "cnpg" in focused_id:
+                self.say_app(focused_id, "_cnpg_restore_enabled",
+                             say_trimmed=False)
+                self.say_app(app="cnpg_operator")
+                self.say_phrase("restore_enabled.mp3")
+            else:
+                self.say_app(focused_id, "_restore_enabled")
+        else:
+            self.say_phrase(f'{focused_id}.mp3')
+
+        # then say switch
+        self.say_phrase('switch.mp3')
+
+        # say if the switch is off or not
+        if focused_value:
+            self.say_phrase("switch_on.mp3")
+        else:
+            self.say_phrase("switch_off.mp3")
+
     def say_button(self, focused_id: str):
         """
         deal with any button by saying it with pyglet
@@ -504,9 +533,7 @@ class SmolAudio(Widget):
                 focused_id = focused_id.replace("k3s_", "")
 
             if focused_id.endswith("_app_widget"):
-                self.log("🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗")
                 self.say_app(focused_id, "_app_widget")
-                self.log("🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗🆗")
 
             elif isinstance(focused, Input):
                 self.say_input(focused_id)
@@ -516,27 +543,7 @@ class SmolAudio(Widget):
 
             # if this is a switch of any kind
             elif isinstance(focused, Switch):
-                # if it's an application initialization enabled switch...
-                if focused_id.endswith("_init_switch"):
-                    self.say_app(focused_id, "_init_switch")
-                elif focused_id.endswith("_directory_recursion"):
-                    self.say_app(focused_id, "_directory_recursion")
-                elif focused_id.endswith("_restore_enabled"):
-                    if "cnpg" in focused_id:
-                        self.say_app(focused_id, "_cnpg_restore_enabled",
-                                     say_trimmed=False)
-                        self.say_app(app="cnpg_operator")
-                        self.say_phrase("restore_enabled.mp3")
-                    else:
-                        self.say_app(focused_id, "_restore_enabled")
-                else:
-                    self.say_phrase(f'{focused_id}.mp3')
-
-                # say if the switch is off or not
-                if focused.value:
-                    self.say_phrase("switch_on.mp3")
-                else:
-                    self.say_phrase("switch_off.mp3")
+                self.say_switch(focused_id, focused.value)
 
             # if this is an app inputs widget container, we need to get the app
             # name and then read that first before the name of the vertical scroll
@@ -548,7 +555,7 @@ class SmolAudio(Widget):
 
             # if this is a dropdown menu, use the special method we have for that
             elif isinstance(focused, Select):
-                self.say_drop_down_menu(self, focused_id, focused.value)
+                self.say_drop_down_menu(focused_id, focused.value)
 
             # if this is a selection list, such as the apps list
             elif isinstance(focused, SelectionList):
