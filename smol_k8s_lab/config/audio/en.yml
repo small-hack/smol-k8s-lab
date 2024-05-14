@@ -332,9 +332,10 @@ phrases:
   ask: ask
   no_action: no action
   terminal_select: terminal select
+  window_behavior_select: window behavior
   wezterm: wez term
   zellij: zellij
-  split: split
+  split: ssplit
   left: left
   right: right
   top: top
