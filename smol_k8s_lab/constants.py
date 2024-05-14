@@ -10,6 +10,7 @@ from os import environ, path, uname, makedirs
 from pathlib import Path
 from ruamel.yaml import YAML
 from shutil import copyfile
+import tarfile
 from xdg_base_dirs import xdg_cache_home, xdg_config_home
 
 # env
@@ -70,8 +71,16 @@ SPEECH_TEXT = path.join(PWD, 'config/audio')
 
 # we default save all generated speech files to your XDG_DATA_HOME env var
 SPEECH_MP3_DIR = path.join(PWD, 'audio')
-if not path.exists(SPEECH_MP3_DIR):
-    makedirs(SPEECH_MP3_DIR, exist_ok=True)
+en_dir = path.join(SPEECH_MP3_DIR, 'en')
+if not path.exists(en_dir):
+    # create the dirs
+    makedirs(en_dir, exist_ok=True)
+    # open file
+    file = tarfile.open(path.join(SPEECH_MP3_DIR, "audio-en.tar.gz"))
+    # extract files
+    file.extractall(SPEECH_MP3_DIR)
+    # close file
+    file.close()
 
 DEFAULT_DISTRO_OPTIONS = DEFAULT_CONFIG['k8s_distros']
 
