@@ -227,6 +227,31 @@ class SmolAudio(Widget):
             # say the SMTP noun such as hostname or user
             self.say_phrase(f"{noun}.mp3")
 
+    def say_drop_down_menu(self, focused_id: str, focused_value: str):
+        """
+        deal with any drop down menu by saying it with pyglet
+        """
+        # first say the name of the drop down
+        self.say_phrase(f"{focused_id}.mp3")
+
+        # then say drop down menu
+        self.say_phrase("drop_down.mp3")
+
+        # then start to say "selected value is..."
+        self.say_phrase("value.mp3")
+
+        if focused_id == "distro_drop_down":
+            self.say(audio_file=path.join(self.cluster_audio, f'{focused_value}.mp3'))
+
+        # if there's a space in the value, split it up to say each word
+        elif " " in focused_value:
+            focused_values = focused_value.split(" ")
+            for word in focused_values:
+                self.say_phrase(f'{word}.mp3')
+
+        else:
+            self.say_phrase(f'{focused_value}.mp3')
+
     def say_button(self, focused_id: str):
         """
         deal with any button by saying it with pyglet
@@ -521,17 +546,9 @@ class SmolAudio(Widget):
                 else:
                     self.say_phrase(f'{focused_id}.mp3')
 
-            # if this is a dropdown menu, we need to read out the value
+            # if this is a dropdown menu, use the special method we have for that
             elif isinstance(focused, Select):
-                self.say_phrase(f"{focused_id}.mp3")
-                self.say_phrase("value.mp3")
-                if focused_id == "distro_drop_down":
-                    self.say(audio_file=path.join(self.cluster_audio,
-                                       f'{focused.value}.mp3'))
-                elif focused_id == "node_type":
-                    self.say_phrase(f'{focused.value}.mp3')
-                elif focused_id == "log_level_select":
-                    self.say_phrase(f'{focused.value}.mp3')
+                self.say_drop_down_menu(self, focused_id, focused.value)
 
             # if this is a selection list, such as the apps list
             elif isinstance(focused, SelectionList):

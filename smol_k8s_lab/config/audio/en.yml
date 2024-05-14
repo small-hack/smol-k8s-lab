@@ -172,6 +172,7 @@ phrases:
   element: Element is
   input: input
   button: button
+  drop_down: drop down menu
   element_collapsible: Element is a collapsible called
   element_tab: Selected tab is
   value: Current value is
@@ -199,7 +200,7 @@ phrases:
   on_focus: text to speech on focus switch
   speech_program: text to speech program
   # distro screen
-  distro_drop_down: Kubernetes distribution drop down menu
+  distro_drop_down: Kubernetes distribution
   control_plane_nodes_input: control plane nodes
   worker_nodes_input: worker nodes
   host: host name
@@ -211,7 +212,7 @@ phrases:
   yaml_tab: yaml
   kubelet_tab: kubelet config options
   nodes_tab: Add remote nodes config
-  node_type: node type drop down menu
+  node_type: node type
   node: node
   worker: worker
   control_plane: control plane
@@ -318,17 +319,28 @@ phrases:
   files_restic_snapshot_id: files restic snapshot I.D input field
   config_restic_snapshot_id: config restic snapshot I.D input field
   # logging and password config screen
-  log_level_select: logging level drop down menu
+  log_level_select: logging level
   info: informational
   debug: debug
   warn: warning
   error: error
   file: file
   enabled: enabled switch
-  duplicate_strategy_select: password manager duplicate strategy drop down menu
+  duplicate_strategy_select: password manager duplicate strategy
   edit: edit
   ask: ask
   no_action: no action
+  terminal_select: terminal select
+  wezterm: wez term
+  zellij: zellij
+  split: split
+  left: left
+  right: right
+  top: top
+  bottom: bottom
+  new: new
+  window: window
+  tab: tab
   # modify global variables
   cluster_issuer: cluster issuer
   time_zone: time zone
