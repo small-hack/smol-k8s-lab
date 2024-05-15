@@ -1,4 +1,5 @@
 #!/usr/bin/env python3.11
+from smol_k8s_lab.constants import VERSION
 from rich.text import Text
 from textual.app import ComposeResult
 from textual.containers import Grid
@@ -40,7 +41,7 @@ class HelpScreen(ModalScreen):
         # styling for the select-apps tab - select apps container - left
         select_apps_title = ('[i]Welcome[/] to [steel_blue]'
                              '[link=https://github.com/small-hack/smol-k8s-lab]'
-                             'smol-k8s-lab[/][/]')
+                             f'smol-k8s-lab[/][/] v{VERSION}')
         help_container = self.get_widget_by_id("help-container")
         help_container.border_title = select_apps_title
         help_container.border_subtitle = (

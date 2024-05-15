@@ -1,5 +1,5 @@
 # smol-k8s-lab libraries
-from smol_k8s_lab.constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE
+from smol_k8s_lab.constants import INITIAL_USR_CONFIG, XDG_CONFIG_FILE, VERSION
 from smol_k8s_lab.k8s_distros import check_all_contexts
 from smol_k8s_lab.tui.apps_screen import AppsConfigScreen
 from smol_k8s_lab.tui.base_widgets.audio_widget import SmolAudio
@@ -99,6 +99,7 @@ class BaseApp(App):
         screen and box border styling + new cluster input + cluster table if clusters exists
         Also says the screen title outloud if there that feature is enabled
         """
+        self.title = f"ʕ ᵔᴥᵔʔ smol-k8s-lab {VERSION}"
         # main box title
         title = "[#ffaff9]Create[/] a [i]new[/] [#C1FF87]cluster[/] with the name below"
         self.get_widget_by_id("base-new-cluster-input-box-grid").border_title = title

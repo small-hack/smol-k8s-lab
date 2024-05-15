@@ -2,6 +2,7 @@
 # smol-k8s-lab libraries
 from smol_k8s_lab.bitwarden.tui.bitwarden_credentials_modal_screen import (
         BitwardenCredentialsScreen)
+from smol_k8s_lab.constants import VERSION
 from smol_k8s_lab.utils.yaml_with_comments import syntax_highlighted_yaml
 
 # external libraries
@@ -96,7 +97,7 @@ class ConfirmConfig(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
+        self.title = f"ʕ ᵔᴥᵔʔ smol-k8s-lab {VERSION}"
         sub_title = f"Review your configuration for {self.app.current_cluster} (last step!)"
         self.sub_title = sub_title
 

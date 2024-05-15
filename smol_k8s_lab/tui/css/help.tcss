@@ -22,9 +22,10 @@ HelpScreen {
 #help-container {
    align: center middle;
    padding-left: 1;
+   padding-right: 1;
    padding-top: 1;
-   width: 79;
-   height: 90%;
+   width: 84;
+   height: 92%;
    border: round $cornflower 80%;
    border-title-color: $sky_blue;
    border-subtitle-color: $sky_blue;
@@ -36,4 +37,8 @@ HelpScreen {
 #help-options {
    align: center middle;
    width: 100%;
+}
+
+#key-mappings-table {
+   width: 76;
 }

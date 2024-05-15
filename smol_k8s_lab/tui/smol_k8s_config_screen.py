@@ -77,7 +77,6 @@ class SmolK8sLabConfig(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         sub_title = "Configure logging and password manager"
         self.sub_title = sub_title
 
