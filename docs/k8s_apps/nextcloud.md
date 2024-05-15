@@ -1,4 +1,4 @@
-[Nextcloud](https://nextcloud.com/) is an Open Source and self hosted personal cloud which acts as a replacement for Google Drive/Google Photos/iCloud Drive. We can deploy it for you as a featured app on Kubernetes via Argo CD. Here's an example of the full nextcloud app of apps in Argo CD's web interface:
+[Nextcloud](https://nextcloud.com/) is an Open Source and self hosted personal cloud which acts as a replacement for Google Drive/Google Photos/iCloud Drive. We can deploy it for you as a featured Argo CD app ([small-hack/argocd-apps/nextcloud](https://github.com/small-hack/argocd-apps/tree/main/nextcloud)) on Kubernetes. Here's an example of the full nextcloud app of apps in Argo CD's web interface:
 
 <a href="../../assets/images/screenshots/nextcloud.png">
 <img src="../../assets/images/screenshots/nextcloud.png" alt="screenshot of the Argo CD web interface showing the nextcloud app of apps in tree view mode, which shows the following child apps: before starting scripts, external secrets appset, maintenance mode cron appset, postgres appset, nextcloud PVC appset, s3 provider appset, s3 pvc app set, nextcloud web app set, and install nexcloud apps post install hook job. Each of these appsets then deploys a similar named app and the job deploys a pod of the same name.">
@@ -11,13 +11,16 @@ Here's the actual nextcloud helm chart app in Argo CD:
 </a>
 
 Part of the `smol-k8s-lab` init process is that we will put the following into your Bitwarden vault:
+
 - administration credentials
 - SMTP credentials
 - PostgreSQL credentials
 - s3 credentials
 - OIDC credentials
 
-## Required Init Values
+## Required Values
+
+### Init Values
 
 To use the default `smol-k8s-lab` Argo CD Application, you'll need to provide one time init values for:
 
@@ -25,7 +28,7 @@ To use the default `smol-k8s-lab` Argo CD Application, you'll need to provide on
 - `smtp_user`
 - `smtp_host`
 
-## Required ApplicationSet Values
+### Required ApplicationSet Values
 
 And you'll also need to provide the following values to be templated for your personal installation:
 
@@ -41,7 +44,7 @@ And you'll also need to provide the following values to be templated for your pe
 - `config_storage`
 - `config_access_mode`
 
-## Sensitive values
+### Sensitive values
 
 Sensitive values can be provided via environment variables using a `value_from` map on any value under `init.values` or `backups`. Example of providing the SMTP password:
 
@@ -64,10 +67,6 @@ apps:
 - `NEXTCLOUD_S3_BACKUP_ACCESS_KEY`
 - `NEXTCLOUD_S3_BACKUP_ACCESS_ID`
 - `NEXTCLOUD_RESTIC_REPO_PASSWORD`
-
-## Official Repo
-
-You can learn more about how the Nextcloud Argo CD ApplicationSet is installed at [small-hack/argocd-apps/nextcloud](https://github.com/small-hack/argocd-apps/tree/main/nextcloud).
 
 
 ## Backups
@@ -131,7 +130,7 @@ apps:
 The restore process will put your secrets into place, then restore your seaweedfs cluster first, followed by your postgresql cluster, followed by your nextcloud PVCs, and then it will install your nextcloud argocd app as normal. Just after it's installed, we'll also take your cluster out of maintenance mode :)
 
 
-## Complete Example Config
+## Full Example Config
 
 ```yaml
 apps:
