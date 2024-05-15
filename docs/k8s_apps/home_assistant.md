@@ -3,7 +3,17 @@
 - specify a default `configuration.yaml`
 - create an initial user to disable public registration
 
-<img src="../../assets/images/screenshots/home-assistant_screenshot.png" alt="screenshot of the home-assistant-app in Argo CD showing a tree featuring a configmap, pvc, service, service account, deployment, and ingress resource all called home-assistant.">
+When deployed via Argo CD using `smol-k8s-lab`, we create an app of apps like this:
+
+<a href="../../assets/images/screenshots/home-assistant.png">
+<img src="../../assets/images/screenshots/home-assistant.png" alt="screenshot of the home-assistant-app in Argo CD showing a tree featuring home assistant themes config map, home assistant appset, home assistant bitwarden external secrets operator appset, and home assistant PVC appset.">
+</a>
+
+The most important app in the apps of apps is the helm chart app which looks like this:
+
+<a href="../../assets/images/screenshots/home-assistant-helm.png">
+<img src="../../assets/images/screenshots/home-assistant-helm.png" alt="screenshot of the home-assistant-app in Argo CD showing a tree featuring a configmap, service, service account, deployment, and ingress resource all called home-assistant.">
+</a>
 
 *NOTE*: You'll need to enable the [Generic Device Plugin](/k8s_apps/generic-device-plugin.md) as a prereq in order to use USB devices with home assistant.
 
