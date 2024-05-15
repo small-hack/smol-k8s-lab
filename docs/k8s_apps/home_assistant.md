@@ -11,12 +11,75 @@
 
 The main variables you need to worry about when setting up home assistant is your `hostname`.
 
-### Sensitive Initialization Values
-Since we support the creation of an initial user for Home Assistant, you need to either fill in the password for that user via the TUI, or before you run `smol-k8s-lab`, you run the following to export `$HOME_ASSISTANT_PASSWORD` as an enviornment variable:
+### Sensitive Values
+
+Sensitive values can be provided via environment variables using a `value_from` map on any value under `init.values` or `backups`. Example of providing the SMTP password:
+
+```yaml
+apps:
+  home_assistant:
+    init:
+      values:
+        password:
+          value_from:
+            env: HA_PASSWORD
+```
+
+
+#### Sensitive values before `v5.0.0`
+
+`smol-k8s-lab` did not originally support the `value_from` map. If you're using a version *before `v5.0.0`*, to avoid having to provide sensitive values every time you run `smol-k8s-lab` with matrix enabled, set up the following environment variables:
 
 ```bash
+# this is for the admin user password
 export HOME_ASSISTANT_PASSWORD="mysupersecretpassword"
 ```
+
+## Backups
+
+Backups are a new feature in `v5.0.0` that enable backing up your cluster via restic to a configurable remote S3 bucket. If you have `init.enabled` set to `true` and you're using our pre-configured `argo.repo`, we support both instant backups, and scheduled backups.
+
+To use the backups feature, you'll need to configure the values below.
+
+```yaml
+apps:
+  home_assistant:
+    backups:
+      # cronjob syntax schedule to run home assistant pvc backups
+      pvc_schedule: 45 23 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-home-assistant-bucket
+        region: eu-central-003
+        secret_access_key:
+          value_from:
+            env: HOME_ASSISTANT_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          value_from:
+            env: HOME_ASSISTANT_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        value_from:
+          env: HOME_ASSISTANT_RESTIC_REPO_PASSWORD
+```
+
+## Restores
+
+Restores are a new feature in `v5.0.0` that enable restoring your PVCs via restic from a configurable remote S3 bucket. If you have `init.enabled` set to `true` and you're using our pre-configured `argo.repo`, we support restoring your PVC. A restore is a kind of initialization process, so it lives under the `init` section of the config for your application, in this case, home-assistant. Here's an example:
+
+```yaml
+apps:
+  home-assistant:
+    init:
+      enabled: true
+      restore:
+        # set this to false to disable restore
+        enabled: true
+        restic_snapshot_ids:
+          # defaults to latest, but can be changed to any restic snapshot ID
+          home_assistant: latest
+```
+
 
 ## Example configs
 
@@ -24,6 +87,7 @@ export HOME_ASSISTANT_PASSWORD="mysupersecretpassword"
 
 ```yaml
 apps:
+  home-assistant:
     description: |
       [link=https://home-assistant.io]Home Assistant[/link] is a home IOT management solution.
 

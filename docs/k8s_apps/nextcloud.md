@@ -48,7 +48,7 @@ apps:
 
 #### Sensitive values before `v5.0.0`
 
-`smol-k8s-lab` did not originally support the `value_from` map. If you're using a version *before `v5.0.0`*, to avoid having to provide sensitive values every time you run `smol-k8s-lab` with matrix enabled, set up the following environment variables:
+`smol-k8s-lab` did not originally support the `value_from` map. If you're using a version *before `v5.0.0`*, to avoid having to provide sensitive values every time you run `smol-k8s-lab` with nextcloud enabled, set up the following environment variables:
 
 - `NEXTCLOUD_SMTP_PASSWORD`
 - `NEXTCLOUD_S3_BACKUP_ACCESS_KEY`
@@ -62,7 +62,7 @@ You can learn more about how the Nextcloud Argo CD ApplicationSet is installed a
 
 ## Backups
 
-Backups are a new feature in `v5.0.0` that enable backing up your cluster via restic to a configurable remote S3 bucket. If you have `init.enabled` set to `true` and you're using our pre-configured `argo.repo`, we support both instant backups, and scheduled backups.
+Backups are a new feature in `v5.0.0` that enable backing up your postgres cluster and PVCs via restic to a configurable remote S3 bucket. If you have `init.enabled` set to `true` and you're using our pre-configured `argo.repo`, we support both instant backups, and scheduled backups.
 
 When running a nextcloud backup, we will first put your cluster into maintenance mode, then initiate a [Cloud Native Postgresql backup](https://cloudnative-pg.io/documentation/1.23/backup/#on-demand-backups) to your local seaweedfs cluster that we setup for you, and then wait until the last wal archive associated with that backup is complete. After that, we start a k8up backup job to backup all of your important PVCs to your configured s3 bucket. Finally, after the backup is done, we take your cluster our of maintenance mode.
 

@@ -70,7 +70,7 @@ apps:
 
 ## Restores
 
-Restores are a new feature in `v5.0.0` that enable restoring your cluster via restic from a configurable remote S3 bucket. If you have `init.enabled` set to `true` and you're using our pre-configured `argo.repo`, we support restoring both your postgres cluster and PVCs. A restore is a kind of initialization process, so it lives under the `init` section of the config for your application, in this case, matrix. Here's an example:
+Restores are a new feature in `v5.0.0` that enable restoring your postgres cluster and PVCs via restic from a configurable remote S3 bucket. If you have `init.enabled` set to `true` and you're using our pre-configured `argo.repo`, we support restoring both your postgres cluster and PVCs. A restore is a kind of initialization process, so it lives under the `init` section of the config for your application, in this case, matrix. Here's an example:
 
 ```yaml
 apps:
@@ -79,7 +79,7 @@ apps:
     init:
       enabled: true
       restore:
-        enabled: false
+        enabled: true
         # this must be set to true to restore your postgres cluster
         cnpg_restore: true
         # all of these default to latest, but you can set them to any restic snapshot ID
