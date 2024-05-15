@@ -1,4 +1,12 @@
-[Nextcloud](https://nextcloud.com/) is an Open Source and self hosted personal cloud. We optionally deploy it for you to save you some time in testing.
+[Nextcloud](https://nextcloud.com/) is an Open Source and self hosted personal cloud.
+
+<a href="../../assets/images/screenshots/nextcloud.png">
+<img src="../../assets/images/screenshots/nextcloud.png" alt="screenshot of the Argo CD web interface showing the nextcloud app of apps in tree view mode, which shows the following child apps: before starting scripts, external secrets appset, maintenance mode cron appset, postgres appset, nextcloud PVC appset, s3 provider appset, s3 pvc app set, nextcloud web app set, and install nexcloud apps post install hook job. Each of these appsets then deploys a similar named app and the job deploys a pod of the same name.">
+</a>
+
+<a href="../../assets/images/screenshots/nextcloud-web-app.png">
+<img src="../../assets/images/screenshots/nextcloud-web-app.png" alt="screenshot of the Argo CD web interface showing the nextcloud-web-app helm chart app and all of its resources in tree view mode.">
+</a>
 
 Part of the `smol-k8s-lab` init process is that we will put the following into your Bitwarden vault:
 - administration credentials
