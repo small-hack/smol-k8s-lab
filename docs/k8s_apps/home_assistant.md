@@ -18,11 +18,21 @@ When deployed via Argo CD using `smol-k8s-lab`, we create an app of apps like th
 
 </details>
 
-*NOTE*: You'll need to enable the [Generic Device Plugin](/k8s_apps/generic-device-plugin.md) as a prereq in order to use USB devices with home assistant.
+!!! Note
+    You'll need to enable the [Generic Device Plugin](/k8s_apps/generic-device-plugin.md) as a prereq in order to use USB devices with home assistant.
 
 ### Secret Keys
 
-The main variables you need to worry about when setting up home assistant is your `hostname`.
+The main variables you need to worry about when setting up home assistant is your `hostname`. The rest are the same values you'd need for a [default home assistant `configuration.yaml`](https://www.home-assistant.io/integrations/homeassistant/#configuration-variables):
+
+- name
+- country
+- currency
+- unit_system
+- temperature_unit
+- latitude
+- longitude
+- elevation
 
 ### Sensitive Values
 
