@@ -1,6 +1,6 @@
 ## Using the TUI
 
-`smol-k8s-lab` uses the [textual](https://www.textualize.io/) framework to create an interactive graphical interface in the terminal. 
+`smol-k8s-lab` uses the [textual](https://www.textualize.io/) framework to create an interactive graphical interface in the terminal.
 
 To get tips on how to navigate the TUI you can press `?` from within the TUI to get a help screen that looks like this:
 
@@ -13,8 +13,8 @@ Some helpful tips:
 
 | key binding   | description |
 |:-------------:|:------------|
-| ++'?'++       | display the help screen | 
-| ++c++         | display the TUI config screen | 
+| ++'?'++       | display the help screen |
+| ++c++         | display the TUI config screen |
 | ++f++         | show or hide the footer with key hints |
 | ++n++         | on the start screen, n will create a "new" cluster. All other screens this is "next" screen |
 | ++b++ / ++escape++ / ++q++ | Back a screen. If on the start screen, these quit the application |

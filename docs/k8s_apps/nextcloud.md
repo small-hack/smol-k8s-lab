@@ -1,14 +1,17 @@
 [Nextcloud](https://nextcloud.com/) is an Open Source and self hosted personal cloud which acts as a replacement for Google Drive/Google Photos/iCloud Drive. We can deploy it for you as a featured Argo CD app ([small-hack/argocd-apps/nextcloud](https://github.com/small-hack/argocd-apps/tree/main/nextcloud)) on Kubernetes. Here's an example of the full nextcloud app of apps in Argo CD's web interface:
 
 <a href="../../assets/images/screenshots/nextcloud.png">
-<img src="../../assets/images/screenshots/nextcloud.png" alt="screenshot of the Argo CD web interface showing the nextcloud app of apps in tree view mode, which shows the following child apps: before starting scripts, external secrets appset, maintenance mode cron appset, postgres appset, nextcloud PVC appset, s3 provider appset, s3 pvc app set, nextcloud web app set, and install nexcloud apps post install hook job. Each of these appsets then deploys a similar named app and the job deploys a pod of the same name.">
+  <img src="../../assets/images/screenshots/nextcloud.png" alt="screenshot of the Argo CD web interface showing the nextcloud app of apps in tree view mode, which shows the following child apps: before starting scripts, external secrets appset, maintenance mode cron appset, postgres appset, nextcloud PVC appset, s3 provider appset, s3 pvc app set, nextcloud web app set, and install nexcloud apps post install hook job. Each of these appsets then deploys a similar named app and the job deploys a pod of the same name.">
 </a>
 
-Here's the actual nextcloud helm chart app in Argo CD:
+<details>
+  <summary>Nextcloud Argo CD helm chart app</summary>
 
-<a href="../../assets/images/screenshots/nextcloud-web-app.png">
-<img src="../../assets/images/screenshots/nextcloud-web-app.png" alt="screenshot of the Argo CD web interface showing the nextcloud-web-app helm chart app and all of its resources in tree view mode.">
-</a>
+  <a href="../../assets/images/screenshots/nextcloud-web-app.png">
+    <img src="../../assets/images/screenshots/nextcloud-web-app.png" alt="screenshot of the Argo CD web interface showing the nextcloud-web-app helm chart app and all of its resources in tree view mode.">
+  </a>
+
+</details>
 
 Part of the `smol-k8s-lab` init process is that we will put the following into your Bitwarden vault:
 

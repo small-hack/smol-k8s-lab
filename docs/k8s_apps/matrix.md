@@ -2,9 +2,27 @@
 
 `smol-k8s-lab` deploys a matrix synapse server, element (a web frontend), and a turn server (voice server).
 
-<a href="../../assets/images/screenshots/matrix_screenshot.png">
-<img src="../../assets/images/screenshots/matrix_screenshot.png" alt="screenshot of the Argo CD web interface showing the matrix app of apps in tree view mode, which shows the following children: persistence app, external secrets appset, postgres appset, s3 provider appset, s3 pvc app set, and matrix web app set.">
+<a href="../../assets/images/screenshots/matrix.png">
+<img src="../../assets/images/screenshots/matrix.png" alt="screenshot of the Argo CD web interface showing the matrix app of apps in tree view mode, which shows the following children: external secrets appset, postgres appset, matrix PVC appset, s3 provider appset, s3 pvc app set, and matrix web app set.">
 </a>
+
+<details>
+  <summary>Matrix helm chart app in Argo CD</summary>
+
+  <a href="../../assets/images/screenshots/matrix-web-app.png">
+    <img src="../../assets/images/screenshots/matrix-web-app.png" alt="screenshot of the Argo CD web interface showing the matrix web app in tree view mode.">
+  </a>
+
+</details>
+
+<details>
+  <summary>Matrix networking view in Argo CD</summary>
+
+  <a href="../../assets/images/screenshots/matrix-networking.png">
+    <img src="../../assets/images/screenshots/matrix-networking.png" alt="screenshot of the Argo CD web interface showing the matrix web app in tree view mode.">
+  </a>
+
+</details>
 
 The main variable you need to worry about when setting up matrix is your `hostname`.
 
