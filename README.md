@@ -30,6 +30,19 @@
 - Supports initialization on a [range of common self-hosted apps](https://small-hack.github.io/smol-k8s-lab/k8s_apps/argocd/) 📱
 - Lots o' [docs](https://small-hack.github.io/smol-k8s-lab)
 
+-----------------------------
+
+* [Installation](#installation)
+    * [pipx](#pipx)
+    * [brew (still unstable)](#brew-still-unstable)
+    * [Usage](#usage)
+        * [Initialization](#initialization)
+* [Under the hood](#under-the-hood)
+        * [Supported k8s distributions](#supported-k8s-distributions)
+        * [Default Installed Applications](#default-installed-applications)
+* [Status](#status)
+
+
 # Installation
 B sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` can be installed via `pipx` (or `brew` coming soon).
 
