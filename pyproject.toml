@@ -87,11 +87,11 @@ smol-k8s-lab = "smol_k8s_lab:main"
 smol-tts     = "smol_tts:tts_gen"
 
 [tool.poe.poetry_hooks]
-pre_build  = "prep-assets"
+pre_build  = "create-appimage"
 
-[tool.poe.tasks.prep-assets]
-cmd = "smol-tts --untar"
-help   = "Optimise static assets for inclusion in the build"
+[tool.poe.tasks.create-appimage]
+cmd = ""
+help   = "Generate an appimage to test"
 # print_result = true
 
 [build-system]
