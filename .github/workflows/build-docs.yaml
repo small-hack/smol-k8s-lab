@@ -3,8 +3,14 @@ on:
   push:
     branches: 
       - main
+    paths:
+      - ".github/workflows/build-docs.yaml"
+      - "docs/**"
+      - "mkdocs.yaml"
+      
 permissions:
   contents: write
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
