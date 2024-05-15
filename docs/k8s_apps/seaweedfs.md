@@ -1,4 +1,4 @@
-[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, files, and data lakes with a O(1) disk seek speeds. You can find out more about them by checking their [Wiki](https://github.com/seaweedfs/seaweedfs/wiki). 
+[SeaweedFS](https://github.com/seaweedfs/seaweedfs) is a fast distributed storage system for blobs, objects, files, and data lakes with a O(1) disk seek speeds. You can find out more about them by checking their [Wiki](https://github.com/seaweedfs/seaweedfs/wiki).
 
 Smol-k8s-lab uses SeaweedFS for creating isolated file-systems for apps like Postgres, Mastodon, and JuiceFS. This provides a consistent storage layer across applications that allows for uniform backup and restoration processes and high-speed local-storage. This data can easily be backed up to external storage via k8up. Check it out via our [SeaweedFS Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/seaweedfs).
 
@@ -46,6 +46,8 @@ apps:
       path: seaweedfs/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: seaweedfs
       # recurse directories in the provided git repo

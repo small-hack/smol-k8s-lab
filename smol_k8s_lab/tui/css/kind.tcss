@@ -32,9 +32,17 @@ KubeletConfig {
     height: auto;
 }
 
+TabbedContent #--content-tab-kind-networking-tab.-active {
+    color: $light_cornflower;
+}
+
 /* tabpane 2 */
 #kind-kubelet-tab {
     height: auto;
+}
+
+TabbedContent #--content-tab-kind-kubelet-tab.-active {
+    color: $light_cornflower;
 }
 
 /* kind-networking config container that contains the vertical scroll box */

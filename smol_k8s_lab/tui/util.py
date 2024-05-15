@@ -238,12 +238,14 @@ def drop_down(values: list,
               name: str,
               tooltip: str,
               select_value: str = "",
-              label: str = "") -> Horizontal:
+              label: str = "",
+              extra_row_class: str = "") -> Horizontal:
     """
     returns a label and switch row in a Horizontal container
     """
     if label:
-        select_label = Label(label.replace("_", " ") + ":", classes="input-row-label")
+        select_label = Label(label.replace("_", " ") + ":",
+                             classes="input-row-label")
         select_label.tooltip = tooltip
         id = label.replace("_", "-")
     else:
@@ -257,16 +259,23 @@ def drop_down(values: list,
                                 )
     select.tooltip = tooltip
 
-    extra_class = name.replace('_',"-")
-    if label:
-        return Horizontal(select_label, select,
-                          classes=f"{extra_class}")
+    if extra_row_class:
+        classes = f"input-row {name.replace('_',"-")} {extra_row_class}"
     else:
-        return Horizontal(select, classes=f"{extra_class}")
+        classes = f"input-row {name.replace('_',"-")}"
 
+    if label:
+        return Horizontal(select_label, select, classes=classes)
+    else:
+        return Horizontal(select, classes=classes)
 
-def input_field(label: str, initial_value: str, name: str, placeholder: str,
-                tooltip: str = "") -> Horizontal:
+def input_field(label: str,
+                initial_value: str,
+                name: str,
+                placeholder: str,
+                tooltip: str = "",
+                validate_empty: bool = False,
+                extra_row_class: str = "") -> Horizontal:
     """
     returns an input label and field within a Horizontal container
     """
@@ -275,14 +284,22 @@ def input_field(label: str, initial_value: str, name: str, placeholder: str,
 
     input_dict = {"placeholder": placeholder,
                   "classes": "input-row-input",
-                  "id": label.replace("_","-"),
+                  "id": label.replace("_","-").replace(" ", "-"),
                   "name": name}
     if initial_value:
         input_dict["value"] = initial_value
     else:
         input_dict["value"] = ""
 
+    if validate_empty:
+        input_dict["validators"] = [Length(1)]
+
     input = Input(**input_dict)
     input.tooltip = tooltip
 
-    return Horizontal(input_label, input, classes="input-row")
+    if extra_row_class:
+        classes = f"input-row {extra_row_class}"
+    else:
+        classes = "input-row"
+
+    return Horizontal(input_label, input, classes=classes)

@@ -5,7 +5,7 @@ LICENSE: AGPLv4
 """
 
 # internal libraries
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 from ..utils.rich_cli.console_logging import header, sub_header
 
 # external libraries
@@ -21,7 +21,8 @@ APPSET_URLS = {
         "appset-secret-plugin": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/argocd/app_of_apps/appset_secret_plugin/appset_secret_plugin_generator_argocd_app.yaml",
         "cert-manager": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/cert-manager/cert-manager_argocd_app.yaml",
         "ingress-nginx": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/ingress-nginx/ingress-nginx_argocd_app.yaml",
-        "cilium": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/alpha/cilium/cilium_argocd_appset.yaml"
+        "cilium": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/alpha/cilium/cilium_argocd_appset.yaml",
+        "cnpg-cluster": "https://raw.githubusercontent.com/small-hack/argocd-apps/main/nextcloud/app_of_apps/postgres_argocd_appset.yaml"
         }
 
 
@@ -70,21 +71,30 @@ class Helm:
         """
         installs/uninstalls a helm chart.
         """
-        def __init__(self, **kwargs):
+        def __init__(self,
+                     release_name: str = "",
+                     chart_name: str = "",
+                     chart_version: str = "",
+                     namespace: str = "default",
+                     values_file: str = "",
+                     set_options: dict = {}):
             """
-            Takes key word args:
-            release_name="", chart_name="", chart_version="", namespace="",
-            values_file="", set_options={}
+            args:
+              - release_name:  str to call this installation
+              - chart_name:    str of helm chart to use (repo/chart)
+              - chart_version: version of the chart to install
+              - namespace:     str of namespace to deploy release to
+              - values_file:   str of a file to use with --values
+              - set_options:   dict of key/values to be passed with --set
+
             order of operations: values file followed by --set options.
             """
-            # for each keyword arg's key, create self.key for other methods
-            # to reference e.g. pass in namespace='kube-system' and we create
-            # self.namespace='kube-system'
-            self.__dict__.update(kwargs)
-
-            # always install into default namespace unless stated otherwise
-            if not kwargs['namespace']:
-                self.namespace = 'default'
+            self.release_name = release_name
+            self.chart_name = chart_name
+            self.chart_version = chart_version
+            self.namespace = namespace
+            self.values_file = values_file
+            self.set_options = set_options
 
         def check_existing(self,):
             """
@@ -95,36 +105,35 @@ class Helm:
             return subproc([cmd], quiet=True)
 
 
-        def install(self, wait: bool = False) -> True:
+        def install(self,
+                    wait: bool = False,
+                    upgrade: bool = False,
+                    ) -> True:
             """
-            Installs helm chart to current k8s context, takes optional wait arg
-            Defaults to False, if True, will wait till deployments are up
-            keyword args:
-                - release_name:  str to call this installation
-                - chart_name:    str of helm chart to use (repo/chart)
-                - chart_version: version of the chart to install
-                - namespace:     str of namespace to deploy release to
-                - values_file:   str of a file to use with --values
-                - set_options:   dict of key/values to be passed with --set
+            Installs helm chart to current k8s context, takes optional args:
+
+            - wait: bool default: False, if True, will wait till helm release stable
+            - upgrade: bool default: False, if True, will upgrade
             """
-            if self.check_existing():
-                log.info(f"{self.release_name} is already installed :)")
-                return True
+            if not upgrade:
+                if self.check_existing():
+                    log.info(f"{self.release_name} is already installed :)")
+                    return True
 
             cmd = (f'helm upgrade {self.release_name} {self.chart_name}'
                    f' --install -n {self.namespace} --create-namespace')
             # f' --atomic')
 
-            if self.__dict__.get('chart_version', False):
+            if self.chart_version:
                 cmd += f' --version {self.chart_version}'
             else:
                 version = self.get_appset_version()
                 cmd += f' --version {version}'
 
-            if self.__dict__.get('values_file', False):
+            if self.values_file:
                 cmd += f' --values {self.values_file}'
 
-            if self.__dict__.get('set_options', False):
+            if self.set_options:
                 for key, value in self.set_options.items():
                     cmd += f' --set {key}={value}'
 
@@ -132,14 +141,16 @@ class Helm:
                 cmd += ' --wait --wait-for-jobs'
 
             subproc([cmd])
-            return True
 
         def get_appset_version(self) -> str:
             """
             go get the version of the helm chart installed by the live appset
             """
             # get the contents of the remote url
-            res = requests.get(APPSET_URLS[self.release_name]).text
+            if "postgres-cluster" in self.release_name:
+                res = requests.get(APPSET_URLS['cnpg-cluster']).text
+            else:
+                res = requests.get(APPSET_URLS[self.release_name]).text
 
             # use the ruamel.yaml library to load the yaml
             yaml = YAML()
@@ -165,6 +176,7 @@ class Helm:
 def add_default_repos(k8s_distro: str,
                       metallb: bool = False,
                       cilium: bool = False,
+                      cnpg_operator: bool = False,
                       argo: bool = False,
                       argo_secrets: bool = False) -> None:
     """
@@ -188,6 +200,9 @@ def add_default_repos(k8s_distro: str,
     repos['ingress-nginx'] = 'https://kubernetes.github.io/ingress-nginx'
     repos['jetstack'] = 'https://charts.jetstack.io'
 
+    if cnpg_operator:
+        repos['cnpg-cluster'] = 'https://small-hack.github.io/cloudnative-pg-cluster-chart'
+
     if argo:
         repos['argo-cd'] = 'https://argoproj.github.io/argo-helm'
 
@@ -204,9 +219,10 @@ def add_default_repos(k8s_distro: str,
 
 
 def prepare_helm(k8s_distro: str,
-                 argo: bool = False,
                  metallb: bool = True,
                  cilium: bool = False,
+                 cnpg_operator: bool = False,
+                 argo: bool = False,
                  argo_app_set: bool = False) -> bool:
     """
     get helm installed if needed, and then install/update all the helm repos
@@ -219,5 +235,5 @@ def prepare_helm(k8s_distro: str,
         subproc(['brew install helm'])
 
     # this is where we add all the helm repos we're going to use
-    add_default_repos(k8s_distro, metallb, cilium, argo, argo_app_set)
+    add_default_repos(k8s_distro, metallb, cilium, cnpg_operator, argo, argo_app_set)
     return True

@@ -1,58 +1,128 @@
-#!/usr/bin/env python3.11
-
 # smol-k8s-lab libraries
 from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig,
                                                          ArgoCDProjectConfig)
-from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabCollapsibleInputsWidget
+from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabInputsWidget
+from smol_k8s_lab.tui.app_widgets.backup_and_restore import BackupWidget, RestoreApp
 from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
 # external libraries
 from ruamel.yaml import CommentedSeq
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Container, Horizontal, VerticalScroll
+from textual.containers import Container, Horizontal, Grid
 from textual.validation import Length
-from textual.widgets import Input, Label, Button, Switch, Static
+from textual.widgets import (Input, Label, Button, Switch, Static, Collapsible,
+                             TabbedContent, TabPane)
+
+RESTOREABLE = ["home_assistant", "matrix", "mastodon", "nextcloud",
+               "seaweedfs", "zitadel"]
 
 
 class AppInputs(Static):
     """
     Display inputs for given smol-k8s-lab supported application
     """
-    def __init__(self, app_name: str, config_dict: dict) -> None:
+    def __init__(self, app_name: str, config_dict: dict, id: str = "") -> None:
         self.app_name = app_name
         self.argo_params = config_dict['argo']
         self.init = config_dict.get('init', None)
-        super().__init__()
+        self.backup_params = config_dict.get('backups', None)
+        super().__init__(id=id)
 
     def compose(self) -> ComposeResult:
-
         # standard values to source an argo cd app from an external repo
-        with VerticalScroll(id=f"{self.app_name}-argo-config-container",
-                            classes="argo-config-container"):
+        if self.init:
+            if self.init['enabled']:
+                initial_tab = "init-tab"
+            else:
+                initial_tab = "argocd-tab"
+            # Add the TabbedContent widget for app config
+            with TabbedContent(initial=initial_tab,
+                               id="app-config-tabbed-content"):
+                # tab 1 - init options
+                yield TabPane("Initialization Config", id="init-tab")
+                # tab 2 - argo options
+                yield TabPane("Argo CD App Config", id="argocd-tab")
 
-            if self.init:
-                yield InitValues(self.app_name, self.init)
+                # tab 3,4 - backup/restore options (if we support it for this app)
+                if self.app_name in RESTOREABLE:
+                    yield TabPane("Backup", id="backup-tab")
+                    yield TabPane("Restore", id="restore-tab")
 
-            yield ArgoCDApplicationConfig(self.app_name, self.argo_params)
+    def on_mount(self) -> None:
+        """
+        mount either a custom app widget or a default app widget
+        """
+        secret_keys = self.argo_params.get('secret_keys', False)
 
-            secret_keys = self.argo_params.get('secret_keys', False)
-            if not secret_keys and isinstance(secret_keys, bool):
-                self.app.cfg['apps'][self.app_name]['secret_keys'] = {}
-                self.app.write_yaml()
+        # different process for custom apps that don't support init
+        if not self.init:
+            self.create_custom_app_widget(secret_keys)
+        else:
+            self.create_default_app_widget(secret_keys)
 
-            yield AppsetSecretValues(self.app_name, secret_keys)
+    def create_default_app_widget(self, secret_keys: dict|bool):
+        """
+        using a tabbed content feature, mount the widgets into the tab on mount
+        """
+        # mount widgets into the init tab pane
+        init_pane = self.get_widget_by_id("init-tab")
+        init_pane.mount(InitValues(self.app_name, self.init))
 
-            # argocd project configuration
-            yield Label("Advanced Argo CD Project Configuration",
-                        classes=f"{self.app_name} argo-config-header")
+        # mount widgets into the argocd tab pane
+        argo_pane = self.get_widget_by_id("argocd-tab")
+        argo_pane.mount(ArgoCDApplicationConfig(self.app_name,
+                                                self.argo_params))
+        argo_pane.mount(AppsetSecretValues(self.app_name, secret_keys))
+        argo_pane.mount(ArgoCDProjectConfig(self.app_name,
+                                            self.argo_params['project']))
 
-            yield ArgoCDProjectConfig(self.app_name, self.argo_params['project'])
+        # if we support backups/restorations for this app, mount restore widget
+        if self.app_name in RESTOREABLE:
+            self.create_backup_and_restore_widgets()
+
+    def create_custom_app_widget(self, secret_keys: dict|bool):
+        """
+        create a custom app widget for the app-config-pane
+        """
+        self.mount(ArgoCDApplicationConfig(self.app_name, self.argo_params))
+        self.mount(AppsetSecretValues(self.app_name, secret_keys))
+        self.mount(ArgoCDProjectConfig(self.app_name,
+                                       self.argo_params['project']))
+
+    def create_backup_and_restore_widgets(self):
+        restore_params = self.init.get("restore", {"enabled": False})
+        # mount the backup wiget into the restore tab
+        backup_widget = BackupWidget(
+                self.app_name,
+                self.backup_params,
+                restore_params.get('cnpg_restore', "not_applicable"),
+                id=f"{self.app_name}-restore-widget"
+                )
+        # only display restore widget if init is enabled
+        backup_widget.display = self.init["enabled"]
+        self.get_widget_by_id("backup-tab").mount(backup_widget)
+
+        # mount the restore wiget into the restore tab
+        restore_widget = RestoreApp(
+                self.app_name,
+                restore_params,
+                id=f"{self.app_name}-restore-widget"
+                )
+        # only display restore widget if init is enabled
+        restore_widget.display = self.init["enabled"]
+        self.get_widget_by_id("restore-tab").mount(restore_widget)
+
+    def action_show_tab(self, tab: str) -> None:
+        """Switch to a new tab."""
+        tabbed_content = self.get_widget_by_id("app-config-tabbed-content")
+        tabbed_content.show_tab(tab)
+        tabbed_content.active = tab
 
 
 class InitValues(Static):
     """
-    widget to take special smol-k8s-lab init values
+    widget to take special smol-k8s-lab init and sensitive init values
     """
     CSS_PATH = "../css/apps_init_config.tcss"
 
@@ -60,7 +130,6 @@ class InitValues(Static):
         self.app_name = app_name
         self.init_enabled = init_dict['enabled']
         self.init_values = init_dict.get('values', None)
-        self.sensitive_values = init_dict.get('sensitive_values', None)
 
         super().__init__()
 
@@ -87,42 +156,24 @@ class InitValues(Static):
         if self.init_values and not self.init_enabled:
             inputs_container.display = False
 
-        if self.init_values or self.sensitive_values:
+        if self.init_values:
             with inputs_container:
                 cid = f"{self.app_name}"
                 if self.init_values:
                     # these are special values that are only set up via
                     # smol-k8s-lab and do not live in a secret on the k8s cluster
-                    init_vals =  SmolK8sLabCollapsibleInputsWidget(
+                    init_vals =  SmolK8sLabInputsWidget(
                             app_name=self.app_name,
                             title="Init Values",
-                            collapsible_id=f"{cid}-init-values-collapsible",
-                            inputs=self.init_values,
-                            sensitive_inputs=False)
+                            id=f"{cid}-init-values-collapsible",
+                            inputs=self.init_values)
 
                     init_vals.tooltip = (
                                 "Init values for special one-time setup of "
                                 f"{self.app_name}. These values are [i]not[/i] "
-                                "stored in a secret for later reference  by Argo CD."
+                                "stored in a secret for later reference by Argo CD."
                                 )
                     yield init_vals
-
-                if self.sensitive_values:
-                    self.app.check_for_env_vars(self.app_name,
-                                                self.app.cfg['apps'][self.app_name])
-                    sensitive_init_vals = SmolK8sLabCollapsibleInputsWidget(
-                            app_name=self.app_name,
-                            title="Sensitive Init Values",
-                            collapsible_id=f"{cid}-sensitive-init-values-collapsible",
-                            inputs=self.app.sensitive_values[self.app_name],
-                            sensitive_inputs=True)
-
-                    sensitive_init_vals.tooltip = (
-                                "Sensitive Init values for special one-time setup of "
-                                f"{self.app_name}. These values can also be passed in"
-                                " via environment variables."
-                                )
-                    yield sensitive_init_vals
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:
@@ -132,8 +183,10 @@ class InitValues(Static):
         truthy_value = event.value
 
         if self.init_values and event.switch.id == f"{self.app_name}-init-switch":
-           app_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
-           app_inputs.display = truthy_value
+           app_init_inputs = self.get_widget_by_id(f"{self.app_name}-init-inputs")
+           app_init_inputs.display = truthy_value
+           restore_inputs = self.screen.get_widget_by_id(f"{self.app_name}-restore-widget")
+           restore_inputs.display = truthy_value
 
            self.app.cfg['apps'][self.app_name]['init']['enabled'] = truthy_value
            self.app.write_yaml()
@@ -145,29 +198,54 @@ class AppsetSecretValues(Static):
     chart. These values are saved to the base yaml in:
     self.app.cfg['apps'][app]['secret_keys']
     """
-    def __init__(self, app_name: str, secret_keys: dict = {}) -> None:
+    def __init__(self, app_name: str, secret_keys: dict|bool = False) -> None:
         self.app_name = app_name
+        # if not secret keys, make sure we write it to the yaml
+        if not secret_keys and isinstance(secret_keys, bool):
+            self.app.cfg['apps'][self.app_name]['secret_keys'] = {}
+            self.app.write_yaml()
         self.secret_keys = secret_keys
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        # secret keys
-        label =  Label("Template values for Argo CD ApplicationSet ",
-                       classes="secret-key-divider",
-                       id=f"{self.app_name}-secret-key-divider")
-        label.tooltip = ("🔒[i]optional[/]: Added to k8s secret for the Argo CD "
-                         "ApplicationSet Secret Plugin Generator.")
-        yield label
+        with Collapsible(collapsed=False,
+                         title="Template values for Argo CD ApplicationSet",
+                         classes="collapsible-with-some-room",
+                         id=f"{self.app_name}-secret-keys-collapsible"):
+            yield Grid(
+                    classes="collapsible-updateable-grid",
+                    id=f"{self.app_name}-secret-keys-collapsible-updateable-grid"
+                    )
 
+    def on_mount(self) -> None:
+        """
+        generate all the input rows for the each secret value.
+        also add tooltip to collapsible
+        """
+        header = self.get_widget_by_id(f"{self.app_name}-secret-keys-collapsible")
+        header.tooltip = ("🔒[i]optional[/]: Added to k8s secret for the Argo CD "
+                          "ApplicationSet Secret Plugin Generator.")
+        self.generate_initial_rows()
+
+    def generate_initial_rows(self) -> None:
+        """
+        generate initial secret key input rows
+        """
+        grid = self.get_widget_by_id(
+                f"{self.app_name}-secret-keys-collapsible-updateable-grid"
+                )
+
+        # secret keys
         if self.secret_keys:
             # iterate through the app's secret keys
             for secret_key, value in self.secret_keys.items():
-                yield self.generate_secret_key_row(secret_key, value)
+                secret_row = self.generate_secret_key_row(secret_key, value)
+                grid.mount(secret_row)
         else:
             help = ("smol-k8s-lab doesn't include any templated values for"
                     " this app, but you can add some below if you're using "
                     "a custom Argo CD App repo.")
-            yield Label(help, classes="secret-key-help-text")
+            grid.mount(Label(help, classes="secret-key-help-text"))
 
         key_input = Input(placeholder="new key name",
                           id=f"{self.app_name}-new-secret",
@@ -180,7 +258,8 @@ class AppsetSecretValues(Static):
 
         button = Button("➕", id=f"{self.app_name}-new-secret-button",
                         classes="new-secret-button")
-        yield Horizontal(button, key_input, classes="app-input-row")
+        grid.mount(Horizontal(button, key_input, classes="app-input-row",
+                              id=f"{self.app_name}-new-button-row"))
 
     def generate_secret_key_row(self, secret_key: str, value: str = "") -> None:
         """
@@ -197,7 +276,8 @@ class AppsetSecretValues(Static):
         input_keys = {"placeholder": placeholder_grammar(key_label),
                       "classes": input_class,
                       "name": secret_key,
-                      "validators": [Length(minimum=2)]}
+                      "validators": [Length(minimum=2)],
+                      "id": secret_key}
 
         if value:
             # handle ruamel commented sequence (dict from yaml with comments)
@@ -243,14 +323,16 @@ class AppsetSecretValues(Static):
         """
         add a new input row for secret stuff
         """
-        inputs_box = self.app.get_widget_by_id(f"{self.app_name}-argo-config-container")
+        grid = self.get_widget_by_id(
+                f"{self.app_name}-secret-keys-collapsible-updateable-grid"
+                )
         input = self.get_widget_by_id(f"{self.app_name}-new-secret")
 
         if len(input.value) > 1:
             # add new secret key row
-            inputs_box.mount(
+            grid.mount(
                     self.generate_secret_key_row(input.value),
-                    after=self.get_widget_by_id(f"{self.app_name}-secret-key-divider")
+                    before=self.get_widget_by_id(f"{self.app_name}-new-button-row")
                     )
             # clear the input field after we're created the new row and
             # updated the yaml

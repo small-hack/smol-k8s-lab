@@ -4,6 +4,7 @@
     DESCRIPTION: package, cli, and tui for setting up k8s on metal with
                  k3s, KinD, and k3d, as well as installing our or your own
                  Argo CD Apps, ApplicationSets, and Projects.
+                 And now we support restores too!
 
          AUTHOR: jessebot(AT)linux(d0t)com
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
@@ -27,10 +28,10 @@ from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
 from .k8s_distros import create_k8s_distro, delete_cluster
-from .k8s_tools.argocd_util import install_with_argocd, check_if_argocd_app_exists
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
 from .utils.rich_cli.help_text import RichCommand, options_help
+from .utils.run.final_cmd import run_final_cmd
 
 
 HELP = options_help()
@@ -43,7 +44,6 @@ def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
     Returns logging.getLogger("rich")
 
     TODO: change this to always add file logger
-
     """
 
     # determine logging level and default to warning level
@@ -108,11 +108,16 @@ def process_log_config(log_dict: dict = {"level": "warn", "file": ""}):
 @option("--version", "-v",
         is_flag=True,
         help=HELP['version'])
+@option("--final_cmd", "-f",
+        type=str,
+        default="",
+        help=HELP['command'])
 def main(config: str = "",
          delete: bool = False,
          log_file: str = "",
          version: bool = False,
-         interactive: bool = False):
+         interactive: bool = False,
+         final_cmd: str = ""):
     """
     Quickly install a k8s distro for a homelab setup. Installs k3s
     with metallb, ingess-nginx, cert-manager, and argocd
@@ -206,27 +211,35 @@ def main(config: str = "",
     k8s_obj = create_k8s_distro(cluster_name, selected_distro, metadata,
                                 metallb_enabled, cilium_enabled)
 
+    # run the final command immediately after k8s is up, if it's running in a
+    # new tab, window, or pane
+    window_behavior = USR_CFG['smol_k8s_lab']['run_command']['window_behavior']
+    terminal = USR_CFG['smol_k8s_lab']['run_command']['terminal']
+    if not final_cmd:
+        final_cmd = USR_CFG['smol_k8s_lab']['run_command']['command']
+
+    if final_cmd and window_behavior != "same window":
+        run_final_cmd(final_cmd, terminal, window_behavior)
+
     # check if argo is enabled
     argo_enabled = apps['argo_cd']['enabled']
-    # check if zitadel is enabled
-    zitadel_enabled = apps['zitadel']['enabled']
 
     # installs all the base apps: metallb/cilium, ingess-nginx, cert-manager, and argocd
-    setup_base_apps(k8s_obj,
-                    distro,
-                    apps.get('cilium', {}),
-                    apps['metallb'],
-                    apps.pop('ingress_nginx', {}),
-                    apps['cert_manager'],
-                    argo_enabled,
-                    apps['argo_cd']['argo']['directory_recursion'],
-                    SECRETS,
-                    bw)
+    argocd = setup_base_apps(k8s_obj,
+                             distro,
+                             apps.get('cilium', {}),
+                             apps['metallb'],
+                             apps.pop('ingress_nginx', {}),
+                             apps.pop('cert_manager', {}),
+                             apps.get('cnpg_operator', {}),
+                             apps['argo_cd'],
+                             SECRETS,
+                             bw)
 
     # 🦑 Install Argo CD: continuous deployment app for k8s
     if argo_enabled:
         # setup k8s secrets management and secret stores
-        setup_k8s_secrets_management(k8s_obj,
+        setup_k8s_secrets_management(argocd,
                                      distro,
                                      apps.pop('external_secrets_operator', {}),
                                      SECRETS['global_external_secrets'],
@@ -243,7 +256,7 @@ def main(config: str = "",
 
         # Setup minio, our local s3 provider, is essential for creating buckets
         # and cnpg operator, our postgresql operator for creating postgres clusters
-        setup_operators(k8s_obj,
+        setup_operators(argocd,
                         apps.pop('prometheus_crds', {}),
                         apps.pop('longhorn', {}),
                         apps.pop('k8up', {}),
@@ -253,15 +266,20 @@ def main(config: str = "",
                         apps.pop('postgres_operator', {}),
                         bw)
 
+        # global pvc storage class
+        pvc_storage_class = SECRETS.get('global_pvc_storage_class', 'local-path')
+
+        # check if zitadel is enabled
+        zitadel_enabled = apps['zitadel']['enabled']
+
         # setup OIDC for securing all endpoints with SSO
-        oidc_obj = setup_oidc_provider(
-                k8s_obj,
-                api_tls_verify,
-                apps.pop('zitadel', {}),
-                apps.pop('vouch', {}),
-                bw,
-                SECRETS['argo_cd_hostname']
-                )
+        oidc_obj = setup_oidc_provider(argocd,
+                                       api_tls_verify,
+                                       apps.pop('zitadel', {}),
+                                       apps.pop('vouch', {}),
+                                       pvc_storage_class,
+                                       bw,
+                                       SECRETS['argo_cd_hostname'])
 
         # we need this for all the oidc apps we need to create
         zitadel_hostname = SECRETS.get('zitadel_hostname', "")
@@ -270,7 +288,7 @@ def main(config: str = "",
         netmaker_dict = apps.pop('netmaker', {'enabled': False})
         # only do this if the user has smol-k8s-lab init enabled
         if netmaker_dict['enabled']:
-            configure_netmaker(k8s_obj,
+            configure_netmaker(argocd,
                                netmaker_dict,
                                'zitadel',
                                zitadel_hostname,
@@ -278,12 +296,13 @@ def main(config: str = "",
                                oidc_obj)
 
         setup_federated_apps(
-                k8s_obj,
+                argocd,
                 api_tls_verify,
                 apps.pop('home_assistant', {}),
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
                 apps.pop('matrix', {}),
+                pvc_storage_class,
                 zitadel_hostname,
                 oidc_obj,
                 bw
@@ -293,7 +312,7 @@ def main(config: str = "",
         # we set it up here in case other apps rely on it
         minio_tenant_config = apps.pop('minio_tenant', {})
         if minio_tenant_config and minio_tenant_config.get('enabled', False):
-            configure_minio_tenant(k8s_obj,
+            configure_minio_tenant(argocd,
                                    minio_tenant_config,
                                    api_tls_verify,
                                    zitadel_hostname,
@@ -305,11 +324,9 @@ def main(config: str = "",
         header("Installing the rest of the Argo CD apps")
         for app_key, app_meta in apps.items():
             if app_meta['enabled']:
-                app_installed = check_if_argocd_app_exists(app_key)
-                if not app_installed:
-                    argo_app = app_key.replace('_', '-')
-                    sub_header(f"Installing app: {argo_app}")
-                    install_with_argocd(k8s_obj, argo_app, app_meta['argo'])
+                argo_app = app_key.replace('_', '-')
+                sub_header(f"Installing app: {argo_app}")
+                argocd.install_app(argo_app, app_meta['argo'])
 
         # lock the bitwarden vault on the way out, to be polite :3
         if bw:
@@ -352,9 +369,9 @@ def main(config: str = "",
             final_msg += ("\n🐘 Mastodon, for your social media:\n"
                           f"[blue][link]https://{mastodon_hostname}[/][/]\n")
 
-        matrix_hostname = SECRETS.get('matrix_hostname', "")
+        matrix_hostname = SECRETS.get('matrix_element_hostname', "")
         if matrix_hostname:
-            final_msg += ("\n💬 Matrix, for your chat:\n"
+            final_msg += ("\n💬 Matrix (with Element frontend), for your chat:\n"
                           f"[blue][link]https://{matrix_hostname}[/][/]\n")
 
         home_assistant_hostname = SECRETS.get('home_assistant_hostname', "")
@@ -372,6 +389,10 @@ def main(config: str = "",
                         subtitle='♥ [cyan]Have a nice day[/] ♥',
                         border_style="cornflower_blue"))
     print("")
+
+    # run final command after it all ends
+    if final_cmd and window_behavior == "same-window":
+        run_final_cmd(final_cmd, terminal, window_behavior)
 
 
 if __name__ == '__main__':

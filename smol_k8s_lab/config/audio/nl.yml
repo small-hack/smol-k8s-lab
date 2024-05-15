@@ -1,0 +1,49 @@
+# Do you see errors in the grammar, or hear errors in on the audio of this text?
+# Please submit a Github Issue to tell us the problem, and if you would like,
+# please submit a PR to fix the text. The audio is auto-generated, using the script
+# smol-tts
+
+screens:
+  base:
+    title: |
+      Welkom bij Kleintje Kubernetes lab. Druk op de C. toets voor toegankelijkheidsopties.
+    alt_title: |
+      Welkom bij Kleintje Kubernetes lab. Druk op de Tab toets. Dan druk op de C. toets voor toegankelijkheidsopties.
+    description: |
+      Beschrijving. Er is een ASCII-tekstbanner bovenaan het scherm met de tekst "Kleintje Kubernetes Lab", maar dan in het Engels. Onder de tekstbanner is een doos. De titel van de doos is "Maakt een niewe cluster met de naam onder". De doos heeft een input field for de naam van uw cluster. Nast de input field is een submit button met the tekst sparkles emoji neiwe cluster.
+
+    alt_description: |
+      Beschrijving. Er is een ASCII-tekstbanner bovenaan het scherm met de tekst "Kleintje Kubernetes Lab", maar dan in het Engels. Onder de tekstbanner zit twee dozen. Doos een titel is "Keis een row to veranderan of delete een existing cluster". Doos een heeft een data tafel met columns for cluster, distributie, version, and platform voor eider cluster. De titel van doos twee is "Maakt een niewe cluster met de naam onder". Doos tween heeft een input field for de naam van uw cluster. Nast de input field is een submit button met the tekst sparkles emoji neiwe cluster.
+
+  distro:
+    title: |
+      Kubernetes distributie configuratie scherm.
+
+  apps:
+    title: |
+      Applicaties configuratie scherm (nu met meer inkvis). Heir kunt u Argo C.D. apps van het "directory type" configureren.
+
+  config:
+    title: |
+      Logging en wachtwoordbeheer configureren scherm.
+
+  nodes:
+    title: |
+      Toevoegen of verwijderen nodes scherm.
+
+  tui_config:
+    title: |
+      Configureren gebruikersinterface van de terminal en toegankelijkheidsopties.
+    description: |
+      Beschrijving. Er zijn twee dozen op de scherm. Doos een. Gebruikersinterface van de terminal configuratie. Doos twee. Configureren toegankelijkheidsopties. Focus begint op doos een.
+
+
+cluster_names:
+  knuffel: knuffel
+  egel: egel
+  meerkoet: meerkoet
+  wasbeertje: wasbeertje
+  leuke: leuke
+  mooie: mooie
+  vriendelijke: vriendelijke
+  klein: klein

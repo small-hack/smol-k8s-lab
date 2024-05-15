@@ -25,7 +25,9 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "minio/vanilla/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: "main"
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "minio"
       # source repos for Argo CD App Project (in addition to argo.repo)

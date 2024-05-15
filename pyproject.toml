@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "4.0.2"
+version       = "5.0.0"
 description   = "CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -20,42 +20,79 @@ classifiers   = ["Development Status :: 4 - Beta",
                  "Topic :: System :: Installation/Setup",
                  "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)"]
 include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
-                 "smol_k8s_lab/config/default_config.yaml"]
+                 "smol_k8s_lab/config/default_config.yaml",
+                 "smol_k8s_lab/config/audio/en.yml",
+                 "smol_k8s_lab/config/audio/nl.yml",
+                 "audio/en.tar.gz",
+                 "audio/nl.tar.gz"]
 
 [tool.poetry.urls]
 "Bug Tracker" = "http://github.com/small-hack/smol-k8s-lab/issues"
 
 [tool.poetry.dependencies]
-bcrypt             = "^4.0"
+bcrypt             = "^4.1"
 click              = "^8.1"
 cryptography       = "^42.0"
 kubernetes         = "^29"
 minio              = "^7.2"
 pyfiglet           = "^1.0"
 pyjwt              = "^2.8"
-python             = ">=3.11,<4.0"
+python             = ">=3.11,<3.13"
 pyyaml             = "^6.0"
 requests           = "^2.28"
 rich               = "^13.0"
 ruamel-yaml        = "^0.18"
 ruamel-yaml-string = "^0.1"
-textual            = "^0.56"
+textual            = "^0.60"
 xdg-base-dirs      = "^6.0"
+pygame             = "^2.5.2"
+
+[tool.poetry.group.docs]
+optional = true
 
 [tool.poetry.group.docs.dependencies]
 mkdocs-material = "^9.5"
-mkdocs-video = "^1.5"
+mkdocs-video    = "^1.5"
+
+[tool.poetry.group.dev]
+optional = true
 
 [tool.poetry.group.dev.dependencies]
-deptry = "^0.16"
-textual-dev = "^1.1"
+deptry                  = "^0.16"
+textual-dev             = "^1.1"
 pytest-textual-snapshot = "^0.4"
+poethepoet              = "^0.26.1"
+# for creating app images: https://pypi.org/project/poetry-plugin-appimage/
+# poetry-plugin-appimage  = "^0.0.4"
+# [tool.poetry-plugin-appimage]
+# miniconda = "24.3.0"
+# python = "3.12"
+# categories = "ConsoleOnly;"
+
+[tool.poetry.group.audio]
+optional = true
+
+# this group is only needed for development
+[tool.poetry.group.audio.dependencies]
+coqui-tts     = "^0.23.1"
+# note: this still requires you to install ffmpeg
+pydub         = "^0.25.1"
 
 [tool.poetry.plugins."smol-k8s-lab.application.plugin"]
 "smol-k8s-lab" = "smol_k8s_lab:main"
+"smol-tts"     = "smol_tts:tts_gen"
 
 [tool.poetry.scripts]
 smol-k8s-lab = "smol_k8s_lab:main"
+smol-tts     = "smol_tts:tts_gen"
+
+[tool.poe.poetry_hooks]
+pre_build  = "create-appimage"
+
+[tool.poe.tasks.create-appimage]
+cmd = ""
+help   = "Generate an appimage to test"
+# print_result = true
 
 [build-system]
 requires      = ["poetry-core"]

@@ -10,9 +10,9 @@ smol-k8s-lab will walk you through an initial configuration, but you can also ed
 
 You can checkout the full official current [default `config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml).
 
-## TUI Configuration
+## TUI and Accessibility Configuration
 
-You can checkout more about the TUI in [our tui config section](/tui/tui_config), but briefly please see the default configuration for in the yaml below:
+You can checkout more about the TUI in [our tui config section](/tui), but briefly please see the default configuration for in the yaml below:
 
 ```yaml
 smol_k8s_lab:
@@ -33,12 +33,15 @@ smol_k8s_lab:
         # ring the built in terminal bell when something is wrong
         on_error: true
       # options related to text to speech
-      text_to_speech: 
+      text_to_speech:
+        # language to speak in. so far only english supported
+        language: en
         # use a specific program for text to speech - needs to be a full path
-        # macOS default: say
-        speech_program: say
-        # read aloud the screen title and description
+        speech_program: ''
+        # read aloud the screen title
         screen_titles: true
+        # read aloud the screen description
+        screen_descriptions: false
         # read aloud the element id, value, and tooltip each time you switch focus
         on_focus: false
         # press f5 to read the element id and selected row of DataTables
@@ -46,6 +49,30 @@ smol_k8s_lab:
 ```
 
 Regarding the `smol_k8s_lab.tui.accessibility` section. If you have experience with programming python on linux to work with screenreaders or working in the terminal using screen readers generally, please reach out on GitHub via an Issue or Discussion. We'd love your opinions and help!
+
+## Run command
+
+`run_command` is a special section of the config file to run a command after the config and cluster setup phases of smol-k8s-lab. Here's an example:
+
+```yaml
+smol_k8s_lab:
+  run_command:
+    # command to run after smol-k8s-lab tui is done or immediately when running
+    command: k9s --command applications.argoproj.io
+    # tell me which terminal you use if you'd like to use split or tab features
+    terminal: wezterm
+    # where to run the command, options: same window, new window, new tab,
+    # split left, split right, split top, split bottom
+    # if set to "same window", we just run it in the same window after we're
+    # done the entire smol-k8s-lab cli run
+    window_behavior: split right
+```
+
+The above will setup the k8s cluster, and then immediately run a command to split the current wezterm window into two panes. On the left will be the log output from smol-k8s-lab. On the right, we will launch k9s and view applications as they spin up.
+
+If you set `smol_k8s_lab.run_command.window_behavior` to "same window", then we will not run your command until after smol-k8s-lab is completed.
+
+We rely on knowing what terminal multiplexer you're using to do splits, new tabs, and new windows. The supported terminal values are `wezterm` and `zellij`. If you'd like to see another terminal supported, and the terminal has cli commands or a python library, please feel free to submit a GitHub Issue and we'll try to implement it. If you're savy with python, please also feel free to submit a PR :)
 
 ## Logging
 
@@ -75,11 +102,7 @@ Currently you can only deploy one distro at a time.
 
 For k3s, we use a [config file](https://docs.k3s.io/installation/configuration#configuration-file) for [all the options](https://docs.k3s.io/cli/server) that get passed to the k3s install script. We define them under `k8s_distros.k3s.k3s_yaml` in the `smol-k8s-lab` config file.
 
-!!! NOTE
-    You cannot adjust the k3s node count at this time
-
 ```yaml
-# which distros of Kubernetes to deploy. Options: kind, k3s, k3d
 # NOTE: only kind is available on macOS at this time
 k8s_distros:
   k3s:
@@ -87,7 +110,7 @@ k8s_distros:
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. If you enable cilium, we
-    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    # automatically pass in flannel-backend: none and disable-network-policy: true
     k3s_yaml:
       # if you enable MetalLB, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
@@ -104,10 +127,12 @@ k8s_distros:
     nodes:
       # name can be a hostname or ip address
       serverfriend1.lan:
-        # change ssh_key to the name of a local private key to use
-        ssh_key: id_rsa
         # must be node type of "worker" or "control_plane"
         node_type: worker
+        # change this if not using default port 22
+        ssh_port: 22
+        # change ssh_key to the name of a local private key to use if id_rsa is not preferred
+        ssh_key: id_rsa
         # labels are optional, but may be useful for pod node affinity
         node_labels:
           - iot=true
@@ -125,7 +150,7 @@ k8s_distros:
     enabled: false
     # if k8s_distro set to k3s/k3d, you can add an array of extra arguments to pass
     # to the k3s install script as a k3s.yaml file. If you enable cilium, we
-    # automatically pass in flannel-backend: none and disable-network-policy: true 
+    # automatically pass in flannel-backend: none and disable-network-policy: true
     k3s_yaml:
       # if you enable metallb, we automatically add servicelb to the disable list
       # enables encryption at rest for Kubernetes secrets
@@ -182,23 +207,134 @@ smol_k8s_lab:
     # BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET, BW_SESSION
     # If you're missing any of these, smol-k8s-lab will prompt for them
     name: bitwarden
-    # if existing items are found in your password manager, do one of:
-    #
-    # ask: (default in tui mode) display a dialog window asking you how to proceed
-    # edit: edit item, if there's one item found, ask if multiple found
-    # duplicate: create an additional item with the same name
-    # no_action: don't do anything, just continue on with the script
+    # if existing items are found in your password manager, do this:
     duplicate_strategy: ask
 ```
 
+For `smol_k8s_lab.local_password_manager.duplicate_strategy`, you can choose one of the following strategies:
+
+| strategy  | description                                                             |
+|-----------|-------------------------------------------------------------------------|
+| ask       | (default in tui mode) display a dialog window asking you how to proceed |
+| edit      | edit item, if there's one item found, ask if multiple found             |
+| duplicate | create an additional item with the same name                            |
+| no_action | don't do anything, just continue on with the script                     |
+
 ## Applications
 
-All applications are under the `apps` parameter in the `config.yaml`. For the default installable applications, please check out the [Default Apps](/k8s_apps/argocd) tab. You can even add your own. Here's an example application:
+All applications are under the `apps` parameter in the `config.yaml`. For the default installable applications, please check out the [Default Apps](/k8s_apps/argocd) tab. You can even add your own.
+
+
+### Sensitive values
+
+Since `v5.0.0`, smol-k8s-lab now supports getting your sensitive values from arbitrary environment variables or bitwarden. We support using sensitive values for any value under the following:
+
+- `apps.APP.init.values`
+- `apps.APP.backups.s3`
+- `apps.APP.backups.restic_repo_password`
+
+To use a value from an environment variable try the following:
+
+```yaml
+apps:
+  nextcloud:
+    backups:
+      s3:
+        # this value comes from an environment variable
+        secret_access_key:
+          value_from:
+            env: NC_S3_BACKUP_SECRET_KEY
+```
+
+If we see `value_from` under any field in init or backups, we will attempt to get the value either from your environment variables or bitwarden.
+
+
+### Backups and restores
+
+Apps with an init section, which include apps such as nextcloud, mastodon, matrix, and home assistant, can include a backups and restores sections.
+
+#### Backups
+
+For each app that supports backups, you can set:
+
+-  PVC schedule, which is the cron syntax schedule used for running backups of all k8up annotated PVCs in the app's namespace.
+
+-  postgres schedule, which is the cron syntax schedule used for running backups of a cloud native postgresql cluster. NOTE: the cron sytax for this field includes a field for seconds.
+
+- remote s3 configuration, which is a series of fields for the remote backup endpoint, bucket, region, secret_access_key, and access_key_id.
+
+- restic repo password, which is a password for encrypting your remote backups bucket
+
+Here's an example backup section for nextcloud in `config.yaml`:
+
+```yaml
+apps:
+  nextcloud:
+    backups:
+      # cronjob syntax schedule to run nextcloud pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for nextcloud postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the cnpg backup shows as completed
+      # before it actually is, due to the wal archive it lists as it's end not
+      # being in the backup yet
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-remote-s3-bucket
+        region: eu-central-003
+        # comes from an environment variable
+        secret_access_key:
+          value_from:
+            env: NC_S3_BACKUP_SECRET_KEY
+        # comes from an environment variable
+        access_key_id:
+          value_from:
+            env: NC_S3_BACKUP_ACCESS_ID
+      # comes from an environment variable
+      restic_repo_password:
+        value_from:
+          env: NC_RESTIC_REPO_PASSWORD
+```
+
+#### Restores
+
+To restore from a backup, you'll need to configure whether you'd like to restore PVCs and the CNPG postgresql database or just the PVC.
+
+By default, we always use the latest restic snapshot ID to restore your cluster. If you'd like to use different snapshot IDs, please change the word "latest" for each PVC.
+
+example YAML:
+```yaml
+apps:
+  nextcloud:
+    init:
+      # initialize the app by setting up new k8s secrets and/or bitwarden items
+      enabled: true
+      # restore section
+      restore:
+        # set to false to disable restoring
+        enabled: true
+        # set this to false to only restore the PVCs but not the postgres cluster
+        cnpg_restore: true
+        restic_snapshot_ids:
+          # each of these seaweedfs values also contains your postgresql backups
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
+          seaweedfs_master: latest
+          # this is just the nextcloud files pvc
+          nextcloud_files: latest
+```
+
+
+### Custom Applications
+
+Here's an example application:
 
 ```yaml
 apps:
   # name of the application to create with Argo CD
-  home_assistant:
+  my_home_assistant:
     # if enabled is set to false, we will skip this app
     enabled: true
     argo:
@@ -207,16 +343,19 @@ apps:
         # FQDN to use for home assistant
         hostname: "ha.test.com"
       # git repo to install the Argo CD app from
-      repo: "https://github.com/small-hack/argocd-apps"
+      repo: "https://github.com/my-user/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
-      path: "demo/home_assistant/"
+      path: "home_assistant/"
       # git branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: "main"
+      # name of cluster to deploy this app to
+      cluster: "in-cluster"
       # Kubernetes namespace to install the k8s app in
       namespace: "home-assistant"
       # recurse directories in the provided git repo
       directory_recursion: false
       project:
+        name: my-home-assistant
         # source git repos for Argo CD App Project (in addition to argo.repo)
         source_repos:
           - registry-1.docker.io
@@ -224,12 +363,13 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
             - prometheus
+            - home-assistant
 ```
 
 !!! Note
     Only applications with the `init` field in the [`default_config.yaml`](https://github.com/small-hack/smol-k8s-lab/blob/main/smol_k8s_lab/config/default_config.yaml) can be initialized by `smol-k8s-lab`, therefore, you cannot use the `apps.{app}.init` parameter for custom apps. You can still use the appset secret plugin for Argo CD though :) If you'd like initialization supported by smol-k8s-lab, please feel free to open a feature request in the GitHub Issues.
 
-### Globally Available Argo CD ApplicationSet 
+### Globally Available Argo CD ApplicationSet
 
 You can also use the [appset secret plugin]() to store parameters that are available to _all_ Argo CD ApplicationSets. You can configure these via the configuration file like this:
 

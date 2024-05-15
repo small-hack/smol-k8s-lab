@@ -117,6 +117,8 @@ apps:
       repo: https://github.com/small-hack/argocd-apps
       path: generic-app/job/
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # you could change this to your app name
       namespace: generic-app
       directory_recursion: false
@@ -155,6 +157,8 @@ apps:
       repo: https://github.com/small-hack/argocd-apps
       path: generic-app/job/
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # you could change this to your app name
       namespace: generic-app
       directory_recursion: false

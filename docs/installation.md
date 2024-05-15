@@ -7,7 +7,7 @@ nav_order: 2
 permalink: /install
 ---
 
-!!! Note 
+!!! Note
     `smol-k8s-lab` is only tested on Debian, Ubuntu, and macOS. It may run on other Linux distros and even WSL, but we do not actively test them at this time.
 
 ## Install via `brew`
@@ -37,19 +37,21 @@ smol-k8s-lab --help
 - [`kubectl`](https://kubernetes.io/docs/tasks/tools/)
 - [`helm`](https://helm.sh/docs/intro/install/)
 - [`argocd`](https://argo-cd.readthedocs.io/en/stable/cli_installation/)
+- on Debian only: [libasound2 and libasound2-plugins](https://wiki.debian.org/ALSA#Packages)
 
 #### Optional
 
 All of these are not Required for core functionality of `smol-k8s-lab`, but they greatly enhance the experience, so they are still recommended.
 
-| application | description                                                                                                              |
-|-------------|--------------------------------------------------------------------------------------------------------------------------|
-| [docker]  | needed for k3d, kind, and installing the mastodon app                                                                    |
-| [bw]      | only if you want to use Bitwarden to store your passwords                                                                |
-| [k3d]     | only if you want to use k3d                                                                                            |
-| [k9s]     | only if you want a k8s TUI for viewing an already installed cluster                                                      |
-| [kind]    | only if you want to use kind                                                                                           |
-| [mc]      | only if you want smol-k8s-lab to create MinIO users and buckets for you                                                |
+| application | description                                                               |
+|-------------|---------------------------------------------------------------------------|
+| [docker]    | needed for k3d, kind, and installing the mastodon app                     |
+| [bw]        | only if you want to use Bitwarden to store your passwords                 |
+| [k3d]       | only if you want to use k3d                                               |
+| [k9s]       | only if you want a k8s TUI for viewing an already installed cluster       |
+| [kind]      | only if you want to use kind                                              |
+| [mc]        | only if you want smol-k8s-lab to create MinIO users and buckets for you   |
+| [restic]    | only if you want smol-k8s-lab to  restore backups for you for select apps |
 
 
 ## pipx

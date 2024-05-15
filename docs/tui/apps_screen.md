@@ -8,20 +8,22 @@ The TUI features an applications screen to modify or create new Argo CD Applicat
 
 The left hand side [SelectionList] can be clicked or navigated using your arrow keys. To enable an app, you can either click it, or you can use the `spacebar` or `enter` keys. Only selected apps will be installed on your cluster.
 
-## Modifying an Application
+## Modifying a simple or custom Application
 
-To modify an application, ensure it highlighted in the left hand list and then you can modify the parameters under each section described below:
+To modify an application, ensure it's highlighted in the left hand list and then you can modify the parameters under each section described below:
 
 ### Argo CD Application Configuration
 
 This section contains parameters to configure a [directory-type Argo CD Application](https://argo-cd.readthedocs.io/en/stable/user-guide/directory/) which includes:
 
-| parameter   | description                                                             |
-|:------------|:------------------------------------------------------------------------|
-| `repo`      | git repository to use for your Argo CD Application                      |
-| `path`      | path in git repo to your kubernetes manifest files you'd like to deploy |
-| `ref`       | git branch or git tag to point to in the git repo                       |
-| `namespace` | Kubernetes namespace to deploy your Argo CD Application in              |
+| parameter             | description                                                                     |
+|:----------------------|:--------------------------------------------------------------------------------|
+| `repo`                | git repository to use for your Argo CD Application                              |
+| `path`                | path in git repo to your kubernetes manifest files you'd like to deploy         |
+| `revision`            | git branch or git tag to point to in the git repo                               |
+| `cluster`             | Kubernetes cluster to deploy this Argo CD Application to                        |
+| `namespace`           | Kubernetes namespace to deploy your Argo CD Application in                      |
+| `directory_recursion` | Enabled recursive directory crawl of Argo CD repo for applying nested manifests |
 
 ### Template Values for Argo CD ApplicationSet
 
@@ -32,10 +34,57 @@ This section for modifying and/or adding values for this the currently selected 
 
 This section is for modifying the [Argo CD Project] parameters, which currently includes the following:
 
-| parameter      | description                                                             |
-|:---------------|:------------------------------------------------------------------------|
-| `namespaces`   | namespaces that the Argo CD Applications are allowed to operate in      |
-| `source repos` | allow list of repos that Argo CD applications can be sourced from       |
+| parameter                 | description                                                        |
+|:--------------------------|:-------------------------------------------------------------------|
+| `name`                    | name of the Argo CD Project                                        |
+| `destionation.namespaces` | namespaces that the Argo CD Applications are allowed to operate in |
+| `source repos`            | allow list of repos that Argo CD applications can be sourced from  |
+
+## Modifying an init-supported application
+
+Some applications, such as nextcloud, matrix, and mastodon, support a special init phase for credentials creation, or restoration if backups are supported as well. When this is possible, you'll see a tabbed view for the configuration panel on the right hand side of the apps screen. It will include 4 tabs. We'll go through each below.
+
+### Initialization Configuration
+This phase includes setting up one time passwords in your password manager and in a kubernetes secret for credentials such as your admin credentials or SMTP credentials. To use the same name for an app without using our custom initialization process, please click the switch next to "Initialization Enabled" to set it to disabled. This will then treat this app as a normal custom app.
+
+The values pictured in the screenshot below translate to the following YAML:
+```yaml
+apps:
+  nextcloud:
+    # initialize the app by setting up new k8s secrets and/or bitwarden items
+    init:
+      enabled: true
+      values:
+        # change the name of your admin user to whatever you like. This is used in an admin credentials k8s secret
+        admin_user: my_nextcloud_admin
+        smtp_user: my_smtp_nextcloud_username
+        smtp_host: smtp-server.com
+        # this value is taken from an environment variable
+        smtp_password:
+          value_from:
+            env: NC_SMTP_PASSWORD
+```
+
+[<img src="../../assets/images/screenshots/apps_screen_init.svg" alt="terminal screenshot of smol-k8s-lab on the apps screen with the nextcloud app selected. It shows a tabbed configuration panel on the right hand side that shows the following tabs: initialization config, argo cd app config, backup, restore. Init config is selected which shows a switch to enable or disable init, followed by a header that says init values. below that are input fields specific to nextcloud's init phase. They include: admin user set to my_nextcloud_admin, smtp user set to my_smtp_nextcloud_username, smtp host set to smtp-server.com, and smtp password, which is currently blank. Because the last field is blank, it has a pink border showing the input is invalid. At the bottom of the configuration panel are two border links: sync, delete">](../../assets/images/screenshots/apps_screen_init.svg)
+
+### Backups Configuration
+
+Backups are done via k8up which is a wrapper around restic. For apps using cloud native postgres operator created clusters, we support both backup and restore of the database. For nextcloud specifically, we also put the database into maintainence mode. Here's an example of what you'll see in the TUI:
+
+[<img src="../../assets/images/screenshots/apps_screen_backups.svg" alt="terminal screenshot of smol-k8s-lab on the apps sceen with the nextcloud app selected. it shows a tabbed config panel on the right hand side that shows the following tabs: initialization config, argo cd app config, backup, restore. Backup is currently selected. The backup tab starts with a centered button called 💾 Backup Now. Below that is a header that says 📆 Scheduled Backups. Below that are two input fields. First input is PVC schedule set to 10 0 astrik astrik astrik. Second input is DB schedule set to 0 0 0 astrik, astrik, astrik. Below that is a collapsible header called S3 Configuration. In the collapsible there are three input fields visible: endpoint, set to backblaze endpoint, bucket set to my-remote-s3-bucket, and region set to eu-central-003. The backup tab is long enough that it features a scrollbar.">](../../assets/images/screenshots/apps_screen_backups.svg)
+
+For more on backups, see [Config File > Backups](/config_files/#backups).
+
+### Restoring from Backup Configuration
+
+To restore from a backup, you'll need to configure if you'd like to restore PVCs and the CNPG postgresql database or just the PVC. To do just the PVC set the "Restore 🐘 CNPG cluster enabled" switch to disabled by clicking it.
+
+By default, we always use the latest restic snapshot ID to restore your cluster. If you'd like to use different snapshot IDs, please change the word "latest" for each PVC.
+
+
+[<img src="../../assets/images/screenshots/apps_screen_restores.svg" alt="terminal screenshot of smol-k8s-lab on the apps sceen with the nextcloud app selected. it shows a tabbed config panel on the right hand side that shows the following tabs: initialization config, argo cd app config, backup, restore. The restore tab is selected and it features three header rows followed by some fields. First header row says restore from backup enabled and has a switch set to on, second header row says restore cnpg cluster enabled and has a switch set to on, and the third header row says Restic Snapshot IDs with the following input fields below, all set to latest: seaweedfs_volume, seaweedfs_filer, seaweedfs_master, and nextcloud_files.">](../../assets/images/screenshots/apps_screen_restores.svg)
+
+For more on restores, see [Config File > Restores](/config_files/#restores).
 
 ## Adding new Applications
 

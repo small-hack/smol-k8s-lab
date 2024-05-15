@@ -1,4 +1,4 @@
-from smol_k8s_lab.utils.subproc import subproc
+from smol_k8s_lab.utils.run.subproc import subproc
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from json import dumps
 import logging as log
@@ -10,9 +10,14 @@ class Nextcloud():
     https://docs.nextcloud.com/server/20/admin_manual/configuration_server/occ_command.html
     """
 
-    def __init__(self, k8s_obj: K8s, namespace: str = "nextcloud") -> None:
-        """ 
+    def __init__(self,
+                 k8s_obj: K8s,
+                 namespace: str = "nextcloud",
+                 quiet: bool = False) -> None:
+        """
         setup base occ commands to run
+
+        pass in quiet=True to disable spinners
         """
         # namespace where nextcloud is installed
         self.namespace = namespace
@@ -23,11 +28,12 @@ class Nextcloud():
                 "app.kubernetes.io/component=app "
                 "--no-headers "
                 "-o custom-columns=NAME:.metadata.name")
-        self.pod = subproc([pod_cmd]).rstrip()
+        self.pod = subproc([pod_cmd], spinner=quiet).rstrip()
         self.occ_cmd = (
                 f'kubectl exec -n {self.namespace} {self.pod} -c nextcloud -- '
-                'su -s /bin/sh www-data -c "php occ'
+                ' /bin/sh -c "php occ'
                 )
+        self.quiet = quiet
 
     def install_apps(self, apps: list) -> None:
         """
@@ -53,11 +59,63 @@ class Nextcloud():
                       universal_newlines=True)
         log.info(res)
 
+    def check_maintenance_mode_status(self,):
+        """
+        get current maintenance mode status for nextcloud
+        """
+        res = subproc([f'{self.occ_cmd} maintenance:mode"'],
+                      shell=True,
+                      universal_newlines=True,
+                      spinner=self.quiet)
+        log.info(res)
+
+        if "disabled" in res:
+            return False
+        elif "enabled" in res:
+            return True
+
+    def set_maintenance_mode(self, mode: str):
+        """
+        takes one arg: set_maintenance_mode must be "on" or "off".
+
+        Sets maintenance mode status for nextcloud and scan files into db if
+        we're setting the mode to on, so that the backups of the db (the file
+        metadata) match the files
+        """
+        maintenance_mode_on = self.check_maintenance_mode_status()
+        # must be on or off
+        if mode in ["on", "off"]:
+            if mode == "on":
+                # if maintenance_mode is off, scan all files into the database
+                # before turning maintenance_mode on for backups of files/db
+                if not maintenance_mode_on:
+                    self.scan_files()
+                else:
+                    log.info("nextcloud maintenance mode is already on")
+                    return
+
+            res = subproc([f'{self.occ_cmd} maintenance:mode --{mode}"'],
+                          shell=True,
+                          universal_newlines=True,
+                          spinner=self.quiet)
+            log.info(res)
+
+    def scan_files(self) -> None:
+        """
+        scans all file metadata into the database
+        required before putting into maintenance_mode for backups
+        """
+        res = subproc([f'{self.occ_cmd} files:scan --all"'],
+                      shell=True,
+                      universal_newlines=True,
+                      error_ok=True)
+        log.info(res)
+
     def configure_zitadel_social_login(self,
                                        zitadel_host: str,
                                        client_id: str,
-                                       client_secret: str) -> None: 
-        """ 
+                                       client_secret: str) -> None:
+        """
         configure the nextcloud social_login app to work with zitadel
         ref: https://zitadel.com/blog/zitadel-as-sso-provider-for-selfhosting
         """
@@ -75,7 +133,7 @@ class Nextcloud():
                     "tokenUrl": f"https://{zitadel_host}/oauth/v2/token",
                     "displayNameClaim": "preferred_username",
                     "userInfoUrl": f"https://{zitadel_host}/oidc/v1/userinfo",
-                    "logoutUrl": "", 
+                    "logoutUrl": "",
                     "clientId": client_id,
                     "clientSecret": client_secret,
                     "scope": "openid email profile",

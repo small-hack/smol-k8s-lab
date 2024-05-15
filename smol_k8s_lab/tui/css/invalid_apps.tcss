@@ -14,18 +14,23 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
-/* warning with invalid inputs */
+/* this is the grid for the whole screen */
 #invalid-apps {
+    width: 90%;
+    height: 65%;
     border: round $orange 60%;
     border-title-color: $soft_yellow;
-    padding-left: 1;
-    width: 90%;
-    height: 70%;
+    border-subtitle-color: $soft_yellow;
     background: $navy 60%;
-    grid-gutter: 1;
-    grid-rows: 0.1fr 1fr;
     align: center middle;
     content-align: center middle;
+}
+
+/* this is the actual DataTable widget */
+#invalid-apps-table {
+    align: center middle;
+    content-align: center middle;
+    height: auto;
 }
 
 #invalid-apps-table-row {

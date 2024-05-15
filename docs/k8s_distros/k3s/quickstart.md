@@ -11,7 +11,7 @@ Best for Linux on metal or a bridged VM
 
 #### Pre-Req
 - Have internet access.
-- clone the [smol-k8s-lab repo](https://github.com/jessebot/smol-k8s-lab)
+- clone the [smol-k8s-lab repo](https://github.com/small-hack/smol-k8s-lab)
 - Optional: Install [k9s](https://k9scli.io/topics/install/), which is like `top` for kubernetes clusters, to monitor the cluster.
 
 

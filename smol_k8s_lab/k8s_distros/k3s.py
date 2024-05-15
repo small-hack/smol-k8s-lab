@@ -8,7 +8,7 @@ DESCRIPTION: install k3s :D not affiliated with rancher, suse, or k3s
 # local libraries
 from ..constants import USER, KUBECONFIG
 from ..constants import XDG_CACHE_DIR
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 
 # external libraries
 import logging as log
@@ -96,27 +96,48 @@ def join_k3s_nodes(extra_nodes: dict) -> None:
     # for each node and it's meta data, ssh in and join the node
     for node, metadata in extra_nodes.items():
         ssh_cmd = "ssh -o StrictHostKeyChecking=no "
+
+        # only add the port if it's not 22
+        ssh_port = metadata.get('ssh_port', '22')
+        if str(ssh_port) != "22":
+            ssh_cmd += f"-p {ssh_port} "
+        else:
+            ssh_cmd += f"{node} "
+
+        # only add the ssh key if it's not id_rsa
         ssh_key = metadata.get('ssh_key', 'id_rsa')
         if ssh_key != "id_rsa":
-            ssh_cmd += f"-i {metadata['ssh_key']} {node} "
+            ssh_cmd += f"-i {ssh_key} {node} "
         else:
             ssh_cmd += f"{node} "
 
         # join node to cluster
         subproc([ssh_cmd + k3s_cmd], shell=True, universal_newlines=True)
 
+
+        # check if we have taints or labels to apply to this new node
         labels = metadata.get('node_labels', None)
         taints = metadata.get('node_taints', None)
+        if labels or taints:
+            log.debug(f"Checking if {node} is ready for labeling and/or tainting.")
 
-        # after joining the node make sure the labels are up to date
-        if labels:
-            for label in labels:
-                subproc([f"kubectl label nodes {node} {label}"])
+            k_get_nodes = subproc(["kubectl get nodes"])
 
-        # after joining the node make sure the taints are up to date
-        if taints:
-            for taint in taints:
-                subproc([f"kubectl taint nodes {node} {taint}"], error_ok=True)
+            # if new node is not available, keep checking
+            while node not in k_get_nodes:
+                log.info(f"Waiting for {node} to be available")
+                sleep(1)
+                k_get_nodes = subproc(["kubectl get nodes"])
+
+            # apply labels to new node
+            if labels:
+                for label in labels:
+                    subproc([f"kubectl label nodes {node} {label}"])
+
+            # apply taints to new node
+            if taints:
+                for taint in taints:
+                    subproc([f"kubectl taint nodes {node} {taint}"])
 
 
 def uninstall_k3s(cluster_name: str) ->  str:
@@ -140,7 +161,7 @@ def uninstall_k3s(cluster_name: str) ->  str:
 
 def update_user_kubeconfig(cluster_name: str = 'smol-k8s-lab-k3s') -> None:
     """
-    update the user's kubeconfig with the cluster, user, and context for the new 
+    update the user's kubeconfig with the cluster, user, and context for the new
     cluster by grabbing the k3s generated kubeconfig and using it to update your
     current kubeconfig. Handles both existing kubeconfig and none at all.
 

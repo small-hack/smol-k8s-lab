@@ -10,19 +10,18 @@ import logging as log
 from os import path
 import yaml
 from ..constants import XDG_CACHE_DIR
-from ..k8s_tools.argocd_util import check_if_argocd_app_exists
+from ..k8s_tools.argocd_util import ArgoCD
 from ..k8s_tools.helm import Helm
 from ..k8s_tools.k8s_lib import K8s
 from ..bitwarden.bw_cli import BwCLI
-from ..utils.subproc import subproc
 from ..utils.passwords import create_password
 from ..utils.rich_cli.console_logging import header, sub_header
 
 
 def configure_argocd(k8s_obj: K8s,
-                     bitwarden: BwCLI = None,
-                     plugin_secret_creation: bool = False,
-                     secret_dict: dict = {}) -> None:
+                     argocd_config_dict: dict = {},
+                     secret_dict: dict = {},
+                     bitwarden: BwCLI = None) -> ArgoCD:
     """
     Installs argocd with ingress enabled by default and puts admin pass in a
     password manager, currently only bitwarden is supported
@@ -35,11 +34,12 @@ def configure_argocd(k8s_obj: K8s,
     header("Installing [green]Argo CD[/green] for managing your Kubernetes apps",
            "🦑")
 
+    namespace = argocd_config_dict['argo']['namespace']
     # this is needed for helm but also setting argo to use the current k8s context
     argo_cd_domain = secret_dict['argo_cd_hostname']
 
     # immediately start building helm object to check if helm release exists
-    release_dict = {"release_name": "argo-cd", "namespace": "argocd"}
+    release_dict = {"release_name": "argo-cd", "namespace": namespace}
     release = Helm.chart(**release_dict)
 
     if not release.check_existing():
@@ -97,34 +97,38 @@ def configure_argocd(k8s_obj: K8s,
         release_dict['chart_name'] = 'argo-cd/argo-cd'
 
         release = Helm.chart(**release_dict)
-        release.install(True)
+        release.install(wait=True)
 
-    if plugin_secret_creation:
-        configure_secret_plugin_generator(k8s_obj, secret_dict)
+    argocd = ArgoCD(namespace, argo_cd_domain, k8s_obj)
 
-    # setup Argo CD to talk directly to k8s
-    log.debug("setting namespace to argocd and configuring argocd to use k8s for auth")
-    subproc(['kubectl config set-context --current --namespace=argocd',
-             f'argocd login {argo_cd_domain} --core'])
+    # install the appset secret plugin generator if we're using that
+    if "github.com/small-hack/argocd-apps" in argocd_config_dict['argo']['repo']:
+        if argocd_config_dict['argo']['directory_recursion']:
+            configure_secret_plugin_generator(argocd,
+                                              argocd_config_dict,
+                                              secret_dict)
+    return argocd
 
 
-def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
+def configure_secret_plugin_generator(argocd: ArgoCD,
+                                      argocd_config: dict,
+                                      secret_dict: dict) -> None:
     """
     configures the applicationset secret plugin generator
 
     (._. ) <-- who are they?
     """
-    # creates the secret vars secret with all the key/values for each appset
-    k8s_obj.create_secret('appset-secret-vars', 'argocd', secret_dict,
-                          'secret_vars.yaml')
+    if not argocd.check_if_app_exists('appset-secrets-plugin'):
+        # creates the secret vars secret with all the key/values for each appset
+        argocd.k8s.create_secret('appset-secret-vars', 'argocd', secret_dict,
+                                 'secret_vars.yaml')
 
-    if not check_if_argocd_app_exists('appset-secrets-plugin'):
         msg = "🔌 Installing the ApplicationSet Secret Plugin Generator for Argo CD..."
         sub_header(msg)
 
         # creates only the token for authentication
         token = create_password()
-        k8s_obj.create_secret('appset-secret-token', 'argocd', {'token': token})
+        argocd.k8s.create_secret('appset-secret-token', 'argocd', {'token': token})
 
         # this creates a values.yaml from this dict
         set_opts = {'secretVars.existingSecret': 'appset-secret-vars',
@@ -137,7 +141,42 @@ def configure_secret_plugin_generator(k8s_obj: K8s, secret_dict: dict):
                 namespace='argocd',
                 set_options=set_opts
                 )
-        release.install(True)
+        release.install(wait=True)
+
+        # gotta make sure the project already exists
+        log.info("Creating argocd project if it does not exist...")
+
+        # get project namespaces
+        proj_ns = argocd_config['argo']['project']['destination']['namespaces']
+        if argocd.namespace not in proj_ns:
+            proj_ns.append(argocd.namespace)
+
+        # create argocd project
+        argocd.create_project(argocd_config['argo']['project']['name'],
+                              "Argo CD",
+                              proj_ns,
+                              argocd_config['argo']['cluster'],
+                              set(argocd_config['argo']['project']['source_repos']))
+
+        # immediately install the argocd appset plugin
+        log.info("Immediately installing the appset secret plugin via Argo CD")
+        repo_url = argocd_config['argo']['repo'].replace("https://","").replace("http://","")
+        url_sections = repo_url.replace("github.com/", "").split('/')
+        owner = url_sections[0]
+        repo_name = url_sections[1].replace(".git", "")
+        ref = argocd_config['argo']['revision']
+        path = argocd_config['argo']['path']
+        if not path.endswith("/"):
+            path += "/"
+
+        appset_secrets_yaml = (
+                f"https://raw.githubusercontent.com/{owner}/{repo_name}/"
+                f"{ref}/{path}appset_secret_plugin/"
+                "appset_secret_plugin_generator_argocd_app.yaml"
+                )
+
+        log.info(f"applying {appset_secrets_yaml}")
+        argocd.k8s.apply_manifests(appset_secrets_yaml, argocd.namespace)
     else:
         log.info("Reloading deployment for Argo CD Appset Secret Plugin")
-        k8s_obj.reload_deployment('appset-secret-plugin', 'argocd')
+        argocd.update_appset_secret(secret_dict)

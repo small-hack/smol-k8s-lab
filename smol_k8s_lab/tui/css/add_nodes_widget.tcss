@@ -14,34 +14,65 @@ $blue_gray: rgb(86,95,137);
 $dark_gray: rgb(58,58,58);
 $navy: rgb(35,35,54);
 
+/* not sure if this is in use */
+#new-node-button {
+    margin-left: 10;
+}
+
 /* number of nodes box */
 #add-nodes-box {
     background: $navy 60%;
     padding-left: 1;
-    grid-rows: 0.9fr 0.1fr 0.55fr;
+    padding-right: 1;
     align: center middle;
     content-align: center middle;
 }
 
+/* rows for full widget or screen for modifying nodes */
+.add-nodes-box-widget {
+    grid-rows: 0.8fr 0.1fr 0.6fr;
+}
+
+.add-nodes-box-full-screen {
+    grid-rows: 0.9fr 0.15fr 0.6fr;
+}
+
+/* not in use */
 #nodes-data-table {
 }
 
-#nodes-tab {
+#nodes-tab-nodes-widget {
     width: auto;
     height: auto;
 }
 
-#new-node-text {
+/* add new node header */
+.new-node-text-full-screen {
+    background: $dark_gray 80%;
+    width: 100%;
+    color: $light_cornflower;
+    height: 3;
+    content-align: center middle;
+}
+
+.new-node-text-widget {
     background: $dark_gray 80%;
     width: 100%;
     color: $light_cornflower;
 }
 
+/* input fields below the new node header */
 .k3s-node-input-row {
     grid-size: 2;
-    grid-gutter: 1;
+    grid-gutter: 0 2;
 }
 
-#new-node-button {
-    margin-left: 10;
+.k3s-node-input-row .input-row-label {
+    width: 100%;
+}
+
+.input-row-equal {
+    layout: grid;
+    grid-size: 2;
+    grid-columns: 0.4fr 1fr;
 }

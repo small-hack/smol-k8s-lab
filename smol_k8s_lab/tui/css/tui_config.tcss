@@ -16,13 +16,14 @@ $navy: rgb(35,35,54);
 
 #general-config-screen {
     grid-size: 1;
-    grid-rows: 0.85fr 1fr;
-    grid-gutter: 2;
+    grid-rows: 1.2fr 0.4fr;
     margin-left: 1;
     margin-right: 1;
     align: center middle;
+    content-align: center middle;
     width: 90%;
-    height: 92%;
+    padding-top: 2;
+    padding-bottom: 2;
 }
 
 /* truthy value rows with switches */
@@ -30,18 +31,12 @@ $navy: rgb(35,35,54);
     align: left middle;
     layout: grid;
     grid-size: 2;
-    grid-gutter: 1;
     grid-columns: 0.82fr 1fr;
-}
-
-/* k9s enabled bool switch row */
-.k9s-enabled {
-   grid-columns: 0.35fr 1fr;
 }
 
 /* show footer bool switch row */
 .show-footer {
-   grid-columns: 0.65fr 1fr;
+    grid-columns: 0.65fr 1fr;
 }
 
 .bool-switch-row-label {
@@ -50,13 +45,6 @@ $navy: rgb(35,35,54);
     height: 3;
     color: $bluish_white;
     width: 100%;
-}
-
-/* k9s input field */
-.k9s-input-row .input-row {
-    align: left middle;
-    grid-size: 2;
-    grid-columns: 0.3fr 1fr;
 }
 
 /* any basic "label: input" row */
@@ -78,7 +66,6 @@ $navy: rgb(35,35,54);
 /* TUI config box */
 #tui-config {
     padding: 1;
-    grid-rows: 0.4fr 0.5fr 0.45fr;
     margin-top: 2;
     border: round $cornflower;
     border-title-color: $sky_blue;
@@ -87,50 +74,51 @@ $navy: rgb(35,35,54);
     grid-gutter: 1;
 }
 
-/* three bool-switch-rows side by side */
-.triple-switch-row {
-    align: left middle;
-    content-align: left middle;
-    grid-size: 3;
-    grid-gutter: 1;
-    padding-left: 1;
-    height: 3;
-}
-
-#tui-config .input-row-label {
-    content-align: left middle;
-    height: 3;
-    padding-left: 1;
-    padding-right: 1;
-    color: $bluish_white;
-}
-
 #accessibility-config {
-    padding-top: 1;
-    padding-left: 1;
-    padding-right: 2;
-    grid-rows: 0.2fr 0.5fr 0.45fr 0.45fr;
     border: round $cornflower;
     border-title-color: $sky_blue;
     background: $navy 60%;
-    align: center middle;
+    align: center top;
+    padding-left: 1;
+    padding-right: 1;
+    padding-top: 2;
     grid-gutter: 1;
 }
 
 /* bell config row */
 #bell-row {
-    grid-size: 2;
-    padding-left: 1;
+    border-top: panel $dark_gray 50%;
+    border-title-color: $light_cornflower;
 }
 
-/* text to speech config row */
-#tts-row {
-    grid-size: 3;
-    padding-left: 1;
+/* two bool-switch-rows side by side */
+.double-switch-row {
+    align: center middle;
+    content-align: left middle;
+    grid-size: 2;
+    padding-left: 2;
+    padding-top: 1;
+    height: 5;
+}
+
+/* text to speech config rows */
+.tts-row-title {
+    grid-columns: 0.3fr 1fr;
+    color: $bluish_white;
+    padding-top: 1;
+    border-top: panel $dark_gray 50%;
+    border-title-color: $light_cornflower;
 }
 
 #accessibility-config .input-row-label {
     content-align: left middle;
     height: 3;
     padding-left: 1;
+}
+
+.tui-config-row {
+    align: center middle;
+    content-align: left middle;
+    grid-size: 2;
+    padding-left: 2;
 }

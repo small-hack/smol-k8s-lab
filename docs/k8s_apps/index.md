@@ -75,5 +75,5 @@ There are plenty more on the side bar, and you can even add your own :)
 [Prometheus Stack]: https://github.com/small-hack/argocd-apps/tree/main/prometheus
 [promtail]: https://grafana.com/docs/loki/latest/send-data/promtail/
 [seaweedfs]: https://github.com/seaweedfs/seaweedfs
-[Vouch]: https://github.com/jessebot/vouch-helm-chart
+[Vouch]: https://github.com/small-hack/vouch-helm-chart
 [ZITADEL]: https://github.com/zitadel/zitadel-charts/tree/main

@@ -21,6 +21,19 @@ $navy: rgb(35,35,54);
     align: center middle;
 }
 
+/* individual buttons */
+#modify-apps-button {
+    width: 17;
+}
+
+#modify-nodes-button {
+    width: 18;
+}
+
+#delete-cluster-first-try {
+    width: 10;
+}
+
 .modify-delete-size {
     height: 14;
 }
@@ -35,6 +48,9 @@ $navy: rgb(35,35,54);
     background: $navy 75%;
     border: round $cornflower;
     padding: 1;
+    border-subtitle-color: $lavender;
+    link-background-hover: $navy;
+    link-color-hover: $orange;
 }
 
 #modal-button-box {

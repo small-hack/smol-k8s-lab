@@ -9,6 +9,7 @@ from smol_k8s_lab.tui.validators.already_exists import CheckIfNameAlreadyInUse
 # external libraries
 from textual import on
 from textual.app import ComposeResult
+from textual.binding import Binding
 from textual.containers import VerticalScroll, Grid
 from textual.screen import ModalScreen
 from textual.suggester import SuggestFromList
@@ -54,9 +55,13 @@ LIST_KEYS = ["disable", "node-label", "kubelet-arg"]
 
 
 class K3sConfigWidget(Static):
-    """ 
+    """
     a widget representing the entire kind configuration
     """
+    BINDINGS = [Binding(key="ctrl+n",
+                        key_display="ctrl+n",
+                        action="add_option_or_node",
+                        description="add new")]
     def __init__(self, distro: str, metadata: dict, id: str = "") -> None:
         self.distro = distro
         self.metadata = metadata
@@ -67,7 +72,7 @@ class K3sConfigWidget(Static):
             self.metadata = DEFAULT_DISTRO_OPTIONS[self.distro]
 
         with Grid(classes="k8s-distro-config", id=f"{self.distro}-box"):
-            # Add the TabbedContent widget for kind config
+            # Add the TabbedContent widget for k3s config
             with TabbedContent(initial="k3s-yaml-tab", id="k3s-tabbed-content"):
                 # tab 1 - networking options
                 with TabPane("k3s.yaml", id="k3s-yaml-tab"):
@@ -86,7 +91,8 @@ class K3sConfigWidget(Static):
                     # tab 3 - add remote nodes
                     with TabPane("🆕 Add [i]Remote[/i] Nodes", id="k3s-nodes-tab"):
                         yield AddNodesBox(self.metadata.get('nodes', []),
-                                          id="nodes-tab")
+                                          existing_cluster=False,
+                                          id="nodes-tab-nodes-widget")
 
     def on_mount(self) -> None:
         """
@@ -129,15 +135,31 @@ class K3sConfigWidget(Static):
             self.app.action_say(f"Selected tab is {tab}")
 
         # change border subtitle button depending on the tab activated
-        tabbed_content = self.query_one(TabbedContent)
-        if tab == "k3s-nodes-tab":
-           tabbed_content.border_subtitle = (
-                "[b][@click=screen.launch_new_option_modal()] ➕ node[/][/]"
-                )
+        if self.distro == "k3s":
+            tabbed_content = self.query_one(TabbedContent)
+            if "k3s-nodes-tab" in tab:
+               tabbed_content.border_subtitle = (
+                    "[b][@click='screen.add_node_to_widget()'] ➕ node[/][/b]"
+                    )
+               if self.app.speak_on_focus:
+                   self.app.action_say("Pressing Control + A will add a new node"
+                                       "based on your inputs")
+            else:
+               tabbed_content.border_subtitle = (
+                    "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/b]"
+                    )
+               if self.app.speak_on_focus:
+                   self.app.action_say("Pressing Control + A will add a new option")
+
+    def action_add_option_or_node(self) -> None:
+        """
+        call either the add new option or add new node action depending on the
+        current border subtitle action
+        """
+        if "node" in self.query_one(TabbedContent).border_subtitle:
+            self.screen.action_add_node_to_widget()
         else:
-           tabbed_content.border_subtitle = (
-                "[b][@click=screen.launch_new_option_modal()] ➕ k3s option[/][/]"
-                )
+            self.screen.launch_new_option_modal()
 
 
 class K3sConfig(Static):
@@ -229,7 +251,7 @@ class K3sConfig(Static):
         """
         create a new input row
         """
-        # this is the label 
+        # this is the label
         key_label = key.replace("-", " ").replace("_", " ") + ":"
         label = Label(key_label, classes="input-label")
 
@@ -256,7 +278,7 @@ class K3sConfig(Static):
             if isinstance(value, str):
                 row_args['value'] = value
 
-        # actual input field 
+        # actual input field
         input = Input(**row_args)
         tooltip = (f"If you want to input more than one {key} option, try using "
                    "a comma seperated list.")
@@ -273,7 +295,7 @@ class K3sConfig(Static):
                         id=f"{self.distro}-{key}-delete-button",
                         classes="k3s-arg-del-button")
         button.tooltip = "Delete the arg to the left of this button"
-        
+
         grid = Grid(label, input, button, classes="label-input-delete-row")
         self.get_widget_by_id("k3s-grid").mount(grid)
 

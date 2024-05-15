@@ -25,7 +25,7 @@ apps:
 
       To deploy the Bitwarden provider, please set apps_global_config.external_secrets to "bitwarden".
 
-      The [link="https://github.com/jessebot/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
+      The [link="https://github.com/small-hack/bitwarden-eso-provider/"]Bitwarden External Secrets Provider[/link] is used to store k8s secrets in Bitwarden®. This deployment has no ingress and can't be connected to from outside the cluster. There is a networkPolicy that only allows the pod to communicate with the External Secrets Operator in the same namespaces.
 
       smol-k8s-lab support initialization by creating a Kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
 
@@ -44,6 +44,8 @@ apps:
       path: external-secrets-operator/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: external-secrets
       # recurse directories in the provided git repo

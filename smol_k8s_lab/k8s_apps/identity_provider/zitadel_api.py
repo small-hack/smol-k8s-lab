@@ -165,6 +165,7 @@ class Zitadel():
         self.resource_owner = json_blob['details']['resourceOwner']
 
     def create_user(self,
+                    admin_user: str = "",
                     username: str = "",
                     first_name: str = "",
                     last_name: str = "",
@@ -178,6 +179,8 @@ class Zitadel():
 
         Returns string of user_id.
         """
+        if admin_user:
+            username = admin_user
         if not username:
             username = Prompt.ask("[green]Enter a new username for Zitadel")
         if not first_name:

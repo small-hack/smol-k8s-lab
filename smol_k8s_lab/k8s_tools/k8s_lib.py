@@ -7,10 +7,11 @@ from kubernetes.client.rest import ApiException
 import logging as log
 from os import path
 from ruamel.yaml import YAML
+from time import sleep
 
 # internal libraries
 from ..constants import XDG_CACHE_DIR
-from ..utils.subproc import subproc, simple_loading_bar
+from ..utils.run.subproc import subproc, simple_loading_bar
 
 
 class K8s():
@@ -60,9 +61,8 @@ class K8s():
         pretty = True
 
         try:
-            res = self.core_v1_api.create_namespaced_secret(namespace, body,
-                                                            pretty=pretty)
-            log.debug(res)
+            self.core_v1_api.create_namespaced_secret(namespace, body,
+                                                      pretty=pretty)
         except ApiException as e:
             log.error("Exception when calling "
                       f"CoreV1Api->create_namespaced_secret: {e}")
@@ -70,8 +70,8 @@ class K8s():
             # delete the secret if it already exists
             try:
                 self.core_v1_api.delete_namespaced_secret(name, namespace)
-                res = self.core_v1_api.create_namespaced_secret(namespace, body,
-                                                                pretty=pretty)
+                self.core_v1_api.create_namespaced_secret(namespace, body,
+                                                          pretty=pretty)
             except ApiException as e:
                 log.error("Exception when calling "
                           f"CoreV1Api->create_namespaced_secret: {e}")
@@ -93,6 +93,40 @@ class K8s():
         log.debug(f"Deleting secret: {name} in namespace: {namespace}")
 
         subproc([f"kubectl delete secret -n {namespace} {name}"])
+
+    def get_nodes(self,) -> list|str:
+        """
+        get all nodes fo current cluster and returns them in a list
+        """
+        # todo: figure out how to parse this data
+        # node_list_sdk = self.core_v1_api.list_node()['items']
+        # print(node_list_sdk)
+
+        list_cmd = "kubectl get nodes --no-headers=true"
+
+        node_list_cmd = subproc([list_cmd]).rstrip().split('\n')
+        return node_list_cmd
+
+    def get_node(self, node: str) -> dict:
+        """
+        checks for specific node and returns info on it as a dict if it exists.
+        returns empty dict if node does not return any info
+        """
+        return_dict = {}
+        node_list_cmd = subproc([f"kubectl get node {node} --no-headers=true"],
+                                error_ok=True)
+
+        # provided there's no errors, create a dict of relevant info for the node
+        if "Error from server" not in node_list_cmd:
+            res = node_list_cmd.split()
+
+            return_dict["name"] = res[0]
+            return_dict["status"] = res[1]
+            return_dict["role"] = res[2]
+            return_dict["age"] = res[3]
+            return_dict["version"] = res[4]
+
+        return return_dict
 
     def get_namespace(self, name: str) -> bool:
         """
@@ -120,18 +154,54 @@ class K8s():
         else:
             log.debug(f"Namespace, {name}, already exists")
 
-    def reload_deployment(self, name: str, namespace: str) -> None:
+    def reload_deployment(self, name: str, namespace: str, replicas: int = 1) -> None:
         """
         restart a deployment's pod scaling it up and then down again
         currently only works with one pod
         """
-        # HACK: there's got to be a better way, but I don't have time to fix
-        subproc([
-            f"kubectl scale deploy -n {namespace} {name} --replicas=0",
-            "sleep 3",
-            f"kubectl scale deploy -n {namespace} {name} --replicas=1",
-            f"kubectl rollout status deployment -n {namespace} {name}"
-                 ])
+        # check the current pod name
+        pods = self.get_pod_names(name, namespace)
+        if pods:
+            pod_name = pods[0]
+
+        # scale deployment down
+        subproc([f"kubectl scale deploy -n {namespace} {name} --replicas=0",
+                 f"kubectl rollout status deployment -n {namespace} {name}"])
+
+        # make sure the old pod is gone
+        while True:
+            if not pod_name:
+                break
+            if pod_name not in self.get_pod_names(name, namespace):
+                break
+
+        # scale deployment back up
+        subproc([f"kubectl scale deploy -n {namespace} {name} --replicas={replicas}",
+                 f"kubectl rollout status deployment -n {namespace} {name}"])
+
+    def get_pod_names(self,
+                      name: str,
+                      namespace: str,
+                      extra_label: str = "") -> list:
+        """
+        get the pod name from a deployment or job based on the label
+        """
+        pod_cmd = (f"kubectl get pods -n {namespace} --no-headers"
+                   " -o custom-columns=NAME:.metadata.name"
+                   f" -l app.kubernetes.io/instance={name}")
+
+        if extra_label:
+            pod_cmd += "," + extra_label
+
+        pods = subproc([pod_cmd])
+
+        if pods:
+            if "\n" in pods:
+                return pods.split('\n')
+            else:
+                return [pods.strip()]
+        else:
+            return []
 
     # def create_from_manifest_dict(self,
     #                               api_group: str = "",
@@ -165,9 +235,13 @@ class K8s():
                         deployment: str = "",
                         selector: str = "component=controller"):
         """
-        applies a manifest and waits with a nice loading bar if deployment
+        applies a manifest and waits with a nice loading bar if deployment name
+        is passed in
         """
-        cmds = [f"kubectl apply --wait -f {manifest_file_name}"]
+        if not namespace:
+            cmds = [f"kubectl apply --wait -f {manifest_file_name}"]
+        else:
+            cmds = [f"kubectl apply -n {namespace} --wait -f {manifest_file_name}"]
 
         if deployment:
             # these commands let us monitor a deployment rollout
@@ -175,13 +249,13 @@ class K8s():
                        f"deployment/{deployment}")
 
             cmds.append("kubectl wait --for=condition=ready pod --selector="
-                       f"{selector} --timeout=90s -n {namespace}")
+                       f"{selector} --timeout=5m -n {namespace}")
 
         # loops with progress bar until this succeeds
         subproc(cmds)
         return True
 
-    def apply_custom_resources(self, custom_resource_dict_list: dict):
+    def apply_custom_resources(self, custom_resource_dict_list: list[dict]):
         """
         Does a kube apply on a custom resource dict, and retries if it fails
         using loading bar for progress
@@ -241,9 +315,12 @@ class K8s():
             self.delete_secret(secret_name, secret_namespace)
             self.create_secret(secret_name, secret_namespace, secret_data)
 
-    def run_k8s_cmd(self, pod_name: str, namespace: str, command: str,
+    def run_k8s_cmd(self,
+                    pod_name: str,
+                    namespace: str,
+                    command: str,
                     container: str = "") -> str:
-        """ 
+        """
         run a given command for a given pod in a given namespace and return the result
         """
         print(f"Running: '{command}' on pod: {pod_name} in container {container}"
@@ -256,3 +333,44 @@ class K8s():
             run_dict['container'] = container
 
         return self.core_v1_api.connect_get_namespaced_pod_exec(**run_dict)
+
+
+    def wait(self,
+             namespace: str,
+             name: str = "",
+             instance: str = "",
+             quiet: bool = False) -> str:
+        """
+        wait for a given deployment, statefulset, pod, or job to complete or be ready.
+        must pass in either name or instance args.
+
+        args:
+            namespace  - str, namespace of resource to wait on
+            name       - str, optional name of resource to wait on
+            instance   - str, optional value for app.kubernetes.io/instance label
+        """
+        wait_cmd = (
+                f'kubectl wait pod -n {namespace} --for=condition=ready --timeout=10m'
+                )
+
+        if instance:
+            wait_cmd += f" -l app.kubernetes.io/instance={instance}"
+        elif name:
+            wait_cmd += f" {name}"
+        else:
+            log.error("Expected [i]name[/i] or [i]instance[/i] for wait command")
+            return
+
+        # keep retrying till we find the thing...
+        while True:
+            if not quiet:
+                res = subproc([wait_cmd], error_ok=True)
+            else:
+                res = subproc([wait_cmd], error_ok=True, quiet=True)
+
+            if "no matching resources found" not in res:
+                log.info("found resource and waited on it")
+                return res
+            else:
+                log.debug("No matching resource found, waiting 3 seconds...")
+                sleep(3)

@@ -65,6 +65,13 @@ apps:
     enabled: false
     init:
       enabled: true
+      restore:
+        enabled: false
+        cnpg_restore: true
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
+          seaweedfs_master: latest
       values:
         # admin user
         admin_user: "tootadmin"
@@ -74,19 +81,38 @@ apps:
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
         smtp_user: "change me to enable mail"
-      sensitive_values:
-        # these can be passed in as env vars if you pre-pend MASTODON_ to each one
-        - SMTP_PASSWORD
-        - S3_BACKUP_ACCESS_ID
-        - S3_BACKUP_SECRET_KEY
-        - RESTIC_REPO_PASSWORD
+        smtp_password:
+          value_from:
+            env: MASTODON_SMTP_PASSWORD
+    backups:
+      # cronjob syntax schedule to run mastodon pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for mastodon postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the backup shows as completed before
+      # it actually is
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-mastodon-backups
+        region: eu-central-003
+        secret_access_key:
+          value_from:
+            env: MASTODON_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          value_from:
+            env: MASTODON_S3_BACKUP_ACCESS_ID
+        restic_repo_password:
+          value_from:
+            env: MASTODON_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
-        # set the local s3 provider for mastodon's public data in one bucket 
+        # set the local s3 provider for mastodon's public data in one bucket
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
@@ -94,17 +120,14 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
-        # Remote S3 configuration, for pushing remote backups of your local postgresql backups
-        # these are done only nightly right now, for speed and cost optimization
-        s3_backup_endpoint: ""
-        s3_backup_region: ""
-        s3_backup_bucket: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
       path: mastodon/small-hack/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: mastodon
       # recurse directories in the git repo

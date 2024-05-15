@@ -8,7 +8,7 @@
 
 Learn more about our:
 
-- [Vouch helm chart fork](https://jessebot.github.io/vouch-helm-chart)
+- [Vouch helm chart fork](https://small-hack.github.io/vouch-helm-chart)
 - [Vouch Argo CD Application](https://github.com/small-hack/argocd-apps/tree/main/vouch-proxy)
 
 
@@ -54,6 +54,8 @@ apps:
       path: "vouch-proxy/app_of_apps/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "vouch"
       # recurse directories in the provided git repo
@@ -62,7 +64,7 @@ apps:
       project:
         name: vouch
         source_repos:
-          - https://jessebot.github.io/vouch-helm-chart
+          - https://small-hack.github.io/vouch-helm-chart
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []

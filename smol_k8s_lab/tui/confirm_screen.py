@@ -62,22 +62,26 @@ class ConfirmConfig(Screen):
             with TabbedContent(initial="smol-k8s-lab-cfg", id="confirm-tabbed"):
                 # tab 1 - smol-k8s-lab
                 with TabPane("Core Config", id="smol-k8s-lab-cfg"):
-                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container",
+                                        id="smol-k8s-lab-cfg-scrolling-container"):
                         yield Label("", id="pretty-yaml-smol-k8s-lab")
 
                 # tab 2 - k8s_distros
                 with TabPane("K8s Distro Config", id="k8s-distro-cfg"):
-                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container",
+                                        id="pretty-yaml-scrolling-container"):
                         yield Label("", id="pretty-yaml-k8s-distro")
 
                 # tab 3 - apps
                 with TabPane("Apps Config", id="apps-cfg"):
-                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container",
+                                        id="pretty-yaml-scrolling-container"):
                         yield Label("", id="pretty-yaml-apps")
 
                 # tab 3 - apps
                 with TabPane("Global Parameters Config", id="global-apps-cfg"):
-                    with VerticalScroll(classes="pretty-yaml-scroll-container"):
+                    with VerticalScroll(classes="pretty-yaml-scroll-container",
+                                        id="pretty-yaml-scrolling-container"):
                         yield Label("", id="pretty-yaml-global-apps")
 
         # final confirmation button before running smol-k8s-lab
@@ -92,13 +96,11 @@ class ConfirmConfig(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        sub_title = "Review your configuration (last step!)"
+        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
+        sub_title = f"Review your configuration for {self.app.current_cluster} (last step!)"
         self.sub_title = sub_title
 
-        if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say("Screen title: Review your configuration last step")
+        self.call_after_refresh(self.app.play_screen_audio, screen="confirm")
 
         # confirm box title styling
         confirm_box = self.query_one(TabbedContent)
@@ -187,14 +189,18 @@ class ConfirmConfig(Screen):
         """
         if event.button.id == "confirm-button":
             # First, check if we need bitwarden credentials before proceeding
-            pw_mngr = self.smol_k8s_cfg['local_password_manager']
+
+            # check if external secrets provider is enabled and set to use bitwarden
             secrets_provider = self.cfg['apps_global_config']['external_secrets']
-            
+            external_secrets = self.cfg['apps']['external_secrets_operator']['enabled']
+            secrets_provider_bitwarden = external_secrets and secrets_provider == 'bitwarden'
+
             # if local_password_manager is enabled, and is bitwarden
-            local_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
+            pw_mngr = self.smol_k8s_cfg['local_password_manager']
+            pw_mngr_bitwarden = pw_mngr['enabled'] and pw_mngr['name'] == "bitwarden"
 
             # if local password manager is bitwarden/enabled or we're using bweso
-            if local_bitwarden or secrets_provider == 'bitwarden':
+            if pw_mngr_bitwarden or secrets_provider_bitwarden:
                 self.get_bitwarden_credentials()
             else:
                 self.append_sensitive_values()

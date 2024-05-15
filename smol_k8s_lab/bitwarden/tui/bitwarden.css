@@ -17,7 +17,7 @@ $navy: rgb(35,35,54);
 /* base container for the whole screen */
 #bitwarden-modal-container {
     width: 90%;
-    height: 50%;
+    height: 60%;
     align: center middle;
     background: $navy 50%;
 }

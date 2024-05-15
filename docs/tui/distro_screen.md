@@ -14,7 +14,7 @@ If you're using `k3d` or `kind`, you can deploy clusters with more than one node
 
 ## Extra options for k3s or k3d
 
-If you're using k3d or k3s, you can adjust what [k3s options](https://docs.k3s.io/cli/server#k3s-server-cli-help) are passed into the [k3s config file](https://docs.k3s.io/installation/configuration#configuration-file). 
+If you're using k3d or k3s, you can adjust what [k3s options](https://docs.k3s.io/cli/server#k3s-server-cli-help) are passed into the [k3s config file](https://docs.k3s.io/installation/configuration#configuration-file).
 
 ## Extra options for kind
 
@@ -37,7 +37,7 @@ To add a new option, you can click the "➕ k3s option" link at the bottom of th
 
 ![terminal screenshot showing smol-k8s-lab "add new option" modal screen with a blue border. Header: Add *new* k3s option. The second row has an input field with placeholder text that says "new k3s option" with a button on the right hand side that says "➕ add option". The bottom border has a link that says cancel - which can be clicked or you can use the escape key](../../assets/images/screenshots/add_k3s_option_screen.svg)
 
-Enter the name of the new option you'd like to add. 
+Enter the name of the new option you'd like to add.
 
 !!! Note
     If you try to input an option that already exists, it will throw an error and make a bell sound. If you want to add an option that is already there, consider instead adding the extra values as a comma separated list.
@@ -53,4 +53,4 @@ Once there, you should see a list of any existing nodes you've added via your [c
 
 If you haven't added any clusters to your config file, you will see a random ascii art from a time in the past. The second half of the tab has a small form for you to add new nodes:
 
-![terminal screenshot showing smol-k8s-lab "add remote nodes" tab for the k3s distro config screen](../../assets/images/screenshots/add_node_k3s_tab.svg)
+![terminal screenshot showing smol-k8s-lab's add remote nodes tab for the k3s distro config screen. At the top is a selection field for which distro you'd like to select. Below that is a box allowing you to customize nodes. The Add Remote Nodes tab is selcted. Within the tab it says 'Add a node below for something to appear here...' and then there is an ascii text art of little totoros fromt he movie My neighbor totoro by duke lee. Below that is a header that says Add a new node, and below that are a series of inputs and dropdowns for adding a new node. from left to right, starting at th e top, the fields are: host input, node type (drop down set to worker), ssh port input set to 22, ssh key input set to id_rsa, node label input, node taints input. At the bottom of the box is a link that says ➕ node. Below that is a footer that has hints on keys to press. It says control + N. key adds new, B is back, N is next, C is config, f is hide footer, and f5 is speak.](../../assets/images/screenshots/add_node_k3s_tab.svg)

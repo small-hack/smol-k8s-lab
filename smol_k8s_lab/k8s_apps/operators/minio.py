@@ -1,218 +1,17 @@
-from json import load, dump, dumps
+from json import load, dump
 import logging as log
 from os.path import exists, join
 from os import makedirs
-from minio import Minio, MinioAdmin
-from minio.credentials.providers import MinioClientConfigProvider
-from shutil import which
 
-from smol_k8s_lab.constants import HOME_DIR, XDG_CACHE_DIR
+from smol_k8s_lab.constants import HOME_DIR
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
-from smol_k8s_lab.k8s_tools.argocd_util import (
-        install_with_argocd, wait_for_argocd_app, check_if_argocd_app_exists)
-from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.passwords import create_password
-from smol_k8s_lab.utils.subproc import subproc
+from smol_k8s_lab.utils.minio_lib import BetterMinio
 
 
-class BetterMinio:
-    """ 
-    a wrapper around the two seperate Minio and MinioAdmin clients to create
-    users and buckets with basic policies
-    """
-
-    def __init__(self,
-                 minio_alias: str,
-                 api_hostname: str,
-                 access_key: str,
-                 secret_key: str) -> None:
-        self.root_user = access_key
-        self.root_password = secret_key
-        minio_config_dir = join(HOME_DIR, ".mc/")
-        minio_config_file = join(minio_config_dir, "config.json")
-        log.debug(f"Checking for config file in {minio_config_file}")
-        minio_provider = MinioClientConfigProvider(minio_config_file, minio_alias)
-        self.admin_client = MinioAdmin(api_hostname, minio_provider)
-        self.client = Minio(api_hostname, access_key, secret_key)
-
-    def create_access_credentials(self, access_key: str) -> str:
-        """
-        given an access key name, we create minio access credentials
-        using the mc admin client
-        return secret_key
-        """
-        if which("brew") and not which("mc"):
-            # try to install minio-mc with brew
-            subproc("brew install minio-mc")
-
-        # Create a client with the MinIO hostname, its access key and secret key.
-        log.info(f"About to create the minio credentials for user {access_key}")
-
-        # similar to mc admin user add
-        secret_key = create_password()
-        self.admin_client.user_add(access_key, secret_key)
-
-        log.info(f"Creation of minio credentials for user {access_key} completed.")
-        return secret_key
-
-    def create_bucket(self, bucket_name: str, access_key: str) -> None:
-        """
-        Takes bucket_name and access_key of user to assign bucket to
-        creates a bucket via the minio sdk
-        """
-        # Make bucket if it does not exist already
-        log.info(f'Check for bucket "{bucket_name}"...')
-        found = self.client.bucket_exists(bucket_name)
-
-        if not found:
-            log.info(f'Creating bucket "{bucket_name}"...')
-            self.client.make_bucket(bucket_name)
-
-            # policy for bucket
-            log.info(f"Adding a readwrite policy for bucket, {bucket_name}")
-            policy_name = self.create_bucket_policy(bucket_name)
-            self.admin_client.policy_set(policy_name, access_key)
-        else:
-            log.info(f'Bucket "{bucket_name}" already exists')
-
-    def create_bucket_policy(self, bucket: str) -> str:
-        """
-        creates a readwrite policy for a given bucket and returns the policy name
-        """
-        policy = {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "s3:GetBucketLocation",
-                        "s3:GetObject",
-                        "s3:ListBucket"
-                    ],
-                    "Resource": [
-                        f"arn:aws:s3:::{bucket}",
-                        f"arn:aws:s3:::{bucket}/*"
-                    ]
-                }
-            ]
-        }
-
-        # we write out the policy, because minio admin client requires it
-        policy_file_name = XDG_CACHE_DIR + f'minio_{bucket}_policy.json'
-        with open(policy_file_name, 'w') as policy_file:
-            dump(policy, policy_file)
-
-        # actually create the policy
-        policy_name = f'{bucket}BucketReadWrite'
-        self.admin_client.policy_add(policy_name, policy_file_name)
-
-        return policy_name
-
-    def create_admin_group_policy(self) -> None:
-        """
-        creates an admin policy for OIDC called minio_admins
-        """
-        policy = {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "admin:*"
-                    ]
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "kms:*"
-                    ]
-                },
-                {
-                    "Effect": "Allow",
-                    "Action": [
-                        "s3:*"
-                    ],
-                    "Resource": [
-                        "arn:aws:s3:::*"
-                    ]
-                }
-            ]
-        }
-
-        # we write out the policy, because minio admin client requires it
-        policy_file_name = XDG_CACHE_DIR + 'minio_oidc_admin_policy.json'
-        with open(policy_file_name, 'w') as policy_file:
-            dump(policy, policy_file)
-
-        # actually create the policy
-        self.admin_client.policy_add('minio_admins', policy_file_name)
-        log.info("Created minio_admin policy for use with OIDC")
-
-    def create_read_user_group_policy(self) -> None:
-        """
-        creates a readonly policy for OIDC called minio_read_users
-        """
-        policy = {
-                "Version": "2012-10-17",
-                "Statement": [
-                    {
-                        "Effect": "Allow",
-                        "Action": [
-                            "s3:GetBucketLocation",
-                            "s3:GetObject"
-                            ],
-                        "Resource": [
-                            "arn:aws:s3:::*"
-                            ]
-                        }
-                    ]
-                }
-
-        # we write out the policy, because minio admin client requires it
-        policy_file_name = XDG_CACHE_DIR + 'minio_oidc_user_readonly_policy.json'
-        with open(policy_file_name, 'w') as policy_file:
-            dump(policy, policy_file)
-
-        # actually create the policy
-        self.admin_client.policy_add('minio_read_users', policy_file_name)
-        log.info("Created minio_read only user policy for use with OIDC")
-
-    def set_anonymous_download(self, bucket: str, prefix: str) -> None:
-        """ 
-        sets anonymous download on a particular bucket and folder
-        """
-        policy = {
-            "Version": "2012-10-17",
-            "Statement": [
-                {
-                    "Effect": "Allow",
-                    "Principal": {"AWS": "*"},
-                    "Action": ["s3:GetBucketLocation"],
-                    "Resource": f"arn:aws:s3:::{bucket}",
-                },
-                {
-                    "Effect": "Allow",
-                    "Principal": {"AWS": "*"},
-                    "Action": ["s3:ListBucket"],
-                    "Condition": {
-                        "StringEquals": {"s3:prefix": [prefix]}
-                    },
-                    "Resource": f"arn:aws:s3:::{bucket}",
-                },
-                {
-                    "Effect": "Allow",
-                    "Principal": {"AWS": "*"},
-                    "Action": "s3:GetObject",
-                    "Resource": f"arn:aws:s3:::{bucket}/{prefix}*",
-                },
-            ],
-        }
-
-        self.client.set_bucket_policy(bucket, dumps(policy))
-
-
-def configure_minio_tenant(k8s_obj: K8s,
+def configure_minio_tenant(argocd: ArgoCD,
                            minio_config: dict,
                            secure: bool = True,
                            zitadel_hostname: str = "",
@@ -236,7 +35,7 @@ def configure_minio_tenant(k8s_obj: K8s,
     """
 
     minio_init_enabled = minio_config['init']['enabled']
-    argo_app_exists = check_if_argocd_app_exists('minio-tenant')
+    argo_app_exists = argocd.check_if_app_exists('minio-tenant')
 
     secrets = minio_config['argo']['secret_keys']
     if secrets:
@@ -257,7 +56,7 @@ def configure_minio_tenant(k8s_obj: K8s,
     # if the user has enabled smol_k8s_lab init, we create an initial user
     if minio_init_enabled and not argo_app_exists:
         # the namespace probably doesn't exist yet, so we try to create it
-        k8s_obj.create_namespace(minio_config['argo']['namespace'])
+        argocd.k8s.create_namespace(minio_config['argo']['namespace'])
         access_key = minio_config['init']['values']['root_user']
         secret_key = create_password(characters=72)
 
@@ -291,8 +90,8 @@ def configure_minio_tenant(k8s_obj: K8s,
                     'config.env': f"""MINIO_ROOT_USER={access_key}
             MINIO_ROOT_PASSWORD={secret_key}"""}
 
-        k8s_obj.create_secret('default-tenant-env-config', 'minio',
-                              credentials_exports)
+        argocd.k8s.create_secret('default-tenant-env-config', 'minio',
+                                 credentials_exports)
 
         if bitwarden:
             log.info("Creating MinIO root credentials in Bitwarden")
@@ -306,9 +105,7 @@ def configure_minio_tenant(k8s_obj: K8s,
 
     if not argo_app_exists:
         # actual installation of the minio tenant Argo CD Application
-        install_with_argocd(k8s_obj,
-                            'minio-tenant',
-                            minio_config['argo'])
+        argocd.install_app('minio-tenant', minio_config['argo'], True)
 
 
         # while we wait for the app to come up, update the config file
@@ -318,9 +115,6 @@ def configure_minio_tenant(k8s_obj: K8s,
                                access_key,
                                secret_key,
                                secure)
-
-        # make sure the app is up before returning
-        wait_for_argocd_app('minio-tenant')
 
         if minio_init_enabled:
             # immediately create an admin and readonly policy
@@ -344,19 +138,6 @@ def configure_minio_tenant(k8s_obj: K8s,
                                minio_hostname,
                                access_key,
                                secret_key)
-
-
-def configure_minio_operator(k8s_obj: K8s, minio_config: dict) -> None:
-    """
-    setup the MinIO operator as an Argo CD Application
-    """
-    # check if minio is using smol_k8s_lab init and if already present in Argo CD
-    if not check_if_argocd_app_exists('minio'):
-        # actual installation of the minio app
-        install_with_argocd(k8s_obj,
-                            'minio',
-                            minio_config['argo'])
-        wait_for_argocd_app('minio')
 
 
 def create_minio_alias(minio_alias: str,

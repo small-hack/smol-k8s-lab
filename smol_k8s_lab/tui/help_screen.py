@@ -19,7 +19,12 @@ class HelpScreen(ModalScreen):
                     show=True),
             Binding(key="n",
                     show=False,
-                    action="app.bell")
+                    action="app.bell"),
+            Binding(key="f5",
+                    key_display="f5",
+                    description="Speak",
+                    action="app.speak_element",
+                    show=True),
                 ]
 
     def compose(self) -> ComposeResult:
@@ -43,19 +48,13 @@ class HelpScreen(ModalScreen):
                 "https://github.com/Textualize/textual]textual[/][/][/]"
                 )
 
-        if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say(
-                    "Screen title: Help Screen. Use your mouse to click anything"
-                    " in the UI ✨ Or use the following key bindings. For "
-                    "additional help, checkout smol dash k8s dot org."
-                    )
+        self.call_after_refresh(self.app.play_screen_audio, screen="help")
 
-        self.build_help_table()
+        self.build_keymappings_table()
 
-    def build_help_table(self) -> None:
+    def build_keymappings_table(self) -> None:
         data_table = DataTable(zebra_stripes=True,
-                               id="help-table",
+                               id="key-mappings-table",
                                cursor_type="row")
 
         # then fill in the cluster table
@@ -67,22 +66,22 @@ class HelpScreen(ModalScreen):
 
         # tips for new/forgetful users (the maintainers are also forgetful <3)
         help_dict = {
-                "➡ ": "complete suggestion in input field",
-                "⬆/⬇": "navigate up and down the app selection list",
+                "right arrow": "complete suggestion in input field",
+                "up and down arrows": "navigate up or down selection lists and data tables",
                 "tab": "focus next element",
                 "shift+tab": "focus previous element",
-                "↩ enter": "save input and/or press button",
-                "?,h": "toggle help screen",
+                "enter": "save input and/or press button",
+                "? or h": "toggle help screen",
                 "spacebar": "select selection option",
                 "meta+click": link_help,
-                "escape,q": "leave current screen and go home",
+                "esc or q": "leave current screen and go home",
                 "c": "launch the config screen",
-                "f5": "read aloud current focused element id",
+                "f5": "read aloud current focused element ID",
                 "f": "toggle showing the footer"
                 }
 
         for key_binding, description in help_dict.items():
-            # we use an extra line to center the rows vertically 
+            # we use an extra line to center the rows vertically
             styled_row = [
                     Text(str("\n" + key_binding)),
                     Text(str("\n" + description))

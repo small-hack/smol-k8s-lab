@@ -1,0 +1,40 @@
+# This is an example for making an AppImage from a python3 smol-k8s-lab application
+# using virtualenv and pip3
+
+app: smol-k8s-lab
+
+ingredients:
+  dist: bookworm
+  sources:
+    - deb http://us.archive.ubuntu.com/ubuntu/ bookworm bookworm-updates bookworm-security main universe
+    - deb http://us.archive.ubuntu.com/ubuntu/ bookworm-updates main universe
+    - deb http://us.archive.ubuntu.com/ubuntu/ bookworm-security main universe
+  packages:
+    - python3.12-venv
+    # these are for making sound work
+    - libasound2-data
+    - libasound2-plugins
+    - libasound2
+  script:
+    -  wget -c https://raw.githubusercontent.com/small-hack/smol-k8s-lab/feat/restore-app/docs/assets/images/icons/logo.png
+    -  wget -c https://raw.githubusercontent.com/small-hack/smol-k8s-lab/feat/restore-app/smol_k8s_lab/config/smol-k8s-lab.appdata.xml
+
+script:
+  - cp smol-k8s-lab.png ./usr/share/icons/hicolor/256x256/
+  - cp smol-k8s-lab.png .
+  - mkdir -p usr/share/metainfo/ ; cp smol-k8s-lab.appdata.xml usr/share/metainfo/
+  - virtualenv --python=python3 usr
+  - ./usr/bin/pip3 install smol-k8s-lab
+  - cat > usr/share/applications/smol-k8s-lab.desktop <<\EOF
+  - [Desktop Entry]
+  - Type=Application
+  - Name=smol-k8s-lab
+  - Comment=CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD
+  - Icon=smol-k8s-lab
+  - Exec=smol-k8s-lab
+  - Terminal=true
+  - Categories=Application;Development;
+  - Keywords=Python;Kubernetes;
+  - EOF
+  - cp usr/share/applications/smol-k8s-lab.desktop .
+  - usr/bin/pip3 freeze | grep "smol-k8s-lab" | cut -d "=" -f 3 >> ../VERSION

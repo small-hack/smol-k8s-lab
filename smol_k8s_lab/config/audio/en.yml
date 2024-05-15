@@ -1,0 +1,404 @@
+screens:
+  base:
+    title: |
+      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. Press tab, then press "C" to configure accessibility options.
+    alt_title: |
+      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. Press "C" to configure accessibility options.
+    description: |
+      Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below there is one box. The box title is Create a new cluster with the name below. The box contains an input file for the name of your cluster with a submit button to the right that says sparkles emoji new cluster.
+    alt_description: |
+      Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below that are two boxes. Box one title is Select a row to modify or delete an existing cluster. Box one contains a data table with columns for Cluster, Distro, Version, and Platform for each cluster. Box two title is "Create a new cluster with the name below". Box two contains an input file for the name of your cluster. To the right of the input field is a button that says "sparkles emoji new cluster".
+
+
+  distro:
+    title: |
+      Kubernetes distribution config screen.
+    description: |
+       Here you can select a Kubernetes distro, configure nodes, and kubelet args
+
+  apps:
+    title: |
+       Applications Configuration screen (now with more squid).
+    description: |
+      Here you can select and configure Argo C.D. directory type apps. The screen contains two main panels on the upper three fourths of the screen, with a final panel on the bottom portion of the screen. The first panel on the left is a scrollable list of applications that can be selected to be enabled. The panel has a title of heart select apps, and a subtitle of "new app". The "new app" subtitle can be clicked to launch a modal screen to create a new app. You can also press the "A." key to do the same thing. Directly below the first panel is a button called "modify globals" for modifying global variables. The second panel is called "configure parameters for Argo C.D." and it will always have the configuration for the currently selected application. The bottom border contains a button that says "sync" only if you are modifying an existing cluster. The final panel at the bottom is a description box that says "Argo C.D. notes" with information about the application.
+
+  new_app:
+    title: |
+       New Application modal screen
+    description: |
+       Here you create a new Argo C.D. application for smol k. eights lab to deploy for you. This screen contains a header asking you to filling the two vertically stacked inputs. The top input is for the name of the app. The bottom input is for a description of the app which can be formatted with rich text. Below that is a submit button. To exit this screen, press the escape key.
+
+  modify_globals:
+    title: |
+      Modify globally available Argo C.D. Application Set templating values.
+    description: |
+      You can press escape to close this modal screen. This screen contains a header that says "Modify globally available Argo C.D. Application Set templating values". Below that is a scrollable container of input fields for global variables such as cluster issuer, time zone, and external secrets. Below that is a new key name input field with a plus button the left side of it to add a new variable name.
+
+  modify_node_modal:
+    title: |
+      Modify or delete node modal
+    alt_title: |
+      Are you sure you want to delete this node?
+    description: |
+      a screen asking you if you're sure you'd like to delete this node, followed by two buttons. Button one shows a person throwing trash in a wastebasket and says yes. Button two shows a person shrugging emoji and the word cancel.
+
+  invalid_apps:
+    title: |
+      Apps with invalid fields Screen.
+    description: |
+      This screen contains a data table with a border title that says "The following applications have fields that are empty or invalid". The datatable has two columns. The first column is the name of the app. The second column is a list of fields for that app that are invalid. The bottom of the border says "Click the app links above to fix the errors or disable them".
+
+  config:
+    title: |
+      Configure logging and password manager and run command screen.
+    description: |
+      This is a general smol k eights lab screen meant for configuring logging, password management, and the final run command. There are three boxes on the screen. The top box is for logging to set the log level, and log file. The middle box is for the password manager. The final box is for configuring the command to run after the config phase and kubernetes cluster creation phase.
+
+  nodes:
+    title: |
+      Add or delete nodes screen.
+    description: |
+      view exiting nodes for a given cluster and delete them, or add new ones.
+
+  tui_config:
+    title: |
+      Configure Accessibility features and Terminal U.I. screen.
+    description: |
+      Description. There are two boxes on the screen. Box one title is Configure Accessibility Features. The top portion contains two switches for bell on focus and bell on error. The rest of box one is dedicated to text to speech configuration including speech program input, read element on key press switch, read element on focus switch, read screen titles enabled switch, and read screen descriptions switch. Box two title is Configure Terminal U.I which contains two switches: termin U.I. enabled switch and footer enabled switch.
+
+
+  help:
+    title: Help Screen.
+    description: |
+      Use your mouse to click anything in the UI ✨ Or use the following key bindings: arrow keys for navigation within a widget, tab for navigation between widgets. For additional help, checkout https://small-hack.github.io/smol-k8s-lab.
+
+
+  confirm:
+    title: Confirm screen
+    description: |
+      This is the last step and screen to review your configuration. There is one giant box with tabs for each section of the YAML config file. Below that are two buttons for confirming your configuration or going back to a previous screen
+
+
+  cluster_modal:
+    title: What would you like to do with this cluster?
+    description: |
+      To quit this screen, press Q or B.
+    alt_description: |
+      Are you sure you want to delete this cluster?
+
+apps:
+  argo_cd: "argo C.D."
+  cert_manager: "cert manager"
+  cilium: "cilium"
+  cnpg_operator: "C.N.P.G. operator"
+  external_secrets_operator: "external secrets operator"
+  generic_app: "generic app"
+  generic_device_plugin: "generic device plugin"
+  home_assistant: "home assistant"
+  infisical: "infisical"
+  ingress_nginx: "ingress engine X."
+  k8tz: "K. eight T.Z."
+  k8up: "K. eight up"
+  kepler: "kepler"
+  kubevirt: "kube virt"
+  kyverno: "kyverno"
+  longhorn: "long horn"
+  mastodon: "mastodon"
+  matrix: "matrix"
+  metallb: "metal L.B."
+  minio_operator: "min I.O. operator"
+  minio_tenant: "min I.O. tenant"
+  netmaker: "net maker"
+  nextcloud: "next cloud"
+  postgres_operator: "post gres operator"
+  prometheus_crds: "prometheus C.Are.D.s"
+  prometheus: "prometheus"
+  seaweedfs: "seaweed F.S."
+  seaweedfs_csi_driver: "seaweed F.S. C.S.I. driver"
+  vault: "vault"
+  vouch: "va-ouch"
+  zitadel: "zit-a-del"
+
+cluster_names:
+  k8s: K. eights
+  k3s: K. threes
+  k3d: K. three Dee
+  kind: kind
+  bunny: bunny
+  hoglet: hoglet
+  puppy: puppy
+  kitten: kitten
+  friend: friend
+  raccoon: raccoon
+  lovely: lovely
+  adorable: adorable
+  cute: cute
+  friendly: friendly
+  nice: nice
+  cool: cool
+  soft: soft
+  smol: smole
+  small: small
+  default: default
+  linux_amd: linux "A" "M" "Dee" sixty-four bit
+  linux_arm: linux arm sixty-four bit
+  macos_arm: Mac O.S. arm sixty-four bit
+
+numbers:
+  1: one
+  2: two
+  3: three
+  4: four
+  5: five
+  6: six
+  7: seven
+  8: eight
+  9: nine
+  10: ten
+  11: eleven
+  22: twenty-two
+  27: twenty-seven
+  28: twenty-eight
+  29: twenty-nine
+  30: thirty
+  32: thirty-two
+  36: thirty-six
+  150: one hundred fifty
+  200: two hundred
+
+phrases:
+  espeak: E. Speak
+  say: say
+  element: Element is
+  input: input
+  button: button
+  drop_down: drop down menu
+  switch: switch
+  element_collapsible: Element is a collapsible called
+  element_tab: Selected tab is
+  value: Current value is
+  row: Selected row is
+  switch_on: switch is in the on position
+  switch_off: switch is in the off position
+  # welcome screen
+  point: point
+  cluster: Cluster
+  distro: Distribution
+  version: Version
+  platform: Platform
+  clusters_data_table: clusters data table
+  new_cluster: new cluster
+  unknown_version: The version of the cluster is unkown. If it's a K. three D. or kind cluster, docker may not be running?
+  # tui config screen
+  tui_enabled: Terminal U.I.
+  footer: footer
+  bell_on_focus: bell on focus
+  bell_on_error: bell on error
+  screen_titles: text to speech screen titles
+  screen_descriptions: text to speech screen descriptions
+  descriptions: descriptions
+  on_key_press: text to speech on F5 key press
+  on_focus: text to speech on focus
+  speech_program: text to speech program
+  # distro screen
+  distro_drop_down: Kubernetes distribution
+  control_plane_nodes_input: control plane nodes
+  worker_nodes_input: worker nodes
+  host: host name
+  hostname: host name
+  secrets_ecryption: secrets encryption
+  secrets_encryption_delete: secrets encryption delete
+  tabbed_content: tabbed content
+  networking_tab: networking options tab
+  yaml_tab: yaml
+  kubelet_tab: kubelet config options
+  nodes_tab: Add remote nodes config
+  node_type: node type
+  node: node
+  worker: worker
+  control_plane: control plane
+  ssh_port: S.S.H. port
+  ssh_key: S.S.H. key
+  node_labels: node labels
+  node_taints: node taints
+  kubelet_max_pods_input: Kubelet max pods
+  nodes_data_table: kubernetes nodes data table
+  # apps screens
+  restore_enabled: restore enabled
+  invalid_fields: invalid fields are
+  invalid_apps_table: invalid apps data table
+  description_input: description
+  app_submit: submit button for creating a new app in smol K. eights lab
+  app_name_input: name of new application
+  highlighted: Highlighted app is
+  first_app_is: First app in the list is
+  selection_list_of_apps: Selection list of Kubernetes apps.
+  modify_globals: modify globals
+  app_config_pane: selected app configuration pane
+  app_widget: config widget
+  inputs: inputs container
+  init_tab: Initialization config tab
+  argocd_tab: Argo C.D. Application and Project configuration tab
+  restore_tab: Restore from backup configuration tab
+  backup_tab: Backups configuration tab
+  argo_config_container: Argo C.D. config container
+  argocd_app_config: Argo C.D. Application configuration
+  secret_keys_collapsible: Template values for argo C.D. application set
+  argo_proj_config_collapsible: Advanced argo C.D. project configuration
+  restore_config_collapsible: Restic Snapshot IDs
+  s3_config_collapsible: S. Three configuration collapsible
+  name: name
+  last: last
+  first: first
+  user: user name
+  language: language
+  password: password
+  init: Enable initialization
+  init_values_collapsible: Initialization values
+  repo: repository
+  path: repository path
+  zitadel_project_input: zitadel project
+  revision: revision input, such as a git branch, commit hash, or tag
+  namespace: name space input to deploy application to
+  directory_recursion: directory recursion enabled
+  email: email
+  cert_manager_cluster_issuer_acme_challenge_solver_input: cert manager cluster issuer acme challenge solver
+  cert_manager_cluster_issuer_acme_dns01_provider_input: cert manager cluster issuer acme D.N.S. oh one provider
+  cloudflare_api_token: cloud flare A.P.I. token
+  oidc: O.I.D.C.
+  provider: provider
+  um: ummm, a word I don't know yet. sorry, I'm not great under pressure.
+  project: project
+  namespaces: comma separated list of allowed name spaces
+  source_repos: comma separated list of source repos
+  s3: S. three
+  access_key_id: access key I.D.
+  secret_access_key: secret access key
+  secret_key: secret key
+  endpoint: end point
+  region: region
+  bucket: bucket
+  pvc_capacity: P.V.C. capacity
+  smtp: S.M.T.P.
+  sensitive: sensitive
+  port: port
+  root: root
+  admin: admin
+  new_secret: new secret
+  country: country
+  currency: currency
+  longitude: longitude
+  latitude: latitude
+  elevation: elevation
+  unit_system: unit system
+  temperature_unit: temperature unit input, please enter either F. for fahrenheit or C. for celcius.
+  toleration_key: toleration key
+  toleration_value: toleration value
+  toleration_operator: toleration operator
+  toleration_effect: toleration effect
+  affinity_key: affinity key
+  affinity_value: affinity value
+  usb_device_path: U.S.B. device path
+  usb_device_mount: U.S.B. device mount path
+  usb_device_index: U.S.B. device index
+  bluetooth_device_path: bluetooth device path
+  bluetooth_device_mount_path: bluetooth device mount path
+  bluetooth_device_index: bluetooth device index
+  gender: gender
+  domains: comma separated list of domains
+  emails: comma separated list of domains
+  metallb_address_pool_input: Metal L.B. I.P. address pool
+  # stuff related to backups specifically
+  backup: backup
+  restic_repository_password: restic repository password
+  pvc_backup_schedule: P.V.C. backup schedule which takes cron syntax
+  postgres_backup_schedule: post gres "Q" "L" backup schedule which takes cron syntax with extra field for seconds
+  # seaweedfs uses the term master, not us
+  seaweedfs_master_restic_snapshot_id: seaweed F.S. master restic snapshot I.D.
+  seaweedfs_volume_restic_snapshot_id: seaweed F.S. volume restic snapshot I.D.
+  seaweedfs_filer_restic_snapshot_id: seaweed F.S. filer restic snapshot I.D.
+  files_restic_snapshot_id: files restic snapshot I.D.
+  config_restic_snapshot_id: config restic snapshot I.D.
+  # logging and password config screen
+  log_level_select: logging level
+  info: informational
+  debug: debug
+  warn: warning
+  error: error
+  file: file
+  enabled: enabled
+  duplicate_strategy_select: password manager duplicate strategy
+  edit: edit
+  ask: ask
+  no_action: no action
+  terminal_select: terminal select
+  window_behavior_select: window behavior
+  wezterm: wez term
+  zellij: zellij
+  split: ssplit
+  left: left
+  right: right
+  top: top
+  bottom: bottom
+  new: new
+  window: window
+  tab: tab
+  command: command
+  # modify global variables
+  cluster_issuer: cluster issuer
+  time_zone: time zone
+  external_secrets: external secrets provider
+  pvc_storage_class: P.V.C. storage class
+  # confirm screen
+  confirm: confirm
+  back: back
+  confirm_container: confirm container
+  confirm_tabbed: confirm tabbed content container
+  maintenance_mode_on_schedule: next cloud maintenance mode on schedule which uses cron syntax
+  maintenance_mode_off_schedule: next cloud maintenance mode off schedule which uses cron syntax
+  files_storage: files storage. size should be in tebibytes, gibibyes, or mebibytes
+  config_storage: config storage. size in should be in tebibytes, gibibyes, or mebibytes
+  smol_k8s_lab_cfg: smol k. eights lab config tab
+  smol_k8s_lab_cfg_scrolling_container: smol k. eights lab config scrolling container
+  k8s_distro_cfg: kubernetes distro config tab
+  k8s_distro_cfg_scrolling_container: kubernetes distro config scrolling container
+  apps_cfg: apps config tab
+  apps_cfg_scrolling_container: apps config scrolling container
+  global_apps_cfg: global apps variables config tab
+  global_apps_cfg_scrolling_container: global apps variables config scrolling container
+  app_config_tabbed_content: application configuration tabbed content
+  # cluster modal screen
+  modify_apps: modify applications
+  modify_nodes: modify nodes
+  delete_cluster_first_try: delete cluster
+  scroll_container_for_globals: scollable container for global variable inputs
+  nope: nope button to cancel cluster deletion
+  delete_button_second_try: very sure delete cluster
+  # these are all for the help screen
+  key_mappings_table: key mappings table
+
+keys:
+  meta_plus_click: |
+    Meta key plus left click. Description: opens a link; this is terminal dependent, so meta can be shift, option, windows Key, command, or control
+  right_arrow: |
+    Right arrow key. Description: auto-complete suggestion in input field
+  up_and_down_arrows: |
+    Up and down arrow keys. Description: navigate up or down selection lists and data tables
+  tab: |
+    Tab key. Description: focus next element
+  shift_plus_tab: |
+    Shift key plus tab key. Description: focus previous element
+  enter: |
+    Enter key. Description: save input and or press button
+  question_mark_or_h: |
+    Question mark key or H. key. Description: toggle help screen
+  spacebar: |
+    Space bar key. Description: select selection option
+  escape_or_q: |
+    Escape key or Q. key. Description: leave current screen and go home
+  c: |
+    C. key. Description: launch the config screen
+  f5: |
+    F. five key. Description: read aloud current focused element I.D.
+  f: |
+    F key. Description: toggle showing the footer

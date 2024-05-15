@@ -31,6 +31,8 @@ apps:
       path: prometheus/crds/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: prometheus
       # recurse directories in the provided git repo
@@ -79,6 +81,8 @@ apps:
       path: prometheus/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "prometheus"
       # recurse directories in the provided git repo

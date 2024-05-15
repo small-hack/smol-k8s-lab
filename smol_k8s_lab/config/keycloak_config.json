@@ -103,8 +103,8 @@
       "clientId": "vouch",
       "name": "Vouch",
       "description": "Vouch for keycloak",
-      "rootUrl": "https://vouch.social-media-for-dogs.com",
-      "adminUrl": "https://vouch.social-media-for-dogs.com/",
+      "rootUrl": "https://vouch.example.org",
+      "adminUrl": "https://vouch.example.org/",
       "baseUrl": "",
       "surrogateAuthRequired": false,
       "enabled": true,
@@ -113,7 +113,7 @@
       "secret": "8m0c9DhS9jNWskIEgF2CGTsUQGhkmpte",
       "redirectUris": [
         "https://oidcdebugger.com/debug",
-        "https://vouch.social-media-for-dogs.com/auth"
+        "https://vouch.example.org/auth"
       ],
       "webOrigins": [
         "+"

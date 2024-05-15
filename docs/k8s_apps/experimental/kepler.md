@@ -23,7 +23,9 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: demo/kepler/
       # either the branch or tag to point at in the argo repo above
-      revision: main
+      revision: "main"
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: kepler
       # recurse directories in the provided git repo

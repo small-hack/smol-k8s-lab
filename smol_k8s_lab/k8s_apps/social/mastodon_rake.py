@@ -2,7 +2,7 @@
 """ 
 This is just for generating mastodon rake secrets and testing on the cli
 """
-from smol_k8s_lab.utils.subproc import subproc
+from smol_k8s_lab.utils.run.subproc import subproc
 
 
 def generate_rake_secrets() -> None:

@@ -1,4 +1,4 @@
-We use [cert-manager](https://cert-manager.io) to generate TLS certs for the web frontends of any apps we install. 
+We use [cert-manager](https://cert-manager.io) to generate TLS certs for the web frontends of any apps we install.
 
 <a href="../../assets/images/screenshots/certmanager_screenshot.png">
 <img src="../..//assets/images/screenshots/certmanager_screenshot.png" alt="Argo CD web interface screenshot of cert manager in tree view mode showing cert-manager-helm-chart with three of its children. The screenshot does not show the entire Argo CD application because it contains well over 10 different roles and cluster roles and does not fit on one page, so instead we've chosen to show only the deployment children which are cert-manager, cert-manager-caininjector, and cert-manager-webhook each with their own replicasets and pods.">
@@ -51,7 +51,6 @@ apps:
         # only needed if cluster_issuer_challenge_solver set to dns01
         # currently only cloudflare is supported
         cluster_issuer_acme_dns01_provider: cloudflare
-      sensitive_values: []
     argo:
       secret_keys: {}
       # git repo to install the Argo CD app from
@@ -60,6 +59,8 @@ apps:
       path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "cert-manager"
       # recurse directories in the provided git repo
@@ -78,7 +79,7 @@ apps:
 
 ### DNS01 Challenge Solver
 
-For the DNS01 challange solver, you will need to either export `$CLOUDFLARE_API_TOKEN` as an env var, or fill in the sensitive value for it each time you run `smol-k8s-lab`.
+For the DNS01 challange solver, you will need to either export `$CERT_MANAGER_CLOUDFLARE_API_TOKEN` as an env var, or fill in the sensitive value for it each time you run `smol-k8s-lab`.
 
 ```yaml
 apps:
@@ -112,11 +113,10 @@ apps:
         # only needed if cluster_issuer_challenge_solver set to dns01
         # currently only cloudflare is supported
         cluster_issuer_acme_dns01_provider: cloudflare
-      sensitive_values:
         # you can remove this if you're not using cloudflare as your DNS01 provider
-        # can be passed in as env vars if you pre-pend CERT_MANAGER_
-        # e.g. CERT_MANAGER_CLOUDFLARE_API_TOKEN
-        - CLOUDFLARE_API_TOKEN
+        cloudflare_api_token:
+          value_from:
+            env: CERT_MANAGER_CLOUDFLARE_API_TOKEN
     argo:
       secret_keys: {}
       # git repo to install the Argo CD app from
@@ -125,6 +125,8 @@ apps:
       path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "cert-manager"
       # recurse directories in the provided git repo

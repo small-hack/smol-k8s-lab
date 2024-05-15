@@ -45,6 +45,6 @@ def configure_cilium(cilium_dict: dict):
                          chart_name='cilium/cilium',
                          namespace='cilium',
                          values_file=values_file_name)
-    release.install(True)
+    release.install(wait=True)
 
     return True

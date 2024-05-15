@@ -15,8 +15,12 @@ class NewAppModalScreen(ModalScreen):
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="app.pop_screen",
-                        description="Back")]
-
+                        description="Back"),
+            Binding(key="f5",
+                    key_display="f5",
+                    description="Speak",
+                    action="app.speak_element",
+                    show=True)]
 
     def __init__(self, current_apps: list = []) -> None:
         self.current_apps = current_apps
@@ -50,17 +54,13 @@ class NewAppModalScreen(ModalScreen):
                     submit = Button("submit", id="app-submit")
                     submit.tooltip = "submit name of new Argo CD Application"
                     submit.disabled = True
-                    yield submit 
+                    yield submit
 
     def on_mount(self) -> None:
         box = self.get_widget_by_id("question-box")
         box.border_subtitle = "[@click=app.pop_screen]cancel[/]"
 
-        if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say("Screen title: Please enter a name and description"
-                                " for your Argo CD Application. You can press "
-                                "escape to close this modal screen")
+        self.call_after_refresh(self.app.play_screen_audio, screen="new_app")
 
     @on(Input.Changed)
     def input_validation(self, event: Input.Changed) -> None:

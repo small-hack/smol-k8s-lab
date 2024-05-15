@@ -1,5 +1,7 @@
 We've disabled keycloak at this time because we don't have the time to maintain it and it's harder to use than zitadel.
 
+If you still want to use it though, it would be something like this:
+
 ```yaml
 apps:
   keycloak:
@@ -25,7 +27,9 @@ apps:
       # path in the argo repo to point to. Trailing slash very important!
       path: "demo/keycloak/"
       # either the branch or tag to point at in the argo repo above
-      ref: "main"
+      revision: "main"
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: "keycloak"
       # source repos for Argo CD App Project (in addition to argo.repo)

@@ -16,10 +16,6 @@ apps:
     enabled: true
     init:
       enabled: true
-      sensitive_values:
-      - S3_BACKUP_ACCESS_ID
-      - S3_BACKUP_SECRET_KEY
-      - RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -28,9 +24,6 @@ apps:
         s3_endpoint: "postgres-s3.boopthesnoot.cute"
         s3_bucket: zalando-postgres-operator
         s3_region: eu-west-1
-        s3_backup_endpoint: "external-s3.objectstorefordogs.real"
-        s3_backup_region: eu-central-003
-        s3_backup_bucket: zalando-s3-backups
         backup_schedule: 30 18 * * *
         backup_retention_time: 8 weeks
       # git repo to install the Argo CD app from
@@ -41,6 +34,8 @@ apps:
       path: postgres/operators/zalando/
       # either the branch or tag to point at in the argo repo above
       revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
       namespace: postgres-operator
       # recurse directories in the provided git repo

@@ -43,18 +43,20 @@ class DistroConfigScreen(Screen):
                 "./css/k3s.tcss",
                 "./css/kind.tcss"]
 
-    BINDINGS = [Binding(key="b,q,escape",
-                        key_display="b",
-                        action="app.pop_screen",
-                        description="Back"),
-                Binding(key="n",
-                        key_display="n",
-                        action="app.request_apps_cfg",
-                        description="Next"),
-                Binding(key="a",
-                        key_display="a",
-                        action="screen.launch_new_option_modal",
-                        description="add new option")]
+    BINDINGS = [
+            Binding(key="b,q,escape",
+                    key_display="b",
+                    action="app.pop_screen",
+                    description="Back"),
+            Binding(key="n",
+                    key_display="n",
+                    action="app.request_apps_cfg",
+                    description="Next"),
+            Binding(key="ctrl+n",
+                    key_display="ctrl+n",
+                    action="screen.launch_new_option_modal",
+                    description="add new")
+            ]
 
     def __init__(self, config: dict) -> None:
         """
@@ -104,8 +106,8 @@ class DistroConfigScreen(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
-        sub_title = "Kubernetes distro config"
+        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
+        sub_title = f"Kubernetes distro config for {self.app.current_cluster}"
         self.sub_title = sub_title
 
         top_row = self.get_widget_by_id("top-distro-row")
@@ -113,10 +115,6 @@ class DistroConfigScreen(Screen):
         top_row.border_subtitle = "[i]Inputs below are optional"
 
         main_box = self.get_widget_by_id("distro-config-screen")
-
-        if self.app.speak_screen_titles:
-            # if text to speech is on, read screen title
-            self.app.action_say("Screen title: " + sub_title)
 
         if self.current_distro == 'kind':
             main_box.mount(
@@ -134,6 +132,8 @@ class DistroConfigScreen(Screen):
                         id=self.current_distro + "-pseudo-screen"
                         )
                     )
+
+        self.call_after_refresh(self.app.play_screen_audio, screen="distro")
 
     @on(Select.Changed)
     def update_k8s_distro(self, event: Select.Changed) -> None:
@@ -185,6 +185,13 @@ class DistroConfigScreen(Screen):
             self.app.write_yaml()
 
             self.current_distro = distro
+
+    def action_add_node_to_widget(self) -> None:
+        """
+        call the add new node button action for the AddNodesBox widget
+        """
+        nodes_box = self.get_widget_by_id("nodes-tab-nodes-widget")
+        nodes_box.action_press_new_node_button()
 
     def action_launch_new_option_modal(self) -> None:
         """

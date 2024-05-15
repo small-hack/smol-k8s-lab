@@ -6,7 +6,7 @@ DESCRIPTION: install k3d :D Not affiliated with k3s, rancher, or suse. just a fa
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 from ..utils.rich_cli.console_logging import sub_header
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 from ..constants import XDG_CACHE_DIR
 import logging as log
 from yaml import dump

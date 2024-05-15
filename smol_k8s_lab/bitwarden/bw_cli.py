@@ -19,7 +19,7 @@ from rich.prompt import Prompt
 from shutil import which
 from sys import exit
 from os import environ as env
-from ..utils.subproc import subproc
+from ..utils.run.subproc import subproc
 from .tui.bitwarden_existing_item_app import AskUserForDuplicateStrategy
 
 
@@ -58,12 +58,12 @@ class BwCLI():
         self.delete_session = True
 
         # this is used for bweso and logins
-        self.host = env.get("BW_HOST", default="https://bitwarden.com")
+        self.host = env.get("BW_HOST", "https://bitwarden.com")
         log.debug(f"Using {self.host} as $BW_HOST")
 
 
         # make sure there's not a session token in the env vars already
-        self.env = {"BW_SESSION": env.get("BW_SESSION", default=None),
+        self.env = {"BW_SESSION": env.get("BW_SESSION", ""),
                     "PATH": env.get("PATH"),
                     "HOME": env.get("HOME"),
                     "NODE_OPTIONS": "--no-deprecation"}
@@ -92,7 +92,7 @@ class BwCLI():
         generate a new password. Takes special_characters bool.
         """
         log.info('Checking if you are logged in...')
-        return json.loads(subproc(["bw status"]))['status']
+        return json.loads(subproc(["bw status"], env=self.env))['status']
 
     def unlock(self) -> None:
         """
@@ -103,28 +103,31 @@ class BwCLI():
             self.delete_session = False
 
         status = self.status()
+        if status == "locked" or status == "unauthenticated":
+            env = {"BW_PASSWORD": self.password,
+                   "BW_CLIENTID": self.client_id,
+                   "BW_CLIENTSECRET": self.client_secret,
+                   "BW_HOST": self.host,
+                   "PATH": self.env['PATH'],
+                   "HOME": self.env['HOME'],
+                   "NODE_OPTIONS": "--no-deprecation"}
 
-        if status == "unauthenticated" or status == "locked":
-            # verify we're even logged in :)
-            if status == "unauthenticated":
-                log.info('Logging into the Bitwarden vault...')
-                # set command to login if we're unauthenticated
-                cmd = (f"{self.bw_path} login --passwordenv BW_PASSWORD "
-                       "--apikey --raw")
-            else:
-                log.info('Unlocking the Bitwarden vault...')
-                # set command to unlock if status is locked
-                cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
+        # login if we need to
+        if status == "unauthenticated":
+            log.info('Logging into the Bitwarden vault...')
+            # set command to login if we're unauthenticated
+            cmd = f"{self.bw_path} login --passwordenv BW_PASSWORD --apikey --raw"
+            subproc([cmd], quiet=True, env=env)
+
+        # we still need to unlock, even if we logged in already
+        if status == "locked" or status == "unauthenticated":
+            log.info('Unlocking the Bitwarden vault...')
+            # set command to unlock if status is locked
+            cmd = f"{self.bw_path} unlock --passwordenv BW_PASSWORD --raw"
 
             # run either bw login or bw unlock depending on bw status
-            self.env['BW_SESSION'] = subproc([cmd], quiet=True,
-                                             env={"BW_PASSWORD": self.password,
-                                                  "BW_CLIENTID": self.client_id,
-                                                  "BW_CLIENTSECRET": self.client_secret,
-                                                  "BW_HOST": self.host,
-                                                  "PATH": self.env['PATH'],
-                                                  "HOME": self.env['HOME']})
-            # log.debug(f"session is {self.session}")
+            self.env['BW_SESSION'] = subproc([cmd], quiet=True, env=env)
+            log.debug(f"bw unlock session is {self.env['BW_SESSION']}")
             log.info('Unlocked the Bitwarden vault.')
         else:
             log.info(f"[green]bw status[/] returned '{status}', so we won't "
@@ -205,7 +208,7 @@ class BwCLI():
             # if they always want to do this, then set self.duplicate_strategy
             if always_do_action:
                 # NOTE: we still always ask if there's more than 1 entry returned
-                self.duplicate_strategy = action 
+                self.duplicate_strategy = action
 
             return item, action
         else:

@@ -7,12 +7,12 @@ DESCRIPTION: configures external secrets, currently only with Bitwarden and GitL
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
-from smol_k8s_lab.k8s_tools.argocd_util import install_with_argocd, wait_for_argocd_app
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
-from smol_k8s_lab.utils.subproc import subproc
+from smol_k8s_lab.utils.run.subproc import subproc
 
 
-def configure_external_secrets(k8s_obj: K8s,
+def configure_external_secrets(argocd: ArgoCD,
                                eso_dict: dict,
                                eso_provider: str = "",
                                distro: str = "",
@@ -20,22 +20,24 @@ def configure_external_secrets(k8s_obj: K8s,
     """
     configure external secrets and provider. (and optionally bweso or gitlab)
     """
-    k8s_obj.create_namespace("external-secrets")
+    argocd.k8s.create_namespace("external-secrets")
 
     if eso_provider == "bitwarden":
-        setup_bweso_provider(k8s_obj, distro, bitwarden)
+        setup_bweso_provider(argocd.k8s, distro, bitwarden)
     elif eso_provider == "gitlab":
-        setup_gitlab_provider(k8s_obj, eso_dict['init']['values']['gitlab_access_token'])
+        setup_gitlab_provider(argocd.k8s,
+                              eso_dict['init']['values']['gitlab_access_token'])
 
-    install_with_argocd(k8s_obj, 'external-secrets-operator', eso_dict['argo'])
-    wait_for_argocd_app('external-secrets-operator')
+    argocd.install_app('external-secrets-operator', eso_dict['argo'], True)
 
     if bitwarden:
         # wait for bitwarden external secrets provider to be up
-        wait_for_argocd_app('bitwarden-eso-provider', retry=True)
+        argocd.wait_for_app('bitwarden-eso-provider', retry=True)
 
 
-def setup_bweso_provider(k8s_obj: K8s, distro: str, bitwarden: BwCLI = None) -> None:
+def setup_bweso_provider(k8s_obj: K8s,
+                         distro: str,
+                         bitwarden: BwCLI = None) -> None:
     """
     Creates an initial secret for use with the bitwarden provider for ESO
     """

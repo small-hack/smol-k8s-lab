@@ -6,16 +6,20 @@ DESC: everything to do with initial configuration of a new environment
 
 from getpass import getuser
 from importlib.metadata import version as get_version
-from os import environ, path, uname
+from os import environ, path, uname, makedirs
 from pathlib import Path
 from ruamel.yaml import YAML
 from shutil import copyfile
+import tarfile
 from xdg_base_dirs import xdg_cache_home, xdg_config_home
 
 # env
 SYSINFO = uname()
 # this will be something like ('Darwin', 'x86_64')
 OS = (SYSINFO.sysname, SYSINFO.machine)
+
+# don't show pygame hello message
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 
 HOME_DIR = environ["HOME"]
 USER = getuser()
@@ -43,7 +47,6 @@ VERSION = get_version('smol-k8s-lab')
 # grabs the default packaged config file from default dot files
 DEFAULT_CONFIG_FILE = path.join(PWD, 'config/default_config.yaml')
 
-
 def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
     """
     load config yaml files for smol-k8s-lab and return as dicts
@@ -61,6 +64,23 @@ def load_yaml(yaml_config_file=XDG_CONFIG_FILE):
 
 DEFAULT_CONFIG = load_yaml(DEFAULT_CONFIG_FILE)
 INITIAL_USR_CONFIG = load_yaml()
+
+# sets the default speech files and loads them for each language
+# if you don't see your language, please submit a PR :)
+SPEECH_TEXT = path.join(PWD, 'config/audio')
+
+# we default save all generated speech files to your XDG_DATA_HOME env var
+SPEECH_MP3_DIR = path.join(PWD, 'audio')
+en_dir = path.join(SPEECH_MP3_DIR, 'en')
+if not path.exists(en_dir):
+    # create the dirs
+    makedirs(en_dir, exist_ok=True)
+    # open file
+    file = tarfile.open(path.join(SPEECH_MP3_DIR, "audio-en.tar.gz"))
+    # extract files
+    file.extractall(SPEECH_MP3_DIR)
+    # close file
+    file.close()
 
 DEFAULT_DISTRO_OPTIONS = DEFAULT_CONFIG['k8s_distros']
 
