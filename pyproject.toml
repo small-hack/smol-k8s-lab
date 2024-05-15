@@ -30,7 +30,7 @@ include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
 "Bug Tracker" = "http://github.com/small-hack/smol-k8s-lab/issues"
 
 [tool.poetry.dependencies]
-bcrypt             = "^4.0"
+bcrypt             = "^4.1"
 click              = "^8.1"
 cryptography       = "^42.0"
 kubernetes         = "^29"
@@ -43,7 +43,7 @@ requests           = "^2.28"
 rich               = "^13.0"
 ruamel-yaml        = "^0.18"
 ruamel-yaml-string = "^0.1"
-textual            = "^0.59"
+textual            = "^0.60"
 xdg-base-dirs      = "^6.0"
 pygame             = "^2.5.2"
 
