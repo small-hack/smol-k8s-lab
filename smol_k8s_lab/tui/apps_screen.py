@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
-from smol_k8s_lab.utils.run.subproc import subproc
+from smol_k8s_lab.constants import VERSION
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsModalScreen
@@ -8,6 +8,7 @@ from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
 from smol_k8s_lab.tui.util import format_description
+from smol_k8s_lab.utils.run.subproc import subproc
 
 # external libraries
 from kubernetes.config import ConfigException
@@ -124,8 +125,7 @@ class AppsConfigScreen(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
-        sub_title = f"Apps Configuration for {self.app.current_cluster} (now with more 🦑)"
+        sub_title = f"Apps Configuration for {self.app.current_cluster}"
         self.sub_title = sub_title
 
         self.generate_app_selection_list()

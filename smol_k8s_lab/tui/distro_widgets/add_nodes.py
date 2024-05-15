@@ -1,5 +1,4 @@
-#!/usr/bin/env python3.11
-from smol_k8s_lab.constants import HOME_DIR
+from smol_k8s_lab.constants import HOME_DIR, VERSION
 from smol_k8s_lab.k8s_distros.k3s import join_k3s_nodes
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.tui.util import input_field, drop_down
@@ -421,7 +420,7 @@ class NodesConfigScreen(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
+        self.title = f"ʕ ᵔᴥᵔʔ smol-k8s-lab {VERSION}"
         sub_title = f"Kubernetes nodes config for {self.app.current_cluster}"
         self.sub_title = sub_title
 

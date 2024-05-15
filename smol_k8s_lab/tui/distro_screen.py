@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
-from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS
+from smol_k8s_lab.constants import DEFAULT_DISTRO_OPTIONS, VERSION
 from smol_k8s_lab.env_config import process_k8s_distros
 from smol_k8s_lab.tui.distro_widgets.k3s_config import K3sConfigWidget
 from smol_k8s_lab.tui.distro_widgets.kind_config import (KindNetworkingConfig,
@@ -106,7 +106,6 @@ class DistroConfigScreen(Screen):
         """
         screen and box border styling
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol-k8s-lab "
         sub_title = f"Kubernetes distro config for {self.app.current_cluster}"
         self.sub_title = sub_title
 

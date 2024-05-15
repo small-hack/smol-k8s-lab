@@ -1,10 +1,11 @@
+from smol_k8s_lab.constants import VERSION
 from smol_k8s_lab.tui.util import bool_option, input_field
 from textual import on
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Grid
 from textual.screen import Screen
-from textual.widgets import Footer, Header, Input, Label, Switch
+from textual.widgets import Footer, Header, Input, Switch
 from textual.widget import Widget
 
 
@@ -49,7 +50,6 @@ class TuiConfigScreen(Screen):
         """
         screen and box border styling and read the screen title aloud
         """
-        self.title = "ʕ ᵔᴥᵔʔ smol k8s lab"
         sub_title = "Configure Terminal UI and Accessibility features"
         self.sub_title = sub_title
 
