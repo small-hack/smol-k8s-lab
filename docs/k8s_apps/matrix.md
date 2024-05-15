@@ -24,9 +24,45 @@
 
 </details>
 
-The main variable you need to worry about when setting up matrix is your `hostname`.
+## Required Values
 
-## Sensitive values
+### Appset secret values
+
+The main variables you need to worry about when setting up matrix are your `hostname` variables:
+
+- hostname
+- element_hostname
+- federation_hostname
+
+These are all storage related and you can leave them at the defaults for small servers:
+
+- signing_key_pvc_enabled
+- signing_key_storage
+- signing_key_access_mode
+- media_pvc_enabled
+- media_storage
+- media_access_mode
+- synapse_config_pvc_enabled
+- synapse_config_storage
+- synapse_config_access_mode
+- s3_provider
+- s3_bucket
+- s3_endpoint
+- s3_pvc_capacity
+- s3_region
+
+You'll also need to provide an admin_email for users to contact someone if something goes wrong.
+
+### Init Values
+
+These are all one time values that you need to provide, related entirely to mail setup:
+
+- smtp_user
+- smtp_host
+
+See below for providing smtp_password without putting it in plain text.
+
+#### Sensitive values
 
 Sensitive values can be provided via environment variables using a `value_from` map on any value under `init.values` or `backups`. Example of providing the SMTP password:
 
