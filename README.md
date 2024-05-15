@@ -77,6 +77,43 @@ After you've followed the installation instructions, if you're *new* to `smol-k8
 # saving the config and deploying it for you
 smol-k8s-lab
 ```
+
+<details>
+  <summary><b>Upgrading config from v4.x to v5.x</b></summary>
+
+If you've installed smol-k8s-lab prior to `v5.0.0`, please backup your old configuration, and then remove the `~/.config/smol-k8s-lab/config.yaml` (or `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml`) file entirely, then run the following with either pip or pipx:
+
+*if using pip*:
+```yaml
+# this uninstalls the old smol-k8s-lab for python 3.11
+pip3.11 uninstall smol-k8s-lab
+
+# this installs smol-k8s-lab for python 3.12
+pip3.12 install --upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+*or if using pipx*:
+```yaml
+# this upgrades smol-k8s-lab
+pipx upgrade smol-k8s-lab
+
+# this initializes a new configuration
+smol-k8s-lab
+```
+
+We have done a *masive* upgrade of the config file. You'll need to update your configs based on the details in https://github.com/small-hack/smol-k8s-lab/pull/210 . The main changes are to the following (check each doc link for details):
+
+- [accessibility features](https://small-hack.github.io/smol-k8s-lab/config_file/#tui-and-accessibility-configuration)
+- [k3s nodes section](https://small-hack.github.io/smol-k8s-lab/config_file/#k3s)
+- [backups and restores](https://small-hack.github.io/smol-k8s-lab/config_file/#backups-and-restores)
+- [sensitive values](https://small-hack.github.io/smol-k8s-lab/config_file/#sensitive-values)
+- [k9s has been removed in favor of run command](https://small-hack.github.io/smol-k8s-lab/config_file/#run-command) (hint: you can still use k9s via run command)
+
+</details>
+
 <details>
   <summary><b>Upgrading config from v3.7.1 to v4.x</b></summary>
 
