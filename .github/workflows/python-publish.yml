@@ -16,10 +16,11 @@ jobs:
           python_version: "3.12.0"
           pypi_token: ${{ secrets.DEPLOY_FROM_GITHUB_SMOL_K8S_LAB }}
 
-      - name: Generate Sound Files
-        run: |
-            poetry run smol-tts -l en --tar
-            poetry run smol-tts -l nl --tar
+      # not ready to do this until we have self-hosted runners
+      # - name: Generate Sound Files
+      #   run: |
+      #       poetry run smol-tts -l en --tar
+      #       poetry run smol-tts -l nl --tar
 
       - name: Create an appimage for smol-k8s-lab for use with brew
         # see https://github.com/AppImageCommunity/pkg2appimage for more info
@@ -27,7 +28,6 @@ jobs:
             wget -c $(wget -q https://api.github.com/repos/AppImageCommunity/pkg2appimage/releases -O - | grep "pkg2appimage-.*-x86_64.AppImage" | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
             chmod +x ./pkg2appimage-*.AppImage
             ./pkg2appimage-*.AppImage .github/smol-k8s-lab-appimage.yaml
-            ls
 
       - name: Create a Release on GitHub
         uses: softprops/action-gh-release@v2
@@ -35,6 +35,4 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-              audio-en.tar.gz
-              audio-nl.tar.gz
               smol-k8s-lab.AppImage
