@@ -51,7 +51,7 @@ apps:
 
 #### Sensitive values before `v5.0.0`
 
-`smol-k8s-lab` did not originally support the `value_from` map. If you're using a version *before `v5.0.0`*, to avoid having to provide sensitive values every time you run `smol-k8s-lab` with matrix enabled, set up the following environment variables:
+`smol-k8s-lab` did not originally support the `value_from` map. If you're using a version *before `v5.0.0`*, to avoid having to provide sensitive values every time you run `smol-k8s-lab` with home assistant enabled, set up the following environment variables:
 
 ```bash
 # this is for the admin user password
