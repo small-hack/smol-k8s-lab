@@ -101,7 +101,7 @@ apps:
         smtp_user: 'mycoolsmtpusername'
         smtp_host: 'mail.cooldogs.net'
         smtp_password:
-          valueFrom:
+          value_from:
             env: NEXTCLOUD_SMTP_PASSWORD
     backups:
       # cronjob syntax schedule to run nextcloud pvc backups
@@ -118,13 +118,13 @@ apps:
         bucket: my-nextcloud-bucket
         region: eu-central-003
         secret_access_key:
-          valueFrom:
+          value_from:
             env: NEXTCLOUD_S3_BACKUP_SECRET_KEY
         access_key_id:
-          valueFrom:
+          value_from:
             env: NEXTCLOUD_S3_BACKUP_ACCESS_ID
       restic_repo_password:
-        valueFrom:
+        value_from:
           env: NEXTCLOUD_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets

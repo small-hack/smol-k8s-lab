@@ -82,7 +82,7 @@ apps:
         # mail user for smtp host
         smtp_user: "change me to enable mail"
         smtp_password:
-          valueFrom:
+          value_from:
             env: MASTODON_SMTP_PASSWORD
     backups:
       # cronjob syntax schedule to run mastodon pvc backups
@@ -98,13 +98,13 @@ apps:
         bucket: my-mastodon-backups
         region: eu-central-003
         secret_access_key:
-          valueFrom:
+          value_from:
             env: MASTODON_S3_BACKUP_SECRET_KEY
         access_key_id:
-          valueFrom:
+          value_from:
             env: MASTODON_S3_BACKUP_ACCESS_ID
         restic_repo_password:
-          valueFrom:
+          value_from:
             env: MASTODON_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets

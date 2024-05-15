@@ -242,11 +242,11 @@ apps:
       s3:
         # this value comes from an environment variable
         secret_access_key:
-          valueFrom:
+          value_from:
             env: NC_S3_BACKUP_SECRET_KEY
 ```
 
-If we see `valueFrom` under any field in init or backups, we will attempt to get the value either from your environment variables or bitwarden.
+If we see `value_from` under any field in init or backups, we will attempt to get the value either from your environment variables or bitwarden.
 
 
 ### Backups and restores
@@ -286,15 +286,15 @@ apps:
         region: eu-central-003
         # comes from an environment variable
         secret_access_key:
-          valueFrom:
+          value_from:
             env: NC_S3_BACKUP_SECRET_KEY
         # comes from an environment variable
         access_key_id:
-          valueFrom:
+          value_from:
             env: NC_S3_BACKUP_ACCESS_ID
       # comes from an environment variable
       restic_repo_password:
-        valueFrom:
+        value_from:
           env: NC_RESTIC_REPO_PASSWORD
 ```
 

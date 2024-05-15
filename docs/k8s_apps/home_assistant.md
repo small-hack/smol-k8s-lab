@@ -48,7 +48,7 @@ apps:
         # -- owner user's language, default is english
         language: "en"
         password:
-          valueFrom:
+          value_from:
             env: HOME_ASSISTANT_PASSWORD
     backups:
       # cronjob syntax schedule to run home assistant pvc backups
@@ -59,13 +59,13 @@ apps:
         bucket: my-home-assistant-bucket
         region: eu-central-003
         secret_access_key:
-          valueFrom:
+          value_from:
             env: HOME_ASSISTANT_S3_BACKUP_SECRET_KEY
         access_key_id:
-          valueFrom:
+          value_from:
             env: HOME_ASSISTANT_S3_BACKUP_ACCESS_ID
       restic_repo_password:
-        valueFrom:
+        value_from:
           env: HOME_ASSISTANT_RESTIC_REPO_PASSWORD
     argo:
       secret_keys:
@@ -140,7 +140,7 @@ apps:
         # -- owner user's language, default is english
         language: "en"
         password:
-          valueFrom:
+          value_from:
             env: HOME_ASSISTANT_PASSWORD
     backups:
       # cronjob syntax schedule to run home assistant pvc backups
@@ -151,13 +151,13 @@ apps:
         bucket: my-home-assistant-bucket
         region: eu-central-003
         secret_access_key:
-          valueFrom:
+          value_from:
             env: HOME_ASSISTANT_S3_BACKUP_SECRET_KEY
         access_key_id:
-          valueFrom:
+          value_from:
             env: HOME_ASSISTANT_S3_BACKUP_ACCESS_ID
       restic_repo_password:
-        valueFrom:
+        value_from:
           env: HOME_ASSISTANT_RESTIC_REPO_PASSWORD
     argo:
       secret_keys:

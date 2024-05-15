@@ -17,7 +17,11 @@ To avoid having to provide sensitive values every time you run smol-k8s-lab with
 - `MATRIX_S3_BACKUP_SECRET_KEY`
 - `MATRIX_RESTIC_REPO_PASSWORD`
 
-## Example config
+!!! Note
+    Since `v5.0.0`, `smol-k8s-lab` now supports using any environment variable name via the value_from
+
+
+## Full Example config
 
 ```yaml
 apps:
@@ -54,7 +58,7 @@ apps:
         smtp_user: change me to enable mail
         smtp_host: enable.mail
         smtp_password:
-          valueFrom:
+          value_from:
             env: MATRIX_SMTP_PASSWORD
     backups:
       # cronjob syntax schedule to run matrix pvc backups
@@ -70,13 +74,13 @@ apps:
         bucket: my-matrix-backup-bucket
         region: eu-central-003
         secret_access_key:
-          valueFrom:
+          value_from:
             env: MATRIX_S3_BACKUP_SECRET_KEY
         access_key_id:
-          valueFrom:
+          value_from:
             env: MATRIX_S3_BACKUP_ACCESS_ID
       restic_repo_password:
-        valueFrom:
+        value_from:
           env: MATRIX_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets

@@ -65,7 +65,7 @@ apps:
         project: core
         # coming soon after we refactor a bit
         # smtp_password:
-        #   valueFrom:
+        #   value_from:
         #     env: ZITADEL_SMTP_PASSWORD
       restore:
         enabled: false
@@ -89,13 +89,13 @@ apps:
         bucket: my-zitadel-backup-bucket
         region: eu-central-003
         secret_access_key:
-          valueFrom:
+          value_from:
             env: ZITADEL_S3_BACKUP_SECRET_KEY
         access_key_id:
-          valueFrom:
+          value_from:
             env: ZITADEL_S3_BACKUP_ACCESS_ID
       restic_repo_password:
-        valueFrom:
+        value_from:
           env: ZITADEL_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to ArgoCD ApplicationSets

@@ -61,7 +61,7 @@ apps:
         smtp_host: smtp-server.com
         # this value is taken from an environment variable
         smtp_password:
-          valueFrom:
+          value_from:
             env: NC_SMTP_PASSWORD
 ```
 

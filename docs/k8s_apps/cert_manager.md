@@ -115,7 +115,7 @@ apps:
         cluster_issuer_acme_dns01_provider: cloudflare
         # you can remove this if you're not using cloudflare as your DNS01 provider
         cloudflare_api_token:
-          valueFrom:
+          value_from:
             env: CERT_MANAGER_CLOUDFLARE_API_TOKEN
     argo:
       secret_keys: {}

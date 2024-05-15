@@ -6,14 +6,14 @@ from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 
 def extract_secret(value: dict = {}) -> str:
     """
-    process a value that has a valueFrom dict and return the value
+    process a value that has a value_from dict and return the value
 
-    supported valueFrom methods: env, bitwarden. coming soon: openbao
+    supported value_from methods: env, bitwarden. coming soon: openbao
     """
     if isinstance(value, dict):
-        value_dict = value.get('valueFrom', None)
+        value_dict = value.get('value_from', None)
         if not value_dict:
-            log.warn(f"{value} has no valueFrom dict, so we're returning empty str")
+            log.warn(f"{value} has no value_from dict, so we're returning empty str")
             return ""
     else:
         log.warn(f"value, {value}, is not a dict, so we're returning it as it came in")
@@ -27,7 +27,7 @@ def extract_secret(value: dict = {}) -> str:
     # try to get variable from bitwarden item and field
     bitwarden_item = value_dict.get('bitwarden_item', None)
     if bitwarden_item:
-        bitwarden_field = value['valueFrom'].get('bitwarden_field', None)
+        bitwarden_field = value['value_from'].get('bitwarden_field', None)
         bw = BwCLI()
         return bw.get_item(bitwarden_item)[0][bitwarden_field]
 
