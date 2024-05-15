@@ -16,8 +16,8 @@ ingredients:
     - libasound2-plugins
     - libasound2
   script:
-    -  wget -c https://raw.githubusercontent.com/small-hack/smol-k8s-lab/feat/restore-app/docs/assets/images/icons/logo.png
-    -  wget -c https://raw.githubusercontent.com/small-hack/smol-k8s-lab/feat/restore-app/smol_k8s_lab/config/smol-k8s-lab.appdata.xml
+    -  wget -c https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/logo.png
+    -  wget -c https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/smol_k8s_lab/config/smol-k8s-lab.appdata.xml
 
 script:
   - cp smol-k8s-lab.png ./usr/share/icons/hicolor/256x256/

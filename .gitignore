@@ -30,4 +30,6 @@ smol_k8s_lab/audio/en/**
 smol_k8s_lab/audio/nl/**
 
 
+# this is all appimage build related
+smol-k8s-lab/**
 pkg2appimage--x86_64.AppImage
