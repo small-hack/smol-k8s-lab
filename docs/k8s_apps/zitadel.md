@@ -1,8 +1,23 @@
 [Zitadel](https://zitadel.com/) is an Identity Management solution that includes acting as an OIDC provider.
 
-<a href="../../assets/images/screenshots/zitadel_screenshot.png">
-<img src="../../assets/images/screenshots/zitadel_screenshot.png" alt="screenshot of the Argo CD web interface showing the Zitadel app of apps in tree view mode. The zitadel app of apps has 5 children: zitadel-bitwarden-eso, zitadel-postgres-app-set, zitadel-s3-provider-app-set, zitadel-s3-pvc-app-set, and zitadel-web-app-set">
+<a href="https://github.com/small-hack/argocd-apps/assets/2389292/467fd0cf-36a7-47fd-80b8-4bd051ec0157">
+<img width="900" alt="screenshot of Argo CD web interface's tree view of a zitadel app of apps. The main app of apps branches off into the following appsets: external secrets, postgres, s3 provider, s3 PVC, and zitadel web app. Each of those then branches off into a similarly named app." src="https://github.com/small-hack/argocd-apps/assets/2389292/467fd0cf-36a7-47fd-80b8-4bd051ec0157">
 </a>
+
+<details>
+  <summary>More Argo CD Zitadel screenshots</summary>
+
+  ### Zitadel web app (official zitadel helm chart)
+  <a href="https://github.com/small-hack/argocd-apps/assets/2389292/e2bf4838-85cf-4f5b-9e1a-b98756fc357c">
+  <img width="900" alt="screenshot of Argo CD web interface's tree view of a zitadel web app in tree view mode. Includes the following child resources: zitadel config map, zitadel service, zitadel service account, zitadel deployment, zitadel init job, zitadel setup job, zitadel service monitor, zitadel ingress, zitadel role, zitadel role binding. The zitadel service then branches off into zitadel endpoint and zitadel endpointslice. The zitadel deployment branches off into a zitadel replica set which branches off into a zitadel pod. The zitadel init and setup jobs also branch off into their own completed pods, and finally, the zitadel ingress resource branches off into a zitadel TLS certificate" src="https://github.com/small-hack/argocd-apps/assets/2389292/e2bf4838-85cf-4f5b-9e1a-b98756fc357c">
+  </a>
+
+  ### Postgresql cluster
+  <a href="https://github.com/small-hack/argocd-apps/assets/2389292/366d40e5-2720-4cd8-a5e0-08025909a60d">
+  <img width="900" alt="screenshot of Argo CD web interface's tree view of a zitadel postgresql cluster in tree view. It shows the following secrets and coorsponding certificates: client cert, postgres cert, server secret, zitadel cert. Each of those then has their own cert request resource. Afte rthat there's 3 tls issuers: client ca, selfsigned, and server ca. Next there is the cluster, which branches off into a pvc, pod, secret for the app, secret for the super user, service for read, service for read only, service for read write, service account, pod disruption budget for the primary, role, and role binding" src="https://github.com/small-hack/argocd-apps/assets/2389292/366d40e5-2720-4cd8-a5e0-08025909a60d">
+  </a>
+
+</details>
 
 Zitadel is one of the more complex apps that `smol-k8s-lab` supports out of the box. For initialization, you need to pass in the following info:
 
