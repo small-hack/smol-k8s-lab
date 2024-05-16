@@ -24,7 +24,7 @@ from .networking.metallb import configure_metallb
 from .networking.cilium import configure_cilium
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
-from .secrets_management.vault import configure_vault
+from .secrets_management.openbao import configure_openbao
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
@@ -36,7 +36,7 @@ def setup_k8s_secrets_management(argocd: ArgoCD,
                                  eso_dict: dict = {},
                                  eso_provider: str = "",
                                  infisical_dict: dict = {},
-                                 vault_dict: dict = {},
+                                 openbao_dict: dict = {},
                                  bitwarden: BwCLI = None) -> None:
     """
     sets up k8s secrets management tooling
@@ -60,9 +60,10 @@ def setup_k8s_secrets_management(argocd: ArgoCD,
         header(header_msg, '🤫')
         configure_infisical(argocd, infisical_dict)
 
-    # setup hashicorp's vault, a secret key management system that works with eso
-    if vault_dict.get('enabled', False):
-        configure_vault(argocd, vault_dict)
+    # setup openbao, a fork of hashicorp's vault before it was not FOSS,
+    # it is a secret key management system that works with eso
+    if openbao_dict.get('enabled', False):
+        configure_openbao(argocd, openbao_dict)
 
 
 def setup_oidc_provider(argocd: ArgoCD,
