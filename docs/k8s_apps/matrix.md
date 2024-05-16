@@ -10,7 +10,7 @@
   <summary>Matrix helm chart app in Argo CD</summary>
 
   <a href="../../assets/images/screenshots/matrix-web-app.png">
-    <img src="../../assets/images/screenshots/matrix-web-app.png" alt="screenshot of the Argo CD web interface showing the matrix web app in tree view mode.">
+    <img src="../../assets/images/screenshots/matrix-web-app.png" alt="screenshot of the Argo CD web interface showing the matrix web app helm chart app in tree view mode.">
   </a>
 
 </details>
@@ -19,7 +19,7 @@
   <summary>Matrix networking view in Argo CD</summary>
 
   <a href="../../assets/images/screenshots/matrix-networking.png">
-    <img src="../../assets/images/screenshots/matrix-networking.png" alt="screenshot of the Argo CD web interface showing the matrix web app in tree view mode.">
+    <img src="../../assets/images/screenshots/matrix-networking.png" alt="screenshot of the Argo CD web interface showing the matrix web app in networking view mode. It shows a cloud on the left flowing into a box that says 192.168.168.168 which branches off into three ingress resources: matrix stack element, matrix stack synapse, and matrix stack synapse federation. The ingress resource for element, branches off into a service of the same name and then a pod of the same name. The synapse and synapse federation ingress resources branch off into two respective services that branch off into one shared pod called matrix stack synapse.">
   </a>
 
 </details>
