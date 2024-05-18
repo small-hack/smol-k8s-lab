@@ -62,6 +62,7 @@ class BaseApp(App):
         self.cluster_names = []
         self.current_cluster = ""
         accessibility = self.cfg['smol_k8s_lab']['tui']['accessibility']
+        self.bell_on_focs = accessibility['bell']['on_focus']
         self.speak_on_focus = accessibility['text_to_speech']['on_focus']
 
         super().__init__()
