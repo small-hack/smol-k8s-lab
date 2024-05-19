@@ -259,10 +259,11 @@ def drop_down(values: list,
                                 )
     select.tooltip = tooltip
 
+    sanitized_name = name.replace('_',"-")
     if extra_row_class:
-        classes = f"input-row {name.replace('_',"-")} {extra_row_class}"
+        classes = f"input-row {sanitized_name} {extra_row_class}"
     else:
-        classes = f"input-row {name.replace('_',"-")}"
+        classes = f"input-row {sanitized_name}"
 
     if label:
         return Horizontal(select_label, select, classes=classes)
