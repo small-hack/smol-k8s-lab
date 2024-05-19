@@ -13,12 +13,6 @@ from textual.worker import Worker
 from pygame import mixer, error
 import logging as log
 
-CORE_MIXER = mixer
-try:
-    CORE_MIXER.init()
-except error:
-    log.info("No audio device found")
-
 class SmolAudio(Widget):
     """
     widget to handle the audio of smol-k8s-lab. we handle beeps and
@@ -31,13 +25,15 @@ class SmolAudio(Widget):
         """
         self.cfg = user_config
 
-        # configure global accessibility
+        # get text to speech settings
         tts = self.cfg['text_to_speech']
+        self.speech_program = tts['speech_program']
         self.speak_on_focus = tts['on_focus']
         self.speak_screen_titles = tts['screen_titles']
         self.speak_screen_desc = tts['screen_descriptions']
         self.speak_on_key_press = tts['on_key_press']
-        self.speech_program = tts['speech_program']
+
+        # get beep settings
         self.bell_on_focus = self.cfg['bell']['on_focus']
 
         # core audio files
@@ -49,6 +45,16 @@ class SmolAudio(Widget):
         self.cluster_audio = path.join(self.tts_files, 'cluster_names')
         self.k3s_audio = path.join(self.cluster_audio, 'k3s.mp3')
         self.element_audio = path.join(self.tts_files, 'phrases/element.mp3')
+
+        # only initialize the mixer if audio is requested for something
+        if self.speak_on_focus or self.speak_screen_titles \
+                or self.speak_on_key_press or self.speak_screen_desc:
+            self.core_mixer = mixer
+            try:
+                self.core_mixer.init()
+            except error:
+                log.info("No audio device found")
+
         super().__init__()
 
     def on_mount(self) -> None:
@@ -60,13 +66,13 @@ class SmolAudio(Widget):
         play audio file with pygame
         """
         try:
-            audio = CORE_MIXER.Sound(audio_file)
+            audio = self.core_mixer.Sound(audio_file)
         except FileNotFoundError:
             self.log(f"audio file not found :( audio file is '{audio_file}'")
-            audio = CORE_MIXER.Sound(path.join(self.tts_files, 'phrases/um.mp3'))
+            audio = self.core_mixer.Sound(path.join(self.tts_files, 'phrases/um.mp3'))
 
         while True:
-            if not CORE_MIXER.get_busy():
+            if not self.core_mixer.get_busy():
                 break
         audio.play()
 
