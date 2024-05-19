@@ -451,6 +451,10 @@ apps:
     init:
       # enable the creation of an initial owner user
       enabled: true
+      restore:
+        enabled: false
+        restic_snapshot_ids:
+          home_assistant: latest
       values:
         # -- owner user's name
         admin_name: "admin"
@@ -1481,8 +1485,6 @@ apps:
       restic_repo_password:
         value_from:
           env: SEAWEEDFS_RESTIC_REPO_PASSWORD
-      endpoint: s3.eu-central-003.backblazeb2.com
-      region: eu-central-003
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
