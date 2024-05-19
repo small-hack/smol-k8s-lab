@@ -1,14 +1,14 @@
 ## TUI and Accessibility configuration
 
-You can configure the TUI (Terminal User Interface) either via the config file, or via the TUI itself.
+You can configure the TUI (Terminal User Interface), including accessibility features, either via the config file, or via the TUI itself.
 
-From any screen in the TUI, you can press ++c++ and it will bring up the TUI config.
+From any screen in the TUI, you can press ++c++ and it will bring up the Accessibility and TUI config screen.
 
 ![terminal screenshot showing the smol-k8s-lab configure accessibility options and tui config screen. There are two boxes. Box one: Configure accessibility features. The first header in the box says Terminal Bell config and features a section with two switches: bell on focus, and bell on error. The second header in the first box says Text to speech Config. Below are three rows. The first row has a input field for speech program with placeholder text that says name of program for speech. The 2nd row has two switches. Switch one is on key press, and the switch two is on focus. The final row in the 1st box has two switches. Switch one is screen titles, and switch two is screen descriptions. The second box on this screen is titled configure terminal UI and it features two switches. Box two's first switch is TUI enabled, and the second switch is footer enabaled.](../../assets/images/screenshots/tui_config_screen.svg)
 
-Some options may not take effect till you return to the start screen or restart the program.
+Some options may not take effect until you return to the start screen or restart the program.
 
-To exit the TUI config, just press ++q++ or ++esc++.
+To exit the TUI config screen, just press ++q++ or ++esc++.
 
 To checkout more information on configuring accessibility options via the config file, check out our examples [here](/config_file/#tui-and-accessibility-configuration).
 
@@ -44,6 +44,10 @@ There's a special screen that pops up just before the [confirmation screen](/tui
 ![terminal screenshot showing the smol-k8s-lab configure logging, password management, and run command config screen. The screen features three main boxes. Box one title is configure logging. It says configure logging for all of smol-k8s-lab. Below the text it has a level dropdown set to debug and a file input with no value. The seond box title is configure password manager. The text reads Save app credentials to a local password manager vault. Only Bitwarden is supported at this time, but if enabled, Bitwarden can be used as your k8s external secret provider. To avoid a password prompt, export the following env vars: BW_PASSWORD, BW_CLIENTID, BW_CLIENTSECRET. Below that is a row with an enabled switch and a duplicate strategy drop down menu set to edit. The final box on the screen is titled configure command to run after config. The text reads If window behavior is set to same window, command runs after smol-k8s-lab has completed. The first row in the box features a teminal dropdown set wezterm, and a window behavior drop down menu set to split right. The final row in the box is a command input field and it is set to k9s --command applications.argoproj.io](../../assets/images/screenshots/logging_password_config.svg)
 
 ## FAQ
+
+### I'm getting Alsa errors whenever I launch the TUI over SSH or on a machine without audio drivers.
+
+This is because we use your terminal bell or we're trying to use text to speech. You can disable text to speech and bell by hitting ++C++ anywhere in the TUI and then switching all the switches under Accessibility to the off position. Alternatively, you can disable all of this in the `$XDG_CONFIG_HOME/smol-k8s-lab/config.yaml` (If you don't have the `$XDG_CONFIG_HOME` env var configured, we will default to `~/.config/smol-k8s-lab/config.yaml`). See the [TUI and Accessibility config file docs](/config_file/#tui-and-accessibility-configuration) for more info on how to do this via the config file.
 
 ### Why does the `smol-k8s-lab` look weird in the default macOS terminal?
 

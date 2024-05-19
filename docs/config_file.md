@@ -14,6 +14,7 @@ You can checkout the full official current [default `config.yaml`](https://githu
 
 You can checkout more about the TUI in [our tui config section](/tui), but briefly please see the default configuration for in the yaml below:
 
+### Visual TUI config options
 ```yaml
 smol_k8s_lab:
   # Terminal User Interface with clickable buttons.
@@ -24,14 +25,27 @@ smol_k8s_lab:
     enabled: true
     # show bottom footer help bar
     show_footer: true
+```
+
+### Accessibility Options
+
+???+ tip
+    If you are using smol-k8s-lab via SSH or on a machine that does not have audio drivers installed, you may experience errors in the TUI related to Alsa not running. You can disable ALL of the text to speech and terminal bell features to make it go away.
+
+Below are all the currently supported accessibility features in the `smol-k8s-lab` TUI. If you have experience with python and screenreaders or working in the terminal using screen readers generally, please reach out on GitHub via an Issue or Discussion. We'd love your opinions and help on making our interface more accessible. We're also happy to hear more feed back on other accessibility features!
+
+
+#### Text to Speech
+
+These are all the options related to text to speech:
+
+```yaml
+smol_k8s_lab:
+  # Terminal User Interface with clickable buttons.
+  # Useful for learning smol-k8s-lab or verifying your configuration
+  tui:
     # accessibility options for users that benefit from TTS and Bell sounds
     accessibility:
-      # options related to terminal bell sounds
-      bell:
-        # ring the built in terminal bell on focus to new elements on the screen
-        on_focus: true
-        # ring the built in terminal bell when something is wrong
-        on_error: true
       # options related to text to speech
       text_to_speech:
         # language to speak in. so far only english supported
@@ -48,7 +62,24 @@ smol_k8s_lab:
         on_key_press: true
 ```
 
-Regarding the `smol_k8s_lab.tui.accessibility` section. If you have experience with programming python on linux to work with screenreaders or working in the terminal using screen readers generally, please reach out on GitHub via an Issue or Discussion. We'd love your opinions and help!
+#### Terminal Bell
+
+These options use your built in terminal bell:
+
+```yaml
+smol_k8s_lab:
+  # Terminal User Interface with clickable buttons.
+  # Useful for learning smol-k8s-lab or verifying your configuration
+  tui:
+    # accessibility options for users that benefit from TTS and Bell sounds
+    accessibility:
+      # options related to terminal bell sounds
+      bell:
+        # ring the built in terminal bell on focus to new elements on the screen
+        on_focus: true
+        # ring the built in terminal bell when something is wrong
+        on_error: true
+```
 
 ## Run command
 
