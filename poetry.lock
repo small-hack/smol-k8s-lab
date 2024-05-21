@@ -3807,6 +3807,20 @@ files = [
 six = ">=1.5"
 
 [[package]]
+name = "python-ulid"
+version = "2.5.0"
+description = "Universally unique lexicographically sortable identifier"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "python_ulid-2.5.0-py3-none-any.whl", hash = "sha256:f5abfc3bbab8476abaaf8cec534f2285383586a1e2f8118831eba4d962b4fa55"},
+    {file = "python_ulid-2.5.0.tar.gz", hash = "sha256:d000bc05bf3e7f4a56507f72b02bcbb0cb0170da102cf17af39c59ea946050dc"},
+]
+
+[package.extras]
+pydantic = ["pydantic (>=2.0)"]
+
+[[package]]
 name = "pytz"
 version = "2024.1"
 description = "World timezone definitions, modern and historical"
@@ -5553,4 +5567,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "18065df8821e745cd01cd31c70ffa100b9d6cb3948cebe6636c18ffb86cfd303"
+content-hash = "c52bbec8a90309230afdda3fb7b05a415f8aee1a23a2f6048dec1153b492adf0"

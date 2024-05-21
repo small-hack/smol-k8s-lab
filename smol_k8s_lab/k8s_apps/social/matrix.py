@@ -139,6 +139,20 @@ def configure_matrix(argocd: ArgoCD,
                      'password': oidc_creds['client_secret'],
                      'issuer': zitadel.hostname}
                     )
+            # matrix-athentication-service secret
+            mas_client_secret = create_password()
+            mas_admin_token = create_password()
+            argocd.k8s.create_secret(
+                    'matrix-authentication-service-secret',
+                    'matrix',
+                    {'issuer': zitadel.hostname,
+                     'client_id': "",
+                     'client_auth_method': "client_secret_basic",
+                     'client_secret': mas_client_secret,
+                     'admin_token': mas_admin_token,
+                     'account_management_url': zitadel.hostname}
+                    )
+
 
     if not app_installed:
         # if the user is restoring, the process is a little different
