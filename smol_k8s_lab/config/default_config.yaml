@@ -12,9 +12,9 @@ smol_k8s_lab:
     accessibility:
       bell:
         # ring the built in terminal bell on focus to new elements on the screen
-        on_focus: true
+        on_focus: false
         # ring the built in terminal bell when something is wrong
-        on_error: true
+        on_error: false
       text_to_speech:
         # currently only english (en) and nederlands (nl) are available, but if you know
         # other languages, please help us translate (open an issue or discussion
@@ -27,7 +27,7 @@ smol_k8s_lab:
         # read aloud the screen title
         screen_titles: true
         # read aloud the screen description
-        screen_descriptions: true
+        screen_descriptions: false
         # read aloud the element id, value, and tooltip each time you switch focus
         on_focus: false
         # press f5 to read the element id and selected row of DataTables
