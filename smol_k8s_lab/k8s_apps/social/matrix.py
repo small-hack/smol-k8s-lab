@@ -96,7 +96,7 @@ def configure_matrix(argocd: ArgoCD,
             zitadel.update_user_grant(['matrix_users'])
             zitadel_hostname = zitadel.hostname
             mas_issuer = f"https://{zitadel.hostname}"
-            mas_client_id = str(ULID)
+            mas_client_id = str(ULID())
             mas_client_secret = create_password()
             mas_admin_token = create_password()
         else:
