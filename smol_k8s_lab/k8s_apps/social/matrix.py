@@ -131,7 +131,25 @@ def configure_matrix(argocd: ArgoCD,
             argocd.k8s.create_secret(
                     'matrix-pgsql-credentials',
                     'matrix',
-                    {"password": "we-use-tls-instead-of-password-now"}
+                    {"password": "we-use-tls-instead-of-password-now",
+                     "database": "matrix-postgres",
+                     "hostname": f"matrix-postgres-rw.{matrix_namespace}.svc"}
+                    )
+
+            argocd.k8s.create_secret(
+                    'mas-pgsql-credentials',
+                    'matrix',
+                    {"password": "we-use-tls-instead-of-password-now",
+                     "database": "mas",
+                     "hostname": f"mas-rw.{matrix_namespace}.svc"}
+                    )
+
+            argocd.k8s.create_secret(
+                    'sliding-sync-pgsql-credentials',
+                    'matrix',
+                    {"password": "we-use-tls-instead-of-password-now",
+                     "database": "syncv3",
+                     "hostname": f"syncv3-rw.{matrix_namespace}.svc"}
                     )
 
             # registation key
@@ -316,7 +334,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
             )
 
     # postgresql credentials
-    # matrix_pgsql_password = bitwarden.generate()
     db_hostname_obj = create_custom_field("hostname",
                                           f"matrix-postgres-rw.{matrix_namespace}.svc")
     # the database name
@@ -325,6 +342,30 @@ def setup_bitwarden_items(argocd: ArgoCD,
             name='matrix-pgsql-credentials',
             item_url=matrix_hostname,
             user='matrix',
+            password="we-use-tls-instead-of-password-now",
+            fields=[db_hostname_obj, db_obj]
+            )
+
+    # postgres matrix authentication service credentials
+    db_hostname_obj = create_custom_field("hostname",
+                                          f"mas-rw.{matrix_namespace}.svc")
+    db_obj = create_custom_field("database", "mas")
+    db_id = bitwarden.create_login(
+            name='mas-pgsql-credentials',
+            item_url=matrix_hostname,
+            user='mas',
+            password="we-use-tls-instead-of-password-now",
+            fields=[db_hostname_obj, db_obj]
+            )
+
+    # postgres sliding sync credentials
+    db_hostname_obj = create_custom_field("hostname",
+                                          f"syncv3-rw.{matrix_namespace}.svc")
+    db_obj = create_custom_field("database", "syncv3")
+    db_id = bitwarden.create_login(
+            name='syncv3-pgsql-credentials',
+            item_url=matrix_hostname,
+            user='syncv3',
             password="we-use-tls-instead-of-password-now",
             fields=[db_hostname_obj, db_obj]
             )
