@@ -1,3 +1,4 @@
+# internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
@@ -10,7 +11,9 @@ from smol_k8s_lab.utils.value_from import process_backup_vals, extract_secret
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
+# external libraries
 import logging as log
+from ulid import ULID
 
 
 def configure_matrix(argocd: ArgoCD,
@@ -92,6 +95,10 @@ def configure_matrix(argocd: ArgoCD,
             zitadel.create_role("matrix_users", "Matrix Users", "matrix_users")
             zitadel.update_user_grant(['matrix_users'])
             zitadel_hostname = zitadel.hostname
+            mas_issuer = f"https://{zitadel.hostname}"
+            mas_client_id = str(ULID)
+            mas_client_secret = create_password()
+            mas_admin_token = create_password()
         else:
             zitadel_hostname = ""
 
@@ -110,8 +117,12 @@ def configure_matrix(argocd: ArgoCD,
                                   mail_host,
                                   mail_user,
                                   mail_pass,
-                                  oidc_creds,
                                   zitadel_hostname,
+                                  oidc_creds,
+                                  mas_issuer,
+                                  mas_client_id,
+                                  mas_client_secret,
+                                  mas_admin_token,
                                   bitwarden)
 
         # else create these as Kubernetes secrets
@@ -131,28 +142,27 @@ def configure_matrix(argocd: ArgoCD,
                     {"registrationSharedSecret": matrix_registration_key}
                     )
 
-            # oidc secret
-            argocd.k8s.create_secret(
-                    'matrix-oidc-credentials',
-                    'matrix',
-                    {'user': oidc_creds['client_id'],
-                     'password': oidc_creds['client_secret'],
-                     'issuer': zitadel.hostname}
-                    )
-            # matrix-athentication-service secret
-            mas_client_secret = create_password()
-            mas_admin_token = create_password()
-            argocd.k8s.create_secret(
-                    'matrix-authentication-service-secret',
-                    'matrix',
-                    {'issuer': zitadel.hostname,
-                     'client_id': "",
-                     'client_auth_method': "client_secret_basic",
-                     'client_secret': mas_client_secret,
-                     'admin_token': mas_admin_token,
-                     'account_management_url': zitadel.hostname}
-                    )
+            if zitadel:
+                # oidc secret
+                argocd.k8s.create_secret(
+                        'matrix-oidc-credentials',
+                        'matrix',
+                        {'user': oidc_creds['client_id'],
+                         'password': oidc_creds['client_secret'],
+                         'issuer': zitadel.hostname}
+                        )
 
+                # matrix-athentication-service secret
+                argocd.k8s.create_secret(
+                        'matrix-authentication-service-secret',
+                        'matrix',
+                        {'issuer': mas_issuer,
+                         'client_id': mas_client_id,
+                         'client_auth_method': "client_secret_basic",
+                         'client_secret': mas_client_secret,
+                         'admin_token': mas_admin_token,
+                         'account_management_url': zitadel.hostname}
+                        )
 
     if not app_installed:
         # if the user is restoring, the process is a little different
@@ -248,9 +258,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mail_host: str,
                           mail_user: str,
                           mail_pass: str,
-                          oidc_creds: str,
                           zitadel_hostname: str,
-                          bitwarden):
+                          oidc_creds: str,
+                          mas_issuer: str,
+                          mas_client_id: str,
+                          mas_client_secret: str,
+                          mas_admin_token: str,
+                          bitwarden: BwCLI):
     """
     setup all the required secrets as items in bitwarden
     """
@@ -339,10 +353,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
     if zitadel_hostname:
         idp_id = "zitadel"
         idp_name = "Zitadel Auth"
+        issuer_url = "https://" + zitadel_hostname
+
         if oidc_creds:
-            issuer_obj = create_custom_field("issuer", "https://" + zitadel_hostname)
+            issuer_obj = create_custom_field("issuer", issuer_url)
             idp_id_obj = create_custom_field("idp_id", idp_id)
             idp_name_obj = create_custom_field("idp_name", idp_name)
+
+            # for the credentials to zitadel
             oidc_id = bitwarden.create_login(
                     name='matrix-oidc-credentials',
                     item_url=matrix_hostname,
@@ -350,10 +368,25 @@ def setup_bitwarden_items(argocd: ArgoCD,
                     password=oidc_creds['client_secret'],
                     fields=[issuer_obj, idp_id_obj, idp_name_obj]
                     )
+
+            # for credentials b/w matrix authentication service and synapse (matrix homeserver)
+            mas_token_obj = create_custom_field("admin_token", mas_admin_token)
+            acct_url_obj = create_custom_field("account_management_url", issuer_url)
+            issuer_obj = create_custom_field("issuer", mas_issuer)
+            mas_id = bitwarden.create_login(
+                    name='matrix-authentication-service-credentials',
+                    item_url=matrix_hostname,
+                    user=mas_client_id,
+                    password=mas_client_secret,
+                    fields=[issuer_obj, mas_token_obj, acct_url_obj]
+                    )
         else:
             # we assume the credentials already exist if they fail to create
             oidc_id = bitwarden.get_item(
                     f"matrix-oidc-credentials-{matrix_hostname}"
+                    )[0]['id']
+            mas_id = bitwarden.get_item(
+                    f"matrix-authentication-service-credentials-{matrix_hostname}"
                     )[0]['id']
 
     # update the matrix values for the argocd appset
@@ -366,6 +399,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_s3_backups_credentials_bitwarden_id': s3_backups_id,
              'matrix_postgres_credentials_bitwarden_id': db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id,
+             'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id})
 
