@@ -878,19 +878,20 @@ apps:
   matrix:
     description: |
       [link=https://matrix.org/]Matrix[/link] is an open protocol for decentralised, secure communications.
-      This deploys a matrix synapse server, element (web frontend), and turn server (voice)
+      This deploys synapse (as your matrix home server), element (as a web frontend), coturn (as a turn server for voice), and optionally matrix authentication service/matrix sliding sync if you enable the beta. (see below for more info)
 
       smol-k8s-lab supports initialization by creating initial secrets for your:
-        - matrix, element, and federation hostnames,
-        - credentials for: postgresql, admin user, S3 storage, and SMTP
+        - matrix, element, and federation hostnames (and optionally a sliding sync hostname)
+        - credentials for: postgresql, admin user, S3 storage, SMTP, and optionally matrix authentication service
 
-      smol-k8s-lab also sets up an OIDC application via Zitadel.
+      smol-k8s-lab also sets up an OIDC application via Zitadel. By default, we use the stable matrix Argo CD application directory, but if you'd like to start trying to the new [link=https://element.io/labs/element-x]element-x[/link] (the element beta apps), change the argo path to [gold3]app_of_apps_beta/[/gold3] and we will also deploy the [link=https://matrix-org.github.io/matrix-authentication-service/setup/homeserver.html]matrix authentication service[/link] as well as [link=https://github.com/matrix-org/sliding-sync]matrix sliding sync[/link].
 
       To provide sensitive values via environment variables to smol-k8s-lab use:
         - MATRIX_SMTP_PASSWORD
         - MATRIX_S3_BACKUP_ACCESS_ID
         - MATRIX_S3_BACKUP_SECRET_KEY
         - MATRIX_RESTIC_REPO_PASSWORD
+
     enabled: false
     init:
       enabled: true
@@ -952,6 +953,10 @@ apps:
         element_hostname: ""
         # hostname for federation, that others can see you on the fediverse
         federation_hostname: ""
+        # sliding sync hostname to use for beta features
+        sliding_sync_hostname: "sliding sync hostname to use for beta features"
+        # auth hostname to use for beta features
+        auth_hostname: "auth hostname to use for beta features"
         # email for of the admin user
         admin_email: ""
         # enable persistent volume claim for matrix media storage
