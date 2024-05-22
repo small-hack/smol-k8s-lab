@@ -348,7 +348,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # postgres matrix authentication service credentials
     db_hostname_obj = create_custom_field("hostname",
-                                          f"mas-rw.{matrix_namespace}.svc")
+                                          f"mas-postgres-rw.{matrix_namespace}.svc")
     db_obj = create_custom_field("database", "mas")
     db_id = bitwarden.create_login(
             name='mas-pgsql-credentials',
@@ -360,7 +360,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # postgres sliding sync credentials
     db_hostname_obj = create_custom_field("hostname",
-                                          f"syncv3-rw.{matrix_namespace}.svc")
+                                          f"syncv3-postgres-rw.{matrix_namespace}.svc")
     db_obj = create_custom_field("database", "syncv3")
     db_id = bitwarden.create_login(
             name='syncv3-pgsql-credentials',
