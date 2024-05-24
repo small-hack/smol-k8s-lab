@@ -99,6 +99,7 @@ def configure_matrix(argocd: ArgoCD,
             mas_client_id = str(ULID())
             mas_client_secret = create_password()
             mas_admin_token = create_password()
+            sliding_sync_secret = create_password()
         else:
             zitadel_hostname = ""
 
@@ -123,6 +124,7 @@ def configure_matrix(argocd: ArgoCD,
                                   mas_client_id,
                                   mas_client_secret,
                                   mas_admin_token,
+                                  sliding_sync_secret,
                                   bitwarden)
 
         # else create these as Kubernetes secrets
@@ -239,6 +241,22 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
             f"matrix-pgsql-credentials-{matrix_hostname}", False
             )[0]['id']
 
+    sync_db_id = bitwarden.get_item(
+            f"syncv3-pgsql-credentials-{matrix_hostname}", False
+            )[0]['id']
+
+    mas_db_id = bitwarden.get_item(
+            f"mas-pgsql-credentials-{matrix_hostname}", False
+            )[0]['id']
+
+    mas_id = bitwarden.get_item(
+            f"matrix-authentication-service-credentials-{matrix_hostname}", False
+            )[0]['id']
+
+    sync_id = bitwarden.get_item(
+            f"matrix-sliding-sync-credentials-{matrix_hostname}", False
+            )[0]['id']
+
     oidc_id = bitwarden.get_item(
             f"matrix-oidc-credentials-{matrix_hostname}", False
             )[0]
@@ -258,6 +276,10 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
              'matrix_s3_matrix_credentials_bitwarden_id': s3_id,
              'matrix_s3_backups_credentials_bitwarden_id': s3_backups_id,
              'matrix_postgres_credentials_bitwarden_id': db_id,
+             'matrix_sliding_sync_bitwarden_id': sync_id,
+             'matrx_mas_postgres_credentials_bitwarden_id': mas_db_id,
+             'matrix_authentication_service_bitwarden_id': mas_id,
+             'matrix_sliding_sync_postgres_credentials_bitwarden_id': sync_db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id})
@@ -282,6 +304,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mas_client_id: str,
                           mas_client_secret: str,
                           mas_admin_token: str,
+                          sliding_sync_secret: str,
                           bitwarden: BwCLI):
     """
     setup all the required secrets as items in bitwarden
@@ -334,8 +357,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
             )
 
     # postgresql credentials
-    db_hostname_obj = create_custom_field("hostname",
-                                          f"matrix-postgres-rw.{matrix_namespace}.svc")
+    db_host_obj = create_custom_field("hostname",
+                                      f"matrix-postgres-rw.{matrix_namespace}.svc")
     # the database name
     db_obj = create_custom_field("database", "matrix")
     db_id = bitwarden.create_login(
@@ -343,31 +366,32 @@ def setup_bitwarden_items(argocd: ArgoCD,
             item_url=matrix_hostname,
             user='matrix',
             password="we-use-tls-instead-of-password-now",
-            fields=[db_hostname_obj, db_obj]
+            fields=[db_host_obj, db_obj]
             )
 
     # postgres matrix authentication service credentials
-    db_hostname_obj = create_custom_field("hostname",
+    mas_db_host_obj = create_custom_field("hostname",
                                           f"mas-postgres-rw.{matrix_namespace}.svc")
-    db_obj = create_custom_field("database", "mas")
-    db_id = bitwarden.create_login(
+    mas_db_obj = create_custom_field("database", "mas")
+    mas_db_id = bitwarden.create_login(
             name='mas-pgsql-credentials',
             item_url=matrix_hostname,
             user='mas',
             password="we-use-tls-instead-of-password-now",
-            fields=[db_hostname_obj, db_obj]
+            fields=[mas_db_host_obj, mas_db_obj]
             )
 
-    # postgres sliding sync credentials
-    db_hostname_obj = create_custom_field("hostname",
-                                          f"syncv3-postgres-rw.{matrix_namespace}.svc")
-    db_obj = create_custom_field("database", "syncv3")
-    db_id = bitwarden.create_login(
+    # postgres sliding sync connection string
+    conn_str = ("user=syncv3 dbname=syncv3 "
+                f"host=syncv3-postgres-rw.{matrix_namespace}.svc sslmode=require"
+                "sslkey=/etc/secrets/sliding-sync/tls.key "
+                "sslcert=/etc/secrets/sliding-sync/tls.crt "
+                "sslrootcert=/etc/secrets/ca/ca.crt")
+    sync_db_id = bitwarden.create_login(
             name='syncv3-pgsql-credentials',
             item_url=matrix_hostname,
             user='syncv3',
-            password="we-use-tls-instead-of-password-now",
-            fields=[db_hostname_obj, db_obj]
+            password=conn_str,
             )
 
     # SMTP credentials
@@ -421,6 +445,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
                     password=mas_client_secret,
                     fields=[issuer_obj, mas_token_obj, acct_url_obj]
                     )
+
+            sync_id = bitwarden.create_login(
+                    name='matrix-sliding-sync-credentials',
+                    item_url=matrix_hostname,
+                    user="syncv3",
+                    password=sliding_sync_secret
+                    )
         else:
             # we assume the credentials already exist if they fail to create
             oidc_id = bitwarden.get_item(
@@ -439,6 +470,9 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_s3_matrix_credentials_bitwarden_id': s3_id,
              'matrix_s3_backups_credentials_bitwarden_id': s3_backups_id,
              'matrix_postgres_credentials_bitwarden_id': db_id,
+             'matrix_sliding_sync_bitwarden_id': sync_id,
+             'matrx_mas_postgres_credentials_bitwarden_id': mas_db_id,
+             'matrix_sliding_sync_postgres_credentials_bitwarden_id': sync_db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id,
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_idp_name': idp_name,
