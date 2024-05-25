@@ -413,6 +413,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=matrix_registration_key
             )
 
+    # matrix sliding sync
+    sync_id = bitwarden.create_login(
+            name='matrix-sliding-sync-credentials',
+            item_url=matrix_hostname,
+            user="syncv3",
+            password=sliding_sync_secret
+            )
+
     # OIDC credentials
     log.info("Creating OIDC credentials for Matrix in Bitwarden")
     if zitadel_hostname:
@@ -445,13 +453,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
                     password=mas_client_secret,
                     fields=[issuer_obj, mas_token_obj, acct_url_obj]
                     )
-
-            sync_id = bitwarden.create_login(
-                    name='matrix-sliding-sync-credentials',
-                    item_url=matrix_hostname,
-                    user="syncv3",
-                    password=sliding_sync_secret
-                    )
         else:
             # we assume the credentials already exist if they fail to create
             oidc_id = bitwarden.get_item(
@@ -471,7 +472,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_s3_backups_credentials_bitwarden_id': s3_backups_id,
              'matrix_postgres_credentials_bitwarden_id': db_id,
              'matrix_sliding_sync_bitwarden_id': sync_id,
-             'matrx_mas_postgres_credentials_bitwarden_id': mas_db_id,
+             'matrix_mas_postgres_credentials_bitwarden_id': mas_db_id,
              'matrix_sliding_sync_postgres_credentials_bitwarden_id': sync_db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id,
              'matrix_authentication_service_bitwarden_id': mas_id,
