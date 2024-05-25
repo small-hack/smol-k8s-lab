@@ -97,6 +97,7 @@ def configure_matrix(argocd: ArgoCD,
             zitadel_hostname = zitadel.hostname
             mas_issuer = f"https://{zitadel.hostname}"
             mas_client_id = str(ULID())
+            mas_provider_ulid = str(ULID())
             mas_client_secret = create_password()
             mas_admin_token = create_password()
             sliding_sync_secret = create_password()
@@ -120,6 +121,7 @@ def configure_matrix(argocd: ArgoCD,
                                   mail_pass,
                                   zitadel_hostname,
                                   oidc_creds,
+                                  mas_provider_ulid,
                                   mas_issuer,
                                   mas_client_id,
                                   mas_client_secret,
@@ -176,7 +178,8 @@ def configure_matrix(argocd: ArgoCD,
                 argocd.k8s.create_secret(
                         'matrix-authentication-service-secret',
                         'matrix',
-                        {'issuer': mas_issuer,
+                        {'provider_id': mas_provider_ulid,
+                         'issuer': mas_issuer,
                          'client_id': mas_client_id,
                          'client_auth_method': "client_secret_basic",
                          'client_secret': mas_client_secret,
@@ -300,6 +303,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mail_pass: str,
                           zitadel_hostname: str,
                           oidc_creds: str,
+                          mas_provider_ulid: str,
                           mas_issuer: str,
                           mas_client_id: str,
                           mas_client_secret: str,
@@ -446,12 +450,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
             mas_token_obj = create_custom_field("admin_token", mas_admin_token)
             acct_url_obj = create_custom_field("account_management_url", issuer_url)
             issuer_obj = create_custom_field("issuer", mas_issuer)
+            provider_ulid_obj = create_custom_field("provider_id", mas_provider_ulid)
             mas_id = bitwarden.create_login(
                     name='matrix-authentication-service-credentials',
                     item_url=matrix_hostname,
                     user=mas_client_id,
                     password=mas_client_secret,
-                    fields=[issuer_obj, mas_token_obj, acct_url_obj]
+                    fields=[issuer_obj, mas_token_obj, acct_url_obj, provider_ulid_obj]
                     )
         else:
             # we assume the credentials already exist if they fail to create
