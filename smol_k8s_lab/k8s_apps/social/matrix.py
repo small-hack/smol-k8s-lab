@@ -277,7 +277,7 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
              'matrix_s3_backups_credentials_bitwarden_id': s3_backups_id,
              'matrix_postgres_credentials_bitwarden_id': db_id,
              'matrix_sliding_sync_bitwarden_id': sync_id,
-             'matrx_mas_postgres_credentials_bitwarden_id': mas_db_id,
+             'matrix_mas_postgres_credentials_bitwarden_id': mas_db_id,
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_sliding_sync_postgres_credentials_bitwarden_id': sync_db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
