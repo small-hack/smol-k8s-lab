@@ -247,17 +247,6 @@ files = [
 dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
-name = "bangla"
-version = "0.0.2"
-description = "Bangla is a package for Bangla language users with various functionalities including Bangla date and Bangla numeric conversation."
-optional = false
-python-versions = "*"
-files = [
-    {file = "bangla-0.0.2-py2.py3-none-any.whl", hash = "sha256:60c52bb4614894de4a91ee997bf950d03545d1fb9b01196577ce04ed4fa00ff8"},
-    {file = "bangla-0.0.2.tar.gz", hash = "sha256:17c8fd501321660077d5ab6a79b746bba71f9e4939ef78ac0d9a75d7bd715da8"},
-]
-
-[[package]]
 name = "bcrypt"
 version = "4.1.3"
 description = "Modern password hashing for your software and your servers"
@@ -342,26 +331,6 @@ files = [
 
 [package.dependencies]
 numpy = {version = ">=1.19.0", markers = "python_version >= \"3.9\""}
-
-[[package]]
-name = "bnnumerizer"
-version = "0.0.2"
-description = "Bangla Number text to String Converter"
-optional = false
-python-versions = "*"
-files = [
-    {file = "bnnumerizer-0.0.2.tar.gz", hash = "sha256:41df6fd0b7b51aa4ec4776b6643cedebee5fd11e335d7d56d4a20c08515e5f0d"},
-]
-
-[[package]]
-name = "bnunicodenormalizer"
-version = "0.1.6"
-description = "Bangla Unicode Normalization Toolkit"
-optional = false
-python-versions = "*"
-files = [
-    {file = "bnunicodenormalizer-0.1.6.tar.gz", hash = "sha256:a950bafb44a702cdb90c5cca3c71543a860f96b46f906585a6d8c85689bcc093"},
-]
 
 [[package]]
 name = "cachetools"
@@ -692,41 +661,33 @@ files = [
 
 [[package]]
 name = "coqui-tts"
-version = "0.23.1"
+version = "0.24.0"
 description = "Deep learning for Text to Speech."
 optional = false
-python-versions = "<3.13,>=3.9.0"
+python-versions = "<3.13,>=3.9"
 files = [
-    {file = "coqui_tts-0.23.1-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:6437c437944f51ce387e1e8d2d6b40d6b9d7ca531fcc5e31d4adb427de4af185"},
-    {file = "coqui_tts-0.23.1-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:fbed9fbeabd09857c2a0995bbc029fb2b550212f25e72732f4cf1991592d731a"},
-    {file = "coqui_tts-0.23.1-cp312-cp312-manylinux1_x86_64.whl", hash = "sha256:5e3def565fdedbf703bec42e9a983c856cd4464e609bef331cb4ead6f8fb39a0"},
-    {file = "coqui_tts-0.23.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:17cd5941c5ff55873a5dcb74d3427c68819efd5eab6bdab9b8b6479567733856"},
-    {file = "coqui_tts-0.23.1.tar.gz", hash = "sha256:58ec22189198cdcef2c154d1394a74d510f06ee56aeeccad13ada8a1ccd7669c"},
+    {file = "coqui_tts-0.24.0-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:4e7ba0877b8806c752a7f0e35950db5b7fcb3ec7d30c124ff049c30f38437f4b"},
+    {file = "coqui_tts-0.24.0-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:4358db01340987245e3731dfbc7a6f6a49b0b3fde6425d5a8c3d740f53fcaa46"},
+    {file = "coqui_tts-0.24.0-cp312-cp312-manylinux1_x86_64.whl", hash = "sha256:85e375705354ea2c5520c0f9542128bcc90331111a650adf11a0e0245f0b68c0"},
+    {file = "coqui_tts-0.24.0-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:a4750baac17097a5c2b1830c8e34ce4c25030925b04f5544b392d6d91331e408"},
+    {file = "coqui_tts-0.24.0.tar.gz", hash = "sha256:a8414d39bbd36db9b500749aa44e163b627672dca6725437c5b8e96e6d2d5ef8"},
 ]
 
 [package.dependencies]
 anyascii = ">=0.3.0"
-bangla = "*"
-bnnumerizer = "*"
-bnunicodenormalizer = "*"
 coqpit = ">=0.0.16"
 coqui-tts-trainer = ">=0.1"
 cython = ">=0.29.30"
 einops = ">=0.6.0"
 encodec = ">=0.1.1"
 fsspec = {version = ">=2023.6.0", extras = ["http"]}
-g2pkk = ">=0.1.1"
 gruut = {version = "2.2.3", extras = ["de", "es", "fr"]}
-hangul-romanize = "*"
 inflect = ">=5.6.0"
-jamo = "*"
-jieba = "*"
 librosa = ">=0.10.1"
 matplotlib = ">=3.7.0"
 num2words = "*"
 numpy = ">=1.24.3"
 packaging = ">=23.1"
-pypinyin = "*"
 pysbd = ">=0.3.4"
 pyyaml = ">=6.0"
 scipy = ">=1.11.2"
@@ -739,11 +700,16 @@ transformers = ">=4.33.0"
 umap-learn = ">=0.5.1"
 
 [package.extras]
-all = ["black (==24.2.0)", "bokeh (==1.4.0)", "coverage[toml]", "cutlet", "flask (>=2.0.1)", "mecab-python3", "nose2", "pandas (>=1.4,<2.0)", "ruff (==0.3.0)", "unidic-lite (==1.0.8)"]
-dev = ["black (==24.2.0)", "coverage[toml]", "nose2", "ruff (==0.3.0)"]
+all = ["coqui-tts[bn,ja,ko,notebooks,server,zh]"]
+bn = ["bangla", "bnnumerizer", "bnunicodenormalizer"]
+dev = ["black (==24.2.0)", "coverage[toml]", "nose2", "pre-commit", "ruff (==0.3.0)", "tomli"]
+docs = ["furo", "linkify-it-py", "myst-parser (==2.0.0)", "sphinx (==7.2.5)", "sphinx-copybutton", "sphinx-inline-tabs"]
 ja = ["cutlet", "mecab-python3", "unidic-lite (==1.0.8)"]
+ko = ["g2pkk (>=0.1.1)", "hangul-romanize", "jamo"]
+languages = ["coqui-tts[bn,ja,ko,zh]"]
 notebooks = ["bokeh (==1.4.0)", "pandas (>=1.4,<2.0)"]
 server = ["flask (>=2.0.1)"]
+zh = ["jieba", "pypinyin"]
 
 [[package]]
 name = "coqui-tts-trainer"
@@ -1252,21 +1218,6 @@ test-full = ["adlfs", "aiohttp (!=4.0.0a0,!=4.0.0a1)", "cloudpickle", "dask", "d
 tqdm = ["tqdm"]
 
 [[package]]
-name = "g2pkk"
-version = "0.1.2"
-description = "g2pkk: g2p module for Korean(cross platform)"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "g2pkk-0.1.2-py3-none-any.whl", hash = "sha256:f1d551f35d3b9065f75749c724e65b28731fdc3262e5e9657cb57e3f7b5dcac3"},
-    {file = "g2pkk-0.1.2.tar.gz", hash = "sha256:61aad5d41b67d71dd29b8570fc90d2c89cb76493170101d92492649521b447e4"},
-]
-
-[package.dependencies]
-jamo = "*"
-nltk = "*"
-
-[[package]]
 name = "ghp-import"
 version = "2.1.0"
 description = "Copy your docs directly to the gh-pages branch."
@@ -1458,17 +1409,6 @@ files = [
 ]
 
 [[package]]
-name = "hangul-romanize"
-version = "0.1.0"
-description = "Rominize Hangul strings."
-optional = false
-python-versions = "*"
-files = [
-    {file = "hangul-romanize-0.1.0.tar.gz", hash = "sha256:fae69ba181af6e75a86460fd7f57a6b304cd5f1973d8c425ed8602fee2c9276c"},
-    {file = "hangul_romanize-0.1.0-py3-none-any.whl", hash = "sha256:7b8ba54b624ca3b17b2c9394b971cd595c4240a31cc0fc6bc1c3e971eca8c4d5"},
-]
-
-[[package]]
 name = "huggingface-hub"
 version = "0.23.1"
 description = "Client library to download and publish models, datasets and other repos on the huggingface.co hub"
@@ -1556,27 +1496,6 @@ files = [
     {file = "intel_openmp-2021.4.0-py2.py3-none-manylinux1_x86_64.whl", hash = "sha256:e2240ab8d01472fed04f3544a878cda5da16c26232b7ea1b59132dbfb48b186e"},
     {file = "intel_openmp-2021.4.0-py2.py3-none-win32.whl", hash = "sha256:6e863d8fd3d7e8ef389d52cf97a50fe2afe1a19247e8c0d168ce021546f96fc9"},
     {file = "intel_openmp-2021.4.0-py2.py3-none-win_amd64.whl", hash = "sha256:eef4c8bcc8acefd7f5cd3b9384dbf73d59e2c99fc56545712ded913f43c4a94f"},
-]
-
-[[package]]
-name = "jamo"
-version = "0.4.1"
-description = "A Hangul syllable and jamo analyzer."
-optional = false
-python-versions = "*"
-files = [
-    {file = "jamo-0.4.1-py3-none-any.whl", hash = "sha256:d4b94fd23324c606ed2fbc4037c603e2c3a7ae9390c05d3473aea1ccb6b1c3fb"},
-    {file = "jamo-0.4.1.tar.gz", hash = "sha256:ea65cf9d35338d0e0af48d75ff426d8a369b0ebde6f07051c3ac37256f56d025"},
-]
-
-[[package]]
-name = "jieba"
-version = "0.42.1"
-description = "Chinese Words Segmentation Utilities"
-optional = false
-python-versions = "*"
-files = [
-    {file = "jieba-0.42.1.tar.gz", hash = "sha256:055ca12f62674fafed09427f176506079bc135638a14e23e25be909131928db2"},
 ]
 
 [[package]]
@@ -1977,9 +1896,13 @@ files = [
     {file = "lxml-5.2.2-cp36-cp36m-win_amd64.whl", hash = "sha256:edcfa83e03370032a489430215c1e7783128808fd3e2e0a3225deee278585196"},
     {file = "lxml-5.2.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:28bf95177400066596cdbcfc933312493799382879da504633d16cf60bba735b"},
     {file = "lxml-5.2.2-cp37-cp37m-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:3a745cc98d504d5bd2c19b10c79c61c7c3df9222629f1b6210c0368177589fb8"},
+    {file = "lxml-5.2.2-cp37-cp37m-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:1b590b39ef90c6b22ec0be925b211298e810b4856909c8ca60d27ffbca6c12e6"},
     {file = "lxml-5.2.2-cp37-cp37m-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:b336b0416828022bfd5a2e3083e7f5ba54b96242159f83c7e3eebaec752f1716"},
+    {file = "lxml-5.2.2-cp37-cp37m-manylinux_2_28_aarch64.whl", hash = "sha256:c2faf60c583af0d135e853c86ac2735ce178f0e338a3c7f9ae8f622fd2eb788c"},
     {file = "lxml-5.2.2-cp37-cp37m-manylinux_2_28_x86_64.whl", hash = "sha256:4bc6cb140a7a0ad1f7bc37e018d0ed690b7b6520ade518285dc3171f7a117905"},
+    {file = "lxml-5.2.2-cp37-cp37m-musllinux_1_1_aarch64.whl", hash = "sha256:7ff762670cada8e05b32bf1e4dc50b140790909caa8303cfddc4d702b71ea184"},
     {file = "lxml-5.2.2-cp37-cp37m-musllinux_1_1_x86_64.whl", hash = "sha256:57f0a0bbc9868e10ebe874e9f129d2917750adf008fe7b9c1598c0fbbfdde6a6"},
+    {file = "lxml-5.2.2-cp37-cp37m-musllinux_1_2_aarch64.whl", hash = "sha256:a6d2092797b388342c1bc932077ad232f914351932353e2e8706851c870bca1f"},
     {file = "lxml-5.2.2-cp37-cp37m-musllinux_1_2_x86_64.whl", hash = "sha256:60499fe961b21264e17a471ec296dcbf4365fbea611bf9e303ab69db7159ce61"},
     {file = "lxml-5.2.2-cp37-cp37m-win32.whl", hash = "sha256:d9b342c76003c6b9336a80efcc766748a333573abf9350f4094ee46b006ec18f"},
     {file = "lxml-5.2.2-cp37-cp37m-win_amd64.whl", hash = "sha256:b16db2770517b8799c79aa80f4053cd6f8b716f21f8aca962725a9565ce3ee40"},
@@ -2744,31 +2667,6 @@ developer = ["mypy (>=0.982)", "pre-commit (>=2.20)"]
 doc = ["nb2plots (>=0.6)", "numpydoc (>=1.5)", "pillow (>=9.2)", "pydata-sphinx-theme (>=0.11)", "sphinx (>=5.2)", "sphinx-gallery (>=0.11)", "texext (>=0.6.6)"]
 extra = ["lxml (>=4.6)", "pydot (>=1.4.2)", "pygraphviz (>=1.9)", "sympy (>=1.10)"]
 test = ["codecov (>=2.1)", "pytest (>=7.2)", "pytest-cov (>=4.0)"]
-
-[[package]]
-name = "nltk"
-version = "3.8.1"
-description = "Natural Language Toolkit"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "nltk-3.8.1-py3-none-any.whl", hash = "sha256:fd5c9109f976fa86bcadba8f91e47f5e9293bd034474752e92a520f81c93dda5"},
-    {file = "nltk-3.8.1.zip", hash = "sha256:1834da3d0682cba4f2cede2f9aad6b0fafb6461ba451db0efb6f9c39798d64d3"},
-]
-
-[package.dependencies]
-click = "*"
-joblib = "*"
-regex = ">=2021.8.3"
-tqdm = "*"
-
-[package.extras]
-all = ["matplotlib", "numpy", "pyparsing", "python-crfsuite", "requests", "scikit-learn", "scipy", "twython"]
-corenlp = ["requests"]
-machine-learning = ["numpy", "python-crfsuite", "scikit-learn", "scipy"]
-plot = ["matplotlib"]
-tgrep = ["pyparsing"]
-twitter = ["twython"]
 
 [[package]]
 name = "num2words"
@@ -3669,17 +3567,6 @@ files = [
 
 [package.extras]
 diagrams = ["jinja2", "railroad-diagrams"]
-
-[[package]]
-name = "pypinyin"
-version = "0.51.0"
-description = "汉字拼音转换模块/工具."
-optional = false
-python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, <4"
-files = [
-    {file = "pypinyin-0.51.0-py2.py3-none-any.whl", hash = "sha256:ae8878f08fee15d0c5c11053a737e68a4158c22c63dc632b4de060af5c95bf84"},
-    {file = "pypinyin-0.51.0.tar.gz", hash = "sha256:cede34fc35a79ef6c799f161e2c280e7b6755ee072fb741cae5ce2a60c4ae0c5"},
-]
 
 [[package]]
 name = "pysbd"
@@ -5569,4 +5456,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "9ababd5496c76574fdedbd8b9c5611078a1a9a1af75dd80e5b4c06c60843fc9c"
+content-hash = "26fe0b17c5716e46a30f113800075254baef5714ec24265c4af518019c881e34"

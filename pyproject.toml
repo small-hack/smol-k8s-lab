@@ -75,7 +75,7 @@ optional = true
 
 # this group is only needed for development
 [tool.poetry.group.audio.dependencies]
-coqui-tts     = "^0.23.1"
+coqui-tts     = "^0.24.0"
 # note: this still requires you to install ffmpeg
 pydub         = "^0.25.1"
 
