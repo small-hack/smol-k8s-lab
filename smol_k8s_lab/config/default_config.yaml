@@ -953,7 +953,7 @@ apps:
         element_hostname: ""
         # hostname for federation, that others can see you on the fediverse
         federation_hostname: ""
-        # sliding sync hostname to use for beta features
+        # sliding sync hostname to use for beta features. currently on syncv3
         sliding_sync_hostname: "sliding sync hostname to use for beta features"
         # auth hostname to use for beta features
         auth_hostname: "auth hostname to use for beta features"

@@ -84,23 +84,26 @@ def configure_matrix(argocd: ArgoCD,
         # create a local alias to check and make sure matrix is functional
         create_minio_alias("matrix", s3_endpoint, "matrix", s3_access_key)
 
+        # secret for the token header for matrix to talk to sliding sync
+        syncv3_secret = create_password()
+
         # create Matrix OIDC Application
         if zitadel and not restore_enabled:
-            log.debug("Creating a Matrix OIDC application in Zitadel...")
-            redirect_uris = f"https://{matrix_hostname}/_synapse/client/oidc/callback"
-            logout_uris = [f"https://{matrix_hostname}"]
-            oidc_creds = zitadel.create_application("matrix",
-                                                    redirect_uris,
-                                                    logout_uris)
-            zitadel.create_role("matrix_users", "Matrix Users", "matrix_users")
-            zitadel.update_user_grant(['matrix_users'])
-            zitadel_hostname = zitadel.hostname
+            log.debug("Creating a Matrix Authentication Service OIDC application in Zitadel...")
             mas_issuer = f"https://{zitadel.hostname}"
             mas_client_id = str(ULID())
             mas_provider_ulid = str(ULID())
             mas_client_secret = create_password()
             mas_admin_token = create_password()
-            sliding_sync_secret = create_password()
+            matrix_auth_hostname = secrets.get("auth_hostname", "")
+            zitadel_hostname = zitadel.hostname
+            logout_uris = [f"https://{matrix_hostname}"]
+            redirect_uris = f"https://{matrix_auth_hostname}/upstream/callback/{mas_provider_ulid}"
+            oidc_creds = zitadel.create_application("matrix",
+                                                    redirect_uris,
+                                                    logout_uris)
+            zitadel.create_role("matrix_users", "Matrix Users", "matrix_users")
+            zitadel.update_user_grant(['matrix_users'])
         else:
             zitadel_hostname = ""
 
@@ -126,7 +129,7 @@ def configure_matrix(argocd: ArgoCD,
                                   mas_client_id,
                                   mas_client_secret,
                                   mas_admin_token,
-                                  sliding_sync_secret,
+                                  syncv3_secret,
                                   bitwarden)
 
         # else create these as Kubernetes secrets
@@ -148,12 +151,15 @@ def configure_matrix(argocd: ArgoCD,
                      "hostname": f"mas-rw.{matrix_namespace}.svc"}
                     )
 
+            pgconnstr = ("user=syncv3 dbname=syncv3 "
+                         f"host=mas-rw.{matrix_namespace}.svc "
+                         "sslmode=verify-full sslkey=/etc/secrets/synvcv3/tls.key"
+                         " sslcert=/etc/secrets/syncv3/tls.crt "
+                         "sslrootcert=/etc/secrets/ca/ca.crt")
             argocd.k8s.create_secret(
-                    'sliding-sync-pgsql-credentials',
+                    'syncv3-pgsql-credentials',
                     'matrix',
-                    {"password": "we-use-tls-instead-of-password-now",
-                     "database": "syncv3",
-                     "hostname": f"syncv3-rw.{matrix_namespace}.svc"}
+                    {"password": pgconnstr}
                     )
 
             # registation key
@@ -257,7 +263,7 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
             )[0]['id']
 
     sync_id = bitwarden.get_item(
-            f"matrix-sliding-sync-credentials-{matrix_hostname}", False
+            f"matrix-syncv3-credentials-{matrix_hostname}", False
             )[0]['id']
 
     oidc_id = bitwarden.get_item(
@@ -308,7 +314,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mas_client_id: str,
                           mas_client_secret: str,
                           mas_admin_token: str,
-                          sliding_sync_secret: str,
+                          syncv3_secret: str,
                           bitwarden: BwCLI):
     """
     setup all the required secrets as items in bitwarden
@@ -377,19 +383,21 @@ def setup_bitwarden_items(argocd: ArgoCD,
     mas_db_host_obj = create_custom_field("hostname",
                                           f"mas-postgres-rw.{matrix_namespace}.svc")
     mas_db_obj = create_custom_field("database", "mas")
+    # MAS doesn't support TLS auth to databases yet
+    mas_db_pw = create_password()
     mas_db_id = bitwarden.create_login(
             name='mas-pgsql-credentials',
             item_url=matrix_hostname,
             user='mas',
-            password="we-use-tls-instead-of-password-now",
+            password=mas_db_pw,
             fields=[mas_db_host_obj, mas_db_obj]
             )
 
     # postgres sliding sync connection string
     conn_str = ("user=syncv3 dbname=syncv3 "
-                f"host=syncv3-postgres-rw.{matrix_namespace}.svc sslmode=require"
-                "sslkey=/etc/secrets/sliding-sync/tls.key "
-                "sslcert=/etc/secrets/sliding-sync/tls.crt "
+                f"host=syncv3-postgres-rw.{matrix_namespace}.svc sslmode=require "
+                "sslkey=/etc/secrets/syncv3/tls.key "
+                "sslcert=/etc/secrets/syncv3/tls.crt "
                 "sslrootcert=/etc/secrets/ca/ca.crt")
     sync_db_id = bitwarden.create_login(
             name='syncv3-pgsql-credentials',
@@ -419,10 +427,10 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # matrix sliding sync
     sync_id = bitwarden.create_login(
-            name='matrix-sliding-sync-credentials',
+            name='matrix-syncv3-credentials',
             item_url=matrix_hostname,
             user="syncv3",
-            password=sliding_sync_secret
+            password=syncv3_secret
             )
 
     # OIDC credentials
