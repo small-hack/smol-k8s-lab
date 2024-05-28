@@ -58,24 +58,24 @@ Footer {
     background: $background 1%;
 }
 
-Footer .footer--description {
+
+Footer > FooterKey {
+    background: $navy 50%;
     color: $light_cornflower;
-    background: $navy 50%;
-}
+    .footer-key--key {
+        background: $light_cornflower;
+        color: $navy;
+    }
 
-Footer .footer--key {
-    color: $navy;
-    background: $light_cornflower;
-}
+    &:hover {
+        color: $orange;
+        background: $navy 50%;
 
-Footer .footer--highlight {
-    color: $orange;
-    background: $navy 50%;
-}
-
-Footer .footer--highlight-key {
-    color: $navy;
-    background: $orange;
+       .footer-key--key {
+            color: $navy;
+            background: $orange;
+        }
+    }
 }
 
 /* sets the init switch slider color only when it's on */

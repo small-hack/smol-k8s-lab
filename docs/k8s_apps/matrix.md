@@ -24,6 +24,10 @@
 
 </details>
 
+
+!!! Note
+    We recently added support for [sliding sync](https://github.com/) and [matrix authentication service](https://github.com/).
+
 ## Required Values
 
 ### Appset secret values

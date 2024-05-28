@@ -247,17 +247,6 @@ files = [
 dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
-name = "bangla"
-version = "0.0.2"
-description = "Bangla is a package for Bangla language users with various functionalities including Bangla date and Bangla numeric conversation."
-optional = false
-python-versions = "*"
-files = [
-    {file = "bangla-0.0.2-py2.py3-none-any.whl", hash = "sha256:60c52bb4614894de4a91ee997bf950d03545d1fb9b01196577ce04ed4fa00ff8"},
-    {file = "bangla-0.0.2.tar.gz", hash = "sha256:17c8fd501321660077d5ab6a79b746bba71f9e4939ef78ac0d9a75d7bd715da8"},
-]
-
-[[package]]
 name = "bcrypt"
 version = "4.1.3"
 description = "Modern password hashing for your software and your servers"
@@ -342,26 +331,6 @@ files = [
 
 [package.dependencies]
 numpy = {version = ">=1.19.0", markers = "python_version >= \"3.9\""}
-
-[[package]]
-name = "bnnumerizer"
-version = "0.0.2"
-description = "Bangla Number text to String Converter"
-optional = false
-python-versions = "*"
-files = [
-    {file = "bnnumerizer-0.0.2.tar.gz", hash = "sha256:41df6fd0b7b51aa4ec4776b6643cedebee5fd11e335d7d56d4a20c08515e5f0d"},
-]
-
-[[package]]
-name = "bnunicodenormalizer"
-version = "0.1.6"
-description = "Bangla Unicode Normalization Toolkit"
-optional = false
-python-versions = "*"
-files = [
-    {file = "bnunicodenormalizer-0.1.6.tar.gz", hash = "sha256:a950bafb44a702cdb90c5cca3c71543a860f96b46f906585a6d8c85689bcc093"},
-]
 
 [[package]]
 name = "cachetools"
@@ -692,41 +661,33 @@ files = [
 
 [[package]]
 name = "coqui-tts"
-version = "0.23.1"
+version = "0.24.0"
 description = "Deep learning for Text to Speech."
 optional = false
-python-versions = "<3.13,>=3.9.0"
+python-versions = "<3.13,>=3.9"
 files = [
-    {file = "coqui_tts-0.23.1-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:6437c437944f51ce387e1e8d2d6b40d6b9d7ca531fcc5e31d4adb427de4af185"},
-    {file = "coqui_tts-0.23.1-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:fbed9fbeabd09857c2a0995bbc029fb2b550212f25e72732f4cf1991592d731a"},
-    {file = "coqui_tts-0.23.1-cp312-cp312-manylinux1_x86_64.whl", hash = "sha256:5e3def565fdedbf703bec42e9a983c856cd4464e609bef331cb4ead6f8fb39a0"},
-    {file = "coqui_tts-0.23.1-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:17cd5941c5ff55873a5dcb74d3427c68819efd5eab6bdab9b8b6479567733856"},
-    {file = "coqui_tts-0.23.1.tar.gz", hash = "sha256:58ec22189198cdcef2c154d1394a74d510f06ee56aeeccad13ada8a1ccd7669c"},
+    {file = "coqui_tts-0.24.0-cp310-cp310-manylinux1_x86_64.whl", hash = "sha256:4e7ba0877b8806c752a7f0e35950db5b7fcb3ec7d30c124ff049c30f38437f4b"},
+    {file = "coqui_tts-0.24.0-cp311-cp311-manylinux1_x86_64.whl", hash = "sha256:4358db01340987245e3731dfbc7a6f6a49b0b3fde6425d5a8c3d740f53fcaa46"},
+    {file = "coqui_tts-0.24.0-cp312-cp312-manylinux1_x86_64.whl", hash = "sha256:85e375705354ea2c5520c0f9542128bcc90331111a650adf11a0e0245f0b68c0"},
+    {file = "coqui_tts-0.24.0-cp39-cp39-manylinux1_x86_64.whl", hash = "sha256:a4750baac17097a5c2b1830c8e34ce4c25030925b04f5544b392d6d91331e408"},
+    {file = "coqui_tts-0.24.0.tar.gz", hash = "sha256:a8414d39bbd36db9b500749aa44e163b627672dca6725437c5b8e96e6d2d5ef8"},
 ]
 
 [package.dependencies]
 anyascii = ">=0.3.0"
-bangla = "*"
-bnnumerizer = "*"
-bnunicodenormalizer = "*"
 coqpit = ">=0.0.16"
 coqui-tts-trainer = ">=0.1"
 cython = ">=0.29.30"
 einops = ">=0.6.0"
 encodec = ">=0.1.1"
 fsspec = {version = ">=2023.6.0", extras = ["http"]}
-g2pkk = ">=0.1.1"
 gruut = {version = "2.2.3", extras = ["de", "es", "fr"]}
-hangul-romanize = "*"
 inflect = ">=5.6.0"
-jamo = "*"
-jieba = "*"
 librosa = ">=0.10.1"
 matplotlib = ">=3.7.0"
 num2words = "*"
 numpy = ">=1.24.3"
 packaging = ">=23.1"
-pypinyin = "*"
 pysbd = ">=0.3.4"
 pyyaml = ">=6.0"
 scipy = ">=1.11.2"
@@ -739,11 +700,16 @@ transformers = ">=4.33.0"
 umap-learn = ">=0.5.1"
 
 [package.extras]
-all = ["black (==24.2.0)", "bokeh (==1.4.0)", "coverage[toml]", "cutlet", "flask (>=2.0.1)", "mecab-python3", "nose2", "pandas (>=1.4,<2.0)", "ruff (==0.3.0)", "unidic-lite (==1.0.8)"]
-dev = ["black (==24.2.0)", "coverage[toml]", "nose2", "ruff (==0.3.0)"]
+all = ["coqui-tts[bn,ja,ko,notebooks,server,zh]"]
+bn = ["bangla", "bnnumerizer", "bnunicodenormalizer"]
+dev = ["black (==24.2.0)", "coverage[toml]", "nose2", "pre-commit", "ruff (==0.3.0)", "tomli"]
+docs = ["furo", "linkify-it-py", "myst-parser (==2.0.0)", "sphinx (==7.2.5)", "sphinx-copybutton", "sphinx-inline-tabs"]
 ja = ["cutlet", "mecab-python3", "unidic-lite (==1.0.8)"]
+ko = ["g2pkk (>=0.1.1)", "hangul-romanize", "jamo"]
+languages = ["coqui-tts[bn,ja,ko,zh]"]
 notebooks = ["bokeh (==1.4.0)", "pandas (>=1.4,<2.0)"]
 server = ["flask (>=2.0.1)"]
+zh = ["jieba", "pypinyin"]
 
 [[package]]
 name = "coqui-tts-trainer"
@@ -1061,53 +1027,53 @@ typing = ["typing-extensions (>=4.8)"]
 
 [[package]]
 name = "fonttools"
-version = "4.52.1"
+version = "4.52.4"
 description = "Tools to manipulate font files"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "fonttools-4.52.1-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:67a30b872e79577e5319ce660ede4a5131fa8a45de76e696746545e17db4437f"},
-    {file = "fonttools-4.52.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:f0a5bff35738f8f6607c4303561ee1d1e5f64d5b14cf3c472d3030566c82e763"},
-    {file = "fonttools-4.52.1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5c9622593dfff042480a1b7e5b72c4d7dc00b96d2b4f98b0bf8acf071087e0db"},
-    {file = "fonttools-4.52.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:33cfc9fe27af5e113d157d5147e24fc8e5bda3c5aadb55bea9847ec55341ce30"},
-    {file = "fonttools-4.52.1-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:aa5bec5027d947ee4b2242caecf7dc6e4ea03833e92e9b5211ebb6ab4eede8b2"},
-    {file = "fonttools-4.52.1-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:10e44bf8e5654050a332a79285bacd6bd3069084540aec46c0862391147a1daa"},
-    {file = "fonttools-4.52.1-cp310-cp310-win32.whl", hash = "sha256:7fba390ac2ca18ebdd456f3a9acfb4557d6dcb2eaba5cc3eadce01003892a770"},
-    {file = "fonttools-4.52.1-cp310-cp310-win_amd64.whl", hash = "sha256:15df3517eb95035422a5c953ca19aac99913c16aa0e4ef061aeaef5f3bcaf369"},
-    {file = "fonttools-4.52.1-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:40730aab9cf42286f314b985b483eea574f1bcf3a23e28223084cbb9e256457c"},
-    {file = "fonttools-4.52.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:a19bc2be3af5b22ff5c7fe858c380862e31052c74f62e2c6d565ed0855bed7a6"},
-    {file = "fonttools-4.52.1-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f859066d8afde53f2ddabcd0705061e6d9d9868757c6ae28abe49bc885292df4"},
-    {file = "fonttools-4.52.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:74cd3e3e9ba501e87a391b62e91f7b1610e8b3f3d706a368e5aee51614c1674e"},
-    {file = "fonttools-4.52.1-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:958957b81418647f66820480363cb617ba6b5bcf189ec6c4cea307d051048545"},
-    {file = "fonttools-4.52.1-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:56addf1f995d94dad13aaaf56eb6def3d9ca97c2fada5e27af8190b3141e8633"},
-    {file = "fonttools-4.52.1-cp311-cp311-win32.whl", hash = "sha256:fea5456b2af42db8ecb1a6c2f144655ca6dcdcebd970f3145c56e668084ded7e"},
-    {file = "fonttools-4.52.1-cp311-cp311-win_amd64.whl", hash = "sha256:228faab7638cd726cdde5e2ec9ee10f780fbf9de9aa38d7f1e56a270437dff36"},
-    {file = "fonttools-4.52.1-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:7c6aeb0d53e2ea92009b11c3d4ad9c03d0ecdfe602d547bed8537836e464f51e"},
-    {file = "fonttools-4.52.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:e871123d12c92e2c9bda6369b69ce2da9cef40b119cc340451e413e90355fa38"},
-    {file = "fonttools-4.52.1-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:5ff8857dc9bb3e407c25aef3e025409cfbb23adb646a835636bebb1bdfc27a41"},
-    {file = "fonttools-4.52.1-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7685fdc6e23267844eef2b9af585d7f171cca695e4eb369d7682544c3e2e1123"},
-    {file = "fonttools-4.52.1-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:b1e1b2774485fbbb41a1beccc913b9c6f7971f78da61dd34207b9acc3cc2963e"},
-    {file = "fonttools-4.52.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:1e2c415160397fd6ed3964155aeec4bfefceeee365ab17161a5b3fe3f8dab077"},
-    {file = "fonttools-4.52.1-cp312-cp312-win32.whl", hash = "sha256:3ba2c4647e7decfb8e9cd346661c7d151dae1fba23d37b48bcf5fa8351f7b8c8"},
-    {file = "fonttools-4.52.1-cp312-cp312-win_amd64.whl", hash = "sha256:d39b926f14a2f7a7f92ded7d266b18f0108d867364769ab59da88ac2fa90d288"},
-    {file = "fonttools-4.52.1-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:6e58d8097a269b6c43ec0abb3fa8d6c350ff0c7dfd23fc14d004610df88a4bb3"},
-    {file = "fonttools-4.52.1-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:20f0fc969817c50539dc919ed8c4aef4de28c2d6e0111a064112301f157aede4"},
-    {file = "fonttools-4.52.1-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d62e84d38969491c6c1f6fe3dd63108e99d02de01bb3d98c160a5d4d24120910"},
-    {file = "fonttools-4.52.1-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8eb5a389bbdee6f4c422881de422ee0e7efdfcd9310b13d540b12aa8ae2c9e7b"},
-    {file = "fonttools-4.52.1-cp38-cp38-musllinux_1_2_aarch64.whl", hash = "sha256:0caf05c969cbde6729dd97b64bea445ee152bb19215d5886f7b93bd0fb455468"},
-    {file = "fonttools-4.52.1-cp38-cp38-musllinux_1_2_x86_64.whl", hash = "sha256:df08bee1dd29a767311b50c62c0cfe4d72ae8c793e567d4c60b8c16c7c63a4f0"},
-    {file = "fonttools-4.52.1-cp38-cp38-win32.whl", hash = "sha256:82ffcf4782ceda09842b5b7875b36834c15d7cc0d5dd3d23a658ee9cf8819cd6"},
-    {file = "fonttools-4.52.1-cp38-cp38-win_amd64.whl", hash = "sha256:26b43bab5a3bce55ed4d9699b16568795eef5597d154f52dcabef5b4804c4b21"},
-    {file = "fonttools-4.52.1-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:7e8dbc13c4bc12e60df1b1f5e484112a5e96a6e8bba995e2965988ad73c5ea1b"},
-    {file = "fonttools-4.52.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:7352ba2226e45e8fba11c3fb416363faf1b06f3f2e80d07d2930401265f3bf9c"},
-    {file = "fonttools-4.52.1-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a8834d43763e9e92349ce8bb25dfb612aef6691eefefad885212d5e8f36a94a4"},
-    {file = "fonttools-4.52.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ee2a8c1101d06cc8fca7851dceb67afd53dd6fc0288bacaa632e647bc5afff58"},
-    {file = "fonttools-4.52.1-cp39-cp39-musllinux_1_2_aarch64.whl", hash = "sha256:a99b738227c0f6f2bbe381b45804a7c46653c95b9d7bf13f6f02884bc87e4930"},
-    {file = "fonttools-4.52.1-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:75aa00a16b9a64d1550e2e70d3582c7fe1ef18560e0cf066a4087fe6d11908a2"},
-    {file = "fonttools-4.52.1-cp39-cp39-win32.whl", hash = "sha256:c2f09b4aa699cfed4bbebc1829c5f044b41976707dac9230ed00d5a9fc6452c1"},
-    {file = "fonttools-4.52.1-cp39-cp39-win_amd64.whl", hash = "sha256:78ea6e0d4c89f8e216995923b854dd10bd09e48d3a5a3ccb48bb68f436a409ad"},
-    {file = "fonttools-4.52.1-py3-none-any.whl", hash = "sha256:faf5c83f83f7ddebdafdb453d02efdbea7fb494080d7a8d45a8a20db06ea8da5"},
-    {file = "fonttools-4.52.1.tar.gz", hash = "sha256:8c9204435aa6e5e9479a5ba4e669f05dea28b0c61958e0c0923cb164296d9329"},
+    {file = "fonttools-4.52.4-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:fb8cd6559f0ae3a8f5e146f80ab2a90ad0325a759be8d48ee82758a0b89fa0aa"},
+    {file = "fonttools-4.52.4-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:5ecb88318ff249bd2a715e7aec36774ce7ae3441128007ef72a39a60601f4a8f"},
+    {file = "fonttools-4.52.4-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:b9a22cf1adaae7b2ba2ed7d8651a4193a4f348744925b4b740e6b38a94599c5b"},
+    {file = "fonttools-4.52.4-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8873d6edd1dae5c088dd3d61c9fd4dd80c827c486fa224d368233e7f33dc98af"},
+    {file = "fonttools-4.52.4-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:73ba38b98c012957940a04d9eb5439b42565ac892bba8cfc32e10d88e73921fe"},
+    {file = "fonttools-4.52.4-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:9725687db3c1cef13c0f40b380c3c15bea0113f4d0231b204d58edd5f2a53d90"},
+    {file = "fonttools-4.52.4-cp310-cp310-win32.whl", hash = "sha256:9180775c9535389a665cae7c5282f8e07754beabf59b66aeba7f6bfeb32a3652"},
+    {file = "fonttools-4.52.4-cp310-cp310-win_amd64.whl", hash = "sha256:46cc5d06ee05fd239c45d7935aaffd060ee773a88b97e901df50478247472643"},
+    {file = "fonttools-4.52.4-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:d272c7e173c3085308345ccc7fb2ad6ce7f415d777791dd6ce4e8140e354d09c"},
+    {file = "fonttools-4.52.4-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:21921e5855c399d10ddfc373538b425cabcf8b3258720b51450909e108896450"},
+    {file = "fonttools-4.52.4-cp311-cp311-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:52f6001814ec5e0c961cabe89642f7e8d7e07892b565057aa526569b9ebb711c"},
+    {file = "fonttools-4.52.4-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4b0b9eb0f55dce9c7278ad4175f1cbaed23b799dce5ecc20e3213da241584140"},
+    {file = "fonttools-4.52.4-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:70d87f2099006304d33438bdaa5101953b7e22e23a93b1c7b7ed0f32ff44b423"},
+    {file = "fonttools-4.52.4-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:e176249292eccd89f81d39f514f2b5e8c75dfc9cef8653bdc3021d06697e9eff"},
+    {file = "fonttools-4.52.4-cp311-cp311-win32.whl", hash = "sha256:bb7d206fa5ba6e082ba5d5e1b7107731029fc3a55c71c48de65121710d817986"},
+    {file = "fonttools-4.52.4-cp311-cp311-win_amd64.whl", hash = "sha256:346d08ff92e577b2dc5a0c228487667d23fe2da35a8b9a8bba22c2b6ba8be21c"},
+    {file = "fonttools-4.52.4-cp312-cp312-macosx_10_9_universal2.whl", hash = "sha256:d2cc7906bc0afdd2689aaf88b910307333b1f936262d1d98f25dbf8a5eb2e829"},
+    {file = "fonttools-4.52.4-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:00d9abf4b400f98fb895566eb298f60432b4b29048e3dc02807427b09a06604e"},
+    {file = "fonttools-4.52.4-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4b419207e53db1599b3d385afd4bca6692c219d53732890d0814a2593104d0e2"},
+    {file = "fonttools-4.52.4-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cf694159528022daa71b1777cb6ec9e0ebbdd29859f3e9c845826cafaef4ca29"},
+    {file = "fonttools-4.52.4-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:9a5d1b0475050056d2e3bc378014f2ea2230e8ae434eeac8dfb182aa8efaf642"},
+    {file = "fonttools-4.52.4-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:4c3ad89204c2d7f419436f1d6fde681b070c5e20b888beb57ccf92f640628cc9"},
+    {file = "fonttools-4.52.4-cp312-cp312-win32.whl", hash = "sha256:1dc626de4b204d025d029e646bae8fdbf5acd9217158283a567f4b523fda3bae"},
+    {file = "fonttools-4.52.4-cp312-cp312-win_amd64.whl", hash = "sha256:309b617942041073ffa96090d320b99d75648ed16e0c67fb1aa7788e06c834de"},
+    {file = "fonttools-4.52.4-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:8b186cd6b8844f6cf04a7e0a174bc3649d3deddbfc10dc59846a4381f796d348"},
+    {file = "fonttools-4.52.4-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:9ed23a03b7d9f0e29ca0679eafe5152aeccb0580312a3fc36f0662e178b4791b"},
+    {file = "fonttools-4.52.4-cp38-cp38-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:89b53386214197bd5b3e3c753895bad691de84726ced3c222a59cde1dd12d57b"},
+    {file = "fonttools-4.52.4-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7467161f1eed557dbcec152d5ee95540200b1935709fa73307da16bc0b7ca361"},
+    {file = "fonttools-4.52.4-cp38-cp38-musllinux_1_2_aarch64.whl", hash = "sha256:b4cba644e2515d685d4ee3ca2fbb5d53930a0e9ec2cf332ed704dc341b145878"},
+    {file = "fonttools-4.52.4-cp38-cp38-musllinux_1_2_x86_64.whl", hash = "sha256:890e7a657574610330e42dd1e38d3b9e0a8cb0eff3da080f80995460a256d3dd"},
+    {file = "fonttools-4.52.4-cp38-cp38-win32.whl", hash = "sha256:7dccf4666f716e5e0753f0fa28dad2f4431154c87747bc781c838b8a5dca990e"},
+    {file = "fonttools-4.52.4-cp38-cp38-win_amd64.whl", hash = "sha256:a791f002d1b717268235cfae7e4957b7fd132e92e2c5400e521bf191f1b3a9a5"},
+    {file = "fonttools-4.52.4-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:05e4291db6af66f466a203d9922e4c1d3e18ef16868f76f10b00e2c3b9814df2"},
+    {file = "fonttools-4.52.4-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:a64e72d2c144630e017ac9c1c416ddf8ac43bef9a083bf81fe08c0695f0baa95"},
+    {file = "fonttools-4.52.4-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:ebb183ed8b789cece0bd6363121913fb6da4034af89a2fa5408e42a1592889a8"},
+    {file = "fonttools-4.52.4-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:a4daf2751a98c69d9620717826ed6c5743b662ef0ae7bb33dc6c205425e48eba"},
+    {file = "fonttools-4.52.4-cp39-cp39-musllinux_1_2_aarch64.whl", hash = "sha256:15efb2ba4b8c2d012ee0bb7a850c2e4780c530cc83ec8e843b2a97f8b3a5fd4b"},
+    {file = "fonttools-4.52.4-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:35af630404223273f1d7acd4761f399131c62820366f53eac029337069f5826a"},
+    {file = "fonttools-4.52.4-cp39-cp39-win32.whl", hash = "sha256:d0184aa88865339d96f7f452e8c5b621186ef7638744d78bf9b775d67e206819"},
+    {file = "fonttools-4.52.4-cp39-cp39-win_amd64.whl", hash = "sha256:e03dae26084bb3632b4a77b1cd0419159d2226911aff6dc4c7e3058df68648c6"},
+    {file = "fonttools-4.52.4-py3-none-any.whl", hash = "sha256:95e8a5975d08d0b624a14eec0f987e204ad81b480e24c5436af99170054434b8"},
+    {file = "fonttools-4.52.4.tar.gz", hash = "sha256:859399b7adc8ac067be8e5c80ef4bb2faddff97e9b40896a9de75606a43d0469"},
 ]
 
 [package.extras]
@@ -1250,21 +1216,6 @@ test = ["aiohttp (!=4.0.0a0,!=4.0.0a1)", "numpy", "pytest", "pytest-asyncio (!=0
 test-downstream = ["aiobotocore (>=2.5.4,<3.0.0)", "dask-expr", "dask[dataframe,test]", "moto[server] (>4,<5)", "pytest-timeout", "xarray"]
 test-full = ["adlfs", "aiohttp (!=4.0.0a0,!=4.0.0a1)", "cloudpickle", "dask", "distributed", "dropbox", "dropboxdrivefs", "fastparquet", "fusepy", "gcsfs", "jinja2", "kerchunk", "libarchive-c", "lz4", "notebook", "numpy", "ocifs", "pandas", "panel", "paramiko", "pyarrow", "pyarrow (>=1)", "pyftpdlib", "pygit2", "pytest", "pytest-asyncio (!=0.22.0)", "pytest-benchmark", "pytest-cov", "pytest-mock", "pytest-recording", "pytest-rerunfailures", "python-snappy", "requests", "smbprotocol", "tqdm", "urllib3", "zarr", "zstandard"]
 tqdm = ["tqdm"]
-
-[[package]]
-name = "g2pkk"
-version = "0.1.2"
-description = "g2pkk: g2p module for Korean(cross platform)"
-optional = false
-python-versions = ">=3.6"
-files = [
-    {file = "g2pkk-0.1.2-py3-none-any.whl", hash = "sha256:f1d551f35d3b9065f75749c724e65b28731fdc3262e5e9657cb57e3f7b5dcac3"},
-    {file = "g2pkk-0.1.2.tar.gz", hash = "sha256:61aad5d41b67d71dd29b8570fc90d2c89cb76493170101d92492649521b447e4"},
-]
-
-[package.dependencies]
-jamo = "*"
-nltk = "*"
 
 [[package]]
 name = "ghp-import"
@@ -1458,25 +1409,14 @@ files = [
 ]
 
 [[package]]
-name = "hangul-romanize"
-version = "0.1.0"
-description = "Rominize Hangul strings."
-optional = false
-python-versions = "*"
-files = [
-    {file = "hangul-romanize-0.1.0.tar.gz", hash = "sha256:fae69ba181af6e75a86460fd7f57a6b304cd5f1973d8c425ed8602fee2c9276c"},
-    {file = "hangul_romanize-0.1.0-py3-none-any.whl", hash = "sha256:7b8ba54b624ca3b17b2c9394b971cd595c4240a31cc0fc6bc1c3e971eca8c4d5"},
-]
-
-[[package]]
 name = "huggingface-hub"
-version = "0.23.1"
+version = "0.23.2"
 description = "Client library to download and publish models, datasets and other repos on the huggingface.co hub"
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "huggingface_hub-0.23.1-py3-none-any.whl", hash = "sha256:720a5bffd2b1b449deb793da8b0df7a9390a7e238534d5a08c9fbcdecb1dd3cb"},
-    {file = "huggingface_hub-0.23.1.tar.gz", hash = "sha256:4f62dbf6ae94f400c6d3419485e52bce510591432a5248a65d0cb72e4d479eb4"},
+    {file = "huggingface_hub-0.23.2-py3-none-any.whl", hash = "sha256:48727a16e704d409c4bb5913613308499664f22a99743435dc3a13b23c485827"},
+    {file = "huggingface_hub-0.23.2.tar.gz", hash = "sha256:f6829b62d5fdecb452a76fdbec620cba4c1573655a8d710c1df71735fd9edbd2"},
 ]
 
 [package.dependencies]
@@ -1556,27 +1496,6 @@ files = [
     {file = "intel_openmp-2021.4.0-py2.py3-none-manylinux1_x86_64.whl", hash = "sha256:e2240ab8d01472fed04f3544a878cda5da16c26232b7ea1b59132dbfb48b186e"},
     {file = "intel_openmp-2021.4.0-py2.py3-none-win32.whl", hash = "sha256:6e863d8fd3d7e8ef389d52cf97a50fe2afe1a19247e8c0d168ce021546f96fc9"},
     {file = "intel_openmp-2021.4.0-py2.py3-none-win_amd64.whl", hash = "sha256:eef4c8bcc8acefd7f5cd3b9384dbf73d59e2c99fc56545712ded913f43c4a94f"},
-]
-
-[[package]]
-name = "jamo"
-version = "0.4.1"
-description = "A Hangul syllable and jamo analyzer."
-optional = false
-python-versions = "*"
-files = [
-    {file = "jamo-0.4.1-py3-none-any.whl", hash = "sha256:d4b94fd23324c606ed2fbc4037c603e2c3a7ae9390c05d3473aea1ccb6b1c3fb"},
-    {file = "jamo-0.4.1.tar.gz", hash = "sha256:ea65cf9d35338d0e0af48d75ff426d8a369b0ebde6f07051c3ac37256f56d025"},
-]
-
-[[package]]
-name = "jieba"
-version = "0.42.1"
-description = "Chinese Words Segmentation Utilities"
-optional = false
-python-versions = "*"
-files = [
-    {file = "jieba-0.42.1.tar.gz", hash = "sha256:055ca12f62674fafed09427f176506079bc135638a14e23e25be909131928db2"},
 ]
 
 [[package]]
@@ -2422,13 +2341,13 @@ pyyaml = ">=5.1"
 
 [[package]]
 name = "mkdocs-material"
-version = "9.5.24"
+version = "9.5.25"
 description = "Documentation that simply works"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "mkdocs_material-9.5.24-py3-none-any.whl", hash = "sha256:e12cd75954c535b61e716f359cf2a5056bf4514889d17161fdebd5df4b0153c6"},
-    {file = "mkdocs_material-9.5.24.tar.gz", hash = "sha256:02d5aaba0ee755e707c3ef6e748f9acb7b3011187c0ea766db31af8905078a34"},
+    {file = "mkdocs_material-9.5.25-py3-none-any.whl", hash = "sha256:68fdab047a0b9bfbefe79ce267e8a7daaf5128bcf7867065fcd201ee335fece1"},
+    {file = "mkdocs_material-9.5.25.tar.gz", hash = "sha256:d0662561efb725b712207e0ee01f035ca15633f29a64628e24f01ec99d7078f4"},
 ]
 
 [package.dependencies]
@@ -2744,31 +2663,6 @@ developer = ["mypy (>=0.982)", "pre-commit (>=2.20)"]
 doc = ["nb2plots (>=0.6)", "numpydoc (>=1.5)", "pillow (>=9.2)", "pydata-sphinx-theme (>=0.11)", "sphinx (>=5.2)", "sphinx-gallery (>=0.11)", "texext (>=0.6.6)"]
 extra = ["lxml (>=4.6)", "pydot (>=1.4.2)", "pygraphviz (>=1.9)", "sympy (>=1.10)"]
 test = ["codecov (>=2.1)", "pytest (>=7.2)", "pytest-cov (>=4.0)"]
-
-[[package]]
-name = "nltk"
-version = "3.8.1"
-description = "Natural Language Toolkit"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "nltk-3.8.1-py3-none-any.whl", hash = "sha256:fd5c9109f976fa86bcadba8f91e47f5e9293bd034474752e92a520f81c93dda5"},
-    {file = "nltk-3.8.1.zip", hash = "sha256:1834da3d0682cba4f2cede2f9aad6b0fafb6461ba451db0efb6f9c39798d64d3"},
-]
-
-[package.dependencies]
-click = "*"
-joblib = "*"
-regex = ">=2021.8.3"
-tqdm = "*"
-
-[package.extras]
-all = ["matplotlib", "numpy", "pyparsing", "python-crfsuite", "requests", "scikit-learn", "scipy", "twython"]
-corenlp = ["requests"]
-machine-learning = ["numpy", "python-crfsuite", "scikit-learn", "scipy"]
-plot = ["matplotlib"]
-tgrep = ["pyparsing"]
-twitter = ["twython"]
 
 [[package]]
 name = "num2words"
@@ -3671,17 +3565,6 @@ files = [
 diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
-name = "pypinyin"
-version = "0.51.0"
-description = "汉字拼音转换模块/工具."
-optional = false
-python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, <4"
-files = [
-    {file = "pypinyin-0.51.0-py2.py3-none-any.whl", hash = "sha256:ae8878f08fee15d0c5c11053a737e68a4158c22c63dc632b4de060af5c95bf84"},
-    {file = "pypinyin-0.51.0.tar.gz", hash = "sha256:cede34fc35a79ef6c799f161e2c280e7b6755ee072fb741cae5ce2a60c4ae0c5"},
-]
-
-[[package]]
 name = "pysbd"
 version = "0.3.4"
 description = "pysbd (Python Sentence Boundary Disambiguation) is a rule-based sentence boundary detection that works out-of-the-box across many languages."
@@ -3804,13 +3687,13 @@ six = ">=1.5"
 
 [[package]]
 name = "python-ulid"
-version = "2.5.0"
+version = "2.6.0"
 description = "Universally unique lexicographically sortable identifier"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "python_ulid-2.5.0-py3-none-any.whl", hash = "sha256:f5abfc3bbab8476abaaf8cec534f2285383586a1e2f8118831eba4d962b4fa55"},
-    {file = "python_ulid-2.5.0.tar.gz", hash = "sha256:d000bc05bf3e7f4a56507f72b02bcbb0cb0170da102cf17af39c59ea946050dc"},
+    {file = "python_ulid-2.6.0-py3-none-any.whl", hash = "sha256:b47cc7a427b82f7526af96385d7702685df808e9b4922523dd5988a3ba98a89d"},
+    {file = "python_ulid-2.6.0.tar.gz", hash = "sha256:904e19093dd6578a5ce01a8274e3e228d556d47be3bda328da2d3601c5240c4f"},
 ]
 
 [package.extras]
@@ -4755,13 +4638,13 @@ files = [
 
 [[package]]
 name = "textual"
-version = "0.63.3"
+version = "0.63.4"
 description = "Modern Text User Interface framework"
 optional = false
 python-versions = "<4.0,>=3.8"
 files = [
-    {file = "textual-0.63.3-py3-none-any.whl", hash = "sha256:a9921fb3fbbed6b2dce1a375023064f79bd461e6d53c13534b4c12e51bb29ba7"},
-    {file = "textual-0.63.3.tar.gz", hash = "sha256:e293a2f789020fc324653a62c2bc210343b790b44b77f928f938ac747bdf6110"},
+    {file = "textual-0.63.4-py3-none-any.whl", hash = "sha256:ca1e7a365b55ef96ea4664754268047d87b3aed33587858001514a0e60bbdc36"},
+    {file = "textual-0.63.4.tar.gz", hash = "sha256:c0f72915c1f3d8349d410b2014d3cfaa7909d594105e158ad91d25f9d9857eec"},
 ]
 
 [package.dependencies]
@@ -5208,20 +5091,20 @@ tutorials = ["matplotlib", "pandas", "tabulate", "torch"]
 
 [[package]]
 name = "typeguard"
-version = "4.2.1"
+version = "4.3.0"
 description = "Run-time type checker for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "typeguard-4.2.1-py3-none-any.whl", hash = "sha256:7da3bd46e61f03e0852f8d251dcbdc2a336aa495d7daff01e092b55327796eb8"},
-    {file = "typeguard-4.2.1.tar.gz", hash = "sha256:c556a1b95948230510070ca53fa0341fb0964611bd05d598d87fb52115d65fee"},
+    {file = "typeguard-4.3.0-py3-none-any.whl", hash = "sha256:4d24c5b39a117f8a895b9da7a9b3114f04eb63bade45a4492de49b175b6f7dfa"},
+    {file = "typeguard-4.3.0.tar.gz", hash = "sha256:92ee6a0aec9135181eae6067ebd617fd9de8d75d714fb548728a4933b1dea651"},
 ]
 
 [package.dependencies]
-typing-extensions = {version = ">=4.10.0", markers = "python_version < \"3.13\""}
+typing-extensions = ">=4.10.0"
 
 [package.extras]
-doc = ["Sphinx (>=7)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)"]
+doc = ["Sphinx (>=7)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)", "sphinx-rtd-theme (>=1.3.0)"]
 test = ["coverage[toml] (>=7)", "mypy (>=1.2.0)", "pytest (>=7)"]
 
 [[package]]
@@ -5569,4 +5452,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "9ababd5496c76574fdedbd8b9c5611078a1a9a1af75dd80e5b4c06c60843fc9c"
+content-hash = "7d8e7329e0798cc78f2acc68d9bc03efe15a45fd5fa0896ea12b63a6832bea83"
