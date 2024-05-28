@@ -89,7 +89,7 @@ def configure_matrix(argocd: ArgoCD,
 
         # create Matrix OIDC Application
         if zitadel and not restore_enabled:
-            log.debug("Creating a Matrix Authentication Service OIDC application in Zitadel...")
+            log.debug("Creating an OIDC application in Zitadel...")
             mas_issuer = f"https://{zitadel.hostname}"
             mas_client_id = str(ULID())
             mas_provider_ulid = str(ULID())
