@@ -2,15 +2,17 @@
 🧸 Smol K8s Lab
 </h1>
 
-`smol-k8s-lab` leverages Argo CD and slim k8s distributions like K3s to create production-like environments via a declarative workflow. Batteries and 🦑 included.
+Leverage Argo CD and slim Kubernetes distributions, like K3s, to create production-like environments via a declarative workflow. Batteries and 🦑 included.
 
 ## About
 
-`smol-k8s-lab`'s declarative workflow, CLI, and TUI enable rapid iteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking Kubernetes applications and distributions! 💙
+`smol-k8s-lab`'s declarative workflow, CLI, and TUI enable rapid iteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking Kubernetes applications and distributions. It's also great for home labs, with some common FOSS apps such as Home Assistant, Nextcloud, Matrix, and more!
 
-By default, `smol-k8s-lab` deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open-source Git repos. We can optionally make heavy use of Bitwarden. Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
+By default, it deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open source Git repos.  Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
 
-Consider viewing my very long walk through if you like video walk-throughs:
+`smol-k8s-lab` can also optionally make heavy use of Bitwarden to store any passwords, tokens, and secrets so you can use them immediately.
+
+Consider viewing our very long walk through if you like video walk-throughs:
 
 <p align="center">
 <iframe width="720" height="480" src="https://www.youtube.com/embed/UdOQM9n5hyU?si=5dDCf2J2Oczhdej3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -23,8 +25,8 @@ Here's the [same video with captions](https://youtu.be/2E9DVJpv440?feature=share
 Please see our [Getting Started guide](https://small-hack.github.io/smol-k8s-lab/installation).
 
 # Under the hood
-Note: this project is not officially affiliated with any of the below tooling or applications.
 
+Note: this project is not officially affiliated with any of the below tooling or applications. We just love open source projects 💙
 
 ## Supported k8s distributions
 We always install the latest version of Kubernetes that is available from the distro's startup script.
@@ -32,10 +34,10 @@ We always install the latest version of Kubernetes that is available from the di
 |                                     Distro                                     | Description                                                                                                                                     |
 |:------------------------------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------|
 |   [<img src="assets/images/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s]  | The certified Kubernetes distribution built for IoT & Edge computing                                                                            |
-|     [<img src="assets/images/icons/k3d.png" width="26">][k3d] <br /> [k3d]     | K3d is k3s in Docker 🐳. <br> ⚠️ testing                                                                                                         |
+|     [<img src="assets/images/icons/k3d.png" width="26">][k3d] <br /> [k3d]     | K3d is k3s in Docker 🐳. <br> In beta!                                                                                                        |
 | [<img src="assets/images/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself. |
 
-We tend to test first on k3s first, then the other distros. k3d support coming soon.
+We tend to test first on k3s first, then the other distros.
 
 ## Default Installed Applications
 Version is the helm chart version, or manifest version. See the [Default Applications](/k8s_apps/argocd) tab for more info on each application.
@@ -69,7 +71,7 @@ Minor Notes:
 |                                                                                  [<img src="assets/images/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler]                                                                                 | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. |            ✅            |
 |                                         [<img src="assets/images/icons/k8up.png" width="32" alt="k8up logo, a minimalist logo of a small blue hill with line starting the right going into the hill">][k8up] <br /> [k8up]                                         | Backups operator using [restic] to backup to s3 endpoints                                                                                 |            ✅            |
 |                                                  [<img src="assets/images/icons/k8tz.png" width="32" alt="k8tz logo, the k8s logo but with a watch in the center instead of the ship wheel">][k8tz] <br /> [k8tz]                                                  | Timezone environment variable injector for pods and cronjobs                                                                              |            ✅            |
-|                                                                  [<img src="assets/images/icons/netmaker-icon.png" width="32" alt="netmaker logo, a purple letter N">][Netmaker] <br /> [Netmaker]                                                                 | Netmaker is a self hosted vpn management tool                                                                                             |            ✅            |
+|                                                                  [<img src="assets/images/icons/netmaker-icon.png" width="32" alt="netmaker logo, a purple letter N">][Netmaker] <br /> [Netmaker]                                                                 | Netmaker is a self hosted vpn management tool that uses Wiregaurd®                                                                                             |            ✅            |
 |                                               [<img src="assets/images/icons/nextcloud.png" width="32" alt="nextcloud logo, 3 white circles touching eachother on a blue background">][Nextcloud] <br /> [Nextcloud]                                               | Nextcloud is a self hosted file server                                                                                                    |            ✅            |
 |                                                            [<img src="assets/images/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon]                                                            | Mastodon is a self hosted federated social media network                                                                                  |            ✅            |
 |                                                                                  [<img src="assets/images/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix]                                                                                 | Matrix is a self hosted chat platform                                                                                                     |            ✅            |
@@ -79,14 +81,14 @@ Minor Notes:
 
 
 # Status
-
+`smol-k8s-lab` is actively maintained, and in a semi-stable state. We still may introduce features that, upon major version releases, can introduce breaking changes, but we'll always include how to update your config files in the merged pull request description, and that will be linked in the release notes.
 
 ## Development
-smol-k8s-lab is written in Python and built and published using [Poetry]. You can check out the [`pyproject.toml`](https://github.com/small-hack/smol-k8s-lab/blob/main/pyproject.toml) for the versions of each library we install below.
+`smol-k8s-lab` is written in Python 3.12 and built and published using [Poetry]. You can check out the [`pyproject.toml`](https://github.com/small-hack/smol-k8s-lab/blob/main/pyproject.toml) for the versions of each library we install below.
 
 ### Core libraries
 
-These are installed anytime you install smol-k8s-lab as an end user:
+These are installed anytime you install `smol-k8s-lab` as an end user:
 
 | Default Library | Description                                                                      |
 |-----------------|----------------------------------------------------------------------------------|
