@@ -30,7 +30,7 @@ screens:
   delete_app:
     title: Delete application confirmation screen
     description: |
-      There is one modal screen box on top of the apps screen that says. Are you sure you want to delete app and all associated resource? Below that are two buttons, the first button on the left says yes, and the second button says nope.
+      There is one modal screen box on top of the apps screen that has a border that reads, Are you sure you want to delete the app? In the box, there are two elements. First element is a checkbox that says Force. Second element is a button that says Delete. In the bottom border it says cancel.
 
   modify_globals:
     title: |
