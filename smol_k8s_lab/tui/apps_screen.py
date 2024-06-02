@@ -1,6 +1,5 @@
 #!/usr/bin/env python3.11
 # smol-k8s-lab libraries
-from smol_k8s_lab.constants import VERSION
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsModalScreen
@@ -62,6 +61,7 @@ class AppsConfigScreen(Screen):
         self.modify_cluster = modify_cluster
 
         if self.modify_cluster:
+            self.log("self.modify_cluster is set to true")
             argo_namespace = self.cfg['argo_cd']['argo']['namespace']
             subproc(['kubectl config set-context --current --namespace='
                      f'{argo_namespace}'])
@@ -75,6 +75,8 @@ class AppsConfigScreen(Screen):
             self.argocd = ArgoCD(self.cfg['argo_cd']['argo']['namespace'],
                                  self.cfg['argo_cd']['argo']['secret_keys']['hostname'],
                                  k8s_obj)
+        else:
+            self.log("self.modify_cluster is set to false")
 
         # this is state storage
         self.previous_app = ''
@@ -375,19 +377,21 @@ class AppsConfigScreen(Screen):
 
         self.previous_app = highlighted_app
 
-        self.update_border_buttons(app_inputs_pane, highlighted_app)
+        self.update_border_buttons(app_inputs_pane,
+                                   highlighted_app.replace("_", "-"))
 
     @work(group="check-app-exists-workers")
     async def update_border_buttons(self, app_inputs_pane, app) -> None:
         # verify app is actually in Argo CD
         if self.modify_cluster:
             if self.argocd.check_if_app_exists(app):
-                self.log(f"Displaying sync and delete buttons for {self.previous_app}")
+                self.log(f"Displaying sync and delete buttons for {app}")
                 app_inputs_pane.border_subtitle = (
                         "[@click=screen.sync_argocd_app]🔁 sync[/] / "
                         "[@click=screen.delete_argocd_app]🗑️ delete[/]"
                         )
             else:
+                self.log(f"{app} doesn't exist so no border button will be displayed")
                 app_inputs_pane.border_subtitle = ""
 
     def action_sync_argocd_app(self) -> None:
