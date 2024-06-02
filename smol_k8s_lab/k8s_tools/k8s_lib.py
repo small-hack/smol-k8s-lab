@@ -203,6 +203,13 @@ class K8s():
         else:
             return []
 
+    def delete_namespaced_pods(self, namespace: str = "") -> None:
+        """
+        deletes all the pods in a given namespace
+        """
+        return subproc([f"kubectl delete pods -n {namespace} --all"],
+                       error_ok=True)
+
     # def create_from_manifest_dict(self,
     #                               api_group: str = "",
     #                               api_version: str = "",
