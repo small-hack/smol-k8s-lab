@@ -6,6 +6,7 @@ from smol_k8s_lab.tui.app_widgets.invalid_apps import InvalidAppsModalScreen
 from smol_k8s_lab.tui.app_widgets.app_inputs_confg import AppInputs
 from smol_k8s_lab.tui.app_widgets.new_app_modal import NewAppModalScreen
 from smol_k8s_lab.tui.app_widgets.modify_globals import ModifyAppGlobals
+from smol_k8s_lab.tui.app_widgets.delete_app_modal import DeleteAppModalScreen
 from smol_k8s_lab.tui.util import format_description
 from smol_k8s_lab.utils.run.subproc import subproc
 
@@ -424,27 +425,40 @@ class AppsConfigScreen(Screen):
         """
         deletes an existing Argo CD application
         """
-        app = self.previous_app.replace("_","-")
 
-        # sync the app
-        self.log(f"🗑️  Deleting {app} via the TUI...")
-        res = self.argocd.delete_app(app, spinner=False)
-
-        if res:
-            severity = "information"
-            if isinstance(res, list):
-                response = "\n".join(res)
+        def delete_app(modal_res = tuple):
+            """
+            process response from DeleteAppModalScreen which returns tuple of two bools
+            first bool is delete_confirm, second bool is force_delete
+            """
+            if not modal_res[0]:
+                self.log("Delete app was canceled")
+                return
             else:
-                response = res
-        else:
-            response = "No response recieved from Argo CD delete app... 🤔"
-            severity = "warning"
+                app = self.previous_app.replace("_","-")
+                # sync the app
+                self.log(f"🗑️  Deleting {app} via the TUI...")
+                res = self.argocd.delete_app(app,
+                                             spinner=False,
+                                             force=modal_res[1])
+                if res:
+                    severity = "information"
+                    if isinstance(res, list):
+                        response = "\n".join(res)
+                    else:
+                        response = res
+                else:
+                    response = "No response recieved from Argo CD delete app... 🤔"
+                    severity = "warning"
 
-        # if result is not valid, notify the user why
-        self.notify(response,
-                    timeout=10,
-                    severity=severity,
-                    title=f"🦑 Argo CD Delete [#87ff89]{self.previous_app}[/] Response\n")
+                # if result is not valid, notify the user why
+                self.notify(response,
+                            timeout=10,
+                            severity=severity,
+                            title=f"🦑 Argo CD Delete {self.previous_app} Response\n")
+
+        self.app.push_screen(DeleteAppModalScreen(self.previous_app),
+                             delete_app)
 
     @on(SelectionList.SelectionToggled)
     def update_selected_apps(self, event: SelectionList.SelectionToggled) -> None:

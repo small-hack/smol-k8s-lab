@@ -23,10 +23,14 @@ screens:
       Here you can select and configure Argo C.D. directory type apps. The screen contains two main panels on the upper three fourths of the screen, with a final panel on the bottom portion of the screen. The first panel on the left is a scrollable list of applications that can be selected to be enabled. The panel has a title of heart select apps, and a subtitle of "new app". The "new app" subtitle can be clicked to launch a modal screen to create a new app. You can also press the "A." key to do the same thing. Directly below the first panel is a button called "modify globals" for modifying global variables. The second panel is called "configure parameters for Argo C.D." and it will always have the configuration for the currently selected application. The bottom border contains a button that says "sync" only if you are modifying an existing cluster. The final panel at the bottom is a description box that says "Argo C.D. notes" with information about the application.
 
   new_app:
-    title: |
-       New Application modal screen
+    title: New application modal screen
     description: |
        Here you create a new Argo C.D. application for smol k. eights lab to deploy for you. This screen contains a header asking you to filling the two vertically stacked inputs. The top input is for the name of the app. The bottom input is for a description of the app which can be formatted with rich text. Below that is a submit button. To exit this screen, press the escape key.
+
+  delete_app:
+    title: Delete application confirmation screen
+    description: |
+      There is one modal screen box on top of the apps screen that has a border that reads, Are you sure you want to delete the app? In the box, there are two elements. First element is a checkbox that says Force. Second element is a button that says Delete. In the bottom border it says cancel.
 
   modify_globals:
     title: |

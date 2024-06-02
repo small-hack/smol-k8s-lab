@@ -71,7 +71,7 @@ class ArgoCD():
                    spinner: bool = True,
                    force: bool = False) -> str:
         """
-        delete an argocd app and returns the result
+        delete an app and associated appsets, and returns the result for all
         """
         # build delete command
         cmd = "argocd app delete -y "
@@ -80,10 +80,39 @@ class ArgoCD():
         cmd += app
 
         # run sync command
-        if spinner:
-            return subproc([cmd])
-        else:
-            return subproc([cmd], spinner=False, error_ok=True)
+        app_res = subproc([cmd], spinner=spinner, error_ok=True)
+        if not app_res:
+            app_res = ""
+
+        # clean up old appsets as well
+        appsets = ["web-app-set",
+                   "seaweedfs-appset",
+                   "s3-provider-app-set",
+                   "s3-pvc-app-set",
+                   "pvc-appset",
+                   "external-secrets-app-set"]
+
+        if app in ["nextcloud", "matrix", "mastodon", "zitadel"]:
+            for appset in appsets:
+                res = subproc([f"argocd appset delete -y {app}-{appset}"],
+                              error_ok=True, spinner=spinner)
+                if res:
+                    app_res += res
+
+            # sometimes seaweedfs gets stuck...
+            res = subproc([f"argocd app terminate-op {app}-seaweedfs-app"],
+                          error_ok=True, spinner=spinner)
+            if res:
+                app_res += res
+
+        # delete any remaining pods, just in case
+        res = self.k8s.delete_namespaced_pods(app)
+        if res:
+            app_res += res
+        print(app_res)
+
+        return app_res
+
 
     def install_app(self, app: str, argo_dict: dict, wait: bool = False) -> bool|None:
         """

@@ -86,6 +86,24 @@ By default, we always use the latest restic snapshot ID to restore your cluster.
 
 For more on restores, see [Config File > Restores](/config_files/#restores).
 
+### Deleting an Application
+
+To delete an existing Argo CD Application, you can click the delete link at the bottom of the app configuration panel on the right. After you click it, you will see the following modal screen. If you click the checkbox next to word Force, you will pass in `--force` to the `argocd app delete` command when we run it. If/when you click the delete button, we will delete the app, associated appsets, and everything in the namespace.
+
+[<img src="../../assets/images/screenshots/delete_app_modal_screen.svg" alt="terminal screenshot of smol">](../../assets/images/screenshots/delete_app_modal_screen.svg)
+
+
+!!! Note
+    The delete link will only be present if you're modifying an existing cluster, and the app is already present in Argo CD.
+
+### Syncing an Application
+
+To sync an existing Application, click the "sync" link at the bottom of the app configuration panel on the right.
+
+!!! Note
+    The sync link will only be present if you're modifying an existing cluster, and the app is already present in Argo CD.
+
+
 ## Adding new Applications
 
 To add a new application, select the "✨ New App" button under the Select apps list, which will display this modal screen:
