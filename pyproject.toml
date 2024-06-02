@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "5.3.2"
+version       = "5.3.3"
 description   = "CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -75,7 +75,7 @@ optional = true
 
 # this group is only needed for development
 [tool.poetry.group.audio.dependencies]
-coqui-tts     = "^0.24.1"
+coqui-tts     = "^0.24"
 # note: this still requires you to install ffmpeg
 pydub         = "^0.25.1"
 
