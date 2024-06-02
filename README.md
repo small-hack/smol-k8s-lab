@@ -535,7 +535,7 @@ We always install the latest version of Kubernetes that is available from the di
 |  Distro    |         Description              |
 |:----------:|:------------------------------------------------------|
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/k3s_icon.ico" width="26">][k3s] <br /> [k3s] | The certified Kubernetes distribution built for IoT & Edge computing |
-| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/k3d.png" width="26">][k3d] <br /> [k3d] | **ALPHA - TESTING PHASE** k3s in docker 🐳 |
+| [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/k3d.png" width="26">][k3d] <br /> [k3d] | **TESTING PHASE** k3s in docker 🐳 |
 | [<img src="https://raw.githubusercontent.com/small-hack/smol-k8s-lab/main/docs/assets/images/icons/kind_icon.png" width="32">][KinD] <br /> [KinD] | kind is a tool for running local Kubernetes clusters using Docker container “nodes”. kind was primarily designed for testing Kubernetes itself, but may be used for local development or CI. |
 
 We tend to test first on k3s first, then the other distros. k3d support coming soon.
