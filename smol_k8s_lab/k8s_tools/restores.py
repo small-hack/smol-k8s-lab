@@ -89,6 +89,16 @@ def restore_seaweedfs(argocd: ArgoCD,
     # but then wait again on the pods, just in case...
     argocd.k8s.wait(namespace, instance=f"{app}-seaweedfs")
 
+    # finally, make sure future scheduled backups are working
+    seaweedfs_pvc_appset = (
+            "https://raw.githubusercontent.com/small-hack/argocd-apps/main/"
+            f"{app}/app_of_apps/s3_pvc_appset.yaml"
+            )
+    argocd.k8s.apply_manifests(seaweedfs_pvc_appset, argocd.namespace)
+    argocd.wait_for_app(f"{app}-s3-pvc-app-set", retry=True)
+    argocd.wait_for_app(f"{app}-s3-pvc", retry=True)
+    argocd.sync_app(f"{app}-s3-pvc")
+
 
 def k8up_restore_pvc(k8s_obj: K8s,
                      app: str,
