@@ -38,8 +38,8 @@ def restore_seaweedfs(argocd: ArgoCD,
                       filer_snapshot_id: str = ""
                       ):
     """
-    recreate the seaweedfs PVCs for a given namespace and restore them via restic,
-    before applying the app's s3 provider Argo CD application set
+    recreate the seaweedfs PVCs for a given namespace and restore them via
+    restic, before applying the app's s3 provider Argo CD application set
     """
     snapshots = {'swfs-volume-data': volume_snapshot_id,
                  'swfs-master-data': master_snapshot_id,
@@ -95,7 +95,6 @@ def restore_seaweedfs(argocd: ArgoCD,
             f"{app}/app_of_apps/s3_pvc_appset.yaml"
             )
     argocd.k8s.apply_manifests(seaweedfs_pvc_appset, argocd.namespace)
-    argocd.wait_for_app(f"{app}-s3-pvc-app-set", retry=True)
     argocd.wait_for_app(f"{app}-s3-pvc", retry=True)
     argocd.sync_app(f"{app}-s3-pvc")
 
