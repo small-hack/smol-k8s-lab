@@ -295,12 +295,14 @@ def add_all_possible_env_vars(config: dict):
     populate all possible env vars from the sensitive values for special apps,
     namely: nextcloud, mastodon, and matrix
 
-    returns updated config dict
+    returns updated config dict.
+
+    Only exists to ensure we keep backwards compatibility with <5.0
     """
     for app in ["nextcloud", "mastodon", "matrix"]:
         init_dict = config['apps'][app]['init']
         if init_dict['enabled']:
-            sensitive_values = init_dict['sensitive_values']
+            sensitive_values = init_dict.get('sensitive_values', None)
             if sensitive_values:
                 for value in sensitive_values:
                     env_var = environ.get("_".join([app.upper(), value.upper()]))
