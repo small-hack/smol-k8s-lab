@@ -250,25 +250,41 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
             f"matrix-pgsql-credentials-{matrix_hostname}", False
             )[0]['id']
 
-    sync_db_id = bitwarden.get_item(
-            f"syncv3-pgsql-credentials-{matrix_hostname}", False
-            )[0]['id']
-
-    mas_db_id = bitwarden.get_item(
-            f"mas-pgsql-credentials-{matrix_hostname}", False
-            )[0]['id']
-
-    mas_id = bitwarden.get_item(
-            f"matrix-authentication-service-credentials-{matrix_hostname}", False
-            )[0]['id']
-
-    sync_id = bitwarden.get_item(
-            f"matrix-syncv3-credentials-{matrix_hostname}", False
-            )[0]['id']
-
     oidc_id = bitwarden.get_item(
             f"matrix-oidc-credentials-{matrix_hostname}", False
             )[0]
+
+    try:
+        sync_db_id = bitwarden.get_item(
+                f"syncv3-pgsql-credentials-{matrix_hostname}", False
+                )[0]['id']
+    except TypeError:
+        log.info("No matrix sync db id found")
+        sync_db_id = "Not Applicable"
+
+    try:
+        mas_db_id = bitwarden.get_item(
+                f"mas-pgsql-credentials-{matrix_hostname}", False
+                )[0]['id']
+    except TypeError:
+        log.info("No matrix mas db id found")
+        mas_db_id = "Not Applicable"
+
+    try:
+        mas_id = bitwarden.get_item(
+                f"matrix-authentication-service-credentials-{matrix_hostname}", False
+                )[0]['id']
+    except TypeError:
+        log.info("No matrix mas id found")
+        mas_id = "Not Applicable"
+
+    try:
+        sync_id = bitwarden.get_item(
+                f"matrix-syncv3-credentials-{matrix_hostname}", False
+                )[0]['id']
+    except TypeError:
+        log.info("No matrix sync id found")
+        sync_id = "Not Applicable"
 
     # identity provider name and id are nested in the oidc item fields
     for field in oidc_id['fields']:
