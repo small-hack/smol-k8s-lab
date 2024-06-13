@@ -11,7 +11,7 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
-from smol_k8s_lab.constants import VERSION, XDG_CONFIG_FILE
+from smol_k8s_lab.constants import VERSION, XDG_CONFIG_FILE, PWD
 
 
 RECORD = environ.get("SMOL_SCREENSHOT", False)
@@ -138,4 +138,5 @@ class RichCommand(click.Command):
 
         # I use this to print a pretty svg at the end sometimes
         if RECORD:
-            console.save_svg("docs/assets/images/screenshots/help_text.svg", title="term")
+            console.save_svg(f"{PWD}/../docs/assets/images/screenshots/help_text.svg",
+                             title="term")
