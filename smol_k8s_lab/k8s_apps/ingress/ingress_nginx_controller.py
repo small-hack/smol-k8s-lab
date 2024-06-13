@@ -33,24 +33,14 @@ def configure_ingress_nginx(k8s_obj: K8s, k8s_distro: str) -> None:
     else:
         values = {
                 "controller": {
-                    "configAnnotations": {
-                        "allow-snippet-annotations": "true",
+                    "config": {
                         "forwarded-for-header": "X-Forwarded-For",
                         "proxy-real-ip-cidr": "0.0.0.0/0",
                         "real-ip-header": "X-Real-IP",
                         "use-forwarded-headers": "true"
                     },
                     "allowSnippetAnnotations": True,
-                    "resources": {
-                        "requests": {
-                            "cpu": "100m",
-                            "memory": "90Mi"
-                            }
-                    },
                     "service": {
-                        "enabled": True,
-                        "external": {"enabled": True},
-                        "type": "LoadBalancer",
                         "externalTrafficPolicy": "Local"
                     }
                 }
