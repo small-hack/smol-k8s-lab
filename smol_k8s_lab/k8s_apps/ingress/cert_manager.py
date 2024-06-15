@@ -6,12 +6,14 @@ DESCRIPTION: helm install, and optionally configure, cert manager
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
 from smol_k8s_lab.k8s_tools.helm import Helm
+from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
+from smol_k8s_lab.bitwarden.bw_cli import BwCLI
+from smol_k8s_lab.utils.value_from import extract_secret
 import logging as log
 
 
-def configure_cert_manager(k8s_obj: K8s,
-                           init_dict: dict = {}) -> None:
+def configure_cert_manager(k8s_obj: K8s) -> None:
     """
     Installs cert-manager helm chart and optionally creates letsencrypt acme
     ClusterIssuers for both staging and production if email_addr is passed in
@@ -24,24 +26,37 @@ def configure_cert_manager(k8s_obj: K8s,
                          set_options={'installCRDs': 'true'})
     release.install(wait=True)
 
-    if init_dict['enabled']:
-        init_values = init_dict['values']
-        create_cluster_issuers(init_values, k8s_obj)
 
-
-def create_cluster_issuers(init_values: dict, k8s_obj: K8s = None) -> None:
+def create_cluster_issuers(init_values: dict,
+                           k8s_obj: K8s = None,
+                           argocd: ArgoCD = None,
+                           bw: BwCLI = None) -> None:
     """
     create ClusterIssuers for cert manager
     """
-    solver = init_values.get('cluster_issuer_acme_challenge_solver', "http01").lower()
+    solver = init_values.get('cluster_issuer_acme_challenge_solver',
+                             "http01").lower()
     if solver == "dns01":
         # create the cloudflare api token secret
         provider = init_values.get("cluster_issuer_acme_dns01_provider", "")
         if provider == "cloudflare":
-            token_dict = {"token": init_values['cloudflare_api_token']}
-            k8s_obj.create_secret("cloudflare-api-token",
-                                  "cert-manager",
-                                  token_dict)
+            token = extract_secret(init_values['cloudflare_api_token'])
+            if not bw and not argocd:
+                k8s_obj.create_secret("cloudflare-api-token",
+                                      "cert-manager",
+                                      {"token": token})
+            else:
+                token_id = bw.create_login(
+                        name="cert-manager-cloudflare-api-token",
+                        item_url="certmanager",
+                        password=token
+                        )
+
+                if argocd:
+                    argocd.update_appset_secret(
+                            {'cert_manager_cloudflare_api_token': token_id}
+                            )
+
             challenge = {"cloudflare": {
                             "apiTokenSecretRef": {
                                 "name": "cloudflare-api-token",

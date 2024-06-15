@@ -253,6 +253,8 @@ apps:
       # git repo to install the Argo CD app from
       repo: "https://github.com/small-hack/argocd-apps"
       # path in the argo repo to point to. Trailing slash very important!
+      # to deploy a cloudflare api token external secret from bitwardne, you
+      # can set this to cert-manager/app_of_apps/
       path: "cert-manager/"
       # either the branch or tag to point at in the argo repo above
       revision: main
