@@ -15,7 +15,7 @@ from ..k8s_tools.argocd_util import ArgoCD
 from ..utils.rich_cli.console_logging import header
 from .argocd import configure_argocd
 from .ingress.ingress_nginx_controller import configure_ingress_nginx
-from .ingress.cert_manager import configure_cert_manager
+from .ingress.cert_manager import configure_cert_manager, create_cluster_issuers
 # from .identity_provider.keycloak import configure_keycloak
 from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.zitadel_api import Zitadel
@@ -156,10 +156,15 @@ def setup_base_apps(k8s_obj: K8s,
     ingress_nginx_enabled = ingress_dict.get('enabled', False)
     cnpg_operator_enabled = cnpg_operator_dict.get('enabled', False)
     argocd_enabled = argocd_dict.get('enabled', False)
+    cert_manager_enabled = cert_manager_dict.get('enabled', False)
     argo_secrets_plugin_enabled = argocd_dict['argo']['directory_recursion']
     # make sure helm is installed and the repos are up to date
-    prepare_helm(k8s_distro, metallb_enabled, cilium_enabled, cnpg_operator_enabled,
-                 argocd_enabled, argo_secrets_plugin_enabled)
+    prepare_helm(k8s_distro,
+                 metallb_enabled,
+                 cilium_enabled,
+                 cnpg_operator_enabled,
+                 argocd_enabled,
+                 argo_secrets_plugin_enabled)
 
     # needed for network policy editor and hubble UI
     if cilium_enabled:
@@ -189,8 +194,10 @@ def setup_base_apps(k8s_obj: K8s,
 
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [green]cert-manager[/green] for TLS certificates...", '📜')
-    if cert_manager_dict.get('enabled', False):
-        configure_cert_manager(k8s_obj, cert_manager_dict['init'])
+    if cert_manager_enabled:
+        configure_cert_manager(k8s_obj, cert_manager_dict['init'], argocd, bw)
+        if not argocd_enabled:
+            create_cluster_issuers(cert_manager_dict['init'], k8s_obj, argocd, bw)
 
     # then we install argo cd if it's enabled
     if argocd_enabled:
@@ -201,6 +208,9 @@ def setup_base_apps(k8s_obj: K8s,
 
         if ingress_nginx_enabled:
             argocd.install_app("ingress-nginx", ingress_dict['argo'])
+
+        if cert_manager_enabled:
+            create_cluster_issuers(cert_manager_dict['init'], k8s_obj, argocd, bw)
 
         return argocd
 
