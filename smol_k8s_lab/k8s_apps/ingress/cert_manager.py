@@ -34,7 +34,6 @@ def create_cluster_issuers(init_values: dict,
     """
     create ClusterIssuers for cert manager
     """
-    log.debug(init_values)
     solver = init_values.get('cluster_issuer_acme_challenge_solver',
                              "http01").lower()
     if solver == "dns01":

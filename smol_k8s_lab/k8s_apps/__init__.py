@@ -195,9 +195,11 @@ def setup_base_apps(k8s_obj: K8s,
     # manager SSL/TLS certificates via lets-encrypt
     header("Installing [green]cert-manager[/green] for TLS certificates...", '📜')
     if cert_manager_enabled:
+        cert_manager_init_enabled = cert_manager_dict['init'].get('enabled', False)
+        cert_manager_init_values = cert_manager_dict['init'].get('values', {})
         configure_cert_manager(k8s_obj)
-        if not argocd_enabled:
-            create_cluster_issuers(cert_manager_dict['init'], k8s_obj)
+        if not argocd_enabled and cert_manager_init_enabled:
+            create_cluster_issuers(cert_manager_init_values, k8s_obj)
 
     # then we install argo cd if it's enabled
     if argocd_enabled:
@@ -210,7 +212,8 @@ def setup_base_apps(k8s_obj: K8s,
             argocd.install_app("ingress-nginx", ingress_dict['argo'])
 
         if cert_manager_enabled:
-            create_cluster_issuers(cert_manager_dict['init'], k8s_obj, argocd, bw)
+            if cert_manager_init_enabled:
+                create_cluster_issuers(cert_manager_init_values, k8s_obj, argocd, bw)
 
         return argocd
 
