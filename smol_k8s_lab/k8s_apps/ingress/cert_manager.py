@@ -12,10 +12,7 @@ from smol_k8s_lab.bitwarden.bw_cli import BwCLI
 import logging as log
 
 
-def configure_cert_manager(k8s_obj: K8s,
-                           init_dict: dict = {},
-                           argocd: ArgoCD = None,
-                           bw: BwCLI = None) -> None:
+def configure_cert_manager(k8s_obj: K8s) -> None:
     """
     Installs cert-manager helm chart and optionally creates letsencrypt acme
     ClusterIssuers for both staging and production if email_addr is passed in
@@ -27,10 +24,6 @@ def configure_cert_manager(k8s_obj: K8s,
                          namespace='cert-manager',
                          set_options={'installCRDs': 'true'})
     release.install(wait=True)
-
-    if init_dict['enabled']:
-        init_values = init_dict['values']
-        create_cluster_issuers(init_values, k8s_obj, argocd, bw)
 
 
 def create_cluster_issuers(init_values: dict,
