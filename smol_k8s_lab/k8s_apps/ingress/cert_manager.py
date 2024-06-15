@@ -9,6 +9,7 @@ from smol_k8s_lab.k8s_tools.helm import Helm
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.k8s_lib import K8s
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI
+from smol_k8s_lab.utils.value_from import extract_secret
 import logging as log
 
 
@@ -33,13 +34,14 @@ def create_cluster_issuers(init_values: dict,
     """
     create ClusterIssuers for cert manager
     """
+    log.debug(init_values)
     solver = init_values.get('cluster_issuer_acme_challenge_solver',
                              "http01").lower()
     if solver == "dns01":
         # create the cloudflare api token secret
         provider = init_values.get("cluster_issuer_acme_dns01_provider", "")
         if provider == "cloudflare":
-            token = init_values['cloudflare_api_token']
+            token = extract_secret(init_values['cloudflare_api_token'])
             if not bw and not argocd:
                 k8s_obj.create_secret("cloudflare-api-token",
                                       "cert-manager",
