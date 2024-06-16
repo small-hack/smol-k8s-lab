@@ -144,7 +144,7 @@ def configure_zitadel(argocd: ArgoCD,
         if bitwarden and init_enabled:
             # get the zitadel service account private key json for generating a jwt
             private_key_dict = get_zitadel_admin_service_account(
-                    argocd.k8s_obj,
+                    argocd.k8s,
                     zitadel_hostname,
                     zitadel_namespace,
                     bitwarden)
