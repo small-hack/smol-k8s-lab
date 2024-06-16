@@ -98,7 +98,13 @@ def configure_matrix(argocd: ArgoCD,
             matrix_auth_hostname = secrets.get("auth_hostname", "")
             zitadel_hostname = zitadel.hostname
             logout_uris = [f"https://{matrix_hostname}"]
-            redirect_uris = f"https://{matrix_auth_hostname}/upstream/callback/{mas_provider_ulid}"
+
+            # If using MAS (Matrix authentication service), use different redirect URI
+            if matrix_auth_hostname:
+                redirect_uris = f"https://{matrix_auth_hostname}/upstream/callback/{mas_provider_ulid}"
+            else:
+                redirect_uris = f"https://{matrix_hostname}/_synapse/client/oidc/callback"
+
             oidc_creds = zitadel.create_application("matrix",
                                                     redirect_uris,
                                                     logout_uris)
