@@ -8,17 +8,26 @@ Leverage Argo CD and slim Kubernetes distributions, like K3s, to create producti
 
 `smol-k8s-lab`'s declarative workflow, CLI, and TUI enable rapid iteration in production-like environments with minimal costs for failure. This makes it ideal for proof-of-concepts, prototyping, and benchmarking Kubernetes applications and distributions. It's also great for home labs, with some common FOSS apps such as Home Assistant, Nextcloud, Matrix, and more!
 
-By default, it deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in open source Git repos.  Additionally, a customized dark-theme is provided for Argo CD's incredibly useful web-interface.
+By default, `smol-k8s-lab` deploys [Argo CD] + [Argo CD Appset Secret Plugin] which enables Argo CD to securely manage your lab via files in [open source Git repos](https://github.com/small-hack/argocd-apps). Additionally, a customized nord-like dark-theme is provided for Argo CD's incredibly useful web-interface.
 
-`smol-k8s-lab` can also optionally make heavy use of Bitwarden to store any passwords, tokens, and secrets so you can use them immediately.
 
-Consider viewing our very long walk through if you like video walk-throughs:
+Consider viewing our very long walk through if you like video walk-throughs (which is a little out of date, but we intend to update it as soon as possible to include new features):
 
 <p align="center">
 <iframe width="720" height="480" src="https://www.youtube.com/embed/UdOQM9n5hyU?si=5dDCf2J2Oczhdej3" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 </p>
 
 Here's the [same video with captions](https://youtu.be/2E9DVJpv440?feature=shared).
+
+### Features
+
+- Deploys [Argo CD](https://github.com/argoproj/argo-cd) by default, so you can manage your entire lab using files in [open source git repos](https://github.com/small-hack/argocd-apps)
+  - Argo CD ships with a dashboard with a custom theme 💙
+- Specializes in using Bitwarden (though not required) to store sensitive values both in your Bitwwarden vault, and on your cluster as Secrets.
+- Manages all your authentication needs centrally using [Zitadel] and [Vouch] 💪
+- Supports initialization on a [range of common self-hosted apps](https://small-hack.github.io/smol-k8s-lab/k8s_apps/argocd/) 📱
+  - featured initialized apps such as [Zitadel], [Nextcloud](https://small-hack.github.io/smol-k8s-lab/k8s_apps/nextcloud/), [Matrix](https://small-hack.github.io/smol-k8s-lab/k8s_apps/matrix/), and [Home Assistant](https://small-hack.github.io/smol-k8s-lab/k8s_apps/home_assistant/) include [b]backups and restores[/b]!
+- Lots o' [docs](https://small-hack.github.io/smol-k8s-lab)
 
 ## Getting Started
 

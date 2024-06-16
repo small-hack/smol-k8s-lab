@@ -58,8 +58,8 @@ class Zitadel():
         """
         res = None
         while True:
-            log.debug("checking if api is up by querying the healthz endpoint"
-                      f" by querying {self.api_url} using verify={self.verify}")
+            log.debug("checking if api is up by querying the healthz endpoint,"
+                      f" {self.api_url}, using verify={self.verify}")
 
             try:
                 res = request("GET", f"{self.api_url}healthz", verify=self.verify)
