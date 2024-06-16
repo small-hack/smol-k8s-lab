@@ -259,21 +259,6 @@ def restore_cnpg_cluster(k8s_obj: K8s,
     save_path = path.join(XDG_CACHE_DIR, f'{app}_backup.info.env')
     s3.get_object(s3_bucket, possible_files[-1], save_path)
 
-    # get the backup name to use with the restore dict below
-    # with open(save_path, 'r') as backup_info_file:
-    #     for line in backup_info_file:
-    #         if "time" in line:
-    #             backup_time = line.split("=")[1]
-
-    #         # try number one - results in restored backup, but can't start postgres
-    #         if "backup_name" in line:
-    #             backup_id = line.split("=")[1].split('-')[1].strip()
-
-    # try number one - results in restored backup, but can't start postgres
-    #              "recoveryTarget": {"targetImmediate": True,
-    #                                 "backupID": backup_id}
-    # not tried:
-    # "recoveryTarget": {"targetTime": backup_time}
     restore_dict = {
             "name": cluster_name,
             "instances": 1,
@@ -395,6 +380,10 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                     "chart_name": "cnpg-cluster/cnpg-cluster"}
     release = Helm.chart(**release_dict)
     release.install(wait=True, upgrade=True)
+
+    # prepare s3 bucket for backups again, by wiping it. The data is still
+    # upstream in the remote bucket, don't worry... unless no remote, then worry
+    s3.delete_object(s3_bucket, cluster_name, True)
 
 
 def recreate_pvc(k8s_obj: K8s,

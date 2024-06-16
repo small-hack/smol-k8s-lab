@@ -54,6 +54,8 @@ def configure_zitadel(argocd: ArgoCD,
         else:
             prefix = "Setting up"
 
+    zitadel_namespace = cfg['argo']['namespace']
+
     header(f"{prefix} [green]Zitadel[/], for your self hosted identity management",
            "👥")
 
@@ -75,8 +77,7 @@ def configure_zitadel(argocd: ArgoCD,
         backup_vals = process_backup_vals(cfg.get('backups', ''), 'zitadel', argocd)
 
         # first we make sure the namespace exists
-        namespace = cfg['argo']['namespace']
-        argocd.k8s.create_namespace(namespace)
+        argocd.k8s.create_namespace(zitadel_namespace)
 
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
@@ -92,18 +93,18 @@ def configure_zitadel(argocd: ArgoCD,
             # create the zitadel core key
             secret_dict = {'masterkey': create_password()}
             argocd.k8s.create_secret(name="zitadel-core-key",
-                                     namespace=namespace,
+                                     namespace=zitadel_namespace,
                                      str_data=secret_dict)
 
             # this is just for the db username
             argocd.k8s.create_secret(name="zitadel-db-credentials",
-                                     namespace=namespace,
+                                     namespace=zitadel_namespace,
                                      str_data={'username': 'zitadel'})
 
     if not app_installed and restore_enabled:
         restore_zitadel(argocd,
                         zitadel_hostname,
-                        namespace,
+                        zitadel_namespace,
                         cfg['argo'],
                         secrets,
                         restore_dict,
@@ -129,8 +130,10 @@ def configure_zitadel(argocd: ArgoCD,
         # Before initialization, we need to wait for zitadel's API to be up
         argocd.wait_for_app('zitadel', retry=True)
         argocd.wait_for_app('zitadel-web-app', retry=True)
+
         vouch_dict = initialize_zitadel(argocd,
                                         zitadel_hostname=zitadel_hostname,
+                                        zitadel_namespace=zitadel_namespace,
                                         api_tls_verify=api_tls_verify,
                                         user_dict=initial_user_dict,
                                         bitwarden=bitwarden)
@@ -140,15 +143,16 @@ def configure_zitadel(argocd: ArgoCD,
 
         if bitwarden and init_enabled:
             # get the zitadel service account private key json for generating a jwt
-            adm_secret_file = argocd.k8s.get_secret(
-                    'zitadel-admin-sa',
-                    'zitadel'
-                    )['data']['zitadel-admin-sa.json']
+            private_key_dict = get_zitadel_admin_service_account(
+                    argocd.k8s,
+                    zitadel_hostname,
+                    zitadel_namespace,
+                    bitwarden)
 
             # setup and return the zitadel python api wrapper
             zitadel = Zitadel(
                     zitadel_hostname,
-                    loads(b64dec(str.encode(adm_secret_file)).decode('utf8')),
+                    private_key_dict,
                     api_tls_verify
                     )
             try:
@@ -173,8 +177,52 @@ def configure_zitadel(argocd: ArgoCD,
             return zitadel
 
 
+def get_zitadel_admin_service_account(k8s_obj,
+                                      zitadel_hostname: str,
+                                      zitadel_namespace: str = "zitadel",
+                                      bitwarden: BwCLI = None) -> dict | None:
+    """
+    Try to get the zitadel admin service account from k8s secret or bitwarden.
+    If it finds the admin service account secret, it returns a dict like:
+    {"keyId": "", "key": "", "userId": ""}
+    """
+    # get the zitadel service account private key json for generating a jwt
+    try:
+        # first, we try to get private key from a k8s secret in the zitadel ns
+        adm_secret = k8s_obj.get_secret('zitadel-admin-sa', zitadel_namespace)
+        adm_secret_file = adm_secret['data']['zitadel-admin-sa.json']
+        private_key_dict = loads(b64dec(str.encode(adm_secret_file)).decode('utf8'))
+    except Exception as e:
+        # if that fails, then we try to get the key from bitwarden
+        log.warn(f"Encountered error while getting secret: {e}")
+        if bitwarden:
+            log.info("Trying to get admin service account secret from bitwarden.")
+            adm_secret = bitwarden.get_item(
+                    f"zitadel-admin-service-account-{zitadel_hostname}"
+                    )[0]
+            private_key_dict = {"keyId": adm_secret['fields'][0]['value'],
+                                "key": adm_secret['login']['password'],
+                                "userId": adm_secret['login']['username']}
+        else:
+            return None
+    else:
+        # if we find the key in a k8s secret, we try to put into bitwarden, so
+        # that if the whole namespace is blown away, we still have access to it
+        key_id_field = create_custom_field("keyId", private_key_dict['keyId'])
+        bitwarden.create_login(
+            name='zitadel-admin-service-account',
+            item_url=zitadel_hostname,
+            user=private_key_dict['userId'],
+            password=private_key_dict['key'],
+            fields=[key_id_field]
+            )
+
+    return private_key_dict
+
+
 def initialize_zitadel(argocd: ArgoCD,
                        zitadel_hostname: str,
+                       zitadel_namespace: str = "zitadel",
                        api_tls_verify: bool = False,
                        user_dict: dict = {},
                        bitwarden: BwCLI = None) -> dict | None:
@@ -194,13 +242,15 @@ def initialize_zitadel(argocd: ArgoCD,
     argocd_hostname = argocd.hostname
 
     sub_header("Configuring zitadel as your OIDC SSO for Argo CD")
+    private_key_dict = get_zitadel_admin_service_account(k8s_obj,
+                                                         zitadel_hostname,
+                                                         zitadel_namespace,
+                                                         bitwarden)
+    if not private_key_dict:
+        log.error("No private key dict was recieved, can't initialize zitadel api")
 
-    # get the zitadel service account private key json for generating a jwt
-    adm_secret = k8s_obj.get_secret('zitadel-admin-sa', 'zitadel')
-    adm_secret_file = adm_secret['data']['zitadel-admin-sa.json']
-    private_key_obj = loads(b64dec(str.encode(adm_secret_file)).decode('utf8'))
     # setup the zitadel python api wrapper
-    zitadel =  Zitadel(zitadel_hostname, private_key_obj, api_tls_verify)
+    zitadel =  Zitadel(zitadel_hostname, private_key_dict, api_tls_verify)
 
     # create our first project
     project_name = user_dict.pop('project')
@@ -413,10 +463,7 @@ def restore_zitadel(argocd: ArgoCD,
         refresh_bitwarden(argocd, zitadel_hostname, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
-        # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
-        # WARNING: change this back to main when done testing
-        # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
-        ref = "add-pvc-helm-chart-for-zitadel"
+        ref = "main"
         external_secrets_yaml = (
                 "https://raw.githubusercontent.com/small-hack/argocd-apps/"
                 f"{ref}/zitadel/app_of_apps/external_secrets_argocd_appset.yaml"
@@ -437,10 +484,9 @@ def restore_zitadel(argocd: ArgoCD,
     # then we create all the seaweedfs pvcs we lost and restore them
     snapshot_ids = restore_dict['restic_snapshot_ids']
     restore_seaweedfs(
-            argocd.k8s,
+            argocd,
             'zitadel',
             zitadel_namespace,
-            argocd.namespace,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,
@@ -458,7 +504,8 @@ def restore_zitadel(argocd: ArgoCD,
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
         s3_endpoint = secrets.get('s3_endpoint', "")
-        restore_cnpg_cluster('zitadel',
+        restore_cnpg_cluster(argocd.k8s,
+                             'zitadel',
                              zitadel_namespace,
                              pgsql_cluster_name,
                              psql_version,

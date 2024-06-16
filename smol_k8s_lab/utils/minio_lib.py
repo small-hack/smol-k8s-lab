@@ -57,6 +57,19 @@ class BetterMinio:
 
         return self.client.list_objects(**obj_args)
 
+    def delete_object(self,
+                      bucket_name: str,
+                      object_name: str,
+                      recursive: bool = False):
+        """
+        delete an object from a bucket
+        """
+        if recursive:
+            objects = self.list_object(bucket_name, object_name, recursive=True)
+            self.client.remove_objects(bucket_name, objects)
+        else:
+            self.client.remove_object(bucket_name, object_name)
+
     def create_access_credentials(self, access_key: str) -> str:
         """
         given an access key name, we create minio access credentials
