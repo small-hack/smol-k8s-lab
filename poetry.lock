@@ -3692,13 +3692,13 @@ six = ">=1.5"
 
 [[package]]
 name = "python-ulid"
-version = "2.6.0"
+version = "2.7.0"
 description = "Universally unique lexicographically sortable identifier"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "python_ulid-2.6.0-py3-none-any.whl", hash = "sha256:b47cc7a427b82f7526af96385d7702685df808e9b4922523dd5988a3ba98a89d"},
-    {file = "python_ulid-2.6.0.tar.gz", hash = "sha256:904e19093dd6578a5ce01a8274e3e228d556d47be3bda328da2d3601c5240c4f"},
+    {file = "python_ulid-2.7.0-py3-none-any.whl", hash = "sha256:c81658e382f69bad8c6d365155c4ae21843ae4226b94f72c12d7adcbb545a251"},
+    {file = "python_ulid-2.7.0.tar.gz", hash = "sha256:18eb595885140851a490a95b0da4447911ff69fa9f434732067b97f6956f9fe9"},
 ]
 
 [package.extras]
