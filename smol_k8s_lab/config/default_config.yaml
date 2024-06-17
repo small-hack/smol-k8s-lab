@@ -924,6 +924,12 @@ apps:
         smtp_password:
           value_from:
             env: MATRIX_SMTP_PASSWORD
+        # expects a list like this:
+        #
+        # - server_name: "matrix.dog.friend"
+        #   verify_keys:
+        #     "ed25519:a_abcd": "somekeyherethatisnotactuallythis"
+        trusted_key_servers: []
     backups:
       # cronjob syntax schedule to run matrix pvc backups
       pvc_schedule: 10 0 * * *

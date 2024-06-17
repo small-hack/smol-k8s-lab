@@ -65,8 +65,12 @@ def configure_matrix(argocd: ArgoCD,
 
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
+        argocd.k8s.create_namespace(matrix_namespace)
+
         init_values = init.get('values', {})
 
+        # if there's trusted key servers, create a secret for them
+        trust_key_servers = init_values.get("trust_key_servers", [])
 
         backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
 
@@ -136,10 +140,16 @@ def configure_matrix(argocd: ArgoCD,
                                   mas_client_secret,
                                   mas_admin_token,
                                   syncv3_secret,
+                                  trust_key_servers,
                                   bitwarden)
 
         # else create these as Kubernetes secrets
         elif not bitwarden and not restore_enabled:
+            argocd.k8s.create_secret("trusted-key-servers",
+                                     matrix_namespace,
+                                     trust_key_servers,
+                                     "trustedKeyServers")
+
             # postgresql credentials
             argocd.k8s.create_secret(
                     'matrix-pgsql-credentials',
@@ -337,11 +347,20 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mas_client_secret: str,
                           mas_admin_token: str,
                           syncv3_secret: str,
+                          trusted_key_servers: str|list|dict,
                           bitwarden: BwCLI):
     """
     setup all the required secrets as items in bitwarden
     """
     sub_header("Creating matrix secrets in Bitwarden")
+
+    if trusted_key_servers:
+        trusted_key_servers_id = bitwarden.create_login(
+                name='matrix-trusted-key-servers',
+                item_url=matrix_hostname,
+                user="nousername",
+                password=trusted_key_servers
+                )
 
     # S3 credentials
     if "http" not in s3_endpoint:
@@ -512,7 +531,9 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_oidc_credentials_bitwarden_id': oidc_id,
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_idp_name': idp_name,
-             'matrix_idp_id': idp_id})
+             'matrix_idp_id': idp_id,
+             'matrix_trusted_key_servers_bitwarden_id': trusted_key_servers_id}
+            )
 
     # reload the bitwarden ESO provider
     try:
