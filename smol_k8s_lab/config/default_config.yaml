@@ -1235,6 +1235,10 @@ apps:
       secret_keys:
         hostname: ""
         default_phone_region: NL
+        # the default domain to send emails to user with
+        mail_domain: "domain.com"
+        # the default user to use with mail_domain for sending emails, formats to no-reply@domain.com
+        mail_from_address: "no-reply"
         # create a pvc for nextcloud files
         files_pvc_enabled: "true"
         # size of the pvc for nextcloud files

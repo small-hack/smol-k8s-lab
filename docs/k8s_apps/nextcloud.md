@@ -195,8 +195,14 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        # the FQDN that you want to host nextcloud on
         hostname: "cloud.cooldogs.net"
+        # the default phone region for users that don't have one set
         default_phone_region: NL
+        # the default domain to send emails to user with
+        mail_domain: "domain.com"
+        # the default user to use with mail_domain for sending emails, formats to no-reply@domain.com
+        mail_from_address: "no-reply"
         # enable persistent volume claim for nextcloud files storage
         files_pvc_enabled: 'true'
         # size of files pvc storage
