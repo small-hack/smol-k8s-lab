@@ -276,17 +276,32 @@ def input_field(label: str,
                 placeholder: str,
                 tooltip: str = "",
                 validate_empty: bool = False,
-                extra_row_class: str = "") -> Horizontal:
+                extra_row_class: str = "",
+                stacked: bool = False,
+                sensitive: bool = False) -> Horizontal:
     """
     returns an input label and field within a Horizontal container
     """
-    input_label = Label(label.replace("_", " ") + ":", classes="input-row-label")
+    # create a label for the input field
+    if stacked:
+        label_name = label
+        label_classes = "input-row-stacked-label"
+    else:
+        label_name = label.replace("_", " ") + ":"
+        label_classes = "input-row-label"
+    input_label = Label(label_name, classes=label_classes)
     input_label.tooltip = tooltip
 
+    # create input field
+    i_id = label.replace("_","-").replace(" ","-").replace(".","-").replace(":","-")
     input_dict = {"placeholder": placeholder,
                   "classes": "input-row-input",
-                  "id": label.replace("_","-").replace(" ", "-"),
+                  "id": i_id,
                   "name": name}
+
+    if sensitive:
+        input_dict["password"] = True
+
     if initial_value:
         input_dict["value"] = initial_value
     else:
@@ -298,9 +313,16 @@ def input_field(label: str,
     input = Input(**input_dict)
     input.tooltip = tooltip
 
-    if extra_row_class:
-        classes = f"input-row {extra_row_class}"
+    # input row classes
+    if stacked:
+        input_row_classes = "input-stacked-row"
     else:
-        classes = "input-row"
+        input_row_classes = "input-row"
+    if extra_row_class:
+        input_row_classes += f" {extra_row_class}"
 
-    return Horizontal(input_label, input, classes=classes)
+    # return either a Horizontal container or a Grid container
+    if stacked:
+        return Grid(input_label, input, classes=input_row_classes)
+    else:
+        return Horizontal(input_label, input, classes=input_row_classes)

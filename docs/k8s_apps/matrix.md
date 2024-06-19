@@ -26,7 +26,7 @@
 
 
 !!! Note
-    We recently added support for [sliding sync](https://github.com/) and [matrix authentication service](https://github.com/).
+    We recently added support for [sliding sync](https://github.com/) and [matrix authentication service](https://github.com/). To use these, please use `matrix/app_of_apps_beta/` for `apps.matrix.argo.path`.
 
 ## Required Values
 
@@ -38,17 +38,29 @@ The main variables you need to worry about when setting up matrix are your `host
 - element_hostname
 - federation_hostname
 
+**If using Matrix authentication Service and Sliding Sync**:
+
+- auth_hostname
+- sliding_sync_hostname
+
 These are all storage related and you can leave them at the defaults for small servers:
 
+**Signing key storage**:
 - signing_key_pvc_enabled
 - signing_key_storage
 - signing_key_access_mode
+
+**Media storage**:
 - media_pvc_enabled
 - media_storage
 - media_access_mode
+
+**Synapse config storage**:
 - synapse_config_pvc_enabled
 - synapse_config_storage
 - synapse_config_access_mode
+
+**S3 storage**:
 - s3_provider
 - s3_bucket
 - s3_endpoint
@@ -63,8 +75,25 @@ These are all one time values that you need to provide, related entirely to mail
 
 - smtp_user
 - smtp_host
-
 See below for providing smtp_password without putting it in plain text.
+
+If you want to federate, you also need to provide:
+- [trusted_key_servers](https://element-hq.github.io/synapse/latest/usage/configuration/config_documentation.html?highlight=trusted#trusted_key_servers)
+
+You can provide a list of maps like this for trusted_key_servers:
+
+```yaml
+apps:
+  matrix:
+    init:
+      values:
+        - server_name: matrix.friend.com
+          verify_keys:
+            ed25519:auto: abcdefghijklmnopqrstuvwxyzabcdefghijklmopqr
+```
+
+The trusted_key_servers option currently displays in the TUI, but is not editable via the TUI yet.
+
 
 #### Sensitive values
 
