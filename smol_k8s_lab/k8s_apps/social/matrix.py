@@ -12,6 +12,7 @@ from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 # external libraries
+from json import dumps
 import logging as log
 from ulid import ULID
 
@@ -70,7 +71,7 @@ def configure_matrix(argocd: ArgoCD,
         init_values = init.get('values', {})
 
         # if there's trusted key servers, create a secret for them
-        trust_key_servers = init_values.get("trust_key_servers", [])
+        trusted_key_servers = init_values.get("trusted_key_servers", [])
 
         backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
 
@@ -140,15 +141,15 @@ def configure_matrix(argocd: ArgoCD,
                                   mas_client_secret,
                                   mas_admin_token,
                                   syncv3_secret,
-                                  trust_key_servers,
+                                  trusted_key_servers,
                                   bitwarden)
 
         # else create these as Kubernetes secrets
         elif not bitwarden and not restore_enabled:
-            argocd.k8s.create_secret("trusted-key-servers",
-                                     matrix_namespace,
-                                     trust_key_servers,
-                                     "trustedKeyServers")
+            argocd.k8s.create_secret(name="trusted-key-servers",
+                                     namespace=matrix_namespace,
+                                     str_data={"trustedKeyServers": dumps(trusted_key_servers)},
+                                     )
 
             # postgresql credentials
             argocd.k8s.create_secret(
@@ -368,7 +369,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 name='matrix-trusted-key-servers',
                 item_url=matrix_hostname,
                 user="nousername",
-                password=trusted_key_servers
+                password=dumps(trusted_key_servers),
                 )
     else:
         trusted_key_servers_id = "not applicable"
