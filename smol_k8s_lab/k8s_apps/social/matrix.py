@@ -302,6 +302,14 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
         log.info("No matrix sync id found")
         sync_id = "Not Applicable"
 
+    try:
+        trusted_key_servers_id = bitwarden.get_item(
+                f'matrix-trusted-key-servers-{matrix_hostname}', False
+                )[0]['id']
+    except TypeError:
+        log.info("No matrix trusted key servers id found")
+        trusted_key_servers_id = "not applicable"
+
     # identity provider name and id are nested in the oidc item fields
     for field in oidc_id['fields']:
         if field['name'] == 'idp_id':
@@ -322,6 +330,7 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_sliding_sync_postgres_credentials_bitwarden_id': sync_db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
+             'matrix_trusted_key_servers_bitwarden_id': trusted_key_servers_id,
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id})
 
