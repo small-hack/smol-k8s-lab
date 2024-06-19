@@ -361,6 +361,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 user="nousername",
                 password=trusted_key_servers
                 )
+    else:
+        trusted_key_servers_id = "not applicable"
 
     # S3 credentials
     if "http" not in s3_endpoint:
