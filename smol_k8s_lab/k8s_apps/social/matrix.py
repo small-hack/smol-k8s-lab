@@ -118,6 +118,13 @@ def configure_matrix(argocd: ArgoCD,
         else:
             zitadel_hostname = ""
 
+        if trusted_key_servers:
+            argocd.k8s.create_secret(name="trusted-key-servers",
+                                     namespace=matrix_namespace,
+                                     str_data=trusted_key_servers,
+                                     inline_key="trustedKeyServers"
+                                     )
+
         # if the user has bitwarden enabled
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
@@ -146,11 +153,6 @@ def configure_matrix(argocd: ArgoCD,
 
         # else create these as Kubernetes secrets
         elif not bitwarden and not restore_enabled:
-            argocd.k8s.create_secret(name="trusted-key-servers",
-                                     namespace=matrix_namespace,
-                                     str_data={"trustedKeyServers": dumps(trusted_key_servers)},
-                                     )
-
             # postgresql credentials
             argocd.k8s.create_secret(
                     'matrix-pgsql-credentials',
@@ -369,7 +371,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 name='matrix-trusted-key-servers',
                 item_url=matrix_hostname,
                 user="nousername",
-                password=dumps(trusted_key_servers),
+                password=trusted_key_servers
                 )
     else:
         trusted_key_servers_id = "not applicable"
