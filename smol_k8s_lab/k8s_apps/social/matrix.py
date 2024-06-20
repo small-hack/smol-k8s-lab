@@ -70,9 +70,6 @@ def configure_matrix(argocd: ArgoCD,
 
         init_values = init.get('values', {})
 
-        # if there's trusted key servers, create a secret for them
-        trusted_key_servers = init_values.get("trusted_key_servers", [])
-
         backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
 
         # configure s3 credentials
@@ -141,7 +138,6 @@ def configure_matrix(argocd: ArgoCD,
                                   mas_client_secret,
                                   mas_admin_token,
                                   syncv3_secret,
-                                  trusted_key_servers,
                                   bitwarden)
 
         # else create these as Kubernetes secrets
@@ -206,6 +202,9 @@ def configure_matrix(argocd: ArgoCD,
                         )
 
     if init_enabled:
+        # if there's trusted key servers, create a secret for them
+        trusted_key_servers = init_values.get("trusted_key_servers", [])
+
         # if init is enabled, always create trusted_key_servers secret
         if trusted_key_servers:
             argocd.k8s.create_secret(name="trusted-key-servers",
@@ -307,13 +306,13 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
         log.info("No matrix sync id found")
         sync_id = "Not Applicable"
 
-    try:
-        trusted_key_servers_id = bitwarden.get_item(
-                f'matrix-trusted-key-servers-{matrix_hostname}', False
-                )[0]['id']
-    except TypeError:
-        log.info("No matrix trusted key servers id found")
-        trusted_key_servers_id = "not applicable"
+    # try:
+    #     trusted_key_servers_id = bitwarden.get_item(
+    #             f'matrix-trusted-key-servers-{matrix_hostname}', False
+    #             )[0]['id']
+    # except TypeError:
+    #     log.info("No matrix trusted key servers id found")
+    #     trusted_key_servers_id = "not applicable"
 
     # identity provider name and id are nested in the oidc item fields
     for field in oidc_id['fields']:
@@ -322,6 +321,7 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
         if field['name'] == 'idp_name':
             idp_name = field['value']
 
+    # 'matrix_trusted_key_servers_bitwarden_id': trusted_key_servers_id,
     argocd.update_appset_secret(
             {'matrix_registration_credentials_bitwarden_id': reg_id,
              'matrix_smtp_credentials_bitwarden_id': smtp_id,
@@ -335,7 +335,6 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_sliding_sync_postgres_credentials_bitwarden_id': sync_db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
-             'matrix_trusted_key_servers_bitwarden_id': trusted_key_servers_id,
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id})
 
@@ -361,22 +360,21 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mas_client_secret: str,
                           mas_admin_token: str,
                           syncv3_secret: str,
-                          trusted_key_servers: str|list|dict,
                           bitwarden: BwCLI):
     """
     setup all the required secrets as items in bitwarden
     """
     sub_header("Creating matrix secrets in Bitwarden")
 
-    if trusted_key_servers:
-        trusted_key_servers_id = bitwarden.create_login(
-                name='matrix-trusted-key-servers',
-                item_url=matrix_hostname,
-                user="nousername",
-                password=trusted_key_servers
-                )
-    else:
-        trusted_key_servers_id = "not applicable"
+    # if trusted_key_servers:
+    #     trusted_key_servers_id = bitwarden.create_login(
+    #             name='matrix-trusted-key-servers',
+    #             item_url=matrix_hostname,
+    #             user="nousername",
+    #             password=trusted_key_servers
+    #             )
+    # else:
+    #     trusted_key_servers_id = "not applicable"
 
     # S3 credentials
     if "http" not in s3_endpoint:
@@ -533,6 +531,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                     )[0]['id']
 
     # update the matrix values for the argocd appset
+    # 'matrix_trusted_key_servers_bitwarden_id': trusted_key_servers_id}
     argocd.update_appset_secret(
             {'matrix_registration_credentials_bitwarden_id': reg_id,
              'matrix_smtp_credentials_bitwarden_id': smtp_id,
@@ -548,7 +547,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id,
-             'matrix_trusted_key_servers_bitwarden_id': trusted_key_servers_id}
             )
 
     # reload the bitwarden ESO provider
