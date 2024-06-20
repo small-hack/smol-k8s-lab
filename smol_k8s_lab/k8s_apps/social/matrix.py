@@ -118,13 +118,6 @@ def configure_matrix(argocd: ArgoCD,
         else:
             zitadel_hostname = ""
 
-        if trusted_key_servers:
-            argocd.k8s.create_secret(name="trusted-key-servers",
-                                     namespace=matrix_namespace,
-                                     str_data=trusted_key_servers,
-                                     inline_key="trustedKeyServers"
-                                     )
-
         # if the user has bitwarden enabled
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
@@ -211,6 +204,15 @@ def configure_matrix(argocd: ArgoCD,
                          'admin_token': mas_admin_token,
                          'account_management_url': zitadel.hostname}
                         )
+
+    if init_enabled:
+        # if init is enabled, always create trusted_key_servers secret
+        if trusted_key_servers:
+            argocd.k8s.create_secret(name="trusted-key-servers",
+                                     namespace=matrix_namespace,
+                                     str_data=trusted_key_servers,
+                                     inline_key="trustedKeyServers"
+                                     )
 
     if not app_installed:
         # if the user is restoring, the process is a little different
