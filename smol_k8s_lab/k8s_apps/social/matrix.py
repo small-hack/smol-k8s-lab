@@ -39,6 +39,7 @@ def configure_matrix(argocd: ArgoCD,
     # verify if initialization is enabled
     init = cfg.get('init', {'enabled': True, 'restore': {'enabled': False}})
     init_enabled = init.get('enabled', True)
+    init_values = init.get('values', {})
 
     # check if we're restoring and get values for that
     restore_dict = init.get('restore', {"enabled": False})
@@ -66,8 +67,6 @@ def configure_matrix(argocd: ArgoCD,
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
         argocd.k8s.create_namespace(matrix_namespace)
-
-        init_values = init.get('values', {})
 
         backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
 
