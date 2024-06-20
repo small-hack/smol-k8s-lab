@@ -3,6 +3,7 @@ from smol_k8s_lab.tui.app_widgets.argocd_widgets import (ArgoCDApplicationConfig
                                                          ArgoCDProjectConfig)
 from smol_k8s_lab.tui.app_widgets.input_widgets import SmolK8sLabInputsWidget
 from smol_k8s_lab.tui.app_widgets.backup_and_restore import BackupWidget, RestoreApp
+from smol_k8s_lab.tui.app_widgets.trusted_key_servers import TrustedKeyServersWidget
 from smol_k8s_lab.tui.util import placeholder_grammar, create_sanitized_list
 
 # external libraries
@@ -129,7 +130,9 @@ class InitValues(Static):
     def __init__(self, app_name: str, init_dict: dict) -> None:
         self.app_name = app_name
         self.init_enabled = init_dict['enabled']
-        self.init_values = init_dict.get('values', None)
+        self.init_values = init_dict.get('values', {})
+        if app_name == "matrix":
+            self.trusted_keys_srvr = self.init_values.get('trusted_key_servers', [])
 
         super().__init__()
 
@@ -162,11 +165,12 @@ class InitValues(Static):
                 if self.init_values:
                     # these are special values that are only set up via
                     # smol-k8s-lab and do not live in a secret on the k8s cluster
-                    init_vals =  SmolK8sLabInputsWidget(
+                    init_vals = SmolK8sLabInputsWidget(
                             app_name=self.app_name,
                             title="Init Values",
                             id=f"{cid}-init-values-collapsible",
-                            inputs=self.init_values)
+                            inputs=self.init_values
+                            )
 
                     init_vals.tooltip = (
                                 "Init values for special one-time setup of "
@@ -174,6 +178,17 @@ class InitValues(Static):
                                 "stored in a secret for later reference by Argo CD."
                                 )
                     yield init_vals
+
+    def on_mount(self):
+        """
+        add trusted servers if they exist
+        """
+        # matrix is special as we take special keys
+        if self.app_name == "matrix":
+            if self.trusted_keys_srvr and isinstance(self.trusted_keys_srvr, list):
+                self.get_widget_by_id(f"{self.app_name}-init-inputs").mount(
+                        TrustedKeyServersWidget(self.app_name, self.trusted_keys_srvr)
+                        )
 
     @on(Switch.Changed)
     def show_or_hide_init_inputs(self, event: Switch.Changed) -> None:

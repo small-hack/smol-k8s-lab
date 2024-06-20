@@ -39,6 +39,7 @@ def configure_matrix(argocd: ArgoCD,
     # verify if initialization is enabled
     init = cfg.get('init', {'enabled': True, 'restore': {'enabled': False}})
     init_enabled = init.get('enabled', True)
+    init_values = init.get('values', {})
 
     # check if we're restoring and get values for that
     restore_dict = init.get('restore', {"enabled": False})
@@ -65,8 +66,7 @@ def configure_matrix(argocd: ArgoCD,
 
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
-        init_values = init.get('values', {})
-
+        argocd.k8s.create_namespace(matrix_namespace)
 
         backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
 
@@ -199,6 +199,18 @@ def configure_matrix(argocd: ArgoCD,
                          'account_management_url': zitadel.hostname}
                         )
 
+    if init_enabled:
+        # if there's trusted key servers, create a secret for them
+        trusted_key_servers = init_values.get("trusted_key_servers", [])
+
+        # if init is enabled, always create trusted_key_servers secret
+        if trusted_key_servers:
+            argocd.k8s.create_secret(name="trusted-key-servers",
+                                     namespace=matrix_namespace,
+                                     str_data={"trusted_key_servers": trusted_key_servers},
+                                     inline_key="trustedKeyServers"
+                                     )
+
     if not app_installed:
         # if the user is restoring, the process is a little different
         if init_enabled and restore_enabled:
@@ -292,6 +304,14 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
         log.info("No matrix sync id found")
         sync_id = "Not Applicable"
 
+    # try:
+    #     trusted_key_servers_id = bitwarden.get_item(
+    #             f'matrix-trusted-key-servers-{matrix_hostname}', False
+    #             )[0]['id']
+    # except TypeError:
+    #     log.info("No matrix trusted key servers id found")
+    #     trusted_key_servers_id = "not applicable"
+
     # identity provider name and id are nested in the oidc item fields
     for field in oidc_id['fields']:
         if field['name'] == 'idp_id':
@@ -299,6 +319,7 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
         if field['name'] == 'idp_name':
             idp_name = field['value']
 
+    # 'matrix_trusted_key_servers_bitwarden_id': trusted_key_servers_id,
     argocd.update_appset_secret(
             {'matrix_registration_credentials_bitwarden_id': reg_id,
              'matrix_smtp_credentials_bitwarden_id': smtp_id,
@@ -342,6 +363,16 @@ def setup_bitwarden_items(argocd: ArgoCD,
     setup all the required secrets as items in bitwarden
     """
     sub_header("Creating matrix secrets in Bitwarden")
+
+    # if trusted_key_servers:
+    #     trusted_key_servers_id = bitwarden.create_login(
+    #             name='matrix-trusted-key-servers',
+    #             item_url=matrix_hostname,
+    #             user="nousername",
+    #             password=trusted_key_servers
+    #             )
+    # else:
+    #     trusted_key_servers_id = "not applicable"
 
     # S3 credentials
     if "http" not in s3_endpoint:
@@ -498,6 +529,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                     )[0]['id']
 
     # update the matrix values for the argocd appset
+    # 'matrix_trusted_key_servers_bitwarden_id': trusted_key_servers_id}
     argocd.update_appset_secret(
             {'matrix_registration_credentials_bitwarden_id': reg_id,
              'matrix_smtp_credentials_bitwarden_id': smtp_id,
@@ -512,7 +544,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_oidc_credentials_bitwarden_id': oidc_id,
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_idp_name': idp_name,
-             'matrix_idp_id': idp_id})
+             'matrix_idp_id': idp_id}
+            )
 
     # reload the bitwarden ESO provider
     try:

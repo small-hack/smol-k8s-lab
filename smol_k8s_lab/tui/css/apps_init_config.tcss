@@ -55,3 +55,39 @@ SmolK8sLabCollapsibleInputsWidget {
     height: auto;
     padding-top: 1;
 }
+
+/* trusted key servers label */
+.trusted-key-servers-label {
+    height: 3;
+    width: 100%;
+    content-align: left middle;
+    padding-left: 1;
+    color: $light_cornflower;
+    background: $blue_gray 20%;
+}
+
+
+/* all trusted key server rows */
+.trusted-key-servers {
+   padding: 1;
+   height: 8;
+   grid-size: 2;
+}
+
+/* the right side of  */
+.verify-key-row {
+   grid-size: 2;
+   grid-columns: 1fr 0.25fr;
+   grid-rows: 0.25fr 1fr;
+}
+
+.add-new-verify-key-button {
+   margin-top: 3;
+   margin-left: 5;
+   width: 6;
+}
+
+.verify-key-row-delete-button {
+  margin-top: 3;
+  width: 5;
+}

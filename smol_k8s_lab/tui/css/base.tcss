@@ -315,6 +315,13 @@ DataTable {
     content-align: left middle;
 }
 
+/* Input stacked with in label on top of input row */
+.input-stacked-row {
+   grid-size: 1;
+   align: center middle;
+   content-align: center middle;
+}
+
 /* Input in "label: input" row */
 .input-row-input {
     align: left middle;
@@ -328,3 +335,11 @@ DataTable {
     color: $bluish_white;
 }
 
+.input-row-stacked-label {
+    align: center middle;
+    content-align: center middle;
+    padding-top: 1;
+    padding-bottom: 1;
+    padding-left: 1;
+    color: $bluish_white;
+}

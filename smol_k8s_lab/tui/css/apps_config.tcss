@@ -18,11 +18,11 @@ $navy: rgb(35,35,54);
 #apps-config-container {
     layout: grid;
     grid-size: 2;
-    grid-columns: 0.5fr 1fr;
-    grid-rows: 1.55fr 0.35fr;
+    grid-columns: 0.5fr 1.1fr;
+    grid-rows: 1.5fr 0.4fr;
     grid-gutter: 1;
-    width: 90%;
-    height: 92%;
+    width: 94%;
+    height: 93%;
     align: center middle;
     scrollbar-background: $dark_gray;
     scrollbar-background-active: $dark_gray;
@@ -58,7 +58,7 @@ $navy: rgb(35,35,54);
 
 /* matches the app selection list and the left button container */
 #left-apps-container {
-    grid-rows: 1fr 0.2fr;
+    grid-rows: 1fr 0.25fr;
     align: center top;
     grid-gutter: 1;
 }
@@ -86,7 +86,6 @@ $navy: rgb(35,35,54);
     border-subtitle-color: $sky_blue;
     border: round $cornflower;
     background: $navy 60%;
-    margin-right: 1;
     link-background-hover: $navy;
     link-color-hover: $orange;
     scrollbar-background: $dark_gray;

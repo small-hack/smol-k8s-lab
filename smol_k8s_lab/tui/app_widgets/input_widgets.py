@@ -226,7 +226,9 @@ class SmolK8sLabInputsWidget(Static):
 
         if self.inputs:
             for key, value in self.inputs.items():
-                grid.mount(self.generate_row(key, value))
+                # ignore this particular key
+                if key != "trusted_key_servers":
+                    grid.mount(self.generate_row(key, value))
 
         if self.add_fields_button:
             grid.mount(Button("➕ new field"))
