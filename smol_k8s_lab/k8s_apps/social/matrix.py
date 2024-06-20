@@ -207,7 +207,7 @@ def configure_matrix(argocd: ArgoCD,
         if trusted_key_servers:
             argocd.k8s.create_secret(name="trusted-key-servers",
                                      namespace=matrix_namespace,
-                                     str_data=trusted_key_servers,
+                                     str_data={"trusted_key_servers": trusted_key_servers},
                                      inline_key="trustedKeyServers"
                                      )
 
