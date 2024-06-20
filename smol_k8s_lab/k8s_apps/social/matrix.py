@@ -12,7 +12,6 @@ from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 # external libraries
-from json import dumps
 import logging as log
 from ulid import ULID
 
@@ -546,7 +545,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_oidc_credentials_bitwarden_id': oidc_id,
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_idp_name': idp_name,
-             'matrix_idp_id': idp_id,
+             'matrix_idp_id': idp_id}
             )
 
     # reload the bitwarden ESO provider
