@@ -173,7 +173,6 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
           matrix_media: latest
           matrix_synapse_config: latest
           matrix_signing_key: latest
@@ -207,7 +206,6 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
           matrix_media: latest
           matrix_synapse_config: latest
           matrix_signing_key: latest

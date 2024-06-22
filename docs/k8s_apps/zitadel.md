@@ -113,7 +113,6 @@ apps:
           # these can all be any restic snapshot ID, but default to latest
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
 ```
 
 The restore process will put your secrets into place, then restore your seaweedfs cluster first, followed by your postgresql cluster, and then it will install your zitadel argocd app as normal.
@@ -177,7 +176,6 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
     backups:
       # cronjob syntax schedule to run zitadel seaweedfs pvc backups
       pvc_schedule: 10 0 * * *
