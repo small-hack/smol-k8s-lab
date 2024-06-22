@@ -389,7 +389,7 @@ class AppsConfigScreen(Screen):
                 self.log(f"Displaying sync and delete buttons for {app}")
                 app_inputs_pane.border_subtitle = (
                         "[@click=screen.sync_argocd_app]🔁 sync[/] / "
-                        "[@click=screen.delete_argocd_app]🗑️ delete[/]"
+                        "[@click=screen.delete_argocd_app]🗑️ [#ffaff9]delete[/][/]"
                         )
             else:
                 self.log(f"{app} doesn't exist so no border button will be displayed")
