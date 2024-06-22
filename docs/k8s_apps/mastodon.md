@@ -71,7 +71,6 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
       values:
         # admin user
         admin_user: "tootadmin"

@@ -126,7 +126,6 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
           nextcloud_files: latest
 ```
 
@@ -160,7 +159,6 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
           nextcloud_files: latest
       values:
         admin_user: 'mycooladminuser'

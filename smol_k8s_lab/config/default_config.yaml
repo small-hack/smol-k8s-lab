@@ -800,9 +800,9 @@ apps:
         enabled: true
         cnpg_restore: true
         restic_snapshot_ids:
+          # seaweedfs_master: latest
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
       values:
         # admin user
         admin_user: "tootadmin"
@@ -911,7 +911,7 @@ apps:
           # seaweedFS filer pvc snapshot id. if not given, we use the latest
           seaweedfs_filer: ""
           # seaweedFS master pvc snapshot id. if not given, we use the latest
-          seaweedfs_master: ""
+          # seaweedfs_master: latest
           # signing key snapshot id. if not given, we use the latest
           signing_key: ""
           # media snapshot id. if not given, we use the latest
@@ -1200,7 +1200,7 @@ apps:
           # seaweedFS filer pvc snapshot id
           seaweedfs_filer: "latest"
           # seaweedFS master pvc snapshot id
-          seaweedfs_master: "latest"
+          # seaweedfs_master: ""
           # nextcloud-files pvc snapshot id
           nextcloud_files: "latest"
           # nextcloud-config pvc snapshot id - if you enabled config pvc, you can uncomment this
@@ -1480,11 +1480,9 @@ apps:
       restore:
         enabled: true
         restic_snapshot_ids:
+          # seaweedfs_master: latest
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
-          endpoint: s3.eu-central-003.backblazeb2.com
-          region: eu-central-003
     backups:
       # cronjob syntax schedule to run nextcloud pvc backups
       pvc_schedule: 45 23 * * *
@@ -1677,8 +1675,6 @@ apps:
           seaweedfs_volume: ""
           # seaweedFS filer pvc snapshot id. if not given, we use the latest
           seaweedfs_filer: ""
-          # seaweedFS master pvc snapshot id. if not given, we use the latest
-          seaweedfs_master: ""
       values:
         # initial human user's usename
         admin_user: ""

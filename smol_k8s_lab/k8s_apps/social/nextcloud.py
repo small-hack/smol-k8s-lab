@@ -255,7 +255,6 @@ def restore_nextcloud(argocd: ArgoCD,
             pvc_storage_class,
             "ReadWriteOnce",
             snapshot_ids['seaweedfs_volume'],
-            snapshot_ids['seaweedfs_master'],
             snapshot_ids['seaweedfs_filer']
             )
 

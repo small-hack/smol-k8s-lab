@@ -34,7 +34,6 @@ def restore_seaweedfs(argocd: ArgoCD,
                       storage_class: str = "local-path",
                       access_mode: str = "ReadWriteOnce",
                       volume_snapshot_id: str = "",
-                      master_snapshot_id: str = "",
                       filer_snapshot_id: str = ""
                       ):
     """
@@ -42,16 +41,12 @@ def restore_seaweedfs(argocd: ArgoCD,
     restic, before applying the app's s3 provider Argo CD application set
     """
     snapshots = {'swfs-volume-data': volume_snapshot_id,
-                 'swfs-master-data': master_snapshot_id,
                  'swfs-filer-data': filer_snapshot_id}
 
     for swfs_pvc, snapshot_id in snapshots.items():
-        # master and filer have preset smaller capacities
+        # filer has a smaller preset capacity
         if swfs_pvc == "swfs-volume-data":
             pvc_capacity = s3_pvc_capacity
-
-        elif swfs_pvc == "swfs-master-data":
-            pvc_capacity = "2Gi"
 
         elif swfs_pvc == "swfs-filer-data":
             pvc_capacity = "5Gi"

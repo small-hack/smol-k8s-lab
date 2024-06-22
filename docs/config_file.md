@@ -352,7 +352,6 @@ apps:
           # each of these seaweedfs values also contains your postgresql backups
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          seaweedfs_master: latest
           # this is just the nextcloud files pvc
           nextcloud_files: latest
 ```
