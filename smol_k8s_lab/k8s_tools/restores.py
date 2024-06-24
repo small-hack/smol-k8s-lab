@@ -259,7 +259,6 @@ def restore_cnpg_cluster(k8s_obj: K8s,
             "instances": 1,
             "imageName": f"ghcr.io/cloudnative-pg/postgresql:{postgresql_version}",
             "bootstrap": {
-              "initdb": [],
               "recovery": {
                   "source": cluster_name,
                   "recoveryTarget": {"targetImmediate": True,
@@ -334,6 +333,11 @@ def restore_cnpg_cluster(k8s_obj: K8s,
 
     # fix backups after restore
     restore_dict['bootstrap'].pop('recovery')
+    restore_dict['bootstrap']['initdb'] = {
+            'database': app,
+            'owner': app,
+            'secret': {'name': f"{app}-pgsql-credentials"}
+            }
     restore_dict['externalClusters'] = []
     restore_dict['backup'] = {
             "barmanObjectStore": {
