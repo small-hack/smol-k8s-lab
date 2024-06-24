@@ -48,7 +48,7 @@ def setup_operators(argocd: ArgoCD,
 
     # cnpg operator is a postgres operator for creating postgresql clusters
     if cnpg_config and cnpg_config.get('enabled', False):
-        argocd.install_app('cnpng-operator', cnpg_config['argo'])
+        argocd.install_app('cnpg-operator', cnpg_config['argo'])
 
     # zalando postgres operator is a postgres operator for creating postgresql clusters
     if pg_config and pg_config.get('enabled', False):
