@@ -101,6 +101,11 @@ def configure_zitadel(argocd: ArgoCD,
                                      namespace=zitadel_namespace,
                                      str_data={'username': 'zitadel'})
 
+            # postgres db credentials creation
+            argocd.k8s.create_secret('zitadel-pgsql-credentials', 'zitadel',
+                                     {"username": 'zitadel',
+                                      "password": 'we-use-tls-instead-of-password'})
+
     if not app_installed and restore_enabled:
         restore_zitadel(argocd,
                         zitadel_hostname,
@@ -352,6 +357,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=admin_s3_key
             )
 
+    # postgres db credentials creation
+    db_id = bitwarden.create_login(
+            name='zitadel-pgsql-credentials',
+            item_url=zitadel_hostname,
+            user='zitadel',
+            password="using-tls-now-so-we-do-not-need-a-password"
+            )
+
     # create zitadel core key
     new_key = bitwarden.generate()
     core_id = bitwarden.create_login(name="zitadel-core-key",
@@ -359,18 +372,10 @@ def setup_bitwarden_items(argocd: ArgoCD,
                                      item_url=zitadel_hostname,
                                      password=new_key)
 
-    # create db credentials password dict
-    db_id = bitwarden.create_login(
-            name="zitadel-db-credentials",
-            user="zitadel",
-            item_url=zitadel_hostname,
-            password="using-tls-now-so-we-do-not-need-a-password"
-            )
-
     # update the zitadel values for the argocd appset
     argocd.update_appset_secret(
             {'zitadel_core_bitwarden_id': core_id,
-             'zitadel_db_bitwarden_id': db_id,
+             'zitadel_postgres_credentials_bitwarden_id': db_id,
              'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
              'zitadel_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'zitadel_s3_backups_credentials_bitwarden_id': s3_backup_id}
@@ -394,7 +399,7 @@ def refresh_bitwarden(argocd: ArgoCD,
     makes sure we update the appset secret with bitwarden IDs regardless
     """
     db_id = bitwarden.get_item(
-            f"zitadel-db-credentials-{zitadel_hostname}"
+            f"zitadel-pgsql-credentials-{zitadel_hostname}", False
             )[0]['id']
 
     s3_backup_id = bitwarden.get_item(
@@ -424,7 +429,7 @@ def refresh_bitwarden(argocd: ArgoCD,
     argocd.update_appset_secret(
             {
             'zitadel_core_bitwarden_id': core_id,
-            'zitadel_db_bitwarden_id': db_id,
+            'zitadel_postgres_credentials_bitwarden_id': db_id,
             'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
             'zitadel_s3_backups_credentials_bitwarden_id': s3_backup_id,
             'zitadel_s3_admin_credentials_bitwarden_id': s3_admin_id,
