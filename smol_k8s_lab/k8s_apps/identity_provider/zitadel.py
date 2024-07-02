@@ -59,6 +59,10 @@ def configure_zitadel(argocd: ArgoCD,
     header(f"{prefix} [green]Zitadel[/], for your self hosted identity management",
            "👥")
 
+    if init_enabled:
+        # configure backup s3 credentials
+        backup_vals = process_backup_vals(cfg.get('backups', ''), 'zitadel', argocd)
+
     if init_enabled and not app_installed:
         # process init and secret values
         init_values = init_dict['values']
@@ -72,9 +76,6 @@ def configure_zitadel(argocd: ArgoCD,
                                minio_hostname=s3_endpoint,
                                access_key="zitadel",
                                secret_key=s3_access_key)
-
-        # configure backup s3 credentials
-        backup_vals = process_backup_vals(cfg.get('backups', ''), 'zitadel', argocd)
 
         # first we make sure the namespace exists
         argocd.k8s.create_namespace(zitadel_namespace)
