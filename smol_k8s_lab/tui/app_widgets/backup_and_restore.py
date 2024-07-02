@@ -223,9 +223,9 @@ class BackupWidget(Static):
         """
         # some apps, like home assistant need a special podConfig for k8up due
         # to needing tolerations/affinity specs
-        needs_pod_config = False
-        if "toleration" in self.screen.cfg[self.app_name]['argo']['path']:
-            needs_pod_config = True
+        # needs_pod_config = False
+        # if "toleration" in self.screen.cfg[self.app_name]['argo']['path']:
+        needs_pod_config = True
 
         namespace = self.screen.cfg[self.app_name]['argo']['namespace']
 
