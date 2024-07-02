@@ -63,6 +63,10 @@ def configure_nextcloud(argocd: ArgoCD,
     header(f"{header_start} [green]Nextcloud[/], to self host your files",
            '🩵')
 
+    if init_enabled:
+        # backups are their own config.yaml section
+        backup_vals = process_backup_vals(cfg.get('backups', {}), 'nextcloud', argocd)
+
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         nextcloud_namespace = cfg['argo']['namespace']
@@ -80,9 +84,6 @@ def configure_nextcloud(argocd: ArgoCD,
             mail_pass = extract_secret(init_values.get('smtp_password', ""))
         else:
             log.warn("Strange, there's no nextcloud init values...")
-
-        # backups are their own config.yaml section
-        backup_vals = process_backup_vals(cfg.get('backups', {}), 'nextcloud', argocd)
 
         if secrets:
             s3_endpoint = secrets.get('s3_endpoint', "")

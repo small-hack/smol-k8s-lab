@@ -61,6 +61,10 @@ def configure_mastodon(argocd: ArgoCD,
     # we need namespace immediately
     mastodon_namespace = cfg['argo']['namespace']
 
+    if init_enabled:
+        # backups are their own config.yaml section
+        backup_vals = process_backup_vals(cfg.get('backups', {}), 'mastodon', argocd)
+
     if init_enabled and not app_installed:
         argocd.k8s.create_namespace(mastodon_namespace)
 
@@ -89,9 +93,6 @@ def configure_mastodon(argocd: ArgoCD,
         if not restore_enabled:
             # create a local alias to check and make sure mastodon is functional
             create_minio_alias("mastodon", s3_endpoint, "mastodon", s3_access_key)
-
-        # backups are their own config.yaml section
-        backup_vals = process_backup_vals(cfg.get('backups', {}), 'mastodon', argocd)
 
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,

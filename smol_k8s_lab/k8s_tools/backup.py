@@ -18,7 +18,8 @@ def create_pvc_restic_backup(app: str,
                              bucket: str,
                              cnpg_backup: bool = True,
                              cnpg_s3_endpoint: str = "",
-                             quiet: bool = False) -> None:
+                             quiet: bool = False,
+                             needs_pod_config: bool = False) -> None:
     """
     a function to immediately run a restic backup job
     unless it's nextcloud, then we put it into maintenance_mode first...
@@ -39,7 +40,7 @@ def create_pvc_restic_backup(app: str,
             "spec": {
               "failedJobsHistoryLimit": 5,
               "promURL": "push-gateway.prometheus.svc:9091",
-              "successfulJobsHistoryLimit": 2,
+              "successfulJobsHistoryLimit": 1,
               "backend": {
                 "repoPasswordSecretRef": {
                   "key": "resticRepoPassword",
@@ -62,6 +63,10 @@ def create_pvc_restic_backup(app: str,
                 }
               }
             }
+
+    # some apps, like home assistant, often need a tolerations/affinity spec
+    if needs_pod_config:
+        backup_yaml['spec']['podConfigRef'] = {"name": f"{app}-podconfig"}
 
     # nextcloud is special and needs to be put into maintenance mode before backups
     if app == "nextcloud":

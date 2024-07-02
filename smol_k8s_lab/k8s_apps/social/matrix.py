@@ -64,11 +64,12 @@ def configure_matrix(argocd: ArgoCD,
     # always declare matrix namespace immediately
     matrix_namespace = cfg['argo']['namespace']
 
+    if init_enabled:
+        backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
+
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
         argocd.k8s.create_namespace(matrix_namespace)
-
-        backup_vals = process_backup_vals(cfg['backups'], 'matrix', argocd)
 
         # configure s3 credentials
         s3_endpoint = secrets.get('s3_endpoint', "")
