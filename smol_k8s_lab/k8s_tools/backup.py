@@ -66,7 +66,7 @@ def create_pvc_restic_backup(app: str,
 
     # some apps, like home assistant, often need a tolerations/affinity spec
     if needs_pod_config:
-        backup_yaml['spec']['podConfigRef'] = {"name": f"{app}-podconfig"}
+        backup_yaml['spec']['podConfigRef'] = {"name": "backups-podconfig"}
 
     # nextcloud is special and needs to be put into maintenance mode before backups
     if app == "nextcloud":
