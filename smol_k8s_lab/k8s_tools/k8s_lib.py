@@ -296,7 +296,24 @@ class K8s():
         if in_line_key_name is set to a key name, you can specify a base key in a
         secret that contains an inline yaml block
         """
-        secret_data = self.get_secret(secret_name, secret_namespace)['data']
+
+        # get current secret data, but catch if there's no secret at all
+        try:
+            secret_data = self.get_secret(secret_name, secret_namespace)['data']
+        except Exception as e:
+            log.error(f"Error getting secret: {e}")
+            log.info("creating new secret")
+            if in_line_key_name:
+                self.create_secret(secret_name,
+                                   secret_namespace,
+                                   updated_values_dict,
+                                   in_line_key_name)
+            else:
+                self.create_secret(secret_name,
+                                   secret_namespace,
+                                   updated_values_dict)
+            # return immediately so we don't do the rest of the function
+            return
 
         # if this is a secret with a filename key and then inline yaml inside...
         if in_line_key_name:
