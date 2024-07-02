@@ -221,6 +221,12 @@ class BackupWidget(Static):
         """
         run backup of an app in a thread so we don't lock up the UI
         """
+        # some apps, like home assistant need a special podConfig for k8up due
+        # to needing tolerations/affinity specs
+        needs_pod_config = False
+        if "toleration" in self.screen.cfg[self.app_name]['argo']['path']:
+            needs_pod_config = True
+
         namespace = self.screen.cfg[self.app_name]['argo']['namespace']
 
         self.log(
@@ -242,7 +248,8 @@ class BackupWidget(Static):
                                      bucket=self.backup_s3_bucket,
                                      cnpg_backup=cnpg_backup,
                                      cnpg_s3_endpoint=cnpg_endpoint,
-                                     quiet=True)
+                                     quiet=True,
+                                     needs_pod_config=needs_pod_config)
             self.get_widget_by_id(f"{self.app_name}-backup-button").display = True
             self.get_widget_by_id(f"{self.app_name}-backup-running").display = False
             self.app.notify("\nSuccessfully backed up! 🎉",
