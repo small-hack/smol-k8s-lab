@@ -249,6 +249,14 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
             f"matrix-smtp-credentials-{matrix_hostname}", False
             )[0]['id']
 
+    try:
+        hookshot_id = bitwarden.get_item(
+                f"matrix-hookshot-bridge-pem-{matrix_hostname}", False
+                )[0]['id']
+    except TypeError:
+        log.info("No matrix hookshot bridge passkey.pem id found")
+        hookshot_id = "Not Applicable"
+
     s3_admin_id = bitwarden.get_item(
             f"matrix-admin-s3-credentials-{matrix_hostname}", False
             )[0]['id']
@@ -305,14 +313,6 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
         log.info("No matrix sync id found")
         sync_id = "Not Applicable"
 
-    # try:
-    #     trusted_key_servers_id = bitwarden.get_item(
-    #             f'matrix-trusted-key-servers-{matrix_hostname}', False
-    #             )[0]['id']
-    # except TypeError:
-    #     log.info("No matrix trusted key servers id found")
-    #     trusted_key_servers_id = "not applicable"
-
     # identity provider name and id are nested in the oidc item fields
     for field in oidc_id['fields']:
         if field['name'] == 'idp_id':
@@ -334,6 +334,7 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_sliding_sync_postgres_credentials_bitwarden_id': sync_db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
+             'matrix_hookshot_pem_bitwarden_id': hookshot_id,
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id})
 
@@ -479,6 +480,15 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=matrix_registration_key
             )
 
+    # passkey.pem
+    hookshot_passkey_pem = bitwarden.generate()
+    hookshot_id = bitwarden.create_login(
+            name='matrix-hookshot-bridge-pem',
+            item_url=matrix_hostname,
+            user="none",
+            password=hookshot_passkey_pem
+            )
+
     # matrix sliding sync
     sync_id = bitwarden.create_login(
             name='matrix-syncv3-credentials',
@@ -544,6 +554,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_sliding_sync_postgres_credentials_bitwarden_id': sync_db_id,
              'matrix_oidc_credentials_bitwarden_id': oidc_id,
              'matrix_authentication_service_bitwarden_id': mas_id,
+             'matrix_hookshot_pem_bitwarden_id': hookshot_id,
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id}
             )
