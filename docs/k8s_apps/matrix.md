@@ -247,8 +247,10 @@ apps:
         federation_hostname: 'chat-federation.beepboopfordogsnoots.city'
         # email for of the admin user
         admin_email: 'notadog@coolcats.com'
-        # list of admin users for bridges
-        admin_users: ["notadog","realcat"]
+        # list of admin users for bridges, the hostnames will be appended automatically
+        admin_users:
+          - notadog
+          - realcat
         # enable signing key backups
         signing_key_pvc_enabled: 'true'
         # size of signing key pvc storage

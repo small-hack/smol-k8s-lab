@@ -893,7 +893,6 @@ apps:
         - MATRIX_S3_BACKUP_ACCESS_ID
         - MATRIX_S3_BACKUP_SECRET_KEY
         - MATRIX_RESTIC_REPO_PASSWORD
-
     enabled: false
     init:
       enabled: true
@@ -967,8 +966,10 @@ apps:
         auth_hostname: "auth hostname to use for beta features"
         # email for of the admin user
         admin_email: ""
-        # admin username - used for setting admins of bridges
-        admin_users: [""]
+        # list of admin users for bridges, the hostnames will be appended automatically
+        admin_users:
+          - changeme
+          - changeme2
         # enable persistent volume claim for matrix media storage
         media_pvc_enabled: "true"
         # size of media pvc storage
