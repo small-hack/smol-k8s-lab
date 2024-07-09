@@ -25,8 +25,8 @@
 - Deploys [Argo CD](https://github.com/argoproj/argo-cd) by default, so you can manage your entire lab using files in [open source git repos](https://github.com/small-hack/argocd-apps)
   - Argo CD ships with a dashboard with a custom theme 💙
 - Supports multiple [k8s distros](#supported-k8s-distributions)
-- Specializes in using Bitwarden (though not required) to store sensitive values both locally and on your cluster
-- Manages all your authentication needs centrally using Zitadel and Vouch 💪
+- Specializes in using Bitwarden (though not required) to store sensitive values both locally and on your cluster (OpenBao coming soon!)
+- Manages all your authentication needs centrally using Zitadel (self-hosted IAM/SSO) and Vouch (For using OAuth2 on sites that don't it)
 - Supports initialization on a [range of common self-hosted apps](https://small-hack.github.io/smol-k8s-lab/k8s_apps/argocd/) 📱
   - featured initialized apps such as [Zitadel], [Nextcloud](https://small-hack.github.io/smol-k8s-lab/k8s_apps/nextcloud/), [Matrix](https://small-hack.github.io/smol-k8s-lab/k8s_apps/matrix/), and [Home Assistant](https://small-hack.github.io/smol-k8s-lab/k8s_apps/home_assistant/) include backups and restores
 - Lots o' [docs](https://small-hack.github.io/smol-k8s-lab)
@@ -45,7 +45,7 @@
 
 
 # Installation
-B sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` can be installed via `pipx` (or `brew` coming soon).
+🐝 sure to check out our full [installation guide](https://small-hack.github.io/smol-k8s-lab/installation/), but the gist of it is `smol-k8s-lab` can be installed via `pipx` (or `brew` coming soon).
 
 ## pipx
 `smol-k8s-lab` requires Python 3.11+ (and [pipx](https://github.com/pypa/pipx)). If you've already got both and [other pre-reqs](https://small-hack.github.io/smol-k8s-lab/installation/#prerequisites), you should be able to:
