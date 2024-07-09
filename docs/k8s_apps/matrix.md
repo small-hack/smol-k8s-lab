@@ -92,7 +92,7 @@ apps:
             ed25519:auto: abcdefghijklmnopqrstuvwxyzabcdefghijklmopqr
 ```
 
-The trusted_key_servers option currently displays in the TUI, but is not editable via the TUI yet.
+The trusted_key_servers option currently displays in the TUI, but is not editable via the TUI yet. See: [#269](https://github.com/small-hack/smol-k8s-lab/issues/269)
 
 
 #### Sensitive values
@@ -247,6 +247,8 @@ apps:
         federation_hostname: 'chat-federation.beepboopfordogsnoots.city'
         # email for of the admin user
         admin_email: 'notadog@coolcats.com'
+        # list of admin users for bridges
+        admin_users: ["notadog","realcat"]
         # enable signing key backups
         signing_key_pvc_enabled: 'true'
         # size of signing key pvc storage

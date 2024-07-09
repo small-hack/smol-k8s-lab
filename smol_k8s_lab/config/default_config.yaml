@@ -967,6 +967,8 @@ apps:
         auth_hostname: "auth hostname to use for beta features"
         # email for of the admin user
         admin_email: ""
+        # admin username - used for setting admins of bridges
+        admin_users: [""]
         # enable persistent volume claim for matrix media storage
         media_pvc_enabled: "true"
         # size of media pvc storage
