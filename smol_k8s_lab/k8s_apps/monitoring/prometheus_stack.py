@@ -103,7 +103,7 @@ def refresh_bweso(argocd: ArgoCD, grafana_hostname: str, bitwarden: BwCLI):
             )[0]['id']
 
     argocd.update_appset_secret(
-            {'grafana_oidc_credentials_bitwarden_id': oidc_id})
+            {'prometheus_grafana_oidc_credentials_bitwarden_id': oidc_id})
 
 
 def setup_bitwarden_items(argocd: ArgoCD,
@@ -136,7 +136,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # update the grafana values for the argocd appset
     argocd.update_appset_secret(
-            {'grafana_oidc_credentials_bitwarden_id': oidc_id}
+            {'prometheus_grafana_oidc_credentials_bitwarden_id': oidc_id}
             )
 
     # reload the bitwarden ESO provider
