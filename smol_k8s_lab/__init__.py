@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.11
+#!/usr/bin/env python4.11
 """
            NAME: smol-k8s-lab
     DESCRIPTION: package, cli, and tui for setting up k8s on metal with
@@ -24,6 +24,7 @@ from .bitwarden.tui.bitwarden_app import BitwardenCredentialsApp
 from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
+from .k8s_apps.monitoring.prometheus_stack import configure_prometheus_stack
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
@@ -257,13 +258,13 @@ def main(config: str = "",
         # Setup minio, our local s3 provider, is essential for creating buckets
         # and cnpg operator, our postgresql operator for creating postgres clusters
         setup_operators(argocd,
-                        apps.pop('prometheus_crds', {}),
-                        apps.pop('longhorn', {}),
-                        apps.pop('k8up', {}),
-                        apps.pop('minio_operator', {}),
-                        apps.pop('seaweedfs', {}),
-                        apps.pop('cnpg_operator', {}),
-                        apps.pop('postgres_operator', {}),
+                        apps.pop('prometheus_crds', {'enabled': False}),
+                        apps.pop('longhorn', {'enabled': False}),
+                        apps.pop('k8up', {'enabled': False}),
+                        apps.pop('minio_operator', {'enabled': False}),
+                        apps.pop('seaweedfs', {'enabled': False}),
+                        apps.pop('cnpg_operator', {'enabled': False}),
+                        apps.pop('postgres_operator', {'enabled': False}),
                         bw)
 
         # global pvc storage class
@@ -295,6 +296,12 @@ def main(config: str = "",
                                bw,
                                oidc_obj)
 
+        # this is currently just to make sure that grafana zitadel auth gets set up
+        prometheus_stack = apps.pop('prometheus', {'enabled': False})
+        if prometheus_stack['enabled']:
+            configure_prometheus_stack(argocd, prometheus_stack, oidc_obj, bw)
+
+        # setup nextcloud, home assistant, mastodon, and matrix
         setup_federated_apps(
                 argocd,
                 api_tls_verify,

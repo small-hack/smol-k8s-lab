@@ -74,7 +74,10 @@ def setup_oidc_provider(argocd: ArgoCD,
                         argocd_fqdn: str = "") -> Zitadel | None:
     """
     sets up oidc provider. only zitadel is supported right now
-    if we choose to add keycloak back, we'll be adding the following arg
+
+    Returns Zitadel object for configuring other Zitadel authed services
+
+    IF we choose to add keycloak back, we'll be adding the following arg
     keycloak_dict: dict = {}
     """
     header("Setting up [green]OIDC[/]/[green]Oauth[/] Applications")

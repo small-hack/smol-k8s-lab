@@ -56,12 +56,17 @@ apps:
 ```yaml
 apps:
   prometheus:
+  prometheus:
     description: |
-      Full monitoring stack with [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link], grafana, loki, and alert manager.
+      Full monitoring stack with [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link], [link=https://grafana.com/oss/loki/]Loki[/link], [link=https://prometheus.io/docs/alerting/latest/alertmanager/]Alert Manager[/link], and [link=https://grafana.com/oss/grafana/]Grafana[/link].
 
-      smol-k8s-lab supports initialization by setting up your ingress hostnames.
+      smol-k8s-lab supports initialization by setting up your ingress hostnames. It will also setup Oauth2 for Grafana directly by creating an app in Zitadel for you.
 
+      For Prometheus and Alert Manager, we use vouch-proxy via Ingress resource annotations to forward users to Zitadel for auth, so the frontend is not insecure.
     enabled: false
+    init:
+      # if init is enabled, we'll set up an app in Zitadel for using Oauth2 with Grafana
+      enabled: true
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -78,7 +83,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important! This
       # is an app of apps. Change to "monitoring/kube-prometheus-stack/" to
       # only install kube-prometheus-stack (foregoing loki and push gateway)
-      path: prometheus/
+      path: prometheus/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # kubernetes cluster to install the k8s app into, defaults to Argo CD default

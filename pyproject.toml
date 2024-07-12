@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "5.10.0"
+version       = "5.11.0"
 description   = "CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -43,7 +43,7 @@ requests           = "^2.32"
 rich               = "^13.0"
 ruamel-yaml        = "^0.18"
 ruamel-yaml-string = "^0.1"
-textual            = "^0.71"
+textual            = "^0.72"
 xdg-base-dirs      = "^6.0"
 pygame             = "^2.5"
 python-ulid        = "^2.6"
