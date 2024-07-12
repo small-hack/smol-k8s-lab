@@ -78,7 +78,7 @@ apps:
       # path in the argo repo to point to. Trailing slash very important! This
       # is an app of apps. Change to "monitoring/kube-prometheus-stack/" to
       # only install kube-prometheus-stack (foregoing loki and push gateway)
-      path: prometheus/
+      path: prometheus/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # kubernetes cluster to install the k8s app into, defaults to Argo CD default
