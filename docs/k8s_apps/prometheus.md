@@ -56,12 +56,17 @@ apps:
 ```yaml
 apps:
   prometheus:
+  prometheus:
     description: |
-      Full monitoring stack with [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link], grafana, loki, and alert manager.
+      Full monitoring stack with [link=https://prometheus.io/docs/introduction/overview/]Prometheus[/link], [link=https://grafana.com/oss/loki/]Loki[/link], [link=https://prometheus.io/docs/alerting/latest/alertmanager/]Alert Manager[/link], and [link=https://grafana.com/oss/grafana/]Grafana[/link].
 
-      smol-k8s-lab supports initialization by setting up your ingress hostnames.
+      smol-k8s-lab supports initialization by setting up your ingress hostnames. It will also setup Oauth2 for Grafana directly by creating an app in Zitadel for you.
 
+      For Prometheus and Alert Manager, we use vouch-proxy via Ingress resource annotations to forward users to Zitadel for auth, so the frontend is not insecure.
     enabled: false
+    init:
+      # if init is enabled, we'll set up an app in Zitadel for using Oauth2 with Grafana
+      enabled: true
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
