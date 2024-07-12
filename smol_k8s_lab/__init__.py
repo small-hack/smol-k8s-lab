@@ -24,6 +24,7 @@ from .bitwarden.tui.bitwarden_app import BitwardenCredentialsApp
 from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
+from .k8s_apps.monitoring.prometheus_stack import configure_prometheus_stack
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
@@ -254,10 +255,11 @@ def main(config: str = "",
         else:
             api_tls_verify = True
 
+        prometheus_stack = apps.pop('prometheus_crds', {'enabled': False})
         # Setup minio, our local s3 provider, is essential for creating buckets
         # and cnpg operator, our postgresql operator for creating postgres clusters
         setup_operators(argocd,
-                        apps.pop('prometheus_crds', {}),
+                        prometheus_stack,
                         apps.pop('longhorn', {}),
                         apps.pop('k8up', {}),
                         apps.pop('minio_operator', {}),
@@ -294,6 +296,10 @@ def main(config: str = "",
                                zitadel_hostname,
                                bw,
                                oidc_obj)
+
+        # this is currently just to make sure that grafana zitadel auth gets set up
+        if prometheus_stack['enabled']:
+            configure_prometheus_stack(argocd, prometheus_stack, oidc_obj, bw)
 
         setup_federated_apps(
                 argocd,
