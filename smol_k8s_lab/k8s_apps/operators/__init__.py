@@ -3,6 +3,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from .postgres_operators import configure_postgres_operator
 from .seaweedfs import configure_seaweedfs
+from .openbao import configure_openbao
 
 
 def setup_operators(argocd: ArgoCD,
@@ -13,6 +14,7 @@ def setup_operators(argocd: ArgoCD,
                     seaweed_config: dict = {},
                     cnpg_config: dict = {},
                     pg_config: dict = {},
+                    openbao_config: dict = {},
                     bitwarden: BwCLI = None) -> None:
     """
     deploy all k8s operators that can block other apps:
@@ -23,6 +25,7 @@ def setup_operators(argocd: ArgoCD,
         - seaweedfs
         - cnpg (cloud native postgres) operator
         - zalando postgres operator
+        - openbao
     """
     header("Setting up Operators", "⚙️ ")
 
@@ -33,6 +36,10 @@ def setup_operators(argocd: ArgoCD,
     # longhorn operator is used to have expanding volumes that span multiple nodes
     if longhorn_config and longhorn_config.get('enabled', False):
         argocd.install_app('longhorn', longhorn_config['argo'])
+
+    # openbao is a secret backend
+    if openbao_config and openbao_config.get('enabled', False):
+        configure_openbao(argocd, openbao_config, bitwarden)
 
     # k8up operator is a postgres operator for creating postgresql clusters
     if k8up_config and k8up_config.get('enabled', False):
