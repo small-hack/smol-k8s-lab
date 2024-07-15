@@ -918,17 +918,33 @@ apps:
           # synapse config snapshot id. if not given, we use the latest
           synapse_config: ""
       values:
+        # all github values are optional and only used when argo.path is set to
+        # matrix/app_of_apps_with_bridges/
+        github_app_id:
+          value_from:
+            env: MATRIX_GITHUB_WEBHOOK_SECRET
+        github_webhook_secret:
+          value_from:
+            env: MATRIX_GITHUB_WEBHOOK_SECRET
+        github_client_id:
+          value_from:
+            env: MATRIX_GITHUB_CLIENT_ID
+        github_client_secret:
+          value_from:
+            env: MATRIX_GITHUB_CLIENT_SECRET
+        github_private_key:
+          value_from:
+            env: MATRIX_GITHUB_PRIVATE_KEY
         smtp_user: "change me to enable mail"
         smtp_host: "change@me-to-enable.mail"
         smtp_password:
           value_from:
             env: MATRIX_SMTP_PASSWORD
-        # expects a list like this:
-        #
+        # expects a list like this
+        trusted_key_servers: []
         # - server_name: "matrix.dog.friend"
         #   verify_keys:
         #     "ed25519:a_abcd": "somekeyherethatisnotactuallythis"
-        trusted_key_servers: []
     backups:
       # cronjob syntax schedule to run matrix pvc backups
       pvc_schedule: 10 0 * * *
@@ -999,6 +1015,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
+      # for using bridges, change to matrix/app_of_apps_with_bridges/
       path: matrix/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
@@ -1292,6 +1309,41 @@ apps:
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://seaweedfs.github.io/seaweedfs/helm
           - https://github.com/seaweedfs/seaweedfs
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  openbao:
+    description: |
+      ⚠️ [magenta]ALPHA STATUS[/magenta]
+
+      [Openbao](https://openbao.org/) is FOSS Linux Foundation maintained alternative to HashiCorp Vault.
+    enabled: false
+    # Initialization of the app through smol-k8s-lab using bitwarden and/or k8s secrets
+    init:
+      enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        # name of the cluster that vault is associated with, can be any unique name
+        cluster_name: my-cool-cluster
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: demo/openbao/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
+      # namespace to install the k8s app in
+      namespace: openbao
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: vault
+        source_repos:
+          - https://openbao.github.io/openbao-helm
+          - https://github.com/openbao/openbao-helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []

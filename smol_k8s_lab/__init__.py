@@ -265,6 +265,7 @@ def main(config: str = "",
                         apps.pop('seaweedfs', {'enabled': False}),
                         apps.pop('cnpg_operator', {'enabled': False}),
                         apps.pop('postgres_operator', {'enabled': False}),
+                        apps.pop('openbao', {'enabled': False}),
                         bw)
 
         # global pvc storage class

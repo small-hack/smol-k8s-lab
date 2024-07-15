@@ -114,6 +114,7 @@ apps:
   minio_tenant: "min I.O. tenant"
   netmaker: "net maker"
   nextcloud: "next cloud"
+  openbao: "open bao"
   postgres_operator: "post gres operator"
   prometheus_crds: "prometheus C.Are.D.s"
   prometheus: "prometheus"
