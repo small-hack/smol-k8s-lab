@@ -73,9 +73,11 @@ class AppsConfigScreen(Screen):
                 self.log("hmph, we don't have a cluster yet...")
                 k8s_obj = None
 
-            self.argocd = ArgoCD(self.cfg['argo_cd']['argo']['namespace'],
-                                 self.cfg['argo_cd']['argo']['secret_keys']['hostname'],
-                                 k8s_obj)
+            self.argocd = ArgoCD(
+                    self.cfg['argo_cd']['argo']['namespace'],
+                    self.cfg['argo_cd']['argo']['secret_keys']['hostname'],
+                    k8s_obj
+                    )
         else:
             self.log("self.modify_cluster is set to false")
 

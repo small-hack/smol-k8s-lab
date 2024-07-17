@@ -99,7 +99,12 @@ def configure_argocd(k8s_obj: K8s,
         release = Helm.chart(**release_dict)
         release.install(wait=True)
 
-    argocd = ArgoCD(namespace, argo_cd_domain, k8s_obj)
+    if bitwarden:
+        secrets_backend = "bitwarden"
+    else:
+        secrets_backend = ""
+
+    argocd = ArgoCD(namespace, argo_cd_domain, k8s_obj, secrets_backend=secrets_backend)
 
     # install the appset secret plugin generator if we're using that
     if "github.com/small-hack/argocd-apps" in argocd_config_dict['argo']['repo']:
