@@ -1748,6 +1748,30 @@ apps:
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
+        # mail server, must include port! e.g. mymailserver.com:587
+        smtp_host:
+          value_from:
+            env: ZITADEL_SMTP_HOST
+        # mail user
+        smtp_user:
+          value_from:
+            env: ZITADEL_SMTP_USER
+        # mail password
+        smtp_password:
+          value_from:
+            env: ZITADEL_SMTP_PASSWORD
+        # mail from address
+        smtp_from_address:
+          value_from:
+            env: ZITADEL_SMTP_FROM_ADDRESS
+        # mail from name
+        smtp_from_name:
+          value_from:
+            env: ZITADEL_SMTP_FROM_NAME
+        # mail reply to address
+        smtp_reply_to_address:
+          value_from:
+            env: ZITADEL_SMTP_REPLY_TO_ADDRESS
     backups:
       # cronjob syntax schedule to run zitadel seaweedfs pvc backups
       pvc_schedule: 10 0 * * *

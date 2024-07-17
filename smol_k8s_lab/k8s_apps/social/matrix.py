@@ -270,22 +270,6 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
     ## BEGIN BRIDGES
 
     try:
-        hookshot_id = bitwarden.get_item(
-                f"matrix-hookshot-bridge-{matrix_hostname}", False
-                )[0]['id']
-    except TypeError:
-        log.info("No matrix hookshot bridge id found")
-        hookshot_id = "Not Applicable"
-
-    try:
-        hookshot_github_id = bitwarden.get_item(
-                f"matrix-hookshot-bridge-github-{matrix_hostname}", False
-                )[0]['id']
-    except TypeError:
-        log.info("No matrix hookshot github bridge id found")
-        hookshot_github_id = "Not Applicable"
-
-    try:
         alertmanager_id = bitwarden.get_item(
                 f"matrix-alertmanager-bridge-{matrix_hostname}", False
                 )[0]['id']
@@ -382,8 +366,6 @@ def refresh_bweso(argocd: ArgoCD, matrix_hostname: str, bitwarden: BwCLI):
              'matrix_oidc_credentials_bitwarden_id': oidc_id['id'],
              'matrix_discord_bitwarden_id': discord_id,
              'matrix_alertmanager_bitwarden_id': alertmanager_id,
-             'matrix_hookshot_bitwarden_id': hookshot_id,
-             'matrix_hookshot_github_bitwarden_id': hookshot_github_id,
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id})
 
@@ -534,32 +516,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=matrix_registration_key
             )
 
-    # hookshot bot passkey.pem and as_token + hs_token
-    hookshot_passkey_pem = bitwarden.generate()
-    hookshot_as_token = bitwarden.generate()
-    hookshot_as_token_obj = create_custom_field("as_token", hookshot_as_token)
-    hookshot_hs_token = bitwarden.generate()
-    hookshot_hs_token_obj = create_custom_field("hs_token", hookshot_hs_token)
-    hookshot_id = bitwarden.create_login(
-            name='matrix-hookshot-bridge',
-            item_url=matrix_hostname,
-            user="none",
-            note=hookshot_passkey_pem,
-            fields=[hookshot_as_token_obj, hookshot_hs_token_obj]
-            )
-
-    # hookshot bot github credentials
-    github_client_id_obj = create_custom_field("oauth_client_id", github_client_id)
-    github_client_secret_obj = create_custom_field("oauth_client_secret", github_client_secret)
-    hookshot_github_id = bitwarden.create_login(
-            name='matrix-hookshot-bridge',
-            item_url=matrix_hostname,
-            user=github_app_id,
-            password=github_webhook_secret,
-            note=github_private_key,
-            fields=[github_client_id_obj, github_client_secret_obj]
-            )
-
     # alert manager bot as_token + hs_token
     alertmanager_as_token = bitwarden.generate()
     alertmanager_as_token_obj = create_custom_field("as_token", alertmanager_as_token)
@@ -650,8 +606,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'matrix_oidc_credentials_bitwarden_id': oidc_id,
              'matrix_authentication_service_bitwarden_id': mas_id,
              'matrix_alertmanager_bitwarden_id': alertmanager_id,
-             'matrix_hookshot_bitwarden_id': hookshot_id,
-             'matrix_hookshot_github_bitwarden_id': hookshot_github_id,
              'matrix_discord_bitwarden_id': discord_id,
              'matrix_idp_name': idp_name,
              'matrix_idp_id': idp_id}

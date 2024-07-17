@@ -38,11 +38,40 @@ In addition to those one time init values, we also require a hostname to use for
 
 ## Sensitive values
 
-Sensitive values can be provided via environment variables using a `value_from` map on any value under `init.values` or `backups`. Example of providing s3 credentials and restic repo password via sensitive values:
+Sensitive values can be provided via environment variables using a `value_from` map on any value under `init.values` or `backups`. Example of both providing s3 credentials and restic repo password as well as smtp credentials via sensitive values:
 
 ```yaml
 apps:
   zitadel:
+    init:
+      # Switch to false if you don't want to create initial secrets or use the
+      # API via a service account to create the above described resources
+      enabled: true
+      values:
+        # mail server, must include port! e.g. mymailserver.com:587
+        smtp_host:
+          value_from:
+            env: ZITADEL_SMTP_HOST
+        # mail user
+        smtp_user:
+          value_from:
+            env: ZITADEL_SMTP_USER
+        # mail password
+        smtp_password:
+          value_from:
+            env: ZITADEL_SMTP_PASSWORD
+        # mail from address
+        smtp_from_address:
+          value_from:
+            env: ZITADEL_SMTP_FROM_ADDRESS
+        # mail from name
+        smtp_from_name:
+          value_from:
+            env: ZITADEL_SMTP_FROM_NAME
+        # mail reply to address
+        smtp_reply_to_address:
+          value_from:
+            env: ZITADEL_SMTP_REPLY_TO_ADDRESS
     backups:
       s3:
         secret_access_key:
@@ -152,24 +181,54 @@ apps:
         - ZITADEL_S3_BACKUP_ACCESS_ID
         - ZITADEL_S3_BACKUP_SECRET_KEY
         - ZITADEL_RESTIC_REPO_PASSWORD
+        - ZITADEL_SMTP_HOST
+        - ZITADEL_SMTP_USER
+        - ZITADEL_SMTP_PASSWORD
+        - ZITADEL_SMTP_FROM_ADDRESS
+        - ZITADEL_SMTP_FROM_NAME
+        - ZITADEL_SMTP_REPLY_TO_ADDRESS
     init:
       # Switch to false if you don't want to create initial secrets or use the
       # API via a service account to create the above described resources
       enabled: true
       values:
+        # login username of admin user
         username: 'certainlynotadog'
+        # email of admin user
         email: 'notadog@humans.com'
+        # first name of admin user
         first_name: 'Dogsy'
+        # last name of admin user
         last_name: 'Dogerton'
         # options: GENDER_UNSPECIFIED, GENDER_MALE, GENDER_FEMALE, GENDER_DIVERSE
         # more coming soon, see: https://github.com/zitadel/zitadel/issues/6355
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
-        # coming soon after we refactor a bit
-        # smtp_password:
-        #   value_from:
-        #     env: ZITADEL_SMTP_PASSWORD
+        # mail server, must include port! e.g. mymailserver.com:587
+        smtp_host:
+          value_from:
+            env: ZITADEL_SMTP_HOST
+        # mail user
+        smtp_user:
+          value_from:
+            env: ZITADEL_SMTP_USER
+        # mail password
+        smtp_password:
+          value_from:
+            env: ZITADEL_SMTP_PASSWORD
+        # mail from address
+        smtp_from_address:
+          value_from:
+            env: ZITADEL_SMTP_FROM_ADDRESS
+        # mail from name
+        smtp_from_name:
+          value_from:
+            env: ZITADEL_SMTP_FROM_NAME
+        # mail reply to address
+        smtp_reply_to_address:
+          value_from:
+            env: ZITADEL_SMTP_REPLY_TO_ADDRESS
       restore:
         enabled: false
         cnpg_restore: true
