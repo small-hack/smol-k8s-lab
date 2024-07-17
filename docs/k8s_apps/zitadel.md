@@ -60,6 +60,18 @@ apps:
         smtp_password:
           value_from:
             env: ZITADEL_SMTP_PASSWORD
+        # mail from address
+        smtp_from_address:
+          value_from:
+            env: ZITADEL_SMTP_FROM_ADDRESS
+        # mail from name
+        smtp_from_name:
+          value_from:
+            env: ZITADEL_SMTP_FROM_NAME
+        # mail reply to address
+        smtp_reply_to_address:
+          value_from:
+            env: ZITADEL_SMTP_REPLY_TO_ADDRESS
     backups:
       s3:
         secret_access_key:
@@ -172,6 +184,9 @@ apps:
         - ZITADEL_SMTP_HOST
         - ZITADEL_SMTP_USER
         - ZITADEL_SMTP_PASSWORD
+        - ZITADEL_SMTP_FROM_ADDRESS
+        - ZITADEL_SMTP_FROM_NAME
+        - ZITADEL_SMTP_REPLY_TO_ADDRESS
     init:
       # Switch to false if you don't want to create initial secrets or use the
       # API via a service account to create the above described resources
@@ -202,6 +217,18 @@ apps:
         smtp_password:
           value_from:
             env: ZITADEL_SMTP_PASSWORD
+        # mail from address
+        smtp_from_address:
+          value_from:
+            env: ZITADEL_SMTP_FROM_ADDRESS
+        # mail from name
+        smtp_from_name:
+          value_from:
+            env: ZITADEL_SMTP_FROM_NAME
+        # mail reply to address
+        smtp_reply_to_address:
+          value_from:
+            env: ZITADEL_SMTP_REPLY_TO_ADDRESS
       restore:
         enabled: false
         cnpg_restore: true
