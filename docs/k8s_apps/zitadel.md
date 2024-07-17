@@ -152,14 +152,21 @@ apps:
         - ZITADEL_S3_BACKUP_ACCESS_ID
         - ZITADEL_S3_BACKUP_SECRET_KEY
         - ZITADEL_RESTIC_REPO_PASSWORD
+        - ZITADEL_SMTP_HOST
+        - ZITADEL_SMTP_USER
+        - ZITADEL_SMTP_PASSWORD
     init:
       # Switch to false if you don't want to create initial secrets or use the
       # API via a service account to create the above described resources
       enabled: true
       values:
+        # login username of admin user
         username: 'certainlynotadog'
+        # email of admin user
         email: 'notadog@humans.com'
+        # first name of admin user
         first_name: 'Dogsy'
+        # last name of admin user
         last_name: 'Dogerton'
         # options: GENDER_UNSPECIFIED, GENDER_MALE, GENDER_FEMALE, GENDER_DIVERSE
         # more coming soon, see: https://github.com/zitadel/zitadel/issues/6355
