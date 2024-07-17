@@ -405,9 +405,9 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # zitadel smtp credentials creation
     smtp_host_obj = create_custom_field('host', smtp_host)
-    smtp_from_address_obj = create_custom_field('host', smtp_from_address)
-    smtp_from_name_obj = create_custom_field('host', smtp_from_name)
-    smtp_reply_to_address_obj = create_custom_field('host', smtp_reply_to_address)
+    smtp_from_address_obj = create_custom_field('from_address', smtp_from_address)
+    smtp_from_name_obj = create_custom_field('from_name', smtp_from_name)
+    smtp_reply_to_address_obj = create_custom_field('reply_to_address', smtp_reply_to_address)
     smtp_id = bitwarden.create_login(
             name='zitadel-smtp-credentials',
             item_url=zitadel_hostname,
