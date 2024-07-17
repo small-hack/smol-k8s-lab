@@ -6,7 +6,7 @@ from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import restore_seaweedfs, restore_cnpg_cluster
-from smol_k8s_lab.utils.value_from import process_backup_vals
+from smol_k8s_lab.utils.value_from import process_backup_vals, extract_secret
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 
@@ -80,6 +80,11 @@ def configure_zitadel(argocd: ArgoCD,
         # first we make sure the namespace exists
         argocd.k8s.create_namespace(zitadel_namespace)
 
+        # get the mail credentials
+        smtp_host = extract_secret(init_values.get("smtp_host", "not applicable"))
+        smtp_user = extract_secret(init_values.get("smtp_user", "not applicable"))
+        smtp_password = extract_secret(init_values.get("smtp_password", "not applicable"))
+
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
                                   zitadel_hostname,
@@ -88,6 +93,9 @@ def configure_zitadel(argocd: ArgoCD,
                                   backup_vals['s3_user'],
                                   backup_vals['s3_password'],
                                   backup_vals['restic_repo_pass'],
+                                  smtp_host,
+                                  smtp_user,
+                                  smtp_password,
                                   bitwarden)
 
         elif not bitwarden and not restore_enabled:
@@ -106,6 +114,12 @@ def configure_zitadel(argocd: ArgoCD,
             argocd.k8s.create_secret('zitadel-pgsql-credentials', 'zitadel',
                                      {"username": 'zitadel',
                                       "password": 'we-use-tls-instead-of-password'})
+
+            # smtp credentials creation
+            argocd.k8s.create_secret('zitadel-smtp-credentials', 'zitadel',
+                                     {"host": smtp_host,
+                                      "user": smtp_user,
+                                      "password": smtp_password})
 
     if not app_installed and restore_enabled:
         restore_zitadel(argocd,
@@ -328,6 +342,9 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           backups_s3_user: str,
                           backups_s3_password: str,
                           restic_repo_pass: str,
+                          smtp_host: str,
+                          smtp_user: str,
+                          smtp_password: str,
                           bitwarden: BwCLI) -> None:
     """
     setup all zitadel related bitwarden items and refresh the appset secret plugin
@@ -366,6 +383,16 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password="using-tls-now-so-we-do-not-need-a-password"
             )
 
+    # zitadel smtp credentials creation
+    smtp_host_obj = create_custom_field('host', smtp_host)
+    smtp_id = bitwarden.create_login(
+            name='zitadel-smtp-credentials',
+            item_url=zitadel_hostname,
+            user=smtp_user,
+            password=smtp_password,
+            fields=[smtp_host_obj]
+            )
+
     # create zitadel core key
     new_key = bitwarden.generate()
     core_id = bitwarden.create_login(name="zitadel-core-key",
@@ -376,6 +403,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
     # update the zitadel values for the argocd appset
     argocd.update_appset_secret(
             {'zitadel_core_bitwarden_id': core_id,
+             'zitadel_smtp_credentials_bitwarden_id': smtp_id,
              'zitadel_postgres_credentials_bitwarden_id': db_id,
              'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
              'zitadel_s3_admin_credentials_bitwarden_id': s3_admin_id,
@@ -415,6 +443,14 @@ def refresh_bitwarden(argocd: ArgoCD,
             f"zitadel-postgres-s3-credentials-{zitadel_hostname}", False
             )[0]['id']
 
+    try:
+        smtp_id = bitwarden.get_item(
+                f"zitadel-smtp-credentials-{zitadel_hostname}", False
+                )[0]['id']
+    except Exception as e:
+        log.warn(e)
+        smtp_id = "Not applicable"
+
     core_id = bitwarden.get_item(
             f"zitadel-core-key-{zitadel_hostname}", False
             )[0]['id']
@@ -430,6 +466,7 @@ def refresh_bitwarden(argocd: ArgoCD,
     argocd.update_appset_secret(
             {
             'zitadel_core_bitwarden_id': core_id,
+            'zitadel_smtp_credentials_bitwarden_id': smtp_id,
             'zitadel_postgres_credentials_bitwarden_id': db_id,
             'zitadel_s3_postgres_credentials_bitwarden_id': s3_id,
             'zitadel_s3_backups_credentials_bitwarden_id': s3_backup_id,

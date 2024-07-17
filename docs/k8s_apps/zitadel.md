@@ -166,10 +166,18 @@ apps:
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
-        # coming soon after we refactor a bit
-        # smtp_password:
-        #   value_from:
-        #     env: ZITADEL_SMTP_PASSWORD
+        # mail server
+        smtp_host:
+          value_from:
+            env: ZITADEL_SMTP_HOST
+        # mail user
+        smtp_user:
+          value_from:
+            env: ZITADEL_SMTP_USER
+        # mail password
+        smtp_password:
+          value_from:
+            env: ZITADEL_SMTP_PASSWORD
       restore:
         enabled: false
         cnpg_restore: true
