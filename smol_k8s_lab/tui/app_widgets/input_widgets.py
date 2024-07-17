@@ -262,6 +262,7 @@ class SmolK8sLabInputsWidget(Static):
         input_keys = {"placeholder": placeholder_txt,
                       "name": key,
                       "id": "-".join([self.app_name, key, "input"]),
+                      "password": False,
                       "validators": [Length(minimum=2)]}
 
         # only give an initial value if one was found in the yaml or env var
@@ -277,19 +278,14 @@ class SmolK8sLabInputsWidget(Static):
 
                 # reassign value if this is a CommentedSeq for validation later on
                 value = sequence_value
-                input_keys['password'] = False
 
             # otherwise this is a sensitive value, and we have to get it externally
             elif isinstance(value, dict):
                 input_keys['password'] = True
                 value = extract_secret(value)
-            # this is probably just a plain text string
-            else:
-                input_keys['password'] = False
-
-            input_keys["value"] = value
 
         # add all the input_keys dictionary as args to Input widget
+        input_keys['value'] = value
         input = Input(**input_keys)
 
         # make sure Input widget has a tooltip
