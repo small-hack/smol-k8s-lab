@@ -38,11 +38,28 @@ In addition to those one time init values, we also require a hostname to use for
 
 ## Sensitive values
 
-Sensitive values can be provided via environment variables using a `value_from` map on any value under `init.values` or `backups`. Example of providing s3 credentials and restic repo password via sensitive values:
+Sensitive values can be provided via environment variables using a `value_from` map on any value under `init.values` or `backups`. Example of both providing s3 credentials and restic repo password as well as smtp credentials via sensitive values:
 
 ```yaml
 apps:
   zitadel:
+    init:
+      # Switch to false if you don't want to create initial secrets or use the
+      # API via a service account to create the above described resources
+      enabled: true
+      values:
+        # mail server
+        smtp_host:
+          value_from:
+            env: ZITADEL_SMTP_HOST
+        # mail user
+        smtp_user:
+          value_from:
+            env: ZITADEL_SMTP_USER
+        # mail password
+        smtp_password:
+          value_from:
+            env: ZITADEL_SMTP_PASSWORD
     backups:
       s3:
         secret_access_key:
