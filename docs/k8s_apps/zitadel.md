@@ -48,7 +48,7 @@ apps:
       # API via a service account to create the above described resources
       enabled: true
       values:
-        # mail server
+        # mail server, must include port! e.g. mymailserver.com:587
         smtp_host:
           value_from:
             env: ZITADEL_SMTP_HOST
@@ -205,7 +205,7 @@ apps:
         gender: GENDER_UNSPECIFIED
         # name of the default project to create OIDC applications in
         project: core
-        # mail server
+        # mail server, must include port! e.g. mymailserver.com:587
         smtp_host:
           value_from:
             env: ZITADEL_SMTP_HOST
