@@ -13,7 +13,12 @@ class ArgoCD():
     def __init__(self,
                  namespace: str,
                  argo_cd_domain: str,
-                 k8s_obj: K8s|None = None) -> None:
+                 k8s_obj: K8s|None = None,
+                 secrets_backend: str = "") -> None:
+        """
+        secrets_backend: str, if set to "bitwarden", resets bitwarden eso
+        provider when updating Argo CD Appset Secret Plugin
+        """
 
         # setup Argo CD to talk directly to k8s
         log.debug(f"setting namespace to {namespace} and configuring argocd "
@@ -23,6 +28,7 @@ class ArgoCD():
         self.namespace = namespace
         self.hostname = argo_cd_domain
         self.k8s = k8s_obj
+        self.secrets_backend = secrets_backend
 
     def check_if_app_exists(self, app: str) -> bool:
         """
@@ -264,6 +270,7 @@ class ArgoCD():
         else:
             self.k8s.reload_deployment("appset-secrets-plugin", self.namespace)
 
-        # reload the bitwarden ESO provider
-        self.sync_app('bitwarden-eso-provider', spinner=True, replace=True, force=True)
-        self.wait_for_app('bitwarden-eso-provider')
+        # if bweso enabled, reload the bitwarden ESO provider
+        if self.secrets_backend == "bitwarden":
+            self.sync_app('bitwarden-eso-provider', spinner=True, replace=True, force=True)
+            self.wait_for_app('bitwarden-eso-provider')
