@@ -76,8 +76,7 @@ class AppsConfigScreen(Screen):
             self.argocd = ArgoCD(
                     self.cfg['argo_cd']['argo']['namespace'],
                     self.cfg['argo_cd']['argo']['secret_keys']['hostname'],
-                    k8s_obj,
-                    self.cfg['apps_global_config']['external_secrets']
+                    k8s_obj
                     )
         else:
             self.log("self.modify_cluster is set to false")
