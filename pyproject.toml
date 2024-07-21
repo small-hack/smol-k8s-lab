@@ -59,7 +59,7 @@ mkdocs-video    = "^1.5"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-deptry                  = "^0.16"
+deptry                  = "^0.17.0"
 textual-dev             = "^1.1"
 pytest-textual-snapshot = "^0.4"
 poethepoet              = "^0.27"
