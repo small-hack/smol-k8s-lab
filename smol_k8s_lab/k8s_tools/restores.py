@@ -47,8 +47,9 @@ def restore_seaweedfs(argocd: ArgoCD,
     # recreate the seaweedfs PVCs appset
     pvc_appset = (
             f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
-            f"{argocd_path}/s3_pvc_appset.yaml")
+            f"{argocd_path}s3_pvc_appset.yaml")
     argocd.k8s.apply_manifests(pvc_appset, argocd.namespace)
+    argocd.wait_for_app(f"{app}-s3-pvc", retry=True)
 
     for swfs_pvc, snapshot_id in snapshots.items():
         # build a k8up restore file and apply it
@@ -61,12 +62,13 @@ def restore_seaweedfs(argocd: ArgoCD,
                          access_key_id,
                          secret_access_key,
                          restic_repo_password,
-                         snapshot_id)
+                         snapshot_id,
+                         "s3-backups-podconfig")
 
     # deploy the seaweedfs appset, which will use the restored PVCs above
     seaweedfs_appset = (
             f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
-            f"{argocd_path}/s3_provider_argocd_appset.yaml")
+            f"{argocd_path}s3_provider_argocd_appset.yaml")
     argocd.k8s.apply_manifests(seaweedfs_appset, argocd.namespace)
 
     # and finally wait for the seaweedfs helm chart app to be ready
@@ -74,15 +76,6 @@ def restore_seaweedfs(argocd: ArgoCD,
 
     # but then wait again on the pods, just in case...
     argocd.k8s.wait(namespace, instance=f"{app}-seaweedfs")
-
-    # finally, make sure future scheduled backups are working
-    seaweedfs_pvc_appset = (
-            "https://raw.githubusercontent.com/small-hack/argocd-apps/main/"
-            f"{app}/app_of_apps/s3_pvc_appset.yaml"
-            )
-    argocd.k8s.apply_manifests(seaweedfs_pvc_appset, argocd.namespace)
-    argocd.wait_for_app(f"{app}-s3-pvc", retry=True)
-    argocd.sync_app(f"{app}-s3-pvc")
 
 
 def k8up_restore_pvc(k8s_obj: K8s,
@@ -94,7 +87,8 @@ def k8up_restore_pvc(k8s_obj: K8s,
                      access_key_id: str,
                      secret_access_key: str,
                      restic_repo_password: str,
-                     snapshot_id: str = "latest"):
+                     snapshot_id: str = "latest",
+                     pod_config: str = "backups-podconfig"):
     """
     builds a k8up restore manifest and applies it
     """
@@ -110,7 +104,7 @@ def k8up_restore_pvc(k8s_obj: K8s,
                         'failedJobsHistoryLimit': 5,
                         'successfulJobsHistoryLimit': 1,
                         'podConfigRef': {
-                            'name': "backups-podconfig"
+                            'name': pod_config
                         },
                         'restoreMethod': {
                             'folder': {

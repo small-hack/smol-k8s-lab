@@ -242,7 +242,7 @@ def restore_nextcloud(argocd: ArgoCD,
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
                 f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
-                f"{argo_path}/external_secrets_argocd_appset.yaml"
+                f"{argo_path}external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -319,7 +319,8 @@ def restore_nextcloud(argocd: ArgoCD,
                              access_key_id,
                              secret_access_key,
                              restic_repo_password,
-                             snapshot_ids[f'nextcloud_{pvc}']
+                             snapshot_ids[f'nextcloud_{pvc}'],
+                             "file-backups-podconfig"
                              )
 
     # todo: from here on out, this could be async to start on other tasks
