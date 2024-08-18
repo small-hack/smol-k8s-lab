@@ -1259,7 +1259,16 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        # you can delete these if you're not using tolerations/affinity
+        toleration_key: ""
+        toleration_operator: ""
+        toleration_value: ""
+        toleration_effect: ""
+        # these are for node affinity, delete if not in use
+        affinity_key: ""
+        affinity_value: ""
         hostname: ""
+        # nextcloud needs this for new users or it throws a warning in the admin panel
         default_phone_region: NL
         # the default domain to send emails to user with
         mail_domain: "domain.com"
@@ -1270,11 +1279,15 @@ apps:
         # size of the pvc for nextcloud files
         files_storage: "20Gi"
         files_access_mode: "ReadWriteOnce"
+        # you can also comment this out and we'll use the global storage class
+        files_storage_class: "local-path"
         # create a pvc for nextcloud config
         config_pvc_enabled: "true"
         # size of the pvc for nextcloud config
         config_storage: "2Gi"
         config_access_mode: "ReadWriteOnce"
+        # you can also comment this out and we'll use the global storage class
+        config_storage_class: "local-path"
         # choose S3 as the local primary object store from either: seaweedfs, or minio
         # SeaweedFS - deploy SeaweedFS filer/s3 gateway
         # MinIO     - deploy MinIO vanilla helm chart
@@ -1282,7 +1295,9 @@ apps:
         # the endpoint you'd like to use for your minio or SeaweedFS instance
         s3_endpoint: ""
         # how large the backing pvc's capacity should be for minio or seaweedfs
-        s3_pvc_capacity: 100Gi
+        s3_pvc_capacity: 10Gi
+        # you can also comment this out and we'll use the global storage class
+        s3_pvc_storage_class: local-path
         s3_region: eu-west-1
         # cronjob schedule to turn on nextcloud maintenance mode for backups
         maintenance_mode_on_schedule: "0 1 * * *"
@@ -1291,6 +1306,8 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
+      # you can also use nextcloud/app_of_apps_with_tolerations/ if you have a
+      # special nextcloud node you want to apply affinity and tolerations for
       path: nextcloud/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
