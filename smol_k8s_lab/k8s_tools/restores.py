@@ -49,7 +49,6 @@ def restore_seaweedfs(argocd: ArgoCD,
             f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
             f"{argocd_path}s3_pvc_appset.yaml")
     argocd.k8s.apply_manifests(pvc_appset, argocd.namespace)
-    argocd.wait_for_app(f"{app}-s3-pvc", retry=True)
 
     for swfs_pvc, snapshot_id in snapshots.items():
         # build a k8up restore file and apply it
