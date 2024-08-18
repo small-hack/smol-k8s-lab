@@ -256,6 +256,7 @@ def restore_nextcloud(argocd: ArgoCD,
     # then we create all the seaweedfs pvcs we lost and restore them
     snapshot_ids = restore_dict['restic_snapshot_ids']
     s3_pvc_storage_class = secrets.get("s3_pvc_storage_class", global_pvc_storage_class)
+
     restore_seaweedfs(
             argocd,
             'nextcloud',
@@ -269,8 +270,7 @@ def restore_nextcloud(argocd: ArgoCD,
             s3_pvc_storage_class,
             "ReadWriteOnce",
             snapshot_ids['seaweedfs_volume'],
-            snapshot_ids['seaweedfs_filer']
-            )
+            snapshot_ids['seaweedfs_filer'])
 
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):

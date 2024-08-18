@@ -34,8 +34,7 @@ def restore_seaweedfs(argocd: ArgoCD,
                       storage_class: str = "local-path",
                       access_mode: str = "ReadWriteOnce",
                       volume_snapshot_id: str = "",
-                      filer_snapshot_id: str = ""
-                      ):
+                      filer_snapshot_id: str = ""):
     """
     recreate the seaweedfs PVCs for a given namespace and restore them via
     restic, before applying the app's s3 provider Argo CD application set
@@ -118,9 +117,7 @@ def k8up_restore_pvc(k8s_obj: K8s,
                     'spec': {
                         'failedJobsHistoryLimit': 5,
                         'successfulJobsHistoryLimit': 1,
-                        'podSecurityContext': {
-                            'runAsUser': 0
-                            },
+                        'podConfigRef': "backups-podconfig",
                         'restoreMethod': {
                             'folder': {
                                 'claimName': pvc
