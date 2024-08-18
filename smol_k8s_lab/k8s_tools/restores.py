@@ -109,7 +109,9 @@ def k8up_restore_pvc(k8s_obj: K8s,
                     'spec': {
                         'failedJobsHistoryLimit': 5,
                         'successfulJobsHistoryLimit': 1,
-                        'podConfigRef': "backups-podconfig",
+                        'podConfigRef': {
+                            'name': "backups-podconfig"
+                        },
                         'restoreMethod': {
                             'folder': {
                                 'claimName': pvc
