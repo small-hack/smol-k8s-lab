@@ -231,14 +231,18 @@ def restore_nextcloud(argocd: ArgoCD,
     restic_repo_password = backup_dict['restic_repo_pass']
     cnpg_backup_schedule = backup_dict['postgres_schedule']
 
+    # get argo git repo info
+    revision = argo_dict['revision']
+    argo_path = argo_dict['path']
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bweso(argocd, nextcloud_hostname, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
-                "https://raw.githubusercontent.com/small-hack/argocd-apps/main/"
-                "nextcloud/app_of_apps/external_secrets_argocd_appset.yaml"
+                f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+                f"{argo_path}/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -261,6 +265,8 @@ def restore_nextcloud(argocd: ArgoCD,
             argocd,
             'nextcloud',
             nextcloud_namespace,
+            revision,
+            argo_path,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,
