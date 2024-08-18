@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "5.13.3"
+version       = "5.14.0"
 description   = "CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -30,20 +30,20 @@ include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
 "Bug Tracker" = "http://github.com/small-hack/smol-k8s-lab/issues"
 
 [tool.poetry.dependencies]
-bcrypt             = "^4.1"
+bcrypt             = "^4.2"
 click              = "^8.1"
 cryptography       = "^43.0"
 kubernetes         = "^30"
 minio              = "^7.2"
 pyfiglet           = "^1.0"
-pyjwt              = "^2.8"
+pyjwt              = "^2.9"
 python             = ">=3.11,<3.13"
 pyyaml             = "^6.0"
 requests           = "^2.32"
 rich               = "^13.0"
 ruamel-yaml        = "^0.18"
 ruamel-yaml-string = "^0.1"
-textual            = "^0.73"
+textual            = "^0.76"
 xdg-base-dirs      = "^6.0"
 pygame             = "^2.5"
 python-ulid        = "^2.6"
@@ -59,9 +59,9 @@ mkdocs-video    = "^1.5"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-deptry                  = "^0.17.0"
+deptry                  = "^0.19"
 textual-dev             = "^1.1"
-pytest-textual-snapshot = "^0.4"
+pytest-textual-snapshot = "^1.0"
 poethepoet              = "^0.27"
 # for creating app images: https://pypi.org/project/poetry-plugin-appimage/
 # poetry-plugin-appimage  = "^0.0.4"

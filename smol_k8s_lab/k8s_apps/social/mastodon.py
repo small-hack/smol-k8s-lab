@@ -460,18 +460,20 @@ def restore_mastodon(argocd: ArgoCD,
     restic_repo_password = backup_dict['restic_repo_pass']
     cnpg_backup_schedule = backup_dict['postgres_schedule']
 
+
+    # apply the external secrets so we can immediately use them for restores
+    # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+    # WARNING: change this back to main when done testing
+    # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
+    revision = argo_dict.get("revision", "add-pvc-helm-chart-for-mastodon")
+    argo_path = argo_dict["path"]
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bweso(argocd, mastodon_hostname, bitwarden)
-
-        # apply the external secrets so we can immediately use them for restores
-        # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
-        # WARNING: change this back to main when done testing
-        # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
-        ref = "add-pvc-helm-chart-for-mastodon"
         external_secrets_yaml = (
                 "https://raw.githubusercontent.com/small-hack/argocd-apps/"
-                f"{ref}/mastodon/app_of_apps/external_secrets_argocd_appset.yaml"
+                f"{revision}/{argo_path}/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -492,7 +494,8 @@ def restore_mastodon(argocd: ArgoCD,
             argocd.k8s,
             'mastodon',
             mastodon_namespace,
-            argocd.namespace,
+            revision,
+            argo_path,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,

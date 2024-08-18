@@ -43,6 +43,18 @@ def configure_nextcloud(argocd: ArgoCD,
     if secrets:
         nextcloud_hostname = secrets['hostname']
 
+        # make sure the pvc secrets are set correctly
+        storage_class_secrets = {}
+
+        # verify each configurable PVC has an associated secret
+        for pvc in ['files', 'config', 's3_pvc']:
+            storage_class = secrets.get(f"{pvc}_storage_class", None)
+            if not storage_class:
+                storage_class_secrets[f"nextcloud_{pvc}_storage_class"] = pvc_storage_class
+
+        if storage_class_secrets:
+            argocd.update_appset_secret(storage_class_secrets)
+
     # verify if initialization is enabled
     init = cfg.get('init', {'enabled': True, 'restore': {'enabled': False}})
     init_enabled = init.get('enabled', True)
@@ -204,7 +216,7 @@ def restore_nextcloud(argocd: ArgoCD,
                       secrets: dict,
                       restore_dict: dict,
                       backup_dict: dict,
-                      pvc_storage_class: str,
+                      global_pvc_storage_class: str,
                       pgsql_cluster_name: str,
                       bitwarden: BwCLI) -> None:
     """
@@ -219,14 +231,18 @@ def restore_nextcloud(argocd: ArgoCD,
     restic_repo_password = backup_dict['restic_repo_pass']
     cnpg_backup_schedule = backup_dict['postgres_schedule']
 
+    # get argo git repo info
+    revision = argo_dict['revision']
+    argo_path = argo_dict['path']
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bweso(argocd, nextcloud_hostname, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
-                "https://raw.githubusercontent.com/small-hack/argocd-apps/main/"
-                "nextcloud/app_of_apps/external_secrets_argocd_appset.yaml"
+                f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+                f"{argo_path}/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -243,21 +259,24 @@ def restore_nextcloud(argocd: ArgoCD,
 
     # then we create all the seaweedfs pvcs we lost and restore them
     snapshot_ids = restore_dict['restic_snapshot_ids']
+    s3_pvc_storage_class = secrets.get("s3_pvc_storage_class", global_pvc_storage_class)
+
     restore_seaweedfs(
             argocd,
             'nextcloud',
             nextcloud_namespace,
+            revision,
+            argo_path,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,
             secret_access_key,
             restic_repo_password,
             s3_pvc_capacity,
-            pvc_storage_class,
+            s3_pvc_storage_class,
             "ReadWriteOnce",
             snapshot_ids['seaweedfs_volume'],
-            snapshot_ids['seaweedfs_filer']
-            )
+            snapshot_ids['seaweedfs_filer'])
 
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
@@ -278,13 +297,14 @@ def restore_nextcloud(argocd: ArgoCD,
     for pvc in ['files', 'config']:
         pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
+            storage_class = secrets.get(f"{pvc}_storage_class", global_pvc_storage_class)
             # creates the nexcloud pvc
             recreate_pvc(argocd.k8s,
                          'nextcloud',
                          f'nextcloud-{pvc}',
                          nextcloud_namespace,
                          secrets[f'{pvc}_storage'],
-                         pvc_storage_class,
+                         storage_class,
                          secrets[f'{pvc}_access_mode'],
                          "nextcloud-pvc"
                          )
