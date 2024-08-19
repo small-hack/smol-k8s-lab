@@ -242,7 +242,7 @@ def restore_nextcloud(argocd: ArgoCD,
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
                 f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
-                f"{argo_path}/external_secrets_argocd_appset.yaml"
+                f"{argo_path}external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -293,22 +293,16 @@ def restore_nextcloud(argocd: ArgoCD,
                              pgsql_cluster_name,
                              cnpg_backup_schedule)
 
+    podconfig_yaml = (
+            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"{argo_path}pvc_argocd_appset.yaml"
+            )
+    argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
+
     # then we begin the restic restore of all the nextcloud PVCs we lost
     for pvc in ['files', 'config']:
         pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
-            storage_class = secrets.get(f"{pvc}_storage_class", global_pvc_storage_class)
-            # creates the nexcloud pvc
-            recreate_pvc(argocd.k8s,
-                         'nextcloud',
-                         f'nextcloud-{pvc}',
-                         nextcloud_namespace,
-                         secrets[f'{pvc}_storage'],
-                         storage_class,
-                         secrets[f'{pvc}_access_mode'],
-                         "nextcloud-pvc"
-                         )
-
             # restores the nextcloud pvc
             k8up_restore_pvc(argocd.k8s,
                              'nextcloud',
@@ -319,7 +313,8 @@ def restore_nextcloud(argocd: ArgoCD,
                              access_key_id,
                              secret_access_key,
                              restic_repo_password,
-                             snapshot_ids[f'nextcloud_{pvc}']
+                             snapshot_ids[f'nextcloud_{pvc}'],
+                             "file-backups-podconfig"
                              )
 
     # todo: from here on out, this could be async to start on other tasks
