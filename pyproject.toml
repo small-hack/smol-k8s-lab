@@ -46,7 +46,7 @@ ruamel-yaml-string = "^0.1"
 textual            = "^0.79"
 xdg-base-dirs      = "^6.0"
 pygame             = "^2.5"
-python-ulid        = "^2.6"
+python-ulid        = "^3.0.0"
 
 [tool.poetry.group.docs]
 optional = true
