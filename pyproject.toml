@@ -62,7 +62,7 @@ optional = true
 deptry                  = "^0.20"
 textual-dev             = "^1.6"
 pytest-textual-snapshot = "^1.0"
-poethepoet              = "^0.29.0"
+poethepoet              = "^0.28"
 # for creating app images: https://pypi.org/project/poetry-plugin-appimage/
 # poetry-plugin-appimage  = "^0.0.4"
 # [tool.poetry-plugin-appimage]
