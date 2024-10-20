@@ -59,17 +59,24 @@ def check_all_contexts() -> list:
                     version = "unknown"
                     os = system() + "/" + machine()
 
+                # default the k8s distro to unknown in case we can't figure it out
+                distro = "unknown"
+
                 # if k3s is in the git version, it could be k3s OR k3d
                 if "k3d" in cluster_name:
                     distro = "k3d"
-                elif "k3s" in cluster_name and "k3d" not in cluster_name:
-                    distro = "k3s"
-                else:
-                    # if distro not k3s/k3d, we kinda guess :)
-                    for distro_name in ["kind", "gke", "aks", "eks"]:
-                        if distro_name in cluster_name:
-                            distro = distro_name
-                            break
+                elif "k3d" not in cluster_name:
+                    if "k3s" in cluster_name or "k3s" in version:
+                        distro = "k3s"
+                    else:
+                        # it might still be k3s if created outside of smol-k8s-lab
+                        # so we check the version
+
+                        # if distro not k3s/k3d, we kinda guess :)
+                        for distro_name in ["kind", "gke", "aks", "eks"]:
+                            if distro_name in cluster_name:
+                                distro = distro_name
+                                break
 
                 context_tuple = (cluster_name, distro, version, os)
 
