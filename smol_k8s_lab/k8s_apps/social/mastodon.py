@@ -125,10 +125,10 @@ def configure_mastodon(argocd: ArgoCD,
                     {"password": mastodon_pgsql_password,
                      'postrgesPassword': mastodon_pgsql_password})
 
-            # redis creds k8s secret
-            mastodon_redis_password = create_password()
-            argocd.k8s.create_secret('mastodon-redis-credentials', 'mastodon',
-                                     {"password": mastodon_redis_password})
+            # valkey creds k8s secret
+            mastodon_valkey_password = create_password()
+            argocd.k8s.create_secret('mastodon-valkey-credentials', 'mastodon',
+                                     {"password": mastodon_valkey_password})
 
             # mastodon rake secrets
             argocd.k8s.create_secret('mastodon-server-secrets', 'mastodon',
@@ -226,8 +226,8 @@ def refresh_bweso(argocd: ArgoCD,
             f"mastodon-elasticsearch-credentials-{mastodon_hostname}", False
             )[0]['id']
 
-    redis_id = bitwarden.get_item(
-            f"mastodon-redis-credentials-{mastodon_hostname}", False
+    valkey_id = bitwarden.get_item(
+            f"mastodon-valkey-credentials-{mastodon_hostname}", False
             )[0]['id']
 
     smtp_id = bitwarden.get_item(
@@ -258,7 +258,7 @@ def refresh_bweso(argocd: ArgoCD,
     argocd.update_appset_secret(
             {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
              'mastodon_postgres_credentials_bitwarden_id': db_id,
-             'mastodon_redis_bitwarden_id': redis_id,
+             'mastodon_valkey_bitwarden_id': valkey_id,
              'mastodon_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'mastodon_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'mastodon_s3_mastodon_credentials_bitwarden_id': s3_id,
@@ -353,13 +353,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[postrges_pass_obj]
             )
 
-    # Redis credentials
-    mastodon_redis_password = bitwarden.generate()
-    redis_id = bitwarden.create_login(
-            name='mastodon-redis-credentials',
+    # valkey credentials
+    mastodon_valkey_password = bitwarden.generate()
+    valkey_id = bitwarden.create_login(
+            name='mastodon-valkey-credentials',
             item_url=mastodon_hostname,
             user='mastodon',
-            password=mastodon_redis_password
+            password=mastodon_valkey_password
             )
 
     # SMTP credentials
@@ -419,7 +419,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
     argocd.update_appset_secret(
             {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
              'mastodon_postgres_credentials_bitwarden_id': db_id,
-             'mastodon_redis_bitwarden_id': redis_id,
+             'mastodon_valkey_bitwarden_id': valkey_id,
              'mastodon_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'mastodon_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'mastodon_s3_mastodon_credentials_bitwarden_id': s3_id,
