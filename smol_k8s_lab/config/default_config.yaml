@@ -834,9 +834,9 @@ apps:
         access_key_id:
           value_from:
             env: MASTODON_S3_BACKUP_ACCESS_ID
-        restic_repo_password:
-          value_from:
-            env: MASTODON_RESTIC_REPO_PASSWORD
+      restic_repo_password:
+        value_from:
+          env: MASTODON_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -851,6 +851,10 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
+        # size of valkey pvc storage
+        valkey_storage: 3Gi
+        valkey_storage_class: local-path
+        valkey_access_mode: ReadWriteOnce
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
