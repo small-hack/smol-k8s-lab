@@ -400,6 +400,18 @@ def setup_bitwarden_items(argocd: ArgoCD,
             "VAPID_PRIVATE_KEY",
             rake_secrets['VAPID_PRIVATE_KEY']
             )
+    active_record_encryption_deterministic_obj = create_custom_field(
+            "ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY",
+            rake_secrets['ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY']
+            )
+    active_record_encryption_derivation_obj = create_custom_field(
+            "ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT",
+            rake_secrets['ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT']
+            )
+    active_record_encryption_primary_obj = create_custom_field(
+            "ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY",
+            rake_secrets['ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY']
+            )
 
     secrets_id = bitwarden.create_login(
             name='mastodon-server-secrets',
@@ -410,7 +422,10 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 secret_key_base_obj,
                 otp_secret_obj,
                 vapid_priv_key_obj,
-                vapid_pub_key_obj
+                vapid_pub_key_obj,
+                active_record_encryption_primary_obj,
+                active_record_encryption_derivation_obj,
+                active_record_encryption_deterministic_obj
                 ]
             )
 
