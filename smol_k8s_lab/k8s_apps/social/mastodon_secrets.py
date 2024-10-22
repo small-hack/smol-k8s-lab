@@ -5,7 +5,7 @@ This is just for generating mastodon rake secrets and testing on the cli
 from smol_k8s_lab.utils.run.subproc import subproc
 
 
-def generate_rake_secrets() -> None:
+def generate_mastodon_secrets() -> None:
     """
     These are required for mastodon:
         https://docs.joinmastodon.org/admin/config/#secrets
@@ -53,9 +53,10 @@ def generate_rake_secrets() -> None:
 
     db_crypt_cmd = "docker run docker.io/tootsuite/mastodon:latest rails db:encryption:init"
     crypt_env = subproc([db_crypt_cmd]).split('\n')
-    final_dict['ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY'] = crypt_env[0].split("=")[1]
-    final_dict['ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT'] = crypt_env[1].split("=")[1]
-    final_dict['ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY'] = crypt_env[2].split("=")[1]
+    print(crypt_env)
+    final_dict['ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY'] = crypt_env[2].split("=")[1]
+    final_dict['ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT'] = crypt_env[3].split("=")[1]
+    final_dict['ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY'] = crypt_env[4].split("=")[1]
 
     return final_dict
 
