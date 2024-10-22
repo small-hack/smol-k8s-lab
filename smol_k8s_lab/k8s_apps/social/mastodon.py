@@ -152,7 +152,7 @@ def configure_mastodon(argocd: ArgoCD,
         elif init_enabled and not restore_enabled:
             argocd.install_app('mastodon', cfg['argo'], True)
             # wait for all the mastodon apps to come up, give it extra time
-            argocd.sync_app(app='mastodon-web-app', sleep_time=5)
+            argocd.sync_app(app='mastodon-web-app', sleep_time=4)
             argocd.wait_for_app('mastodon-web-app')
 
             # create admin credentials
