@@ -119,6 +119,8 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
+        # enable persistence for valkey - recommended
+        valkey_pvc_enabled: 'true'
         # size of valkey pvc storage settings
         valkey_storage: 3Gi
         valkey_storage_class: local-path
