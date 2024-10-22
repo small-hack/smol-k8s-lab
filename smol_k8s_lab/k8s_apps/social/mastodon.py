@@ -1,6 +1,6 @@
 # internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
-from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias, BetterMinio
+from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.social.mastodon_secrets import generate_mastodon_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import restore_seaweedfs, restore_cnpg_cluster
@@ -151,8 +151,8 @@ def configure_mastodon(argocd: ArgoCD,
             argocd.install_app('mastodon', cfg['argo'])
         elif init_enabled and not restore_enabled:
             argocd.install_app('mastodon', cfg['argo'], True)
-            # for for all the mastodon apps to come up
-            argocd.sync_app('mastodon-web-app')
+            # wait for all the mastodon apps to come up, give it extra time
+            argocd.sync_app(app='mastodon-web-app', sleep_time=5)
             argocd.wait_for_app('mastodon-web-app')
 
             # create admin credentials
