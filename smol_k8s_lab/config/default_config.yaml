@@ -784,7 +784,7 @@ apps:
     description: |
        [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
 
-       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, redis credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set mastodon.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 
@@ -834,9 +834,9 @@ apps:
         access_key_id:
           value_from:
             env: MASTODON_S3_BACKUP_ACCESS_ID
-        restic_repo_password:
-          value_from:
-            env: MASTODON_RESTIC_REPO_PASSWORD
+      restic_repo_password:
+        value_from:
+          env: MASTODON_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -851,6 +851,10 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
+        # size of valkey pvc storage
+        valkey_storage: 3Gi
+        valkey_storage_class: local-path
+        valkey_access_mode: ReadWriteOnce
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -1195,7 +1199,7 @@ apps:
     description: |
       [link=https://nextcloud.com/]Nextcloud Hub[/link] is the industry-leading, fully open-source, on-premises content collaboration platform. Teams access, share and edit their documents, chat and participate in video calls and manage their mail and calendar and projects across mobile, desktop and web interfaces
 
-      smol-k8s-lab supports initialization by setting up your admin username, password, and SMTP username and password, as well as your redis and postgresql credentials.
+      smol-k8s-lab supports initialization by setting up your admin username, password, and SMTP username and password, as well as your redis (or valkey) and postgresql credentials.
 
       To avoid providing sensitive values everytime you run smol-k8s-lab, consider exporting the following environment variables before running smol-k8s-lab:
         - NEXTCLOUD_SMTP_PASSWORD

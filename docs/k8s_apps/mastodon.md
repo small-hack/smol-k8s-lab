@@ -3,7 +3,7 @@
 We are mostly stable for running Mastodon on Kubernetes. Check out our [Mastodon Argo CD ApplicationSet](https://github.com/small-hack/argocd-apps/tree/main/mastodon/small-hack):
 
 <a href="../../assets/images/screenshots/mastodon_screenshot.png">
-<img src="../../assets/images/screenshots/mastodon_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view. the main mastodon app has 6 child apps: mastodon-redis, mastodon-app-set with child mastodon-web-app, mastodon-external-secrets-appset with child mastodon-external-secrets, mastodon-postgres-app-set with child mastodon-postgres-cluster, mastodon-s3-provider-app-set with child mastodon-seaweedfs, and mastodon-s3-pvc-appset with child mastodon-s3-pvc.">
+<img src="../../assets/images/screenshots/mastodon_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view. the main mastodon app has 6 child apps: mastodon-valkey, mastodon-app-set with child mastodon-web-app, mastodon-external-secrets-appset with child mastodon-external-secrets, mastodon-postgres-app-set with child mastodon-postgres-cluster, mastodon-s3-provider-app-set with child mastodon-seaweedfs, and mastodon-s3-pvc-appset with child mastodon-s3-pvc.">
 </a>
 
 This is the networking view in Argo CD:
@@ -53,7 +53,7 @@ apps:
     description: |
        [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
 
-       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, redis credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set mastodon.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 
@@ -102,9 +102,9 @@ apps:
         access_key_id:
           value_from:
             env: MASTODON_S3_BACKUP_ACCESS_ID
-        restic_repo_password:
-          value_from:
-            env: MASTODON_RESTIC_REPO_PASSWORD
+      restic_repo_password:
+        value_from:
+          env: MASTODON_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
@@ -119,6 +119,10 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
+        # size of valkey pvc storage settings
+        valkey_storage: 3Gi
+        valkey_storage_class: local-path
+        valkey_access_mode: ReadWriteOnce
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
