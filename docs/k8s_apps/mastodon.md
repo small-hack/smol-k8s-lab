@@ -71,6 +71,8 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
+          mastodon_valkey_primary: latest
+          mastodon_valkey_replica: latest
       values:
         # admin user
         admin_user: "tootadmin"
