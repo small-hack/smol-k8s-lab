@@ -71,6 +71,8 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
+          mastodon_valkey_primary: latest
+          mastodon_valkey_replica: latest
       values:
         # admin user
         admin_user: "tootadmin"
@@ -108,6 +110,9 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        # smtp port on your mail server
+        smtp_port: '25'
+        # admin user for your mastodon instance
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""

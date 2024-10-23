@@ -3,7 +3,9 @@ from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.social.mastodon_secrets import generate_mastodon_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
-from smol_k8s_lab.k8s_tools.restores import restore_seaweedfs, restore_cnpg_cluster
+from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
+                                             k8up_restore_pvc,
+                                             restore_cnpg_cluster)
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.run.subproc import subproc
@@ -453,6 +455,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 f"Recieved: {e}"
                 )
 
+
 def restore_mastodon(argocd: ArgoCD,
                      mastodon_hostname: str,
                      mastodon_namespace: str,
@@ -460,7 +463,7 @@ def restore_mastodon(argocd: ArgoCD,
                      secrets: dict,
                      restore_dict: dict,
                      backup_dict: dict,
-                     pvc_storage_class: str,
+                     global_pvc_storage_class: str,
                      pgsql_cluster_name: str,
                      bitwarden: BwCLI) -> None:
     """
@@ -475,20 +478,18 @@ def restore_mastodon(argocd: ArgoCD,
     restic_repo_password = backup_dict['restic_repo_pass']
     cnpg_backup_schedule = backup_dict['postgres_schedule']
 
-
-    # apply the external secrets so we can immediately use them for restores
-    # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
-    # WARNING: change this back to main when done testing
-    # ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️ ⚠️
-    revision = argo_dict.get("revision", "add-pvc-helm-chart-for-mastodon")
-    argo_path = argo_dict["path"]
+    # get argo git repo info
+    revision = argo_dict['revision']
+    argo_path = argo_dict['path']
 
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bweso(argocd, mastodon_hostname, bitwarden)
+
+        # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
-                "https://raw.githubusercontent.com/small-hack/argocd-apps/"
-                f"{revision}/{argo_path}/external_secrets_argocd_appset.yaml"
+                f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+                f"{argo_path}external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -505,8 +506,10 @@ def restore_mastodon(argocd: ArgoCD,
 
     # then we create all the seaweedfs pvcs we lost and restore them
     snapshot_ids = restore_dict['restic_snapshot_ids']
+    s3_pvc_storage_class = secrets.get("s3_pvc_storage_class", global_pvc_storage_class)
+
     restore_seaweedfs(
-            argocd.k8s,
+            argocd,
             'mastodon',
             mastodon_namespace,
             revision,
@@ -517,35 +520,51 @@ def restore_mastodon(argocd: ArgoCD,
             secret_access_key,
             restic_repo_password,
             s3_pvc_capacity,
-            pvc_storage_class,
+            s3_pvc_storage_class,
             "ReadWriteOnce",
             snapshot_ids['seaweedfs_volume'],
-            snapshot_ids['seaweedfs_filer']
-            )
+            snapshot_ids['seaweedfs_filer'])
 
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
         s3_endpoint = secrets.get('s3_endpoint', "")
-        restore_cnpg_cluster('mastodon',
+        restore_cnpg_cluster(argocd.k8s,
+                             'mastodon',
                              mastodon_namespace,
                              pgsql_cluster_name,
                              psql_version,
                              s3_endpoint,
                              pg_access_key_id,
                              pg_secret_access_key,
-                             seaweedf_s3_endpoint,
                              pgsql_cluster_name,
                              cnpg_backup_schedule)
 
-    # todo: from here on out, this could be async to start on other tasks
-    # install mastodon as usual
-    argocd.install_app('mastodon', argo_dict)
+    podconfig_yaml = (
+            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"{argo_path}pvc_argocd_appset.yaml"
+            )
+    argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
 
-    # verify mastodon rolled out
-    rollout = (f"kubectl rollout status -n {mastodon_namespace} "
-               "deployment/mastodon-web-app --watch --timeout 10m")
-    while True:
-        rolled_out = subproc([rollout])
-        if "NotFound" not in rolled_out:
-            break
+    # then we begin the restic restore of all the mastodon PVCs we lost
+    for pvc in ['valkey_primary', 'valkey_replica']:
+        pvc_enabled = secrets.get('valkey_pvc_enabled', 'false')
+        if pvc_enabled and pvc_enabled.lower() != 'false':
+            # restores the mastodon pvc
+            k8up_restore_pvc(
+                    k8s_obj=argocd.k8s,
+                    app='mastodon',
+                    pvc=f'mastodon-{pvc.replace("_","-")}',
+                    namespace='mastodon',
+                    s3_endpoint=s3_backup_endpoint,
+                    s3_bucket=s3_backup_bucket,
+                    access_key_id=access_key_id,
+                    secret_access_key=secret_access_key,
+                    restic_repo_password=restic_repo_password,
+                    snapshot_id=snapshot_ids[f'mastodon_{pvc}'],
+                    pod_config="file-backups-podconfig"
+                    )
+
+    # todo: from here on out, this could be async to start on other tasks
+    # install mastodon as usual, but wait on it this time
+    argocd.install_app('mastodon', argo_dict, True)
