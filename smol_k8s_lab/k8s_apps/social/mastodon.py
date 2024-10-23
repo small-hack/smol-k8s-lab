@@ -547,21 +547,22 @@ def restore_mastodon(argocd: ArgoCD,
     argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
 
     # then we begin the restic restore of all the mastodon PVCs we lost
-    pvc_enabled = secrets.get('valkey_pvc_enabled', 'false')
-    if pvc_enabled and pvc_enabled.lower() != 'false':
-        # restores the mastodon pvc
-        k8up_restore_pvc(argocd.k8s,
-                         'mastodon',
-                         'mastodon-valkey',
-                         'mastodon',
-                         s3_backup_endpoint,
-                         s3_backup_bucket,
-                         access_key_id,
-                         secret_access_key,
-                         restic_repo_password,
-                         snapshot_ids['mastodon_valkey'],
-                         "file-backups-podconfig"
-                         )
+    for pvc in ['valkey-primary', 'valkey-replica']:
+        pvc_enabled = secrets.get('valkey_pvc_enabled', 'false')
+        if pvc_enabled and pvc_enabled.lower() != 'false':
+            # restores the mastodon pvc
+            k8up_restore_pvc(k8s_obj=argocd.k8s,
+                             app='mastodon',
+                             pvc=f'mastodon-{pvc}',
+                             namespace='mastodon',
+                             s3_endpoint=s3_backup_endpoint,
+                             s3_bucket=s3_backup_bucket,
+                             access_key_id=access_key_id,
+                             secret_access_key=secret_access_key,
+                             restic_repo_password=restic_repo_password,
+                             snapshot_id=snapshot_ids[f'mastodon_{pvc}'],
+                             pod_config="file-backups-podconfig"
+                             )
 
     # todo: from here on out, this could be async to start on other tasks
     # install mastodon as usual, but wait on it this time
