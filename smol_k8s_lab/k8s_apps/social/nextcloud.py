@@ -5,7 +5,6 @@ from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
-                                             recreate_pvc,
                                              k8up_restore_pvc,
                                              restore_cnpg_cluster)
 from smol_k8s_lab.utils.passwords import create_password
