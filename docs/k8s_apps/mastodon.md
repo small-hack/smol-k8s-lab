@@ -108,6 +108,9 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        # smtp port on your mail server
+        smtp_port: 465
+        # admin user for your mastodon instance
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
