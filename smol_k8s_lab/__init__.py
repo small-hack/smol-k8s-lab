@@ -318,7 +318,9 @@ def main(config: str = "",
                 )
 
         # set up self hosted translation
-        configure_libretranslate(argocd, apps.pop('libre_translate', {}), bw)
+        libre_translate_dict = apps.pop('libre_translate', {})
+        if libre_translate_dict:
+            configure_libretranslate(argocd, libre_translate_dict, bw)
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it

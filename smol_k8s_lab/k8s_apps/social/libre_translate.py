@@ -43,7 +43,7 @@ def configure_libretranslate(argocd: ArgoCD,
         else:
             header_start = "Setting up"
 
-    header(f"{header_start} [green]libretranslate[/], for selfhosting your own translations",
+    header(f"{header_start} [green]libretranslate[/], for selfhosting your own languages translation",
            '📖')
 
     # we need namespace no matter the install type
