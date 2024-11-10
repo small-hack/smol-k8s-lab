@@ -78,6 +78,10 @@ apps:
         admin_user: "tootadmin"
         # admin user's email
         admin_email: ""
+        # api key for mastodon to do translations through libretranslate
+        libretranslate_api_key:
+          value_from:
+            env: MASTODON_LIBRETRANSLATE_API_KEY
         # mail server to send verification and notification emails
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
@@ -104,10 +108,6 @@ apps:
         access_key_id:
           value_from:
             env: MASTODON_S3_BACKUP_ACCESS_ID
-        # api key for mastodon to do translations through libretranslate
-        libretranslate_api_key:
-          value_from:
-            env: MASTODON_LIBRETRANSLATE_API_KEY
       restic_repo_password:
         value_from:
           env: MASTODON_RESTIC_REPO_PASSWORD
