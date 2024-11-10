@@ -59,6 +59,7 @@ def configure_mastodon(argocd: ArgoCD,
     secrets = cfg['argo']['secret_keys']
     if secrets:
         mastodon_hostname = secrets['hostname']
+        mastodon_libretranslate_hostname = secrets['libretranslate_hostname']
 
     # we need namespace immediately
     mastodon_namespace = cfg['argo']['namespace']
@@ -110,6 +111,7 @@ def configure_mastodon(argocd: ArgoCD,
                                   mail_user,
                                   mail_pass,
                                   rake_secrets,
+                                  mastodon_libretranslate_hostname,
                                   bitwarden)
 
         # these are standard k8s secrets yaml
@@ -256,6 +258,10 @@ def refresh_bweso(argocd: ArgoCD,
             f"mastodon-server-secrets-{mastodon_hostname}", False
             )[0]['id']
 
+    libretranslate_api_key_id = bitwarden.get_item(
+            f"libretranslate-credentials-{mastodon_hostname}", False
+            )[0]['id']
+
     # {'mastodon_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
             {'mastodon_smtp_credentials_bitwarden_id': smtp_id,
@@ -266,6 +272,7 @@ def refresh_bweso(argocd: ArgoCD,
              'mastodon_s3_mastodon_credentials_bitwarden_id': s3_id,
              'mastodon_s3_backups_credentials_bitwarden_id': s3_backups_id,
              'mastodon_elasticsearch_credentials_bitwarden_id': elastic_id,
+             'mastodon_libretranslate_bitwarden_id': libretranslate_api_key_id,
              'mastodon_server_secrets_bitwarden_id': secrets_id}
             )
 
@@ -283,6 +290,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mail_user: str,
                           mail_pass: str,
                           rake_secrets: dict,
+                          mastodon_libretranslate_hostname: str,
                           bitwarden: BwCLI) -> None:
     # S3 credentials
     # endpoint that gets put into the secret should probably have http in it
@@ -431,6 +439,15 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 ]
             )
 
+    endpoint = create_custom_field('endpoint', mastodon_libretranslate_hostname)
+    libretranslate_api_key_id = bitwarden.create_login(
+            name=f'libretranslate-credentials-{mastodon_hostname}',
+            item_url=mastodon_libretranslate_hostname,
+            user="n/a",
+            password=bitwarden.generate(),
+            fields=[endpoint]
+            )
+
     # update the mastodon values for the argocd appset
     # 'mastodon_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
@@ -442,7 +459,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'mastodon_s3_mastodon_credentials_bitwarden_id': s3_id,
              'mastodon_s3_backups_credentials_bitwarden_id': s3_backups_id,
              'mastodon_elasticsearch_credentials_bitwarden_id': elastic_id,
-             'mastodon_server_secrets_bitwarden_id': secrets_id})
+             'mastodon_server_secrets_bitwarden_id': secrets_id,
+             'mastodon_libretranslate_bitwarden_id': libretranslate_api_key_id})
 
     # reload the bitwarden ESO provider
     try:

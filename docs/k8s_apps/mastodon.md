@@ -104,6 +104,10 @@ apps:
         access_key_id:
           value_from:
             env: MASTODON_S3_BACKUP_ACCESS_ID
+        # api key for mastodon to do translations through libretranslate
+        libretranslate_api_key:
+          value_from:
+            env: MASTODON_LIBRETRANSLATE_API_KEY
       restic_repo_password:
         value_from:
           env: MASTODON_RESTIC_REPO_PASSWORD
@@ -114,6 +118,8 @@ apps:
         smtp_port: '25'
         # admin user for your mastodon instance
         admin_user: tootadmin
+        # endpoint for libretranslate translations
+        libretranslate_hostname: ""
         # hostname that users go to in the browser
         hostname: ""
         # set the local s3 provider for mastodon's public data in one bucket

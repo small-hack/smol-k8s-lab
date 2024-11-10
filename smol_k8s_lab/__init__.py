@@ -28,6 +28,7 @@ from .k8s_apps.monitoring.prometheus_stack import configure_prometheus_stack
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
+from .k8s_apps.social.libre_translate import configure_libretranslate
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
@@ -316,6 +317,9 @@ def main(config: str = "",
                 bw
                 )
 
+        # set up self hosted translation
+        configure_libretranslate(argocd, apps.pop('libre_translate', {}), bw)
+
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
         minio_tenant_config = apps.pop('minio_tenant', {})
@@ -386,6 +390,11 @@ def main(config: str = "",
         if home_assistant_hostname:
             final_msg += ("\n🏠 Home Assistant, for managing your IoT needs:\n"
                           f"[blue][link]https://{home_assistant_hostname}[/][/]\n")
+
+        libretranslate_hostname = SECRETS.get('libretranslate_hostname', "")
+        if libretranslate_hostname:
+            final_msg += ("\n📖, LibreTranslate for self-hosted language translations:\n"
+                          f"[blue][link]https://{libretranslate_hostname}[/][/]\n")
 
         netmaker_hostname = SECRETS.get('netmaker_admin_hostname', "")
         if netmaker_hostname:
