@@ -28,6 +28,7 @@ from .k8s_apps.monitoring.prometheus_stack import configure_prometheus_stack
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
+from .k8s_apps.social.libre_translate import configure_libretranslate
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
@@ -302,6 +303,11 @@ def main(config: str = "",
         if prometheus_stack['enabled']:
             configure_prometheus_stack(argocd, prometheus_stack, oidc_obj, bw)
 
+        # set up self hosted translation
+        libre_translate_dict = apps.pop('libre_translate', {})
+        if libre_translate_dict:
+            configure_libretranslate(argocd, libre_translate_dict, bw)
+
         # setup nextcloud, home assistant, mastodon, and matrix
         setup_federated_apps(
                 argocd,
@@ -386,6 +392,11 @@ def main(config: str = "",
         if home_assistant_hostname:
             final_msg += ("\n🏠 Home Assistant, for managing your IoT needs:\n"
                           f"[blue][link]https://{home_assistant_hostname}[/][/]\n")
+
+        libretranslate_hostname = SECRETS.get('libretranslate_hostname', "")
+        if libretranslate_hostname:
+            final_msg += ("\n📖, LibreTranslate for self-hosted language translations:\n"
+                          f"[blue][link]https://{libretranslate_hostname}[/][/]\n")
 
         netmaker_hostname = SECRETS.get('netmaker_admin_hostname', "")
         if netmaker_hostname:

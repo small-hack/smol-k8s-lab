@@ -750,6 +750,40 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
+  libre_translate:
+    description: |
+      📖 [link=https://libretranslate.com/]libretranslate[/link] is a self-hosted translation tool.
+
+      If init is enabled, we'll generate an api key for you.
+    enabled: false
+    init:
+      enabled: true
+    argo:
+      # secret keys to provide for the argocd secret plugin app, none by default
+      secret_keys:
+        hostname: ""
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: libretranslate/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
+      # namespace to install the k8s app in
+      namespace: libretranslate
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: libretranslate
+        source_repos:
+          - https://small-hack.github.io/libretranslate-helm-chart
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces:
+            - libretranslate
+
   longhorn:
     description: |
       🐮 [link=https://longhorn.io/]Longhorn[/link] is a Cloud native distributed block storage for Kubernetes.
@@ -810,6 +844,10 @@ apps:
         admin_user: "tootadmin"
         # admin user's email
         admin_email: ""
+        # api key for mastodon to do translations through libretranslate
+        libretranslate_api_key:
+          value_from:
+            env: MASTODON_LIBRETRANSLATE_API_KEY
         # mail server to send verification and notification emails
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
@@ -848,6 +886,8 @@ apps:
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
+        # endpoint for libretranslate translations
+        libretranslate_hostname: ""
         # set the local s3 provider for mastodon's public data in one bucket
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs

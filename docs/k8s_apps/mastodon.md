@@ -78,6 +78,10 @@ apps:
         admin_user: "tootadmin"
         # admin user's email
         admin_email: ""
+        # api key for mastodon to do translations through libretranslate
+        libretranslate_api_key:
+          value_from:
+            env: MASTODON_LIBRETRANSLATE_API_KEY
         # mail server to send verification and notification emails
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
@@ -114,6 +118,8 @@ apps:
         smtp_port: '25'
         # admin user for your mastodon instance
         admin_user: tootadmin
+        # endpoint for libretranslate translations
+        libretranslate_hostname: ""
         # hostname that users go to in the browser
         hostname: ""
         # set the local s3 provider for mastodon's public data in one bucket

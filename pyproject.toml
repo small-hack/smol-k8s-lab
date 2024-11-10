@@ -1,6 +1,6 @@
 [tool.poetry]
 name          = "smol_k8s_lab"
-version       = "5.18.0"
+version       = "5.19.0"
 description   = "CLI and TUI to quickly install slimmer Kubernetes distros and then manage apps declaratively using Argo CD"
 authors       = ["Jesse Hitch <jessebot@linux.com>",
                  "Max Roby <emax@cloudydev.net>"]
@@ -59,10 +59,10 @@ mkdocs-video    = "^1.5"
 optional = true
 
 [tool.poetry.group.dev.dependencies]
-deptry                  = "^0.20"
+deptry                  = "^0.21"
 textual-dev             = "^1.6"
 pytest-textual-snapshot = "^1.0"
-poethepoet              = "^0.29.0"
+poethepoet              = "^0.30"
 # for creating app images: https://pypi.org/project/poetry-plugin-appimage/
 # poetry-plugin-appimage  = "^0.0.4"
 # [tool.poetry-plugin-appimage]
