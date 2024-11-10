@@ -303,6 +303,11 @@ def main(config: str = "",
         if prometheus_stack['enabled']:
             configure_prometheus_stack(argocd, prometheus_stack, oidc_obj, bw)
 
+        # set up self hosted translation
+        libre_translate_dict = apps.pop('libre_translate', {})
+        if libre_translate_dict:
+            configure_libretranslate(argocd, libre_translate_dict, bw)
+
         # setup nextcloud, home assistant, mastodon, and matrix
         setup_federated_apps(
                 argocd,
@@ -316,11 +321,6 @@ def main(config: str = "",
                 oidc_obj,
                 bw
                 )
-
-        # set up self hosted translation
-        libre_translate_dict = apps.pop('libre_translate', {})
-        if libre_translate_dict:
-            configure_libretranslate(argocd, libre_translate_dict, bw)
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
