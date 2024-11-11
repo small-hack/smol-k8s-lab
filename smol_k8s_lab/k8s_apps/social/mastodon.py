@@ -90,6 +90,17 @@ def configure_mastodon(argocd: ArgoCD,
             s3_access_id = 'mastodon'
             s3_access_key = create_password()
 
+            # get the api key for LibreTranslate, so we can translate posts
+            libre_api_key = extract_secret(init_values.get('libretranslate_api_key'))
+            if not libre_api_key:
+                # check if it's already in bitwarden
+                libre_api_key = bitwarden.get_item(
+                        f"libretranslate-credentials-{mastodon_libretranslate_hostname}"
+                        )[0]['login']['password']
+                # else, just give it fake data
+                if not libre_api_key:
+                    libre_api_key = "notapplicable"
+
         s3_endpoint = secrets.get('s3_endpoint', "")
         log.debug(f"Mastodon s3_endpoint at the start is: {s3_endpoint}")
 
@@ -112,6 +123,7 @@ def configure_mastodon(argocd: ArgoCD,
                                   mail_pass,
                                   rake_secrets,
                                   mastodon_libretranslate_hostname,
+                                  libre_api_key,
                                   bitwarden)
 
         # these are standard k8s secrets yaml
@@ -291,6 +303,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mail_pass: str,
                           rake_secrets: dict,
                           mastodon_libretranslate_hostname: str,
+                          libre_api_key: str,
                           bitwarden: BwCLI) -> None:
     # S3 credentials
     # endpoint that gets put into the secret should probably have http in it
@@ -444,7 +457,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
             name=f'libretranslate-credentials-{mastodon_hostname}',
             item_url=mastodon_libretranslate_hostname,
             user="n/a",
-            password=bitwarden.generate(),
+            password=libre_api_key,
             fields=[endpoint]
             )
 
