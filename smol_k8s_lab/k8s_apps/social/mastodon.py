@@ -161,6 +161,7 @@ def configure_mastodon(argocd: ArgoCD,
                              backup_vals,
                              pvc_storage_class,
                              'mastodon-postgres',
+                             mastodon_libretranslate_hostname,
                              bitwarden)
 
         if not init_enabled:
@@ -188,7 +189,7 @@ def configure_mastodon(argocd: ArgoCD,
         log.info("mastodon already installed 🎉")
 
         if bitwarden and init_enabled:
-            refresh_bweso(argocd, mastodon_hostname, bitwarden)
+            refresh_bweso(argocd, mastodon_hostname, mastodon_libretranslate_hostname, bitwarden)
 
 
 def create_user(user: str, email: str, pod_namespace: str) -> str:
@@ -222,6 +223,7 @@ def create_user(user: str, email: str, pod_namespace: str) -> str:
 
 def refresh_bweso(argocd: ArgoCD,
                   mastodon_hostname: str,
+                  mastodon_libretranslate_hostname: str,
                   bitwarden: BwCLI) -> None:
     """
     if mastodon already installed, but bitwarden and init are enabled, still
@@ -273,6 +275,22 @@ def refresh_bweso(argocd: ArgoCD,
     libretranslate_api_key_id = bitwarden.get_item(
             f"libretranslate-credentials-{mastodon_hostname}", False
             )[0]['id']
+    if not libretranslate_api_key_id:
+        # check if it's already in bitwarden
+        libre_api_key = bitwarden.get_item(
+                f"libretranslate-credentials-{mastodon_libretranslate_hostname}"
+                )[0]['login']['password']
+        if not libre_api_key:
+            libre_api_key = "notapplicable"
+
+        endpoint = create_custom_field('endpoint', mastodon_libretranslate_hostname)
+        libretranslate_api_key_id = bitwarden.create_login(
+                name=f'libretranslate-credentials-{mastodon_hostname}',
+                item_url=mastodon_libretranslate_hostname,
+                user="n/a",
+                password=libre_api_key,
+                fields=[endpoint]
+                )
 
     # {'mastodon_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
@@ -496,6 +514,7 @@ def restore_mastodon(argocd: ArgoCD,
                      backup_dict: dict,
                      global_pvc_storage_class: str,
                      pgsql_cluster_name: str,
+                     mastodon_libretranslate_hostname: str,
                      bitwarden: BwCLI) -> None:
     """
     restore mastodon seaweedfs PVCs, mastodon files and/or config PVC(s),
@@ -515,7 +534,7 @@ def restore_mastodon(argocd: ArgoCD,
 
     # first we grab existing bitwarden items if they exist
     if bitwarden:
-        refresh_bweso(argocd, mastodon_hostname, bitwarden)
+        refresh_bweso(argocd, mastodon_hostname, mastodon_libretranslate_hostname, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
