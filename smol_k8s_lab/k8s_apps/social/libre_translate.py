@@ -10,7 +10,7 @@ import logging as log
 
 def configure_libretranslate(argocd: ArgoCD,
                              cfg: dict,
-                             bitwarden: BwCLI = None) -> None:
+                             bitwarden: BwCLI = None) -> str:
     """
     creates a libretranslate app and initializes it with secrets if you'd like :)
 
@@ -20,6 +20,8 @@ def configure_libretranslate(argocd: ArgoCD,
 
     optional:
         bitwarden   - BwCLI() object with session token to create bitwarden items
+
+    Returns api key for libretranslate for programatic access
     """
     # check immediately if this app is installed
     app_installed = argocd.check_if_app_exists('libretranslate')
@@ -49,6 +51,9 @@ def configure_libretranslate(argocd: ArgoCD,
     # we need namespace no matter the install type
     libre_translate_namespace = cfg['argo']['namespace']
 
+    # api key for programatic access to libretranslate: set it to blank just in case
+    api_key = ""
+
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         # immediately create namespace
@@ -56,9 +61,9 @@ def configure_libretranslate(argocd: ArgoCD,
 
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden and not restore_enabled:
-            setup_bitwarden_items(argocd,
-                                  libretranslate_hostname,
-                                  bitwarden)
+            api_key = setup_bitwarden_items(argocd,
+                                            libretranslate_hostname,
+                                            bitwarden)
         # these are standard k8s secrets
         else:
             # libretranslate admin credentials and smtp credentials
@@ -77,16 +82,21 @@ def configure_libretranslate(argocd: ArgoCD,
         # if bitwarden and init are enabled, make sure we populate appset secret
         # plugin secret with bitwarden item IDs
         if bitwarden and init_enabled:
-            refresh_bitwarden(argocd, libretranslate_hostname, bitwarden)
+            api_key = refresh_bitwarden(argocd, libretranslate_hostname, bitwarden)
+
+    return api_key
 
 
 def setup_bitwarden_items(argocd: ArgoCD,
                           libretranslate_hostname: str,
-                          bitwarden: BwCLI) -> None:
+                          bitwarden: BwCLI) -> str:
     """
-    setup initial bitwarden items for home assistant
+    setup initial bitwarden items for libretranslate
+
+    returns the api key used for libretranslate so you can use it in other apps
     """
     sub_header("Creating libretranslate items in Bitwarden")
+    api_key = bitwarden.generate()
 
     # admin credentials for initial owner user
     origin = create_custom_field('origin', libretranslate_hostname)
@@ -94,25 +104,32 @@ def setup_bitwarden_items(argocd: ArgoCD,
             name=f'libretranslate-credentials-{libretranslate_hostname}',
             item_url=libretranslate_hostname,
             user="n/a",
-            password=bitwarden.generate(),
+            password=api_key,
             fields=[origin]
             )
 
     # update the libretranslate values for the argocd appset
     argocd.update_appset_secret({'libretranslate_credentials_bitwarden_id': api_id})
 
+    return api_key
+
 
 def refresh_bitwarden(argocd: ArgoCD,
                       libretranslate_hostname: str,
-                      bitwarden: BwCLI) -> None:
+                      bitwarden: BwCLI) -> str:
     """
     refresh bitwardens item in the appset secret plugin
+
+    returns the api key used for libretranslate so you can use it in other apps
     """
     log.debug("Making sure libretranslate Bitwarden item IDs are in appset "
               "secret plugin secret")
 
-    api_id = bitwarden.get_item(
+    api_item = bitwarden.get_item(
             f"libretranslate-credentials-{libretranslate_hostname}"
-            )[0]['id']
+            )[0]
+    api_id = api_item['id']
 
     argocd.update_appset_secret({'libretranslate_credentials_bitwarden_id': api_id})
+
+    return api_item['data']['login']['password']

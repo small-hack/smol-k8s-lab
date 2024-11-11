@@ -230,6 +230,7 @@ def setup_federated_apps(argocd: ArgoCD,
                          pvc_storage_class: str = "local-path",
                          zitadel_hostname: str = "",
                          zitadel_obj: Zitadel = None,
+                         libretranslate_api_key: str = "",
                          bw: BwCLI = None) -> None:
     """
     Setup any federated apps with initialization supported
@@ -243,7 +244,7 @@ def setup_federated_apps(argocd: ArgoCD,
                             zitadel_obj, bw)
 
     if mastodon_dict.get('enabled', False):
-        configure_mastodon(argocd, mastodon_dict, pvc_storage_class, bw)
+        configure_mastodon(argocd, mastodon_dict, pvc_storage_class, libretranslate_api_key, bw)
 
     if matrix_dict.get('enabled', False):
         configure_matrix(argocd, matrix_dict, pvc_storage_class, zitadel_obj, bw)

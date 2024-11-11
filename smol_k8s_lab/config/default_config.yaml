@@ -827,6 +827,7 @@ apps:
          - MASTODON_S3_BACKUP_ACCESS_ID
          - MASTODON_S3_BACKUP_SECRET_KEY
          - MASTODON_RESTIC_REPO_PASSWORD
+         - MASTODON_LIBRETRANSLATE_API_KEY
     enabled: false
     init:
       enabled: true

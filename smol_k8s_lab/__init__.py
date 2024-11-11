@@ -306,7 +306,9 @@ def main(config: str = "",
         # set up self hosted translation
         libre_translate_dict = apps.pop('libre_translate', {})
         if libre_translate_dict:
-            configure_libretranslate(argocd, libre_translate_dict, bw)
+            libretranslate_api_key = configure_libretranslate(argocd,
+                                                              libre_translate_dict,
+                                                              bw)
 
         # setup nextcloud, home assistant, mastodon, and matrix
         setup_federated_apps(
@@ -319,6 +321,7 @@ def main(config: str = "",
                 pvc_storage_class,
                 zitadel_hostname,
                 oidc_obj,
+                libretranslate_api_key,
                 bw
                 )
 
