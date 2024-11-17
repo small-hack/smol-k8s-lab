@@ -44,6 +44,7 @@ You can export the following env vars and we'll use them for your sensitive data
 - `MASTODON_S3_BACKUP_ACCESS_ID`
 - `MASTODON_S3_BACKUP_SECRET_KEY`
 - `MASTODON_RESTIC_REPO_PASSWORD`
+- `MASTODON_LIBRETRANSLATE_API_KEY`
 
 ## Example Config
 
@@ -53,7 +54,7 @@ apps:
     description: |
        [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
 
-       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, libretranslate, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set mastodon.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 
@@ -62,6 +63,7 @@ apps:
          - MASTODON_S3_BACKUP_ACCESS_ID
          - MASTODON_S3_BACKUP_SECRET_KEY
          - MASTODON_RESTIC_REPO_PASSWORD
+         - MASTODON_LIBRETRANSLATE_API_KEY
     enabled: false
     init:
       enabled: true

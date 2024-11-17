@@ -752,12 +752,22 @@ apps:
 
   libre_translate:
     description: |
-      📖 [link=https://libretranslate.com/]libretranslate[/link] is a self-hosted translation tool.
+      📖 [link=https://libretranslate.com/]libretranslate[/link] is a self-hosted language translation tool.
+      This is useful as both a web interface like translate.google.com, but also as an API for use with other apps such as Mastodon
 
       If init is enabled, we'll generate an api key for you.
     enabled: false
     init:
       enabled: true
+      # we may supporrt restores down the line
+      # restore:
+      #   enabled: true
+      #   restic_snapshot_ids:
+      #     db_volume: latest
+    # we may support backups down the line
+    # backups:
+    #   # cronjob syntax schedule to run libretranslate pvc backups
+    #   pvc_schedule: 10 0 * * *
     argo:
       # secret keys to provide for the argocd secret plugin app, none by default
       secret_keys:
@@ -818,7 +828,7 @@ apps:
     description: |
        [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
 
-       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, libretranslate, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set mastodon.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 

@@ -1,4 +1,4 @@
-LibreTranslate is a self-hosted language translation tool.
+[LibreTranslate](https://libretranslate.com/) is a self-hosted language translation tool. We provide an ArgoCD ApplicationSet based on our [fork](https://github.com/small-hack/libretranslate-helm-chart) of the [official helm chart](https://github.com/libretranslate/helm).
 
 ## Example config
 
@@ -6,7 +6,10 @@ LibreTranslate is a self-hosted language translation tool.
 apps:
   libre_translate:
     description: |
-      📖 [link=https://libretranslate.com/]libretranslate[/link] is a self-hosted translation tool.
+      📖 [link=https://libretranslate.com/]libretranslate[/link] is a self-hosted language translation tool.
+      This is useful as both a web interface like translate.google.com, but also as an API for use with other apps such as Mastodon
+
+      If init is enabled, we'll generate an api key for you.
     enabled: false
     init:
       enabled: true
