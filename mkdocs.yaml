@@ -88,7 +88,6 @@ nav:
       - Kepler: k8s_apps/experimental/kepler.md
       - Kyverno: k8s_apps/experimental/kyverno.md
       - Kubevirt: k8s_apps/experimental/kubevirt.md
-      - LibreTranslate: k8s_apps/experimental/libretranslate.md
       - Longhorn: k8s_apps/experimental/longhorn.md
       - Openbao: k8s_apps/experimental/openbao.md
       - MinIO: k8s_apps/experimental/minio.md
@@ -99,6 +98,7 @@ nav:
     - Ingress Nginx: k8s_apps/ingress_nginx.md
     - K8tz: k8s_apps/k8tz.md
     - K8up: k8s_apps/k8up.md
+    - LibreTranslate: k8s_apps/libretranslate.md
     - Mastodon: k8s_apps/mastodon.md
     - Matrix: k8s_apps/matrix.md
     - MetalLB: k8s_apps/metallb.md
