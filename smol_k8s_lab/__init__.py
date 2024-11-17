@@ -309,6 +309,8 @@ def main(config: str = "",
             libretranslate_api_key = configure_libretranslate(argocd,
                                                               libre_translate_dict,
                                                               bw)
+        else:
+            libretranslate_api_key = ""
 
         # setup nextcloud, home assistant, mastodon, and matrix
         setup_federated_apps(
