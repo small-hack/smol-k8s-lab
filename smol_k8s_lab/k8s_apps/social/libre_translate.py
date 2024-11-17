@@ -132,4 +132,10 @@ def refresh_bitwarden(argocd: ArgoCD,
 
     argocd.update_appset_secret({'libretranslate_credentials_bitwarden_id': api_id})
 
-    return api_item['data']['login']['password']
+    print(" 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 ")
+    print(api_item)
+    print(" 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 ")
+    api_key = api_item['login']['password']
+    print(" 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 ")
+
+    return api_key

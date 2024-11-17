@@ -65,15 +65,21 @@ def configure_mastodon(argocd: ArgoCD,
     mastodon_namespace = cfg['argo']['namespace']
 
     if init_enabled:
+        # declare custom values for mastodon
+        init_values = init.get('values', None)
+
         # backups are their own config.yaml section
         backup_vals = process_backup_vals(cfg.get('backups', {}), 'mastodon', argocd)
+
+        # get the api key for LibreTranslate, so we can translate posts
+        libre_api_key = extract_secret(init_values.get('libretranslate_api_key'))
+        if not libre_api_key:
+            libre_api_key = libretranslate_api_key
 
     if init_enabled and not app_installed:
         argocd.k8s.create_namespace(mastodon_namespace)
 
         if not restore_enabled:
-            # declare custom values for mastodon
-            init_values = init.get('values', None)
             # configure the admin user credentials
             mastodon_admin_username = init_values.get('admin_user', 'tootadmin')
             mastodon_admin_email = init_values.get('admin_email', '')
@@ -89,11 +95,6 @@ def configure_mastodon(argocd: ArgoCD,
             # configure s3 credentials
             s3_access_id = 'mastodon'
             s3_access_key = create_password()
-
-            # get the api key for LibreTranslate, so we can translate posts
-            libre_api_key = extract_secret(init_values.get('libretranslate_api_key'))
-            if not libre_api_key:
-                libre_api_key = libretranslate_api_key
 
         s3_endpoint = secrets.get('s3_endpoint', "")
         log.debug(f"Mastodon s3_endpoint at the start is: {s3_endpoint}")
@@ -272,8 +273,9 @@ def refresh_bweso(argocd: ArgoCD,
     libretranslate_api_key_item = bitwarden.get_item(
             f"mastodon-libretranslate-credentials-{mastodon_hostname}", False
             )[0]
-    libretranslate_api_key_id = libretranslate_api_key_item.get('id', "")
-    if not libretranslate_api_key_id:
+    if libretranslate_api_key_item:
+        libretranslate_api_key_id = libretranslate_api_key_item.get('id', "")
+    else:
         endpoint = create_custom_field('endpoint',
                                        mastodon_libretranslate_hostname)
         libretranslate_api_key_id = bitwarden.create_login(
