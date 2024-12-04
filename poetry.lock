@@ -717,42 +717,34 @@ test = ["Pillow", "contourpy[test-no-images]", "matplotlib"]
 test-no-images = ["pytest", "pytest-cov", "pytest-rerunfailures", "pytest-xdist", "wurlitzer"]
 
 [[package]]
-name = "coqpit"
-version = "0.0.17"
+name = "coqpit-config"
+version = "0.1.1"
 description = "Simple (maybe too simple), light-weight config management through python data-classes."
 optional = false
-python-versions = ">=3.7.0"
+python-versions = ">=3.9"
 files = [
-    {file = "coqpit-0.0.17-py3-none-any.whl", hash = "sha256:68d253214eabb30526775442227d772cbb7b297ece6b65be59c29eab00d476b9"},
-    {file = "coqpit-0.0.17.tar.gz", hash = "sha256:dc129c2a741f8feec35c16d0b603afafdf66064822638b4e4fd7a02a7ce05011"},
+    {file = "coqpit_config-0.1.1-py3-none-any.whl", hash = "sha256:c5f5204d2023719eee95d432228bdc40841ffac1af67b08177311658073e1938"},
+    {file = "coqpit_config-0.1.1.tar.gz", hash = "sha256:bd6ef47f286414754fded7946d3cd491913b85e3a0ff218b3a78d7939887e89b"},
 ]
+
+[package.dependencies]
+typing-extensions = ">=4.10"
 
 [[package]]
 name = "coqui-tts"
-version = "0.24.3"
+version = "0.25.0"
 description = "Deep learning for Text to Speech."
 optional = false
 python-versions = "<3.13,>=3.9"
 files = [
-    {file = "coqui_tts-0.24.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:cbb950346b58ce979ac0bdffee8252c4362232204cb47f2a48a0b3280c8bef6c"},
-    {file = "coqui_tts-0.24.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:70b833ff38a0752f0b38d3f39d525cf10152ec205066e0a2ea4a8b29be58c4f0"},
-    {file = "coqui_tts-0.24.3-cp310-cp310-win_amd64.whl", hash = "sha256:8a63bccafc95eee48635e3ac9d0cf50f4a023f909d8c837856920d15e016ffaa"},
-    {file = "coqui_tts-0.24.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:6cd035ffad388a87d1ea4cdd22244759e0e3b1e116f549e1a317a21bbd5f2398"},
-    {file = "coqui_tts-0.24.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:182ba0f069729c5f093037fe2bd7a1dbb15c490c8f31b4e5d20ca3a425d569c6"},
-    {file = "coqui_tts-0.24.3-cp311-cp311-win_amd64.whl", hash = "sha256:f1a5d68f29bd5f1064bf873559640e6d3f738cf4754c41015671568ffcf278fb"},
-    {file = "coqui_tts-0.24.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:fd7ed0c7ec842ff5e828a051c7762acb8c31178cdef3dbf0fb84585941c8582c"},
-    {file = "coqui_tts-0.24.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:9beab3ca7f4b7939603476eccb8c45ffe2168d0ed437cf20a5bec108355422d7"},
-    {file = "coqui_tts-0.24.3-cp312-cp312-win_amd64.whl", hash = "sha256:7ed889a91e336923f2e8d80c07512b0869b23b01779452d97589869380fe40f0"},
-    {file = "coqui_tts-0.24.3-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:5cbc43eee71aae640df7d2dab37e0ffc9d2155c92e94307d2feeafe1450c5498"},
-    {file = "coqui_tts-0.24.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f28b9369844e15ede0c8961bed33e57002db29a9d2a734d242665b60c61f9af9"},
-    {file = "coqui_tts-0.24.3-cp39-cp39-win_amd64.whl", hash = "sha256:7ae3480e97c6804855e73144a3a1c540f222f9447f228e85c0e30fd8d1509c92"},
-    {file = "coqui_tts-0.24.3.tar.gz", hash = "sha256:8683b8178d7647b2138f0cae3920ff7a63961118bbd4ba2ae9d205a0546af60d"},
+    {file = "coqui_tts-0.25.0-py3-none-any.whl", hash = "sha256:b7bc2d7f109918b56da2c0a6ef73a68ed58f0230a378fdb85262ffb95e40a352"},
+    {file = "coqui_tts-0.25.0.tar.gz", hash = "sha256:8a6fc0c19a5770fa8c319f87c798b904288e53177d235db8a41aaa2cd1ce7288"},
 ]
 
 [package.dependencies]
 anyascii = ">=0.3.0"
-coqpit = ">=0.0.16"
-coqui-tts-trainer = ">=0.1.4,<0.2.0"
+coqpit-config = ">=0.1.1,<0.2.0"
+coqui-tts-trainer = ">=0.2.0,<0.3.0"
 cython = ">=3.0.0"
 einops = ">=0.6.0"
 encodec = ">=0.1.1"
@@ -761,6 +753,7 @@ gruut = {version = ">=2.4.0", extras = ["de", "es", "fr"]}
 inflect = ">=5.6.0"
 librosa = ">=0.10.1"
 matplotlib = ">=3.7.0"
+monotonic-alignment-search = ">=0.1.0"
 num2words = ">=0.5.11"
 numpy = ">=1.25.2,<2.0"
 packaging = ">=23.1"
@@ -772,32 +765,31 @@ spacy = {version = ">=3,<3.8", extras = ["ja"]}
 torch = ">=2.1"
 torchaudio = ">=2.1.0"
 tqdm = ">=4.64.1"
-transformers = ">=4.43.0"
+transformers = ">=4.43.0,<=4.46.2"
 
 [package.extras]
-all = ["coqui-tts[bn,ja,ko,notebooks,server,zh]"]
+all = ["bangla (>=0.0.2)", "bnnumerizer (>=0.0.2)", "bnunicodenormalizer (>=0.1.0)", "bokeh (==1.4.0)", "cutlet (>=0.2.0)", "flask (>=3.0.0)", "g2pkk (>=0.1.1)", "hangul-romanize (>=0.1.0)", "jamo (>=0.4.1)", "jieba (>=0.42.1)", "mecab-python3 (>=1.0.2)", "pandas (>=1.4,<2.0)", "pip (>=22.2)", "pypinyin (>=0.40.0)", "umap-learn (>=0.5.1)", "unidic-lite (==1.0.8)"]
 bn = ["bangla (>=0.0.2)", "bnnumerizer (>=0.0.2)", "bnunicodenormalizer (>=0.1.0)"]
-docs = ["furo (>=2023.5.20)", "linkify-it-py (>=2.0.0)", "myst-parser (==2.0.0)", "sphinx (==7.2.5)", "sphinx-copybutton (>=0.1)", "sphinx-inline-tabs (>=2023.4.21)"]
 ja = ["cutlet (>=0.2.0)", "mecab-python3 (>=1.0.2)", "unidic-lite (==1.0.8)"]
 ko = ["g2pkk (>=0.1.1)", "hangul-romanize (>=0.1.0)", "jamo (>=0.4.1)", "pip (>=22.2)"]
-languages = ["coqui-tts[bn,ja,ko,zh]"]
+languages = ["bangla (>=0.0.2)", "bnnumerizer (>=0.0.2)", "bnunicodenormalizer (>=0.1.0)", "cutlet (>=0.2.0)", "g2pkk (>=0.1.1)", "hangul-romanize (>=0.1.0)", "jamo (>=0.4.1)", "jieba (>=0.42.1)", "mecab-python3 (>=1.0.2)", "pip (>=22.2)", "pypinyin (>=0.40.0)", "unidic-lite (==1.0.8)"]
 notebooks = ["bokeh (==1.4.0)", "pandas (>=1.4,<2.0)", "umap-learn (>=0.5.1)"]
 server = ["flask (>=3.0.0)"]
 zh = ["jieba (>=0.42.1)", "pypinyin (>=0.40.0)"]
 
 [[package]]
 name = "coqui-tts-trainer"
-version = "0.1.7"
+version = "0.2.0"
 description = "General purpose model trainer for PyTorch that is more flexible than it should be, by 🐸Coqui."
 optional = false
 python-versions = "<3.13,>=3.9"
 files = [
-    {file = "coqui_tts_trainer-0.1.7-py3-none-any.whl", hash = "sha256:9988f050591ad6d3ac920b63ce0249f48b2dbd0522dc59e878e28af0695d597f"},
-    {file = "coqui_tts_trainer-0.1.7.tar.gz", hash = "sha256:a57651fe276022610b2da448c577e1617958eee7f63d7146a72b4bde4871c0ab"},
+    {file = "coqui_tts_trainer-0.2.0-py3-none-any.whl", hash = "sha256:33573a2504c9411f95693b7b88e8e3123bfcd38bc17ba1d5a3dddfb03662cc4b"},
+    {file = "coqui_tts_trainer-0.2.0.tar.gz", hash = "sha256:4cb894e54b1a87f060ce1fda3c68b115cf5e14ad169a202bd7201891bb1f0dce"},
 ]
 
 [package.dependencies]
-coqpit = ">=0.0.17"
+coqpit-config = ">=0.1.1"
 fsspec = ">=2023.6.0"
 numpy = [
     {version = ">=1.24.3", markers = "python_version < \"3.12\""},
@@ -2525,6 +2517,46 @@ files = [
 [package.dependencies]
 lxml = ">=4.7.0"
 mkdocs = ">=1.1.0,<2"
+
+[[package]]
+name = "monotonic-alignment-search"
+version = "0.1.1"
+description = "Monotonically align text and speech"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "monotonic_alignment_search-0.1.1-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:78a1804d426b21985b458715a112c14659ac5ed10863e520df8f0ecd8ec339b7"},
+    {file = "monotonic_alignment_search-0.1.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:68f17a219266213a5ef3cb29cd22599d63de8494286c1e2175546ffa44266ca1"},
+    {file = "monotonic_alignment_search-0.1.1-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:529af4fef36c7322e32f8b1841f78b4375332b6a889102884350f5300de487cf"},
+    {file = "monotonic_alignment_search-0.1.1-cp310-cp310-win_amd64.whl", hash = "sha256:b670251e6344b78cc6151906bdb601003192d970fba6828e64d9a7e906fafe02"},
+    {file = "monotonic_alignment_search-0.1.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:b5794955ce23192feb65dfdb6e30f58c1852cd6c4ef01a7408bc0f1c4567b7af"},
+    {file = "monotonic_alignment_search-0.1.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:73426bcb0534edbbbc521dfc6950c0e20f29b733ff408c2798e08cff96013a08"},
+    {file = "monotonic_alignment_search-0.1.1-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:4e7e7ddf10bb21378bb7aa46d482dafe91bad5bee3a0ebe2ee6beb1cd73d4d55"},
+    {file = "monotonic_alignment_search-0.1.1-cp311-cp311-win_amd64.whl", hash = "sha256:bd034cce32f49548cca692e7ede1fbbef864f32c9ff8f65d5ece5bca03820259"},
+    {file = "monotonic_alignment_search-0.1.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ef44fbaf496afe17ffd9c9305041f1f6be03b1d51921cdcdab9c72972b6690d4"},
+    {file = "monotonic_alignment_search-0.1.1-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1df657ec59e2f43b73d9a3e04db924e3c52bd0caf4b146528a2e37737b2f4f37"},
+    {file = "monotonic_alignment_search-0.1.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:8ee23842edde76797652e6142d2797e253a76d507f4a03e3d4d22e12513a9a12"},
+    {file = "monotonic_alignment_search-0.1.1-cp312-cp312-win_amd64.whl", hash = "sha256:ed0bfa82cd02c76775a939f7c4c601e3f44d7f6ea38bec7f4e3a078b51253ffe"},
+    {file = "monotonic_alignment_search-0.1.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:1bde0cf56a616a52b4724af3213338743c7ee017764d64dfd5bcf9a1acf12ef9"},
+    {file = "monotonic_alignment_search-0.1.1-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:4756ea37fc02ef3519915becb79e52aa8a967cef24144aec54b1ae1bbb36318d"},
+    {file = "monotonic_alignment_search-0.1.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:64ffc5ffad3877f4c48d45de44eedc3685e02b8317e23427ee0afd60c708ba1c"},
+    {file = "monotonic_alignment_search-0.1.1-cp313-cp313-win_amd64.whl", hash = "sha256:43c2dc749c842f83c611098ba4f806b4899f713eab696ff9d385de454cf6176a"},
+    {file = "monotonic_alignment_search-0.1.1-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:11d99d41d018dd31a64bbbb9e3f5ab2aebde801360e34bf6171a58e2ee88be1c"},
+    {file = "monotonic_alignment_search-0.1.1-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3fc32d35a1cf335e69c3df30afd99756bb22d7bb1e58a1daa890a3773f392633"},
+    {file = "monotonic_alignment_search-0.1.1-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:dc19f7e687ac455d55fe6069bb68338d2abbbd1c781816704575239a3a6de4af"},
+    {file = "monotonic_alignment_search-0.1.1-cp39-cp39-win_amd64.whl", hash = "sha256:8d1948e6893022787f5d14e55c391b2f7c505059eed066e5428a0e6ab625875b"},
+    {file = "monotonic_alignment_search-0.1.1.tar.gz", hash = "sha256:fba746083f4d0eb5fcd4708935b3c8aee40472c34057ab91f8c5ef1d0398ae78"},
+]
+
+[package.dependencies]
+numpy = [
+    {version = ">=1.24.4", markers = "python_version == \"3.11\""},
+    {version = ">=1.26.4", markers = "python_version == \"3.12\""},
+]
+torch = [
+    {version = ">=2.1.1", markers = "python_version == \"3.11\""},
+    {version = ">=2.2", markers = "python_version == \"3.12\""},
+]
 
 [[package]]
 name = "more-itertools"
@@ -4266,30 +4298,40 @@ files = [
     {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-manylinux2014_aarch64.whl", hash = "sha256:a606ef75a60ecf3d924613892cc603b154178ee25abb3055db5062da811fd969"},
     {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fd5415dded15c3822597455bc02bcd66e81ef8b7a48cb71a33628fc9fdde39df"},
     {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:f66efbc1caa63c088dead1c4170d148eabc9b80d95fb75b6c92ac0aad2437d76"},
+    {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-musllinux_1_1_i686.whl", hash = "sha256:22353049ba4181685023b25b5b51a574bce33e7f51c759371a7422dcae5402a6"},
+    {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-musllinux_1_1_x86_64.whl", hash = "sha256:932205970b9f9991b34f55136be327501903f7c66830e9760a8ffb15b07f05cd"},
     {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-win32.whl", hash = "sha256:3eac5a91891ceb88138c113f9db04f3cebdae277f5d44eaa3651a4f573e6a5da"},
     {file = "ruamel.yaml.clib-0.2.12-cp310-cp310-win_amd64.whl", hash = "sha256:ab007f2f5a87bd08ab1499bdf96f3d5c6ad4dcfa364884cb4549aa0154b13a28"},
     {file = "ruamel.yaml.clib-0.2.12-cp311-cp311-macosx_13_0_arm64.whl", hash = "sha256:4a6679521a58256a90b0d89e03992c15144c5f3858f40d7c18886023d7943db6"},
     {file = "ruamel.yaml.clib-0.2.12-cp311-cp311-manylinux2014_aarch64.whl", hash = "sha256:d84318609196d6bd6da0edfa25cedfbabd8dbde5140a0a23af29ad4b8f91fb1e"},
     {file = "ruamel.yaml.clib-0.2.12-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bb43a269eb827806502c7c8efb7ae7e9e9d0573257a46e8e952f4d4caba4f31e"},
     {file = "ruamel.yaml.clib-0.2.12-cp311-cp311-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:811ea1594b8a0fb466172c384267a4e5e367298af6b228931f273b111f17ef52"},
+    {file = "ruamel.yaml.clib-0.2.12-cp311-cp311-musllinux_1_1_i686.whl", hash = "sha256:cf12567a7b565cbf65d438dec6cfbe2917d3c1bdddfce84a9930b7d35ea59642"},
+    {file = "ruamel.yaml.clib-0.2.12-cp311-cp311-musllinux_1_1_x86_64.whl", hash = "sha256:7dd5adc8b930b12c8fc5b99e2d535a09889941aa0d0bd06f4749e9a9397c71d2"},
     {file = "ruamel.yaml.clib-0.2.12-cp311-cp311-win32.whl", hash = "sha256:bd0a08f0bab19093c54e18a14a10b4322e1eacc5217056f3c063bd2f59853ce4"},
     {file = "ruamel.yaml.clib-0.2.12-cp311-cp311-win_amd64.whl", hash = "sha256:a274fb2cb086c7a3dea4322ec27f4cb5cc4b6298adb583ab0e211a4682f241eb"},
     {file = "ruamel.yaml.clib-0.2.12-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:20b0f8dc160ba83b6dcc0e256846e1a02d044e13f7ea74a3d1d56ede4e48c632"},
     {file = "ruamel.yaml.clib-0.2.12-cp312-cp312-manylinux2014_aarch64.whl", hash = "sha256:943f32bc9dedb3abff9879edc134901df92cfce2c3d5c9348f172f62eb2d771d"},
     {file = "ruamel.yaml.clib-0.2.12-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:95c3829bb364fdb8e0332c9931ecf57d9be3519241323c5274bd82f709cebc0c"},
     {file = "ruamel.yaml.clib-0.2.12-cp312-cp312-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:749c16fcc4a2b09f28843cda5a193e0283e47454b63ec4b81eaa2242f50e4ccd"},
+    {file = "ruamel.yaml.clib-0.2.12-cp312-cp312-musllinux_1_1_i686.whl", hash = "sha256:bf165fef1f223beae7333275156ab2022cffe255dcc51c27f066b4370da81e31"},
+    {file = "ruamel.yaml.clib-0.2.12-cp312-cp312-musllinux_1_1_x86_64.whl", hash = "sha256:32621c177bbf782ca5a18ba4d7af0f1082a3f6e517ac2a18b3974d4edf349680"},
     {file = "ruamel.yaml.clib-0.2.12-cp312-cp312-win32.whl", hash = "sha256:e8c4ebfcfd57177b572e2040777b8abc537cdef58a2120e830124946aa9b42c5"},
     {file = "ruamel.yaml.clib-0.2.12-cp312-cp312-win_amd64.whl", hash = "sha256:0467c5965282c62203273b838ae77c0d29d7638c8a4e3a1c8bdd3602c10904e4"},
     {file = "ruamel.yaml.clib-0.2.12-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:4c8c5d82f50bb53986a5e02d1b3092b03622c02c2eb78e29bec33fd9593bae1a"},
     {file = "ruamel.yaml.clib-0.2.12-cp313-cp313-manylinux2014_aarch64.whl", hash = "sha256:e7e3736715fbf53e9be2a79eb4db68e4ed857017344d697e8b9749444ae57475"},
     {file = "ruamel.yaml.clib-0.2.12-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0b7e75b4965e1d4690e93021adfcecccbca7d61c7bddd8e22406ef2ff20d74ef"},
     {file = "ruamel.yaml.clib-0.2.12-cp313-cp313-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:96777d473c05ee3e5e3c3e999f5d23c6f4ec5b0c38c098b3a5229085f74236c6"},
+    {file = "ruamel.yaml.clib-0.2.12-cp313-cp313-musllinux_1_1_i686.whl", hash = "sha256:3bc2a80e6420ca8b7d3590791e2dfc709c88ab9152c00eeb511c9875ce5778bf"},
+    {file = "ruamel.yaml.clib-0.2.12-cp313-cp313-musllinux_1_1_x86_64.whl", hash = "sha256:e188d2699864c11c36cdfdada94d781fd5d6b0071cd9c427bceb08ad3d7c70e1"},
     {file = "ruamel.yaml.clib-0.2.12-cp313-cp313-win32.whl", hash = "sha256:6442cb36270b3afb1b4951f060eccca1ce49f3d087ca1ca4563a6eb479cb3de6"},
     {file = "ruamel.yaml.clib-0.2.12-cp313-cp313-win_amd64.whl", hash = "sha256:e5b8daf27af0b90da7bb903a876477a9e6d7270be6146906b276605997c7e9a3"},
     {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:fc4b630cd3fa2cf7fce38afa91d7cfe844a9f75d7f0f36393fa98815e911d987"},
     {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-manylinux2014_aarch64.whl", hash = "sha256:bc5f1e1c28e966d61d2519f2a3d451ba989f9ea0f2307de7bc45baa526de9e45"},
     {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5a0e060aace4c24dcaf71023bbd7d42674e3b230f7e7b97317baf1e953e5b519"},
     {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-manylinux_2_5_i686.manylinux1_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:e2f1c3765db32be59d18ab3953f43ab62a761327aafc1594a2a1fbe038b8b8a7"},
+    {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-musllinux_1_1_i686.whl", hash = "sha256:d85252669dc32f98ebcd5d36768f5d4faeaeaa2d655ac0473be490ecdae3c285"},
+    {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-musllinux_1_1_x86_64.whl", hash = "sha256:e143ada795c341b56de9418c58d028989093ee611aa27ffb9b7f609c00d813ed"},
     {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-win32.whl", hash = "sha256:beffaed67936fbbeffd10966a4eb53c402fafd3d6833770516bf7314bc6ffa12"},
     {file = "ruamel.yaml.clib-0.2.12-cp39-cp39-win_amd64.whl", hash = "sha256:040ae85536960525ea62868b642bdb0c2cc6021c9f9d507810c0c604e66f5a7b"},
     {file = "ruamel.yaml.clib-0.2.12.tar.gz", hash = "sha256:6c8fbb13ec503f99a91901ab46e0b07ae7941cd527393187039aec586fdfd36f"},
@@ -4463,6 +4505,11 @@ files = [
     {file = "scikit_learn-1.5.2-cp312-cp312-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:f60021ec1574e56632be2a36b946f8143bf4e5e6af4a06d85281adc22938e0dd"},
     {file = "scikit_learn-1.5.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:394397841449853c2290a32050382edaec3da89e35b3e03d6cc966aebc6a8ae6"},
     {file = "scikit_learn-1.5.2-cp312-cp312-win_amd64.whl", hash = "sha256:57cc1786cfd6bd118220a92ede80270132aa353647684efa385a74244a41e3b1"},
+    {file = "scikit_learn-1.5.2-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:e9a702e2de732bbb20d3bad29ebd77fc05a6b427dc49964300340e4c9328b3f5"},
+    {file = "scikit_learn-1.5.2-cp313-cp313-macosx_12_0_arm64.whl", hash = "sha256:b0768ad641981f5d3a198430a1d31c3e044ed2e8a6f22166b4d546a5116d7908"},
+    {file = "scikit_learn-1.5.2-cp313-cp313-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:178ddd0a5cb0044464fc1bfc4cca5b1833bfc7bb022d70b05db8530da4bb3dd3"},
+    {file = "scikit_learn-1.5.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f7284ade780084d94505632241bf78c44ab3b6f1e8ccab3d2af58e0e950f9c12"},
+    {file = "scikit_learn-1.5.2-cp313-cp313-win_amd64.whl", hash = "sha256:b7b0f9a0b1040830d38c39b91b3a44e1b643f4b36e36567b80b7c6bd2202a27f"},
     {file = "scikit_learn-1.5.2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:757c7d514ddb00ae249832fe87100d9c73c6ea91423802872d9e74970a0e40b9"},
     {file = "scikit_learn-1.5.2-cp39-cp39-macosx_12_0_arm64.whl", hash = "sha256:52788f48b5d8bca5c0736c175fa6bdaab2ef00a8f536cda698db61bd89c551c1"},
     {file = "scikit_learn-1.5.2-cp39-cp39-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:643964678f4b5fbdc95cbf8aec638acc7aa70f5f79ee2cdad1eec3df4ba6ead8"},
@@ -5804,4 +5851,4 @@ propcache = ">=0.2.0"
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11,<3.13"
-content-hash = "bb9b19390c2a31a330a5f68bfed2ee8f06ea5a59e1c586f0282e8bfa6e03e083"
+content-hash = "8ad396657c1fc9bca8dfa893cdf9eff2acbd2d87fd598c6795b8ba392ad2bfc4"
