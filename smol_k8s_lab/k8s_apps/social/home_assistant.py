@@ -92,7 +92,7 @@ def configure_home_assistant(argocd: ArgoCD,
         else:
             # home-assistant admin credentials and smtp credentials
             argocd.k8s.create_secret('home-assistant-credentials',
-                                     'home-assistant',
+                                     home_assistant_namespace,
                                      {"ADMIN_USERNAME": admin_user,
                                       "ADMIN_NAME": admin_name,
                                       "ADMIN_PASSWORD": admin_password,

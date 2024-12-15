@@ -338,6 +338,50 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
+  collabora_online:
+    enabled: false
+    description: |
+      [link=https://www.collaboraonline.com/]Collabora Online[/link] is a powerful online document editing suite which you can integrate into your own infrastructure or access via one of our trusted hosting partners.
+
+      You can use this app to deploy collabora online separately from nextcloud,
+      or you can deploy it as part of the nextcloud app of apps. If deploying as part
+      of nextcloud, leave this app disabled.
+
+      you can set an optional admin password with this variable:
+        - COLLABORA_ONLINE_PASSWORD
+    # Initialization of the app through smol-k8s-lab
+    init:
+      enabled: false
+      values:
+        admin_user: admin
+        password:
+          value_from:
+            # you can change this to any env var
+            env: COLLABORA_ONLINE_PASSWORD
+    argo:
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: collabora_online/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
+      # namespace to install the k8s app in
+      namespace: collabora-online
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # secret keys to provide for the Argo CD Appset secret plugin, none by default
+      secret_keys: {}
+      # source repos for Argo CD App Project (in addition to app.argo.repo)
+      project:
+        name: collabora-online
+        source_repos:
+          - https://collaboraonline.github.io/online
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
   external_secrets_operator:
     enabled: true
     description: |
@@ -349,7 +393,9 @@ apps:
 
       smol-k8s-lab support initialization by creating a Kubernetes secret with your Bitwarden credentials so that the provider can unlock your vault. You will need to setup an [link=https://bitwarden.com/help/personal-api-key/]API key[/link] ahead of time. You can pass these credentials in by setting the following environment variables:
 
-      BITWARDEN_PASSWORD, BITWARDEN_CLIENTSECRET, BITWARDEN_CLIENTID
+      - BITWARDEN_PASSWORD
+      - BITWARDEN_CLIENTSECRET
+      - BITWARDEN_CLIENTID
     # Initialization of the app through smol-k8s-lab
     init:
       enabled: false
@@ -1264,6 +1310,7 @@ apps:
         - NEXTCLOUD_S3_BACKUP_ACCESS_KEY
         - NEXTCLOUD_S3_BACKUP_ACCESS_ID
         - NEXTCLOUD_RESTIC_REPO_PASSWORD
+        - COLLABORA_ONLINE_PASSWORD
 
       Note: smol-k8s-lab is not affiliated with Nextcloud GmbH. This is a community-supported-only install method.
     # initialize the app by setting up new k8s secrets and/or bitwarden items
@@ -1295,6 +1342,11 @@ apps:
         smtp_password:
           value_from:
             env: NEXTCLOUD_SMTP_PASSWORD
+        collabora_user: admin
+        collabora_password:
+          value_from:
+            # you can change this to any env var
+            env: COLLABORA_ONLINE_PASSWORD
     backups:
       # cronjob syntax schedule to run nextcloud pvc backups
       pvc_schedule: 10 0 * * *
@@ -1329,7 +1381,10 @@ apps:
         # these are for node affinity, delete if not in use
         affinity_key: ""
         affinity_value: ""
+        # Fully Qualified Domain Name for nextcloud
         hostname: ""
+        # host name for collabora online
+        collabora_hostname: "collabora.domain.com"
         # nextcloud needs this for new users or it throws a warning in the admin panel
         default_phone_region: NL
         # the default domain to send emails to user with
@@ -1388,6 +1443,7 @@ apps:
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://seaweedfs.github.io/seaweedfs/helm
           - https://github.com/seaweedfs/seaweedfs
+          - https://collaboraonline.github.io/online
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
