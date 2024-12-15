@@ -79,14 +79,19 @@ def configure_nextcloud(argocd: ArgoCD,
         # backups are their own config.yaml section
         backup_vals = process_backup_vals(cfg.get('backups', {}), 'nextcloud', argocd)
 
+        # grab all possile init values
+        init_values = init.get('values', None)
+
+        # collabora config values
+        collabora_user = init_values.get('collabora_user', None)
+        collabora_pass = extract_secret(init_values.get('collabora_password',
+                                                        create_password))
+
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         nextcloud_namespace = cfg['argo']['namespace']
         argocd.k8s.create_namespace(nextcloud_namespace)
 
-
-        # grab all possile init values
-        init_values = init.get('values', None)
         if init_values:
             admin_user = init_values.get('admin_user', 'admin')
 
@@ -95,10 +100,6 @@ def configure_nextcloud(argocd: ArgoCD,
             mail_user = init_values.get('smtp_user', None)
             mail_pass = extract_secret(init_values.get('smtp_password', ""))
 
-            # collabora config values
-            collabora_user = init_values.get('collabora_user', None)
-            collabora_pass = extract_secret(init_values.get('collabora_password',
-                                                            create_password))
         else:
             log.warn("Strange, there's no nextcloud init values...")
 
