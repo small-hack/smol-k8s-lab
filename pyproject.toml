@@ -32,7 +32,7 @@ include       = ["smol_k8s_lab/config/kind/kind_cluster_config.yaml",
 [tool.poetry.dependencies]
 bcrypt             = "^4.2"
 click              = "^8.1"
-cryptography       = "^43.0"
+cryptography       = "^44.0"
 kubernetes         = "^31"
 minio              = "^7.2"
 pyfiglet           = "^1.0"
@@ -43,7 +43,7 @@ requests           = "^2.32"
 rich               = "^13.9"
 ruamel-yaml        = "^0.18"
 ruamel-yaml-string = "^0.1"
-textual            = "^0.86"
+textual            = "^0.89"
 xdg-base-dirs      = "^6.0"
 pygame             = "^2.5"
 python-ulid        = "^3.0"
@@ -60,9 +60,9 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 deptry                  = "^0.21"
-textual-dev             = "^1.6"
+textual-dev             = "^1.7"
 pytest-textual-snapshot = "^1.0"
-poethepoet              = "^0.30"
+poethepoet              = "^0.31"
 # for creating app images: https://pypi.org/project/poetry-plugin-appimage/
 # poetry-plugin-appimage  = "^0.0.4"
 # [tool.poetry-plugin-appimage]
@@ -75,7 +75,7 @@ optional = true
 
 # this group is only needed for development
 [tool.poetry.group.audio.dependencies]
-coqui-tts     = "^0.24"
+coqui-tts     = "^0.25"
 # note: this still requires you to install ffmpeg
 pydub         = "^0.25.1"
 
