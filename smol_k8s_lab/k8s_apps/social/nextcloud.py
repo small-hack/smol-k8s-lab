@@ -202,6 +202,8 @@ def configure_nextcloud(argocd: ArgoCD,
             restore_nextcloud(argocd,
                               nextcloud_hostname,
                               collabora_hostname,
+                              collabora_user,
+                              collabora_pass,
                               nextcloud_namespace,
                               cfg['argo'],
                               secrets,
@@ -218,12 +220,16 @@ def configure_nextcloud(argocd: ArgoCD,
             refresh_bweso(argocd,
                           nextcloud_hostname,
                           collabora_hostname,
+                          collabora_user,
+                          collabora_pass,
                           bitwarden)
 
 
 def restore_nextcloud(argocd: ArgoCD,
                       nextcloud_hostname: str,
                       collabora_hostname: str,
+                      collabora_user: str,
+                      collabora_pass: str,
                       nextcloud_namespace: str,
                       argo_dict: dict,
                       secrets: dict,
@@ -253,6 +259,8 @@ def restore_nextcloud(argocd: ArgoCD,
         refresh_bweso(argocd,
                       nextcloud_hostname,
                       collabora_hostname,
+                      collabora_user,
+                      collabora_pass,
                       bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
@@ -490,6 +498,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
 def refresh_bweso(argocd: ArgoCD,
                   nextcloud_hostname: str,
                   collabora_hostname: str,
+                  collabora_user: str,
+                  collabora_pass: str,
                   bitwarden: BwCLI) -> None:
     """
     if bitwarden and init are enabled, but app is already installed, make sure
@@ -505,9 +515,18 @@ def refresh_bweso(argocd: ArgoCD,
             f"nextcloud-admin-credentials-{nextcloud_hostname}", False
             )[0]['id']
 
-    collabora_admin_id = bitwarden.get_item(
-            f"collabora-admin-credentials-{collabora_hostname}"
-            )[0]['id']
+    try:
+        collabora_admin_id = bitwarden.get_item(
+                f"collabora-admin-credentials-{collabora_hostname}"
+                )[0]['id']
+    except TypeError:
+        # collabora admin credentials for initial owner user
+        collabora_admin_id = bitwarden.create_login(
+                name=f'collabora-admin-credentials-{collabora_hostname}',
+                item_url=collabora_hostname,
+                user=collabora_user,
+                password=collabora_pass
+                )
 
     smtp_id = bitwarden.get_item(
             f"nextcloud-smtp-credentials-{nextcloud_hostname}", False
