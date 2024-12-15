@@ -125,17 +125,16 @@ def refresh_bitwarden(argocd: ArgoCD,
     log.debug("Making sure libretranslate Bitwarden item IDs are in appset "
               "secret plugin secret")
 
-    api_item = bitwarden.get_item(
-            f"libretranslate-credentials-{libretranslate_hostname}"
-            )[0]
-    api_id = api_item['id']
+    try:
+        api_item = bitwarden.get_item(
+                f"libretranslate-credentials-{libretranslate_hostname}"
+                )[0]
+        api_id = api_item['id']
+    except TypeError:
+        return setup_bitwarden_items(argocd,
+                                     libretranslate_hostname,
+                                     bitwarden)
 
     argocd.update_appset_secret({'libretranslate_credentials_bitwarden_id': api_id})
-
-    print(" 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 ")
-    print(api_item)
-    print(" 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 ")
     api_key = api_item['login']['password']
-    print(" 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 🦇 ")
-
     return api_key
