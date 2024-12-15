@@ -41,6 +41,7 @@ def configure_nextcloud(argocd: ArgoCD,
     secrets = cfg['argo']['secret_keys']
     if secrets:
         nextcloud_hostname = secrets['hostname']
+        collabora_hostname = secrets.get('collabora_hostname', 'example.com')
 
         # make sure the pvc secrets are set correctly
         storage_class_secrets = {}
@@ -93,6 +94,11 @@ def configure_nextcloud(argocd: ArgoCD,
             mail_host = init_values.get('smtp_host', None)
             mail_user = init_values.get('smtp_user', None)
             mail_pass = extract_secret(init_values.get('smtp_password', ""))
+
+            # collabora config values
+            collabora_user = init_values.get('collabora_user', None)
+            collabora_pass = extract_secret(init_values.get('collabora_password',
+                                                            create_password))
         else:
             log.warn("Strange, there's no nextcloud init values...")
 
@@ -145,12 +151,15 @@ def configure_nextcloud(argocd: ArgoCD,
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
                                   nextcloud_hostname,
+                                  collabora_hostname,
                                   s3_endpoint,
                                   s3_access_key,
                                   backup_vals['s3_user'],
                                   backup_vals['s3_password'],
                                   backup_vals['restic_repo_pass'],
                                   admin_user,
+                                  collabora_user,
+                                  collabora_pass,
                                   mail_host,
                                   mail_user,
                                   mail_pass,
@@ -192,6 +201,7 @@ def configure_nextcloud(argocd: ArgoCD,
         if init_enabled and restore_enabled:
             restore_nextcloud(argocd,
                               nextcloud_hostname,
+                              collabora_hostname,
                               nextcloud_namespace,
                               cfg['argo'],
                               secrets,
@@ -205,11 +215,15 @@ def configure_nextcloud(argocd: ArgoCD,
     else:
         log.info("nextcloud already installed 🎉")
         if bitwarden and init_enabled:
-            refresh_bweso(argocd, nextcloud_hostname, bitwarden)
+            refresh_bweso(argocd,
+                          nextcloud_hostname,
+                          collabora_hostname,
+                          bitwarden)
 
 
 def restore_nextcloud(argocd: ArgoCD,
                       nextcloud_hostname: str,
+                      collabora_hostname: str,
                       nextcloud_namespace: str,
                       argo_dict: dict,
                       secrets: dict,
@@ -236,7 +250,10 @@ def restore_nextcloud(argocd: ArgoCD,
 
     # first we grab existing bitwarden items if they exist
     if bitwarden:
-        refresh_bweso(argocd, nextcloud_hostname, bitwarden)
+        refresh_bweso(argocd,
+                      nextcloud_hostname,
+                      collabora_hostname,
+                      bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
@@ -335,12 +352,15 @@ def restore_nextcloud(argocd: ArgoCD,
 
 def setup_bitwarden_items(argocd: ArgoCD,
                           nextcloud_hostname: str,
+                          collabora_hostname: str,
                           s3_endpoint: str,
                           s3_access_key: str,
                           backups_s3_user: str,
                           backups_s3_password: str,
                           restic_repo_pass: str,
                           admin_user: str,
+                          collabora_user: str,
+                          collabora_pass: str,
                           mail_host: str,
                           mail_user: str,
                           mail_pass: str,
@@ -417,6 +437,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[serverinfo_token_obj]
             )
 
+    # collabora admin credentials for initial owner user
+    collabora_admin_id = bitwarden.create_login(
+            name=f'collabora-admin-credentials-{collabora_hostname}',
+            item_url=collabora_hostname,
+            user=collabora_user,
+            password=collabora_pass
+            )
+
     # smtp credentials
     smtpHost = create_custom_field("hostname", mail_host)
     smtp_id = bitwarden.create_login(
@@ -454,12 +482,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'nextcloud_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'nextcloud_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id,
-             'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id}
-            )
+             'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id,
+             'collabora_admin_credentials_bitwarden_id': collabora_admin_id
+            })
 
 
 def refresh_bweso(argocd: ArgoCD,
                   nextcloud_hostname: str,
+                  collabora_hostname: str,
                   bitwarden: BwCLI) -> None:
     """
     if bitwarden and init are enabled, but app is already installed, make sure
@@ -473,6 +503,10 @@ def refresh_bweso(argocd: ArgoCD,
 
     admin_id = bitwarden.get_item(
             f"nextcloud-admin-credentials-{nextcloud_hostname}", False
+            )[0]['id']
+
+    collabora_admin_id = bitwarden.get_item(
+            f"collabora-admin-credentials-{collabora_hostname}"
             )[0]['id']
 
     smtp_id = bitwarden.get_item(
@@ -512,5 +546,6 @@ def refresh_bweso(argocd: ArgoCD,
              'nextcloud_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'nextcloud_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id,
-             'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id
+             'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id,
+             'collabora_admin_credentials_bitwarden_id': collabora_admin_id
             })
