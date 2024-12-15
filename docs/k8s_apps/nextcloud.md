@@ -20,6 +20,7 @@ Part of the `smol-k8s-lab` init process is that we will put the following into y
 - PostgreSQL credentials
 - s3 credentials
 - OIDC credentials
+- Collabora credentials
 
 ## Required Values
 
@@ -30,6 +31,7 @@ To use the default `smol-k8s-lab` Argo CD Application, you'll need to provide on
 - `admin_user`
 - `smtp_user`
 - `smtp_host`
+- `collabora_user`
 
 ### Required ApplicationSet Values
 
@@ -70,6 +72,7 @@ apps:
 - `NEXTCLOUD_S3_BACKUP_ACCESS_KEY`
 - `NEXTCLOUD_S3_BACKUP_ACCESS_ID`
 - `NEXTCLOUD_RESTIC_REPO_PASSWORD`
+- `COLLABORA_ONLINE_PASSWORD`
 
 
 ## Backups
@@ -148,6 +151,7 @@ apps:
         - NEXTCLOUD_S3_BACKUP_ACCESS_KEY
         - NEXTCLOUD_S3_BACKUP_ACCESS_ID
         - NEXTCLOUD_RESTIC_REPO_PASSWORD
+        - COLLABORA_ONLINE_PASSWORD
 
       Note: smol-k8s-lab is not affiliated with Nextcloud GmbH. This is a community-supported-only install method.
     # initialize the app by setting up new k8s secrets and/or Bitwarden items
@@ -167,6 +171,11 @@ apps:
         smtp_password:
           value_from:
             env: NEXTCLOUD_SMTP_PASSWORD
+        collabora_user: admin
+        collabora_password:
+          value_from:
+            # you can change this to any env var
+            env: COLLABORA_ONLINE_PASSWORD
     backups:
       # cronjob syntax schedule to run nextcloud pvc backups
       pvc_schedule: 10 0 * * *
@@ -195,6 +204,8 @@ apps:
       secret_keys:
         # the FQDN that you want to host nextcloud on
         hostname: "cloud.cooldogs.net"
+        # host name for collabora online
+        collabora_hostname: "collabora.domain.com"
         # you can delete these if you're not using tolerations/affinity
         toleration_key: ""
         toleration_operator: ""
