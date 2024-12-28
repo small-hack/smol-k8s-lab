@@ -3,7 +3,7 @@
 We are mostly stable for running GoToSocial on Kubernetes. Check out our [GoToSocial Argo CD ApplicationSet](https://github.com/small-hack/argocd-apps/tree/main/gotosocial/small-hack):
 
 <a href="../../assets/images/screenshots/gotosocial_screenshot.png">
-<img src="../../assets/images/screenshots/gotosocial_screenshot.png" alt="screenshot of the gotosocial applicationset in Argo CD's web interface using the tree mode view. the main gotosocial app has 6 child apps: gotosocial-valkey, gotosocial-app-set with child gotosocial-web-app, gotosocial-external-secrets-appset with child gotosocial-external-secrets, gotosocial-postgres-app-set with child gotosocial-postgres-cluster, gotosocial-s3-provider-app-set with child gotosocial-seaweedfs, and gotosocial-s3-pvc-appset with child gotosocial-s3-pvc.">
+<img src="../../assets/images/screenshots/gotosocial_screenshot.png" alt="screenshot of the gotosocial applicationset in Argo CD's web interface using the tree mode view. the main gotosocial app has 6 child apps: gotosocial-app-set with child gotosocial-web-app, gotosocial-external-secrets-appset with child gotosocial-external-secrets, gotosocial-postgres-app-set with child gotosocial-postgres-cluster, gotosocial-s3-provider-app-set with child gotosocial-seaweedfs, and gotosocial-s3-pvc-appset with child gotosocial-s3-pvc.">
 </a>
 
 This is the networking view in Argo CD:
@@ -53,15 +53,15 @@ apps:
     description: |
        [link=https://gotosocial.org]gotosocial[/link] is an open source self hosted social media network.
 
-       smol-k8s-lab supports initializing gotosocial, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing gotosocial, by setting up your hostname, SMTP credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set gotosocial.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 
        To provide sensitive values via environment variables to smol-k8s-lab use:
-         - gotosocial_SMTP_PASSWORD
-         - gotosocial_S3_BACKUP_ACCESS_ID
-         - gotosocial_S3_BACKUP_SECRET_KEY
-         - gotosocial_RESTIC_REPO_PASSWORD
+         - GOTOSOCIAL_SMTP_PASSWORD
+         - GOTOSOCIAL_S3_BACKUP_ACCESS_ID
+         - GOTOSOCIAL_S3_BACKUP_SECRET_KEY
+         - GOTOSOCIAL_RESTIC_REPO_PASSWORD
     enabled: false
     init:
       enabled: true
@@ -71,8 +71,6 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          gotosocial_valkey_primary: latest
-          gotosocial_valkey_replica: latest
       values:
         # admin user
         admin_user: "gotosocialadmin"
@@ -84,7 +82,7 @@ apps:
         smtp_user: "change me to enable mail"
         smtp_password:
           value_from:
-            env: gotosocial_SMTP_PASSWORD
+            env: GOTOSOCIAL_SMTP_PASSWORD
     backups:
       # cronjob syntax schedule to run gotosocial pvc backups
       pvc_schedule: 10 0 * * *
@@ -100,20 +98,20 @@ apps:
         region: eu-central-003
         secret_access_key:
           value_from:
-            env: gotosocial_S3_BACKUP_SECRET_KEY
+            env: GOTOSOCIAL_S3_BACKUP_SECRET_KEY
         access_key_id:
           value_from:
-            env: gotosocial_S3_BACKUP_ACCESS_ID
+            env: GOTOSOCIAL_S3_BACKUP_ACCESS_ID
       restic_repo_password:
         value_from:
-          env: gotosocial_RESTIC_REPO_PASSWORD
+          env: GOTOSOCIAL_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # smtp port on your mail server
         smtp_port: '25'
         # admin user for your gotosocial instance
-        admin_user: tootadmin
+        admin_user: gotosocialadmin
         # hostname that users go to in the browser
         hostname: ""
         # set the local s3 provider for gotosocial's public data in one bucket
@@ -124,16 +122,10 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
-        # enable persistence for valkey - recommended
-        valkey_pvc_enabled: 'true'
-        # size of valkey pvc storage settings
-        valkey_storage: 3Gi
-        valkey_storage_class: local-path
-        valkey_access_mode: ReadWriteOnce
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: gotosocial/small-hack/app_of_apps/
+      path: gotosocial/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # kubernetes cluster to install the k8s app into, defaults to Argo CD default
@@ -151,7 +143,9 @@ apps:
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://operator.min.io/
           - https://seaweedfs.github.io/seaweedfs/helm
-          - https://small-hack.github.io/gotosocial-helm-chart
+          - https://charts.fsociety.social
+          # can be removed after existing Secret PRs are merged
+          - https://github.com/jessebot/charts-1
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
