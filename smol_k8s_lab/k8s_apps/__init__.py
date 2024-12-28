@@ -27,6 +27,7 @@ from .secrets_management.infisical import configure_infisical
 from .secrets_management.vault import configure_vault
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
+from .social.gotosocial import configure_gotosocial
 from .social.nextcloud import configure_nextcloud
 from .social.home_assistant import configure_home_assistant
 
@@ -226,6 +227,7 @@ def setup_federated_apps(argocd: ArgoCD,
                          home_assistant_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
+                         gotosocial_dict: dict = {},
                          matrix_dict: dict = {},
                          pvc_storage_class: str = "local-path",
                          zitadel_hostname: str = "",
@@ -245,6 +247,9 @@ def setup_federated_apps(argocd: ArgoCD,
 
     if mastodon_dict.get('enabled', False):
         configure_mastodon(argocd, mastodon_dict, pvc_storage_class, libretranslate_api_key, bw)
+
+    if gotosocial_dict.get('enabled', False):
+        configure_gotosocial(argocd, gotosocial_dict, pvc_storage_class, bw)
 
     if matrix_dict.get('enabled', False):
         configure_matrix(argocd, matrix_dict, pvc_storage_class, zitadel_obj, bw)

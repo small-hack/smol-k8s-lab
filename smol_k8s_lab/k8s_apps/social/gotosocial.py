@@ -211,18 +211,18 @@ def create_user(user: str, email: str, pod_namespace: str) -> str:
     password = create_password()
 
     # then run the user creation command
-    cmd = (f'kubectl exec -n {pod_namespace} {pod} -- /bin/bash -c "gotosocial '
+    cmd = (f'kubectl exec -n {pod_namespace} {pod} -- /bin/bash -c "/gotosocial/gotosocial '
            '--config-path /path/to/config.yaml admin account create '
-           f'--username {user} --email {email} --password \'{password}\'')
+           f'--username {user} --email {email} --password \'{password}\'"')
 
     # then process the output from the command
     subproc([cmd], shell=True, universal_newlines=True)
 
 
     # then run the user promotion (to admin) command
-    cmd = (f'kubectl exec -n {pod_namespace} {pod} -- /bin/bash -c "gotosocial '
-           '--config-path /path/to/config.yaml admin account promote '
-           f'--username {user}')
+    cmd = (f'kubectl exec -n {pod_namespace} {pod} -- /bin/bash -c '
+           '"/gotosocial/gotosocial --config-path /path/to/config.yaml admin '
+           f'account promote --username {user}"')
 
     # then process the output from the command
     subproc([cmd], shell=True, universal_newlines=True).split()[3]

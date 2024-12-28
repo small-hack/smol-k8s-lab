@@ -312,13 +312,14 @@ def main(config: str = "",
         else:
             libretranslate_api_key = ""
 
-        # setup nextcloud, home assistant, mastodon, and matrix
+        # setup nextcloud, home assistant, mastodon, gotosocial, and matrix
         setup_federated_apps(
                 argocd,
                 api_tls_verify,
                 apps.pop('home_assistant', {}),
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
+                apps.pop('gotosocial', {}),
                 apps.pop('matrix', {}),
                 pvc_storage_class,
                 zitadel_hostname,

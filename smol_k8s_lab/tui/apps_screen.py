@@ -92,10 +92,11 @@ class AppsConfigScreen(Screen):
                 'collabora': {},
                 'collabora_online': {},
                 'cert_manager': {},
-                'nextcloud': {},
+                'gotosocial': {},
                 'home_assistant': {},
                 'matrix': {},
                 'mastodon': {},
+                'nextcloud': {},
                 'postgres_operator': {},
                 'zitadel': {}
                 }
