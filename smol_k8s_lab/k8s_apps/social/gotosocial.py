@@ -29,9 +29,6 @@ def configure_gotosocial(argocd: ArgoCD,
 
     optional:
         bitwarden   - BwCLI() object with session token to create bitwarden items
-
-    not available yet:
-        libretranslate_api_key - str, api key to enable automatic translations
     """
     # check immediately if the app is installed
     app_installed = argocd.check_if_app_exists('gotosocial')
@@ -60,7 +57,6 @@ def configure_gotosocial(argocd: ArgoCD,
     secrets = cfg['argo']['secret_keys']
     if secrets:
         gotosocial_hostname = secrets['hostname']
-        # gotosocial_libretranslate_hostname = secrets['libretranslate_hostname']
 
     # we need namespace immediately
     gotosocial_namespace = cfg['argo']['namespace']
@@ -71,11 +67,6 @@ def configure_gotosocial(argocd: ArgoCD,
 
         # backups are their own config.yaml section
         backup_vals = process_backup_vals(cfg.get('backups', {}), 'gotosocial', argocd)
-
-        # get the api key for LibreTranslate, so we can translate posts
-        # libre_api_key = extract_secret(init_values.get('libretranslate_api_key'))
-        # if not libre_api_key:
-        #     libre_api_key = libretranslate_api_key
 
     if init_enabled and not app_installed:
         argocd.k8s.create_namespace(gotosocial_namespace)
@@ -91,9 +82,6 @@ def configure_gotosocial(argocd: ArgoCD,
             mail_port = init_values.get('smtp_port', '')
             mail_pass = extract_secret(init_values.get('smtp_password'))
 
-            # main gotosocial rake secrets
-            # rake_secrets = generate_gotosocial_secrets()
-
             # configure s3 credentials
             s3_access_id = 'gotosocial'
             s3_access_key = create_password()
@@ -106,9 +94,6 @@ def configure_gotosocial(argocd: ArgoCD,
             create_minio_alias("gotosocial", s3_endpoint, "gotosocial", s3_access_key)
 
         if bitwarden and not restore_enabled:
-            # rake_secrets,
-            # gotosocial_libretranslate_hostname,
-            # libre_api_key,
             setup_bitwarden_items(argocd,
                                   gotosocial_hostname,
                                   s3_endpoint,
@@ -144,14 +129,8 @@ def configure_gotosocial(argocd: ArgoCD,
             argocd.k8s.create_secret('gotosocial-valkey-credentials', 'gotosocial',
                                      {"password": gotosocial_valkey_password})
 
-            # gotosocial rake secrets
-            # argocd.k8s.create_secret('gotosocial-server-secrets', 'gotosocial',
-            # rake_secrets)
-
     if not app_installed:
         if restore_enabled:
-            # gotosocial_libretranslate_hostname,
-            # libre_api_key,
             restore_gotosocial(argocd,
                              gotosocial_hostname,
                              gotosocial_namespace,
@@ -188,7 +167,6 @@ def configure_gotosocial(argocd: ArgoCD,
         log.info("gotosocial already installed 🎉")
 
         if bitwarden and init_enabled:
-            # gotosocial_libretranslate_hostname, libre_api_key,
             refresh_bweso(argocd, gotosocial_hostname, bitwarden)
 
 
@@ -234,8 +212,6 @@ def create_user(user: str, email: str, pod_namespace: str) -> str:
 
 def refresh_bweso(argocd: ArgoCD,
                   gotosocial_hostname: str,
-                  gotosocial_libretranslate_hostname: str,
-                  libre_api_key: str,
                   bitwarden: BwCLI) -> None:
     """
     if gotosocial already installed, but bitwarden and init are enabled, still
@@ -280,24 +256,7 @@ def refresh_bweso(argocd: ArgoCD,
             f"gotosocial-server-secrets-{gotosocial_hostname}", False
             )[0]['id']
 
-    # do some checking here since this isn't required and so it may not be available
-    # libretranslate_api_key_item = bitwarden.get_item(
-    #         f"gotosocial-libretranslate-credentials-{gotosocial_hostname}", False
-    #         )[0]
-    # if libretranslate_api_key_item:
-    #     libretranslate_api_key_id = libretranslate_api_key_item.get('id', "")
-    # else:
-    #     endpoint = create_custom_field('endpoint',
-    #                                    gotosocial_libretranslate_hostname)
-    #     libretranslate_api_key_id = bitwarden.create_login(
-    #             name=f'gotosocial-libretranslate-credentials-{gotosocial_hostname}',
-    #             item_url=gotosocial_libretranslate_hostname,
-    #             user="n/a",
-    #             password=libre_api_key,
-    #             fields=[endpoint]
-    #             )
     # {'gotosocial_admin_credentials_bitwarden_id': admin_id,
-    #  'gotosocial_libretranslate_bitwarden_id': libretranslate_api_key_id,
     argocd.update_appset_secret(
             {'gotosocial_smtp_credentials_bitwarden_id': smtp_id,
              'gotosocial_postgres_credentials_bitwarden_id': db_id,
@@ -326,11 +285,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           bitwarden: BwCLI) -> None:
     """
     setup secrets in bitwarden for gotosocial.
-
-    removed the following from the clone of the mastodon file:
-      rake_secrets: dict,
-      gotosocial_libretranslate_hostname: str,
-      libre_api_key: str,
     """
 
     # S3 credentials
@@ -462,10 +416,6 @@ def restore_gotosocial(argocd: ArgoCD,
     """
     restore gotosocial seaweedfs PVCs, gotosocial files and/or config PVC(s),
     and CNPG postgresql cluster
-
-    removed vars:
-         gotosocial_libretranslate_hostname: str,
-         libre_api_key: str,
     """
     # this is the info for the REMOTE backups
     s3_backup_endpoint = backup_dict['endpoint']
@@ -481,7 +431,6 @@ def restore_gotosocial(argocd: ArgoCD,
 
     # first we grab existing bitwarden items if they exist
     if bitwarden:
-        # gotosocial_libretranslate_hostname, libre_api_key,
         refresh_bweso(argocd, gotosocial_hostname, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
