@@ -149,7 +149,8 @@ def configure_gotosocial(argocd: ArgoCD,
                     'gotosocial-pgsql-credentials',
                     'gotosocial',
                     {"password": gotosocial_pgsql_password,
-                     'postrgesPassword': gotosocial_pgsql_password})
+                     'postrgesPassword': gotosocial_pgsql_password}
+                     'username': "gotosocial")
 
             # valkey creds k8s secret
             gotosocial_valkey_password = create_password()
