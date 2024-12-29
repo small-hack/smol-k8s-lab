@@ -1,6 +1,7 @@
 # internal libraries
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
+from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 # from smol_k8s_lab.k8s_apps.social.gotosocial_secrets import generate_gotosocial_secrets
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
@@ -18,6 +19,7 @@ import logging as log
 def configure_gotosocial(argocd: ArgoCD,
                          cfg: dict,
                          pvc_storage_class: str,
+                         zitadel: Zitadel = None,
                          bitwarden: BwCLI = None) -> bool:
     """
     creates a gotosocial app and initializes it with secrets if you'd like :)
@@ -28,6 +30,7 @@ def configure_gotosocial(argocd: ArgoCD,
         pvc_storage_class      - str, storage class of PVC
 
     optional:
+        zitadel     - Zitadel() object with session token to create zitadel oidc app and roles
         bitwarden   - BwCLI() object with session token to create bitwarden items
     """
     # check immediately if the app is installed
@@ -86,6 +89,28 @@ def configure_gotosocial(argocd: ArgoCD,
             s3_access_id = 'gotosocial'
             s3_access_key = create_password()
 
+        # configure OIDC
+        if zitadel and not restore_enabled:
+            log.debug("Creating a GoTosocial OIDC application in Zitadel...")
+            redirect_uris = f"https://{gotosocial_hostname}/apps/oidc_login/oidc"
+            logout_uris = [f"https://{gotosocial_hostname}"]
+            oidc_creds = zitadel.create_application(
+                    "gotosocial",
+                    redirect_uris,
+                    logout_uris
+                    )
+            zitadel.create_role("gotosocial_users",
+                                "GoToSocial Users",
+                                "gotosocial_users")
+            zitadel.create_role("gotosocial_admins",
+                                "GoToSocial Admins",
+                                "gotosocial_admins")
+            zitadel.update_user_grant(['gotosocial_admins'])
+            zitadel_hostname = zitadel.hostname
+        else:
+            zitadel_hostname = ""
+
+
         s3_endpoint = secrets.get('s3_endpoint', "")
         log.debug(f"gotosocial s3_endpoint at the start is: {s3_endpoint}")
 
@@ -107,6 +132,8 @@ def configure_gotosocial(argocd: ArgoCD,
                                   mail_port,
                                   mail_user,
                                   mail_pass,
+                                  oidc_creds,
+                                  zitadel_hostname,
                                   bitwarden)
 
         # these are standard k8s secrets yaml
@@ -220,6 +247,10 @@ def refresh_bweso(argocd: ArgoCD,
     log.debug("Making sure gotosocial Bitwarden item IDs are in appset "
               "secret plugin secret")
 
+    oidc_id = bitwarden.get_item(
+            f"gotosocial-oidc-credentials-{gotosocial_hostname}"
+            )[0]['id']
+
     # admin_id = bitwarden.get_item(
     #         f"gotosocial-admin-credentials-{gotosocial_hostname}"
     #         )[0]['id']
@@ -255,6 +286,7 @@ def refresh_bweso(argocd: ArgoCD,
     # {'gotosocial_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
             {'gotosocial_smtp_credentials_bitwarden_id': smtp_id,
+             'gotosocial_oidc_credentials_bitwarden_id': oidc_id,
              'gotosocial_postgres_credentials_bitwarden_id': db_id,
              'gotosocial_valkey_bitwarden_id': valkey_id,
              'gotosocial_s3_admin_credentials_bitwarden_id': s3_admin_id,
@@ -277,6 +309,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mail_port: str,
                           mail_user: str,
                           mail_pass: str,
+                          oidc_creds: dict,
+                          zitadel_hostname: str,
                           bitwarden: BwCLI) -> None:
     """
     setup secrets in bitwarden for gotosocial.
@@ -344,15 +378,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[postrges_pass_obj]
             )
 
-    # valkey credentials
-    gotosocial_valkey_password = bitwarden.generate()
-    valkey_id = bitwarden.create_login(
-            name='gotosocial-valkey-credentials',
-            item_url=gotosocial_hostname,
-            user='gotosocial',
-            password=gotosocial_valkey_password
-            )
-
     # SMTP credentials
     gotosocial_smtp_host_obj = create_custom_field("smtpHostname", mail_host)
     gotosocial_smtp_port_obj = create_custom_field("smtpPort", mail_port)
@@ -375,12 +400,28 @@ def setup_bitwarden_items(argocd: ArgoCD,
     #         fields=[email_obj]
     #         )
 
+    # oidc credentials if they were given, else they're probably already there
+    if oidc_creds:
+        log.debug("Creating OIDC credentials for gotosocial in Bitwarden...")
+        issuer_obj = create_custom_field("issuer", f"https://{zitadel_hostname}")
+        oidc_id = bitwarden.create_login(
+                name='gotosocial-oidc-credentials',
+                item_url=gotosocial_hostname,
+                user=oidc_creds['client_id'],
+                password=oidc_creds['client_secret'],
+                fields=[issuer_obj]
+                )
+    else:
+        oidc_id = bitwarden.get_item(
+                f"gotosocial-oidc-credentials-{gotosocial_hostname}"
+                )[0]['id']
+
     # update the gotosocial values for the argocd appset
     # 'gotosocial_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
             {'gotosocial_smtp_credentials_bitwarden_id': smtp_id,
+             'gotosocial_oidc_credentials_bitwarden_id': oidc_id,
              'gotosocial_postgres_credentials_bitwarden_id': db_id,
-             'gotosocial_valkey_bitwarden_id': valkey_id,
              'gotosocial_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'gotosocial_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'gotosocial_s3_gotosocial_credentials_bitwarden_id': s3_id,

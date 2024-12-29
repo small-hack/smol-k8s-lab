@@ -238,18 +238,38 @@ def setup_federated_apps(argocd: ArgoCD,
     Setup any federated apps with initialization supported
     """
     if home_assistant_dict.get('enabled', False):
-        configure_home_assistant(argocd, home_assistant_dict, pvc_storage_class,
-                                 api_tls_verify, bw)
+        configure_home_assistant(argocd,
+                                 home_assistant_dict,
+                                 pvc_storage_class,
+                                 api_tls_verify,
+                                 bw)
 
     if nextcloud_dict.get('enabled', False):
-        configure_nextcloud(argocd, nextcloud_dict, pvc_storage_class,
-                            zitadel_obj, bw)
+        configure_nextcloud(argocd,
+                            nextcloud_dict,
+                            pvc_storage_class,
+                            zitadel_obj,
+                            bw)
 
+    # federated social micro blogging apps
     if mastodon_dict.get('enabled', False):
-        configure_mastodon(argocd, mastodon_dict, pvc_storage_class, libretranslate_api_key, bw)
+        configure_mastodon(argocd,
+                           mastodon_dict,
+                           pvc_storage_class,
+                           libretranslate_api_key,
+                           bw)
 
     if gotosocial_dict.get('enabled', False):
-        configure_gotosocial(argocd, gotosocial_dict, pvc_storage_class, bw)
+        configure_gotosocial(argocd,
+                             gotosocial_dict,
+                             pvc_storage_class,
+                             zitadel_obj,
+                             bw)
 
+    # federated chat apps
     if matrix_dict.get('enabled', False):
-        configure_matrix(argocd, matrix_dict, pvc_storage_class, zitadel_obj, bw)
+        configure_matrix(argocd,
+                         matrix_dict,
+                         pvc_storage_class,
+                         zitadel_obj,
+                         bw)
