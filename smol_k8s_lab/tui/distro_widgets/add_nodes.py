@@ -376,11 +376,11 @@ class NodesConfigScreen(Screen):
     BINDINGS = [Binding(key="b,q,escape",
                         key_display="b",
                         action="app.pop_screen",
-                        description="Back"),
+                        description=" Back"),
                 Binding(key="ctrl+n",
                         key_display="ctrl+n",
                         action="add_node",
-                        description="add new node")]
+                        description=" add new node")]
 
     def __init__(self,
                  nodes: dict,

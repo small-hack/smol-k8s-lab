@@ -110,7 +110,7 @@ class NewOptionModal(ModalScreen):
     BINDINGS = [Binding(key="b,q,escape",
                         key_display="esc",
                         action="app.pop_screen",
-                        description="Cancel")]
+                        description=" Cancel")]
 
     CSS_PATH = [
             "./css/base_modal.tcss",

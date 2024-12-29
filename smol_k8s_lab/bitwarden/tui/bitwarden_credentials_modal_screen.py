@@ -21,7 +21,7 @@ class BitwardenCredentialsScreen(ModalScreen):
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="press_cancel",
-                        description="Back")]
+                        description=" Back")]
 
     def compose(self) -> ComposeResult:
 
@@ -77,7 +77,7 @@ class BitwardenCredentialsScreen(ModalScreen):
     @on(Input.Changed)
     def on_input_changed(self, event: Input.Changed) -> None:
         """
-        on any input field change, check all input fields and enable or disable 
+        on any input field change, check all input fields and enable or disable
         the confirm button
         """
         all_valid = True

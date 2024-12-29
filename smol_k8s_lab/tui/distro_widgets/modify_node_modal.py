@@ -13,7 +13,7 @@ class NodeModalScreen(ModalScreen):
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="press_cancel",
-                        description="Back")]
+                        description=" Back")]
 
     def __init__(self, node: str, node_metadata: dict) -> None:
         self.node = node
