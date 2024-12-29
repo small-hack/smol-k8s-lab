@@ -137,7 +137,8 @@ def join_k3s_nodes(extra_nodes: dict) -> None:
             # apply taints to new node
             if taints:
                 for taint in taints:
-                    subproc([f"kubectl taint nodes {node} {taint}"])
+                    subproc([f"kubectl taint nodes {node} {taint}"],
+                            error_ok=True)
 
 
 def uninstall_k3s(cluster_name: str) ->  str:
