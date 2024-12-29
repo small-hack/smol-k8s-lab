@@ -88,6 +88,7 @@ def configure_gotosocial(argocd: ArgoCD,
             # configure the smtp credentials
             mail_user = init_values.get('smtp_user', '')
             mail_host = init_values.get('smtp_host', '')
+            mail_port = init_values.get('smtp_port', '')
             mail_pass = extract_secret(init_values.get('smtp_password'))
 
             # main gotosocial rake secrets
@@ -118,6 +119,7 @@ def configure_gotosocial(argocd: ArgoCD,
                                   backup_vals['restic_repo_pass'],
                                   gotosocial_admin_username,
                                   mail_host,
+                                  mail_port,
                                   mail_user,
                                   mail_pass,
                                   bitwarden)
@@ -250,10 +252,6 @@ def refresh_bweso(argocd: ArgoCD,
             f"gotosocial-pgsql-credentials-{gotosocial_hostname}"
             )[0]['id']
 
-    elastic_id = bitwarden.get_item(
-            f"gotosocial-elasticsearch-credentials-{gotosocial_hostname}", False
-            )[0]['id']
-
     valkey_id = bitwarden.get_item(
             f"gotosocial-valkey-credentials-{gotosocial_hostname}", False
             )[0]['id']
@@ -308,7 +306,6 @@ def refresh_bweso(argocd: ArgoCD,
              'gotosocial_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'gotosocial_s3_gotosocial_credentials_bitwarden_id': s3_id,
              'gotosocial_s3_backups_credentials_bitwarden_id': s3_backups_id,
-             'gotosocial_elasticsearch_credentials_bitwarden_id': elastic_id,
              'gotosocial_server_secrets_bitwarden_id': secrets_id}
             )
 
@@ -323,6 +320,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           restic_repo_pass: str,
                           admin_user: str,
                           mail_host: str,
+                          mail_port: str,
                           mail_user: str,
                           mail_pass: str,
                           bitwarden: BwCLI) -> None:
@@ -385,15 +383,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[restic_repo_pass_obj]
             )
 
-    # elastic search password
-    gotosocial_elasticsearch_password = bitwarden.generate()
-    elastic_id = bitwarden.create_login(
-            name='gotosocial-elasticsearch-credentials',
-            item_url=gotosocial_hostname,
-            user='gotosocial',
-            password=gotosocial_elasticsearch_password
-            )
-
     # PostgreSQL credentials
     gotosocial_pgsql_password = bitwarden.generate()
     postrges_pass_obj = create_custom_field("postgresPassword",
@@ -426,75 +415,18 @@ def setup_bitwarden_items(argocd: ArgoCD,
             )
 
     # admin credentials for gotosocial itself
-    # toot_password = create_password()
+    # admin_password = create_password()
     # email_obj = create_custom_field("email", gotosocial_admin_email)
     # admin_id = bitwarden.create_login(
     #         name='gotosocial-admin-credentials',
     #         item_url=gotosocial_hostname,
     #         user=gotosocial_admin_username,
-    #         password=toot_password,
+    #         password=admin_password,
     #         fields=[email_obj]
-    #         )
-
-    # gotosocial secrets
-    # secret_key_base_obj = create_custom_field(
-    #         "SECRET_KEY_BASE",
-    #         rake_secrets['SECRET_KEY_BASE']
-    #         )
-    # otp_secret_obj = create_custom_field(
-    #         "OTP_SECRET",
-    #         rake_secrets['OTP_SECRET']
-    #         )
-    # vapid_pub_key_obj = create_custom_field(
-    #         "VAPID_PUBLIC_KEY",
-    #         rake_secrets['VAPID_PUBLIC_KEY']
-    #         )
-    # vapid_priv_key_obj = create_custom_field(
-    #         "VAPID_PRIVATE_KEY",
-    #         rake_secrets['VAPID_PRIVATE_KEY']
-    #         )
-    # active_record_encryption_deterministic_obj = create_custom_field(
-    #         "ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY",
-    #         rake_secrets['ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY']
-    #         )
-    # active_record_encryption_derivation_obj = create_custom_field(
-    #         "ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT",
-    #         rake_secrets['ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT']
-    #         )
-    # active_record_encryption_primary_obj = create_custom_field(
-    #         "ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY",
-    #         rake_secrets['ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY']
-    #         )
-
-    # secrets_id = bitwarden.create_login(
-    #         name='gotosocial-server-secrets',
-    #         item_url=gotosocial_hostname,
-    #         user="gotosocial",
-    #         password="none",
-    #         fields=[
-    #             secret_key_base_obj,
-    #             otp_secret_obj,
-    #             vapid_priv_key_obj,
-    #             vapid_pub_key_obj,
-    #             active_record_encryption_primary_obj,
-    #             active_record_encryption_derivation_obj,
-    #             active_record_encryption_deterministic_obj
-    #             ]
-    #         )
-
-    # endpoint = create_custom_field('endpoint', gotosocial_libretranslate_hostname)
-    # libretranslate_api_key_id = bitwarden.create_login(
-    #         name=f'gotosocial-libretranslate-credentials-{gotosocial_hostname}',
-    #         item_url=gotosocial_libretranslate_hostname,
-    #         user="n/a",
-    #         password=libre_api_key,
-    #         fields=[endpoint]
     #         )
 
     # update the gotosocial values for the argocd appset
     # 'gotosocial_admin_credentials_bitwarden_id': admin_id,
-    # 'gotosocial_server_secrets_bitwarden_id': secrets_id,
-    # 'gotosocial_libretranslate_bitwarden_id': libretranslate_api_key_id})
     argocd.update_appset_secret(
             {'gotosocial_smtp_credentials_bitwarden_id': smtp_id,
              'gotosocial_postgres_credentials_bitwarden_id': db_id,
@@ -502,8 +434,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'gotosocial_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'gotosocial_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'gotosocial_s3_gotosocial_credentials_bitwarden_id': s3_id,
-             'gotosocial_s3_backups_credentials_bitwarden_id': s3_backups_id,
-             'gotosocial_elasticsearch_credentials_bitwarden_id': elastic_id})
+             'gotosocial_s3_backups_credentials_bitwarden_id': s3_backups_id})
 
     # reload the bitwarden ESO provider
     try:
@@ -518,15 +449,15 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
 
 def restore_gotosocial(argocd: ArgoCD,
-                     gotosocial_hostname: str,
-                     gotosocial_namespace: str,
-                     argo_dict: dict,
-                     secrets: dict,
-                     restore_dict: dict,
-                     backup_dict: dict,
-                     global_pvc_storage_class: str,
-                     pgsql_cluster_name: str,
-                     bitwarden: BwCLI) -> None:
+                       gotosocial_hostname: str,
+                       gotosocial_namespace: str,
+                       argo_dict: dict,
+                       secrets: dict,
+                       restore_dict: dict,
+                       backup_dict: dict,
+                       global_pvc_storage_class: str,
+                       pgsql_cluster_name: str,
+                       bitwarden: BwCLI) -> None:
     """
     restore gotosocial seaweedfs PVCs, gotosocial files and/or config PVC(s),
     and CNPG postgresql cluster

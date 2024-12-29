@@ -78,6 +78,8 @@ apps:
         admin_email: ""
         # mail server to send verification and notification emails
         smtp_host: "change@me-to-enable.mail"
+        # mail server port to send verification and notification emails
+        smtp_port: "25"
         # mail user for smtp host
         smtp_user: "change me to enable mail"
         smtp_password:
@@ -108,8 +110,6 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        # smtp port on your mail server
-        smtp_port: '25'
         # admin user for your gotosocial instance
         admin_user: gotosocialadmin
         # hostname that users go to in the browser
