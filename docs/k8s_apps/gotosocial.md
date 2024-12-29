@@ -71,6 +71,8 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
+          # restic snapshot id for the gotosocial pvc to restore
+          gotosocial: latest
       values:
         # admin user
         admin_user: "gotosocialadmin"
@@ -121,7 +123,12 @@ apps:
         s3_pvc_capacity: 120Gi
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
+        # optional region where your s3 bucket lives
         s3_region: eu-west-1
+        # access mode the gotosocial pvc
+        access_mode: ReadWriteOnce
+        # amount of storage for the gotosocial pvc
+        storage: 10Gi
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
