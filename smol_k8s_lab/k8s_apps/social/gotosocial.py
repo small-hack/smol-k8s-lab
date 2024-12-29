@@ -252,10 +252,6 @@ def refresh_bweso(argocd: ArgoCD,
             f"gotosocial-backups-s3-credentials-{gotosocial_hostname}", False
             )[0]['id']
 
-    secrets_id = bitwarden.get_item(
-            f"gotosocial-server-secrets-{gotosocial_hostname}", False
-            )[0]['id']
-
     # {'gotosocial_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
             {'gotosocial_smtp_credentials_bitwarden_id': smtp_id,
@@ -264,8 +260,7 @@ def refresh_bweso(argocd: ArgoCD,
              'gotosocial_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'gotosocial_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'gotosocial_s3_gotosocial_credentials_bitwarden_id': s3_id,
-             'gotosocial_s3_backups_credentials_bitwarden_id': s3_backups_id,
-             'gotosocial_server_secrets_bitwarden_id': secrets_id}
+             'gotosocial_s3_backups_credentials_bitwarden_id': s3_backups_id}
             )
 
 
