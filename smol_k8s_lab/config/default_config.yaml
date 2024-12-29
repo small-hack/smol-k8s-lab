@@ -996,7 +996,7 @@ apps:
     init:
       enabled: true
       restore:
-        enabled: true
+        enabled: false
         cnpg_restore: true
         restic_snapshot_ids:
           # seaweedfs_master: latest
@@ -1116,7 +1116,7 @@ apps:
         # set to true to run a restic restore via a k8up job for your
         # seaweedfs PVCs, matrix signing key PVC, synapse config PVC, media PVC
         # and restoring your postgresql database
-        enabled: true
+        enabled: false
         # for Cloudnative postgres operator cluster restores only
         cnpg_restore: true
         # the restic snapshot IDs of the PVC snapshots you want to restore
@@ -1780,7 +1780,7 @@ apps:
       values:
         root_user: admin
       restore:
-        enabled: true
+        enabled: false
         restic_snapshot_ids:
           # seaweedfs_master: latest
           seaweedfs_volume: latest
@@ -1968,7 +1968,7 @@ apps:
       restore:
         # set to true to run a restic restore via a k8up job for seaweedfs PVCs,
         # and restoring your postgresql database
-        enabled: true
+        enabled: false
         # for Cloudnative postgres operator cluster restores only
         cnpg_restore: true
         # the restic snapshot IDs of the PVC snapshots you want to restore
