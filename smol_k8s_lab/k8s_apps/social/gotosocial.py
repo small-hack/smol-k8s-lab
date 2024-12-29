@@ -92,7 +92,7 @@ def configure_gotosocial(argocd: ArgoCD,
         # configure OIDC
         if zitadel and not restore_enabled:
             log.debug("Creating a GoTosocial OIDC application in Zitadel...")
-            redirect_uris = f"https://{gotosocial_hostname}/apps/oidc_login/oidc"
+            redirect_uris = f"https://{gotosocial_hostname}/auth/callback"
             logout_uris = [f"https://{gotosocial_hostname}"]
             oidc_creds = zitadel.create_application(
                     "gotosocial",
