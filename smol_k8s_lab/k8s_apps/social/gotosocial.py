@@ -406,12 +406,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # SMTP credentials
     gotosocial_smtp_host_obj = create_custom_field("smtpHostname", mail_host)
+    gotosocial_smtp_port_obj = create_custom_field("smtpPort", mail_port)
     smtp_id = bitwarden.create_login(
             name='gotosocial-smtp-credentials',
             item_url=gotosocial_hostname,
             user=mail_user,
             password=mail_pass,
-            fields=[gotosocial_smtp_host_obj]
+            fields=[gotosocial_smtp_host_obj, gotosocial_smtp_port_obj]
             )
 
     # admin credentials for gotosocial itself
