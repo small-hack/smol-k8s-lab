@@ -31,8 +31,8 @@ def configure_nextcloud(argocd: ArgoCD,
         pvc_storage_class - str, storage class of PVC
 
     optional:
-        bitwarden   - BwCLI() object with session token to create bitwarden items
         zitadel     - Zitadel() object with session token to create zitadel oidc app and roles
+        bitwarden   - BwCLI() object with session token to create bitwarden items
     """
     # check immediately if this app is installed
     app_installed = argocd.check_if_app_exists('nextcloud')
