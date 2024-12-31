@@ -20,7 +20,7 @@ class SmolK8sLabCollapsibleInputsWidget(Static):
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="app.pop_screen",
-                        description="Back")]
+                        description=" Back")]
 
     def __init__(self,
                  app_name: str,
@@ -196,7 +196,7 @@ class SmolK8sLabInputsWidget(Static):
     BINDINGS = [Binding(key="b,escape,q",
                         key_display="b",
                         action="app.pop_screen",
-                        description="Back")]
+                        description=" Back")]
 
     def __init__(self,
                  app_name: str,

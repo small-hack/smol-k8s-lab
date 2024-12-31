@@ -61,7 +61,7 @@ class K3sConfigWidget(Static):
     BINDINGS = [Binding(key="ctrl+n",
                         key_display="ctrl+n",
                         action="add_option_or_node",
-                        description="add new")]
+                        description=" add new")]
     def __init__(self, distro: str, metadata: dict, id: str = "") -> None:
         self.distro = distro
         self.metadata = metadata

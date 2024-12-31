@@ -47,15 +47,15 @@ class DistroConfigScreen(Screen):
             Binding(key="b,q,escape",
                     key_display="b",
                     action="app.pop_screen",
-                    description="Back"),
+                    description=" Back"),
             Binding(key="n",
                     key_display="n",
                     action="app.request_apps_cfg",
-                    description="Next"),
+                    description=" Next"),
             Binding(key="ctrl+n",
                     key_display="ctrl+n",
                     action="screen.launch_new_option_modal",
-                    description="add new")
+                    description=" add new")
             ]
 
     def __init__(self, config: dict) -> None:

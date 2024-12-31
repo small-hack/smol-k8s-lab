@@ -338,49 +338,49 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
-  collabora_online:
-    enabled: false
-    description: |
-      [link=https://www.collaboraonline.com/]Collabora Online[/link] is a powerful online document editing suite which you can integrate into your own infrastructure or access via one of our trusted hosting partners.
+  # collabora_online:
+  #   enabled: false
+  #   description: |
+  #     [link=https://www.collaboraonline.com/]Collabora Online[/link] is a powerful online document editing suite which you can integrate into your own infrastructure or access via one of our trusted hosting partners.
 
-      You can use this app to deploy collabora online separately from nextcloud,
-      or you can deploy it as part of the nextcloud app of apps. If deploying as part
-      of nextcloud, leave this app disabled.
+  #     You can use this app to deploy collabora online separately from nextcloud,
+  #     or you can deploy it as part of the nextcloud app of apps. If deploying as part
+  #     of nextcloud, leave this app disabled.
 
-      you can set an optional admin password with this variable:
-        - COLLABORA_ONLINE_PASSWORD
-    # Initialization of the app through smol-k8s-lab
-    init:
-      enabled: false
-      values:
-        admin_user: admin
-        password:
-          value_from:
-            # you can change this to any env var
-            env: COLLABORA_ONLINE_PASSWORD
-    argo:
-      # git repo to install the Argo CD app from
-      repo: https://github.com/small-hack/argocd-apps
-      # path in the argo repo to point to. Trailing slash very important!
-      path: collabora_online/app_of_apps/
-      # either the branch or tag to point at in the argo repo above
-      revision: main
-      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
-      cluster: https://kubernetes.default.svc
-      # namespace to install the k8s app in
-      namespace: collabora-online
-      # recurse directories in the provided git repo
-      directory_recursion: false
-      # secret keys to provide for the Argo CD Appset secret plugin, none by default
-      secret_keys: {}
-      # source repos for Argo CD App Project (in addition to app.argo.repo)
-      project:
-        name: collabora-online
-        source_repos:
-          - https://collaboraonline.github.io/online
-        destination:
-          # automatically includes the app's namespace and argocd's namespace
-          namespaces: []
+  #     you can set an optional admin password with this variable:
+  #       - COLLABORA_ONLINE_PASSWORD
+  #   # Initialization of the app through smol-k8s-lab
+  #   init:
+  #     enabled: false
+  #     values:
+  #       admin_user: admin
+  #       password:
+  #         value_from:
+  #           # you can change this to any env var
+  #           env: COLLABORA_ONLINE_PASSWORD
+  #   argo:
+  #     # git repo to install the Argo CD app from
+  #     repo: https://github.com/small-hack/argocd-apps
+  #     # path in the argo repo to point to. Trailing slash very important!
+  #     path: collabora_online/app_of_apps/
+  #     # either the branch or tag to point at in the argo repo above
+  #     revision: main
+  #     # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+  #     cluster: https://kubernetes.default.svc
+  #     # namespace to install the k8s app in
+  #     namespace: collabora-online
+  #     # recurse directories in the provided git repo
+  #     directory_recursion: false
+  #     # secret keys to provide for the Argo CD Appset secret plugin, none by default
+  #     secret_keys: {}
+  #     # source repos for Argo CD App Project (in addition to app.argo.repo)
+  #     project:
+  #       name: collabora-online
+  #       source_repos:
+  #         - https://collaboraonline.github.io/online
+  #       destination:
+  #         # automatically includes the app's namespace and argocd's namespace
+  #         namespaces: []
 
   external_secrets_operator:
     enabled: true
@@ -484,6 +484,114 @@ apps:
         destination:
           namespaces:
             - kube-system
+
+  gotosocial:
+    description: |
+       [link=https://gotosocial.org]gotosocial[/link] is an open source self hosted social media network.
+
+       smol-k8s-lab supports initializing gotosocial, by setting up your hostname, SMTP credentials, OIDC credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
+
+       smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set gotosocial.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
+
+       To provide sensitive values via environment variables to smol-k8s-lab use:
+         - GOTOSOCIAL_SMTP_PASSWORD
+         - GOTOSOCIAL_S3_BACKUP_ACCESS_ID
+         - GOTOSOCIAL_S3_BACKUP_SECRET_KEY
+         - GOTOSOCIAL_RESTIC_REPO_PASSWORD
+    enabled: false
+    init:
+      enabled: true
+      restore:
+        enabled: false
+        cnpg_restore: true
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
+          # restic snapshot id for the gotosocial pvc to restore
+          gotosocial: latest
+      values:
+        # admin user
+        admin_user: "gotosocialadmin"
+        # admin user's email
+        admin_email: ""
+        # mail server to send verification and notification emails
+        smtp_host: "change@me-to-enable.mail"
+        # mail server port to send verification and notification emails
+        smtp_port: "25"
+        # mail user for smtp host
+        smtp_user: "change me to enable mail"
+        smtp_password:
+          value_from:
+            env: GOTOSOCIAL_SMTP_PASSWORD
+    backups:
+      # cronjob syntax schedule to run gotosocial pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for gotosocial postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the backup shows as completed before
+      # it actually is
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: s3.eu-central-003.backblazeb2.com
+        bucket: my-gotosocial-backups
+        region: eu-central-003
+        secret_access_key:
+          value_from:
+            env: GOTOSOCIAL_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          value_from:
+            env: GOTOSOCIAL_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        value_from:
+          env: GOTOSOCIAL_RESTIC_REPO_PASSWORD
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        # admin user for your gotosocial instance
+        admin_user: gotosocialadmin
+        # hostname that users go to in the browser
+        hostname: ""
+        # set the local s3 provider for gotosocial's public data in one bucket
+        # and private database backups in another. can be minio or seaweedfs
+        s3_provider: seaweedfs
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 120Gi
+        # local s3 endpoint for postgresql backups, backed up constantly
+        s3_endpoint: ""
+        # optional region where your s3 bucket lives
+        s3_region: eu-west-1
+        # access mode the gotosocial pvc
+        access_mode: ReadWriteOnce
+        # amount of storage for the gotosocial pvc
+        storage: 10Gi
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: gotosocial/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
+      # namespace to install the k8s app in
+      namespace: gotosocial
+      # recurse directories in the git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: gotosocial
+        # depending on if you use seaweedfs or minio, you can remove the other source repo
+        source_repos:
+          - registry-1.docker.io
+          - https://small-hack.github.io/cloudnative-pg-cluster-chart
+          - https://operator.min.io/
+          - https://seaweedfs.github.io/seaweedfs/helm
+          - https://charts.fsociety.social
+          # can be removed after existing Secret PRs are merged
+          - https://github.com/jessebot/charts-1
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
 
   home_assistant:
     enabled: false
@@ -888,7 +996,7 @@ apps:
     init:
       enabled: true
       restore:
-        enabled: true
+        enabled: false
         cnpg_restore: true
         restic_snapshot_ids:
           # seaweedfs_master: latest
@@ -1008,7 +1116,7 @@ apps:
         # set to true to run a restic restore via a k8up job for your
         # seaweedfs PVCs, matrix signing key PVC, synapse config PVC, media PVC
         # and restoring your postgresql database
-        enabled: true
+        enabled: false
         # for Cloudnative postgres operator cluster restores only
         cnpg_restore: true
         # the restic snapshot IDs of the PVC snapshots you want to restore
@@ -1672,7 +1780,7 @@ apps:
       values:
         root_user: admin
       restore:
-        enabled: true
+        enabled: false
         restic_snapshot_ids:
           # seaweedfs_master: latest
           seaweedfs_volume: latest
@@ -1860,7 +1968,7 @@ apps:
       restore:
         # set to true to run a restic restore via a k8up job for seaweedfs PVCs,
         # and restoring your postgresql database
-        enabled: true
+        enabled: false
         # for Cloudnative postgres operator cluster restores only
         cnpg_restore: true
         # the restic snapshot IDs of the PVC snapshots you want to restore

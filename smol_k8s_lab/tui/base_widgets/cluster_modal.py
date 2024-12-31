@@ -28,10 +28,10 @@ class ClusterModalScreen(ModalScreen):
             Binding(key="b,escape,q",
                     key_display="b",
                     action="cancel_button",
-                    description="Back"),
+                    description=" Back"),
             Binding(key="f5",
                     key_display="f5",
-                    description="Speak",
+                    description=" Speak",
                     action="app.speak_element",
                     show=True)
             ]

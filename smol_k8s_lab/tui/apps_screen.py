@@ -35,15 +35,15 @@ class AppsConfigScreen(Screen):
             Binding(key="b,escape,q",
                     key_display="b",
                     action="app.pop_screen",
-                    description="Back"),
+                    description=" Back"),
             Binding(key="a",
                     key_display="a",
                     action="screen.launch_new_app_modal",
-                    description="New App"),
+                    description=" New App"),
             Binding(key="n",
                     key_display="n",
                     action="screen.try_next_screen",
-                    description="Next")
+                    description=" Next")
             ]
 
     ToggleButton.BUTTON_INNER = '♥'
@@ -92,10 +92,11 @@ class AppsConfigScreen(Screen):
                 'collabora': {},
                 'collabora_online': {},
                 'cert_manager': {},
-                'nextcloud': {},
+                'gotosocial': {},
                 'home_assistant': {},
                 'matrix': {},
                 'mastodon': {},
+                'nextcloud': {},
                 'postgres_operator': {},
                 'zitadel': {}
                 }
