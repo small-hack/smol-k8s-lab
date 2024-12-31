@@ -6,12 +6,6 @@ We are mostly stable for running GoToSocial on Kubernetes. Check out our [GoToSo
 <img src="../../assets/images/screenshots/gotosocial_screenshot.png" alt="screenshot of the gotosocial applicationset in Argo CD's web interface using the tree mode view. the main gotosocial app has 6 child apps: gotosocial-app-set with child gotosocial-web-app, gotosocial-external-secrets-appset with child gotosocial-external-secrets, gotosocial-postgres-app-set with child gotosocial-postgres-cluster, gotosocial-s3-provider-app-set with child gotosocial-seaweedfs, and gotosocial-s3-pvc-appset with child gotosocial-s3-pvc.">
 </a>
 
-This is the networking view in Argo CD:
-
-<a href="../../assets/images/screenshots/gotosocial_networking_screenshot.png">
-<img src="../../assets/images/screenshots/gotosocial_networking_screenshot.png" alt="screenshot of the gotosocial applicationset in Argo CD's web interface using the networking tree mode view. it shows the flow of cloud to ip address to gotosocial-web-app ingress to two services gotosocial-web-app-streaming and gotosocial-web-app-web which each go to their respective pods. There's also additional services and pods outside of that flow. pods masotdon-web-app-media and masotdon-web-app-sidekiq have no children. 2 elastic search services have the same elastic search pod child. and then there's an additional 3 matching elastic search service and pod pairs">
-</a>
-
 ## Required Init Values
 
 To use the default `smol-k8s-lab` Argo CD Application, you'll need to provide one time init values for:
@@ -53,7 +47,7 @@ apps:
     description: |
        [link=https://gotosocial.org]gotosocial[/link] is an open source self hosted social media network.
 
-       smol-k8s-lab supports initializing gotosocial, by setting up your hostname, SMTP credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing gotosocial, by setting up your hostname, SMTP credentials, postgresql credentials, OIDC Credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set gotosocial.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 

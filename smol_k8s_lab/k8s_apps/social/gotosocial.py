@@ -149,8 +149,8 @@ def configure_gotosocial(argocd: ArgoCD,
                     'gotosocial-pgsql-credentials',
                     'gotosocial',
                     {"password": gotosocial_pgsql_password,
-                     'postrgesPassword': gotosocial_pgsql_password}
-                     'username': "gotosocial")
+                     'postrgesPassword': gotosocial_pgsql_password,
+                     'username': "gotosocial"})
 
             # valkey creds k8s secret
             gotosocial_valkey_password = create_password()
@@ -160,15 +160,15 @@ def configure_gotosocial(argocd: ArgoCD,
     if not app_installed:
         if restore_enabled:
             restore_gotosocial(argocd,
-                             gotosocial_hostname,
-                             gotosocial_namespace,
-                             cfg['argo'],
-                             secrets,
-                             restore_dict,
-                             backup_vals,
-                             pvc_storage_class,
-                             'gotosocial-postgres',
-                             bitwarden)
+                               gotosocial_hostname,
+                               gotosocial_namespace,
+                               cfg['argo'],
+                               secrets,
+                               restore_dict,
+                               backup_vals,
+                               pvc_storage_class,
+                               'gotosocial-postgres',
+                               bitwarden)
 
         if not init_enabled:
             argocd.install_app('gotosocial', cfg['argo'])
