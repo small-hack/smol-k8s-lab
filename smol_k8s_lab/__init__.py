@@ -321,6 +321,7 @@ def main(config: str = "",
                 apps.pop('mastodon', {}),
                 apps.pop('gotosocial', {}),
                 apps.pop('matrix', {}),
+                apps.pop('peertube', {}),
                 pvc_storage_class,
                 zitadel_hostname,
                 oidc_obj,
@@ -388,6 +389,16 @@ def main(config: str = "",
         if mastodon_hostname:
             final_msg += ("\n🐘 Mastodon, for your social media:\n"
                           f"[blue][link]https://{mastodon_hostname}[/][/]\n")
+
+        gotosocial_hostname = SECRETS.get('gotosocial_hostname', "")
+        if gotosocial_hostname:
+            final_msg += ("\n🦥 GoToSocial, for your lightweight social media:\n"
+                          f"[blue][link]https://{gotosocial_hostname}[/][/]\n")
+
+        peertube_hostname = SECRETS.get('peertube_hostname', "")
+        if peertube_hostname:
+            final_msg += ("\n🐙 PeerTube, for your video hosting:\n"
+                          f"[blue][link]https://{peertube_hostname}[/][/]\n")
 
         matrix_hostname = SECRETS.get('matrix_element_hostname', "")
         if matrix_hostname:
