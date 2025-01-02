@@ -272,7 +272,7 @@ def setup_federated_apps(argocd: ArgoCD,
 
     # federated video hosting - similar to youtube
     if peertube_dict.get('enabled', False):
-        configure_mastodon(argocd,
+        configure_peertube(argocd,
                            peertube_dict,
                            pvc_storage_class,
                            bw)

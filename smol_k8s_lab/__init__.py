@@ -29,6 +29,7 @@ from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
 from .k8s_apps.social.libre_translate import configure_libretranslate
+from .k8s_apps.valkey import configure_valkey
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
@@ -328,6 +329,13 @@ def main(config: str = "",
                 libretranslate_api_key,
                 bw
                 )
+
+        # stand alone valkey
+        if apps.get('valkey'):
+            configure_valkey(argocd, apps.pop('valkey'), bw)
+
+        if apps.get('valkey_cluster'):
+            configure_valkey(argocd, apps.pop('valkey_cluster'), bw)
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
