@@ -108,6 +108,8 @@ nav:
     - Nextcloud: k8s_apps/nextcloud.md
     - SeaweedFS: k8s_apps/seaweedfs.md
     - Prometheus: k8s_apps/prometheus.md
+    - Valkey: k8s_apps/valkey.md
+    - Valkey Cluster: k8s_apps/valkey_cluster.md
     - Vouch: k8s_apps/vouch.md
     - Zitadel: k8s_apps/zitadel.md
   - Supported Distros:
