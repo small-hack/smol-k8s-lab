@@ -80,10 +80,6 @@ apps:
         admin_user: "tootadmin"
         # admin user's email
         admin_email: ""
-        # api key for peertube to do translations through libretranslate
-        libretranslate_api_key:
-          value_from:
-            env: PEERTUBE_LIBRETRANSLATE_API_KEY
         # mail server to send verification and notification emails
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
@@ -122,8 +118,6 @@ apps:
         admin_user: tootadmin
         # hostname that users go to in the browser
         hostname: ""
-        # endpoint for libretranslate translations
-        libretranslate_hostname: ""
         # set the local s3 provider for peertube's public data in one bucket
         # and private database backups in another. can be minio or seaweedfs
         s3_provider: seaweedfs
