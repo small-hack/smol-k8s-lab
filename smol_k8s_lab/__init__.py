@@ -29,6 +29,7 @@ from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
 from .k8s_apps.social.libre_translate import configure_libretranslate
+from .k8s_apps.valkey import configure_valkey
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
@@ -321,12 +322,20 @@ def main(config: str = "",
                 apps.pop('mastodon', {}),
                 apps.pop('gotosocial', {}),
                 apps.pop('matrix', {}),
+                apps.pop('peertube', {}),
                 pvc_storage_class,
                 zitadel_hostname,
                 oidc_obj,
                 libretranslate_api_key,
                 bw
                 )
+
+        # stand alone valkey
+        if apps.get('valkey'):
+            configure_valkey(argocd, apps.pop('valkey'), bw)
+
+        if apps.get('valkey_cluster'):
+            configure_valkey(argocd, apps.pop('valkey_cluster'), bw)
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
@@ -388,6 +397,16 @@ def main(config: str = "",
         if mastodon_hostname:
             final_msg += ("\n🐘 Mastodon, for your social media:\n"
                           f"[blue][link]https://{mastodon_hostname}[/][/]\n")
+
+        gotosocial_hostname = SECRETS.get('gotosocial_hostname', "")
+        if gotosocial_hostname:
+            final_msg += ("\n🦥 GoToSocial, for your lightweight social media:\n"
+                          f"[blue][link]https://{gotosocial_hostname}[/][/]\n")
+
+        peertube_hostname = SECRETS.get('peertube_hostname', "")
+        if peertube_hostname:
+            final_msg += ("\n🐙 PeerTube, for your video hosting:\n"
+                          f"[blue][link]https://{peertube_hostname}[/][/]\n")
 
         matrix_hostname = SECRETS.get('matrix_element_hostname', "")
         if matrix_hostname:
