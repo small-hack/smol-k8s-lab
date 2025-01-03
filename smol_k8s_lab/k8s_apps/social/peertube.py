@@ -64,6 +64,9 @@ def configure_peertube(argocd: ArgoCD,
         # declare custom values for peertube
         init_values = init.get('values', None)
 
+        # admin user's email
+        peertube_admin_email = init_values.get('admin_email', '')
+
         # backups are their own config.yaml section
         backup_vals = process_backup_vals(cfg.get('backups', {}), 'peertube', argocd)
 
@@ -72,12 +75,13 @@ def configure_peertube(argocd: ArgoCD,
 
         if not restore_enabled:
             # configure the admin user credentials
-            peertube_admin_username = init_values.get('admin_user', 'tootadmin')
+            # peertube_admin_username = init_values.get('admin_user', 'peeradmin')
             peertube_admin_email = init_values.get('admin_email', '')
 
             # configure the smtp credentials
             mail_user = init_values.get('smtp_user', '')
             mail_host = init_values.get('smtp_host', '')
+            mail_port = init_values.get('smtp_port', '')
             mail_pass = extract_secret(init_values.get('smtp_password'))
 
             # configure s3 credentials
@@ -100,18 +104,25 @@ def configure_peertube(argocd: ArgoCD,
                                   backup_vals['s3_user'],
                                   backup_vals['s3_password'],
                                   backup_vals['restic_repo_pass'],
-                                  peertube_admin_username,
+                                  peertube_admin_email,
                                   mail_host,
                                   mail_user,
                                   mail_pass,
+                                  mail_port,
                                   bitwarden)
 
         # these are standard k8s secrets yaml
         elif not bitwarden and not restore_enabled:
             # admin creds k8s secret
-            # k8s_obj.create_secret('peertube-admin-credentials', 'peertube',
-            #               {"username": username,
-            #                "email": email})
+            peertube_admin_password = create_password()
+            argocd.k8s.create_secret(
+                    'peertube-admin-credentials',
+                    'peertube',
+                    {
+                       "password": peertube_admin_password,
+                       "email": peertube_admin_email
+                    }
+            )
 
             # postgres creds k8s secret
             peertube_pgsql_password = create_password()
@@ -150,19 +161,10 @@ def configure_peertube(argocd: ArgoCD,
             argocd.sync_app(app='peertube-web-app', sleep_time=4)
             argocd.wait_for_app('peertube-web-app')
 
-            # create admin credentials
-            password = create_user(peertube_admin_username,
-                                   peertube_admin_email,
-                                   cfg['argo']['namespace'])
-            if bitwarden:
-                sub_header("Creating secrets in Bitwarden")
-                bitwarden.create_login(
-                        name='peertube-admin-credentials',
-                        item_url=peertube_hostname,
-                        user=peertube_admin_username,
-                        password=password,
-                        fields=[create_custom_field("email", peertube_admin_email)]
-                        )
+            # create admin credentials, maybe not needed
+            # password = create_user(peertube_admin_username,
+            #                        peertube_admin_email,
+            #                        cfg['argo']['namespace'])
     else:
         log.info("peertube already installed 🎉")
 
@@ -209,10 +211,6 @@ def refresh_bweso(argocd: ArgoCD,
     log.debug("Making sure peertube Bitwarden item IDs are in appset "
               "secret plugin secret")
 
-    # admin_id = bitwarden.get_item(
-    #         f"peertube-admin-credentials-{peertube_hostname}"
-    #         )[0]['id']
-
     db_id = bitwarden.get_item(
             f"peertube-pgsql-credentials-{peertube_hostname}"
             )[0]['id']
@@ -249,9 +247,13 @@ def refresh_bweso(argocd: ArgoCD,
             f"peertube-secret-{peertube_hostname}", False
             )[0]['id']
 
-    # {'peertube_admin_credentials_bitwarden_id': admin_id,
+    admin_id = bitwarden.get_item(
+            f"peertube-admin-credentials-{peertube_hostname}", False
+            )[0]['id']
+
     argocd.update_appset_secret(
             {'peertube_smtp_credentials_bitwarden_id': smtp_id,
+             'peertube_admin_credentials_bitwarden_id': admin_id,
              'peertube_postgres_credentials_bitwarden_id': db_id,
              'peertube_valkey_bitwarden_id': valkey_id,
              'peertube_s3_admin_credentials_bitwarden_id': s3_admin_id,
@@ -271,10 +273,11 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           backups_s3_user: str,
                           backups_s3_password: str,
                           restic_repo_pass: str,
-                          admin_user: str,
+                          admin_email: str,
                           mail_host: str,
                           mail_user: str,
                           mail_pass: str,
+                          mail_port: str,
                           bitwarden: BwCLI) -> None:
     # S3 credentials
     # endpoint that gets put into the secret should probably have http in it
@@ -358,12 +361,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # SMTP credentials
     peertube_smtp_host_obj = create_custom_field("smtpHostname", mail_host)
+    peertube_smtp_port_obj = create_custom_field("smtpPort", mail_port)
     smtp_id = bitwarden.create_login(
             name='peertube-smtp-credentials',
             item_url=peertube_hostname,
             user=mail_user,
             password=mail_pass,
-            fields=[peertube_smtp_host_obj]
+            fields=[peertube_smtp_host_obj, peertube_smtp_port_obj]
             )
 
     # peertube random secret
@@ -375,10 +379,18 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=peertube_secret
             )
 
+    password = create_password()
+    admin_id = bitwarden.create_login(
+            name='peertube-admin-credentials',
+            item_url=peertube_hostname,
+            user=admin_email,
+            password=password
+            )
+
     # update the peertube values for the argocd appset
-    # 'peertube_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
             {'peertube_smtp_credentials_bitwarden_id': smtp_id,
+             'peertube_admin_credentials_bitwarden_id': admin_id,
              'peertube_postgres_credentials_bitwarden_id': db_id,
              'peertube_valkey_bitwarden_id': valkey_id,
              'peertube_s3_admin_credentials_bitwarden_id': s3_admin_id,

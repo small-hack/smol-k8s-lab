@@ -20,6 +20,7 @@ To use the default `smol-k8s-lab` Argo CD Application, you'll need to provide on
 - `admin_email`
 - `smtp_user`
 - `smtp_host`
+- `smtp_port`
 
 ## Required ApplicationSet Values
 
@@ -54,7 +55,7 @@ apps:
     description: |
        [link=https://joinpeertube.org/]PeerTube[/link] is an open source self hosted video hosting platform, similar to YouTube.
 
-       smol-k8s-lab supports initializing peertube, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing peertube, by setting up your hostname, admin credentials, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set peertube.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 
@@ -63,6 +64,7 @@ apps:
          - PEERTUBE_S3_BACKUP_ACCESS_ID
          - PEERTUBE_S3_BACKUP_SECRET_KEY
          - PEERTUBE_RESTIC_REPO_PASSWORD
+         - PEERTUBE_ADMIN_PASSWORD
     enabled: false
     init:
       enabled: true
@@ -81,7 +83,9 @@ apps:
         # admin user's email
         admin_email: ""
         # mail server to send verification and notification emails
-        smtp_host: "change@me-to-enable.mail"
+        smtp_host: "change-me-to-enable.mail"
+        # mail server port to send verification and notification emails
+        smtp_port: "465"
         # mail user for smtp host
         smtp_user: "change me to enable mail"
         smtp_password:
