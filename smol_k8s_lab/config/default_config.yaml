@@ -1657,6 +1657,8 @@ apps:
         smtp_port: '25'
         # admin user for your peertube instance
         admin_user: tootadmin
+        # admin user's email
+        admin_email: ""
         # hostname that users go to in the browser
         hostname: ""
         # set the local s3 provider for peertube's public data in one bucket
