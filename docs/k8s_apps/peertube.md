@@ -55,7 +55,7 @@ apps:
     description: |
        [link=https://joinpeertube.org/]PeerTube[/link] is an open source self hosted video hosting platform, similar to YouTube.
 
-       smol-k8s-lab supports initializing peertube, by setting up your hostname, admin credentials, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing peertube, by setting up your hostname, SMTP credentials, admin credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set peertube.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 
@@ -79,15 +79,15 @@ apps:
           peertube_valkey_replica: latest
       values:
         # admin user
-        admin_user: "tootadmin"
+        admin_user: "peeradmin"
         # admin user's email
         admin_email: ""
         # mail server to send verification and notification emails
         smtp_host: "change-me-to-enable.mail"
-        # mail server port to send verification and notification emails
-        smtp_port: "465"
         # mail user for smtp host
         smtp_user: "change me to enable mail"
+        # mail user for smtp host
+        smtp_port: "change me to enable mail"
         smtp_password:
           value_from:
             env: PEERTUBE_SMTP_PASSWORD
@@ -116,11 +116,15 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        # smtp port on your mail server
-        smtp_port: '25'
-        # admin user for your peertube instance
-        admin_user: tootadmin
-        # admin user's email
+        # you can delete these if you're not using tolerations/affinity
+        toleration_key: ""
+        toleration_operator: ""
+        toleration_value: ""
+        toleration_effect: ""
+        # these are for node affinity, delete if not in use
+        affinity_key: ""
+        affinity_value: ""
+        # admin email for your peertube instance
         admin_email: ""
         # hostname that users go to in the browser
         hostname: ""
@@ -129,10 +133,8 @@ apps:
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 120Gi
-        # local s3 endpoint for postgresql backups, backed up constantly
         # main local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
-        # s3 bucket endpoint for storing videos (cannot be path based, must be dns)
         # region for s3 endpoint and buckets
         s3_region: eu-west-1
         # s3 bucket for storing orig videos (cannot be path based, must be dns)
@@ -152,6 +154,8 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
+      # you can also use peertube/app_of_apps_with_tolerations/ if you have a
+      # special peertube node you want to apply affinity and tolerations for
       path: peertube/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main

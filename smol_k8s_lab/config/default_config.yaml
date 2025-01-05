@@ -1688,8 +1688,16 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        # admin user for your peertube instance
-        admin_user: tootadmin
+        # you can delete these if you're not using tolerations/affinity
+        toleration_key: ""
+        toleration_operator: ""
+        toleration_value: ""
+        toleration_effect: ""
+        # these are for node affinity, delete if not in use
+        affinity_key: ""
+        affinity_value: ""
+        # admin email for your peertube instance
+        admin_email: ""
         # hostname that users go to in the browser
         hostname: ""
         # set the local s3 provider for peertube's public data in one bucket
@@ -1718,6 +1726,8 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
+      # you can also use peertube/app_of_apps_with_tolerations/ if you have a
+      # special peertube node you want to apply affinity and tolerations for
       path: peertube/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
