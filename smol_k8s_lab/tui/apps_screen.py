@@ -97,6 +97,7 @@ class AppsConfigScreen(Screen):
                 'matrix': {},
                 'mastodon': {},
                 'nextcloud': {},
+                'peertube': {},
                 'postgres_operator': {},
                 'zitadel': {}
                 }

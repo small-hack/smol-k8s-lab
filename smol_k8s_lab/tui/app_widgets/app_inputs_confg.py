@@ -16,7 +16,7 @@ from textual.widgets import (Input, Label, Button, Switch, Static, Collapsible,
                              TabbedContent, TabPane)
 
 RESTOREABLE = ["home_assistant", "matrix", "mastodon", "nextcloud",
-               "seaweedfs", "zitadel"]
+               "seaweedfs", "zitadel", "gotosocial", "peertube"]
 
 
 class AppInputs(Static):
