@@ -267,7 +267,7 @@ def refresh_bweso(argocd: ArgoCD,
             )[0]['id']
 
     secrets_id = bitwarden.get_item(
-            f"peertube-secret-{peertube_hostname}", False
+            f"peertube-server-secret-{peertube_hostname}", False
             )[0]['id']
 
     admin_id = bitwarden.get_item(
@@ -283,7 +283,6 @@ def refresh_bweso(argocd: ArgoCD,
              'peertube_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'peertube_s3_peertube_credentials_bitwarden_id': s3_id,
              'peertube_s3_backups_credentials_bitwarden_id': s3_backups_id,
-             'peertube_elasticsearch_credentials_bitwarden_id': elastic_id,
              'peertube_secret_bitwarden_id': secrets_id}
             )
 
