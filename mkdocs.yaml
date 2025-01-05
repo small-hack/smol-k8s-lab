@@ -104,10 +104,12 @@ nav:
     - Mastodon: k8s_apps/mastodon.md
     - Matrix: k8s_apps/matrix.md
     - MetalLB: k8s_apps/metallb.md
+    - NVIDIA Device Plugin: k8s_apps/nvidia_device_plugin.md
     - Netmaker: k8s_apps/netmaker.md
     - Nextcloud: k8s_apps/nextcloud.md
-    - SeaweedFS: k8s_apps/seaweedfs.md
+    - PeerTube: k8s_apps/peertube.md
     - Prometheus: k8s_apps/prometheus.md
+    - SeaweedFS: k8s_apps/seaweedfs.md
     - Valkey: k8s_apps/valkey.md
     - Valkey Cluster: k8s_apps/valkey_cluster.md
     - Vouch: k8s_apps/vouch.md
