@@ -133,11 +133,16 @@ apps:
         # main local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         # s3 bucket endpoint for storing videos (cannot be path based, must be dns)
-        s3_video_endpoint: ""
-        # s3 bucket endpoint for storing user data (cannot be path based, must be dns)
-        s3_user_endpoint: ""
         # region for s3 endpoint and buckets
         s3_region: eu-west-1
+        # s3 bucket for storing orig videos (cannot be path based, must be dns)
+        s3_orig_video_bucket: ""
+        # s3 bucket for storing web videos (cannot be path based, must be dns)
+        s3_web_video_bucket: ""
+        # s3 bucket for storing streaming playlists (cannot be path based, must be dns)
+        s3_streaming_bucket: ""
+        # s3 bucket for storing user exports (cannot be path based, must be dns)
+        s3_user_exports_bucket: ""
         # enable persistence for valkey - recommended
         valkey_pvc_enabled: 'true'
         # size of valkey pvc storage
