@@ -100,8 +100,10 @@ def configure_peertube(argocd: ArgoCD,
         s3_endpoint = secrets.get('s3_endpoint', "")
 
         # s3 endpoints for video and user buckets
-        video_s3_endpoint = secrets.get('s3_video_endpoint', "")
-        user_s3_endpoint = secrets.get('s3_user_endpoint', "")
+        streaming_bucket = secrets.get('s3_streaming_bucket', "")
+        orig_video_bucket = secrets.get('s3_orig_video_bucket', "")
+        web_video_bucket = secrets.get('s3_web_video_bucket', "")
+        user_exports_bucket = secrets.get('s3_user_exports_bucket', "")
 
         log.debug(f"peertube s3_endpoint at the start is: {s3_endpoint}")
 
@@ -112,30 +114,18 @@ def configure_peertube(argocd: ArgoCD,
                                access_key=s3_access_id,
                                secret_key=s3_access_key)
 
-            # create a local alias to check and make sure peertube's video s3
-            # storage feature is functional
-            create_minio_alias(video_s3_access_id,
-                               s3_endpoint,
-                               video_s3_access_id,
-                               video_s3_access_key)
-
-            # create a local alias to check and make sure peertube's user s3
-            # storage feature is functional
-            create_minio_alias(user_s3_access_id,
-                               s3_endpoint,
-                               user_s3_access_id,
-                               user_s3_access_key)
-
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
                                   peertube_hostname,
                                   s3_endpoint,
                                   s3_access_id,
                                   s3_access_key,
-                                  user_s3_endpoint,
+                                  user_exports_bucket,
+                                  orig_video_bucket,
+                                  web_video_bucket,
+                                  streaming_bucket,
                                   user_s3_access_id,
                                   user_s3_access_key,
-                                  video_s3_endpoint,
                                   video_s3_access_id,
                                   video_s3_access_key,
                                   backup_vals['s3_user'],
@@ -252,10 +242,6 @@ def refresh_bweso(argocd: ArgoCD,
             f"peertube-pgsql-credentials-{peertube_hostname}"
             )[0]['id']
 
-    elastic_id = bitwarden.get_item(
-            f"peertube-elasticsearch-credentials-{peertube_hostname}", False
-            )[0]['id']
-
     valkey_id = bitwarden.get_item(
             f"peertube-valkey-credentials-{peertube_hostname}", False
             )[0]['id']
@@ -307,10 +293,12 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           s3_endpoint: str,
                           s3_access_id: str,
                           s3_access_key: str,
-                          user_s3_endpoint: str,
+                          user_exports_bucket: str,
+                          orig_video_bucket: str,
+                          web_video_bucket: str,
+                          streaming_bucket: str,
                           user_s3_access_id: str,
                           user_s3_access_key: str,
-                          video_s3_endpoint: str,
                           video_s3_access_id: str,
                           video_s3_access_key: str,
                           backups_s3_user: str,
@@ -337,10 +325,12 @@ def setup_bitwarden_items(argocd: ArgoCD,
                                                s3_endpoint.replace("https://",
                                                                    ""))
     peertube_s3_bucket_obj = create_custom_field("s3Bucket", "peertube")
-    user_s3_endpoint_obj = create_custom_field("s3PeertubeUserEndpoint", user_s3_endpoint)
+    user_s3_bucket_obj = create_custom_field("userExportBucket", user_exports_bucket)
+    web_video_s3_bucket_obj = create_custom_field("webVideoBucket", web_video_bucket)
+    orig_video_s3_bucket_obj = create_custom_field("origVideoBucket", orig_video_bucket)
+    streaming_s3_bucket_obj = create_custom_field("streamingBucket", streaming_bucket)
     user_s3_access_id_obj = create_custom_field("s3PeertubeUserAccessID", user_s3_access_id)
     user_s3_access_key_obj = create_custom_field("s3PeertubeUserAccessKey", user_s3_access_key)
-    video_s3_endpoint_obj = create_custom_field("s3PeertubevideoEndpoint", video_s3_endpoint)
     video_s3_access_id_obj = create_custom_field("s3PeertubevideoAccessID", video_s3_access_id)
     video_s3_access_key_obj = create_custom_field("s3PeertubevideoAccessKey", video_s3_access_key)
     s3_id = bitwarden.create_login(
@@ -352,12 +342,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 peertube_s3_endpoint_obj,
                 peertube_s3_host_obj,
                 peertube_s3_bucket_obj,
-                user_s3_endpoint_obj,
                 user_s3_access_id_obj,
                 user_s3_access_key_obj,
-                video_s3_endpoint_obj,
                 video_s3_access_id_obj,
-                video_s3_access_key_obj
+                video_s3_access_key_obj,
+                user_s3_bucket_obj,
+                web_video_s3_bucket_obj,
+                orig_video_s3_bucket_obj,
+                streaming_s3_bucket_obj
                 ]
             )
 
@@ -447,7 +439,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'peertube_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'peertube_s3_peertube_credentials_bitwarden_id': s3_id,
              'peertube_s3_backups_credentials_bitwarden_id': s3_backups_id,
-             'peertube_elasticsearch_credentials_bitwarden_id': elastic_id,
              'peertube_secret_bitwarden_id': secrets_id})
 
     # reload the bitwarden ESO provider
