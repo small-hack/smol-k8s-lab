@@ -330,8 +330,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
     streaming_s3_bucket_obj = create_custom_field("streamingBucket", streaming_bucket)
     user_s3_access_id_obj = create_custom_field("s3PeertubeUserAccessID", user_s3_access_id)
     user_s3_access_key_obj = create_custom_field("s3PeertubeUserAccessKey", user_s3_access_key)
-    video_s3_access_id_obj = create_custom_field("s3PeertubevideoAccessID", video_s3_access_id)
-    video_s3_access_key_obj = create_custom_field("s3PeertubevideoAccessKey", video_s3_access_key)
+    video_s3_access_id_obj = create_custom_field("s3PeertubeVideoAccessID", video_s3_access_id)
+    video_s3_access_key_obj = create_custom_field("s3PeertubeVideoAccessKey", video_s3_access_key)
     s3_id = bitwarden.create_login(
             name='peertube-user-s3-credentials',
             item_url=peertube_hostname,
