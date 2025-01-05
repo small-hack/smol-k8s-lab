@@ -130,7 +130,13 @@ apps:
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 120Gi
         # local s3 endpoint for postgresql backups, backed up constantly
+        # main local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
+        # s3 bucket endpoint for storing videos (cannot be path based, must be dns)
+        s3_video_endpoint: ""
+        # s3 bucket endpoint for storing user data (cannot be path based, must be dns)
+        s3_user_endpoint: ""
+        # region for s3 endpoint and buckets
         s3_region: eu-west-1
         # enable persistence for valkey - recommended
         valkey_pvc_enabled: 'true'

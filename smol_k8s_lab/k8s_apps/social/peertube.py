@@ -91,14 +91,18 @@ def configure_peertube(argocd: ArgoCD,
             # configure s3 video credentials
             video_s3_access_id = 'peertube-video'
             video_s3_access_key = create_password()
-            video_s3_endpoint = secrets.get('s3_video_endpoint', "")
 
             # configure s3 video credentials
             user_s3_access_id = 'peertube-user'
             user_s3_access_key = create_password()
-            user_s3_endpoint = secrets.get('s3_user_endpoint', "")
 
+        # main s3 endpoint for postgres
         s3_endpoint = secrets.get('s3_endpoint', "")
+
+        # s3 endpoints for video and user buckets
+        video_s3_endpoint = secrets.get('s3_video_endpoint', "")
+        user_s3_endpoint = secrets.get('s3_user_endpoint', "")
+
         log.debug(f"peertube s3_endpoint at the start is: {s3_endpoint}")
 
         if not restore_enabled:
