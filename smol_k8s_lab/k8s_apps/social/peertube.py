@@ -84,16 +84,43 @@ def configure_peertube(argocd: ArgoCD,
             mail_port = init_values.get('smtp_port', '')
             mail_pass = extract_secret(init_values.get('smtp_password'))
 
-            # configure s3 credentials
+            # configure s3 admin credentials
             s3_access_id = 'peertube'
             s3_access_key = create_password()
+
+            # configure s3 video credentials
+            video_s3_access_id = 'peertube-video'
+            video_s3_access_key = create_password()
+            video_s3_endpoint = secrets.get('s3_video_endpoint', "")
+
+            # configure s3 video credentials
+            user_s3_access_id = 'peertube-user'
+            user_s3_access_key = create_password()
+            user_s3_endpoint = secrets.get('s3_user_endpoint', "")
 
         s3_endpoint = secrets.get('s3_endpoint', "")
         log.debug(f"peertube s3_endpoint at the start is: {s3_endpoint}")
 
         if not restore_enabled:
             # create a local alias to check and make sure peertube is functional
-            create_minio_alias("peertube", s3_endpoint, "peertube", s3_access_key)
+            create_minio_alias(minio_alias=s3_access_id,
+                               minio_hostname=s3_endpoint,
+                               access_key=s3_access_id,
+                               secret_key=s3_access_key)
+
+            # create a local alias to check and make sure peertube's video s3
+            # storage feature is functional
+            create_minio_alias(video_s3_access_id,
+                               s3_endpoint,
+                               video_s3_access_id,
+                               video_s3_access_key)
+
+            # create a local alias to check and make sure peertube's user s3
+            # storage feature is functional
+            create_minio_alias(user_s3_access_id,
+                               s3_endpoint,
+                               user_s3_access_id,
+                               user_s3_access_key)
 
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
@@ -101,6 +128,12 @@ def configure_peertube(argocd: ArgoCD,
                                   s3_endpoint,
                                   s3_access_id,
                                   s3_access_key,
+                                  user_s3_endpoint,
+                                  user_s3_access_id,
+                                  user_s3_access_key,
+                                  video_s3_endpoint,
+                                  video_s3_access_id,
+                                  video_s3_access_key,
                                   backup_vals['s3_user'],
                                   backup_vals['s3_password'],
                                   backup_vals['restic_repo_pass'],
@@ -270,6 +303,12 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           s3_endpoint: str,
                           s3_access_id: str,
                           s3_access_key: str,
+                          user_s3_endpoint: str,
+                          user_s3_access_id: str,
+                          user_s3_access_key: str,
+                          video_s3_endpoint: str,
+                          video_s3_access_id: str,
+                          video_s3_access_key: str,
                           backups_s3_user: str,
                           backups_s3_password: str,
                           restic_repo_pass: str,
@@ -279,6 +318,9 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mail_pass: str,
                           mail_port: str,
                           bitwarden: BwCLI) -> None:
+    """
+    a function to setup all peertube related items in Bitwarden
+    """
     # S3 credentials
     # endpoint that gets put into the secret should probably have http in it
     if "http" not in s3_endpoint:
@@ -291,6 +333,12 @@ def setup_bitwarden_items(argocd: ArgoCD,
                                                s3_endpoint.replace("https://",
                                                                    ""))
     peertube_s3_bucket_obj = create_custom_field("s3Bucket", "peertube")
+    user_s3_endpoint_obj = create_custom_field("s3PeertubeUserEndpoint", user_s3_endpoint)
+    user_s3_access_id_obj = create_custom_field("s3PeertubeUserAccessID", user_s3_access_id)
+    user_s3_access_key_obj = create_custom_field("s3PeertubeUserAccessKey", user_s3_access_key)
+    video_s3_endpoint_obj = create_custom_field("s3PeertubevideoEndpoint", video_s3_endpoint)
+    video_s3_access_id_obj = create_custom_field("s3PeertubevideoAccessID", video_s3_access_id)
+    video_s3_access_key_obj = create_custom_field("s3PeertubevideoAccessKey", video_s3_access_key)
     s3_id = bitwarden.create_login(
             name='peertube-user-s3-credentials',
             item_url=peertube_hostname,
@@ -299,7 +347,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[
                 peertube_s3_endpoint_obj,
                 peertube_s3_host_obj,
-                peertube_s3_bucket_obj
+                peertube_s3_bucket_obj,
+                user_s3_endpoint_obj,
+                user_s3_access_id_obj,
+                user_s3_access_key_obj,
+                video_s3_endpoint_obj,
+                video_s3_access_id_obj,
+                video_s3_access_key_obj
                 ]
             )
 
@@ -327,15 +381,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
             user=backups_s3_user,
             password=backups_s3_password,
             fields=[restic_repo_pass_obj]
-            )
-
-    # elastic search password
-    peertube_elasticsearch_password = bitwarden.generate()
-    elastic_id = bitwarden.create_login(
-            name='peertube-elasticsearch-credentials',
-            item_url=peertube_hostname,
-            user='peertube',
-            password=peertube_elasticsearch_password
             )
 
     # PostgreSQL credentials
@@ -379,6 +424,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=peertube_secret
             )
 
+    # peertube admin credentials
     password = create_password()
     admin_id = bitwarden.create_login(
             name='peertube-admin-credentials',
