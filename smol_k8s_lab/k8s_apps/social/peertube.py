@@ -165,7 +165,8 @@ def configure_peertube(argocd: ArgoCD,
                                      {"password": peertube_valkey_password})
 
             # peertube secret
-            argocd.k8s.create_secret('peertube-secret', 'peertube')
+            argocd.k8s.create_secret('peertube-server-secret', 'peertube',
+                                     {"secret": create_password()})
 
     if not app_installed:
         if restore_enabled:
@@ -413,7 +414,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
     # peertube random secret
     peertube_secret = create_password()
     secrets_id = bitwarden.create_login(
-            name='peertube-server-secrets',
+            name='peertube-server-secret',
             item_url=peertube_hostname,
             user="peertube",
             password=peertube_secret
