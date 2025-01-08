@@ -544,8 +544,11 @@ def restore_peertube(argocd: ArgoCD,
     argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
 
     # then we begin the restic restore of all the peertube PVCs we lost
-    for pvc in ['valkey_primary', 'valkey_replica']:
-        pvc_enabled = secrets.get('valkey_pvc_enabled', 'false')
+    for pvc in ['data', 'valkey_primary', 'valkey_replica']:
+        if 'valkey' in pvc:
+            pvc_enabled = secrets.get('valkey_pvc_enabled', 'false')
+        else:
+            pvc_enabled = secrets.get('data_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
             # restores the peertube pvc
             k8up_restore_pvc(
