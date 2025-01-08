@@ -764,20 +764,20 @@ zh = ["jieba (>=0.42.1)", "pypinyin (>=0.40.0)"]
 
 [[package]]
 name = "coqui-tts-trainer"
-version = "0.2.0"
+version = "0.2.2"
 description = "General purpose model trainer for PyTorch that is more flexible than it should be, by 🐸Coqui."
 optional = false
-python-versions = "<3.13,>=3.9"
+python-versions = "<3.13,>=3.10"
 files = [
-    {file = "coqui_tts_trainer-0.2.0-py3-none-any.whl", hash = "sha256:33573a2504c9411f95693b7b88e8e3123bfcd38bc17ba1d5a3dddfb03662cc4b"},
-    {file = "coqui_tts_trainer-0.2.0.tar.gz", hash = "sha256:4cb894e54b1a87f060ce1fda3c68b115cf5e14ad169a202bd7201891bb1f0dce"},
+    {file = "coqui_tts_trainer-0.2.2-py3-none-any.whl", hash = "sha256:ca9407eec2fe868b8648ff8f5e04617639a94377be3ec98793d0992fb64aa884"},
+    {file = "coqui_tts_trainer-0.2.2.tar.gz", hash = "sha256:f8f1df1538881f9dd4835c6af12e484d7a6a610ec666d5fbb19dd808c93ee7e5"},
 ]
 
 [package.dependencies]
 coqpit-config = ">=0.1.1"
 fsspec = ">=2023.6.0"
 numpy = [
-    {version = ">=1.24.3", markers = "python_version < \"3.12\""},
+    {version = ">=1.25.2", markers = "python_version < \"3.12\""},
     {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
 ]
 packaging = ">=21.0"
@@ -1514,13 +1514,13 @@ files = [
 
 [[package]]
 name = "huggingface-hub"
-version = "0.27.0"
+version = "0.27.1"
 description = "Client library to download and publish models, datasets and other repos on the huggingface.co hub"
 optional = false
 python-versions = ">=3.8.0"
 files = [
-    {file = "huggingface_hub-0.27.0-py3-none-any.whl", hash = "sha256:8f2e834517f1f1ddf1ecc716f91b120d7333011b7485f665a9a412eacb1a2a81"},
-    {file = "huggingface_hub-0.27.0.tar.gz", hash = "sha256:902cce1a1be5739f5589e560198a65a8edcfd3b830b1666f36e4b961f0454fac"},
+    {file = "huggingface_hub-0.27.1-py3-none-any.whl", hash = "sha256:1c5155ca7d60b60c2e2fc38cbb3ffb7f7c3adf48f824015b219af9061771daec"},
+    {file = "huggingface_hub-0.27.1.tar.gz", hash = "sha256:c004463ca870283909d715d20f066ebd6968c2207dae9393fdffb3c1d4d8f98b"},
 ]
 
 [package.dependencies]
@@ -2344,13 +2344,13 @@ files = [
 
 [[package]]
 name = "minio"
-version = "7.2.13"
+version = "7.2.14"
 description = "MinIO Python SDK for Amazon S3 Compatible Cloud Storage"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "minio-7.2.13-py3-none-any.whl", hash = "sha256:ad806be056e6b49510ad27f0782976c0b9d4c16baccd9d75518d97709bd5c105"},
-    {file = "minio-7.2.13.tar.gz", hash = "sha256:0fc878da4c5139138f66d3f00ae898ed74cead854b900420b02cd68cf4be7133"},
+    {file = "minio-7.2.14-py3-none-any.whl", hash = "sha256:868dfe907e1702ce4bec86df1f3ced577a73ca85f344ef898d94fe2b5237f8c1"},
+    {file = "minio-7.2.14.tar.gz", hash = "sha256:f5c24bf236fefd2edc567cd4455dc49a11ad8ff7ac984bb031b849d82f01222a"},
 ]
 
 [package.dependencies]
@@ -3716,13 +3716,13 @@ files = [
 
 [[package]]
 name = "pygments"
-version = "2.19.0"
+version = "2.19.1"
 description = "Pygments is a syntax highlighting package written in Python."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pygments-2.19.0-py3-none-any.whl", hash = "sha256:4755e6e64d22161d5b61432c0600c923c5927214e7c956e31c23923c89251a9b"},
-    {file = "pygments-2.19.0.tar.gz", hash = "sha256:afc4146269910d4bdfabcd27c24923137a74d562a23a320a41a55ad303e19783"},
+    {file = "pygments-2.19.1-py3-none-any.whl", hash = "sha256:9ea1544ad55cecf4b8242fab6dd35a93bbce657034b0611ee383099054ab6d8c"},
+    {file = "pygments-2.19.1.tar.gz", hash = "sha256:61c16d2a8576dc0649d9f39e089b5f02bcd27fba10d8fb4dcc28173f7a45151f"},
 ]
 
 [package.extras]
@@ -3747,13 +3747,13 @@ tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
 
 [[package]]
 name = "pymdown-extensions"
-version = "10.13"
+version = "10.14"
 description = "Extension pack for Python Markdown."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "pymdown_extensions-10.13-py3-none-any.whl", hash = "sha256:80bc33d715eec68e683e04298946d47d78c7739e79d808203df278ee8ef89428"},
-    {file = "pymdown_extensions-10.13.tar.gz", hash = "sha256:e0b351494dc0d8d14a1f52b39b1499a00ef1566b4ba23dc74f1eba75c736f5dd"},
+    {file = "pymdown_extensions-10.14-py3-none-any.whl", hash = "sha256:202481f716cc8250e4be8fce997781ebf7917701b59652458ee47f2401f818b5"},
+    {file = "pymdown_extensions-10.14.tar.gz", hash = "sha256:741bd7c4ff961ba40b7528d32284c53bc436b8b1645e8e37c3e57770b8700a34"},
 ]
 
 [package.dependencies]
@@ -3761,7 +3761,7 @@ markdown = ">=3.6"
 pyyaml = "*"
 
 [package.extras]
-extra = ["pygments (>=2.12)"]
+extra = ["pygments (>=2.19.1)"]
 
 [[package]]
 name = "pyparsing"
@@ -4198,13 +4198,13 @@ pyasn1 = ">=0.1.3"
 
 [[package]]
 name = "ruamel-yaml"
-version = "0.18.9"
+version = "0.18.10"
 description = "ruamel.yaml is a YAML parser/emitter that supports roundtrip preservation of comments, seq/map flow style, and map key order"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "ruamel.yaml-0.18.9-py3-none-any.whl", hash = "sha256:c17d2a7ccf7fd2dd4b6d699111c37e94f12277a1db71e847ad7f3d19b8e3e9f4"},
-    {file = "ruamel.yaml-0.18.9.tar.gz", hash = "sha256:59d0f8b10c658bd55ecd107e334d4117d766a2b9cc8f5176afcdadcff6f84a5e"},
+    {file = "ruamel.yaml-0.18.10-py3-none-any.whl", hash = "sha256:30f22513ab2301b3d2b577adc121c6471f28734d3d9728581245f1e76468b4f1"},
+    {file = "ruamel.yaml-0.18.10.tar.gz", hash = "sha256:20c86ab29ac2153f80a428e1254a8adf686d3383df04490514ca3b79a362db58"},
 ]
 
 [package.dependencies]
@@ -4270,26 +4270,26 @@ files = [
 
 [[package]]
 name = "safetensors"
-version = "0.5.0"
+version = "0.5.1"
 description = ""
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "safetensors-0.5.0-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:c683b9b485bee43422ba2855f72777c37647190281e03da4c8d2a69fa5336558"},
-    {file = "safetensors-0.5.0-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:6106aa835deb7263f7014f74c05842ab828d6c11d789f2e7e98f26b1a305e72d"},
-    {file = "safetensors-0.5.0-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a1349611f74f55c5ee1c1c144c536a2743c38f7d8bf60b9fc8267e0efc0591a2"},
-    {file = "safetensors-0.5.0-cp38-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:56d936028ac799e18644b08a91fd98b4b62ae3dcd0440b1cfcb56535785589f1"},
-    {file = "safetensors-0.5.0-cp38-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:a2f26afada2233576ffea6b80042c2c0a8105c164254af56168ec14299ad3122"},
-    {file = "safetensors-0.5.0-cp38-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:20067e7a5e63f0cbc88457b2a1161e70ff73af4cc3a24bce90309430cd6f6e7e"},
-    {file = "safetensors-0.5.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:649d6a4aa34d5174ae87289068ccc2fec2a1a998ecf83425aa5a42c3eff69bcf"},
-    {file = "safetensors-0.5.0-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:debff88f41d569a3e93a955469f83864e432af35bb34b16f65a9ddf378daa3ae"},
-    {file = "safetensors-0.5.0-cp38-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:bdf6a3e366ea8ba1a0538db6099229e95811194432c684ea28ea7ae28763b8dc"},
-    {file = "safetensors-0.5.0-cp38-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:0371afd84c200a80eb7103bf715108b0c3846132fb82453ae018609a15551580"},
-    {file = "safetensors-0.5.0-cp38-abi3-musllinux_1_2_i686.whl", hash = "sha256:5ec7fc8c3d2f32ebf1c7011bc886b362e53ee0a1ec6d828c39d531fed8b325d6"},
-    {file = "safetensors-0.5.0-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:53715e4ea0ef23c08f004baae0f609a7773de7d4148727760417c6760cfd6b76"},
-    {file = "safetensors-0.5.0-cp38-abi3-win32.whl", hash = "sha256:b85565bc2f0456961a788d2f11d9d892eec46603db0e4923aa9512c2355aa727"},
-    {file = "safetensors-0.5.0-cp38-abi3-win_amd64.whl", hash = "sha256:f451941f8aa11e7be5c3fa450e264609a2b1e65fa38ae590a74e55a94d646b76"},
-    {file = "safetensors-0.5.0.tar.gz", hash = "sha256:c47b34c549fa1e0c655c4644da31332c61332c732c47c8dd9399347e9aac69d1"},
+    {file = "safetensors-0.5.1-cp38-abi3-macosx_10_12_x86_64.whl", hash = "sha256:5480b078590dd37ee1c27f153e1ee9a274b62b30871ee16c412d11341215f305"},
+    {file = "safetensors-0.5.1-cp38-abi3-macosx_11_0_arm64.whl", hash = "sha256:547e9fe8f3c9c50caf07cfcb6d2392f511853f7041821812ba73a05a915e91dd"},
+    {file = "safetensors-0.5.1-cp38-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:2e98f5dbce744a87a8d2cb9147558e80af79cfe31aa4321554e1db0e49d9c957"},
+    {file = "safetensors-0.5.1-cp38-abi3-manylinux_2_17_armv7l.manylinux2014_armv7l.whl", hash = "sha256:c40ef845cca82e365b46e192b7b4952082952d5965c602e030a73155336de89c"},
+    {file = "safetensors-0.5.1-cp38-abi3-manylinux_2_17_ppc64le.manylinux2014_ppc64le.whl", hash = "sha256:3cb212b0cded22fa0e46bca248beecf2fd079f2dffd7cc04e116a8b0128ae601"},
+    {file = "safetensors-0.5.1-cp38-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:4abb7bcf2faba63a0b58a2c6fafab0200726727ab6f579a1155239927a792709"},
+    {file = "safetensors-0.5.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:83a384e49b38c3ae3c02a52437548351af83029dff85fe3d1acd5b2cf06867bb"},
+    {file = "safetensors-0.5.1-cp38-abi3-manylinux_2_5_i686.manylinux1_i686.whl", hash = "sha256:44946151b01083fe5863c20d626f6ed9f1544be80e3bb2177a7ec27f911fdbf8"},
+    {file = "safetensors-0.5.1-cp38-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:168e7a032c944eb5aefaee0d4bf4e15e84dbbf0f2ef86fbe0dc778a68306fff8"},
+    {file = "safetensors-0.5.1-cp38-abi3-musllinux_1_2_armv7l.whl", hash = "sha256:430b7eab6b4139bee8587522f264f7eebbac3e41614b52e35caf90affe7e7972"},
+    {file = "safetensors-0.5.1-cp38-abi3-musllinux_1_2_i686.whl", hash = "sha256:97f548d6e9f86d3326ab8416303f9ae1ded15df126b87db42658c3d89a1040d7"},
+    {file = "safetensors-0.5.1-cp38-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:b021cad4af26677e0d3fbc5c8e2dfc3087ac44a3e0450576cbe0aa165849578c"},
+    {file = "safetensors-0.5.1-cp38-abi3-win32.whl", hash = "sha256:7290f8acdf1e5b5daf6101d6eed506d1f6ad66d08ca9f26235372befba7e2285"},
+    {file = "safetensors-0.5.1-cp38-abi3-win_amd64.whl", hash = "sha256:895f33c8ee55310606a407f45de3468ec0ffe259ba53cc0d4024a64fb58a1fc9"},
+    {file = "safetensors-0.5.1.tar.gz", hash = "sha256:75927919a73b0f34d6943b531d757f724e65797a900d88d8081fe8b4448eadc3"},
 ]
 
 [package.extras]
