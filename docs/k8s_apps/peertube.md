@@ -77,6 +77,7 @@ apps:
           seaweedfs_filer: latest
           peertube_valkey_primary: latest
           peertube_valkey_replica: latest
+          peertube_data: latest
       values:
         # admin user
         admin_user: "peeradmin"
@@ -151,6 +152,12 @@ apps:
         valkey_storage: 3Gi
         valkey_storage_class: local-path
         valkey_access_mode: ReadWriteOnce
+        # enable a pvc for peertube
+        data_pvc_enabled: "true"
+        # size of the pvc for peertube
+        data_storage: "10Gi"
+        # access mode for the peertube storage
+        data_access_mode: "ReadWriteOnce"
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
