@@ -145,7 +145,6 @@ apps:
           - https://operator.min.io/
           - https://seaweedfs.github.io/seaweedfs/helm
           - https://charts.fsociety.social
-          - charts.fsociety.social
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
