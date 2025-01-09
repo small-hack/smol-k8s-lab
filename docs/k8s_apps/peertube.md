@@ -75,8 +75,6 @@ apps:
           # seaweedfs_master: latest
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          peertube_valkey_primary: latest
-          peertube_valkey_replica: latest
           peertube_data: latest
       values:
         # admin user
