@@ -145,8 +145,6 @@ apps:
           - https://operator.min.io/
           - https://seaweedfs.github.io/seaweedfs/helm
           - https://charts.fsociety.social
-          # can be removed after existing Secret PRs are merged
-          - https://github.com/jessebot/charts-1
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
