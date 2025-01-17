@@ -98,6 +98,7 @@ class AppsConfigScreen(Screen):
                 'mastodon': {},
                 'nextcloud': {},
                 'peertube': {},
+                'pixelfed': {},
                 'postgres_operator': {},
                 'zitadel': {}
                 }
