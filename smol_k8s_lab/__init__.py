@@ -323,6 +323,7 @@ def main(config: str = "",
                 apps.pop('gotosocial', {}),
                 apps.pop('matrix', {}),
                 apps.pop('peertube', {}),
+                apps.pop('pixelfed', {}),
                 pvc_storage_class,
                 zitadel_hostname,
                 oidc_obj,
@@ -406,6 +407,11 @@ def main(config: str = "",
         peertube_hostname = SECRETS.get('peertube_hostname', "")
         if peertube_hostname:
             final_msg += ("\n🐙 PeerTube, for your video hosting:\n"
+                          f"[blue][link]https://{peertube_hostname}[/][/]\n")
+
+        peertube_hostname = SECRETS.get('peertube_hostname', "")
+        if peertube_hostname:
+            final_msg += ("\n📷, for your image hosting:\n"
                           f"[blue][link]https://{peertube_hostname}[/][/]\n")
 
         matrix_hostname = SECRETS.get('matrix_element_hostname', "")

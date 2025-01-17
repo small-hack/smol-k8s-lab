@@ -32,6 +32,7 @@ from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
 from .social.peertube import configure_peertube
+from .social.pixelfed import configure_pixelfed
 from ..utils.rich_cli.console_logging import header
 
 
@@ -233,6 +234,7 @@ def setup_federated_apps(argocd: ArgoCD,
                          gotosocial_dict: dict = {},
                          matrix_dict: dict = {},
                          peertube_dict: dict = {},
+                         pixelfed_dict: dict = {},
                          pvc_storage_class: str = "local-path",
                          zitadel_hostname: str = "",
                          zitadel_obj: Zitadel = None,
@@ -274,6 +276,13 @@ def setup_federated_apps(argocd: ArgoCD,
     if peertube_dict.get('enabled', False):
         configure_peertube(argocd,
                            peertube_dict,
+                           pvc_storage_class,
+                           bw)
+
+    # federated image hosting - similar to instagram
+    if pixelfed_dict.get('enabled', False):
+        configure_pixelfed(argocd,
+                           pixelfed_dict,
                            pvc_storage_class,
                            bw)
 

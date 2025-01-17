@@ -50,7 +50,7 @@ def configure_pixelfed(argocd: ArgoCD,
             header_start = "Setting up"
 
     header(f"{header_start} [green]pixelfed[/], so you can self host your videos (like YouTube)",
-           '🐙')
+           '📷')
 
     # get any secrets for this app
     secrets = cfg['argo']['secret_keys']
