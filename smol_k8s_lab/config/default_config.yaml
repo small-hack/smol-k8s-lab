@@ -1621,6 +1621,136 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
+  pixelfed:
+    description: |
+      [link=https://joinpixelfed.org/]pixelfed[/link] is an open source self hosted video hosting platform, similar to YouTube.
+
+      smol-k8s-lab supports initializing pixelfed, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
+
+      smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set pixelfed.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
+
+      To provide sensitive values via environment variables to smol-k8s-lab use:
+        - PIXELFED_SMTP_PASSWORD
+        - PIXELFED_S3_BACKUP_ACCESS_ID
+        - PIXELFED_S3_BACKUP_SECRET_KEY
+        - PIXELFED_RESTIC_REPO_PASSWORD
+
+    enabled: true
+    init:
+      enabled: true
+      restore:
+        enabled: false
+        cnpg_restore: true
+        restic_snapshot_ids:
+          # seaweedfs_master: latest
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
+          # pixelfed_valkey_primary: latest
+          # pixelfed_valkey_replica: latest
+          pixelfed_data: latest
+      values:
+        # admin user's email
+        admin_email: ""
+        # mail (smtp) server to send verification and notification emails
+        smtp_host: ""
+        # port for smtp
+        smtp_port: '465'
+        # user for smtp
+        smtp_user: ""
+        smtp_password:
+          value_from:
+            env: PIXELFED_SMTP_PASSWORD
+    backups:
+      # cronjob syntax schedule to run pixelfed pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for pixelfed postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the backup shows as completed before
+      # it actually is
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: ""
+        bucket: ""
+        region: auto
+        secret_access_key:
+          value_from:
+            env: PIXELFED_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          value_from:
+            env: PIXELFED_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        value_from:
+          env: PIXELFED_RESTIC_REPO_PASSWORD
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        # -- the tag line of the instance
+        description: ""
+        # -- name of the server/instance
+        name: ""
+        # -- address to send email from
+        from_address: ""
+        # allow tolerations if you want to put this on a specific node (group)
+        toleration_key: dedicated
+        toleration_operator: Equal
+        toleration_value: nextcloud
+        toleration_effect: NoSchedule
+        affinity_key: dedicated
+        affinity_value: nextcloud
+        # hostname that users go to in the browser
+        hostname: ""
+        # set the local s3 provider for pixelfed's public data in one bucket
+        # and private database backups in another. can be minio or seaweedfs
+        s3_provider: seaweedfs
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 120Gi
+        # local s3 endpoint for postgresql backups, backed up constantly
+        s3_endpoint: ""
+        # region for s3 endpoint and buckets
+        s3_region: eu-west-1
+        # s3 bucket
+        s3_bucket: ""
+        # enable persistence for valkey - recommended
+        valkey_pvc_enabled: 'true'
+        # size of valkey pvc storage
+        valkey_storage: 3Gi
+        # storage class name for valkey pvc
+        valkey_storage_class: local-path
+        # access mode for valkey pvc
+        valkey_access_mode: ReadWriteOnce
+        # enable a pvc for pixelfed
+        data_pvc_enabled: 'true'
+        # size of the pvc for pixelfed
+        data_storage: 10Gi
+        # access mode for the pixelfed storage
+        data_access_mode: ReadWriteOnce
+      # to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: pixelfed/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
+      # namespace to install the k8s app in
+      namespace: pixelfed
+      # recurse directories in the git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: pixelfed
+        # depending on if you use seaweedfs or minio, you can remove the other source repo
+        source_repos:
+        - registry-1.docker.io
+        - https://small-hack.github.io/cloudnative-pg-cluster-chart
+        - https://operator.min.io/
+        - https://seaweedfs.github.io/seaweedfs/helm
+        - https://small-hack.github.io/pixelfed-chart
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
   peertube:
     description: |
        [link=https://joinpeertube.org/]PeerTube[/link] is an open source self hosted video hosting platform, similar to YouTube.

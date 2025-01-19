@@ -255,6 +255,10 @@ def refresh_bweso(argocd: ArgoCD,
             f"pixelfed-admin-s3-credentials-{pixelfed_hostname}", False
             )[0]['id']
 
+    app_key_id = bitwarden.get_item(
+            f"pixelfed-app-key-{pixelfed_hostname}", False
+            )[0]['id']
+
     s3_db_id = bitwarden.get_item(
             f"pixelfed-postgres-s3-credentials-{pixelfed_hostname}", False
             )[0]['id']
@@ -278,6 +282,7 @@ def refresh_bweso(argocd: ArgoCD,
     argocd.update_appset_secret(
             {'pixelfed_smtp_credentials_bitwarden_id': smtp_id,
              'pixelfed_admin_credentials_bitwarden_id': admin_id,
+             'pixelfed_app_key_bitwarden_id': app_key_id,
              'pixelfed_postgres_credentials_bitwarden_id': db_id,
              'pixelfed_valkey_bitwarden_id': valkey_id,
              'pixelfed_s3_admin_credentials_bitwarden_id': s3_admin_id,
@@ -361,6 +366,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=pgsql_s3_key
             )
 
+    app_key = create_password()
+    app_key_id = bitwarden.create_login(
+            name='pixelfed-app-key',
+            item_url=pixelfed_hostname,
+            user="pixelfed",
+            password=app_key
+            )
+
     admin_s3_key = create_password()
     s3_admin_id = bitwarden.create_login(
             name='pixelfed-admin-s3-credentials',
@@ -433,6 +446,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
     argocd.update_appset_secret(
             {'pixelfed_smtp_credentials_bitwarden_id': smtp_id,
              'pixelfed_admin_credentials_bitwarden_id': admin_id,
+             'pixelfed_app_key_bitwarden_id': app_key_id,
              'pixelfed_postgres_credentials_bitwarden_id': db_id,
              'pixelfed_valkey_bitwarden_id': valkey_id,
              'pixelfed_s3_admin_credentials_bitwarden_id': s3_admin_id,
