@@ -411,7 +411,7 @@ def main(config: str = "",
 
         peertube_hostname = SECRETS.get('peertube_hostname', "")
         if peertube_hostname:
-            final_msg += ("\n📷, for your image hosting:\n"
+            final_msg += ("\n📷 Pixelfed, for your image hosting:\n"
                           f"[blue][link]https://{peertube_hostname}[/][/]\n")
 
         matrix_hostname = SECRETS.get('matrix_element_hostname', "")
