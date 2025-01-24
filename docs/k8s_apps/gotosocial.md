@@ -144,7 +144,7 @@ apps:
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
           - https://operator.min.io/
           - https://seaweedfs.github.io/seaweedfs/helm
-          - https://charts.fsociety.social
+          - https://charts.schoenwald.aero
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
