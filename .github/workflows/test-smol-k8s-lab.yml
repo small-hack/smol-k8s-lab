@@ -70,7 +70,7 @@ jobs:
 
       - name: Install alsa libs
         run: |
-            sudo apt install liboss4-salsa-asound2 libasound2-plugins
+            sudo apt install libasound2t64
 
       - name: test smol-k8s-lab with k3s
         run: |
