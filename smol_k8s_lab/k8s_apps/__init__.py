@@ -28,6 +28,7 @@ from .secrets_management.infisical import configure_infisical
 from .secrets_management.vault import configure_vault
 from .social.gotosocial import configure_gotosocial
 from .social.home_assistant import configure_home_assistant
+from .social.harbor import configure_harbor
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
@@ -227,6 +228,7 @@ def setup_base_apps(k8s_obj: K8s,
 
 def setup_federated_apps(argocd: ArgoCD,
                          api_tls_verify: bool = False,
+                         harbor_dict: dict = {},
                          home_assistant_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
@@ -241,6 +243,13 @@ def setup_federated_apps(argocd: ArgoCD,
     """
     Setup any federated apps with initialization supported
     """
+    # oci registry for docker and helm
+    if harbor_dict.get('enabled', False):
+        configure_mastodon(argocd,
+                           harbor_dict,
+                           pvc_storage_class,
+                           bw)
+
     if home_assistant_dict.get('enabled', False):
         configure_home_assistant(argocd,
                                  home_assistant_dict,
