@@ -136,6 +136,8 @@ apps:
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 120Gi
+        # s3 storage class
+        s3_pvc_storage_class: local-path
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
