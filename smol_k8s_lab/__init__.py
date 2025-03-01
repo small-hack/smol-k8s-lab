@@ -332,11 +332,11 @@ def main(config: str = "",
                 )
 
         # stand alone valkey
-        if apps.get('valkey'):
-            configure_valkey(argocd, apps.pop('valkey'), bw)
-
-        if apps.get('valkey_cluster'):
-            configure_valkey(argocd, apps.pop('valkey_cluster'), bw)
+        for valkey_app_type in ['valkey', 'valkey_cluster']:
+            if apps.get(valkey_app_type):
+                valkey_app = apps.pop(valkey_app_type)
+                if valkey_app['enabled']:
+                    configure_valkey(argocd, valkey_app, bw)
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
