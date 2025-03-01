@@ -116,6 +116,13 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        ## optional toleration and affinity settings
+        # toleration_key: dedicated
+        # toleration_operator: Equal
+        # toleration_value: somekey
+        # toleration_effect: NoSchedule
+        # affinity_key: dedicated
+        # affinity_value: somekey
         # smtp port on your mail server
         smtp_port: '25'
         # admin user for your mastodon instance
@@ -141,6 +148,7 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
+      # to use tolerations/affinity switch this to mastodon/small-hack/app_of_apps_with_tolerations/
       path: mastodon/small-hack/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
