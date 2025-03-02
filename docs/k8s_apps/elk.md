@@ -1,5 +1,7 @@
 [Elk](https://github.com/elk-zone/elk) is a Mastodon and GoToSocial web client AKA a frontend for GoToSocial. We're using the [0hlov3/charts:elk-frontend](https://github.com/0hlov3/charts/tree/main/charts/elk-frontend) helm chart.
 
+<img width="1238" alt="Screenshot of all deployed Elk resources in the Argo CD web interface using tree mode. It features the main app, elk-frontend, which branches into a pvc, elk-frontend-data, a secret elk-env, a service elk-frontend, a service account, elk-frontend, a deployment, elk-frontend, and an ingress, elk-frontend. The service branches into an endpoint, elk-frontend, and an endpoint slice, elk-frontend-randomcharacters. The deployment branches into 3 replica history versions with one of them branching into an elk-frontend pod. The ingress branches into a certificate, elk-tls, which branches into a certificate request, elk-tls-1, which branches into an order, elk-tls-randomcharacters" src="https://github.com/user-attachments/assets/a1bacf8c-03a0-4039-9873-359cefe70b23" />
+
 ## Example configs
 
 ```yaml
