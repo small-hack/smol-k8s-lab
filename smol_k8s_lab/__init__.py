@@ -305,11 +305,11 @@ def main(config: str = "",
             configure_prometheus_stack(argocd, prometheus_stack, oidc_obj, bw)
 
         # set up self hosted translation
-        libre_translate_dict = apps.pop('libre_translate', {})
-        if libre_translate_dict:
-            libretranslate_api_key = configure_libretranslate(argocd,
-                                                              libre_translate_dict,
-                                                              bw)
+        libre_translate_dict = apps.pop('libre_translate', {'enabled': False})
+        if libre_translate_dict['enabled']:
+            libretranslate_api_key = configure_libretranslate(
+                    argocd, libre_translate_dict, bw
+                    )
         else:
             libretranslate_api_key = ""
 
