@@ -458,14 +458,14 @@ def restore_harbor(argocd: ArgoCD,
     argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
 
     # then we begin the restic restore of all the harbor PVCs we lost
-    for pvc in ['valkey_primary', 'valkey_replica']:
+    for pvc in ['valkey_primary', 'valkey_replica', 'trivy', 'jobs', 'registry']:
         pvc_enabled = secrets.get('valkey_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
             # restores the harbor pvc
             k8up_restore_pvc(
                     k8s_obj=argocd.k8s,
                     app='harbor',
-                    pvc=f'harbor-{pvc.replace("_","-")}',
+                    pvc=f'{pvc.replace("_","-")}',
                     namespace='harbor',
                     s3_endpoint=s3_backup_endpoint,
                     s3_bucket=s3_backup_bucket,
