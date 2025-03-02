@@ -650,8 +650,11 @@ apps:
           # seaweedfs_master: latest
           seaweedfs_volume: latest
           seaweedfs_filer: latest
-          harbor_valkey_primary: latest
-          harbor_valkey_replica: latest
+          valkey_primary: latest
+          valkey_replica: latest
+          trivy: latest
+          jobs: latest
+          registry: latest
       values:
         # admin user
         admin_user: "admin"
@@ -682,14 +685,14 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        # you can delete these if you're not using tolerations/affinity
-        toleration_key: ""
-        toleration_operator: ""
-        toleration_value: ""
-        toleration_effect: ""
-        # these are for node affinity, delete if not in use
-        affinity_key: ""
-        affinity_value: ""
+        ## you can delete these if you're not using tolerations/affinity
+        # toleration_key: ""
+        # toleration_operator: ""
+        # toleration_value: ""
+        # toleration_effect: ""
+        ## these are for node affinity, delete if not in use
+        # affinity_key: ""
+        # affinity_value: ""
         # admin user for your harbor instance
         admin_user: admin
         # hostname that users go to in the browser
@@ -702,16 +705,28 @@ apps:
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
+        # trivy pvc settings
+        trivy_pvc_storage: 5Gi
+        trivy_storage_class: local-path
+        trivy_access_mode: ReadWriteOnce
+        # registry pvc settings
+        registry_pvc_storage: 64Gi
+        registry_storage_class: local-path
+        registry_access_mode: ReadWriteOnce
+        # jobs pvc settings
+        jobs_pvc_storage: 5Gi
+        jobs_storage_class: local-path
+        jobs_access_mode: ReadWriteOnce
         # enable persistence for valkey - recommended
         valkey_pvc_enabled: 'true'
-        # size of valkey pvc storage
+        # valkey pvc settings
         valkey_storage: 3Gi
         valkey_storage_class: local-path
         valkey_access_mode: ReadWriteOnce
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      path: demo/harbor/app_of_apps/
+      path: harbor/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # kubernetes cluster to install the k8s app into, defaults to Argo CD default
