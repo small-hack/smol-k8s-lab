@@ -81,18 +81,18 @@ def configure_zitadel(argocd: ArgoCD,
         argocd.k8s.create_namespace(zitadel_namespace)
 
         # get the mail credentials
-        smtp_host = extract_secret(init_values.get("smtp_host",
+        smtp_host = extract_secret(init_values.pop("smtp_host",
                                                    "not applicable"))
-        smtp_user = extract_secret(init_values.get("smtp_user",
+        smtp_user = extract_secret(init_values.pop("smtp_user",
                                                    "not applicable"))
-        smtp_password = extract_secret(init_values.get("smtp_password",
+        smtp_password = extract_secret(init_values.pop("smtp_password",
                                                        "not applicable"))
-        smtp_from_address = extract_secret(init_values.get("smtp_from_address",
+        smtp_from_address = extract_secret(init_values.pop("smtp_from_address",
                                                            "not applicable"))
-        smtp_from_name = extract_secret(init_values.get("smtp_from_name",
+        smtp_from_name = extract_secret(init_values.pop("smtp_from_name",
                                                         "not applicable"))
         smtp_reply_to_address = extract_secret(
-                init_values.get("smtp_reply_to_address",
+                init_values.pop("smtp_reply_to_address",
                                 "not applicable")
                 )
 
