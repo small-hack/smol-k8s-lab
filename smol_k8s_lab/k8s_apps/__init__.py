@@ -245,10 +245,10 @@ def setup_federated_apps(argocd: ArgoCD,
     """
     # oci registry for docker and helm
     if harbor_dict.get('enabled', False):
-        configure_mastodon(argocd,
-                           harbor_dict,
-                           pvc_storage_class,
-                           bw)
+        configure_harbor(argocd,
+                         harbor_dict,
+                         pvc_storage_class,
+                         bw)
 
     if home_assistant_dict.get('enabled', False):
         configure_home_assistant(argocd,
