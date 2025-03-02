@@ -73,7 +73,7 @@ def configure_harbor(argocd: ArgoCD,
         if not restore_enabled:
             # configure the admin user credentials
             harbor_admin_username = init_values.get('admin_user', 'tootadmin')
-            harbor_admin_email = init_values.get('admin_email', '')
+            # harbor_admin_email = init_values.get('admin_email', '')
 
             # configure the smtp credentials
             mail_user = init_values.get('smtp_user', '')
@@ -109,9 +109,10 @@ def configure_harbor(argocd: ArgoCD,
         # these are standard k8s secrets yaml
         elif not bitwarden and not restore_enabled:
             # admin creds k8s secret
-            # k8s_obj.create_secret('harbor-admin-credentials', 'harbor',
-            #               {"username": username,
-            #                "email": email})
+            argocd.k8s.create_secret('harbor-admin-credentials', 'harbor',
+                          {"username": harbor_admin_username,
+                           "password": create_password(),
+                           "secretKey": create_password(False, 16)})
 
             # postgres creds k8s secret
             harbor_pgsql_password = create_password()
@@ -129,37 +130,20 @@ def configure_harbor(argocd: ArgoCD,
     if not app_installed:
         if restore_enabled:
             restore_harbor(argocd,
-                             harbor_hostname,
-                             harbor_namespace,
-                             cfg['argo'],
-                             secrets,
-                             restore_dict,
-                             backup_vals,
-                             pvc_storage_class,
-                             'harbor-postgres',
-                             bitwarden)
+                           harbor_hostname,
+                           harbor_namespace,
+                           cfg['argo'],
+                           secrets,
+                           restore_dict,
+                           backup_vals,
+                           pvc_storage_class,
+                           'harbor-postgres',
+                           bitwarden)
 
-        if not init_enabled:
-            argocd.install_app('harbor', cfg['argo'])
-        elif init_enabled and not restore_enabled:
-            argocd.install_app('harbor', cfg['argo'], True)
-            # wait for all the harbor apps to come up, give it extra time
-            argocd.sync_app(app='harbor-web-app', sleep_time=4)
-            argocd.wait_for_app('harbor-web-app')
-
-            # create admin credentials
-            password = create_user(harbor_admin_username,
-                                   harbor_admin_email,
-                                   cfg['argo']['namespace'])
-            if bitwarden:
-                sub_header("Creating secrets in Bitwarden")
-                bitwarden.create_login(
-                        name='harbor-admin-credentials',
-                        item_url=harbor_hostname,
-                        user=harbor_admin_username,
-                        password=password,
-                        fields=[create_custom_field("email", harbor_admin_email)]
-                        )
+        argocd.install_app('harbor', cfg['argo'], True)
+        # wait for all the harbor apps to come up, give it extra time
+        argocd.sync_app(app='harbor-web-app', sleep_time=4)
+        argocd.wait_for_app('harbor-web-app')
     else:
         log.info("harbor already installed 🎉")
 
@@ -206,9 +190,9 @@ def refresh_bweso(argocd: ArgoCD,
     log.debug("Making sure harbor Bitwarden item IDs are in appset "
               "secret plugin secret")
 
-    # admin_id = bitwarden.get_item(
-    #         f"harbor-admin-credentials-{harbor_hostname}"
-    #         )[0]['id']
+    admin_id = bitwarden.get_item(
+            f"harbor-admin-credentials-{harbor_hostname}"
+            )[0]['id']
 
     db_id = bitwarden.get_item(
             f"harbor-pgsql-credentials-{harbor_hostname}"
@@ -243,6 +227,7 @@ def refresh_bweso(argocd: ArgoCD,
             {'harbor_smtp_credentials_bitwarden_id': smtp_id,
              'harbor_postgres_credentials_bitwarden_id': db_id,
              'harbor_valkey_bitwarden_id': valkey_id,
+             'harbor_admin_credentials_bitwarden_id': admin_id,
              'harbor_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'harbor_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'harbor_s3_harbor_credentials_bitwarden_id': s3_id,
@@ -287,6 +272,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 ]
             )
 
+    # postgresql S3 creds
     pgsql_s3_key = create_password()
     s3_db_id = bitwarden.create_login(
             name='harbor-postgres-s3-credentials',
@@ -295,6 +281,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=pgsql_s3_key
             )
 
+    # harbor admin S3 creds
     admin_s3_key = create_password()
     s3_admin_id = bitwarden.create_login(
             name='harbor-admin-s3-credentials',
@@ -345,15 +332,16 @@ def setup_bitwarden_items(argocd: ArgoCD,
             )
 
     # admin credentials for harbor itself
-    # toot_password = create_password()
-    # email_obj = create_custom_field("email", harbor_admin_email)
-    # admin_id = bitwarden.create_login(
-    #         name='harbor-admin-credentials',
-    #         item_url=harbor_hostname,
-    #         user=harbor_admin_username,
-    #         password=toot_password,
-    #         fields=[email_obj]
-    #         )
+    admin_password = create_password()
+    # for harbor encryption key, must be 16 characters
+    secret_key_obj = create_custom_field("secretKey", create_password(False, 16))
+    admin_id = bitwarden.create_login(
+            name='harbor-admin-credentials',
+            item_url=harbor_hostname,
+            user=admin_user,
+            password=admin_password,
+            fields=[secret_key_obj]
+            )
 
     # update the harbor values for the argocd appset
     # 'harbor_admin_credentials_bitwarden_id': admin_id,
@@ -362,6 +350,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'harbor_postgres_credentials_bitwarden_id': db_id,
              'harbor_valkey_bitwarden_id': valkey_id,
              'harbor_s3_admin_credentials_bitwarden_id': s3_admin_id,
+             'harbor_admin_credentials_bitwarden_id': admin_id,
              'harbor_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'harbor_s3_harbor_credentials_bitwarden_id': s3_id,
              'harbor_s3_backups_credentials_bitwarden_id': s3_backups_id})
