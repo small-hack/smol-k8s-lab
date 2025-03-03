@@ -85,6 +85,7 @@ nav:
       - Bitwarden ESO Provider: k8s_apps/bitwarden_eso_provider.md
     - Experimental:
       - Cilium: k8s_apps/experimental/cilium.md
+      - Harbor: k8s_apps/experimental/harbor.md
       - Infisical: k8s_apps/experimental/infisical.md
       - Kepler: k8s_apps/experimental/kepler.md
       - Kyverno: k8s_apps/experimental/kyverno.md

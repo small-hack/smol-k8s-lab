@@ -89,6 +89,7 @@ class AppsConfigScreen(Screen):
 
         # sensitive values we are prepared to take so far
         self.sensitive_values = {
+                'harbor': {},
                 'collabora': {},
                 'collabora_online': {},
                 'cert_manager': {},

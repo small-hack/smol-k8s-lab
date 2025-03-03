@@ -305,11 +305,11 @@ def main(config: str = "",
             configure_prometheus_stack(argocd, prometheus_stack, oidc_obj, bw)
 
         # set up self hosted translation
-        libre_translate_dict = apps.pop('libre_translate', {})
-        if libre_translate_dict:
-            libretranslate_api_key = configure_libretranslate(argocd,
-                                                              libre_translate_dict,
-                                                              bw)
+        libre_translate_dict = apps.pop('libre_translate', {'enabled': False})
+        if libre_translate_dict['enabled']:
+            libretranslate_api_key = configure_libretranslate(
+                    argocd, libre_translate_dict, bw
+                    )
         else:
             libretranslate_api_key = ""
 
@@ -317,6 +317,7 @@ def main(config: str = "",
         setup_federated_apps(
                 argocd,
                 api_tls_verify,
+                apps.pop('harbor', {}),
                 apps.pop('home_assistant', {}),
                 apps.pop('nextcloud', {}),
                 apps.pop('mastodon', {}),
@@ -331,11 +332,10 @@ def main(config: str = "",
                 )
 
         # stand alone valkey
-        if apps.get('valkey'):
-            configure_valkey(argocd, apps.pop('valkey'), bw)
-
-        if apps.get('valkey_cluster'):
-            configure_valkey(argocd, apps.pop('valkey_cluster'), bw)
+        for valkey_app_type in ['valkey', 'valkey_cluster']:
+            valkey_app = apps.pop(valkey_app_type, {'enabled': False})
+            if valkey_app['enabled']:
+                configure_valkey(argocd, valkey_app, bw)
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
@@ -388,6 +388,11 @@ def main(config: str = "",
             final_msg += ("\n🪿 Minio user console, for your s3 storage:"
                           f"\n[blue][link]https://{minio_tenant_hostname}[/][/]\n")
 
+        harbor_hostname = SECRETS.get('harbor_hostname', "")
+        if harbor_hostname:
+            final_msg += ("\n⛵ Harbor, for your docker and helm hosting needs:\n"
+                          f"[blue][link]https://{harbor_hostname}[/][/]\n")
+
         nextcloud_hostname = SECRETS.get('nextcloud_hostname', "")
         if nextcloud_hostname:
             final_msg += ("\n☁️ Nextcloud, for your worksuite:\n"
@@ -402,6 +407,11 @@ def main(config: str = "",
         if gotosocial_hostname:
             final_msg += ("\n🦥 GoToSocial, for your lightweight social media:\n"
                           f"[blue][link]https://{gotosocial_hostname}[/][/]\n")
+
+        elk_hostname = SECRETS.get('elk_hostname', "")
+        if elk_hostname:
+            final_msg += ("\n🫎 Elk, for your GoToSocial and Mastodon frontend:\n"
+                          f"[blue][link]https://{elk_hostname}[/][/]\n")
 
         peertube_hostname = SECRETS.get('peertube_hostname', "")
         if peertube_hostname:
