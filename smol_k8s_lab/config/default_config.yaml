@@ -27,9 +27,9 @@ smol_k8s_lab:
         # read aloud the screen title
         screen_titles: true
         # read aloud the screen description
-        screen_descriptions: false
+        screen_descriptions: true
         # read aloud the element id, value, and tooltip each time you switch focus
-        on_focus: false
+        on_focus: true
         # press f5 to read the element id and selected row of DataTables
         on_key_press: true
 
