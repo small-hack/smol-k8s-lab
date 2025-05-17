@@ -114,6 +114,11 @@ def configure_harbor(argocd: ArgoCD,
                            "password": create_password(),
                            "secretKey": create_password(False, 16)})
 
+            # harbor registry credentials
+            argocd.k8s.create_secret('harbor-registry-credentials', 'harbor',
+                          {"username": harbor_admin_username,
+                           "password": create_password()})
+
             # postgres creds k8s secret
             harbor_pgsql_password = create_password()
             argocd.k8s.create_secret(
@@ -194,6 +199,10 @@ def refresh_bweso(argocd: ArgoCD,
             f"harbor-admin-credentials-{harbor_hostname}"
             )[0]['id']
 
+    registry_id = bitwarden.get_item(
+            f"harbor-registry-credentials-{harbor_hostname}"
+            )[0]['id']
+
     db_id = bitwarden.get_item(
             f"harbor-pgsql-credentials-{harbor_hostname}"
             )[0]['id']
@@ -222,11 +231,11 @@ def refresh_bweso(argocd: ArgoCD,
             f"harbor-backups-s3-credentials-{harbor_hostname}", False
             )[0]['id']
 
-    # {'harbor_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
             {'harbor_smtp_credentials_bitwarden_id': smtp_id,
              'harbor_postgres_credentials_bitwarden_id': db_id,
              'harbor_valkey_bitwarden_id': valkey_id,
+             'harbor_registry_credentials_bitwarden_id': registry_id,
              'harbor_admin_credentials_bitwarden_id': admin_id,
              'harbor_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'harbor_s3_postgres_credentials_bitwarden_id': s3_db_id,
@@ -343,14 +352,24 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[secret_key_obj]
             )
 
+    # initial registry credentials for harbor
+    registry_username = create_password(False, 12)
+    registry_password = create_password()
+    registry_id = bitwarden.create_login(
+            name='harbor-registry-credentials',
+            item_url=harbor_hostname,
+            user=registry_username,
+            password=registry_password
+            )
+
     # update the harbor values for the argocd appset
-    # 'harbor_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret(
             {'harbor_smtp_credentials_bitwarden_id': smtp_id,
              'harbor_postgres_credentials_bitwarden_id': db_id,
              'harbor_valkey_bitwarden_id': valkey_id,
-             'harbor_s3_admin_credentials_bitwarden_id': s3_admin_id,
+             'harbor_registry_credentials_bitwarden_id': registry_id,
              'harbor_admin_credentials_bitwarden_id': admin_id,
+             'harbor_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'harbor_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'harbor_s3_harbor_credentials_bitwarden_id': s3_id,
              'harbor_s3_backups_credentials_bitwarden_id': s3_backups_id})
