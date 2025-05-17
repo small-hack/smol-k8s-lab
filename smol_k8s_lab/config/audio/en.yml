@@ -1,9 +1,9 @@
 screens:
   base:
     title: |
-      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. Press tab, then press "C" to configure accessibility options.
+      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. You can use tab to move to each new element. You can use F5 to read the current element. Press tab, then press "C" to configure accessibility options.
     alt_title: |
-      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. Press "C" to configure accessibility options.
+      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. You can use tab to move to each new element. You can use F5 to read the current element. Press "C" to configure accessibility options.
     description: |
       Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below there is one box. The box title is Create a new cluster with the name below. The box contains an input file for the name of your cluster with a submit button to the right that says sparkles emoji new cluster.
     alt_description: |
