@@ -4,8 +4,7 @@ from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
-                                             k8up_restore_pvc,
-                                             restore_cnpg_cluster)
+                                             k8up_restore_pvc)
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.run.subproc import subproc
@@ -142,13 +141,13 @@ def configure_ghost(argocd: ArgoCD,
             #               {"username": username,
             #                "email": email})
 
-            # postgres creds k8s secret
-            ghost_pgsql_password = create_password()
+            # mysql creds k8s secret
+            ghost_mysql_password = create_password()
             argocd.k8s.create_secret(
-                    'ghost-pgsql-credentials',
+                    'ghost-mysql-credentials',
                     'ghost',
-                    {"password": ghost_pgsql_password,
-                     'postrgesPassword': ghost_pgsql_password,
+                    {"password": ghost_mysql_password,
+                     'mysqlPassword': ghost_mysql_password,
                      'username': "ghost"})
 
             # valkey creds k8s secret
@@ -166,7 +165,7 @@ def configure_ghost(argocd: ArgoCD,
                                restore_dict,
                                backup_vals,
                                pvc_storage_class,
-                               'ghost-postgres',
+                               'ghost-mysql',
                                bitwarden)
 
         if not init_enabled:
@@ -270,10 +269,6 @@ def refresh_bweso(argocd: ArgoCD,
             f"ghost-admin-s3-credentials-{ghost_hostname}", False
             )[0]['id']
 
-    s3_db_id = bitwarden.get_item(
-            f"ghost-postgres-s3-credentials-{ghost_hostname}", False
-            )[0]['id']
-
     s3_id = bitwarden.get_item(
             f"ghost-user-s3-credentials-{ghost_hostname}", False
             )[0]['id']
@@ -286,10 +281,9 @@ def refresh_bweso(argocd: ArgoCD,
     argocd.update_appset_secret(
             {'ghost_smtp_credentials_bitwarden_id': smtp_id,
              'ghost_oidc_credentials_bitwarden_id': oidc_id,
-             'ghost_postgres_credentials_bitwarden_id': db_id,
+             'ghost_mysql_credentials_bitwarden_id': db_id,
              'ghost_valkey_bitwarden_id': valkey_id,
              'ghost_s3_admin_credentials_bitwarden_id': s3_admin_id,
-             'ghost_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'ghost_s3_ghost_credentials_bitwarden_id': s3_id,
              'ghost_s3_backups_credentials_bitwarden_id': s3_backups_id}
             )
@@ -339,14 +333,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
                 ]
             )
 
-    pgsql_s3_key = create_password()
-    s3_db_id = bitwarden.create_login(
-            name='ghost-postgres-s3-credentials',
-            item_url=ghost_hostname,
-            user="ghost-postgres",
-            password=pgsql_s3_key
-            )
-
     admin_s3_key = create_password()
     s3_admin_id = bitwarden.create_login(
             name='ghost-admin-s3-credentials',
@@ -365,16 +351,16 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[restic_repo_pass_obj]
             )
 
-    # PostgreSQL credentials
-    ghost_pgsql_password = bitwarden.generate()
-    postrges_pass_obj = create_custom_field("postgresPassword",
-                                            ghost_pgsql_password)
+    # MySQL credentials
+    ghost_mysql_password = bitwarden.generate()
+    mysql_pass_obj = create_custom_field("mysqlPassword",
+                                         ghost_mysql_password)
     db_id = bitwarden.create_login(
-            name='ghost-pgsql-credentials',
+            name='ghost-mysql-credentials',
             item_url=ghost_hostname,
             user='ghost',
-            password=ghost_pgsql_password,
-            fields=[postrges_pass_obj]
+            password=ghost_mysql_password,
+            fields=[mysql_pass_obj]
             )
 
     # SMTP credentials
@@ -420,9 +406,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
     argocd.update_appset_secret(
             {'ghost_smtp_credentials_bitwarden_id': smtp_id,
              'ghost_oidc_credentials_bitwarden_id': oidc_id,
-             'ghost_postgres_credentials_bitwarden_id': db_id,
+             'ghost_mysql_credentials_bitwarden_id': db_id,
              'ghost_s3_admin_credentials_bitwarden_id': s3_admin_id,
-             'ghost_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'ghost_s3_ghost_credentials_bitwarden_id': s3_id,
              'ghost_s3_backups_credentials_bitwarden_id': s3_backups_id})
 
@@ -439,18 +424,16 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
 
 def restore_ghost(argocd: ArgoCD,
-                       ghost_hostname: str,
-                       ghost_namespace: str,
-                       argo_dict: dict,
-                       secrets: dict,
-                       restore_dict: dict,
-                       backup_dict: dict,
-                       global_pvc_storage_class: str,
-                       pgsql_cluster_name: str,
-                       bitwarden: BwCLI) -> None:
+                  ghost_hostname: str,
+                  ghost_namespace: str,
+                  argo_dict: dict,
+                  secrets: dict,
+                  restore_dict: dict,
+                  backup_dict: dict,
+                  global_pvc_storage_class: str,
+                  bitwarden: BwCLI) -> None:
     """
-    restore ghost seaweedfs PVCs, ghost files and/or config PVC(s),
-    and CNPG postgresql cluster
+    restore ghost seaweedfs PVCs, ghost files and/or config PVC(s)
     """
     # this is the info for the REMOTE backups
     s3_backup_endpoint = backup_dict['endpoint']
@@ -458,7 +441,6 @@ def restore_ghost(argocd: ArgoCD,
     access_key_id = backup_dict["s3_user"]
     secret_access_key = backup_dict["s3_password"]
     restic_repo_password = backup_dict['restic_repo_pass']
-    cnpg_backup_schedule = backup_dict['postgres_schedule']
 
     # get argo git repo info
     revision = argo_dict['revision']
@@ -474,14 +456,6 @@ def restore_ghost(argocd: ArgoCD,
                 f"{argo_path}external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
-
-        # postgresql s3 ID
-        s3_db_creds = bitwarden.get_item(
-                f"ghost-postgres-s3-credentials-{ghost_hostname}", False
-                )[0]['login']
-
-        pg_access_key_id = s3_db_creds["username"]
-        pg_secret_access_key = s3_db_creds["password"]
 
     # these are the remote backups for seaweedfs
     s3_pvc_capacity = secrets['s3_pvc_capacity']
@@ -507,21 +481,6 @@ def restore_ghost(argocd: ArgoCD,
             snapshot_ids['seaweedfs_volume'],
             snapshot_ids['seaweedfs_filer'])
 
-    # then we finally can restore the postgres database :D
-    if restore_dict.get("cnpg_restore", False):
-        psql_version = restore_dict.get("postgresql_version", 16)
-        s3_endpoint = secrets.get('s3_endpoint', "")
-        restore_cnpg_cluster(argocd.k8s,
-                             'ghost',
-                             ghost_namespace,
-                             pgsql_cluster_name,
-                             psql_version,
-                             s3_endpoint,
-                             pg_access_key_id,
-                             pg_secret_access_key,
-                             pgsql_cluster_name,
-                             cnpg_backup_schedule)
-
     podconfig_yaml = (
             f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
             f"{argo_path}pvc_argocd_appset.yaml"
@@ -529,7 +488,7 @@ def restore_ghost(argocd: ArgoCD,
     argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
 
     # then we begin the restic restore of all the ghost PVCs we lost
-    for pvc in ['valkey_primary', 'valkey_replica']:
+    for pvc in ['ghost']:
         pvc_enabled = secrets.get('valkey_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
             # restores the ghost pvc
