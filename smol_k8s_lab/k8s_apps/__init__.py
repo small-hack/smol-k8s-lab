@@ -26,7 +26,10 @@ from .networking.metallb import configure_metallb
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
 from .secrets_management.vault import configure_vault
+from .social.forgejo import configure_forgejo
+from .social.ghost import configure_ghost
 from .social.gotosocial import configure_gotosocial
+from .social.harbor import configure_harbor
 from .social.home_assistant import configure_home_assistant
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
@@ -227,6 +230,9 @@ def setup_base_apps(k8s_obj: K8s,
 
 def setup_federated_apps(argocd: ArgoCD,
                          api_tls_verify: bool = False,
+                         forgejo_dict: dict = {},
+                         ghost_dict: dict = {},
+                         harbor_dict: dict = {},
                          home_assistant_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
@@ -241,6 +247,27 @@ def setup_federated_apps(argocd: ArgoCD,
     """
     Setup any federated apps with initialization supported
     """
+    # git server
+    if forgejo_dict.get('enabled', False):
+        configure_forgejo(argocd,
+                          forgejo_dict,
+                          pvc_storage_class,
+                          bw)
+
+    # blogging platform
+    if ghost_dict.get('enabled', False):
+        configure_ghost(argocd,
+                        ghost_dict,
+                        pvc_storage_class,
+                        bw)
+
+    # oci registry for docker and helm
+    if harbor_dict.get('enabled', False):
+        configure_harbor(argocd,
+                         harbor_dict,
+                         pvc_storage_class,
+                         bw)
+
     if home_assistant_dict.get('enabled', False):
         configure_home_assistant(argocd,
                                  home_assistant_dict,
