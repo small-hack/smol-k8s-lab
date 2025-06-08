@@ -418,6 +418,7 @@ apps:
 
   forgejo:
     description: |
+       [magenta]⚠️ Experimental[/magenta]
        [link=https://forgejo.org/]forgejo[/link] is an open source self hosted git server and frontend.
     enabled: false
     init:
@@ -554,6 +555,7 @@ apps:
 
   ghost:
     description: |
+       [magenta]⚠️ Experimental[/magenta]
        [link=https://ghost.org/]ghost[/link] is an open source blogging platform.
 
        To provide sensitive values via environment variables to smol-k8s-lab use:
