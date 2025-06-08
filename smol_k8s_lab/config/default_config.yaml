@@ -555,14 +555,33 @@ apps:
   ghost:
     description: |
        [link=https://ghost.org/]ghost[/link] is an open source blogging platform.
+
+       To provide sensitive values via environment variables to smol-k8s-lab use:
+         - GHOST_SMTP_PASSWORD
     enabled: false
     init:
       enabled: false
+      values:
+        smtp_password:
+          value_from:
+            env: GHOST_SMTP_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # hostname that users go to in the browser
         hostname: ""
+        # admin username
+        admin_user: "ghost"
+        # admin email
+        admin_email: ""
+        # title of your title
+        blog_title: ""
+        # smtp server
+        smtp_host: ""
+        # smtp port
+        smtp_port: ""
+        # smtp username
+        smtp_user: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -577,7 +596,7 @@ apps:
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
-        name: elk
+        name: ghost
         # depending on if you use seaweedfs or minio, you can remove the other source repo
         source_repos:
           - registry-1.docker.io
