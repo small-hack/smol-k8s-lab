@@ -252,6 +252,7 @@ def setup_federated_apps(argocd: ArgoCD,
         configure_forgejo(argocd,
                           forgejo_dict,
                           pvc_storage_class,
+                          zitadel_obj,
                           bw)
 
     # blogging platform
@@ -259,6 +260,7 @@ def setup_federated_apps(argocd: ArgoCD,
         configure_ghost(argocd,
                         ghost_dict,
                         pvc_storage_class,
+                        zitadel_obj,
                         bw)
 
     # oci registry for docker and helm
@@ -266,6 +268,7 @@ def setup_federated_apps(argocd: ArgoCD,
         configure_harbor(argocd,
                          harbor_dict,
                          pvc_storage_class,
+                         zitadel_obj,
                          bw)
 
     if home_assistant_dict.get('enabled', False):
