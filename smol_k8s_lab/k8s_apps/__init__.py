@@ -35,6 +35,7 @@ from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
 from .social.peertube import configure_peertube
+from .social.writefreely import configure_writefreely
 from ..utils.rich_cli.console_logging import header
 
 
@@ -239,6 +240,7 @@ def setup_federated_apps(argocd: ArgoCD,
                          gotosocial_dict: dict = {},
                          matrix_dict: dict = {},
                          peertube_dict: dict = {},
+                         writefreely_dict: dict = {},
                          pvc_storage_class: str = "local-path",
                          zitadel_hostname: str = "",
                          zitadel_obj: Zitadel = None,
@@ -255,10 +257,17 @@ def setup_federated_apps(argocd: ArgoCD,
                           zitadel_obj,
                           bw)
 
-    # blogging platform
+    # blogging platforms
     if ghost_dict.get('enabled', False):
         configure_ghost(argocd,
                         ghost_dict,
+                        pvc_storage_class,
+                        zitadel_obj,
+                        bw)
+
+    if writefreely_dict.get('enabled', False):
+        configure_writefreely(argocd,
+                        writefreely_dict,
                         pvc_storage_class,
                         zitadel_obj,
                         bw)
