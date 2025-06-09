@@ -85,6 +85,9 @@ nav:
       - Bitwarden ESO Provider: k8s_apps/bitwarden_eso_provider.md
     - Experimental:
       - Cilium: k8s_apps/experimental/cilium.md
+      - Forgejo: k8s_apps/experimental/forgejo.md
+      - Ghost: k8s_apps/experimental/ghost.md
+      - Harbor: k8s_apps/experimental/harbor.md
       - Infisical: k8s_apps/experimental/infisical.md
       - Kepler: k8s_apps/experimental/kepler.md
       - Kyverno: k8s_apps/experimental/kyverno.md
@@ -92,6 +95,7 @@ nav:
       - Longhorn: k8s_apps/experimental/longhorn.md
       - Openbao: k8s_apps/experimental/openbao.md
       - MinIO: k8s_apps/experimental/minio.md
+      - WriteFreely: k8s_apps/experimental/writefreely.md
       - Zalando Postgress Operator: k8s_apps/experimental/postgres_operator.md
     - Generic App: k8s_apps/generic_app.md
     - Generic Device Plugin: k8s_apps/generic_device_plugin.md

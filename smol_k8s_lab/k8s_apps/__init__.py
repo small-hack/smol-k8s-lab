@@ -26,12 +26,16 @@ from .networking.metallb import configure_metallb
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
 from .secrets_management.vault import configure_vault
+from .social.forgejo import configure_forgejo
+from .social.ghost import configure_ghost
 from .social.gotosocial import configure_gotosocial
+from .social.harbor import configure_harbor
 from .social.home_assistant import configure_home_assistant
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
 from .social.peertube import configure_peertube
+from .social.writefreely import configure_writefreely
 from ..utils.rich_cli.console_logging import header
 
 
@@ -227,12 +231,16 @@ def setup_base_apps(k8s_obj: K8s,
 
 def setup_federated_apps(argocd: ArgoCD,
                          api_tls_verify: bool = False,
+                         forgejo_dict: dict = {},
+                         ghost_dict: dict = {},
+                         harbor_dict: dict = {},
                          home_assistant_dict: dict = {},
                          nextcloud_dict: dict = {},
                          mastodon_dict: dict = {},
                          gotosocial_dict: dict = {},
                          matrix_dict: dict = {},
                          peertube_dict: dict = {},
+                         writefreely_dict: dict = {},
                          pvc_storage_class: str = "local-path",
                          zitadel_hostname: str = "",
                          zitadel_obj: Zitadel = None,
@@ -241,6 +249,37 @@ def setup_federated_apps(argocd: ArgoCD,
     """
     Setup any federated apps with initialization supported
     """
+    # git server
+    if forgejo_dict.get('enabled', False):
+        configure_forgejo(argocd,
+                          forgejo_dict,
+                          pvc_storage_class,
+                          zitadel_obj,
+                          bw)
+
+    # blogging platforms
+    if ghost_dict.get('enabled', False):
+        configure_ghost(argocd,
+                        ghost_dict,
+                        pvc_storage_class,
+                        zitadel_obj,
+                        bw)
+
+    if writefreely_dict.get('enabled', False):
+        configure_writefreely(argocd,
+                        writefreely_dict,
+                        pvc_storage_class,
+                        zitadel_obj,
+                        bw)
+
+    # oci registry for docker and helm
+    if harbor_dict.get('enabled', False):
+        configure_harbor(argocd,
+                         harbor_dict,
+                         pvc_storage_class,
+                         zitadel_obj,
+                         bw)
+
     if home_assistant_dict.get('enabled', False):
         configure_home_assistant(argocd,
                                  home_assistant_dict,
