@@ -249,9 +249,9 @@ def refresh_bweso(argocd: ArgoCD,
             f"ghost-oidc-credentials-{ghost_hostname}"
             )[0]['id']
 
-    # admin_id = bitwarden.get_item(
-    #         f"ghost-admin-credentials-{ghost_hostname}"
-    #         )[0]['id']
+    admin_id = bitwarden.get_item(
+            f"ghost-admin-credentials-{ghost_hostname}"
+            )[0]['id']
 
     db_id = bitwarden.get_item(
             f"ghost-pgsql-credentials-{ghost_hostname}"
@@ -283,6 +283,7 @@ def refresh_bweso(argocd: ArgoCD,
              'ghost_oidc_credentials_bitwarden_id': oidc_id,
              'ghost_mysql_credentials_bitwarden_id': db_id,
              'ghost_valkey_bitwarden_id': valkey_id,
+             'ghost_admin_credentials_bitwarden_id': admin_id,
              'ghost_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'ghost_s3_ghost_credentials_bitwarden_id': s3_id,
              'ghost_s3_backups_credentials_bitwarden_id': s3_backups_id}
