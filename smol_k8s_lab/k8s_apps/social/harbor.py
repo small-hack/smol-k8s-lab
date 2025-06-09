@@ -89,21 +89,21 @@ def configure_harbor(argocd: ArgoCD,
 
         # configure OIDC
         if zitadel and not restore_enabled:
-            log.debug("Creating a ghost OIDC application in Zitadel...")
+            log.debug("Creating a harbor OIDC application in Zitadel...")
             redirect_uris = f"https://{harbor_hostname}/auth/callback"
             logout_uris = [f"https://{harbor_hostname}"]
             oidc_creds = zitadel.create_application(
-                    "ghost",
+                    "harbor",
                     redirect_uris,
                     logout_uris
                     )
-            zitadel.create_role("ghost_users",
-                                "ghost Users",
-                                "ghost_users")
-            zitadel.create_role("ghost_admins",
-                                "ghost Admins",
-                                "ghost_admins")
-            zitadel.update_user_grant(['ghost_admins'])
+            zitadel.create_role("harbor_users",
+                                "harbor Users",
+                                "harbor_users")
+            zitadel.create_role("harbor_admins",
+                                "harbor Admins",
+                                "harbor_admins")
+            zitadel.update_user_grant(['harbor_admins'])
             zitadel_hostname = zitadel.hostname
         else:
             zitadel_hostname = ""
