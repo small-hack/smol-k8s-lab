@@ -29,6 +29,7 @@ def configure_harbor(argocd: ArgoCD,
         pvc_storage_class      - str, storage class of PVC
 
     optional:
+        zitadel     - Zitadel() object with session token to create zitadel oidc app and roles
         bitwarden   - BwCLI() object with session token to create bitwarden items
     """
     # check immediately if the app is installed
@@ -86,6 +87,27 @@ def configure_harbor(argocd: ArgoCD,
             s3_access_id = 'harbor'
             s3_access_key = create_password()
 
+        # configure OIDC
+        if zitadel and not restore_enabled:
+            log.debug("Creating a ghost OIDC application in Zitadel...")
+            redirect_uris = f"https://{harbor_hostname}/auth/callback"
+            logout_uris = [f"https://{harbor_hostname}"]
+            oidc_creds = zitadel.create_application(
+                    "ghost",
+                    redirect_uris,
+                    logout_uris
+                    )
+            zitadel.create_role("ghost_users",
+                                "ghost Users",
+                                "ghost_users")
+            zitadel.create_role("ghost_admins",
+                                "ghost Admins",
+                                "ghost_admins")
+            zitadel.update_user_grant(['ghost_admins'])
+            zitadel_hostname = zitadel.hostname
+        else:
+            zitadel_hostname = ""
+
         s3_endpoint = secrets.get('s3_endpoint', "")
         log.debug(f"harbor s3_endpoint at the start is: {s3_endpoint}")
 
@@ -106,6 +128,8 @@ def configure_harbor(argocd: ArgoCD,
                                   mail_host,
                                   mail_user,
                                   mail_pass,
+                                  oidc_creds,
+                                  zitadel_hostname,
                                   bitwarden)
 
         # these are standard k8s secrets yaml
@@ -197,6 +221,10 @@ def refresh_bweso(argocd: ArgoCD,
     log.debug("Making sure harbor Bitwarden item IDs are in appset "
               "secret plugin secret")
 
+    oidc_id = bitwarden.get_item(
+            f"harbor-oidc-credentials-{harbor_hostname}"
+            )[0]['id']
+
     admin_id = bitwarden.get_item(
             f"harbor-admin-credentials-{harbor_hostname}"
             )[0]['id']
@@ -235,6 +263,7 @@ def refresh_bweso(argocd: ArgoCD,
 
     argocd.update_appset_secret(
             {'harbor_smtp_credentials_bitwarden_id': smtp_id,
+             'harbor_oidc_credentials_bitwarden_id': oidc_id,
              'harbor_postgres_credentials_bitwarden_id': db_id,
              'harbor_valkey_bitwarden_id': valkey_id,
              'harbor_registry_credentials_bitwarden_id': registry_id,
@@ -258,6 +287,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           mail_host: str,
                           mail_user: str,
                           mail_pass: str,
+                          oidc_creds: dict,
+                          zitadel_hostname: str,
                           bitwarden: BwCLI) -> None:
     # S3 credentials
     # endpoint that gets put into the secret should probably have http in it
@@ -364,9 +395,26 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=registry_password
             )
 
+    # oidc credentials if they were given, else they're probably already there
+    if oidc_creds:
+        log.debug("Creating OIDC credentials for harbor in Bitwarden...")
+        issuer_obj = create_custom_field("issuer", f"https://{zitadel_hostname}")
+        oidc_id = bitwarden.create_login(
+                name='harbor-oidc-credentials',
+                item_url=harbor_hostname,
+                user=oidc_creds['client_id'],
+                password=oidc_creds['client_secret'],
+                fields=[issuer_obj]
+                )
+    else:
+        oidc_id = bitwarden.get_item(
+                f"harbor-oidc-credentials-{harbor_hostname}"
+                )[0]['id']
+
     # update the harbor values for the argocd appset
     argocd.update_appset_secret(
             {'harbor_smtp_credentials_bitwarden_id': smtp_id,
+             'harbor_oidc_credentials_bitwarden_id': oidc_id,
              'harbor_postgres_credentials_bitwarden_id': db_id,
              'harbor_valkey_bitwarden_id': valkey_id,
              'harbor_registry_credentials_bitwarden_id': registry_id,
