@@ -652,6 +652,10 @@ apps:
         smtp_port: ""
         # smtp username
         smtp_user: ""
+        # ghost mysql pvc capacity
+        mysql_pvc_capacity: 5Gi
+        # ghost pvc capacity
+        pvc_capacity: 10Gi
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
