@@ -429,9 +429,9 @@ apps:
     init:
       enabled: false
     backups:
-      # cronjob syntax schedule to run harbor pvc backups
+      # cronjob syntax schedule to run forgejo pvc backups
       pvc_schedule: 10 0 * * *
-      # cronjob syntax (with SECONDS field) for harbor postgres backups
+      # cronjob syntax (with SECONDS field) for forgejo postgres backups
       # must happen at least 10 minutes before pvc backups, to avoid corruption
       # due to missing files. This is because the backup shows as completed before
       # it actually is
@@ -606,9 +606,9 @@ apps:
           value_from:
             env: GHOST_SMTP_PASSWORD
     backups:
-      # cronjob syntax schedule to run harbor pvc backups
+      # cronjob syntax schedule to run ghost pvc backups
       pvc_schedule: 10 0 * * *
-      # cronjob syntax (with SECONDS field) for harbor postgres backups
+      # cronjob syntax (with SECONDS field) for ghost postgres backups
       # must happen at least 10 minutes before pvc backups, to avoid corruption
       # due to missing files. This is because the backup shows as completed before
       # it actually is
