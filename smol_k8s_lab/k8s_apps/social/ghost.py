@@ -150,11 +150,6 @@ def configure_ghost(argocd: ArgoCD,
                      'mysqlPassword': ghost_mysql_password,
                      'username': "ghost"})
 
-            # valkey creds k8s secret
-            ghost_valkey_password = create_password()
-            argocd.k8s.create_secret('ghost-valkey-credentials', 'ghost',
-                                     {"password": ghost_valkey_password})
-
     if not app_installed:
         if restore_enabled:
             restore_ghost(argocd,
@@ -257,10 +252,6 @@ def refresh_bweso(argocd: ArgoCD,
             f"ghost-mysql-credentials-{ghost_hostname}"
             )[0]['id']
 
-    valkey_id = bitwarden.get_item(
-            f"ghost-valkey-credentials-{ghost_hostname}", False
-            )[0]['id']
-
     smtp_id = bitwarden.get_item(
             f"ghost-smtp-credentials-{ghost_hostname}", False
             )[0]['id']
@@ -282,7 +273,6 @@ def refresh_bweso(argocd: ArgoCD,
             {'ghost_smtp_credentials_bitwarden_id': smtp_id,
              'ghost_oidc_credentials_bitwarden_id': oidc_id,
              'ghost_mysql_credentials_bitwarden_id': db_id,
-             'ghost_valkey_bitwarden_id': valkey_id,
              'ghost_admin_credentials_bitwarden_id': admin_id,
              'ghost_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'ghost_s3_ghost_credentials_bitwarden_id': s3_id,

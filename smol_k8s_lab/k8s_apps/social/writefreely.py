@@ -150,11 +150,6 @@ def configure_writefreely(argocd: ArgoCD,
                      'mysqlPassword': writefreely_mysql_password,
                      'username': "writefreely"})
 
-            # valkey creds k8s secret
-            writefreely_valkey_password = create_password()
-            argocd.k8s.create_secret('writefreely-valkey-credentials', 'writefreely',
-                                     {"password": writefreely_valkey_password})
-
     if not app_installed:
         if restore_enabled:
             restore_writefreely(argocd,
@@ -257,10 +252,6 @@ def refresh_bweso(argocd: ArgoCD,
             f"writefreely-mysql-credentials-{writefreely_hostname}"
             )[0]['id']
 
-    valkey_id = bitwarden.get_item(
-            f"writefreely-valkey-credentials-{writefreely_hostname}", False
-            )[0]['id']
-
     smtp_id = bitwarden.get_item(
             f"writefreely-smtp-credentials-{writefreely_hostname}", False
             )[0]['id']
@@ -282,7 +273,6 @@ def refresh_bweso(argocd: ArgoCD,
             {'writefreely_smtp_credentials_bitwarden_id': smtp_id,
              'writefreely_oidc_credentials_bitwarden_id': oidc_id,
              'writefreely_mysql_credentials_bitwarden_id': db_id,
-             'writefreely_valkey_bitwarden_id': valkey_id,
              'writefreely_admin_credentials_bitwarden_id': admin_id,
              'writefreely_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'writefreely_s3_writefreely_credentials_bitwarden_id': s3_id,
