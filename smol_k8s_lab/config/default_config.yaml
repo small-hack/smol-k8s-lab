@@ -463,6 +463,7 @@ apps:
         ## these are for node affinity, delete if not in use
         # affinity_key: ""
         # affinity_value: ""
+        pvc_capacity: 10Gi
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
