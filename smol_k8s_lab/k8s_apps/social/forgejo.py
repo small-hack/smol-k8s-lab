@@ -250,9 +250,9 @@ def refresh_bweso(argocd: ArgoCD,
             f"forgejo-oidc-credentials-{forgejo_hostname}"
             )[0]['id']
 
-    # admin_id = bitwarden.get_item(
-    #         f"forgejo-admin-credentials-{forgejo_hostname}"
-    #         )[0]['id']
+    admin_id = bitwarden.get_item(
+            f"forgejo-admin-credentials-{forgejo_hostname}"
+            )[0]['id']
 
     db_id = bitwarden.get_item(
             f"forgejo-pgsql-credentials-{forgejo_hostname}"
@@ -288,6 +288,7 @@ def refresh_bweso(argocd: ArgoCD,
              'forgejo_oidc_credentials_bitwarden_id': oidc_id,
              'forgejo_postgres_credentials_bitwarden_id': db_id,
              'forgejo_valkey_bitwarden_id': valkey_id,
+             'forgejo_admin_credentials_bitwarden_id': admin_id,
              'forgejo_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'forgejo_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'forgejo_s3_forgejo_credentials_bitwarden_id': s3_id,
@@ -389,15 +390,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
             )
 
     # admin credentials for forgejo itself
-    # admin_password = create_password()
-    # email_obj = create_custom_field("email", forgejo_admin_email)
-    # admin_id = bitwarden.create_login(
-    #         name='forgejo-admin-credentials',
-    #         item_url=forgejo_hostname,
-    #         user=forgejo_admin_username,
-    #         password=admin_password,
-    #         fields=[email_obj]
-    #         )
+    admin_password = create_password()
+    admin_id = bitwarden.create_login(
+            name='forgejo-admin-credentials',
+            item_url=forgejo_hostname,
+            user="forgejo",
+            password=admin_password,
+            fields=[]
+            )
 
     # oidc credentials if they were given, else they're probably already there
     if oidc_creds:
@@ -421,6 +421,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
             {'forgejo_smtp_credentials_bitwarden_id': smtp_id,
              'forgejo_oidc_credentials_bitwarden_id': oidc_id,
              'forgejo_postgres_credentials_bitwarden_id': db_id,
+             'forgejo_admin_credentials_bitwarden_id': admin_id,
              'forgejo_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'forgejo_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'forgejo_s3_forgejo_credentials_bitwarden_id': s3_id,
