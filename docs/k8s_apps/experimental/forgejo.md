@@ -54,6 +54,9 @@ apps:
         # affinity_key: ""
         # affinity_value: ""
         pvc_capacity: 10Gi
+        # set the local s3 provider for forgejo's public data in one bucket
+        # and private database backups in another. can be seaweedfs for now
+        s3_provider: seaweedfs
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
