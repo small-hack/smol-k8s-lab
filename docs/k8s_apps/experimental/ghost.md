@@ -97,6 +97,7 @@ apps:
         # depending on if you use seaweedfs or minio, you can remove the other source repo
         source_repos:
           - registry-1.docker.io
+          - seaweedfs.github.io/seaweedfs/helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []

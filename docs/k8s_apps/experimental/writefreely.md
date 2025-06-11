@@ -74,6 +74,9 @@ apps:
         mysql_pvc_capacity: 5Gi
         # writefreely pvc capacity
         pvc_capacity: 10Gi
+        # set the local s3 provider for writefreely's public data in one bucket
+        # and private database backups in another. can be seaweedfs for now
+        s3_provider: seaweedfs
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -92,6 +95,7 @@ apps:
         # depending on if you use seaweedfs or minio, you can remove the other source repo
         source_repos:
           - registry-1.docker.io
+          - seaweedfs.github.io/seaweedfs/helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []

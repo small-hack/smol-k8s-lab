@@ -75,6 +75,7 @@ apps:
         # depending on if you use seaweedfs or minio, you can remove the other source repo
         source_repos:
           - code.forgejo.org
+          - seaweedfs.github.io/seaweedfs/helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
