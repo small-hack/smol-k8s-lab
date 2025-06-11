@@ -366,6 +366,15 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[restic_repo_pass_obj]
             )
 
+    # valkey credentials
+    forgejo_valkey_password = bitwarden.generate()
+    valkey_id = bitwarden.create_login(
+            name='forgejo-valkey-credentials',
+            item_url=forgejo_hostname,
+            user='forgejo',
+            password=forgejo_valkey_password
+            )
+
     # PostgreSQL credentials
     forgejo_pgsql_password = bitwarden.generate()
     postrges_pass_obj = create_custom_field("postgresPassword",
@@ -421,6 +430,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
             {'forgejo_smtp_credentials_bitwarden_id': smtp_id,
              'forgejo_oidc_credentials_bitwarden_id': oidc_id,
              'forgejo_postgres_credentials_bitwarden_id': db_id,
+             'forgejo_valkey_bitwarden_id': valkey_id,
              'forgejo_admin_credentials_bitwarden_id': admin_id,
              'forgejo_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'forgejo_s3_postgres_credentials_bitwarden_id': s3_db_id,
