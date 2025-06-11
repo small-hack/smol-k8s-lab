@@ -427,7 +427,7 @@ apps:
           - FORGEJO_RESTIC_REPO_PASSWORD
     enabled: false
     init:
-      enabled: false
+      enabled: true
     backups:
       # cronjob syntax schedule to run forgejo pvc backups
       pvc_schedule: 10 0 * * *
@@ -605,7 +605,7 @@ apps:
          - GHOST_RESTIC_REPO_PASSWORD
     enabled: false
     init:
-      enabled: false
+      enabled: true
       values:
         smtp_password:
           value_from:
