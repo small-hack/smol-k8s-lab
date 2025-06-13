@@ -75,8 +75,8 @@ def configure_forgejo(argocd: ArgoCD,
 
         if not restore_enabled:
             # configure the admin user credentials
-            forgejo_admin_username = init_values.get('admin_user', 'tootadmin')
-            forgejo_admin_email = init_values.get('admin_email', '')
+            forgejo_admin_username = init_values.get('admin_user', 'forgejo')
+            forgejo_admin_email = init_values.get('admin_email', 'forgejo@test.com')
 
             # configure the smtp credentials
             mail_user = init_values.get('smtp_user', '')
@@ -138,9 +138,8 @@ def configure_forgejo(argocd: ArgoCD,
         # these are standard k8s secrets yaml
         elif not bitwarden and not restore_enabled:
             # admin creds k8s secret
-            # k8s_obj.create_secret('forgejo-admin-credentials', 'forgejo',
-            #               {"username": username,
-            #                "email": email})
+            argocd.k8s.create_secret('forgejo-admin-credentials', 'forgejo',
+                          {"username": forgejo_admin_username})
 
             # postgres creds k8s secret
             forgejo_pgsql_password = create_password()

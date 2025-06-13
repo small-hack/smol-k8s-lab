@@ -15,9 +15,18 @@ apps:
           - FORGEJO_S3_BACKUP_SECRET_KEY
           - FORGEJO_S3_BACKUP_ACCESS_ID
           - FORGEJO_RESTIC_REPO_PASSWORD
+          - FORGEJO_SMTP_PASSWORD
     enabled: false
     init:
       enabled: false
+      values:
+        admin_user: admin
+        admin_email: test@test.com
+        smtp_user: test
+        smtp_host: mymailhost.com
+        smtp_password:
+          value_from:
+            env: FORGEJO_SMTP_PASSWORD
     backups:
       # cronjob syntax schedule to run forgejo pvc backups
       pvc_schedule: 10 0 * * *
