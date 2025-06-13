@@ -66,6 +66,14 @@ apps:
         # set the local s3 provider for forgejo's public data in one bucket
         # and private database backups in another. can be seaweedfs for now
         s3_provider: seaweedfs
+        # how large the backing pvc's capacity should be for minio or seaweedfs
+        s3_pvc_capacity: 10Gi
+        # local s3 endpoint for postgresql backups, backed up constantly
+        s3_endpoint: ""
+        # optional region where your s3 bucket lives
+        s3_region: eu-central-1
+        # access mode the gotosocial pvc
+        access_mode: ReadWriteOnce
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
