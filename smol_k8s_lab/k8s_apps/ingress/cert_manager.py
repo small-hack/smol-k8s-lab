@@ -24,7 +24,7 @@ def configure_cert_manager(k8s_obj: K8s) -> None:
                          chart_name='jetstack/cert-manager',
                          namespace='cert-manager',
                          set_options={'installCRDs': 'true',
-                                      'config.feature-gates.ACMEHTTP01IngressPathTypeExact': 'false'
+                                      'config.featureGates.ACMEHTTP01IngressPathTypeExact': 'false'
                                       })
     release.install(wait=True)
 
