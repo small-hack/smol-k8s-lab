@@ -25,6 +25,7 @@ from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_apps.monitoring.prometheus_stack import configure_prometheus_stack
+from .k8s_apps.monitoring.grafana_stack import configure_grafana_stack
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
@@ -303,6 +304,10 @@ def main(config: str = "",
         prometheus_stack = apps.pop('prometheus', {'enabled': False})
         if prometheus_stack['enabled']:
             configure_prometheus_stack(argocd, prometheus_stack, oidc_obj, bw)
+
+        grafana_stack = apps.pop('grafana_stack', {'enabled': False})
+        if grafana_stack['enabled']:
+            configure_grafana_stack(argocd, grafana_stack, oidc_obj, bw)
 
         # set up self hosted translation
         libre_translate_dict = apps.pop('libre_translate', {'enabled': False})
