@@ -10,7 +10,7 @@ You can see an overview of the whole Prometheus Stack Argo CD Application at [sm
 |---------------------------------------------------------------------------|-----------------------------------------------------|
 | [Alloy](https://grafana.com.com/oss/mimir)                                | for collecting metrics and logs                     |
 | [Mimir](https://grafana.com.com/oss/mimir/)                               | for aggregating metrics and storign them in S3      |
-| [Loki](https://grafana.com/oss/loki/)                                     | - for aggregating logs and storing them in S3       |
+| [Loki](https://grafana.com/oss/loki/)                                     | for aggregating logs and storing them in S3         |
 | [Alert Manager](https://prometheus.io/docs/alerting/latest/alertmanager/) | for sending alerts to matrix                        |
 | [Grafana](https://grafana.com/oss/grafana/)                               | for querying metrics/logs and displaying dashboards |
 
