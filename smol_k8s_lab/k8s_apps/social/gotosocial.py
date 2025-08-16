@@ -13,10 +13,11 @@ from smol_k8s_lab.utils.run.subproc import subproc
 from smol_k8s_lab.utils.value_from import extract_secret, process_backup_vals
 
 # external libraries
+import asyncio
 import logging as log
 
 
-def configure_gotosocial(
+async def configure_gotosocial(
         argocd: ArgoCD,
         cfg: dict,
         pvc_storage_class: str,

@@ -13,15 +13,18 @@ from smol_k8s_lab.utils.run.subproc import subproc
 from smol_k8s_lab.utils.value_from import extract_secret, process_backup_vals
 
 # external libraries
+import asyncio
 import logging as log
 from rich.prompt import Prompt
 
 
-def configure_nextcloud(argocd: ArgoCD,
-                        cfg: dict,
-                        pvc_storage_class: str,
-                        zitadel: Zitadel,
-                        bitwarden: BwCLI = BwCLI("test","test","test")) -> None:
+async def configure_nextcloud(
+        argocd: ArgoCD,
+        cfg: dict,
+        pvc_storage_class: str,
+        zitadel: Zitadel,
+        bitwarden: BwCLI = BwCLI("test","test","test")
+        ) -> None:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
 
