@@ -163,7 +163,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
         if oidc_creds:
             # for the credentials to zitadel
             oidc_id = bitwarden.create_login(
-                    name='grafana-oidc-credentials',
+                    name='grafana-stack-oidc-credentials',
                     item_url=grafana_hostname,
                     user=oidc_creds['client_id'],
                     password=oidc_creds['client_secret']
@@ -171,12 +171,12 @@ def setup_bitwarden_items(argocd: ArgoCD,
         else:
             # we assume the credentials already exist if they fail to create
             oidc_id = bitwarden.get_item(
-                    f"grafana-oidc-credentials-{grafana_hostname}"
+                    f"grafana-stack-oidc-credentials-{grafana_hostname}"
                     )[0]['id']
 
     # update the grafana values for the argocd appset
     argocd.update_appset_secret(
-            {'grafana_oidc_credentials_bitwarden_id': oidc_id}
+            {'grafana_stack_oidc_credentials_bitwarden_id': oidc_id}
             )
 
     restic_repo_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
@@ -200,7 +200,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # S3 monitoring user credentials
     user_access_key = create_password()
-    s3_loki_id = bitwarden.create_login(
+    s3_user_id = bitwarden.create_login(
             name='monitoring-user-s3-credentials',
             item_url=grafana_hostname,
             user="monitoring-user",
@@ -232,10 +232,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # update the monitoring values for the argocd appset
     argocd.update_appset_secret(
-            {'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
+            {
+            'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
             'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
             'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
-            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id}
+            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id,
+            'grafana_stack_s3_user_credentials_bitwarden_id': s3_user_id
+            }
             )
 
     # reload the bitwarden ESO provider
@@ -278,7 +281,8 @@ def refresh_bitwarden(argocd: ArgoCD,
             'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
             'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
             'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
-            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id
+            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id,
+            'grafana_stack_s3_user_credentials_bitwarden_id': s3_user_id
             }
             )
 
