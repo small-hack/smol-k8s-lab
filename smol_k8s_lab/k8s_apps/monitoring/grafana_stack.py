@@ -177,6 +177,16 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[endpoint_obj]
             )
 
+    # S3 monitoring user credentials
+    user_access_key = create_password()
+    s3_user_id = bitwarden.create_login(
+            name='monitoring-user-s3-credentials',
+            item_url=grafana_hostname,
+            user="monitoring-user",
+            password=user_access_key,
+            fields=[endpoint_obj]
+            )
+
     # S3 credentials for loki
     loki_bucket_obj = create_custom_field('bucket', "loki")
     loki_access_key = create_password()
@@ -206,7 +216,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
             'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
             'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
             'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
-            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id
+            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id,
+            'grafana_stack_s3_user_credentials_bitwarden_id': s3_user_id
             }
             )
 
@@ -255,7 +266,8 @@ def refresh_bitwarden(argocd: ArgoCD,
             'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
             'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
             'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
-            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id
+            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id,
+            'grafana_stack_s3_user_credentials_bitwarden_id': s3_user_id
             }
             )
 
