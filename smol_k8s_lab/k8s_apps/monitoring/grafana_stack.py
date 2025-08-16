@@ -158,11 +158,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
                     f"grafana-oidc-credentials-{grafana_hostname}"
                     )[0]['id']
 
-    # update the grafana values for the argocd appset
-    argocd.update_appset_secret(
-            {'grafana_stack_oidc_credentials_bitwarden_id': oidc_id}
-            )
-
     restic_repo_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
     s3_backup_id = bitwarden.create_login(
             name='backups-s3-credentials',
@@ -206,10 +201,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # update the monitoring values for the argocd appset
     argocd.update_appset_secret(
-            {'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
+            {
+            'grafana_stack_oidc_credentials_bitwarden_id': oidc_id,
+            'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
             'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
             'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
-            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id}
+            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id
+            }
             )
 
     # reload the bitwarden ESO provider
@@ -230,6 +228,10 @@ def refresh_bitwarden(argocd: ArgoCD,
     """
     makes sure we update the appset secret with bitwarden IDs regardless
     """
+    oidc_id = bitwarden.get_item(
+            f"grafana-oidc-credentials-{grafana_hostname}", False
+            )[0]['id']
+
     s3_backup_id = bitwarden.get_item(
             f"backups-s3-credentials-{grafana_hostname}", False
             )[0]['id']
@@ -249,7 +251,7 @@ def refresh_bitwarden(argocd: ArgoCD,
     # update the monitoring values for the argocd appset
     argocd.update_appset_secret(
             {
-            'grafana_stack_oidc_credentials_bitwarden_id': s3_loki_id,
+            'grafana_stack_oidc_credentials_bitwarden_id': oidc_id,
             'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
             'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
             'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
