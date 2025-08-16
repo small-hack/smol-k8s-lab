@@ -2287,6 +2287,7 @@ apps:
           - "https://github.com/grafana/helm-charts.git"
           - "https://github.com/prometheus-community/helm-charts.git"
           - "https://prometheus-community.github.io/helm-charts"
+          - "https://seaweedfs.github.io/seaweedfs/helm"
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
