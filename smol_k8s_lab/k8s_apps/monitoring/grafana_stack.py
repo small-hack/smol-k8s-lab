@@ -6,7 +6,7 @@ from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_apps.operators.minio import create_minio_alias
-from smol_k8s_lab.k8s_tools.restores import restore_seaweedfs, restore_cnpg_cluster
+from smol_k8s_lab.k8s_tools.restores import restore_seaweedfs
 from smol_k8s_lab.utils.value_from import process_backup_vals
 from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
@@ -71,7 +71,7 @@ def configure_grafana_stack(argocd: ArgoCD,
                                secret_key=s3_access_key)
 
         # create Grafana OIDC Application
-        if zitadel:
+        if zitadel and not restore_enabled:
             log.debug("Creating an OIDC application in Zitadel...")
             zitadel_hostname = zitadel.hostname
             logout_uris = [f"https://{grafana_hostname}"]
@@ -85,7 +85,7 @@ def configure_grafana_stack(argocd: ArgoCD,
             zitadel_hostname = ""
 
         # if the user has bitwarden enabled
-        if bitwarden:
+        if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
                                   grafana_hostname,
                                   s3_endpoint,
@@ -98,7 +98,7 @@ def configure_grafana_stack(argocd: ArgoCD,
                                   bitwarden)
 
         # else create these as Kubernetes secrets
-        else:
+        elif not bitwarden and not restore_enabled:
             if zitadel:
                 # oidc secret
                 argocd.k8s.create_secret(
@@ -109,7 +109,17 @@ def configure_grafana_stack(argocd: ArgoCD,
                         )
 
     if not app_installed:
-        argocd.install_app('grafana-stack', cfg['argo'])
+        # if the user is restoring, the process is a little different
+        if init_enabled and restore_enabled:
+            restore_monitoring_stack(argocd,
+                                     grafana_hostname,
+                                     monitoring_namespace,
+                                     cfg['argo'],
+                                     secrets,
+                                     restore_dict,
+                                     backup_vals)
+        else:
+            argocd.install_app('grafana-stack', cfg['argo'])
     else:
         if bitwarden and init_enabled:
             log.info("Grafana Monitoring Stack already installed 🎉")
@@ -171,45 +181,51 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     restic_repo_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
     s3_backup_id = bitwarden.create_login(
-            name='monitoring-backups-s3-credentials',
+            name='backups-s3-credentials',
             item_url=grafana_hostname,
             user=backups_s3_user,
             password=backups_s3_password,
             fields=[restic_repo_obj]
             )
 
+    endpoint_obj = create_custom_field('endpoint', s3_endpoint)
     admin_s3_key = create_password()
     s3_admin_id = bitwarden.create_login(
-            name='monitoring-admin-s3-credentials',
+            name='admin-s3-credentials',
             item_url=grafana_hostname,
             user="monitoring-root",
-            password=admin_s3_key
+            password=admin_s3_key,
+            fields=[endpoint_obj]
             )
 
     # S3 credentials for loki
+    loki_bucket_obj = create_custom_field('bucket', "loki")
     loki_access_key = create_password()
     s3_loki_id = bitwarden.create_login(
             name='loki-s3-credentials',
             item_url=grafana_hostname,
-            user="monitoring-postgres",
-            password=loki_access_key
+            user="loki",
+            password=loki_access_key,
+            fields=[loki_bucket_obj, endpoint_obj]
             )
 
     # S3 credentials for mimir
+    mimir_bucket_obj = create_custom_field('bucket', "mimir")
     mimir_access_key = create_password()
     s3_mimir_id = bitwarden.create_login(
             name='mimir-s3-credentials',
             item_url=grafana_hostname,
-            user="monitoring-postgres",
-            password=mimir_access_key
+            user="mimir",
+            password=mimir_access_key,
+            fields=[mimir_bucket_obj, endpoint_obj]
             )
 
     # update the monitoring values for the argocd appset
     argocd.update_appset_secret(
-            {'loki_s3_credentials_bitwarden_id': s3_loki_id,
-             'mimir_s3_credentials_bitwarden_id': s3_mimir_id,
-             'monitoring_s3_admin_credentials_bitwarden_id': s3_admin_id,
-             'monitoring_s3_backups_credentials_bitwarden_id': s3_backup_id}
+            {'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
+            'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
+            'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
+            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id}
             )
 
     # reload the bitwarden ESO provider
@@ -231,11 +247,11 @@ def refresh_bitwarden(argocd: ArgoCD,
     makes sure we update the appset secret with bitwarden IDs regardless
     """
     s3_backup_id = bitwarden.get_item(
-            f"monitoring-backups-s3-credentials-{grafana_hostname}", False
+            f"backups-s3-credentials-{grafana_hostname}", False
             )[0]['id']
 
     s3_admin_id = bitwarden.get_item(
-            f"monitoring-admin-s3-credentials-{grafana_hostname}", False
+            f"admin-s3-credentials-{grafana_hostname}", False
             )[0]['id']
 
     s3_loki_id = bitwarden.get_item(
@@ -249,10 +265,10 @@ def refresh_bitwarden(argocd: ArgoCD,
     # update the monitoring values for the argocd appset
     argocd.update_appset_secret(
             {
-            'loki_s3_credentials_bitwarden_id': s3_loki_id,
-            'mimir_s3_credentials_bitwarden_id': s3_mimir_id,
-            'monitoring_s3_backups_credentials_bitwarden_id': s3_backup_id,
-            'monitoring_s3_admin_credentials_bitwarden_id': s3_admin_id
+            'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
+            'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
+            'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
+            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id
             }
             )
 
@@ -265,11 +281,9 @@ def restore_monitoring_stack(argocd: ArgoCD,
                              restore_dict: dict,
                              backup_dict: dict,
                              pvc_storage_class: str,
-                             pgsql_cluster_name: str,
                              bitwarden: BwCLI) -> None:
     """
-    restore monitoring seaweedfs PVCs, monitoring files and/or config PVC(s),
-    and CNPG postgresql cluster
+    restore monitoring seaweedfs PVCs, monitoring files and/or config PVC(s)
     """
     # this is the info for the REMOTE backups
     s3_backup_endpoint = backup_dict['endpoint']
@@ -277,7 +291,6 @@ def restore_monitoring_stack(argocd: ArgoCD,
     access_key_id = backup_dict["s3_user"]
     secret_access_key = backup_dict["s3_password"]
     restic_repo_password = backup_dict['restic_repo_pass']
-    cnpg_backup_schedule = backup_dict['postgres_schedule']
 
     # get where the current argo cd app is located in git
     revision = argo_dict["revision"]
@@ -293,14 +306,6 @@ def restore_monitoring_stack(argocd: ArgoCD,
                 f"{revision}/{argo_path}/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
-
-        # postgresql s3 ID
-        s3_db_creds = bitwarden.get_item(
-                f"monitoring-postgres-s3-credentials-{grafana_hostname}", False
-                )[0]['login']
-
-        pg_access_key_id = s3_db_creds["username"]
-        pg_secret_access_key = s3_db_creds["password"]
 
     # these are the remote backups for seaweedfs
     s3_pvc_capacity = secrets['s3_pvc_capacity']
@@ -324,18 +329,3 @@ def restore_monitoring_stack(argocd: ArgoCD,
             snapshot_ids['seaweedfs_volume'],
             snapshot_ids['seaweedfs_filer']
             )
-
-    # then we finally can restore the postgres database :D
-    if restore_dict.get("cnpg_restore", False):
-        psql_version = restore_dict.get("postgresql_version", 16)
-        s3_endpoint = secrets.get('s3_endpoint', "")
-        restore_cnpg_cluster(argocd.k8s,
-                             'monitoring',
-                             monitoring_namespace,
-                             pgsql_cluster_name,
-                             psql_version,
-                             s3_endpoint,
-                             pg_access_key_id,
-                             pg_secret_access_key,
-                             pgsql_cluster_name,
-                             cnpg_backup_schedule)
