@@ -20,7 +20,8 @@ def configure_matrix(argocd: ArgoCD,
                      cfg: dict,
                      pvc_storage_class: str,
                      zitadel: Zitadel,
-                     bitwarden: BwCLI = None) -> bool:
+                     bitwarden: BwCLI = BwCLI("test","test","test")
+                     ) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
 

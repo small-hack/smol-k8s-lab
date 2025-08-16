@@ -19,7 +19,8 @@ def configure_mastodon(argocd: ArgoCD,
                        cfg: dict,
                        pvc_storage_class: str,
                        libretranslate_api_key: str = "",
-                       bitwarden: BwCLI = None) -> bool:
+                       bitwarden: BwCLI = BwCLI("test", "test", "test")
+                       ) -> bool:
     """
     creates a mastodon app and initializes it with secrets if you'd like :)
 
@@ -30,7 +31,7 @@ def configure_mastodon(argocd: ArgoCD,
         libretranslate_api_key - str, api key to enable automatic translations
 
     optional:
-        bitwarden   - BwCLI() object with session token to create bitwarden items
+        bitwarden - BwCLI() object with session token to create bitwarden items
     """
     # check immediately if the app is installed
     app_installed = argocd.check_if_app_exists('mastodon')
