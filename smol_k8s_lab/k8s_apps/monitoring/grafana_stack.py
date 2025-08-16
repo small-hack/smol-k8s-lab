@@ -198,6 +198,16 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[endpoint_obj]
             )
 
+    # S3 monitoring user credentials
+    user_access_key = create_password()
+    s3_loki_id = bitwarden.create_login(
+            name='monitoring-user-s3-credentials',
+            item_url=grafana_hostname,
+            user="monitoring-user",
+            password=user_access_key,
+            fields=[endpoint_obj]
+            )
+
     # S3 credentials for loki
     loki_bucket_obj = create_custom_field('bucket', "loki")
     loki_access_key = create_password()
