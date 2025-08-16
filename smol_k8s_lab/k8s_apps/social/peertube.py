@@ -17,7 +17,7 @@ import logging as log
 def configure_peertube(argocd: ArgoCD,
                        cfg: dict,
                        pvc_storage_class: str,
-                       bitwarden: BwCLI = None) -> bool:
+                       bitwarden: BwCLI = BwCLI("test","test","test")) -> bool:
     """
     creates a peertube app and initializes it with a secret if you'd like :)
 

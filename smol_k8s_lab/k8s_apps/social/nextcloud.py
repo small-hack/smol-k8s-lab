@@ -20,8 +20,8 @@ from rich.prompt import Prompt
 def configure_nextcloud(argocd: ArgoCD,
                         cfg: dict,
                         pvc_storage_class: str,
-                        zitadel: Zitadel = None,
-                        bitwarden: BwCLI = None) -> None:
+                        zitadel: Zitadel,
+                        bitwarden: BwCLI = BwCLI("test","test","test")) -> None:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
 

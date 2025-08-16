@@ -321,24 +321,24 @@ def main(config: str = "",
 
         # setup nextcloud, home assistant, mastodon, gotosocial, and matrix
         asyncio.run(setup_federated_apps(
-                argocd,
-                api_tls_verify,
-                apps.pop('forgejo', {}),
-                apps.pop('ghost', {}),
-                apps.pop('harbor', {}),
-                apps.pop('home_assistant', {}),
-                apps.pop('nextcloud', {}),
-                apps.pop('mastodon', {}),
-                apps.pop('gotosocial', {}),
-                apps.pop('matrix', {}),
-                apps.pop('peertube', {}),
-                apps.pop('writefreely', {}),
-                pvc_storage_class,
-                zitadel_hostname,
-                oidc_obj,
-                libretranslate_api_key,
-                bw
-                ))
+                    argocd,
+                    api_tls_verify,
+                    apps.pop('forgejo', {}),
+                    apps.pop('ghost', {}),
+                    apps.pop('harbor', {}),
+                    apps.pop('home_assistant', {}),
+                    apps.pop('nextcloud', {}),
+                    apps.pop('mastodon', {}),
+                    apps.pop('gotosocial', {}),
+                    apps.pop('matrix', {}),
+                    apps.pop('peertube', {}),
+                    apps.pop('writefreely', {}),
+                    pvc_storage_class,
+                    zitadel_hostname,
+                    oidc_obj,
+                    libretranslate_api_key,
+                    bw
+                    ))
 
         # stand alone valkey
         if apps.get('valkey'):

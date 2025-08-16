@@ -16,11 +16,13 @@ from smol_k8s_lab.utils.value_from import extract_secret, process_backup_vals
 import logging as log
 
 
-def configure_gotosocial(argocd: ArgoCD,
-                         cfg: dict,
-                         pvc_storage_class: str,
-                         zitadel: Zitadel = None,
-                         bitwarden: BwCLI = None) -> bool:
+def configure_gotosocial(
+        argocd: ArgoCD,
+        cfg: dict,
+        pvc_storage_class: str,
+        zitadel: Zitadel,
+        bitwarden: BwCLI = BwCLI("test","test","test")
+        ) -> bool:
     """
     creates a gotosocial app and initializes it with secrets if you'd like :)
 
