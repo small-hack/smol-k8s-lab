@@ -16,9 +16,9 @@ smol_k8s_lab:
         # ring the built in terminal bell when something is wrong
         on_error: false
       text_to_speech:
-        # currently only english (en) and nederlands (nl) are available, but if you know
-        # other languages, please help us translate (open an issue or discussion
-        # on github 💙)
+        # currently only english (en) and nederlands (nl) are available, but if
+        # you see errors or know other languages, please help us translate (open
+        # a PR, an issue, or discussion on GitHub 💙)
         language: "en"
         # use a specific cli program for text to speech - needs to be a full path
         # if it isn't in your default path. default is "" which means we'll use
@@ -2290,7 +2290,7 @@ apps:
         name: monitoring
         source_repos:
           - "registry-1.docker.io"
-          - "https://grafana.github.io/helm-charts"
+          - "ghcr.io/grafana/helm-charts"
           - "https://github.com/grafana/helm-charts.git"
           - "https://github.com/prometheus-community/helm-charts.git"
           - "https://prometheus-community.github.io/helm-charts"
