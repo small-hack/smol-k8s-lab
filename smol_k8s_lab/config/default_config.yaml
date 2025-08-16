@@ -2249,8 +2249,8 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        # FQDN to use for Thanos web interface
-        thanos_hostname: ""
+        # FQDN to use for mimir
+        mimir_hostname: ""
         # FQDN to use for Grafana
         grafana_hostname: ""
         # FQDN to use for the Loki UI
