@@ -147,7 +147,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
         if oidc_creds:
             # for the credentials to zitadel
             oidc_id = bitwarden.create_login(
-                    name='grafana-stack-oidc-credentials',
+                    name='grafana-oidc-credentials',
                     item_url=grafana_hostname,
                     user=oidc_creds['client_id'],
                     password=oidc_creds['client_secret']
@@ -155,7 +155,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
         else:
             # we assume the credentials already exist if they fail to create
             oidc_id = bitwarden.get_item(
-                    f"grafana-stack-oidc-credentials-{grafana_hostname}"
+                    f"grafana-oidc-credentials-{grafana_hostname}"
                     )[0]['id']
 
     restic_repo_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
