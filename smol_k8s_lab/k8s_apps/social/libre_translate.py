@@ -10,7 +10,8 @@ import logging as log
 
 def configure_libretranslate(argocd: ArgoCD,
                              cfg: dict,
-                             bitwarden: BwCLI = None) -> str:
+                             bitwarden: BwCLI = BwCLI("test","test","test")
+                            ) -> str:
     """
     creates a libretranslate app and initializes it with secrets if you'd like :)
 

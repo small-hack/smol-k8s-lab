@@ -230,97 +230,104 @@ def setup_base_apps(k8s_obj: K8s,
         return argocd
 
 
-async def setup_federated_apps(argocd: ArgoCD,
-                         api_tls_verify: bool = False,
-                         forgejo_dict: dict = {},
-                         ghost_dict: dict = {},
-                         harbor_dict: dict = {},
-                         home_assistant_dict: dict = {},
-                         nextcloud_dict: dict = {},
-                         mastodon_dict: dict = {},
-                         gotosocial_dict: dict = {},
-                         matrix_dict: dict = {},
-                         peertube_dict: dict = {},
-                         writefreely_dict: dict = {},
-                         pvc_storage_class: str = "local-path",
-                         zitadel_hostname: str = "",
-                         zitadel_obj: Zitadel = None,
-                         libretranslate_api_key: str = "",
-                         bw: BwCLI = None) -> None:
+async def setup_federated_apps(
+        argocd: ArgoCD,
+        api_tls_verify: bool = False,
+        forgejo_dict: dict = {},
+        ghost_dict: dict = {},
+        harbor_dict: dict = {},
+        home_assistant_dict: dict = {},
+        nextcloud_dict: dict = {},
+        mastodon_dict: dict = {},
+        gotosocial_dict: dict = {},
+        matrix_dict: dict = {},
+        peertube_dict: dict = {},
+        writefreely_dict: dict = {},
+        pvc_storage_class: str = "local-path",
+        zitadel_hostname: str = "",
+        zitadel_obj: Zitadel = None,
+        libretranslate_api_key: str = "",
+        bw: BwCLI = None
+        ) -> None:
     """
     Setup any federated apps with initialization supported
     """
     # git server
     if forgejo_dict.get('enabled', False):
+        # await configure_forgejo(argocd=argocd,
+        #                         cfg=forgejo_dict,
+        #                         pvc_storage_class=pvc_storage_class,
+        #                         zitadel=zitadel_obj,
+        #                         bitwarden=bw)
         await configure_forgejo(argocd,
-                          forgejo_dict,
-                          pvc_storage_class,
-                          zitadel_obj,
-                          bw)
+                                forgejo_dict,
+                                pvc_storage_class,
+                                zitadel_obj,
+                                bw)
 
     # blogging platforms
     if ghost_dict.get('enabled', False):
-        await configure_ghost(argocd,
-                        ghost_dict,
-                        pvc_storage_class,
-                        zitadel_obj,
-                        bw)
+        await configure_ghost(argocd=argocd,
+                              cfg=ghost_dict,
+                              pvc_storage_class=pvc_storage_class,
+                              zitadel=zitadel_obj,
+                              bitwarden=bw)
 
     if writefreely_dict.get('enabled', False):
-        await configure_writefreely(argocd,
-                        writefreely_dict,
-                        pvc_storage_class,
-                        zitadel_obj,
-                        bw)
+        await configure_writefreely(argocd=argocd,
+                                    cfg=writefreely_dict,
+                                    pvc_storage_class=pvc_storage_class,
+                                    zitadel=zitadel_obj,
+                                    bitwarden=bw)
 
     # oci registry for docker and helm
     if harbor_dict.get('enabled', False):
-        await configure_harbor(argocd,
-                         harbor_dict,
-                         pvc_storage_class,
-                         zitadel_obj,
-                         bw)
+        await configure_harbor(argocd=argocd,
+                               cfg=harbor_dict,
+                               pvc_storage_class=pvc_storage_class,
+                               zitadel=zitadel_obj,
+                               bitwarden=bw)
 
     if home_assistant_dict.get('enabled', False):
         await configure_home_assistant(argocd,
-                                 home_assistant_dict,
-                                 pvc_storage_class,
-                                 api_tls_verify,
-                                 bw)
+                                       home_assistant_dict,
+                                       pvc_storage_class,
+                                       api_tls_verify,
+                                       bw)
 
     if nextcloud_dict.get('enabled', False):
         await configure_nextcloud(argocd,
-                            nextcloud_dict,
-                            pvc_storage_class,
-                            zitadel_obj,
-                            bw)
+                                  nextcloud_dict,
+                                  pvc_storage_class,
+                                  zitadel_obj,
+                                  bw)
 
     # federated social micro blogging apps
     if mastodon_dict.get('enabled', False):
         await configure_mastodon(argocd,
-                           mastodon_dict,
-                           pvc_storage_class,
-                           libretranslate_api_key,
-                           bw)
+                                 mastodon_dict,
+                                 pvc_storage_class,
+                                 libretranslate_api_key,
+                                 bw)
 
     if gotosocial_dict.get('enabled', False):
         await configure_gotosocial(argocd,
-                             gotosocial_dict,
-                             pvc_storage_class,
-                             zitadel_obj,
-                             bw)
+                                   gotosocial_dict,
+                                   pvc_storage_class,
+                                   zitadel_obj,
+                                   bw)
 
     # federated video hosting - similar to youtube
     if peertube_dict.get('enabled', False):
         await configure_peertube(argocd,
-                           peertube_dict,
-                           pvc_storage_class,
-                           bw)
+                                 peertube_dict,
+                                 pvc_storage_class,
+                                 bw)
 
     # federated chat apps
     if matrix_dict.get('enabled', False):
         await configure_matrix(argocd,
-                         matrix_dict,
-                         pvc_storage_class,
-                         zitadel_obj,
-                         bw)
+                               matrix_dict,
+                               pvc_storage_class,
+                               zitadel_obj,
+                               bw)

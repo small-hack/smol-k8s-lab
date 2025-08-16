@@ -16,7 +16,8 @@ def configure_home_assistant(argocd: ArgoCD,
                              cfg: dict,
                              pvc_storage_class: str,
                              api_tls_verify: bool = False,
-                             bitwarden: BwCLI = None) -> None:
+                             bitwarden: BwCLI = BwCLI("test","test","test")
+                            ) -> None:
     """
     creates a home-assistant app and initializes it with secrets if you'd like :)
 

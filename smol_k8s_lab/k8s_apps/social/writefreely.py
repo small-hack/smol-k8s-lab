@@ -15,10 +15,10 @@ import logging as log
 
 
 def configure_writefreely(argocd: ArgoCD,
-                    cfg: dict,
-                    pvc_storage_class: str,
-                    zitadel: Zitadel = None,
-                    bitwarden: BwCLI = None) -> bool:
+                          cfg: dict,
+                          pvc_storage_class: str,
+                          zitadel: Zitadel,
+                          bitwarden: BwCLI = BwCLI("test","test","test")) -> bool:
     """
     creates a writefreely app and initializes it with secrets if you'd like :)
 

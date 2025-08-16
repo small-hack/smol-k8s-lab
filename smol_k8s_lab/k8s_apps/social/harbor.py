@@ -18,8 +18,9 @@ import logging as log
 def configure_harbor(argocd: ArgoCD,
                      cfg: dict,
                      pvc_storage_class: str,
-                     zitadel: Zitadel = None,
-                     bitwarden: BwCLI = None) -> bool:
+                     zitadel: Zitadel,
+                     bitwarden: BwCLI = BwCLI("test","test","test")
+                     ) -> bool:
     """
     creates a harbor app and initializes it with secrets if you'd like :)
 
