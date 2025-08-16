@@ -260,7 +260,7 @@ def refresh_bitwarden(argocd: ArgoCD,
             )[0]['id']
 
     s3_user_id = bitwarden.get_item(
-            f"user-s3-credentials-{grafana_hostname}", False
+            f"monitoring-user-s3-credentials-{grafana_hostname}", False
             )[0]['id']
 
     # update the monitoring values for the argocd appset
