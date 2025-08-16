@@ -15,7 +15,7 @@ import logging as log
 def configure_collabora_online(argocd: ArgoCD,
                                cfg: dict,
                                pvc_storage_class: str,
-                               bitwarden: BwCLI = None) -> None:
+                               bitwarden: BwCLI = BwCLI("test","test","test")) -> None:
     """
     creates a collabora app and initializes it with secrets if you'd like :)
 

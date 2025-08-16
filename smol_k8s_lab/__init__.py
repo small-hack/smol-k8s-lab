@@ -10,6 +10,7 @@
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
 
+import asyncio
 from click import option, command
 import logging
 from os import environ as env
@@ -319,25 +320,25 @@ def main(config: str = "",
             libretranslate_api_key = ""
 
         # setup nextcloud, home assistant, mastodon, gotosocial, and matrix
-        setup_federated_apps(
-                argocd,
-                api_tls_verify,
-                apps.pop('forgejo', {}),
-                apps.pop('ghost', {}),
-                apps.pop('harbor', {}),
-                apps.pop('home_assistant', {}),
-                apps.pop('nextcloud', {}),
-                apps.pop('mastodon', {}),
-                apps.pop('gotosocial', {}),
-                apps.pop('matrix', {}),
-                apps.pop('peertube', {}),
-                apps.pop('writefreely', {}),
-                pvc_storage_class,
-                zitadel_hostname,
-                oidc_obj,
-                libretranslate_api_key,
-                bw
-                )
+        asyncio.run(setup_federated_apps(
+                    argocd,
+                    api_tls_verify,
+                    apps.pop('forgejo', {}),
+                    apps.pop('ghost', {}),
+                    apps.pop('harbor', {}),
+                    apps.pop('home_assistant', {}),
+                    apps.pop('nextcloud', {}),
+                    apps.pop('mastodon', {}),
+                    apps.pop('gotosocial', {}),
+                    apps.pop('matrix', {}),
+                    apps.pop('peertube', {}),
+                    apps.pop('writefreely', {}),
+                    pvc_storage_class,
+                    zitadel_hostname,
+                    oidc_obj,
+                    libretranslate_api_key,
+                    bw
+                    ))
 
         # stand alone valkey
         if apps.get('valkey'):
