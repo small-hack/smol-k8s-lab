@@ -274,7 +274,8 @@ class ArgoCD():
             self.sync_app('appset-secrets-plugin', spinner=True, replace=True, force=True)
             self.wait_for_app('appset-secrets-plugin')
         else:
-            self.k8s.reload_deployment("appset-secrets-plugin", self.namespace)
+            sleep(9)
+            # self.k8s.reload_deployment("appset-secrets-plugin", self.namespace)
 
         # if bweso enabled, reload the bitwarden ESO provider
         if self.secrets_backend == "bitwarden":
