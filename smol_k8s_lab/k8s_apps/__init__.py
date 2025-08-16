@@ -254,11 +254,6 @@ async def setup_federated_apps(
     """
     # git server
     if forgejo_dict.get('enabled', False):
-        # await configure_forgejo(argocd=argocd,
-        #                         cfg=forgejo_dict,
-        #                         pvc_storage_class=pvc_storage_class,
-        #                         zitadel=zitadel_obj,
-        #                         bitwarden=bw)
         await configure_forgejo(argocd,
                                 forgejo_dict,
                                 pvc_storage_class,
@@ -267,26 +262,26 @@ async def setup_federated_apps(
 
     # blogging platforms
     if ghost_dict.get('enabled', False):
-        await configure_ghost(argocd=argocd,
-                              cfg=ghost_dict,
-                              pvc_storage_class=pvc_storage_class,
-                              zitadel=zitadel_obj,
-                              bitwarden=bw)
+        await configure_ghost(argocd,
+                              ghost_dict,
+                              pvc_storage_class,
+                              zitadel_obj,
+                              bw)
 
     if writefreely_dict.get('enabled', False):
-        await configure_writefreely(argocd=argocd,
-                                    cfg=writefreely_dict,
-                                    pvc_storage_class=pvc_storage_class,
-                                    zitadel=zitadel_obj,
-                                    bitwarden=bw)
+        await configure_writefreely(argocd,
+                                    writefreely_dict,
+                                    pvc_storage_class,
+                                    zitadel_obj,
+                                    bw)
 
     # oci registry for docker and helm
     if harbor_dict.get('enabled', False):
-        await configure_harbor(argocd=argocd,
-                               cfg=harbor_dict,
-                               pvc_storage_class=pvc_storage_class,
-                               zitadel=zitadel_obj,
-                               bitwarden=bw)
+        await configure_harbor(argocd,
+                               harbor_dict,
+                               pvc_storage_class,
+                               zitadel_obj,
+                               bw)
 
     if home_assistant_dict.get('enabled', False):
         await configure_home_assistant(argocd,
