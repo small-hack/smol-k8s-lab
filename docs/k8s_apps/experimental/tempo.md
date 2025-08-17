@@ -40,11 +40,12 @@ apps:
       # toleration affinity
       # toleration_key: dedicated
       # toleration_operator: Equal
-      # toleration_value: nextcloud
+      # toleration_value: example
       # toleration_effect: NoSchedule
       # affinity_key: dedicated
-      # affinity_value: nextcloud
-      secret_keys: []
+      # affinity_value: example
+      secret_keys:
+        hostname: tempo.example.com
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to
