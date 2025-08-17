@@ -46,6 +46,9 @@ apps:
       # affinity_value: example
       secret_keys:
         hostname: tempo.example.com
+        # local s3 endpoint for tempo S3, backed up constantly
+        # make this the same as your grafana_stack if you're using that
+        s3_endpoint: ""
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to
