@@ -6,6 +6,8 @@ You can see an overview of the whole Prometheus Stack Argo CD Application at [sm
 <img src="../../assets/images/screenshots/prometheus_screenshot.png" alt="screenshot of the Argo CD web interface showing the prometheus app of apps which includes the following children: loki, prometheus-crd, prometheus-appset, prometheus-pushgateway-appset">
 </a>
 
+*NOTE*: This stack is deprecated in favor of the Grafana Monitoring Stack!
+
 ## Important note
 
 We haven't generated new screenshots, but we've updated how we now deploy the Prometheus CRDs. They are now deployed separately, so that anything that relies on them that gets deployed earlier on, such as your identity provider, which you may want to secure the prometheus related frontends.
