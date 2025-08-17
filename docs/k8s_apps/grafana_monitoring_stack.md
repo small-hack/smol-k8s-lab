@@ -107,6 +107,14 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        ## you can delete these if you're not using tolerations/affinity
+        # toleration_key: ""
+        # toleration_operator: ""
+        # toleration_value: ""
+        # toleration_effect: ""
+        ## these are for node affinity, delete if not in use
+        # affinity_key: ""
+        # affinity_value: ""
         # FQDN to use for Thanos web interface
         thanos_hostname: ""
         # FQDN to use for Grafana
