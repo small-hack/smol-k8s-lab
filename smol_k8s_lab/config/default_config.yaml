@@ -2289,12 +2289,12 @@ apps:
       project:
         name: monitoring
         source_repos:
-          - "registry-1.docker.io"
-          - "ghcr.io/grafana/helm-charts"
-          - "https://github.com/grafana/helm-charts.git"
-          - "https://github.com/prometheus-community/helm-charts.git"
-          - "https://prometheus-community.github.io/helm-charts"
-          - "https://seaweedfs.github.io/seaweedfs/helm"
+          - registry-1.docker.io
+          - https://grafana.github.io/helm-charts
+          - ghcr.io/grafana/helm-charts
+          - https://github.com/prometheus-community/helm-charts.git
+          - https://prometheus-community.github.io/helm-charts
+          - https://seaweedfs.github.io/seaweedfs/helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
