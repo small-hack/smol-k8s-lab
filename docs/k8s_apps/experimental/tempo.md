@@ -64,6 +64,7 @@ apps:
         - registry-1.docker.io
         - ghcr.io/grafana/helm-charts
         - https://seaweedfs.github.io/seaweedfs/helm
+        - https://tempo.github.io/helm-charts
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
