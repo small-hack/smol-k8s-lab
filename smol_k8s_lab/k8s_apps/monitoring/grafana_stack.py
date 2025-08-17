@@ -55,7 +55,7 @@ def configure_grafana_stack(argocd: ArgoCD,
 
     if init_enabled:
         # configure backup s3 credentials
-        backup_vals = process_backup_vals(cfg.get('backups', ''), 'zitadel', argocd)
+        backup_vals = process_backup_vals(cfg.get('backups', ''), 'grafana-stack', argocd)
 
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
@@ -64,7 +64,7 @@ def configure_grafana_stack(argocd: ArgoCD,
         s3_endpoint = secrets.get('s3_endpoint', "")
         if s3_endpoint and not restore_enabled:
             s3_access_key = create_password()
-            # create a local alias to check and make sure nextcloud is functional
+            # create a local alias to check and make sure the grafana stack is functional
             create_minio_alias(minio_alias="monitoring",
                                minio_hostname=s3_endpoint,
                                access_key="monitoring",
