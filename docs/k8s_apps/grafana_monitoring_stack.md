@@ -80,15 +80,15 @@ apps:
     init:
       # if init is enabled, we'll set up an app in Zitadel for using Oauth2 with Grafana
       enabled: true
+      restore:
+        enabled: false
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
 
     backups:
-      # cronjob syntax schedule to run forgejo pvc backups
+      # cronjob syntax schedule to run grafana stack pvc backups
       pvc_schedule: 10 0 * * *
-      # cronjob syntax (with SECONDS field) for forgejo postgres backups
-      # must happen at least 10 minutes before pvc backups, to avoid corruption
-      # due to missing files. This is because the backup shows as completed before
-      # it actually is
-      postgres_schedule: 0 0 0 * * *
       s3:
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
         endpoint: ""
