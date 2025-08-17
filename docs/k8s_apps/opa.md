@@ -2,6 +2,10 @@
 
 An experimental app for writing security policies for Kubernetes.
 
+Learn more here: https://open-policy-agent.github.io/gatekeeper/website/
+
+## Example Config
+
 ```yaml
 apps:
   opa:
