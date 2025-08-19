@@ -4,6 +4,9 @@ from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.utils.rich_cli.console_logging import header
 from smol_k8s_lab.utils.passwords import create_password
+from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
+                                             k8up_restore_pvc,
+                                             restore_cnpg_cluster)
 
 
 def configure_netmaker(argocd: ArgoCD,
@@ -237,3 +240,111 @@ def create_netmaker_app(provider: str,
                  "client_id": client_id,
                  "client_secret": client_secret}
     return auth_dict
+
+
+def restore_netmaker(argocd: ArgoCD,
+                     netmaker_hostname: str,
+                     netmaker_namespace: str,
+                     argo_dict: dict,
+                     secrets: dict,
+                     restore_dict: dict,
+                     backup_dict: dict,
+                     global_pvc_storage_class: str,
+                     pgsql_cluster_name: str,
+                     bitwarden: BwCLI) -> None:
+    """
+    restore netmaker seaweedfs PVCs, and CNPG postgresql cluster
+    """
+    # this is the info for the REMOTE backups
+    s3_backup_endpoint = backup_dict['endpoint']
+    s3_backup_bucket = backup_dict['bucket']
+    access_key_id = backup_dict["s3_user"]
+    secret_access_key = backup_dict["s3_password"]
+    restic_repo_password = backup_dict['restic_repo_pass']
+    cnpg_backup_schedule = backup_dict['postgres_schedule']
+
+    # get argo git repo info
+    revision = argo_dict['revision']
+    argo_path = argo_dict['path']
+
+    # first we grab existing bitwarden items if they exist
+    if bitwarden:
+        # refresh_bweso(argocd, netmaker_hostname, bitwarden)
+
+        # apply the external secrets so we can immediately use them for restores
+        external_secrets_yaml = (
+                f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+                f"{argo_path}external_secrets_argocd_appset.yaml"
+                )
+        argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
+
+        # postgresql s3 ID
+        s3_db_creds = bitwarden.get_item(
+                f"netmaker-postgres-s3-credentials-{netmaker_hostname}", False
+                )[0]['login']
+
+        pg_access_key_id = s3_db_creds["username"]
+        pg_secret_access_key = s3_db_creds["password"]
+
+    # these are the remote backups for seaweedfs
+    s3_pvc_capacity = secrets['s3_pvc_capacity']
+
+    # then we create all the seaweedfs pvcs we lost and restore them
+    snapshot_ids = restore_dict['restic_snapshot_ids']
+    s3_pvc_storage_class = secrets.get("s3_pvc_storage_class", global_pvc_storage_class)
+
+    restore_seaweedfs(
+            argocd,
+            'netmaker',
+            netmaker_namespace,
+            revision,
+            argo_path,
+            s3_backup_endpoint,
+            s3_backup_bucket,
+            access_key_id,
+            secret_access_key,
+            restic_repo_password,
+            s3_pvc_capacity,
+            s3_pvc_storage_class,
+            "ReadWriteOnce",
+            snapshot_ids['seaweedfs_volume'],
+            snapshot_ids['seaweedfs_filer'])
+
+    # then we finally can restore the postgres database :D
+    if restore_dict.get("cnpg_restore", False):
+        psql_version = restore_dict.get("postgresql_version", 16)
+        s3_endpoint = secrets.get('s3_endpoint', "")
+        restore_cnpg_cluster(argocd.k8s,
+                             'netmaker',
+                             netmaker_namespace,
+                             pgsql_cluster_name,
+                             psql_version,
+                             s3_endpoint,
+                             pg_access_key_id,
+                             pg_secret_access_key,
+                             pgsql_cluster_name,
+                             cnpg_backup_schedule)
+
+    podconfig_yaml = (
+            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"{argo_path}pvc_argocd_appset.yaml"
+            )
+    argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
+
+    # then we begin the restic restore of all the netmaker PVCs we lost
+    for pvc in ['files', 'config']:
+        pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
+        if pvc_enabled and pvc_enabled.lower() != 'false':
+            # restores the netmaker pvc
+            k8up_restore_pvc(argocd.k8s,
+                             'netmaker',
+                             f'netmaker-{pvc}',
+                             'netmaker',
+                             s3_backup_endpoint,
+                             s3_backup_bucket,
+                             access_key_id,
+                             secret_access_key,
+                             restic_repo_password,
+                             snapshot_ids[f'netmaker_{pvc}'],
+                             "file-backups-podconfig"
+                             )
