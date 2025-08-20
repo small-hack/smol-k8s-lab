@@ -1224,6 +1224,10 @@ apps:
             - debian12
             - cdi
             - capi-operator-system
+            - kubeadm-bootstrap-system
+            - kubevirt-infrastructure-system
+            - kubeadm-control-plane-system
+            - capi-system
 
   kyverno:
     description: |
