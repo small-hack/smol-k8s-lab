@@ -1186,10 +1186,6 @@ apps:
   kubevirt:
     description: |
       [link=https://kubevirt.io/]kubevirt[/link] lets you manage virtual machines via Kubernetes.
-
-  kubevirt:
-    description: |
-      [link=https://kubevirt.io/]kubevirt[/link] lets you manage virtual machines via Kubernetes.
     # default disabled while a helm chart is being actively developed
     enabled: false
     argo:
