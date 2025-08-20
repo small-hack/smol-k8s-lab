@@ -1211,6 +1211,7 @@ apps:
           - https://github.com/small-hack/argocd-apps
           - https://cloudymax.github.io/kubevirt-community-stack/
           - https://github.com/cloudymax/kubevirt-community-stack.git
+          - https://cloudymax.github.io/kubevirt-community-stack
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
@@ -1222,6 +1223,7 @@ apps:
             - windows10
             - debian12
             - cdi
+            - capi-operator-system
 
   kyverno:
     description: |
