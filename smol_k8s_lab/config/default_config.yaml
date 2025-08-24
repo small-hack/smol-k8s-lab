@@ -596,23 +596,64 @@ apps:
       [link=https://github.com/juicedata/juicefs]juicefs[/link] JuiceFS is a distributed POSIX file system built on top of Redis and S3 (but we use Valkey and SeaweedFS).
     init:
       enabled: false
+      restore:
+        # set to true to run a restic restore via a k8up job for:
+        # seaweedfs pvcs and nextcloud files pvc
+        enabled: false
+        # for Cloudnative Postgres operator "cluster" CRD type resources
+        cnpg_restore: true
+        # restic snapshot ID for each PVC
+        restic_snapshot_ids:
+          # juicefs-valkey-primary volume pvc snapshot id
+          juicefs_primary: "latest"
+          # juicefs-valkey-replica volume pvc snapshot id
+          juicefs_replica: "latest"
       values: []
+    backups:
+      # cronjob syntax schedule to run nextcloud pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for nextcloud postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the cnpg backup shows as completed
+      # before it actually is, due to the wal archive it lists as it's end not
+      # being in the backup yet
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: ""
+        bucket: ""
+        region: ""
+        secret_access_key:
+          value_from:
+            env: JUICEFS_S3_BACKUP_SECRET_KEY
+        access_key_id:
+          value_from:
+            env: JUICEFS_S3_BACKUP_ACCESS_ID
+      restic_repo_password:
+        value_from:
+          env: JUICEFS_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        valkey_password: "ChangeM3"
         valkey_url: valkey.juicefs.svc.cluster.local
-        valkey_port: '6379'
+        valkey_port: "6379"
+        valkey_password:
+          value_from:
+            env: JUICEFS_VALKEY_PASSWORD
         s3_bucket_url: ""
-        s3_key_id: ""
-        s3_secret_key: ""
-        s3_dshboard_url: juicefs.domain.tld
+        s3_key_id:
+          value_from:
+            env: JUICEFS_S3_KEY_ID
+        s3_secret_key:
+          value_from:
+            env: JUICEFS_S3_SECRET_KEY
+        s3_dshboard_url: juicefs.vleermuis.tech
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
       path: demo/juicefs/app_of_apps/
       # either the branch or tag to point at in the argo repo above
-      revision: main
+      revision: finish-juicefs
       # kubernetes cluster to install the k8s app into, defaults to Argo CD default
       cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
@@ -624,8 +665,8 @@ apps:
       project:
         name: juicefs
         source_repos:
-        - https://juicedata.github.io/charts/
-        - oci://registry-1.docker.io/
+          - https://juicedata.github.io/charts/
+          - oci://registry-1.docker.io/
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
