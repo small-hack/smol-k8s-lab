@@ -10,6 +10,7 @@
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
 
+import asyncio
 from click import option, command
 import logging
 from os import environ as env
@@ -26,6 +27,7 @@ from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps)
 from .k8s_apps.monitoring.prometheus_stack import configure_prometheus_stack
 from .k8s_apps.monitoring.grafana_stack import configure_grafana_stack
+from .k8s_apps.monitoring.tempo import configure_tempo
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
@@ -309,6 +311,10 @@ def main(config: str = "",
         if grafana_stack['enabled']:
             configure_grafana_stack(argocd, grafana_stack, oidc_obj, bw)
 
+        tempo = apps.pop('tempo', {'enabled': False})
+        if tempo['enabled']:
+            configure_tempo(argocd, tempo, bw)
+
         # set up self hosted translation
         libre_translate_dict = apps.pop('libre_translate', {'enabled': False})
         if libre_translate_dict['enabled']:
@@ -319,25 +325,25 @@ def main(config: str = "",
             libretranslate_api_key = ""
 
         # setup nextcloud, home assistant, mastodon, gotosocial, and matrix
-        setup_federated_apps(
-                argocd,
-                api_tls_verify,
-                apps.pop('forgejo', {}),
-                apps.pop('ghost', {}),
-                apps.pop('harbor', {}),
-                apps.pop('home_assistant', {}),
-                apps.pop('nextcloud', {}),
-                apps.pop('mastodon', {}),
-                apps.pop('gotosocial', {}),
-                apps.pop('matrix', {}),
-                apps.pop('peertube', {}),
-                apps.pop('writefreely', {}),
-                pvc_storage_class,
-                zitadel_hostname,
-                oidc_obj,
-                libretranslate_api_key,
-                bw
-                )
+        asyncio.run(setup_federated_apps(
+                    argocd,
+                    api_tls_verify,
+                    apps.pop('forgejo', {}),
+                    apps.pop('ghost', {}),
+                    apps.pop('harbor', {}),
+                    apps.pop('home_assistant', {}),
+                    apps.pop('nextcloud', {}),
+                    apps.pop('mastodon', {}),
+                    apps.pop('gotosocial', {}),
+                    apps.pop('matrix', {}),
+                    apps.pop('peertube', {}),
+                    apps.pop('writefreely', {}),
+                    pvc_storage_class,
+                    zitadel_hostname,
+                    oidc_obj,
+                    libretranslate_api_key,
+                    bw
+                    ))
 
         # stand alone valkey
         if apps.get('valkey'):

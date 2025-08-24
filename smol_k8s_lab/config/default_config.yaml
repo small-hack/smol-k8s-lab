@@ -16,9 +16,9 @@ smol_k8s_lab:
         # ring the built in terminal bell when something is wrong
         on_error: false
       text_to_speech:
-        # currently only english (en) and nederlands (nl) are available, but if you know
-        # other languages, please help us translate (open an issue or discussion
-        # on github 💙)
+        # currently only english (en) and nederlands (nl) are available, but if
+        # you see errors or know other languages, please help us translate (open
+        # a PR, an issue, or discussion on GitHub 💙)
         language: "en"
         # use a specific cli program for text to speech - needs to be a full path
         # if it isn't in your default path. default is "" which means we'll use
@@ -1950,6 +1950,39 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
+  opa:
+    enabled: false
+    description: |
+      [magenta]⚠️ Experimental[/magenta]
+      [link=https://open-policy-agent.github.io/gatekeeper/website/]OPA (Open Policy Agent) Gatekeeper[/link] is a customizable cloud native policy controller that helps enforce policies and strengthen governance. Put simply, it lets you set up policies for security requirements in Kubernetes.
+
+    init:
+      enabled: true
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys: []
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to
+      path: opa/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
+      # namespace to install the k8s app in
+      namespace: gatekeeper-system
+      # recurse directories in the provided git repo
+      # if set to false, we will not deploy the CSI driver
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: opa
+        source_repos:
+          - https://open-policy-agent.github.io/gatekeeper/charts
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
   openbao:
     description: |
       ⚠️ [magenta]ALPHA STATUS[/magenta]
@@ -2215,7 +2248,7 @@ apps:
   grafana_stack:
     description: |
       Full monitoring stack with:
-       - [link=https://grafana.com.com/oss/mimir]Alloy[/link] - for collecting metrics and logs
+       - [link=https://grafana.com.com/oss/alloy]Alloy[/link] - for collecting metrics and logs
        - [link=https://grafana.com.com/oss/mimir/]Mimir[/link] - for aggregating metrics and storign them in S3
        - [link=https://grafana.com/oss/loki/]Loki[/link] - for aggregating logs and storing them in S3
        - [link=https://prometheus.io/docs/alerting/latest/alertmanager/]Alert Manager[/link] - for sending alerts to matrix
@@ -2229,15 +2262,14 @@ apps:
     init:
       # if init is enabled, we'll set up an app in Zitadel for using Oauth2 with Grafana
       enabled: true
-
+      restore:
+        enabled: false
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
     backups:
-      # cronjob syntax schedule to run forgejo pvc backups
+      # cronjob syntax schedule to run grafana stack pvc backups
       pvc_schedule: 10 0 * * *
-      # cronjob syntax (with SECONDS field) for forgejo postgres backups
-      # must happen at least 10 minutes before pvc backups, to avoid corruption
-      # due to missing files. This is because the backup shows as completed before
-      # it actually is
-      postgres_schedule: 0 0 0 * * *
       s3:
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
         endpoint: ""
@@ -2256,6 +2288,14 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        ## you can delete these if you're not using tolerations/affinity
+        # toleration_key: ""
+        # toleration_operator: ""
+        # toleration_value: ""
+        # toleration_effect: ""
+        ## these are for node affinity, delete if not in use
+        # affinity_key: ""
+        # affinity_value: ""
         # FQDN to use for mimir
         mimir_hostname: ""
         # FQDN to use for Grafana
@@ -2289,12 +2329,13 @@ apps:
       project:
         name: monitoring
         source_repos:
-          - "registry-1.docker.io"
-          - "https://grafana.github.io/helm-charts"
-          - "https://github.com/grafana/helm-charts.git"
-          - "https://github.com/prometheus-community/helm-charts.git"
-          - "https://prometheus-community.github.io/helm-charts"
-          - "https://seaweedfs.github.io/seaweedfs/helm"
+          - registry-1.docker.io
+          - https://grafana.github.io/helm-charts
+          - ghcr.io/grafana/helm-charts
+          - https://github.com/prometheus-community/helm-charts.git
+          - https://prometheus-community.github.io/helm-charts
+          - https://seaweedfs.github.io/seaweedfs/helm
+          - https://prometheus-community.github.io/helm-charts 
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
@@ -2507,6 +2548,77 @@ apps:
         name: valkey
         source_repos:
           - "registry-1.docker.io"
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
+  tempo:
+    description: |
+      [magenta]⚠️ Experimental[/magenta]
+      [link=https://grafana.com.com/oss/tempo]Tempo[/link]
+    enabled: false
+    init:
+      # if init is enabled, we'll set up an app in Zitadel for using Oauth2 with Grafana
+      enabled: true
+      # restore:
+      #   enabled: false
+      #   restic_snapshot_ids:
+      #     seaweedfs_volume: latest
+      #     seaweedfs_filer: latest
+    # backups:
+    #   # cronjob syntax schedule to run forgejo pvc backups
+    #   pvc_schedule: 10 0 * * *
+    #   s3:
+    #     # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+    #     endpoint: ''
+    #     bucket: ''
+    #     region: ''
+    #     secret_access_key:
+    #       value_from:
+    #         env: TEMPO_S3_BACKUP_SECRET_KEY
+    #     access_key_id:
+    #       value_from:
+    #         env: TEMPO_S3_BACKUP_ACCESS_ID
+    #   restic_repo_password:
+    #     value_from:
+    #       env: TEMPO_RESTIC_REPO_PASSWORD
+
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      # toleration affinity
+      # toleration_key: dedicated
+      # toleration_operator: Equal
+      # toleration_value: example
+      # toleration_effect: NoSchedule
+      # affinity_key: dedicated
+      # affinity_value: example
+      secret_keys:
+        hostname: tempo.example.com
+        # local s3 endpoint for tempo S3, backed up constantly
+        # make this the same as your grafana_stack if you're using that
+        s3_endpoint: ""
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to
+      path: tempo/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: main
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
+      # namespace to install the k8s app in
+      namespace: monitoring
+      # recurse directories in the provided git repo
+      directory_recursion: false
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: monitoring
+        source_repos:
+          - registry-1.docker.io
+          - https://grafana.github.io/helm-charts
+          - ghcr.io/grafana/helm-charts
+          - https://github.com/prometheus-community/helm-charts.git
+          - https://prometheus-community.github.io/helm-charts
+          - https://seaweedfs.github.io/seaweedfs/helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []

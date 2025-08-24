@@ -91,13 +91,13 @@ class AddNodesBox(Widget):
 
         for node, metadata in self.nodes.items():
             # labels can be a list or CommentedSeq, so we convert to str
-            labels = metadata.get('node_labels', "")
+            labels = metadata.get('node_labels', [])
             if not isinstance(labels, str):
                 if labels:
                     if len(labels) == 1:
                         labels = labels[0]
                     else:
-                        labels = labels.join(",")
+                        labels = ",".join(labels)
                 else:
                     labels = ""
 

@@ -55,7 +55,7 @@ def configure_grafana_stack(argocd: ArgoCD,
 
     if init_enabled:
         # configure backup s3 credentials
-        backup_vals = process_backup_vals(cfg.get('backups', ''), 'zitadel', argocd)
+        backup_vals = process_backup_vals(cfg.get('backups', ''), 'grafana-stack', argocd)
 
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
@@ -64,7 +64,7 @@ def configure_grafana_stack(argocd: ArgoCD,
         s3_endpoint = secrets.get('s3_endpoint', "")
         if s3_endpoint and not restore_enabled:
             s3_access_key = create_password()
-            # create a local alias to check and make sure nextcloud is functional
+            # create a local alias to check and make sure the grafana stack is functional
             create_minio_alias(minio_alias="monitoring",
                                minio_hostname=s3_endpoint,
                                access_key="monitoring",
@@ -108,6 +108,11 @@ def configure_grafana_stack(argocd: ArgoCD,
                          'password': oidc_creds['client_secret']}
                         )
 
+            # loki valkey creds k8s secret
+            loki_valkey_password = create_password()
+            argocd.k8s.create_secret('loki-valkey-credentials', 'forgejo',
+                                     {"password": loki_valkey_password})
+
     if not app_installed:
         # if the user is restoring, the process is a little different
         if init_enabled and restore_enabled:
@@ -123,23 +128,7 @@ def configure_grafana_stack(argocd: ArgoCD,
     else:
         if bitwarden and init_enabled:
             log.info("Grafana Monitoring Stack already installed 🎉")
-            refresh_bweso(argocd, grafana_hostname, bitwarden)
-
-
-def refresh_bweso(argocd: ArgoCD, grafana_hostname: str, bitwarden: BwCLI):
-    """
-    refresh the bitwarden item IDs for use with argocd-appset-secret-plugin
-    """
-    # update the monitoring stack values for the Argo CD appset
-    log.debug("making sure grafana bitwarden IDs are present in "
-              "appset secret plugin")
-
-    oidc_id = bitwarden.get_item(
-            f"grafana-oidc-credentials-{grafana_hostname}", False
-            )[0]['id']
-
-    argocd.update_appset_secret(
-            {'grafana_oidc_credentials_bitwarden_id': oidc_id})
+            refresh_bitwarden(argocd, grafana_hostname, bitwarden)
 
 
 def setup_bitwarden_items(argocd: ArgoCD,
@@ -174,9 +163,13 @@ def setup_bitwarden_items(argocd: ArgoCD,
                     f"grafana-oidc-credentials-{grafana_hostname}"
                     )[0]['id']
 
-    # update the grafana values for the argocd appset
-    argocd.update_appset_secret(
-            {'grafana_oidc_credentials_bitwarden_id': oidc_id}
+    # valkey credentials
+    loki_valkey_password = bitwarden.generate()
+    valkey_id = bitwarden.create_login(
+            name='loki-valkey-credentials',
+            item_url=grafana_hostname,
+            user='valkey',
+            password=loki_valkey_password
             )
 
     restic_repo_obj = create_custom_field('resticRepoPassword', restic_repo_pass)
@@ -222,10 +215,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # update the monitoring values for the argocd appset
     argocd.update_appset_secret(
-            {'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
+            {
+            'grafana_stack_loki_valkey_bitwarden_id': valkey_id,
+            'grafana_stack_oidc_credentials_bitwarden_id': oidc_id,
+            'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
             'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
             'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,
-            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id}
+            'grafana_stack_s3_admin_credentials_bitwarden_id': s3_admin_id
+            }
             )
 
     # reload the bitwarden ESO provider
@@ -246,6 +243,14 @@ def refresh_bitwarden(argocd: ArgoCD,
     """
     makes sure we update the appset secret with bitwarden IDs regardless
     """
+    valkey_id = bitwarden.get_item(
+            f"loki-valkey-credentials-{grafana_hostname}", False
+            )[0]['id']
+
+    oidc_id = bitwarden.get_item(
+            f"grafana-oidc-credentials-{grafana_hostname}", False
+            )[0]['id']
+
     s3_backup_id = bitwarden.get_item(
             f"backups-s3-credentials-{grafana_hostname}", False
             )[0]['id']
@@ -265,6 +270,8 @@ def refresh_bitwarden(argocd: ArgoCD,
     # update the monitoring values for the argocd appset
     argocd.update_appset_secret(
             {
+            'grafana_stack_loki_valkey_bitwarden_id': valkey_id,
+            'grafana_stack_oidc_credentials_bitwarden_id': oidc_id,
             'grafana_stack_loki_s3_credentials_bitwarden_id': s3_loki_id,
             'grafana_stack_mimir_s3_credentials_bitwarden_id': s3_mimir_id,
             'grafana_stack_s3_backups_credentials_bitwarden_id': s3_backup_id,

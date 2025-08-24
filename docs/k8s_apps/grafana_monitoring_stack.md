@@ -80,15 +80,15 @@ apps:
     init:
       # if init is enabled, we'll set up an app in Zitadel for using Oauth2 with Grafana
       enabled: true
+      restore:
+        enabled: false
+        restic_snapshot_ids:
+          seaweedfs_volume: latest
+          seaweedfs_filer: latest
 
     backups:
-      # cronjob syntax schedule to run forgejo pvc backups
+      # cronjob syntax schedule to run grafana stack pvc backups
       pvc_schedule: 10 0 * * *
-      # cronjob syntax (with SECONDS field) for forgejo postgres backups
-      # must happen at least 10 minutes before pvc backups, to avoid corruption
-      # due to missing files. This is because the backup shows as completed before
-      # it actually is
-      postgres_schedule: 0 0 0 * * *
       s3:
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
         endpoint: ""
@@ -107,6 +107,14 @@ apps:
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        ## you can delete these if you're not using tolerations/affinity
+        # toleration_key: ""
+        # toleration_operator: ""
+        # toleration_value: ""
+        # toleration_effect: ""
+        ## these are for node affinity, delete if not in use
+        # affinity_key: ""
+        # affinity_value: ""
         # FQDN to use for Thanos web interface
         thanos_hostname: ""
         # FQDN to use for Grafana
@@ -140,11 +148,12 @@ apps:
       project:
         name: monitoring
         source_repos:
-          - "registry-1.docker.io"
-          - "https://grafana.github.io/helm-charts"
-          - "https://github.com/grafana/helm-charts.git"
-          - "https://github.com/prometheus-community/helm-charts.git"
-          - "https://prometheus-community.github.io/helm-charts"
+          - registry-1.docker.io
+          - https://grafana.github.io/helm-charts
+          - ghcr.io/grafana/helm-charts
+          - https://github.com/prometheus-community/helm-charts.git
+          - https://prometheus-community.github.io/helm-charts
+          - https://seaweedfs.github.io/seaweedfs/helm
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:

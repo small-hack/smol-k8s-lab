@@ -12,15 +12,17 @@ from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 # external libraries
+import asyncio
 import logging as log
 from ulid import ULID
 
 
-def configure_matrix(argocd: ArgoCD,
-                     cfg: dict,
-                     pvc_storage_class: str,
-                     zitadel: Zitadel,
-                     bitwarden: BwCLI = None) -> bool:
+async def configure_matrix(argocd: ArgoCD,
+                           cfg: dict,
+                           pvc_storage_class: str,
+                           zitadel: Zitadel,
+                           bitwarden: BwCLI = BwCLI("test","test","test")
+                           ) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
 
