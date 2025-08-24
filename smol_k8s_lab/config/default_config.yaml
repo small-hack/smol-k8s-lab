@@ -1186,13 +1186,12 @@ apps:
   kubevirt:
     description: |
       [link=https://kubevirt.io/]kubevirt[/link] lets you manage virtual machines via Kubernetes.
-
     # default disabled while a helm chart is being actively developed
     enabled: false
     argo:
       # secret keys to provide for the argocd secret plugin app, none by default
       secret_keys:
-        webui_hostname: subdomain.domain.tld
+        webui_hostname: kubevirt.example.com
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
@@ -1209,18 +1208,26 @@ apps:
       project:
         name: kubevirt
         source_repos:
-        - https://cloudymax.github.io/kubevirt-community-stack/
+          - https://github.com/small-hack/argocd-apps
+          - https://cloudymax.github.io/kubevirt-community-stack/
+          - https://github.com/cloudymax/kubevirt-community-stack.git
+          - https://cloudymax.github.io/kubevirt-community-stack
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
-          - kubevirt-manager
-          - kube-system
-          - kubevirt
-          - prometheus
-          - default
-          - windows10
-          - debian12
-          - cdi
+            - kubevirt-manager
+            - kube-system
+            - kubevirt
+            - prometheus
+            - default
+            - windows10
+            - debian12
+            - cdi
+            - capi-operator-system
+            - kubeadm-bootstrap-system
+            - kubevirt-infrastructure-system
+            - kubeadm-control-plane-system
+            - capi-system
 
   kyverno:
     description: |
