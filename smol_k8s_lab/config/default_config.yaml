@@ -596,6 +596,15 @@ apps:
       [link=https://github.com/juicedata/juicefs]juicefs[/link] JuiceFS is a distributed POSIX file system built on top of Redis and S3 (but we use Valkey and SeaweedFS).
     init:
       enabled: false
+      values:
+        s3_access_key_id:
+          value_from:
+            env: JUICEFS_S3_ACCESS_KEY_ID
+        s3_secret_access_key:
+          value_from:
+            env: JUICEFS_S3_SECRET_ACCESS_KEY
+        bucket_name: ""
+        s3_url: ""
       restore:
         # set to true to run a restic restore via a k8up job for:
         # seaweedfs pvcs and nextcloud files pvc
@@ -608,7 +617,6 @@ apps:
           juicefs_primary: "latest"
           # juicefs-valkey-replica volume pvc snapshot id
           juicefs_replica: "latest"
-      values: []
     backups:
       # cronjob syntax schedule to run nextcloud pvc backups
       pvc_schedule: 10 0 * * *
@@ -625,29 +633,17 @@ apps:
         region: ""
         secret_access_key:
           value_from:
-            env: JUICEFS_S3_BACKUP_SECRET_KEY
+            env: JUICEFS_S3_BACKUP_SECRET_ACCESS_KEY
         access_key_id:
           value_from:
-            env: JUICEFS_S3_BACKUP_ACCESS_ID
+            env: JUICEFS_S3_BACKUP_ACCESS_KEY_ID
       restic_repo_password:
         value_from:
           env: JUICEFS_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
-        valkey_url: valkey.juicefs.svc.cluster.local
-        valkey_port: "6379"
-        valkey_password:
-          value_from:
-            env: JUICEFS_VALKEY_PASSWORD
-        s3_bucket_url: ""
-        s3_key_id:
-          value_from:
-            env: JUICEFS_S3_KEY_ID
-        s3_secret_key:
-          value_from:
-            env: JUICEFS_S3_SECRET_KEY
-        s3_dshboard_url: juicefs.vleermuis.tech
+        juicefs_hostname: juicefs.vleermuis.tech
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!

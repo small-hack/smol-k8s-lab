@@ -57,6 +57,108 @@ async def configure_juicefs(argocd: ArgoCD,
     # get any secrets for this app
     secrets = cfg['argo']['secret_keys']
     if secrets:
-        forgejo_hostname = secrets['hostname']
+        juicefs_hostname = secrets['hostname']
 
+    # initial secrets to deploy this app from scratch
+    if init_enabled and not app_installed:
+         # declare custom values
+         init_values = init.get('values', None)
+         backup_vals = process_backup_vals(cfg.get('backups', {}), 'juicefs', argocd)
 
+         # configure the s3 credentials
+         s3_access_key_id = extract_secret(init_values.get('s3_access_key_id'))
+         s3_secret_access_key = extract_secret(init_values.get('s3_secret_access_key'))
+         bucket_name = extract_secret(init_values.get('bucket_name'))
+         s3_url = extract_secret(init_values.get('s3_url'))
+
+         # create s3 secret in bitwarden
+         if bitwarden and not restore_enabled:
+            setup_bitwarden_items(argocd,
+                                  juicefs_hostname,
+                                  s3_url,
+                                  s3_access_key_id,
+                                  s3_secret_access_key,
+                                  bucket_name,
+                                  backup_vals['s3_user'],
+                                  backup_vals['s3_password'],
+                                  backup_vals['restic_repo_pass'],
+                                  bitwarden)
+
+def setup_bitwarden_items(argocd: ArgoCD,
+                          juicefs_hostname: str,
+                          s3_url: str,
+                          s3_access_key_id: str,
+                          s3_secret_access_key: str,
+                          bucket_name: str,
+                          backups_s3_user: str,
+                          backups_s3_password: str,
+                          restic_repo_pass: str,
+                          bitwarden: BwCLI) -> None:
+    """
+    setup secrets in bitwarden for juicefs.
+    """
+
+    # S3 credentials
+    # endpoint that gets put into the secret should probably have http in it
+    if "http" not in s3_url:
+        log.debug(f"juicefs s3_url did not have http in it: {s3_url}")
+        s3_url = "https://" + s3_url
+        log.debug(f"juicefs s3_url - after prepending 'https://': {s3_url}")
+
+    juicefs_s3_endpoint_obj = create_custom_field("s3Endpoint", s3_url)
+
+    juicefs_s3_host_obj = create_custom_field("s3Hostname",
+                                               s3_url.replace("https://",
+                                                                   ""))
+
+    juicefs_s3_bucket_obj = create_custom_field("s3Bucket", bucket_name)
+
+    s3_id = bitwarden.create_login(
+            name='juicefs-s3-credentials',
+            item_url=juicefs_hostname,
+            user=s3_access_key_id,
+            password=s3_secret_access_key,
+            fields=[
+                juicefs_s3_endpoint_obj,
+                juicefs_s3_host_obj,
+                juicefs_s3_bucket_obj
+                ]
+            )
+
+    # credentials for remote backups of the s3 PVC
+    restic_repo_pass_obj = create_custom_field("resticRepoPassword", restic_repo_pass)
+    s3_backups_id = bitwarden.create_login(
+            name='juicefs-backups-s3-credentials',
+            item_url=juicefs_hostname,
+            user=backups_s3_user,
+            password=backups_s3_password,
+            fields=[restic_repo_pass_obj]
+            )
+
+    # set a password for valkey
+    juicefs_valkey_password = bitwarden.generate()
+
+    # create the valkey secret in bitwarden
+    valkey_id = bitwarden.create_login(
+       name='juicefs-valkey-credentials',
+       item_url=juicefs_hostname,
+       user='valkey',
+       password=juicefs_valkey_password
+       )
+
+    # update the juicefs values for the argocd appset
+    argocd.update_appset_secret(
+            {'juicefs_s3_credentials_bitwarden_id': s3_id,
+             'juicefs_s3_backups_credentials_bitwarden_id': s3_backups_id,
+             'juicefs_valkey_credentials_bitwarden_id': valkey_id})
+
+    # reload the bitwarden ESO provider
+    try:
+        argocd.k8s.reload_deployment('bitwarden-eso-provider',
+                                     'external-secrets')
+    except Exception as e:
+        log.error(
+                "Couldn't scale down the [magenta]bitwarden-eso-provider"
+                "[/] deployment in [green]external-secrets[/] namespace."
+                f"Recieved: {e}"
+                )
