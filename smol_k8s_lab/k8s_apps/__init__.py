@@ -29,6 +29,7 @@ from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
 from .social.home_assistant import configure_home_assistant
+from .storage.juicefs import configure_juicefs
 
 
 def setup_k8s_secrets_management(argocd: ArgoCD,
@@ -247,3 +248,12 @@ def setup_federated_apps(argocd: ArgoCD,
 
     if matrix_dict.get('enabled', False):
         configure_matrix(argocd, matrix_dict, pvc_storage_class, zitadel_obj, bw)
+
+
+def setup_storage_apps(argocd: ArgoCD,
+                       juicefs_dict: dict = {},
+                       pvc_storage_class: str = "local-path",
+                       bw: BwCLI = None) -> None:
+
+   if juicefs_dict.get('enabled', False):
+       configure_juicefs(argocd, juicefs_dict, pvc_storage_class, bw)

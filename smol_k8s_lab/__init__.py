@@ -23,7 +23,8 @@ from .bitwarden.bw_cli import BwCLI
 from .bitwarden.tui.bitwarden_app import BitwardenCredentialsApp
 from .constants import KUBECONFIG, VERSION
 from .k8s_apps import (setup_oidc_provider, setup_base_apps,
-                       setup_k8s_secrets_management, setup_federated_apps)
+                       setup_k8s_secrets_management, setup_federated_apps,
+                       setup_storage_apps)
 from .k8s_apps.monitoring.prometheus_stack import configure_prometheus_stack
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
@@ -315,6 +316,8 @@ def main(config: str = "",
                 oidc_obj,
                 bw
                 )
+
+        setup_storage_apps()
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it

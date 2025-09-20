@@ -15,7 +15,6 @@ import logging as log
 async def configure_juicefs(argocd: ArgoCD,
                             cfg: dict,
                             pvc_storage_class: str,
-                            zitadel: Zitadel,
                             bitwarden: BwCLI = BwCLI("test","test","test")
                             ) -> bool:
     """
