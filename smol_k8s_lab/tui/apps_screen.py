@@ -35,15 +35,15 @@ class AppsConfigScreen(Screen):
             Binding(key="b,escape,q",
                     key_display="b",
                     action="app.pop_screen",
-                    description="Back"),
+                    description=" Back"),
             Binding(key="a",
                     key_display="a",
                     action="screen.launch_new_app_modal",
-                    description="New App"),
+                    description=" New App"),
             Binding(key="n",
                     key_display="n",
                     action="screen.try_next_screen",
-                    description="Next")
+                    description=" Next")
             ]
 
     ToggleButton.BUTTON_INNER = '♥'
@@ -89,11 +89,19 @@ class AppsConfigScreen(Screen):
 
         # sensitive values we are prepared to take so far
         self.sensitive_values = {
+                'collabora': {},
+                'collabora_online': {},
                 'cert_manager': {},
-                'nextcloud': {},
+                'forgejo': {},
+                'gotosocial': {},
+                'ghost': {},
+                'harbor': {},
                 'home_assistant': {},
                 'matrix': {},
                 'mastodon': {},
+                'nextcloud': {},
+                'openbao': {},
+                'peertube': {},
                 'postgres_operator': {},
                 'zitadel': {}
                 }

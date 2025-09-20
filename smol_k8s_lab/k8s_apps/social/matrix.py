@@ -12,15 +12,17 @@ from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.passwords import create_password
 
 # external libraries
+import asyncio
 import logging as log
 from ulid import ULID
 
 
-def configure_matrix(argocd: ArgoCD,
-                     cfg: dict,
-                     pvc_storage_class: str,
-                     zitadel: Zitadel,
-                     bitwarden: BwCLI = None) -> bool:
+async def configure_matrix(argocd: ArgoCD,
+                           cfg: dict,
+                           pvc_storage_class: str,
+                           zitadel: Zitadel,
+                           bitwarden: BwCLI = BwCLI("test","test","test")
+                           ) -> bool:
     """
     creates a matrix app and initializes it with secrets if you'd like :)
 
@@ -645,6 +647,10 @@ def restore_matrix(argocd: ArgoCD,
     restic_repo_password = backup_dict['restic_repo_pass']
     cnpg_backup_schedule = backup_dict['postgres_schedule']
 
+    # get argocd git repo info
+    revision = argo_dict['revision']
+    argo_path = argo_dict['path']
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bweso(argocd, matrix_hostname, bitwarden)
@@ -652,7 +658,7 @@ def restore_matrix(argocd: ArgoCD,
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
                 "https://raw.githubusercontent.com/small-hack/argocd-apps"
-                "/main/matrix/app_of_apps/external_secrets_argocd_appset.yaml"
+                f"/{revision}/{argo_path}/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -673,6 +679,8 @@ def restore_matrix(argocd: ArgoCD,
             argocd,
             'matrix',
             matrix_namespace,
+            revision,
+            argo_path,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,

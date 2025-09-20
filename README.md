@@ -28,7 +28,7 @@
 - Specializes in using Bitwarden (though not required) to store sensitive values both locally and on your cluster (OpenBao coming soon!)
 - Manages all your authentication needs centrally using Zitadel (self-hosted IAM/SSO) and Vouch (For using OAuth2 on sites that don't it)
 - Supports initialization on a [range of common self-hosted apps](https://small-hack.github.io/smol-k8s-lab/k8s_apps/argocd/) 📱
-  - featured initialized apps such as [Zitadel], [Nextcloud](https://small-hack.github.io/smol-k8s-lab/k8s_apps/nextcloud/), [Matrix](https://small-hack.github.io/smol-k8s-lab/k8s_apps/matrix/), and [Home Assistant](https://small-hack.github.io/smol-k8s-lab/k8s_apps/home_assistant/) include backups and restores
+  - featured initialized apps such as [Zitadel], [Nextcloud](https://small-hack.github.io/smol-k8s-lab/k8s_apps/nextcloud/), [Matrix](https://small-hack.github.io/smol-k8s-lab/k8s_apps/matrix/), [Mastodon](https://github.com/small-hack/mastodon-helm-chart/), and [Home Assistant](https://small-hack.github.io/smol-k8s-lab/k8s_apps/home_assistant/) include backups and restores
 - Lots o' [docs](https://small-hack.github.io/smol-k8s-lab)
 
 -----------------------------

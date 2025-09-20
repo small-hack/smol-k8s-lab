@@ -9,14 +9,17 @@ from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.value_from import extract_secret, process_backup_vals
 
 # external libraries
+import asyncio
 import logging as log
 
 
-def configure_home_assistant(argocd: ArgoCD,
-                             cfg: dict,
-                             pvc_storage_class: str,
-                             api_tls_verify: bool = False,
-                             bitwarden: BwCLI = None) -> None:
+async def configure_home_assistant(
+        argocd: ArgoCD,
+        cfg: dict,
+        pvc_storage_class: str,
+        api_tls_verify: bool = False,
+        bitwarden: BwCLI = BwCLI("test","test","test")
+        ) -> None:
     """
     creates a home-assistant app and initializes it with secrets if you'd like :)
 
@@ -92,7 +95,7 @@ def configure_home_assistant(argocd: ArgoCD,
         else:
             # home-assistant admin credentials and smtp credentials
             argocd.k8s.create_secret('home-assistant-credentials',
-                                     'home-assistant',
+                                     home_assistant_namespace,
                                      {"ADMIN_USERNAME": admin_user,
                                       "ADMIN_NAME": admin_name,
                                       "ADMIN_PASSWORD": admin_password,

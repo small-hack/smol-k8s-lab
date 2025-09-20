@@ -3,7 +3,7 @@
 We are mostly stable for running Mastodon on Kubernetes. Check out our [Mastodon Argo CD ApplicationSet](https://github.com/small-hack/argocd-apps/tree/main/mastodon/small-hack):
 
 <a href="../../assets/images/screenshots/mastodon_screenshot.png">
-<img src="../../assets/images/screenshots/mastodon_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view. the main mastodon app has 6 child apps: mastodon-redis, mastodon-app-set with child mastodon-web-app, mastodon-external-secrets-appset with child mastodon-external-secrets, mastodon-postgres-app-set with child mastodon-postgres-cluster, mastodon-s3-provider-app-set with child mastodon-seaweedfs, and mastodon-s3-pvc-appset with child mastodon-s3-pvc.">
+<img src="../../assets/images/screenshots/mastodon_screenshot.png" alt="screenshot of the mastodon applicationset in Argo CD's web interface using the tree mode view. the main mastodon app has 6 child apps: mastodon-valkey, mastodon-app-set with child mastodon-web-app, mastodon-external-secrets-appset with child mastodon-external-secrets, mastodon-postgres-app-set with child mastodon-postgres-cluster, mastodon-s3-provider-app-set with child mastodon-seaweedfs, and mastodon-s3-pvc-appset with child mastodon-s3-pvc.">
 </a>
 
 This is the networking view in Argo CD:
@@ -44,6 +44,7 @@ You can export the following env vars and we'll use them for your sensitive data
 - `MASTODON_S3_BACKUP_ACCESS_ID`
 - `MASTODON_S3_BACKUP_SECRET_KEY`
 - `MASTODON_RESTIC_REPO_PASSWORD`
+- `MASTODON_LIBRETRANSLATE_API_KEY`
 
 ## Example Config
 
@@ -53,7 +54,7 @@ apps:
     description: |
        [link=https://joinmastodon.org/]Mastodon[/link] is an open source self hosted social media network.
 
-       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, redis credentials, postgresql credentials, and an admin user credentials. We pass all credentials as secrets in the namespace and optionally save them to Bitwarden.
+       smol-k8s-lab supports initializing mastodon, by setting up your hostname, SMTP credentials, valkey credentials, postgresql credentials, libretranslate, and an admin user credentials. We pass all credentials as Secrets in the namespace and optionally save them to Bitwarden.
 
        smol-k8s-lab also creates a local s3 endpoint and as well as S3 bucket and credentials if you enable set mastodon.argo.secret_keys.s3_provider to "minio" or "seaweedfs". Both seaweedfs and minio require you to specify a remote s3 endpoint, bucket, region, and accessID/secretKey so that we can make sure you have remote backups.
 
@@ -62,6 +63,7 @@ apps:
          - MASTODON_S3_BACKUP_ACCESS_ID
          - MASTODON_S3_BACKUP_SECRET_KEY
          - MASTODON_RESTIC_REPO_PASSWORD
+         - MASTODON_LIBRETRANSLATE_API_KEY
     enabled: false
     init:
       enabled: true
@@ -71,11 +73,17 @@ apps:
         restic_snapshot_ids:
           seaweedfs_volume: latest
           seaweedfs_filer: latest
+          mastodon_valkey_primary: latest
+          mastodon_valkey_replica: latest
       values:
         # admin user
         admin_user: "tootadmin"
         # admin user's email
         admin_email: ""
+        # api key for mastodon to do translations through libretranslate
+        libretranslate_api_key:
+          value_from:
+            env: MASTODON_LIBRETRANSLATE_API_KEY
         # mail server to send verification and notification emails
         smtp_host: "change@me-to-enable.mail"
         # mail user for smtp host
@@ -102,13 +110,25 @@ apps:
         access_key_id:
           value_from:
             env: MASTODON_S3_BACKUP_ACCESS_ID
-        restic_repo_password:
-          value_from:
-            env: MASTODON_RESTIC_REPO_PASSWORD
+      restic_repo_password:
+        value_from:
+          env: MASTODON_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
+        ## optional toleration and affinity settings
+        # toleration_key: dedicated
+        # toleration_operator: Equal
+        # toleration_value: somekey
+        # toleration_effect: NoSchedule
+        # affinity_key: dedicated
+        # affinity_value: somekey
+        # smtp port on your mail server
+        smtp_port: '25'
+        # admin user for your mastodon instance
         admin_user: tootadmin
+        # endpoint for libretranslate translations
+        libretranslate_hostname: ""
         # hostname that users go to in the browser
         hostname: ""
         # set the local s3 provider for mastodon's public data in one bucket
@@ -116,12 +136,21 @@ apps:
         s3_provider: seaweedfs
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 120Gi
+        # s3 storage class
+        s3_pvc_storage_class: local-path
         # local s3 endpoint for postgresql backups, backed up constantly
         s3_endpoint: ""
         s3_region: eu-west-1
+        # enable persistence for valkey - recommended
+        valkey_pvc_enabled: 'true'
+        # size of valkey pvc storage settings
+        valkey_storage: 3Gi
+        valkey_storage_class: local-path
+        valkey_access_mode: ReadWriteOnce
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
+      # to use tolerations/affinity switch this to mastodon/small-hack/app_of_apps_with_tolerations/
       path: mastodon/small-hack/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main

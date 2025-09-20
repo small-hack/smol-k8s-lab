@@ -1,35 +1,45 @@
-#!/usr/bin/env python3.11
 """
        Name: base_install
 DESCRIPTION: installs helm repos, updates them, and installs charts for metallb,
              cert-manager, and ingress-nginx
-     AUTHOR: @jessebot
+     AUTHOR: https://jessebot.work
     LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE Version 3
 """
+# external libraries
+import asyncio
 import logging as log
 from rich.prompt import Prompt
+
+# internal libraries
+from .argocd import configure_argocd
 from ..bitwarden.bw_cli import BwCLI
 from ..k8s_tools.helm import prepare_helm
 from ..k8s_tools.k8s_lib import K8s
 from ..k8s_tools.argocd_util import ArgoCD
-from ..utils.rich_cli.console_logging import header
-from .argocd import configure_argocd
-from .ingress.ingress_nginx_controller import configure_ingress_nginx
-from .ingress.cert_manager import configure_cert_manager, create_cluster_issuers
 # from .identity_provider.keycloak import configure_keycloak
+from .identity_provider.vouch import configure_vouch
 from .identity_provider.zitadel import configure_zitadel
 from .identity_provider.zitadel_api import Zitadel
-from .identity_provider.vouch import configure_vouch
-from .networking.metallb import configure_metallb
+from .ingress.cert_manager import configure_cert_manager, create_cluster_issuers
+from .ingress.ingress_nginx_controller import configure_ingress_nginx
 from .networking.cilium import configure_cilium
+from .networking.metallb import configure_metallb
 from .secrets_management.external_secrets_operator import configure_external_secrets
 from .secrets_management.infisical import configure_infisical
 from .secrets_management.vault import configure_vault
+from .social.forgejo import configure_forgejo
+from .social.ghost import configure_ghost
+from .social.gotosocial import configure_gotosocial
+from .social.harbor import configure_harbor
+from .social.home_assistant import configure_home_assistant
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
 from .social.home_assistant import configure_home_assistant
 from .storage.juicefs import configure_juicefs
+from .social.peertube import configure_peertube
+from .social.writefreely import configure_writefreely
+from ..utils.rich_cli.console_logging import header
 
 
 def setup_k8s_secrets_management(argocd: ArgoCD,
@@ -222,33 +232,102 @@ def setup_base_apps(k8s_obj: K8s,
         return argocd
 
 
-def setup_federated_apps(argocd: ArgoCD,
-                         api_tls_verify: bool = False,
-                         home_assistant_dict: dict = {},
-                         nextcloud_dict: dict = {},
-                         mastodon_dict: dict = {},
-                         matrix_dict: dict = {},
-                         pvc_storage_class: str = "local-path",
-                         zitadel_hostname: str = "",
-                         zitadel_obj: Zitadel = None,
-                         bw: BwCLI = None) -> None:
+async def setup_federated_apps(
+        argocd: ArgoCD,
+        api_tls_verify: bool = False,
+        forgejo_dict: dict = {},
+        ghost_dict: dict = {},
+        harbor_dict: dict = {},
+        home_assistant_dict: dict = {},
+        nextcloud_dict: dict = {},
+        mastodon_dict: dict = {},
+        gotosocial_dict: dict = {},
+        matrix_dict: dict = {},
+        peertube_dict: dict = {},
+        writefreely_dict: dict = {},
+        pvc_storage_class: str = "local-path",
+        zitadel_hostname: str = "",
+        zitadel_obj: Zitadel = None,
+        libretranslate_api_key: str = "",
+        bw: BwCLI = None
+        ) -> None:
     """
     Setup any federated apps with initialization supported
     """
+    # git server
+    if forgejo_dict.get('enabled', False):
+        await configure_forgejo(argocd,
+                                forgejo_dict,
+                                pvc_storage_class,
+                                zitadel_obj,
+                                bw)
+
+    # blogging platforms
+    if ghost_dict.get('enabled', False):
+        await configure_ghost(argocd,
+                              ghost_dict,
+                              pvc_storage_class,
+                              zitadel_obj,
+                              bw)
+
+    if writefreely_dict.get('enabled', False):
+        await configure_writefreely(argocd,
+                                    writefreely_dict,
+                                    pvc_storage_class,
+                                    zitadel_obj,
+                                    bw)
+
+    # oci registry for docker and helm
+    if harbor_dict.get('enabled', False):
+        await configure_harbor(argocd,
+                               harbor_dict,
+                               pvc_storage_class,
+                               zitadel_obj,
+                               bw)
+
     if home_assistant_dict.get('enabled', False):
-        configure_home_assistant(argocd, home_assistant_dict, pvc_storage_class,
-                                 api_tls_verify, bw)
+        await configure_home_assistant(argocd,
+                                       home_assistant_dict,
+                                       pvc_storage_class,
+                                       api_tls_verify,
+                                       bw)
 
     if nextcloud_dict.get('enabled', False):
-        configure_nextcloud(argocd, nextcloud_dict, pvc_storage_class,
-                            zitadel_obj, bw)
+        await configure_nextcloud(argocd,
+                                  nextcloud_dict,
+                                  pvc_storage_class,
+                                  zitadel_obj,
+                                  bw)
 
+    # federated social micro blogging apps
     if mastodon_dict.get('enabled', False):
-        configure_mastodon(argocd, mastodon_dict, pvc_storage_class, bw)
+        await configure_mastodon(argocd,
+                                 mastodon_dict,
+                                 pvc_storage_class,
+                                 libretranslate_api_key,
+                                 bw)
 
+    if gotosocial_dict.get('enabled', False):
+        await configure_gotosocial(argocd,
+                                   gotosocial_dict,
+                                   pvc_storage_class,
+                                   zitadel_obj,
+                                   bw)
+
+    # federated video hosting - similar to youtube
+    if peertube_dict.get('enabled', False):
+        await configure_peertube(argocd,
+                                 peertube_dict,
+                                 pvc_storage_class,
+                                 bw)
+
+    # federated chat apps
     if matrix_dict.get('enabled', False):
-        configure_matrix(argocd, matrix_dict, pvc_storage_class, zitadel_obj, bw)
-
+        await configure_matrix(argocd,
+                               matrix_dict,
+                               pvc_storage_class,
+                               zitadel_obj,
+                               bw)
 
 def setup_storage_apps(argocd: ArgoCD,
                        juicefs_dict: dict = {},
@@ -256,4 +335,7 @@ def setup_storage_apps(argocd: ArgoCD,
                        bw: BwCLI = None) -> None:
 
    if juicefs_dict.get('enabled', False):
-       configure_juicefs(argocd, juicefs_dict, pvc_storage_class, bw)
+       await configure_juicefs(argocd,
+                               juicefs_dict,
+                               pvc_storage_class,
+                               bw)

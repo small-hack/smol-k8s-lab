@@ -78,12 +78,16 @@ nav:
       - Appset Secret Plugin: k8s_apps/appset-secret-plugin.md
     - Cert Manager: k8s_apps/cert_manager.md
     - CloudNative Postgress Operator: k8s_apps/cnpg_operator.md
+    # - Collabora Online: k8s_apps/collabora.md
     - Core DNS: k8s_apps/core_dns.md
     - External Secrets:
       - External Secrets Operator: k8s_apps/external-secrets-operator.md
       - Bitwarden ESO Provider: k8s_apps/bitwarden_eso_provider.md
     - Experimental:
       - Cilium: k8s_apps/experimental/cilium.md
+      - Forgejo: k8s_apps/experimental/forgejo.md
+      - Ghost: k8s_apps/experimental/ghost.md
+      - Harbor: k8s_apps/experimental/harbor.md
       - Infisical: k8s_apps/experimental/infisical.md
       - Kepler: k8s_apps/experimental/kepler.md
       - Kyverno: k8s_apps/experimental/kyverno.md
@@ -91,21 +95,30 @@ nav:
       - Longhorn: k8s_apps/experimental/longhorn.md
       - Openbao: k8s_apps/experimental/openbao.md
       - MinIO: k8s_apps/experimental/minio.md
+      - Tempo: k8s_apps/experimental/tempo.md
+      - WriteFreely: k8s_apps/experimental/writefreely.md
       - Zalando Postgress Operator: k8s_apps/experimental/postgres_operator.md
     - Generic App: k8s_apps/generic_app.md
     - Generic Device Plugin: k8s_apps/generic_device_plugin.md
+    - GoToSocial: k8s_apps/gotosocial.md
+    - Grafana Monitoring Stack: k8s_apps/grafana_monitoring_stack.md
     - Home Assistant: k8s_apps/home_assistant.md
     - Ingress Nginx: k8s_apps/ingress_nginx.md
     - K8tz: k8s_apps/k8tz.md
     - K8up: k8s_apps/k8up.md
     - Kubevirt: k8s_apps/kubevirt_community_stack.md
+    - LibreTranslate: k8s_apps/libretranslate.md
     - Mastodon: k8s_apps/mastodon.md
     - Matrix: k8s_apps/matrix.md
     - MetalLB: k8s_apps/metallb.md
+    - NVIDIA Device Plugin: k8s_apps/nvidia_device_plugin.md
     - Netmaker: k8s_apps/netmaker.md
     - Nextcloud: k8s_apps/nextcloud.md
-    - SeaweedFS: k8s_apps/seaweedfs.md
+    - PeerTube: k8s_apps/peertube.md
     - Prometheus: k8s_apps/prometheus.md
+    - SeaweedFS: k8s_apps/seaweedfs.md
+    - Valkey: k8s_apps/valkey.md
+    - Valkey Cluster: k8s_apps/valkey_cluster.md
     - Vouch: k8s_apps/vouch.md
     - Zitadel: k8s_apps/zitadel.md
   - Supported Distros:

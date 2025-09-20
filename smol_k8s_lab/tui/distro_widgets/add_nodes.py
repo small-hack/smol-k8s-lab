@@ -91,13 +91,13 @@ class AddNodesBox(Widget):
 
         for node, metadata in self.nodes.items():
             # labels can be a list or CommentedSeq, so we convert to str
-            labels = metadata.get('node_labels', "")
+            labels = metadata.get('node_labels', [])
             if not isinstance(labels, str):
                 if labels:
                     if len(labels) == 1:
                         labels = labels[0]
                     else:
-                        labels = labels.join(",")
+                        labels = ",".join(labels)
                 else:
                     labels = ""
 
@@ -376,11 +376,11 @@ class NodesConfigScreen(Screen):
     BINDINGS = [Binding(key="b,q,escape",
                         key_display="b",
                         action="app.pop_screen",
-                        description="Back"),
+                        description=" Back"),
                 Binding(key="ctrl+n",
                         key_display="ctrl+n",
                         action="add_node",
-                        description="add new node")]
+                        description=" add new node")]
 
     def __init__(self,
                  nodes: dict,

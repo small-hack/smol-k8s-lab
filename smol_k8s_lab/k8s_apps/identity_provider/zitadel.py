@@ -81,18 +81,18 @@ def configure_zitadel(argocd: ArgoCD,
         argocd.k8s.create_namespace(zitadel_namespace)
 
         # get the mail credentials
-        smtp_host = extract_secret(init_values.get("smtp_host",
+        smtp_host = extract_secret(init_values.pop("smtp_host",
                                                    "not applicable"))
-        smtp_user = extract_secret(init_values.get("smtp_user",
+        smtp_user = extract_secret(init_values.pop("smtp_user",
                                                    "not applicable"))
-        smtp_password = extract_secret(init_values.get("smtp_password",
+        smtp_password = extract_secret(init_values.pop("smtp_password",
                                                        "not applicable"))
-        smtp_from_address = extract_secret(init_values.get("smtp_from_address",
+        smtp_from_address = extract_secret(init_values.pop("smtp_from_address",
                                                            "not applicable"))
-        smtp_from_name = extract_secret(init_values.get("smtp_from_name",
+        smtp_from_name = extract_secret(init_values.pop("smtp_from_name",
                                                         "not applicable"))
         smtp_reply_to_address = extract_secret(
-                init_values.get("smtp_reply_to_address",
+                init_values.pop("smtp_reply_to_address",
                                 "not applicable")
                 )
 
@@ -527,15 +527,18 @@ def restore_zitadel(argocd: ArgoCD,
     restic_repo_password = backup_dict['restic_repo_pass']
     cnpg_backup_schedule = backup_dict['postgres_schedule']
 
+    # get where the current argo cd app is located in git
+    revision = argo_dict["revision"]
+    argo_path = argo_dict["path"]
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
         refresh_bitwarden(argocd, zitadel_hostname, bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
-        ref = "main"
         external_secrets_yaml = (
                 "https://raw.githubusercontent.com/small-hack/argocd-apps/"
-                f"{ref}/zitadel/app_of_apps/external_secrets_argocd_appset.yaml"
+                f"{revision}/{argo_path}/external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -556,6 +559,8 @@ def restore_zitadel(argocd: ArgoCD,
             argocd,
             'zitadel',
             zitadel_namespace,
+            revision,
+            argo_path,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,

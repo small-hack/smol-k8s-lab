@@ -10,6 +10,7 @@
         LICENSE: GNU AFFERO GENERAL PUBLIC LICENSE
 """
 
+import asyncio
 from click import option, command
 import logging
 from os import environ as env
@@ -26,9 +27,13 @@ from .k8s_apps import (setup_oidc_provider, setup_base_apps,
                        setup_k8s_secrets_management, setup_federated_apps,
                        setup_storage_apps)
 from .k8s_apps.monitoring.prometheus_stack import configure_prometheus_stack
+from .k8s_apps.monitoring.grafana_stack import configure_grafana_stack
+from .k8s_apps.monitoring.tempo import configure_tempo
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
+from .k8s_apps.social.libre_translate import configure_libretranslate
+from .k8s_apps.valkey import configure_valkey
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .tui import launch_config_tui
 from .utils.rich_cli.console_logging import CONSOLE, sub_header, header
@@ -303,19 +308,50 @@ def main(config: str = "",
         if prometheus_stack['enabled']:
             configure_prometheus_stack(argocd, prometheus_stack, oidc_obj, bw)
 
-        # setup nextcloud, home assistant, mastodon, and matrix
-        setup_federated_apps(
-                argocd,
-                api_tls_verify,
-                apps.pop('home_assistant', {}),
-                apps.pop('nextcloud', {}),
-                apps.pop('mastodon', {}),
-                apps.pop('matrix', {}),
-                pvc_storage_class,
-                zitadel_hostname,
-                oidc_obj,
-                bw
-                )
+        grafana_stack = apps.pop('grafana_stack', {'enabled': False})
+        if grafana_stack['enabled']:
+            configure_grafana_stack(argocd, grafana_stack, oidc_obj, bw)
+
+        tempo = apps.pop('tempo', {'enabled': False})
+        if tempo['enabled']:
+            configure_tempo(argocd, tempo, bw)
+
+        # set up self hosted translation
+        libre_translate_dict = apps.pop('libre_translate', {'enabled': False})
+        if libre_translate_dict['enabled']:
+            libretranslate_api_key = configure_libretranslate(
+                    argocd, libre_translate_dict, bw
+                    )
+        else:
+            libretranslate_api_key = ""
+
+        # setup nextcloud, home assistant, mastodon, gotosocial, and matrix
+        asyncio.run(setup_federated_apps(
+                    argocd,
+                    api_tls_verify,
+                    apps.pop('forgejo', {}),
+                    apps.pop('ghost', {}),
+                    apps.pop('harbor', {}),
+                    apps.pop('home_assistant', {}),
+                    apps.pop('nextcloud', {}),
+                    apps.pop('mastodon', {}),
+                    apps.pop('gotosocial', {}),
+                    apps.pop('matrix', {}),
+                    apps.pop('peertube', {}),
+                    apps.pop('writefreely', {}),
+                    pvc_storage_class,
+                    zitadel_hostname,
+                    oidc_obj,
+                    libretranslate_api_key,
+                    bw
+                    ))
+
+        # stand alone valkey
+        if apps.get('valkey'):
+            configure_valkey(argocd, apps.pop('valkey'), bw)
+
+        if apps.get('valkey_cluster'):
+            configure_valkey(argocd, apps.pop('valkey_cluster'), bw)
 
         setup_storage_apps(
                     argocd,
@@ -374,6 +410,21 @@ def main(config: str = "",
             final_msg += ("\n🪿 Minio user console, for your s3 storage:"
                           f"\n[blue][link]https://{minio_tenant_hostname}[/][/]\n")
 
+        forgejo_hostname = SECRETS.get('forgejo_hostname', "")
+        if forgejo_hostname:
+            final_msg += ("\n🦊 Forgejo, for hosting your own git server:\n"
+                          f"[blue][link]https://{forgejo_hostname}[/][/]\n")
+
+        ghost_hostname = SECRETS.get('ghost_hostname', "")
+        if ghost_hostname:
+            final_msg += ("\n👻 Ghost, for hosting your blogging platform:\n"
+                          f"[blue][link]https://{ghost_hostname}[/][/]\n")
+
+        harbor_hostname = SECRETS.get('harbor_hostname', "")
+        if harbor_hostname:
+            final_msg += ("\n⛵ Harbor, for your docker and helm hosting needs:\n"
+                          f"[blue][link]https://{harbor_hostname}[/][/]\n")
+
         nextcloud_hostname = SECRETS.get('nextcloud_hostname', "")
         if nextcloud_hostname:
             final_msg += ("\n☁️ Nextcloud, for your worksuite:\n"
@@ -384,6 +435,21 @@ def main(config: str = "",
             final_msg += ("\n🐘 Mastodon, for your social media:\n"
                           f"[blue][link]https://{mastodon_hostname}[/][/]\n")
 
+        gotosocial_hostname = SECRETS.get('gotosocial_hostname', "")
+        if gotosocial_hostname:
+            final_msg += ("\n🦥 GoToSocial, for your lightweight social media:\n"
+                          f"[blue][link]https://{gotosocial_hostname}[/][/]\n")
+
+        elk_hostname = SECRETS.get('elk_hostname', "")
+        if elk_hostname:
+            final_msg += ("\n🫎 Elk, for your GoToSocial and Mastodon frontend:\n"
+                          f"[blue][link]https://{elk_hostname}[/][/]\n")
+
+        peertube_hostname = SECRETS.get('peertube_hostname', "")
+        if peertube_hostname:
+            final_msg += ("\n🐙 PeerTube, for your video hosting:\n"
+                          f"[blue][link]https://{peertube_hostname}[/][/]\n")
+
         matrix_hostname = SECRETS.get('matrix_element_hostname', "")
         if matrix_hostname:
             final_msg += ("\n💬 Matrix (with Element frontend), for your chat:\n"
@@ -393,6 +459,11 @@ def main(config: str = "",
         if home_assistant_hostname:
             final_msg += ("\n🏠 Home Assistant, for managing your IoT needs:\n"
                           f"[blue][link]https://{home_assistant_hostname}[/][/]\n")
+
+        libretranslate_hostname = SECRETS.get('libretranslate_hostname', "")
+        if libretranslate_hostname:
+            final_msg += ("\n📖, LibreTranslate for self-hosted language translations:\n"
+                          f"[blue][link]https://{libretranslate_hostname}[/][/]\n")
 
         netmaker_hostname = SECRETS.get('netmaker_admin_hostname', "")
         if netmaker_hostname:

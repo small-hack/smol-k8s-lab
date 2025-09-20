@@ -5,7 +5,6 @@ from smol_k8s_lab.k8s_apps.identity_provider.zitadel_api import Zitadel
 from smol_k8s_lab.k8s_apps.social.nextcloud_occ_commands import Nextcloud
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import (restore_seaweedfs,
-                                             recreate_pvc,
                                              k8up_restore_pvc,
                                              restore_cnpg_cluster)
 from smol_k8s_lab.utils.passwords import create_password
@@ -14,15 +13,18 @@ from smol_k8s_lab.utils.run.subproc import subproc
 from smol_k8s_lab.utils.value_from import extract_secret, process_backup_vals
 
 # external libraries
+import asyncio
 import logging as log
 from rich.prompt import Prompt
 
 
-def configure_nextcloud(argocd: ArgoCD,
-                        cfg: dict,
-                        pvc_storage_class: str,
-                        zitadel: Zitadel = None,
-                        bitwarden: BwCLI = None) -> None:
+async def configure_nextcloud(
+        argocd: ArgoCD,
+        cfg: dict,
+        pvc_storage_class: str,
+        zitadel: Zitadel,
+        bitwarden: BwCLI = BwCLI("test","test","test")
+        ) -> None:
     """
     creates a nextcloud app and initializes it with secrets if you'd like :)
 
@@ -32,8 +34,8 @@ def configure_nextcloud(argocd: ArgoCD,
         pvc_storage_class - str, storage class of PVC
 
     optional:
-        bitwarden   - BwCLI() object with session token to create bitwarden items
         zitadel     - Zitadel() object with session token to create zitadel oidc app and roles
+        bitwarden   - BwCLI() object with session token to create bitwarden items
     """
     # check immediately if this app is installed
     app_installed = argocd.check_if_app_exists('nextcloud')
@@ -42,6 +44,19 @@ def configure_nextcloud(argocd: ArgoCD,
     secrets = cfg['argo']['secret_keys']
     if secrets:
         nextcloud_hostname = secrets['hostname']
+        collabora_hostname = secrets.get('collabora_hostname', 'example.com')
+
+        # make sure the pvc secrets are set correctly
+        storage_class_secrets = {}
+
+        # verify each configurable PVC has an associated secret
+        for pvc in ['files', 'config', 's3_pvc']:
+            storage_class = secrets.get(f"{pvc}_storage_class", None)
+            if not storage_class:
+                storage_class_secrets[f"nextcloud_{pvc}_storage_class"] = pvc_storage_class
+
+        if storage_class_secrets:
+            argocd.update_appset_secret(storage_class_secrets)
 
     # verify if initialization is enabled
     init = cfg.get('init', {'enabled': True, 'restore': {'enabled': False}})
@@ -67,14 +82,19 @@ def configure_nextcloud(argocd: ArgoCD,
         # backups are their own config.yaml section
         backup_vals = process_backup_vals(cfg.get('backups', {}), 'nextcloud', argocd)
 
+        # grab all possile init values
+        init_values = init.get('values', None)
+
+        # collabora config values
+        collabora_user = init_values.get('collabora_user', None)
+        collabora_pass = extract_secret(init_values.get('collabora_password',
+                                                        create_password))
+
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         nextcloud_namespace = cfg['argo']['namespace']
         argocd.k8s.create_namespace(nextcloud_namespace)
 
-
-        # grab all possile init values
-        init_values = init.get('values', None)
         if init_values:
             admin_user = init_values.get('admin_user', 'admin')
 
@@ -82,6 +102,7 @@ def configure_nextcloud(argocd: ArgoCD,
             mail_host = init_values.get('smtp_host', None)
             mail_user = init_values.get('smtp_user', None)
             mail_pass = extract_secret(init_values.get('smtp_password', ""))
+
         else:
             log.warn("Strange, there's no nextcloud init values...")
 
@@ -134,12 +155,15 @@ def configure_nextcloud(argocd: ArgoCD,
         if bitwarden and not restore_enabled:
             setup_bitwarden_items(argocd,
                                   nextcloud_hostname,
+                                  collabora_hostname,
                                   s3_endpoint,
                                   s3_access_key,
                                   backup_vals['s3_user'],
                                   backup_vals['s3_password'],
                                   backup_vals['restic_repo_pass'],
                                   admin_user,
+                                  collabora_user,
+                                  collabora_pass,
                                   mail_host,
                                   mail_user,
                                   mail_pass,
@@ -181,6 +205,9 @@ def configure_nextcloud(argocd: ArgoCD,
         if init_enabled and restore_enabled:
             restore_nextcloud(argocd,
                               nextcloud_hostname,
+                              collabora_hostname,
+                              collabora_user,
+                              collabora_pass,
                               nextcloud_namespace,
                               cfg['argo'],
                               secrets,
@@ -194,17 +221,25 @@ def configure_nextcloud(argocd: ArgoCD,
     else:
         log.info("nextcloud already installed 🎉")
         if bitwarden and init_enabled:
-            refresh_bweso(argocd, nextcloud_hostname, bitwarden)
+            refresh_bweso(argocd,
+                          nextcloud_hostname,
+                          collabora_hostname,
+                          collabora_user,
+                          collabora_pass,
+                          bitwarden)
 
 
 def restore_nextcloud(argocd: ArgoCD,
                       nextcloud_hostname: str,
+                      collabora_hostname: str,
+                      collabora_user: str,
+                      collabora_pass: str,
                       nextcloud_namespace: str,
                       argo_dict: dict,
                       secrets: dict,
                       restore_dict: dict,
                       backup_dict: dict,
-                      pvc_storage_class: str,
+                      global_pvc_storage_class: str,
                       pgsql_cluster_name: str,
                       bitwarden: BwCLI) -> None:
     """
@@ -219,14 +254,23 @@ def restore_nextcloud(argocd: ArgoCD,
     restic_repo_password = backup_dict['restic_repo_pass']
     cnpg_backup_schedule = backup_dict['postgres_schedule']
 
+    # get argo git repo info
+    revision = argo_dict['revision']
+    argo_path = argo_dict['path']
+
     # first we grab existing bitwarden items if they exist
     if bitwarden:
-        refresh_bweso(argocd, nextcloud_hostname, bitwarden)
+        refresh_bweso(argocd,
+                      nextcloud_hostname,
+                      collabora_hostname,
+                      collabora_user,
+                      collabora_pass,
+                      bitwarden)
 
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
-                "https://raw.githubusercontent.com/small-hack/argocd-apps/main/"
-                "nextcloud/app_of_apps/external_secrets_argocd_appset.yaml"
+                f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+                f"{argo_path}external_secrets_argocd_appset.yaml"
                 )
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
@@ -243,21 +287,24 @@ def restore_nextcloud(argocd: ArgoCD,
 
     # then we create all the seaweedfs pvcs we lost and restore them
     snapshot_ids = restore_dict['restic_snapshot_ids']
+    s3_pvc_storage_class = secrets.get("s3_pvc_storage_class", global_pvc_storage_class)
+
     restore_seaweedfs(
             argocd,
             'nextcloud',
             nextcloud_namespace,
+            revision,
+            argo_path,
             s3_backup_endpoint,
             s3_backup_bucket,
             access_key_id,
             secret_access_key,
             restic_repo_password,
             s3_pvc_capacity,
-            pvc_storage_class,
+            s3_pvc_storage_class,
             "ReadWriteOnce",
             snapshot_ids['seaweedfs_volume'],
-            snapshot_ids['seaweedfs_filer']
-            )
+            snapshot_ids['seaweedfs_filer'])
 
     # then we finally can restore the postgres database :D
     if restore_dict.get("cnpg_restore", False):
@@ -274,21 +321,16 @@ def restore_nextcloud(argocd: ArgoCD,
                              pgsql_cluster_name,
                              cnpg_backup_schedule)
 
+    podconfig_yaml = (
+            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"{argo_path}pvc_argocd_appset.yaml"
+            )
+    argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
+
     # then we begin the restic restore of all the nextcloud PVCs we lost
     for pvc in ['files', 'config']:
         pvc_enabled = secrets.get(f'{pvc}_pvc_enabled', 'false')
         if pvc_enabled and pvc_enabled.lower() != 'false':
-            # creates the nexcloud pvc
-            recreate_pvc(argocd.k8s,
-                         'nextcloud',
-                         f'nextcloud-{pvc}',
-                         nextcloud_namespace,
-                         secrets[f'{pvc}_storage'],
-                         pvc_storage_class,
-                         secrets[f'{pvc}_access_mode'],
-                         "nextcloud-pvc"
-                         )
-
             # restores the nextcloud pvc
             k8up_restore_pvc(argocd.k8s,
                              'nextcloud',
@@ -299,7 +341,8 @@ def restore_nextcloud(argocd: ArgoCD,
                              access_key_id,
                              secret_access_key,
                              restic_repo_password,
-                             snapshot_ids[f'nextcloud_{pvc}']
+                             snapshot_ids[f'nextcloud_{pvc}'],
+                             "file-backups-podconfig"
                              )
 
     # todo: from here on out, this could be async to start on other tasks
@@ -321,12 +364,15 @@ def restore_nextcloud(argocd: ArgoCD,
 
 def setup_bitwarden_items(argocd: ArgoCD,
                           nextcloud_hostname: str,
+                          collabora_hostname: str,
                           s3_endpoint: str,
                           s3_access_key: str,
                           backups_s3_user: str,
                           backups_s3_password: str,
                           restic_repo_pass: str,
                           admin_user: str,
+                          collabora_user: str,
+                          collabora_pass: str,
                           mail_host: str,
                           mail_user: str,
                           mail_pass: str,
@@ -403,6 +449,14 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[serverinfo_token_obj]
             )
 
+    # collabora admin credentials for initial owner user
+    collabora_admin_id = bitwarden.create_login(
+            name=f'collabora-admin-credentials-{collabora_hostname}',
+            item_url=collabora_hostname,
+            user=collabora_user,
+            password=collabora_pass
+            )
+
     # smtp credentials
     smtpHost = create_custom_field("hostname", mail_host)
     smtp_id = bitwarden.create_login(
@@ -440,12 +494,16 @@ def setup_bitwarden_items(argocd: ArgoCD,
              'nextcloud_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'nextcloud_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id,
-             'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id}
-            )
+             'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id,
+             'collabora_admin_credentials_bitwarden_id': collabora_admin_id
+            })
 
 
 def refresh_bweso(argocd: ArgoCD,
                   nextcloud_hostname: str,
+                  collabora_hostname: str,
+                  collabora_user: str,
+                  collabora_pass: str,
                   bitwarden: BwCLI) -> None:
     """
     if bitwarden and init are enabled, but app is already installed, make sure
@@ -460,6 +518,19 @@ def refresh_bweso(argocd: ArgoCD,
     admin_id = bitwarden.get_item(
             f"nextcloud-admin-credentials-{nextcloud_hostname}", False
             )[0]['id']
+
+    try:
+        collabora_admin_id = bitwarden.get_item(
+                f"collabora-admin-credentials-{collabora_hostname}"
+                )[0]['id']
+    except TypeError:
+        # collabora admin credentials for initial owner user
+        collabora_admin_id = bitwarden.create_login(
+                name=f'collabora-admin-credentials-{collabora_hostname}',
+                item_url=collabora_hostname,
+                user=collabora_user,
+                password=collabora_pass
+                )
 
     smtp_id = bitwarden.get_item(
             f"nextcloud-smtp-credentials-{nextcloud_hostname}", False
@@ -498,5 +569,6 @@ def refresh_bweso(argocd: ArgoCD,
              'nextcloud_s3_admin_credentials_bitwarden_id': s3_admin_id,
              'nextcloud_s3_postgres_credentials_bitwarden_id': s3_db_id,
              'nextcloud_s3_nextcloud_credentials_bitwarden_id': s3_id,
-             'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id
+             'nextcloud_s3_backups_credentials_bitwarden_id': s3_backups_id,
+             'collabora_admin_credentials_bitwarden_id': collabora_admin_id
             })

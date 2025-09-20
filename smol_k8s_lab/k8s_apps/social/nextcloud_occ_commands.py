@@ -24,7 +24,7 @@ class Nextcloud():
         self.k8s_obj = k8s_obj
         pod_cmd = (
                 f"kubectl get pods -n {self.namespace} -l "
-                "app.kubernetes.io/instance=nextcloud-web-app,"
+                "deploymentName=nextcloud,"
                 "app.kubernetes.io/component=app "
                 "--no-headers "
                 "-o custom-columns=NAME:.metadata.name")

@@ -40,11 +40,11 @@ class SmolK8sLabConfig(Screen):
     BINDINGS = [Binding(key="b,q,escape",
                         key_display="b",
                         action="app.pop_screen",
-                        description="Back"),
+                        description=" Back"),
                 Binding(key="n",
                         key_display="n",
                         action="app.request_confirm",
-                        description="Next")]
+                        description=" Next")]
 
     def __init__(self, config: dict) -> None:
         self.cfg = config

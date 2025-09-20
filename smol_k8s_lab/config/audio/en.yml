@@ -1,9 +1,9 @@
 screens:
   base:
     title: |
-      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. Press tab, then press "C" to configure accessibility options.
+      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. You can use tab to move to each new element. You can use F5 to read the current element. Press tab, then press "C" to configure accessibility options.
     alt_title: |
-      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. Press "C" to configure accessibility options.
+      Welcome to smol "K" eights lab. This is the start screen of the terminal U.I. You can use tab to move to each new element. You can use F5 to read the current element. Press "C" to configure accessibility options.
     description: |
       Description. There is an ascii text banner at the top of the screen that says smol "K" eights lab. Below there is one box. The box title is Create a new cluster with the name below. The box contains an input file for the name of your cluster with a submit button to the right that says sparkles emoji new cluster.
     alt_description: |
@@ -98,6 +98,7 @@ apps:
   external_secrets_operator: "external secrets operator"
   generic_app: "generic app"
   generic_device_plugin: "generic device plugin"
+  gotosocial: "go to social"
   home_assistant: "home assistant"
   infisical: "infisical"
   ingress_nginx: "ingress engine X."
@@ -115,11 +116,13 @@ apps:
   netmaker: "net maker"
   nextcloud: "next cloud"
   openbao: "open bao"
+  peertube: "peer tube"
   postgres_operator: "post gres operator"
   prometheus_crds: "prometheus C.Are.D.s"
   prometheus: "prometheus"
   seaweedfs: "seaweed F.S."
   seaweedfs_csi_driver: "seaweed F.S. C.S.I. driver"
+  valkey: "val key"
   vault: "vault"
   vouch: "va-ouch"
   zitadel: "zit-a-del"

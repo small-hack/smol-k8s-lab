@@ -3,6 +3,7 @@ import logging as log
 from .k8s_lib import K8s
 from ..utils.run.subproc import subproc
 from json import loads
+from time import sleep
 
 
 class ArgoCD():
@@ -44,7 +45,8 @@ class ArgoCD():
                  app: str,
                  spinner: bool = True,
                  replace: bool = False,
-                 force: bool = False) -> str:
+                 force: bool = False,
+                 sleep_time: int = 1) -> str:
         """
         syncs an argocd app and returns the result
         """
@@ -58,9 +60,6 @@ class ArgoCD():
 
         counter = 0
         while True:
-            if counter == 10:
-                log.error("Something has gone wrong with syncs! we tried 10 times!")
-                break
             # run sync command
             if spinner:
                 res = subproc([cmd], error_ok=True)
@@ -69,6 +68,13 @@ class ArgoCD():
 
             if "permission denied" not in res:
                 return res
+            else:
+                if counter == 10:
+                    log.error("Something has gone wrong with syncs! we tried 10 times!")
+                    break
+                else:
+                    log.error(f"Sleeping {sleep_time} seconds before next attempt to sync...")
+                    sleep(sleep_time)
 
             counter += 1
 
@@ -268,7 +274,8 @@ class ArgoCD():
             self.sync_app('appset-secrets-plugin', spinner=True, replace=True, force=True)
             self.wait_for_app('appset-secrets-plugin')
         else:
-            self.k8s.reload_deployment("appset-secrets-plugin", self.namespace)
+            sleep(9)
+            # self.k8s.reload_deployment("appset-secrets-plugin", self.namespace)
 
         # if bweso enabled, reload the bitwarden ESO provider
         if self.secrets_backend == "bitwarden":

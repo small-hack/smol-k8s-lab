@@ -25,6 +25,7 @@ Minor Notes:
 | Application/Tool | Description | Initialization Supported |
 |:----------------:|:------------|:------------------------:|
 | [<img src="../assets/images/icons/cilium.png"  width="32" alt="cilium logo">][Cilium] <br /> [Cilium]<sup>demo</sup> | Kubernetes netflow visualizer and policy editor | ✅ |
+| [<img src="../assets/images/icons/gotosocial.png" width="32" alt="GoToSocial logo, a cute little sloth smiling">][GoToSocial] <br /> [GoToSocial] | GoToSocial is a self hosted federated social media site, that is slimmer than Mastodon.  | ✅ |
 | [<img src="../assets/images/icons/home_assistant_icon.png"  width="32" alt="home assistant logo, which is a small blue house with three white tracers inside of it, making it appear as though the home is a circuit board">][Home Assistant] <br /> [Home Assistant] | Home Assistant, a self hosted, at home IoT management solution. | ✅ |
 | [<img src="../assets/images/icons/kyverno_icon.png"  width="32" alt="kyvero logo">][Kyverno] <br /> [Kyverno]<sup>alpha</sup> | Kubernetes native policy management to enforce policies on k8s resources | ❌ |
 | [<img src="../assets/images/icons/kepler.png" width="32" alt="kepler logo">][kepler] <br /> [kepler] | Kepler (Kubernetes Efficient Power Level Exporter) uses eBPF to probe energy-related system stats and exports them as Prometheus metrics. | ✅ |
@@ -32,9 +33,10 @@ Minor Notes:
 | [<img src="../assets/images/icons/k8tz.png" width="32" alt="k8tz logo, the k8s logo but with a watch in the center instead of the ship wheel">][k8tz] <br /> [k8tz] | Timezone environment variable injector for pods and cronjobs | ✅ |
 | [<img src="../assets/images/icons/netmaker-icon.png" width="32" alt="netmaker logo, a purple letter N">][Netmaker] <br /> [Netmaker] | Netmaker is a self hosted vpn management tool | ✅ |
 | [<img src="../assets/images/icons/nextcloud.png" width="32" alt="nextcloud logo, 3 white circles touching eachother on a blue background">][Nextcloud] <br /> [Nextcloud] | Nextcloud is a self hosted file server | ✅ |
-| [<img src="../assets/images/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon] | Mastodon is a self hosted federated social media network  | ✅ |
+| [<img src="../assets/images/icons/mastodon.png" width="32" alt="Mastodon logo, a white M in a purple chat bubble">][Mastodon] <br /> [Mastodon] | Mastodon is a self hosted federated social media site  | ✅ |
 | [<img src="../assets/images/icons/matrix.png" width="32" alt="Matrix logo">][matrix] <br /> [matrix] | Matrix is a self hosted chat platform  | ✅ |
 | [<img src="../assets/images/icons/minio.png" width="32" alt="minio logo, a minimalist drawing in red of a crane">][minio] <br /> [minio] | Self hosted S3 Object Store operator | ✅ |
+| [<img src="../assets/images/icons/peertube.png" width="32" alt="peertube logo, 3 triangles stacked togehter like the triforce, the top is black, the bottom left is gray, and the bottom right is orange. It's tilted on it's side and the space in the center is white">][PeerTube] <br /> [PeerTube] | Self hosted video hosting site, much like YouTube, but federated and FOSS | ✅ |
 | [<img src="../assets/images/icons/seaweedfs.png" width="32" alt="seaweedfs logo, ">][seaweedfs] <br /> [seaweedfs] | Self hosted S3 Object Store | ✅ |
 
 There are plenty more on the side bar, and you can even add your own :)
@@ -58,6 +60,7 @@ There are plenty more on the side bar, and you can even add your own :)
 [cilium]: https://github.com/cilium/cilium/tree/main/install/kubernetes/cilium
 [Bitwarden ESO Provider]: https://github.com/small-hack/bitwarden-eso-provider
 [grafana]: https://grafana.com/
+[GoToSocial]: https://gotosocial.org/
 [ingress-nginx]: https://github.io/kubernetes/ingress-nginx
 [Home Assistant]: https://www.home-assistant.io/
 [k8tz]: https://github.com/small-hack/argocd-apps/tree/main/alpha/k8tz
@@ -70,6 +73,7 @@ There are plenty more on the side bar, and you can even add your own :)
 [matrix]: https://matrix.org/
 [metallb]: https://github.io/metallb/metallb "metallb"
 [minio]: https://min.io/
+[PeerTube]: https://joinpeertube.org/
 [Nextcloud]: https://github.com/nextcloud/helm
 [Netmaker]: https://netmaker.io
 [Prometheus Stack]: https://github.com/small-hack/argocd-apps/tree/main/prometheus

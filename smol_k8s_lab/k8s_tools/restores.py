@@ -25,6 +25,8 @@ import yaml
 def restore_seaweedfs(argocd: ArgoCD,
                       app: str,
                       namespace: str,
+                      revision: str,
+                      argocd_path: str,
                       s3_endpoint: str,
                       s3_bucket: str,
                       access_key_id: str,
@@ -34,8 +36,7 @@ def restore_seaweedfs(argocd: ArgoCD,
                       storage_class: str = "local-path",
                       access_mode: str = "ReadWriteOnce",
                       volume_snapshot_id: str = "",
-                      filer_snapshot_id: str = ""
-                      ):
+                      filer_snapshot_id: str = ""):
     """
     recreate the seaweedfs PVCs for a given namespace and restore them via
     restic, before applying the app's s3 provider Argo CD application set
@@ -43,23 +44,13 @@ def restore_seaweedfs(argocd: ArgoCD,
     snapshots = {'swfs-volume-data': volume_snapshot_id,
                  'swfs-filer-data': filer_snapshot_id}
 
+    # recreate the seaweedfs PVCs appset
+    pvc_appset = (
+            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"{argocd_path}s3_pvc_appset.yaml")
+    argocd.k8s.apply_manifests(pvc_appset, argocd.namespace)
+
     for swfs_pvc, snapshot_id in snapshots.items():
-        # filer has a smaller preset capacity
-        if swfs_pvc == "swfs-volume-data":
-            pvc_capacity = s3_pvc_capacity
-
-        elif swfs_pvc == "swfs-filer-data":
-            pvc_capacity = "5Gi"
-
-        recreate_pvc(argocd.k8s,
-                     app,
-                     swfs_pvc,
-                     namespace,
-                     pvc_capacity,
-                     storage_class,
-                     access_mode,
-                     f"{app}-s3-pvc")
-
         # build a k8up restore file and apply it
         k8up_restore_pvc(argocd.k8s,
                          app,
@@ -70,12 +61,13 @@ def restore_seaweedfs(argocd: ArgoCD,
                          access_key_id,
                          secret_access_key,
                          restic_repo_password,
-                         snapshot_id)
+                         snapshot_id,
+                         "s3-backups-podconfig")
 
     # deploy the seaweedfs appset, which will use the restored PVCs above
     seaweedfs_appset = (
-            "https://raw.githubusercontent.com/small-hack/argocd-apps/main/"
-            f"{app}/app_of_apps/s3_provider_argocd_appset.yaml")
+            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"{argocd_path}s3_provider_argocd_appset.yaml")
     argocd.k8s.apply_manifests(seaweedfs_appset, argocd.namespace)
 
     # and finally wait for the seaweedfs helm chart app to be ready
@@ -83,15 +75,6 @@ def restore_seaweedfs(argocd: ArgoCD,
 
     # but then wait again on the pods, just in case...
     argocd.k8s.wait(namespace, instance=f"{app}-seaweedfs")
-
-    # finally, make sure future scheduled backups are working
-    seaweedfs_pvc_appset = (
-            "https://raw.githubusercontent.com/small-hack/argocd-apps/main/"
-            f"{app}/app_of_apps/s3_pvc_appset.yaml"
-            )
-    argocd.k8s.apply_manifests(seaweedfs_pvc_appset, argocd.namespace)
-    argocd.wait_for_app(f"{app}-s3-pvc", retry=True)
-    argocd.sync_app(f"{app}-s3-pvc")
 
 
 def k8up_restore_pvc(k8s_obj: K8s,
@@ -103,7 +86,8 @@ def k8up_restore_pvc(k8s_obj: K8s,
                      access_key_id: str,
                      secret_access_key: str,
                      restic_repo_password: str,
-                     snapshot_id: str = "latest"):
+                     snapshot_id: str = "latest",
+                     pod_config: str = "backups-podconfig"):
     """
     builds a k8up restore manifest and applies it
     """
@@ -118,9 +102,9 @@ def k8up_restore_pvc(k8s_obj: K8s,
                     'spec': {
                         'failedJobsHistoryLimit': 5,
                         'successfulJobsHistoryLimit': 1,
-                        'podSecurityContext': {
-                            'runAsUser': 0
-                            },
+                        'podConfigRef': {
+                            'name': pod_config
+                        },
                         'restoreMethod': {
                             'folder': {
                                 'claimName': pvc
