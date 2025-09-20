@@ -59,6 +59,13 @@ async def configure_juicefs(argocd: ArgoCD,
     if secrets:
         juicefs_hostname = secrets['hostname']
 
+    if init_enabled:
+        # declare custom values for juicefs
+        init_values = init.get('values', None)
+
+        # backups are their own config.yaml section
+        backup_vals = process_backup_vals(cfg.get('backups', {}), 'juicefs', argocd)
+
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
          # declare custom values
@@ -66,8 +73,8 @@ async def configure_juicefs(argocd: ArgoCD,
          backup_vals = process_backup_vals(cfg.get('backups', {}), 'juicefs', argocd)
 
          # configure the s3 credentials
-         s3_access_key_id = extract_secret(init_values.get('s3_access_key_id'))
-         s3_secret_access_key = extract_secret(init_values.get('s3_secret_access_key'))
+         s3_access_key_id = extract_secret(init_values.get('access_key_id'))
+         s3_secret_access_key = extract_secret(init_values.get('secret_access_key'))
          bucket_name = extract_secret(init_values.get('bucket_name'))
          s3_url = extract_secret(init_values.get('s3_url'))
 
