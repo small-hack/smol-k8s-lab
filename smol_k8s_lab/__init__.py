@@ -317,7 +317,11 @@ def main(config: str = "",
                 bw
                 )
 
-        setup_storage_apps()
+        setup_storage_apps(
+                    argocd,
+                    apps.pop('juicefs', {}),
+                    pvc_storage_class,
+                    bw)
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
