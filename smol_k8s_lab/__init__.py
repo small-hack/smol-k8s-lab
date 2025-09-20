@@ -353,11 +353,12 @@ def main(config: str = "",
         if apps.get('valkey_cluster'):
             configure_valkey(argocd, apps.pop('valkey_cluster'), bw)
 
-        setup_storage_apps(
-                    argocd,
-                    apps.pop('juicefs', {}),
-                    pvc_storage_class,
-                    bw)
+        if apps.get('juicefs'):
+          setup_storage_apps(
+                      argocd,
+                      apps.pop('juicefs', {}),
+                      pvc_storage_class,
+                      bw)
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
