@@ -329,7 +329,7 @@ async def setup_federated_apps(
                                zitadel_obj,
                                bw)
 
-def setup_storage_apps(argocd: ArgoCD,
+async def setup_storage_apps(argocd: ArgoCD,
                        juicefs_dict: dict = {},
                        pvc_storage_class: str = "local-path",
                        bw: BwCLI = None) -> None:
