@@ -326,7 +326,8 @@ def main(config: str = "",
             libretranslate_api_key = ""
 
         # setup nextcloud, home assistant, mastodon, gotosocial, and matrix
-        asyncio.run(setup_federated_apps(
+        asyncio.run(
+                setup_federated_apps(
                     argocd,
                     api_tls_verify,
                     apps.pop('forgejo', {}),
@@ -345,7 +346,8 @@ def main(config: str = "",
                     oidc_obj,
                     libretranslate_api_key,
                     bw
-                    ))
+                    )
+                )
 
         # stand alone valkey
         if apps.get('valkey'):
@@ -355,7 +357,14 @@ def main(config: str = "",
             configure_valkey(argocd, apps.pop('valkey_cluster'), bw)
 
         if apps.get('juicefs'):
-            asyncio.run(setup_storage_apps(argocd, apps['juicefs'], bw))
+            asyncio.run(
+                    setup_storage_apps(
+                        argocd=argocd,
+                        juicefs_dict=apps['juicefs'],
+                        pvc_storage_class=pvc_storage_class,
+                        bw=bw
+                        )
+                    )
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
