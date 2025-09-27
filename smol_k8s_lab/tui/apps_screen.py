@@ -97,6 +97,7 @@ class AppsConfigScreen(Screen):
                 'ghost': {},
                 'harbor': {},
                 'home_assistant': {},
+                'jellyfin': {},
                 'matrix': {},
                 'mastodon': {},
                 'nextcloud': {},

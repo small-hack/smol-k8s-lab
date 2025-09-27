@@ -17,7 +17,7 @@ from textual.widgets import (Input, Label, Button, Switch, Static, Collapsible,
 
 RESTOREABLE = ["home_assistant", "matrix", "mastodon", "nextcloud",
                "seaweedfs", "zitadel", "gotosocial", "peertube", "harbor",
-               "ghost", "forgejo", "jellyfin"]
+               "ghost", "forgejo", "jellyfin", "writefreely"]
 
 
 class AppInputs(Static):

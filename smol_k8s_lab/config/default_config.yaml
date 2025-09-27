@@ -1092,7 +1092,10 @@ apps:
   jellyfin:
     enabled: false
     description: |
-      [link=https://jellyfin.com/opensource]jellyfin[/link] is an open source self media hosting platform that replaces something like plex.
+      [link=https://jellyfin.com/opensource]jellyfin[/link] is an open source self media hosting platform that replaces something like emby or plex.
+
+      Once you've got everything up and running, consider downloading some of Blender Studio's fantastic Creative Commons licensed open source films:
+      [link=https://download.blender.org/demo/movies/]download.blender.org/demo/movies/[/link]
     init:
       # Switch to false if you don't want to create intial secrets or use the
       # API via a service acocunt to create the above described resources
@@ -1100,55 +1103,54 @@ apps:
       restore:
         enabled: false
         restic_snapshot_ids:
-          seaweedfs_volume: latest
-          seaweedfs_filer: latest
+          media: latest
+          config: latest
     backups:
       # cronjob syntax schedule to run jellyfin seaweedfs pvc backups
       pvc_schedule: 10 0 * * *
       s3:
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
-        endpoint: ""
-        bucket: jelly-vleermuis-backups
+        endpoint: example
+        bucket: example
         region: auto
-        secret_access_key:
-          value_from:
-            env: JELLYFIN_S3_BACKUP_SECRET_KEY
-        access_key_id:
-          value_from:
-            env: JELLYFIN_S3_BACKUP_ACCESS_ID
-      restic_repo_password:
-        value_from:
-          env: JELLYFIN_RESTIC_REPO_PASSWORD
+        # secret_access_key:
+        #   value_from:
+        #     env: JELLYFIN_S3_BACKUP_SECRET_KEY
+        # access_key_id:
+        #   value_from:
+        #     env: JELLYFIN_S3_BACKUP_ACCESS_ID
+      # restic_repo_password:
+      #   value_from:
+      #     env: JELLYFIN_RESTIC_REPO_PASSWORD
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # FQDN to use for jellyfin
         hostname: jelly.example.com
-        # toleration affinity
+        # tolerations and affinity (important if you're not using networked storage)
         toleration_key: dedicated
         toleration_operator: Equal
-        toleration_value: nextcloud
+        toleration_value: example
         toleration_effect: NoSchedule
         affinity_key: dedicated
-        affinity_value: nextcloud
+        affinity_value: example
         # enable persistent volume claim for jellyfin media storage
         media_pvc_enabled: 'true'
         # size of media pvc storage
         media_storage: 250Gi
+        media_storage_class: local-path
         media_access_mode: ReadWriteOnce
-        media_storage_class: fast-raid
         # enable persistent volume claim for jellyfin config storage
         config_pvc_enabled: 'true'
         # size of config pvc storage
         config_storage: 2Gi
         config_access_mode: ReadWriteOnce
-        config_storage_class: fast-raid
+        config_storage_class: local-path
       # repo to install the Argo CD app from
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      # if you want to use cockroachdb, change to jellyfin/jellyfin_and_cockroachdb
-      path: demo/jellyfin/app_of_apps/
+      path: jellyfin/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # kubernetes cluster to install the k8s app into, defaults to Argo CD default
@@ -1168,7 +1170,84 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
         name: jellyfin
-        
+
+  juicefs:
+    enabled: false
+    description: |
+      [link=https://github.com/juicedata/juicefs]juicefs[/link] JuiceFS is a distributed POSIX file system built on top of Redis and S3 (but we use Valkey and SeaweedFS).
+    init:
+      enabled: false
+      values:
+        s3_access_key_id:
+          value_from:
+            env: JUICEFS_S3_ACCESS_KEY_ID
+        s3_secret_access_key:
+          value_from:
+            env: JUICEFS_S3_SECRET_ACCESS_KEY
+        bucket_name: ""
+        s3_url: ""
+      restore:
+        # set to true to run a restic restore via a k8up job for:
+        # seaweedfs pvcs and nextcloud files pvc
+        enabled: false
+        # for Cloudnative Postgres operator "cluster" CRD type resources
+        cnpg_restore: true
+        # restic snapshot ID for each PVC
+        restic_snapshot_ids:
+          # juicefs-valkey-primary volume pvc snapshot id
+          juicefs_primary: "latest"
+          # juicefs-valkey-replica volume pvc snapshot id
+          juicefs_replica: "latest"
+    backups:
+      # cronjob syntax schedule to run nextcloud pvc backups
+      pvc_schedule: 10 0 * * *
+      # cronjob syntax (with SECONDS field) for nextcloud postgres backups
+      # must happen at least 10 minutes before pvc backups, to avoid corruption
+      # due to missing files. This is because the cnpg backup shows as completed
+      # before it actually is, due to the wal archive it lists as it's end not
+      # being in the backup yet
+      postgres_schedule: 0 0 0 * * *
+      s3:
+        # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
+        endpoint: ""
+        bucket: ""
+        region: ""
+        secret_access_key:
+          value_from:
+            env: JUICEFS_S3_BACKUP_SECRET_ACCESS_KEY
+        access_key_id:
+          value_from:
+            env: JUICEFS_S3_BACKUP_ACCESS_KEY_ID
+      restic_repo_password:
+        value_from:
+          env: JUICEFS_RESTIC_REPO_PASSWORD
+    argo:
+      # secrets keys to make available to Argo CD ApplicationSets
+      secret_keys:
+        juicefs_hostname: juicefs.vleermuis.tech
+      # git repo to install the Argo CD app from
+      repo: https://github.com/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: demo/juicefs/app_of_apps/
+      # either the branch or tag to point at in the argo repo above
+      revision: finish-juicefs
+      # kubernetes cluster to install the k8s app into, defaults to Argo CD default
+      cluster: https://kubernetes.default.svc
+      # namespace to install the k8s app in
+      namespace: juicefs
+      # recurse directories in the provided git repo
+      # if set to false, we will not deploy the CSI driver
+      directory_recursion: true
+      # source repos for Argo CD App Project (in addition to argo.repo)
+      project:
+        name: juicefs
+        source_repos:
+          - https://juicedata.github.io/charts/
+          - oci://registry-1.docker.io/
+        destination:
+          # automatically includes the app's namespace and argocd's namespace
+          namespaces: []
+
   k8tz:
     enabled: false
     description: |
@@ -2415,7 +2494,7 @@ apps:
           - https://github.com/prometheus-community/helm-charts.git
           - https://prometheus-community.github.io/helm-charts
           - https://seaweedfs.github.io/seaweedfs/helm
-          - https://prometheus-community.github.io/helm-charts 
+          - https://prometheus-community.github.io/helm-charts
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
