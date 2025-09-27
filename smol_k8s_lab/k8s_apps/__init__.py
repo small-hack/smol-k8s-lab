@@ -35,7 +35,7 @@ from .social.home_assistant import configure_home_assistant
 from .social.matrix import configure_matrix
 from .social.mastodon import configure_mastodon
 from .social.nextcloud import configure_nextcloud
-from .social.home_assistant import configure_home_assistant
+from .social.jellyfin import configure_jellyfin
 from .storage.juicefs import configure_juicefs
 from .social.peertube import configure_peertube
 from .social.writefreely import configure_writefreely
@@ -238,6 +238,7 @@ async def setup_federated_apps(
         forgejo_dict: dict = {},
         ghost_dict: dict = {},
         harbor_dict: dict = {},
+        jellyfin_dict: dict = {},
         home_assistant_dict: dict = {},
         nextcloud_dict: dict = {},
         mastodon_dict: dict = {},
@@ -285,6 +286,14 @@ async def setup_federated_apps(
                                zitadel_obj,
                                bw)
 
+    # home media server
+    if jellyfin_dict.get('enabled', False):
+        await configure_jellyfin(argocd,
+                                 jellyfin_dict,
+                                 pvc_storage_class,
+                                 bw)
+
+    # home iot management
     if home_assistant_dict.get('enabled', False):
         await configure_home_assistant(argocd,
                                        home_assistant_dict,
@@ -330,9 +339,9 @@ async def setup_federated_apps(
                                bw)
 
 async def setup_storage_apps(argocd: ArgoCD,
-                       juicefs_dict: dict = {},
-                       pvc_storage_class: str = "local-path",
-                       bw: BwCLI = None) -> None:
+                             juicefs_dict: dict = {},
+                             pvc_storage_class: str = "local-path",
+                             bw: BwCLI = None) -> None:
 
    if juicefs_dict.get('enabled', False):
        await configure_juicefs(argocd,
