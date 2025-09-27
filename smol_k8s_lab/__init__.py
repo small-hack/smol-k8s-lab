@@ -332,6 +332,7 @@ def main(config: str = "",
                     apps.pop('forgejo', {}),
                     apps.pop('ghost', {}),
                     apps.pop('harbor', {}),
+                    apps.pop('jellyfin', {}),
                     apps.pop('home_assistant', {}),
                     apps.pop('nextcloud', {}),
                     apps.pop('mastodon', {}),
@@ -354,11 +355,7 @@ def main(config: str = "",
             configure_valkey(argocd, apps.pop('valkey_cluster'), bw)
 
         if apps.get('juicefs'):
-          setup_storage_apps(
-                      argocd,
-                      apps.pop('juicefs', {}),
-                      pvc_storage_class,
-                      bw)
+            asyncio.run(setup_storage_apps(argocd, apps['juicefs'], bw))
 
         # we support creating a default minio tenant with oidc enabled
         # we set it up here in case other apps rely on it
@@ -450,6 +447,11 @@ def main(config: str = "",
         if peertube_hostname:
             final_msg += ("\n🐙 PeerTube, for your video hosting:\n"
                           f"[blue][link]https://{peertube_hostname}[/][/]\n")
+
+        jellyfin_hostname = SECRETS.get('jellyfin_hostname', "")
+        if jellyfin_hostname:
+            final_msg += ("\n🪼 Jellyfin, for your home media server:\n"
+                          f"[blue][link]https://{jellyfin_hostname}[/][/]\n")
 
         matrix_hostname = SECRETS.get('matrix_element_hostname', "")
         if matrix_hostname:
