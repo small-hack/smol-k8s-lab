@@ -2,7 +2,6 @@
 from smol_k8s_lab.bitwarden.bw_cli import BwCLI, create_custom_field
 from smol_k8s_lab.k8s_tools.argocd_util import ArgoCD
 from smol_k8s_lab.k8s_tools.restores import k8up_restore_pvc
-from smol_k8s_lab.utils.passwords import create_password
 from smol_k8s_lab.utils.rich_cli.console_logging import sub_header, header
 from smol_k8s_lab.utils.run.subproc import subproc
 from smol_k8s_lab.utils.value_from import process_backup_vals
@@ -72,19 +71,10 @@ async def configure_jellyfin(
         # backups are their own config.yaml section
         backup_vals = process_backup_vals(cfg.get('backups', {}), 'jellyfin', argocd)
 
-        # grab all possile init values
-        init_values = init.get('values', None)
-
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         jellyfin_namespace = cfg['argo']['namespace']
         argocd.k8s.create_namespace(jellyfin_namespace)
-
-        if init_values:
-            admin_user = init_values.get('admin_user', 'admin')
-
-        else:
-            log.warn("Strange, there's no jellyfin init values...")
 
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden and not restore_enabled:
@@ -93,17 +83,7 @@ async def configure_jellyfin(
                                   backup_vals['s3_user'],
                                   backup_vals['s3_password'],
                                   backup_vals['restic_repo_pass'],
-                                  admin_user,
                                   bitwarden)
-
-        # these are standard k8s secrets
-        elif not bitwarden and not restore_enabled:
-            # jellyfin admin credentials and smtp credentials
-            admin_password = create_password()
-            argocd.k8s.create_secret('jellyfin-admin-credentials', 'jellyfin',
-                                     {"username": admin_user,
-                                      "password": admin_password}
-                                     )
 
     if not app_installed:
         # if the user is restoring, the process is a little different
@@ -210,7 +190,6 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           backups_s3_user: str,
                           backups_s3_password: str,
                           restic_repo_pass: str,
-                          admin_user: str,
                           bitwarden: BwCLI) -> None:
     """
     setup all the bitwarden items for jellyfin external secrets to be populated
@@ -227,23 +206,9 @@ def setup_bitwarden_items(argocd: ArgoCD,
             fields=[restic_repo_pass_obj]
             )
 
-    # admin credentials + metrics server info token
-    token = bitwarden.generate()
-    admin_password = bitwarden.generate()
-    serverinfo_token_obj = create_custom_field("serverInfoToken", token)
-    admin_id = bitwarden.create_login(
-            name='jellyfin-admin-credentials',
-            item_url=jellyfin_hostname,
-            user=admin_user,
-            password=admin_password,
-            fields=[serverinfo_token_obj]
-            )
-
     # update the jellyfin values for the argocd appset
     argocd.update_appset_secret(
-            {'jellyfin_admin_credentials_bitwarden_id': admin_id,
-             'jellyfin_s3_backups_credentials_bitwarden_id': s3_backups_id
-            })
+            {'jellyfin_s3_backups_credentials_bitwarden_id': s3_backups_id})
 
 
 def refresh_bweso(argocd: ArgoCD,
@@ -255,15 +220,10 @@ def refresh_bweso(argocd: ArgoCD,
     """
     log.debug("Making sure jellyfin Bitwarden item IDs are in appset "
               "secret plugin secret")
-    admin_id = bitwarden.get_item(
-            f"jellyfin-admin-credentials-{jellyfin_hostname}", False
-            )[0]['id']
 
     s3_backups_id = bitwarden.get_item(
             f"jellyfin-backups-s3-credentials-{jellyfin_hostname}", False
             )[0]['id']
 
     argocd.update_appset_secret(
-            {'jellyfin_admin_credentials_bitwarden_id': admin_id,
-             'jellyfin_s3_backups_credentials_bitwarden_id': s3_backups_id
-            })
+            {'jellyfin_s3_backups_credentials_bitwarden_id': s3_backups_id})
