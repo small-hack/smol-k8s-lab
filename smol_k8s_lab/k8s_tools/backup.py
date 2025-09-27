@@ -39,7 +39,7 @@ def create_pvc_restic_backup(app: str,
               },
             "spec": {
               "failedJobsHistoryLimit": 5,
-              "promURL": "http://mimir-nginx.monitoring.svc:80/api/v1/push",
+              "promURL": "push-gateway.prometheus.svc:9091",
               "successfulJobsHistoryLimit": 1,
               "backend": {
                 "repoPasswordSecretRef": {
