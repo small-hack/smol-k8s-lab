@@ -1150,7 +1150,6 @@ apps:
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
-      # if you want to use cockroachdb, change to jellyfin/jellyfin_and_cockroachdb
       path: jellyfin/app_of_apps/
       # either the branch or tag to point at in the argo repo above
       revision: main

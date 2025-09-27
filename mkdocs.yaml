@@ -91,7 +91,8 @@ nav:
       - Infisical: k8s_apps/experimental/infisical.md
       - Kepler: k8s_apps/experimental/kepler.md
       - Kyverno: k8s_apps/experimental/kyverno.md
-      - JuiceFS: k8s_apps/Juicefs.md
+      - Jellyfin: k8s_apps/jellyfin.md
+      - JuiceFS: k8s_apps/juicefs.md
       - Longhorn: k8s_apps/experimental/longhorn.md
       - Openbao: k8s_apps/experimental/openbao.md
       - MinIO: k8s_apps/experimental/minio.md
