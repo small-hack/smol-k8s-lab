@@ -2469,6 +2469,8 @@ apps:
         s3_endpoint: ""
         # capacity for the PVC backing your local s3 instance
         s3_pvc_capacity: 100Gi
+        # StorageClass for the PVC backing your local s3 instance
+        s3_storage_class: local-path
 
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
