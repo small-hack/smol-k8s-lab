@@ -55,7 +55,7 @@ def configure_grafana_stack(argocd: ArgoCD,
 
     if init_enabled:
         # configure backup s3 credentials
-        backup_vals = process_backup_vals(cfg.get('backups', ''), 'grafana-stack', argocd)
+        backup_vals = process_backup_vals(cfg.get('backups', ''), 'grafana_stack', argocd)
 
     # initial secrets to deploy this app from scratch
     if init_enabled and not app_installed:
