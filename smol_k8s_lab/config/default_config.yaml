@@ -660,6 +660,8 @@ apps:
         # affinity_value: ""
         # hostname that users go to in the browser
         hostname: ""
+        # admin hostname that users go to in the browser
+        admin_hostname: ""
         # title of your title
         blog_title: ""
         # ghost mysql pvc capacity
