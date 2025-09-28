@@ -81,6 +81,7 @@ async def configure_ghost(argocd: ArgoCD,
             mail_user = init_values.get('smtp_user', '')
             mail_host = init_values.get('smtp_host', '')
             mail_port = init_values.get('smtp_port', '')
+            mail_from_address = init_values.get('smtp_from_address', '')
             mail_protocol = init_values.get('smtp_protocol', '')
             mail_pass = extract_secret(init_values.get('smtp_password'))
 
@@ -130,6 +131,7 @@ async def configure_ghost(argocd: ArgoCD,
                                   ghost_admin_email,
                                   mail_host,
                                   mail_protocol,
+                                  mail_from_address,
                                   mail_port,
                                   mail_user,
                                   mail_pass,
@@ -242,6 +244,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
                           admin_email: str,
                           mail_host: str,
                           mail_protocol: str,
+                          mail_from_address: str,
                           mail_port: str,
                           mail_user: str,
                           mail_pass: str,
@@ -312,6 +315,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
     ghost_smtp_host_obj = create_custom_field("smtpHostname", mail_host)
     ghost_smtp_port_obj = create_custom_field("smtpPort", mail_port)
     ghost_smtp_protocol_obj = create_custom_field("smtpProtocol", mail_protocol)
+    ghost_smtp_from_address_obj = create_custom_field("smtpFromAddress", mail_from_address)
     smtp_id = bitwarden.create_login(
             name='ghost-smtp-credentials',
             item_url=ghost_hostname,
@@ -319,7 +323,8 @@ def setup_bitwarden_items(argocd: ArgoCD,
             password=mail_pass,
             fields=[ghost_smtp_host_obj,
                     ghost_smtp_port_obj,
-                    ghost_smtp_protocol_obj]
+                    ghost_smtp_protocol_obj,
+                    ghost_smtp_from_address_obj]
             )
 
     # admin credentials for ghost itself

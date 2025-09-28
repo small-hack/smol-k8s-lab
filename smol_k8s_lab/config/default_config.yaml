@@ -627,6 +627,8 @@ apps:
         smtp_user: ""
         smtp_port: ""
         smtp_protocol: "SMTP"
+        # smtp from email (verified sender)
+        smtp_from_address: example.com
         smtp_password:
           value_from:
             env: GHOST_SMTP_PASSWORD
