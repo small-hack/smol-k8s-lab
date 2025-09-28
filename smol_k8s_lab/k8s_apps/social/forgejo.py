@@ -91,7 +91,7 @@ async def configure_forgejo(argocd: ArgoCD,
         # configure OIDC
         if zitadel and not restore_enabled:
             log.debug("Creating a forgejo OIDC application in Zitadel...")
-            redirect_uris = f"https://{forgejo_hostname}/auth/callback"
+            redirect_uris = f"https://{forgejo_hostname}/user/oauth2/Zitadel/callback"
             logout_uris = [f"https://{forgejo_hostname}"]
             oidc_creds = zitadel.create_application(
                     "forgejo",
