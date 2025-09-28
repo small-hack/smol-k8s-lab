@@ -22,17 +22,20 @@ apps:
     init:
       enabled: false
       values:
+        # admin info
+        admin_user: ""
+        admin_email: ""
+        # smtp info
+        smtp_host: ""
+        smtp_user: ""
+        smtp_port: ""
+        smtp_protocol: "SMTP"
         smtp_password:
           value_from:
             env: GHOST_SMTP_PASSWORD
     backups:
       # cronjob syntax schedule to run ghost pvc backups
       pvc_schedule: 10 0 * * *
-      # cronjob syntax (with SECONDS field) for ghost postgres backups
-      # must happen at least 10 minutes before pvc backups, to avoid corruption
-      # due to missing files. This is because the backup shows as completed before
-      # it actually is
-      postgres_schedule: 0 0 0 * * *
       s3:
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
         endpoint: ""
@@ -60,18 +63,8 @@ apps:
         # affinity_value: ""
         # hostname that users go to in the browser
         hostname: ""
-        # admin username
-        admin_user: "ghost"
-        # admin email
-        admin_email: ""
         # title of your title
         blog_title: ""
-        # smtp server
-        smtp_host: ""
-        # smtp port
-        smtp_port: ""
-        # smtp username
-        smtp_user: ""
         # ghost mysql pvc capacity
         mysql_pvc_capacity: 5Gi
         # ghost pvc capacity
@@ -98,6 +91,7 @@ apps:
         source_repos:
           - registry-1.docker.io
           - seaweedfs.github.io/seaweedfs/helm
+          - https://small-hack.github.io/ghost-helm-chart
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
