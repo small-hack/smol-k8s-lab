@@ -155,6 +155,7 @@ def setup_base_apps(k8s_obj: K8s,
                     ingress_dict: dict = {},
                     cert_manager_dict: dict = {},
                     cnpg_operator_dict: dict = {},
+                    pxc_operator_dict: dict = {},
                     argocd_dict: dict = {},
                     plugin_secrets: dict = {},
                     bw: BwCLI = None) -> ArgoCD:
@@ -169,6 +170,7 @@ def setup_base_apps(k8s_obj: K8s,
     cilium_enabled = cilium_dict.get('enabled', False)
     ingress_nginx_enabled = ingress_dict.get('enabled', False)
     cnpg_operator_enabled = cnpg_operator_dict.get('enabled', False)
+    pxc_operator_enabled = pxc_operator_dict.get('enabled', False)
     argocd_enabled = argocd_dict.get('enabled', False)
     cert_manager_enabled = cert_manager_dict.get('enabled', False)
     argo_secrets_plugin_enabled = argocd_dict['argo']['directory_recursion']
@@ -177,6 +179,7 @@ def setup_base_apps(k8s_obj: K8s,
                  metallb_enabled,
                  cilium_enabled,
                  cnpg_operator_enabled,
+                 pxc_operator_enabled,
                  argocd_enabled,
                  argo_secrets_plugin_enabled)
 

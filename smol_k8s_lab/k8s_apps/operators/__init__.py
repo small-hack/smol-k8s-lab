@@ -15,6 +15,7 @@ def setup_operators(argocd: ArgoCD,
                     cnpg_config: dict = {},
                     pg_config: dict = {},
                     openbao_config: dict = {},
+                    pxc_config: dict = {},
                     bitwarden: BwCLI = None) -> None:
     """
     deploy all k8s operators that can block other apps:
@@ -56,6 +57,10 @@ def setup_operators(argocd: ArgoCD,
     # cnpg operator is a postgres operator for creating postgresql clusters
     if cnpg_config and cnpg_config.get('enabled', False):
         argocd.install_app('cnpg-operator', cnpg_config['argo'])
+
+    # pxc operator is a mysql operator for creating mysql clusters
+    if pxc_config and pxc_config.get('enabled', False):
+        argocd.install_app('pxc-operator', pxc_config['argo'])
 
     # zalando postgres operator is a postgres operator for creating postgresql clusters
     if pg_config and pg_config.get('enabled', False):
