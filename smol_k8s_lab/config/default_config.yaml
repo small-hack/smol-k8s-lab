@@ -470,6 +470,8 @@ apps:
         # set the local s3 provider for forgejo's public data in one bucket
         # and private database backups in another. can be seaweedfs for now
         s3_provider: seaweedfs
+        # storage_class for S3 PVCs
+        s3_pvc_storage_class: local-path
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 10Gi
         # local s3 endpoint for postgresql backups, backed up constantly
