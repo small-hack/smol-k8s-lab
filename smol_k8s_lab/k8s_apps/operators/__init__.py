@@ -13,9 +13,9 @@ def setup_operators(argocd: ArgoCD,
                     minio_config: dict = {},
                     seaweed_config: dict = {},
                     cnpg_config: dict = {},
+                    pxc_config: dict = {},
                     pg_config: dict = {},
                     openbao_config: dict = {},
-                    pxc_config: dict = {},
                     bitwarden: BwCLI = None) -> None:
     """
     deploy all k8s operators that can block other apps:
@@ -25,6 +25,7 @@ def setup_operators(argocd: ArgoCD,
         - minio operator
         - seaweedfs
         - cnpg (cloud native postgres) operator
+        - pxc (percona mysql) operator
         - zalando postgres operator
         - openbao
     """
