@@ -542,7 +542,10 @@ apps:
       project:
         name: external-secrets-operator
         source_repos:
+          # needed for the helm chart
           - https://charts.external-secrets.io
+          # needed for the CRDs
+          - https://github.com/external-secrets/external-secrets
           # you can remove this one if you're not using bitwarden to store your k8s secrets
           - https://small-hack.github.io/bitwarden-eso-provider
         destination:
