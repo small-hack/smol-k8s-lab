@@ -494,7 +494,7 @@ def restore_forgejo(argocd: ArgoCD,
                     k8s_obj=argocd.k8s,
                     app='forgejo',
                     pvc=f'forgejo-{pvc.replace("_","-")}',
-                    namespace='forgejo',
+                    namespace=forgejo_namespace,
                     s3_endpoint=s3_backup_endpoint,
                     s3_bucket=s3_backup_bucket,
                     access_key_id=access_key_id,
@@ -503,6 +503,21 @@ def restore_forgejo(argocd: ArgoCD,
                     snapshot_id=snapshot_ids[f'forgejo_{pvc}'],
                     pod_config="file-backups-podconfig"
                     )
+
+    # restores the forgejo pvc
+    k8up_restore_pvc(
+            k8s_obj=argocd.k8s,
+            app='forgejo',
+            pvc='forgejo',
+            namespace=forgejo_namespace,
+            s3_endpoint=s3_backup_endpoint,
+            s3_bucket=s3_backup_bucket,
+            access_key_id=access_key_id,
+            secret_access_key=secret_access_key,
+            restic_repo_password=restic_repo_password,
+            snapshot_id=snapshot_ids['forgejo'],
+            pod_config="file-backups-podconfig"
+            )
 
     # todo: from here on out, this could be async to start on other tasks
     # install forgejo as usual, but wait on it this time
