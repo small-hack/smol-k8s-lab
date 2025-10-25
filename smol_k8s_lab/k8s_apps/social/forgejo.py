@@ -501,7 +501,7 @@ def restore_forgejo(argocd: ArgoCD,
                     secret_access_key=secret_access_key,
                     restic_repo_password=restic_repo_password,
                     snapshot_id=snapshot_ids[f'forgejo_{pvc}'],
-                    pod_config="file-backups-podconfig"
+                    pod_config="s3-backups-podconfig"
                     )
 
     # restores the forgejo pvc
@@ -516,7 +516,7 @@ def restore_forgejo(argocd: ArgoCD,
             secret_access_key=secret_access_key,
             restic_repo_password=restic_repo_password,
             snapshot_id=snapshot_ids['forgejo'],
-            pod_config="file-backups-podconfig"
+            pod_config="backups-podconfig"
             )
 
     # todo: from here on out, this could be async to start on other tasks
