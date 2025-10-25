@@ -2567,9 +2567,7 @@ apps:
         cronjob_schedule: '0 1 * * *'
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
-      # path in the argo repo to point to. Trailing slash very important! This
-      # is an app of apps. Change to "monitoring/kube-prometheus-stack/" to
-      # only install kube-prometheus-stack (foregoing loki and push gateway)
+      # path in the argo repo to point to. Trailing slash very important!
       path: renovate/
       # either the branch or tag to point at in the argo repo above
       revision: main
