@@ -28,6 +28,7 @@ from .secrets_management.external_secrets_operator import configure_external_sec
 from .secrets_management.infisical import configure_infisical
 from .secrets_management.vault import configure_vault
 from .social.forgejo import configure_forgejo
+from .renovate import configure_renovate
 from .social.ghost import configure_ghost
 from .social.gotosocial import configure_gotosocial
 from .social.harbor import configure_harbor
@@ -249,6 +250,7 @@ async def setup_federated_apps(
         matrix_dict: dict = {},
         peertube_dict: dict = {},
         writefreely_dict: dict = {},
+        renovate_dict: dict = {},
         pvc_storage_class: str = "local-path",
         zitadel_hostname: str = "",
         zitadel_obj: Zitadel = None,
@@ -265,6 +267,10 @@ async def setup_federated_apps(
                                 pvc_storage_class,
                                 zitadel_obj,
                                 bw)
+    if renovate_dict.get('enabled', False):
+        await configure_renovate(argocd,
+                                 renovate_dict,
+                                 bw)
 
     # blogging platforms
     if ghost_dict.get('enabled', False):
