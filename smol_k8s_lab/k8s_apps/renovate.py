@@ -92,7 +92,7 @@ def setup_bitwarden_items(argocd: ArgoCD,
 
     # renovate credentials
     renovate_id = bitwarden.create_login(
-            name='renovate-pat-smol-k8s-lab',
+            name='renovate-pat',
             item_url="renovate.io",
             user='renovate',
             password=renovate_pat,
@@ -122,7 +122,7 @@ def refresh_bweso(argocd: ArgoCD, bitwarden: BwCLI) -> None:
               "secret plugin secret")
 
 
-    secrets_id = bitwarden.get_item("renovate-pat-smol-k8s-lab", False)[0]['id']
+    secrets_id = bitwarden.get_item("renovate-pat-renovate.io", False)[0]['id']
 
     # {'renovate_admin_credentials_bitwarden_id': admin_id,
     argocd.update_appset_secret({'renovate_secret_bitwarden_id': secrets_id})
