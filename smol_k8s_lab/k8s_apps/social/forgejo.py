@@ -468,6 +468,7 @@ def restore_forgejo(argocd: ArgoCD,
     if restore_dict.get("cnpg_restore", False):
         psql_version = restore_dict.get("postgresql_version", 16)
         s3_endpoint = secrets.get('s3_endpoint', "")
+        # use official cloudnative Cluster chart parameters
         restore_cnpg_cluster(argocd.k8s,
                              'forgejo',
                              forgejo_namespace,
@@ -484,25 +485,6 @@ def restore_forgejo(argocd: ArgoCD,
             f"{argo_path}pvc_argocd_appset.yaml"
             )
     argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
-
-    # then we begin the restic restore of all the forgejo PVCs we lost
-    for pvc in ['valkey_primary', 'valkey_replica']:
-        pvc_enabled = secrets.get('valkey_pvc_enabled', 'false')
-        if pvc_enabled and pvc_enabled.lower() != 'false':
-            # restores the forgejo pvc
-            k8up_restore_pvc(
-                    k8s_obj=argocd.k8s,
-                    app='forgejo',
-                    pvc=f'forgejo-{pvc.replace("_","-")}',
-                    namespace=forgejo_namespace,
-                    s3_endpoint=s3_backup_endpoint,
-                    s3_bucket=s3_backup_bucket,
-                    access_key_id=access_key_id,
-                    secret_access_key=secret_access_key,
-                    restic_repo_password=restic_repo_password,
-                    snapshot_id=snapshot_ids[f'forgejo_{pvc}'],
-                    pod_config="s3-backups-podconfig"
-                    )
 
     # restores the forgejo pvc
     k8up_restore_pvc(

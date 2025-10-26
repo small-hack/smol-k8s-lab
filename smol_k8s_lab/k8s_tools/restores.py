@@ -120,11 +120,11 @@ def k8up_restore_pvc(k8s_obj: K8s,
                                 'bucket': s3_bucket,
                                 'accessKeyIDSecretRef': {
                                     'name': "s3-backups-credentials",
-                                    'key': 'accessKeyId'
+                                    'key': 'ACCESS_KEY_ID'
                                     },
                                 'secretAccessKeySecretRef': {
                                     'name': "s3-backups-credentials",
-                                    'key': 'secretAccessKey'
+                                    'key': 'ACCESS_SECRET_KEY'
                                     }
                                 }
                             }
