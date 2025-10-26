@@ -271,7 +271,7 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                         },
                       "secretAccessKey": {
                         "name": "s3-postgres-credentials",
-                        "key": "SECRET_ACCESS_KEY"
+                        "key": "ACCESS_SECRET_KEY"
                         }
                       },
                     "wal": {"maxParallel": 8}
@@ -334,7 +334,7 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                     },
                   "secretAccessKey": {
                     "name": "s3-postgres-credentials",
-                    "key": "SECRET_ACCESS_KEY"
+                    "key": "ACCESS_SECRET_KEY"
                     }
                   },
                 "wal": {"maxParallel": 8}
