@@ -2559,14 +2559,23 @@ apps:
     description: |
       [link=https://docs.renovatebot.com/]Renovate[/link] is a tool for automated dependency updates. It's Multi-platform and multi-language. This is a simple helm chart for running a self-hosted RenovateBot.
 
-    enabled: false
+    enabled: true
+    init:
+      enabled: true
+      values:
+        renovate_pat:
+          value_from:
+            env: RENOVATE_PAT
+        renovate_github_pat:
+          value_from:
+            env: RENOVATE_GITHUB_PAT
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
       secret_keys:
         # At 01:00 every day
-        cronjob_schedule: '0 1 * * *'
+        cronjob_schedule: 0 1 * * *
       # git repo to install the Argo CD app from
-      repo: https://github.com/small-hack/argocd-apps
+      repo: https://git.smallhack.org/small-hack/argocd-apps
       # path in the argo repo to point to. Trailing slash very important!
       path: renovate/
       # either the branch or tag to point at in the argo repo above
@@ -2574,19 +2583,19 @@ apps:
       # kubernetes cluster to install the k8s app into, defaults to Argo CD default
       cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
-      namespace: "renovate"
+      namespace: renovate
       # recurse directories in the provided git repo
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         name: renovate
         source_repos:
-          - "https://docs.renovatebot.com/helm-charts"
-          - "ghcr.io/renovatebot/charts/renovate"
+        - https://docs.renovatebot.com/helm-charts
+        - ghcr.io/renovatebot/charts/renovate
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
-            - renovate
+          - renovate
 
   seaweedfs:
     enabled: false
