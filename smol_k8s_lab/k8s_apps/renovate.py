@@ -9,9 +9,10 @@ from smol_k8s_lab.utils.value_from import extract_secret
 import logging as log
 
 
-def configure_renovate(argocd: ArgoCD,
-                       cfg: dict,
-                       bitwarden: BwCLI = None) -> bool:
+async def configure_renovate(argocd: ArgoCD,
+                             cfg: dict,
+                             bitwarden: BwCLI = BwCLI("test","test","test")
+                             ) -> bool:
     """
     creates a renovate app and initializes it with secrets if you'd like :)
 
@@ -21,9 +22,6 @@ def configure_renovate(argocd: ArgoCD,
 
     optional:
         bitwarden   - BwCLI() object with session token to create bitwarden items
-
-    coming soon:
-        pvc_storage_class      - str, storage class of PVC
     """
     # check immediately if the app is installed
     app_installed = argocd.check_if_app_exists('renovate')
