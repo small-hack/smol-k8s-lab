@@ -120,11 +120,11 @@ def k8up_restore_pvc(k8s_obj: K8s,
                                 'bucket': s3_bucket,
                                 'accessKeyIDSecretRef': {
                                     'name': "s3-backups-credentials",
-                                    'key': 'ACCESS_KEY_ID'
+                                    'key': 'accessKeyId'
                                     },
                                 'secretAccessKeySecretRef': {
                                     'name': "s3-backups-credentials",
-                                    'key': 'ACCESS_SECRET_KEY'
+                                    'key': 'secretAccessKey'
                                     }
                                 }
                             }
@@ -267,11 +267,11 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                     "s3Credentials": {
                       "accessKeyId": {
                         "name": "s3-postgres-credentials",
-                        "key": "accessKeyId"
+                        "key": "ACCESS_KEY_ID"
                         },
                       "secretAccessKey": {
                         "name": "s3-postgres-credentials",
-                        "key": "secretAccessKey"
+                        "key": "SECRET_ACCESS_KEY"
                         }
                       },
                     "wal": {"maxParallel": 8}
@@ -330,11 +330,11 @@ def restore_cnpg_cluster(k8s_obj: K8s,
                 "s3Credentials": {
                   "accessKeyId": {
                     "name": "s3-postgres-credentials",
-                    "key": "accessKeyId"
+                    "key": "ACCESS_KEY_ID"
                     },
                   "secretAccessKey": {
                     "name": "s3-postgres-credentials",
-                    "key": "secretAccessKey"
+                    "key": "SECRET_ACCESS_KEY"
                     }
                   },
                 "wal": {"maxParallel": 8}
