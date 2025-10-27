@@ -46,7 +46,7 @@ def restore_seaweedfs(argocd: ArgoCD,
 
     # recreate the seaweedfs PVCs appset
     pvc_appset = (
-            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"https://codeberg.org/small-hack/argocd-apps/raw/branch/{revision}/"
             f"{argocd_path}s3_pvc_appset.yaml")
     argocd.k8s.apply_manifests(pvc_appset, argocd.namespace)
 
@@ -66,7 +66,7 @@ def restore_seaweedfs(argocd: ArgoCD,
 
     # deploy the seaweedfs appset, which will use the restored PVCs above
     seaweedfs_appset = (
-            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"https://codeberg.org/small-hack/argocd-apps/raw/branch/{revision}/"
             f"{argocd_path}s3_provider_argocd_appset.yaml")
     argocd.k8s.apply_manifests(seaweedfs_appset, argocd.namespace)
 

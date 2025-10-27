@@ -427,9 +427,8 @@ def restore_forgejo(argocd: ArgoCD,
 
         # apply the external secrets so we can immediately use them for restores
         external_secrets_yaml = (
-                f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
-                f"{argo_path}external_secrets_argocd_appset.yaml"
-                )
+            f"https://codeberg.org/small-hack/argocd-apps/raw/branch/{revision}/"
+            f"{argo_path}external_secrets_argocd_appset.yaml")
         argocd.k8s.apply_manifests(external_secrets_yaml, argocd.namespace)
 
         # postgresql s3 ID
@@ -481,7 +480,7 @@ def restore_forgejo(argocd: ArgoCD,
                              cnpg_backup_schedule)
 
     podconfig_yaml = (
-            f"https://raw.githubusercontent.com/small-hack/argocd-apps/{revision}/"
+            f"https://codeberg.org/small-hack/argocd-apps/raw/branch/{revision}/"
             f"{argo_path}pvc_argocd_appset.yaml"
             )
     argocd.k8s.apply_manifests(podconfig_yaml, argocd.namespace)
