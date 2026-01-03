@@ -1,3 +1,11 @@
+# Migration notice
+
+We are moving this repo to [git.smallhack.org/small-hack/smol-k8s-lab](https://git.smallhack.org/small-hack/smol-k8s-lab) which will also be mirrored to [codeberg.org/small-hack/smol-k8s-lab](https://codeberg.org/small-hack/smol-k8s-lab).
+
+Releases after `v6.4.8` happen at both git.smallhack.org AND codeberg.org, but *no future pushes or releases will happen at github*. We will keep a public archive of this repo.
+
+# original documentation from `v6.4.8`:
+
 <h2 align="center">
   <img
     src="https://raw.githubusercontent.com/catppuccin/catppuccin/main/assets/misc/transparent.png"
