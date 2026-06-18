@@ -50,7 +50,7 @@ def configure_libretranslate(argocd: ArgoCD,
            '📖')
 
     # we need namespace no matter the install type
-    libre_translate_namespace = cfg['argo']['namespace']
+    libretranslate_namespace = cfg['argo']['namespace']
 
     # api key for programatic access to libretranslate: set it to blank just in case
     api_key = ""
@@ -58,7 +58,7 @@ def configure_libretranslate(argocd: ArgoCD,
     # if the user has chosen to use smol-k8s-lab initialization
     if not app_installed and init_enabled:
         # immediately create namespace
-        argocd.k8s.create_namespace(libre_translate_namespace)
+        argocd.k8s.create_namespace(libretranslate_namespace)
 
         # if bitwarden is enabled, we create login items for each set of credentials
         if bitwarden and not restore_enabled:

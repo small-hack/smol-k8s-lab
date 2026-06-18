@@ -470,6 +470,8 @@ apps:
         # set the local s3 provider for forgejo's public data in one bucket
         # and private database backups in another. can be seaweedfs for now
         s3_provider: seaweedfs
+        # storage_class for S3 PVCs
+        # s3_pvc_storage_class: local-path
         # how large the backing pvc's capacity should be for minio or seaweedfs
         s3_pvc_capacity: 10Gi
         # local s3 endpoint for postgresql backups, backed up constantly
@@ -498,6 +500,7 @@ apps:
           - code.forgejo.org
           - https://seaweedfs.github.io/seaweedfs/helm
           - https://small-hack.github.io/cloudnative-pg-cluster-chart
+          - registry-1.docker.io
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
@@ -542,7 +545,10 @@ apps:
       project:
         name: external-secrets-operator
         source_repos:
+          # needed for the helm chart
           - https://charts.external-secrets.io
+          # needed for the CRDs
+          - https://github.com/external-secrets/external-secrets
           # you can remove this one if you're not using bitwarden to store your k8s secrets
           - https://small-hack.github.io/bitwarden-eso-provider
         destination:
@@ -619,17 +625,22 @@ apps:
     init:
       enabled: true
       values:
+        # admin info
+        admin_user: ""
+        admin_email: ""
+        # smtp info
+        smtp_host: ""
+        smtp_user: ""
+        smtp_port: ""
+        smtp_protocol: "SMTP"
+        # smtp from email (verified sender)
+        smtp_from_address: example.com
         smtp_password:
           value_from:
             env: GHOST_SMTP_PASSWORD
     backups:
       # cronjob syntax schedule to run ghost pvc backups
       pvc_schedule: 10 0 * * *
-      # cronjob syntax (with SECONDS field) for ghost postgres backups
-      # must happen at least 10 minutes before pvc backups, to avoid corruption
-      # due to missing files. This is because the backup shows as completed before
-      # it actually is
-      postgres_schedule: 0 0 0 * * *
       s3:
         # these are for pushing remote backups of your local s3 storage, for speed and cost optimization
         endpoint: ""
@@ -657,18 +668,10 @@ apps:
         # affinity_value: ""
         # hostname that users go to in the browser
         hostname: ""
-        # admin username
-        admin_user: "ghost"
-        # admin email
-        admin_email: ""
+        # admin hostname that users go to in the browser
+        admin_hostname: ""
         # title of your title
         blog_title: ""
-        # smtp server
-        smtp_host: ""
-        # smtp port
-        smtp_port: ""
-        # smtp username
-        smtp_user: ""
         # ghost mysql pvc capacity
         mysql_pvc_capacity: 5Gi
         # ghost pvc capacity
@@ -703,6 +706,7 @@ apps:
         source_repos:
           - registry-1.docker.io
           - seaweedfs.github.io/seaweedfs/helm
+          - https://small-hack.github.io/ghost-helm-chart
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
@@ -1415,7 +1419,7 @@ apps:
           # automatically includes the app's namespace and argocd's namespace
           namespaces: []
 
-  libre_translate:
+  libretranslate:
     description: |
       📖 [link=https://libretranslate.com/]libretranslate[/link] is a self-hosted language translation tool.
       This is useful as both a web interface like translate.google.com, but also as an API for use with other apps such as Mastodon
@@ -2469,6 +2473,8 @@ apps:
         s3_endpoint: ""
         # capacity for the PVC backing your local s3 instance
         s3_pvc_capacity: 100Gi
+        # StorageClass for the PVC backing your local s3 instance
+        s3_storage_class: local-path
 
       # git repo to install the Argo CD app from
       repo: https://github.com/small-hack/argocd-apps
@@ -2551,37 +2557,45 @@ apps:
 
   renovate:
     description: |
-      [magenta]DEMO - UNTESTED[/magenta]
-
       [link=https://docs.renovatebot.com/]Renovate[/link] is a tool for automated dependency updates. It's Multi-platform and multi-language. This is a simple helm chart for running a self-hosted RenovateBot.
 
-    enabled: false
+    enabled: true
+    init:
+      enabled: true
+      values:
+        renovate_pat:
+          value_from:
+            env: RENOVATE_PAT
+        renovate_github_pat:
+          value_from:
+            env: RENOVATE_GITHUB_PAT
     argo:
       # secrets keys to make available to Argo CD ApplicationSets
-      secret_keys: {}
+      secret_keys:
+        # At 01:00 every day
+        cronjob_schedule: 0 1 * * *
       # git repo to install the Argo CD app from
-      repo: https://github.com/small-hack/argocd-apps
-      # path in the argo repo to point to. Trailing slash very important! This
-      # is an app of apps. Change to "monitoring/kube-prometheus-stack/" to
-      # only install kube-prometheus-stack (foregoing loki and push gateway)
-      path: demo/renovate/
+      repo: https://git.smallhack.org/small-hack/argocd-apps
+      # path in the argo repo to point to. Trailing slash very important!
+      path: renovate/
       # either the branch or tag to point at in the argo repo above
       revision: main
       # kubernetes cluster to install the k8s app into, defaults to Argo CD default
       cluster: https://kubernetes.default.svc
       # namespace to install the k8s app in
-      namespace: "renovate"
+      namespace: renovate
       # recurse directories in the provided git repo
       directory_recursion: false
       # source repos for Argo CD App Project (in addition to argo.repo)
       project:
         name: renovate
         source_repos:
-          - "https://docs.renovatebot.com/helm-charts"
+        - https://docs.renovatebot.com/helm-charts
+        - ghcr.io/renovatebot/charts/renovate
         destination:
           # automatically includes the app's namespace and argocd's namespace
           namespaces:
-            - renovate
+          - renovate
 
   seaweedfs:
     enabled: false

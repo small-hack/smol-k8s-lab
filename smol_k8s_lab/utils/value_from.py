@@ -62,6 +62,8 @@ def process_backup_vals(backup_dict: dict,
             "postgres_schedule": backup_dict.get('postgres_schedule', "0 0 0 * * *")
             }
 
+    log.debug(f"Adding backup appset secret values for {app}")
+
     if app and argocd:
         argocd.update_appset_secret({
             f"{app}_s3_backup_endpoint": return_dict['endpoint'],

@@ -32,7 +32,7 @@ from .k8s_apps.monitoring.tempo import configure_tempo
 from .k8s_apps.networking.netmaker import configure_netmaker
 from .k8s_apps.operators import setup_operators
 from .k8s_apps.operators.minio import configure_minio_tenant
-from .k8s_apps.social.libre_translate import configure_libretranslate
+from .k8s_apps.social.libretranslate import configure_libretranslate
 from .k8s_apps.valkey import configure_valkey
 from .k8s_distros import create_k8s_distro, delete_cluster
 from .tui import launch_config_tui
@@ -239,6 +239,7 @@ def main(config: str = "",
                              apps.get('ingress_nginx', {}),
                              apps.get('cert_manager', {}),
                              apps.get('cnpg_operator', {}),
+                             apps.get('pxc_operator', {}),
                              apps['argo_cd'],
                              SECRETS,
                              bw)
@@ -270,6 +271,7 @@ def main(config: str = "",
                         apps.pop('minio_operator', {'enabled': False}),
                         apps.pop('seaweedfs', {'enabled': False}),
                         apps.pop('cnpg_operator', {'enabled': False}),
+                        apps.pop('pxc_operator', {'enabled': False}),
                         apps.pop('postgres_operator', {'enabled': False}),
                         apps.pop('openbao', {'enabled': False}),
                         bw)
@@ -317,10 +319,10 @@ def main(config: str = "",
             configure_tempo(argocd, tempo, bw)
 
         # set up self hosted translation
-        libre_translate_dict = apps.pop('libre_translate', {'enabled': False})
-        if libre_translate_dict['enabled']:
+        libretranslate_dict = apps.pop('libretranslate', {'enabled': False})
+        if libretranslate_dict['enabled']:
             libretranslate_api_key = configure_libretranslate(
-                    argocd, libre_translate_dict, bw
+                    argocd, libretranslate_dict, bw
                     )
         else:
             libretranslate_api_key = ""
@@ -341,6 +343,7 @@ def main(config: str = "",
                     apps.pop('matrix', {}),
                     apps.pop('peertube', {}),
                     apps.pop('writefreely', {}),
+                    apps.pop('renovate', {}),
                     pvc_storage_class,
                     zitadel_hostname,
                     oidc_obj,

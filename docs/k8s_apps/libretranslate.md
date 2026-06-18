@@ -4,7 +4,7 @@
 
 ```yaml
 apps:
-  libre_translate:
+  libretranslate:
     description: |
       📖 [link=https://libretranslate.com/]libretranslate[/link] is a self-hosted language translation tool.
       This is useful as both a web interface like translate.google.com, but also as an API for use with other apps such as Mastodon

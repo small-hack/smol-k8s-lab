@@ -222,6 +222,7 @@ def prepare_helm(k8s_distro: str,
                  metallb: bool = True,
                  cilium: bool = False,
                  cnpg_operator: bool = False,
+                 pxc_operator: bool = False,
                  argo: bool = False,
                  argo_app_set: bool = False) -> bool:
     """

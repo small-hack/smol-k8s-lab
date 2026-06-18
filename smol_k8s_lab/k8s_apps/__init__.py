@@ -28,6 +28,7 @@ from .secrets_management.external_secrets_operator import configure_external_sec
 from .secrets_management.infisical import configure_infisical
 from .secrets_management.vault import configure_vault
 from .social.forgejo import configure_forgejo
+from .renovate import configure_renovate
 from .social.ghost import configure_ghost
 from .social.gotosocial import configure_gotosocial
 from .social.harbor import configure_harbor
@@ -155,6 +156,7 @@ def setup_base_apps(k8s_obj: K8s,
                     ingress_dict: dict = {},
                     cert_manager_dict: dict = {},
                     cnpg_operator_dict: dict = {},
+                    pxc_operator_dict: dict = {},
                     argocd_dict: dict = {},
                     plugin_secrets: dict = {},
                     bw: BwCLI = None) -> ArgoCD:
@@ -169,6 +171,7 @@ def setup_base_apps(k8s_obj: K8s,
     cilium_enabled = cilium_dict.get('enabled', False)
     ingress_nginx_enabled = ingress_dict.get('enabled', False)
     cnpg_operator_enabled = cnpg_operator_dict.get('enabled', False)
+    pxc_operator_enabled = pxc_operator_dict.get('enabled', False)
     argocd_enabled = argocd_dict.get('enabled', False)
     cert_manager_enabled = cert_manager_dict.get('enabled', False)
     argo_secrets_plugin_enabled = argocd_dict['argo']['directory_recursion']
@@ -177,6 +180,7 @@ def setup_base_apps(k8s_obj: K8s,
                  metallb_enabled,
                  cilium_enabled,
                  cnpg_operator_enabled,
+                 pxc_operator_enabled,
                  argocd_enabled,
                  argo_secrets_plugin_enabled)
 
@@ -246,6 +250,7 @@ async def setup_federated_apps(
         matrix_dict: dict = {},
         peertube_dict: dict = {},
         writefreely_dict: dict = {},
+        renovate_dict: dict = {},
         pvc_storage_class: str = "local-path",
         zitadel_hostname: str = "",
         zitadel_obj: Zitadel = None,
@@ -262,6 +267,10 @@ async def setup_federated_apps(
                                 pvc_storage_class,
                                 zitadel_obj,
                                 bw)
+    if renovate_dict.get('enabled', False):
+        await configure_renovate(argocd,
+                                 renovate_dict,
+                                 bw)
 
     # blogging platforms
     if ghost_dict.get('enabled', False):
