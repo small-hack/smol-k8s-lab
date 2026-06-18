@@ -1387,6 +1387,7 @@ apps:
             - kubevirt-infrastructure-system
             - kubeadm-control-plane-system
             - capi-system
+            - helm-addon-system
 
   kyverno:
     description: |
